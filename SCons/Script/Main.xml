@@ -725,13 +725,12 @@ Progress(['-\r', '\\\r', '|\r', '/\r'], interval=5)
 </arguments>
 <summary>
 <para>
-Marks each given
-<varname>target</varname>
-as precious so it is not deleted before it is rebuilt. Normally
-&scons;
-deletes a target before building it.
-Multiple targets can be passed in to a single call to
-&f-Precious;.
+Marks <varname>target</varname> as precious so it is not
+deleted before it is rebuilt.
+Normally &SCons; deletes a target before building it.
+Multiple targets can be passed in a single call,
+and may be strings and/or nodes.
+Returns a list of the affected target nodes.
 </para>
 </summary>
 </scons_function>
@@ -742,16 +741,24 @@ Multiple targets can be passed in to a single call to
 </arguments>
 <summary>
 <para>
-This indicates that each given
-<varname>target</varname>
-should not be created by the build rule, and if the target is created,
-an error will be generated. This is similar to the gnu make .PHONY
-target. However, in the vast majority of cases, an
-&f-Alias;
-is more appropriate.
+Marks <parameter>target</parameter> as a pseudo target,
+not representing the production of any physical target file.
+If any pseudo <parameter>target</parameter> does exist,
+&SCons; will abort the build with an error.
+Multiple targets can be passed in a single call,
+and may be strings and/or Nodes.
+Returns a list of the affected target nodes.
+</para>
 
-Multiple targets can be passed in to a single call to
-&f-Pseudo;.
+<para>
+&f-Pseudo; may be useful in conjuction with a builder
+call (such as &f-link-Command;) which does not create a physical target,
+and the behavior if the target accidentally existed would be incorrect.
+This is similar in concept to the GNU <application>make</application>
+<literal>.PHONY</literal> target.
+&SCons; also provides a powerful target alias capability
+(see &f-link-Alias;) which may provide more flexibility
+in many situations when defining target names that are not directly built.
 </para>
 </summary>
 </scons_function>

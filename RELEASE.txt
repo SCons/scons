@@ -56,6 +56,9 @@ FIXES
   but Pseudo() did not work; is now enabled.
 - Improve handling of file data that SCons itself processes - as in
   scanners - try harder to decode non-UTF-8 text.
+- PyPackageDir no longer fails if passed a module name which cannot be found,
+  now returns None.
+
 
 IMPROVEMENTS
 ------------
@@ -69,6 +72,9 @@ IMPROVEMENTS
         (Larger -j values)
 - CacheDir writes no longer happen within the taskmaster critical section, and therefore
   can run in parallel with both other CacheDir writes and the taskmaster DAG walk.
+- The NewParallel scheduler now only adds threads as new work requiring execution
+  is discovered, up to the limit set by -j. This should reduce resource utilization
+  when the achievable parallelism in the DAG is less than the -j limit.
 
 
 PACKAGING
@@ -82,6 +88,7 @@ DOCUMENTATION
 - Fixed the Scanner examples in the User Guide to be runnable and added
   some more explantion. Clarified discussion of the scanner function in
   the Scanner Objects section of the manpage.
+- The manpage entry for Pseudo was clarified.
 
 DEVELOPMENT
 -----------

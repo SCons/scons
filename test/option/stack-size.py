@@ -89,14 +89,14 @@ File .*
 #
 # Test without any options
 #
-test.run(chdir='work1', 
+test.run(chdir='work1',
          arguments = '.',
          stdout=expected_stdout,
          stderr='')
 test.must_exist(['work1', 'f1.out'])
 test.must_exist(['work1', 'f2.out'])
 
-test.run(chdir='work1', 
+test.run(chdir='work1',
          arguments = '-c .')
 test.must_not_exist(['work1', 'f1.out'])
 test.must_not_exist(['work1', 'f2.out'])
@@ -104,14 +104,14 @@ test.must_not_exist(['work1', 'f2.out'])
 #
 # Test with -j2
 #
-test.run(chdir='work1', 
+test.run(chdir='work1',
          arguments = '-j2 .',
          stdout=expected_stdout,
          stderr='')
 test.must_exist(['work1', 'f1.out'])
 test.must_exist(['work1', 'f2.out'])
 
-test.run(chdir='work1', 
+test.run(chdir='work1',
          arguments = '-j2 -c .')
 test.must_not_exist(['work1', 'f1.out'])
 test.must_not_exist(['work1', 'f2.out'])
@@ -120,14 +120,14 @@ test.must_not_exist(['work1', 'f2.out'])
 #
 # Test with --stack-size
 #
-test.run(chdir='work1', 
+test.run(chdir='work1',
          arguments = '--stack-size=128 .',
          stdout=expected_stdout,
          stderr='')
 test.must_exist(['work1', 'f1.out'])
 test.must_exist(['work1', 'f2.out'])
 
-test.run(chdir='work1', 
+test.run(chdir='work1',
          arguments = '--stack-size=128 -c .')
 test.must_not_exist(['work1', 'f1.out'])
 test.must_not_exist(['work1', 'f2.out'])
@@ -135,14 +135,14 @@ test.must_not_exist(['work1', 'f2.out'])
 #
 # Test with SetOption('stack_size', 128)
 #
-test.run(chdir='work2', 
+test.run(chdir='work2',
          arguments = '.',
          stdout=expected_stdout,
          stderr='')
 test.must_exist(['work2', 'f1.out'])
 test.must_exist(['work2', 'f2.out'])
 
-test.run(chdir='work2', 
+test.run(chdir='work2',
          arguments = '--stack-size=128 -c .')
 test.must_not_exist(['work2', 'f1.out'])
 test.must_not_exist(['work2', 'f2.out'])
@@ -151,14 +151,14 @@ if isStackSizeAvailable:
     #
     # Test with -j2 --stack-size=128
     #
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=128 .',
              stdout=expected_stdout,
              stderr='')
     test.must_exist(['work1', 'f1.out'])
     test.must_exist(['work1', 'f2.out'])
 
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=128 -c .')
     test.must_not_exist(['work1', 'f1.out'])
     test.must_not_exist(['work1', 'f2.out'])
@@ -166,7 +166,7 @@ if isStackSizeAvailable:
     #
     # Test with -j2 --stack-size=16
     #
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=16 .',
              match=TestSCons.match_re,
              stdout=re_expected_stdout,
@@ -174,14 +174,22 @@ if isStackSizeAvailable:
 scons: warning: Setting stack size failed:
     size not valid: 16384 bytes
 File .*
+
+scons: warning: Setting stack size failed:
+    size not valid: 16384 bytes
+File .*
 """)
     test.must_exist(['work1', 'f1.out'])
     test.must_exist(['work1', 'f2.out'])
 
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=16 -c .',
              match=TestSCons.match_re,
              stderr="""
+scons: warning: Setting stack size failed:
+    size not valid: 16384 bytes
+File .*
+
 scons: warning: Setting stack size failed:
     size not valid: 16384 bytes
 File .*
@@ -192,14 +200,14 @@ File .*
     #
     # Test with -j2 SetOption('stack_size', 128)
     #
-    test.run(chdir='work2', 
+    test.run(chdir='work2',
              arguments = '-j2 .',
              stdout=expected_stdout,
              stderr='')
     test.must_exist(['work2', 'f1.out'])
     test.must_exist(['work2', 'f2.out'])
 
-    test.run(chdir='work2', 
+    test.run(chdir='work2',
              arguments = '-j2  -c .')
     test.must_not_exist(['work2', 'f1.out'])
     test.must_not_exist(['work2', 'f2.out'])
@@ -207,14 +215,14 @@ File .*
     #
     # Test with -j2 --stack-size=128 --warn=no-stack-size
     #
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=128 --warn=no-stack-size .',
              stdout=expected_stdout,
              stderr='')
     test.must_exist(['work1', 'f1.out'])
     test.must_exist(['work1', 'f2.out'])
 
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=128  --warn=no-stack-size -c .')
     test.must_not_exist(['work1', 'f1.out'])
     test.must_not_exist(['work1', 'f2.out'])
@@ -222,29 +230,29 @@ File .*
     #
     # Test with -j2 --stack-size=16 --warn=no-stack-size
     #
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=16 --warn=no-stack-size .',
              stdout=expected_stdout,
              stderr='')
     test.must_exist(['work1', 'f1.out'])
     test.must_exist(['work1', 'f2.out'])
 
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=16 --warn=no-stack-size -c .')
     test.must_not_exist(['work1', 'f1.out'])
     test.must_not_exist(['work1', 'f2.out'])
 
     #
-    # Test with -j2  --warn=no-stack-size SetOption('stack_size', 128) 
+    # Test with -j2  --warn=no-stack-size SetOption('stack_size', 128)
     #
-    test.run(chdir='work2', 
+    test.run(chdir='work2',
              arguments = '-j2  --warn=no-stack-size .',
              stdout=expected_stdout,
              stderr='')
     test.must_exist(['work2', 'f1.out'])
     test.must_exist(['work2', 'f2.out'])
 
-    test.run(chdir='work2', 
+    test.run(chdir='work2',
              arguments = '-j2   --warn=no-stack-size -c .')
     test.must_not_exist(['work2', 'f1.out'])
     test.must_not_exist(['work2', 'f2.out'])
@@ -254,7 +262,7 @@ else:
     #
     # Test with -j2 --stack-size=128
     #
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=128 .',
              match=TestSCons.match_re,
              stdout=re_expected_stdout,
@@ -262,7 +270,7 @@ else:
     test.must_exist(['work1', 'f1.out'])
     test.must_exist(['work1', 'f2.out'])
 
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=128 -c .',
              match=TestSCons.match_re,
              stderr=expect_unsupported)
@@ -272,7 +280,7 @@ else:
     #
     # Test with -j2 --stack-size=16
     #
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=16 .',
              match=TestSCons.match_re,
              stdout=re_expected_stdout,
@@ -280,7 +288,7 @@ else:
     test.must_exist(['work1', 'f1.out'])
     test.must_exist(['work1', 'f2.out'])
 
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=16 -c .',
              match=TestSCons.match_re,
              stderr=expect_unsupported)
@@ -290,7 +298,7 @@ else:
     #
     # Test with -j2 SetOption('stack_size', 128)
     #
-    test.run(chdir='work2', 
+    test.run(chdir='work2',
              arguments = '-j2 .',
              match=TestSCons.match_re,
              stdout=re_expected_stdout,
@@ -298,7 +306,7 @@ else:
     test.must_exist(['work2', 'f1.out'])
     test.must_exist(['work2', 'f2.out'])
 
-    test.run(chdir='work2', 
+    test.run(chdir='work2',
              arguments = '-j2  -c .',
              match=TestSCons.match_re,
              stderr=expect_unsupported)
@@ -308,14 +316,14 @@ else:
     #
     # Test with -j2 --stack-size=128 --warn=no-stack-size
     #
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=128 --warn=no-stack-size .',
              stdout=expected_stdout,
              stderr='')
     test.must_exist(['work1', 'f1.out'])
     test.must_exist(['work1', 'f2.out'])
 
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=128  --warn=no-stack-size -c .')
     test.must_not_exist(['work1', 'f1.out'])
     test.must_not_exist(['work1', 'f2.out'])
@@ -323,29 +331,29 @@ else:
     #
     # Test with -j2 --stack-size=16 --warn=no-stack-size
     #
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=16 --warn=no-stack-size .',
              stdout=expected_stdout,
              stderr='')
     test.must_exist(['work1', 'f1.out'])
     test.must_exist(['work1', 'f2.out'])
 
-    test.run(chdir='work1', 
+    test.run(chdir='work1',
              arguments = '-j2 --stack-size=16 --warn=no-stack-size -c .')
     test.must_not_exist(['work1', 'f1.out'])
     test.must_not_exist(['work1', 'f2.out'])
 
     #
-    # Test with -j2  --warn=no-stack-size SetOption('stack_size', 128) 
+    # Test with -j2  --warn=no-stack-size SetOption('stack_size', 128)
     #
-    test.run(chdir='work2', 
+    test.run(chdir='work2',
              arguments = '-j2  --warn=no-stack-size .',
              stdout=expected_stdout,
              stderr='')
     test.must_exist(['work2', 'f1.out'])
     test.must_exist(['work2', 'f2.out'])
 
-    test.run(chdir='work2', 
+    test.run(chdir='work2',
              arguments = '-j2   --warn=no-stack-size -c .')
     test.must_not_exist(['work2', 'f1.out'])
     test.must_not_exist(['work2', 'f2.out'])

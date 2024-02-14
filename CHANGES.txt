@@ -68,6 +68,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - CacheDir writes no longer happen within the taskmaster critical section,
       and therefore can run in parallel with both other CacheDir writes and the
       taskmaster DAG walk.
+    - The NewParallel scheduler now only adds threads as new work requiring execution
+      is discovered, up to the limit set by -j. This should reduce resource utilization
+      when the achievable parallelism in the DAG is less than the -j limit.
 
   From Mats Wichmann:
     - Add support for Python 3.13 (as of alpha 2). So far only affects
@@ -83,6 +86,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Improve handling of file data that SCons itself processes - try
       harder to decode non-UTF-8 text. SCons.Util.to_Text now exists
       to convert a byte stream, such as "raw" file data.  Fixes #3569, #4462.
+      The Pseudo manpage entry was updated to provide more clarity.
+    - The internal routine which implements the PyPackageDir function
+      would fail with an exception if called with a module which is
+      not found.  It will now return None.  Updated manpage entry and
+      docstring..
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
