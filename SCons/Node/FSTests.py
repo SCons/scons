@@ -4046,6 +4046,23 @@ class AbsolutePathTestCase(unittest.TestCase):
             os.chdir(save_cwd)
 
 
+class PyPackageDir(unittest.TestCase):
+    def runTest(self) -> None:
+        """Test calling the PyPackageDir() method.
+
+        We don't want to mock the positive case here - there's
+        testing for that in E2E test test/Dir/PyPackageDir.
+        We're only making sure we don't die in the negative case
+        (module not found) and instead return None.
+        """
+        fs = SCons.Node.FS.FS('/')
+        try:
+            pkdir = fs.PyPackageDir("garglemod")
+        except AttributeError:
+            self.fail("non-existent module raised AttributeError")
+        self.assertIsNone(pkdir)
+
+
 if __name__ == "__main__":
     unittest.main()
 
