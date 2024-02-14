@@ -58,10 +58,9 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
             self.missing.append((fname, self.current_file))
         return result
 
-    def read_file(self, file):
+    def read_file(self, file) -> str:
         try:
-            with open(str(file.rfile())) as fp:
-                return fp.read()
+            return file.rfile().get_text_contents()
         except OSError as e:
             self.missing.append((file, self.current_file))
             return ''
@@ -209,10 +208,9 @@ class SConsCPPConditionalScanner(SCons.cpp.PreProcessor):
             self.missing.append((fname, self.current_file))
         return result
 
-    def read_file(self, file):
+    def read_file(self, file) -> str:
         try:
-            with open(str(file.rfile())) as fp:
-                return fp.read()
+            return file.rfile().get_text_contents()
         except OSError:
             self.missing.append((file, self.current_file))
             return ""
