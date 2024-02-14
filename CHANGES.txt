@@ -43,6 +43,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       method so that the generated function argument list matches the function's
       prototype when including a header file.
 
+  From Thaddeus Crews:
+    - Explicitly wrap non-serializable values in json dump
+
   From William Deegan:
     - Fix sphinx config to handle SCons versions with post such as: 4.6.0.post1
 
@@ -1437,12 +1440,12 @@ RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
       scons: rebuilding `file3' because:
            the dependency order changed:
            ->Sources
-           Old:xxx	New:zzz
-           Old:yyy	New:yyy
-           Old:zzz	New:xxx
+           Old:xxx  New:zzz
+           Old:yyy  New:yyy
+           Old:zzz  New:xxx
            ->Depends
            ->Implicit
-           Old:/usr/bin/python	New:/usr/bin/python
+           Old:/usr/bin/python  New:/usr/bin/python
     - Fix Issue #3350 - SCons Exception EnvironmentError is conflicting with Python's EnvironmentError.
     - Fix spurious rebuilds on second build for cases where builder has > 1 target and the source file
       is generated. This was causing the > 1th target to not have it's implicit list cleared when the source

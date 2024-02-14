@@ -1708,7 +1708,7 @@ class Base(SubstitutionEnvironment):
         elif fmt == 'json':
             import json
             def non_serializable(obj):
-                return str(type(obj).__qualname__)
+                return '<<non-serializable: %s>>' % type(obj).__qualname__
             return json.dumps(cvars, indent=4, default=non_serializable)
         else:
             raise ValueError("Unsupported serialization format: %s." % fmt)
