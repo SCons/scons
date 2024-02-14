@@ -2880,20 +2880,41 @@ and &f-link-env-Prepend;.
 </arguments>
 <summary>
 <para>
-This returns a Directory Node similar to Dir.
-The python module / package is looked up and if located
-the directory is returned for the location.
-<parameter>modulename</parameter>
-Is a named python package / module to
-lookup the directory for it's location.
-</para>
-<para>
-If
-<parameter>modulename</parameter>
-is a list, SCons returns a list of Dir nodes.
+Finds the location of <parameter>modulename</parameter>,
+which can be a string or a sequence of strings,
+each representing the name of a &Python; module.
 Construction variables are expanded in
 <parameter>modulename</parameter>.
+Returns a Directory Node (see &f-link-Dir;),
+or a list of Directory Nodes if
+<parameter>modulename</parameter> is a sequence.
+<literal>None</literal> is returned for any module not found.
 </para>
+
+<para>
+When a Tool module which is installed as a
+&Python; module is used, you need
+to specify a <parameter>toolpath</parameter> argument to
+&f-link-Tool;,
+&f-link-Environment;
+or &f-link-Clone;,
+as tools outside the standard project locations
+(<filename>site_scons/site_tools</filename>)
+will not be found otherwise.
+Using &f-PyPackageDir; allows this path to be
+discovered at runtime instead of hardcoding the path.
+</para>
+
+<para>
+Example:
+</para>
+
+<example_commands>
+env = Environment(
+    tools=["default", "ExampleTool"],
+    toolpath=[PyPackageDir("example_tool")]
+)
+</example_commands>
 </summary>
 </scons_function>
 
@@ -2988,6 +3009,10 @@ but the target file(s) do not actually
 depend on the prerequisites
 and will not be rebuilt simply because
 the prerequisite file(s) change.
+<parameter>target</parameter> and
+<parameter>prerequisite</parameter> may each
+be a string or Node, or a list of strings or Nodes.
+Returns a list of the affected target nodes.
 </para>
 
 <para>

@@ -1057,7 +1057,7 @@ class Entry(Base):
         contents of the file."""
         return SCons.Node._get_contents_map[self._func_get_contents](self)
 
-    def get_text_contents(self):
+    def get_text_contents(self) -> str:
         """Fetch the decoded text contents of a Unicode encoded Entry.
 
         Since this should return the text contents from the file
@@ -1073,6 +1073,7 @@ class Entry(Base):
             # hand or catch the exception.
             return ''
         else:
+            # now we're a different node type, call its method to get the text.
             return self.get_text_contents()
 
     def must_be_same(self, klass) -> None:
@@ -1294,7 +1295,7 @@ class FS(LocalFS):
                 self.Root[''] = root
             return root
 
-    def _lookup(self, p, directory, fsclass, create: int=1):
+    def _lookup(self, p, directory, fsclass, create: bool = True):
         """
         The generic entry point for Node lookup with user-supplied data.
 
@@ -1430,7 +1431,7 @@ class FS(LocalFS):
 
         return root._lookup_abs(p, fsclass, create)
 
-    def Entry(self, name, directory = None, create: int = 1):
+    def Entry(self, name, directory = None, create: bool = True):
         """Look up or create a generic Entry node with the specified name.
         If the name is a relative path (begins with ./, ../, or a file
         name), then it is looked up relative to the supplied directory
@@ -1439,7 +1440,7 @@ class FS(LocalFS):
         """
         return self._lookup(name, directory, Entry, create)
 
-    def File(self, name, directory = None, create: int = 1):
+    def File(self, name, directory = None, create: bool = True):
         """Look up or create a File node with the specified name.  If
         the name is a relative path (begins with ./, ../, or a file name),
         then it is looked up relative to the supplied directory node,
@@ -1486,21 +1487,24 @@ class FS(LocalFS):
                 d = self.Dir(d)
             self.Top.addRepository(d)
 
-    def PyPackageDir(self, modulename):
-        r"""Locate the directory of a given python module name
+    def PyPackageDir(self, modulename) -> Optional[Dir]:
+        r"""Locate the directory of Python module *modulename*.
 
-        For example scons might resolve to
-        Windows: C:\Python27\Lib\site-packages\scons-2.5.1
-        Linux: /usr/lib/scons
+        For example 'SCons' might resolve to
+        Windows: C:\Python311\Lib\site-packages\SCons
+        Linux: /usr/lib64/python3.11/site-packages/SCons
 
-        This can be useful when we want to determine a toolpath based on a python module name"""
+        Can be used to determine a toolpath based on a Python module name.
 
-        dirpath = ''
-
-        # Python3 Code
+        This is the backend called by the public API function
+        :meth:`~Environment.Base.PyPackageDir`.
+        """
         modspec = importlib.util.find_spec(modulename)
-        dirpath = os.path.dirname(modspec.origin)
-        return self._lookup(dirpath, None, Dir, True)
+        if modspec:
+            origin = os.path.dirname(modspec.origin)
+            return self._lookup(origin, directory=None, fsclass=Dir, create=True)
+        else:
+            return None
 
 
     def variant_dir_target_climb(self, orig, dir, tail):
@@ -2751,38 +2755,13 @@ class File(Base):
         return SCons.Node._get_contents_map[self._func_get_contents](self)
 
     def get_text_contents(self) -> str:
-        """Return the contents of the file in text form.
-
-        This attempts to figure out what the encoding of the text is
-        based upon the BOM bytes, and then decodes the contents so that
-        it's a valid python string.
-        """
-        contents = self.get_contents()
-        # The behavior of various decode() methods and functions
-        # w.r.t. the initial BOM bytes is different for different
-        # encodings and/or Python versions.  ('utf-8' does not strip
-        # them, but has a 'utf-8-sig' which does; 'utf-16' seems to
-        # strip them; etc.)  Just sidestep all the complication by
-        # explicitly stripping the BOM before we decode().
-        if contents[:len(codecs.BOM_UTF8)] == codecs.BOM_UTF8:
-            return contents[len(codecs.BOM_UTF8):].decode('utf-8')
-        if contents[:len(codecs.BOM_UTF16_LE)] == codecs.BOM_UTF16_LE:
-            return contents[len(codecs.BOM_UTF16_LE):].decode('utf-16-le')
-        if contents[:len(codecs.BOM_UTF16_BE)] == codecs.BOM_UTF16_BE:
-            return contents[len(codecs.BOM_UTF16_BE):].decode('utf-16-be')
-        try:
-            return contents.decode('utf-8')
-        except UnicodeDecodeError as e:
-            try:
-                return contents.decode('latin-1')
-            except UnicodeDecodeError as e:
-                return contents.decode('utf-8', errors='backslashreplace')
+        """Return the contents of the file as text."""
+        return SCons.Util.to_Text(self.get_contents())
 
     def get_content_hash(self) -> str:
-        """
-        Compute and return the hash for this file.
-        """
+        """Compute and return the hash for this file."""
         if not self.rexists():
+            # special marker to help distinguish from empty file
             return hash_signature(SCons.Util.NOFILE)
         fname = self.rfile().get_abspath()
         try:

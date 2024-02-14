@@ -7,6 +7,7 @@
 Routines which check types and do type conversions.
 """
 
+import codecs
 import os
 import pprint
 import re
@@ -187,7 +188,11 @@ def to_String(  # pylint: disable=redefined-outer-name,redefined-builtin
     UserString=UserString,
     BaseStringTypes=BaseStringTypes,
 ) -> str:
-    """Return a string version of obj."""
+    """Return a string version of obj.
+
+    Use this for data likely to be well-behaved. Use
+    :func:`to_Text` for unknown file data that needs to be decoded.
+    """
     if isinstance(obj, BaseStringTypes):
         # Early out when already a string!
         return obj
@@ -242,6 +247,42 @@ def to_String_for_signature(  # pylint: disable=redefined-outer-name,redefined-b
             return pprint.pformat(obj, width=1000000)
         return to_String_for_subst(obj)
     return f()
+
+
+def to_Text(data: bytes) -> str:
+    """Return bytes data converted to text.
+
+    Useful for whole-file reads where the data needs some interpretation,
+    particularly for Scanners.  Attempts to figure out what the encoding of
+    the text is based upon the BOM bytes, and then decodes the contents so
+    that it's a valid python string.
+    """
+    _encoding_map = [
+        (codecs.BOM_UTF8, 'utf-8'),
+        (codecs.BOM_UTF16_LE, 'utf-16le'),
+        (codecs.BOM_UTF16_BE, 'utf-16be'),
+        (codecs.BOM_UTF32_LE, 'utf-32le'),
+        (codecs.BOM_UTF32_BE, 'utf-32be'),
+    ]
+
+    # First look for Byte-order-mark sequences to identify the encoding.
+    # Strip these since some codecs do, some don't.
+    for bom, encoding in _encoding_map:
+        if data.startswith(bom):
+            return data[len(bom):].decode(encoding, errors='backslashreplace')
+
+    # If we didn't see a BOM, try UTF-8, then the "preferred" encoding
+    # (the files might be written on this system), then finally latin-1.
+    # TODO: possibly should be a way for the build to set an encoding.
+    try:
+        return data.decode('utf-8')
+    except UnicodeDecodeError:
+            try:
+                import locale
+                prefencoding = locale.getpreferredencoding()
+                return data.decode(prefencoding)
+            except (UnicodeDecodeError, LookupError):
+                return data.decode('latin-1', errors='backslashreplace')
 
 
 def get_env_bool(env, name: str, default: bool=False) -> bool:

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,41 +22,66 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+Test the Pseudo method
+"""
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-# Firstly, build a pseudo target and make sure we get no warnings it
-# doesn't exist under any circumstances
-test.write('SConstruct', """
+test.write('SConstruct', """\
 env = Environment()
-env.Pseudo(env.Command('foo.out', [], '@echo boo'))
+foo = env.Command('foo.out', [], '@echo boo')
+bar = env.Command('bar.out', [], Touch('$TARGET'))
+env.Pseudo(foo, bar)
+
+gfoo = Command('foo.glb', [], '@echo boo')
+gbar = Command('bar.glb', [], Touch('$TARGET'))
+Pseudo(gfoo, gbar)
 """)
 
-test.run(arguments='-Q', stdout = 'boo\n')
+# foo.out build does not create file, should generate no errors
+test.run(arguments='-Q foo.out', stdout='boo\n')
+# missing target warning triggers if requested
+test.run(arguments='-Q foo.out --warning=target-not-built', stdout="boo\n")
+# bar.out build creates file, error if it exists after the build
+test.run(arguments='-Q bar.out', stdout='Touch("bar.out")\n', stderr=None, status=2)
+test.must_contain_all_lines(
+    test.stderr(),
+    'scons:  *** Pseudo target bar.out must not exist',
+)
+# warning must not appear since target created
+test.run(
+    arguments='-Q bar.out --warning=target-not-built',
+    stdout='Touch("bar.out")\n',
+    stderr=None,
+    status=2,
+)
+test.must_contain_all_lines(
+    test.stderr(),
+    'scons:  *** Pseudo target bar.out must not exist',
+)
 
-test.run(arguments='-Q --warning=target-not-built', stdout = "boo\n")
-
-# Now do the same thing again but create the target and check we get an
-# error if it exists after the build
-test.write('SConstruct', """
-env = Environment()
-env.Pseudo(env.Command('foo.out', [], Touch('$TARGET')))
-""")
-
-test.run(arguments='-Q', stdout = 'Touch("foo.out")\n', stderr = None,
-         status = 2)
-test.must_contain_all_lines(test.stderr(),
-                            'scons:  *** Pseudo target foo.out must not exist')
-test.run(arguments='-Q --warning=target-not-built',
-         stdout = 'Touch("foo.out")\n',
-         stderr = None, status = 2)
-test.must_contain_all_lines(test.stderr(),
-                            'scons:  *** Pseudo target foo.out must not exist')
+# repeat the process for the global function form (was missing initially)
+test.run(arguments='-Q foo.glb', stdout='boo\n')
+test.run(arguments='-Q foo.glb --warning=target-not-built', stdout="boo\n")
+test.run(arguments='-Q bar.glb', stdout='Touch("bar.glb")\n', stderr=None, status=2)
+test.must_contain_all_lines(
+    test.stderr(),
+    'scons:  *** Pseudo target bar.glb must not exist',
+)
+test.run(
+    arguments='-Q bar.glb --warning=target-not-built',
+    stdout='Touch("bar.glb")\n',
+    stderr=None,
+    status=2,
+)
+test.must_contain_all_lines(
+    test.stderr(),
+    'scons:  *** Pseudo target bar.glb must not exist',
+)
 
 test.pass_test()
 
