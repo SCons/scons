@@ -43,11 +43,13 @@ import types
 import unittest
 from unittest import mock
 from subprocess import PIPE
+from typing import Optional
 
 import SCons.Action
 import SCons.Environment
 import SCons.Errors
 from SCons.Action import scons_subproc_run
+from SCons.Util.sctyping import ExecutorType
 
 import TestCmd
 
@@ -1699,11 +1701,11 @@ class FunctionActionTestCase(unittest.TestCase):
         c = test.read(outfile, 'r')
         assert c == "class1b\n", c
 
-        def build_it(target, source, env, executor=None, self=self) -> int:
+        def build_it(target, source, env, executor: Optional[ExecutorType] = None, self=self) -> int:
             self.build_it = 1
             return 0
 
-        def string_it(target, source, env, executor=None, self=self):
+        def string_it(target, source, env, executor: Optional[ExecutorType] = None, self=self):
             self.string_it = 1
             return None
 

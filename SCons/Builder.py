@@ -102,6 +102,7 @@ There are the following methods for internal use within this module:
 import os
 from collections import UserDict, UserList
 from contextlib import suppress
+from typing import Optional
 
 import SCons.Action
 import SCons.Debug
@@ -111,6 +112,7 @@ import SCons.Util
 import SCons.Warnings
 from SCons.Debug import logInstanceCreation
 from SCons.Errors import InternalError, UserError
+from SCons.Util.sctyping import ExecutorType
 
 class _Null:
     pass
@@ -589,7 +591,7 @@ class BuilderBase:
         # build this particular list of targets from this particular list of
         # sources.
 
-        executor = None
+        executor: Optional[ExecutorType] = None
         key = None
 
         if self.multi:
