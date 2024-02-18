@@ -45,6 +45,7 @@ import SCons.Environment
 import SCons.Errors
 import SCons.Subst
 import SCons.Util
+from SCons.Util.sctyping import ExecutorType
 
 sys.stdout = io.StringIO()
 
@@ -184,9 +185,9 @@ class MyNode_without_target_from_source:
         return env
     def get_build_env(self):
         return self.executor.get_build_env()
-    def set_executor(self, executor) -> None:
+    def set_executor(self, executor: ExecutorType) -> None:
         self.executor = executor
-    def get_executor(self, create: int=1):
+    def get_executor(self, create: int=1) -> ExecutorType:
         return self.executor
 
 class MyNode(MyNode_without_target_from_source):

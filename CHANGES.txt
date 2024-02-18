@@ -45,6 +45,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Thaddeus Crews:
     - Explicitly wrap non-serializable values in json dump
+    - Implemented SCons.Util.sctyping as a safe means of hinting complex types. Currently
+      only implemented for `Executor` as a proof-of-concept.
 
   From William Deegan:
     - Fix sphinx config to handle SCons versions with post such as: 4.6.0.post1

@@ -24,11 +24,13 @@ import os
 import shutil
 from os.path import join as joinpath
 from collections import OrderedDict
+from typing import Optional
 
 import SCons
 from SCons.Action import get_default_ENV, _string_from_cmd_list
 from SCons.Script import AddOption
 from SCons.Util import is_List, flatten_sequence
+from SCons.Util.sctyping import ExecutorType
 
 class NinjaExperimentalWarning(SCons.Warnings.WarningOnByDefault):
     pass
@@ -344,7 +346,7 @@ def get_comstr(env, action, targets, sources):
     return action.genstring(targets, sources, env)
 
 
-def generate_command(env, node, action, targets, sources, executor=None):
+def generate_command(env, node, action, targets, sources, executor: Optional[ExecutorType] = None):
     # Actions like CommandAction have a method called process that is
     # used by SCons to generate the cmd_line they need to run. So
     # check if it's a thing like CommandAction and call it if we can.

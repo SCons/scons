@@ -96,6 +96,8 @@ DEVELOPMENT
 -----------
 
 - Fix sphinx config to handle SCons versions with post such as: 4.6.0.post1
+- Created SCons.Util.sctyping to contain complex type information, allowing
+  for repo-wide type hinting without causing cyclical dependencies.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
