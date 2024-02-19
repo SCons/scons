@@ -41,11 +41,12 @@ This file is processed by the bin/SConsDoc.py module
   <builder name="MSVSProject">
     <summary>
       <para>
-        Build a C++ project file and solution file.
+        Build a &MSVC; project file and solution file.
       </para>
       <para>
-        Builds a C++ project file based on the
-        version of Visual Studio (or to be more precise, of MSBuild)
+        Builds a &MSVC; project file based on the
+        version of Visual Studio (or to be more precise, of
+        <application>MSBuild</application>)
         that is configured: either the latest installed version,
         or the version specified by
         &cv-link-MSVC_VERSION; in the current &consenv;.
@@ -57,10 +58,10 @@ This file is processed by the bin/SConsDoc.py module
         Note there are multiple versioning schemes involved in
         the Microsoft compilation environment -
         see the description of &cv-link-MSVC_VERSION; for equivalences.
-        &SCons; does not know how to construct project files for
-        other languages (such as <filename>.csproj</filename> for C#,
+        Note &SCons; does not know how to construct project files for
+        other languages (e.g. <filename>.csproj</filename> for C#,
         <filename>.vbproj</filename> for Visual Basic or
-        <filename>.pyproject</filename> for Python)).
+        <filename>.pyproject</filename> for Python).
         </para>
       <para>
         For the <filename>.vcxproj</filename> file, the underlying
@@ -69,7 +70,7 @@ This file is processed by the bin/SConsDoc.py module
         https://learn.microsoft.com/en-us/cpp/build/reference/vcxproj-file-structure</ulink>.
         The generated solution file enables Visual Studio to
         understand the project structure, and allows building it
-        using MSBuild to call back to &SCons;.
+        using <application>MSBuild</application> to call back to &SCons;.
         The project file encodes a toolset version that has been
         selected by &SCons; as described above. Since recent Visual
         Studio versions support multiple concurrent toolsets,
@@ -77,7 +78,7 @@ This file is processed by the bin/SConsDoc.py module
         it does not match the &SCons; default.
         The project file also includes entries which describe
         how to call &SCons; to build the project from within Visual Studio
-        (or from an MSBuild command line).
+        (or from an <application>MSBuild</application> command line).
         In some situations &SCons; may generate this incorrectly -
         notably when using the <emphasis>scons-local</emphasis>
         distribution, which is not installed in a way that that
@@ -112,7 +113,8 @@ This file is processed by the bin/SConsDoc.py module
         (for example if you generate files for inclusion by using the
         &f-link-Glob; function, the results should be converted to
         a list of strings before passing them to &b-MSVSProject;).
-        This is because Visual Studio and MSBuild know nothing about &SCons;
+        This is because Visual Studio and
+        <application>MSBuild</application> know nothing about &SCons;
         Node types.
         Each of the filename lists are individually optional, but at
         least one list must be specified for the resulting project file to
@@ -272,7 +274,8 @@ This file is processed by the bin/SConsDoc.py module
         of the build.
       </para>
       <para>
-        If the project file is used to drive MSBuild (such as selecting
+        If the project file is used to drive
+        <application>MSBuild</application> (such as selecting
         "build" from the Visual Studio interface) you lose the direct
         control of target selection and command-line options you would
         have if launching the build directly from &SCons;,
@@ -283,7 +286,8 @@ This file is processed by the bin/SConsDoc.py module
         targets, arguments, defines, flags and paths for different variants.
       </para>
       <para>
-        If the build is divided into a solution with multiple MSBuild
+        If the build is divided into a solution with multiple
+        <application>MSBuild</application>
         projects the mapping is further strained.  In this case,
         it is important not to set Visual Studio to do parallel builds,
         as it will then launch the separate project builds in parallel,
@@ -529,7 +533,8 @@ env.MSVSProject(
               into the solution file.
               Note that these filenames need to be specified as strings,
               NOT as &SCons; File Nodes.
-              This is because the solution file will be interpreted by MSBuild
+              This is because the solution file will be interpreted by
+              <application>MSBuild</application>
               and by Visual Studio, which know nothing about &SCons; Node types.
             </para>
           </listitem>
@@ -649,7 +654,6 @@ env.MSVSSolution(
         C++ project file as the value of the
         <literal>ProjectGUID</literal> attribute. There is no default
         value. If not defined, a new GUID is generated.
-
       </para>
     </summary>
   </cvar> <cvar name="MSVS_SCC_AUX_PATH">
@@ -660,7 +664,6 @@ env.MSVSSolution(
         <literal>SccAuxPath</literal> attribute if the
         <envar>MSVS_SCC_PROVIDER</envar> &consvar; is
         also set. There is no default value.
-
       </para>
     </summary>
   </cvar> <cvar name="MSVS_SCC_CONNECTION_ROOT">

@@ -1126,7 +1126,7 @@ when setting the script error policy to raise an exception (e.g., <literal>'Erro
 <cvar name="MSVC_SCRIPT_ARGS">
 <summary>
 <para>
-Pass user-defined arguments to the &MSVC; file determined via autodetection.
+Pass user-defined arguments to the &MSVC; batch file determined via autodetection.
 </para>
 
 <para>
