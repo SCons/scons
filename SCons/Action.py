@@ -1461,7 +1461,7 @@ class FunctionAction(_ActionAction):
                 # some codes do not check the return value of Actions and I do
                 # not have the time to modify them at this point.
                 if (exc_info[1] and
-                    not isinstance(exc_info[1], EnvironmentError)):
+                    not isinstance(exc_info[1], SCons.Errors.SConsEnvironmentError)):
                     raise result
 
             return result
