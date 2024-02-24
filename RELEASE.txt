@@ -89,6 +89,7 @@ DOCUMENTATION
   some more explantion. Clarified discussion of the scanner function in
   the Scanner Objects section of the manpage.
 - The manpage entry for Pseudo was clarified.
+- The manpage entry for SharedLibrary was clarified.
 
 DEVELOPMENT
 -----------
