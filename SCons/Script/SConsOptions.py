@@ -40,7 +40,7 @@ SUPPRESS_HELP = optparse.SUPPRESS_HELP
 
 diskcheck_all = SCons.Node.FS.diskcheck_types()
 
-experimental_features = {'warp_speed', 'transporter', 'ninja', 'tm_v2'}
+experimental_features = {'warp_speed', 'transporter', 'ninja', 'legacy_sched'}
 
 
 def diskcheck_convert(value):

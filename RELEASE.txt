@@ -32,6 +32,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - Add an optional argument list string to configure's CheckFunc method so
   that the generated function argument list matches the function's
   prototype when including a header file. Fixes GH Issue #4320
+- Now supports pre-release Python 3.13
+- Support for Python versions without support for the `threading` package has been removed
 - MSVC: For msvc version specifications without an 'Exp' suffix, an express
   installation is used when no other edition is detected for the msvc version.
   This was the behavior for Visual Studio 2008 (9.0) through Visual Studio 2015
@@ -73,12 +75,30 @@ FIXES
   VSWHERE and found additional msvc installations, the new installations were not
   reflected in the installed vcs list. Now, when a user-specified vswhere
   executable finds new msvc installations, the installed vcs list is reconstructed.
+- On Windows platform, when collecting command output (Configure checks),
+  make sure decoding of bytes doesn't fail.
+- Documentation indicated that both Pseudo() and env.Pseudo() were usable,
+  but Pseudo() did not work; is now enabled.
+- Improve handling of file data that SCons itself processes - as in
+  scanners - try harder to decode non-UTF-8 text.
+- PyPackageDir no longer fails if passed a module name which cannot be found,
+  now returns None.
 
 IMPROVEMENTS
 ------------
 
 - Use of NotImplemented instead of NotImplementedError for special methods
   of _ListVariable class
+- The NewParallel scheduler is now the default, the `tm_v2` flag is removed,
+  and the old scheduler is opt-in under `--experimental=legacy_sched`. Additionally,
+  the new scheduler is now used for -j1 builds as well.
+  NOTE: This should significantly improve SCons performance for larger parallel builds
+        (Larger -j values)
+- CacheDir writes no longer happen within the taskmaster critical section, and therefore
+  can run in parallel with both other CacheDir writes and the taskmaster DAG walk.
+- The NewParallel scheduler now only adds threads as new work requiring execution
+  is discovered, up to the limit set by -j. This should reduce resource utilization
+  when the achievable parallelism in the DAG is less than the -j limit.
 - MSVC: Visual Studio 2015 Express (14.0Exp) does not support the sdk version
   argument. Visual Studio 2015 Express does not support the store argument for
   target architectures other than x86.  Script argument validation now takes into
@@ -95,14 +115,18 @@ PACKAGING
 DOCUMENTATION
 -------------
 
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
+- Fixed the Scanner examples in the User Guide to be runnable and added
+  some more explantion. Clarified discussion of the scanner function in
+  the Scanner Objects section of the manpage.
+- The manpage entry for Pseudo was clarified.
+- The manpage entry for SharedLibrary was clarified.
 
 DEVELOPMENT
 -----------
 
 - Fix sphinx config to handle SCons versions with post such as: 4.6.0.post1
+- Created SCons.Util.sctyping to contain complex type information, allowing
+  for repo-wide type hinting without causing cyclical dependencies.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

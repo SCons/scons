@@ -1447,6 +1447,13 @@ def main() -> None:
         sys.stderr.write("scons: *** Minimum Python version is %d.%d.%d\n" %minimum_python_version)
         sys.exit(1)
 
+    try:
+        import threading
+    except ImportError:
+        msg = "scons: *** SCons version %s requires a Python interpreter with support for the `threading` package"
+        sys.stderr.write(msg % SConsVersion)
+        sys.exit(1)
+
     parts = ["SCons by Steven Knight et al.:\n"]
     try:
         import SCons

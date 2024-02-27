@@ -81,6 +81,7 @@ from .sctypes import (
     to_String,
     to_String_for_subst,
     to_String_for_signature,
+    to_Text,
     to_bytes,
     to_str,
     get_env_bool,

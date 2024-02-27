@@ -43,6 +43,7 @@ be able to depend on any other type of "thing."
 import collections
 import copy
 from itertools import chain, zip_longest
+from typing import Optional
 
 import SCons.Debug
 import SCons.Executor
@@ -50,6 +51,7 @@ import SCons.Memoize
 from SCons.compat import NoSlotsPyPy
 from SCons.Debug import logInstanceCreation, Trace
 from SCons.Util import hash_signature, is_List, UniqueList, render_tree
+from SCons.Util.sctyping import ExecutorType
 
 print_duplicate = 0
 
@@ -634,11 +636,11 @@ class Node(metaclass=NoSlotsPyPy):
         """Fetch the appropriate scanner path for this node."""
         return self.get_executor().get_build_scanner_path(scanner)
 
-    def set_executor(self, executor) -> None:
+    def set_executor(self, executor: ExecutorType) -> None:
         """Set the action executor for this node."""
         self.executor = executor
 
-    def get_executor(self, create: int=1):
+    def get_executor(self, create: int=1) -> ExecutorType:
         """Fetch the action executor for this node.  Create one if
         there isn't already one, and requested to do so."""
         try:
@@ -649,7 +651,7 @@ class Node(metaclass=NoSlotsPyPy):
             try:
                 act = self.builder.action
             except AttributeError:
-                executor = SCons.Executor.Null(targets=[self])
+                executor = SCons.Executor.Null(targets=[self])  # type: ignore
             else:
                 executor = SCons.Executor.Executor(act,
                                                    self.env or self.builder.env,
@@ -1230,7 +1232,7 @@ class Node(metaclass=NoSlotsPyPy):
         self.precious = precious
 
     def set_pseudo(self, pseudo: bool = True) -> None:
-        """Set the Node's precious value."""
+        """Set the Node's pseudo value."""
         self.pseudo = pseudo
 
     def set_noclean(self, noclean: int = 1) -> None:
@@ -1250,7 +1252,7 @@ class Node(metaclass=NoSlotsPyPy):
         self.always_build = always_build
 
     def exists(self) -> bool:
-        """Does this node exists?"""
+        """Reports whether node exists."""
         return _exists_map[self._func_exists](self)
 
     def rexists(self):

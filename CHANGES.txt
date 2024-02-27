@@ -87,6 +87,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       new msvc installations, internal runtime caches are cleared and the installed vcs
       list is reconstructed.
   
+  From Thaddeus Crews:
+    - Implemented SCons.Util.sctyping as a safe means of hinting complex types. Currently
+      only implemented for `Executor` as a proof-of-concept.
+
   From William Deegan:
     - Fix sphinx config to handle SCons versions with post such as: 4.6.0.post1
 
@@ -96,6 +100,46 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Sten Grüner:
     - Fix of the --debug=sconscript option to return exist statements when using return
       statement with stop flag enabled
+
+  From Prabhu S. Khalsa:
+    - Fix typo in user documentation (issue #4458)
+
+  From Andrew Morrow:
+    - The NewParallel scheduler is now the default, the `tm_v2` flag is removed,
+      and the old scheduler is opt-in under `--experimental=legacy_sched`. Additionally,
+      the new scheduler is now used for -j1 builds as well.
+    - A python interpreter with support for the `threading` package is now required,
+      and this is enforced on startup. SCons currently sets its minimum supported
+      Python to 3.6, and it was not until Python 3.7 where `threading` became
+      default supported. In practice, we expect most real world Python 3.6 deployments
+      will have `threading` support enabled, so this will not be an issue.
+    - CacheDir writes no longer happen within the taskmaster critical section,
+      and therefore can run in parallel with both other CacheDir writes and the
+      taskmaster DAG walk.
+    - The NewParallel scheduler now only adds threads as new work requiring execution
+      is discovered, up to the limit set by -j. This should reduce resource utilization
+      when the achievable parallelism in the DAG is less than the -j limit.
+
+  From Mats Wichmann:
+    - Add support for Python 3.13 (as of alpha 2). So far only affects
+      expected bytecodes in ActionTests.py.
+    - sconsign cleanup - remove some dead code, minor manpage tweaks.
+    - Be more cautious about encodings fetching command output on Windows.
+      Problem occurs in piped-spawn scenario, used by Configure tests.
+      Fixes #3529.
+    - Clarify/fix documentation of Scanners in User Guide and Manpage.
+      Fixes #4468.
+    - Fix bad typing in Action.py: process() and strfunction().
+    - Add Pseudo() to global functions, had been omitted. Fixes #4474.
+    - Improve handling of file data that SCons itself processes - try
+      harder to decode non-UTF-8 text. SCons.Util.to_Text now exists
+      to convert a byte stream, such as "raw" file data.  Fixes #3569, #4462.
+      The Pseudo manpage entry was updated to provide more clarity.
+    - The internal routine which implements the PyPackageDir function
+      would fail with an exception if called with a module which is
+      not found.  It will now return None.  Updated manpage entry and
+      docstring..
+    - Improve SharedLibrary docs a bit.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
@@ -1442,12 +1486,12 @@ RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
       scons: rebuilding `file3' because:
            the dependency order changed:
            ->Sources
-           Old:xxx	New:zzz
-           Old:yyy	New:yyy
-           Old:zzz	New:xxx
+           Old:xxx  New:zzz
+           Old:yyy  New:yyy
+           Old:zzz  New:xxx
            ->Depends
            ->Implicit
-           Old:/usr/bin/python	New:/usr/bin/python
+           Old:/usr/bin/python  New:/usr/bin/python
     - Fix Issue #3350 - SCons Exception EnvironmentError is conflicting with Python's EnvironmentError.
     - Fix spurious rebuilds on second build for cases where builder has > 1 target and the source file
       is generated. This was causing the > 1th target to not have it's implicit list cleared when the source
@@ -7987,4 +8031,3 @@ A brief overview of important functionality available in release 0.01:
   - Linux packages available in RPM and Debian format.
 
   - Windows installer available.
-

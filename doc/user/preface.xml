@@ -29,7 +29,7 @@ SPDX-License-Identifier: MIT
 
   Thank you for taking the time to read about &SCons;.
   &SCons; is a modern
-  software construction too - a software utility
+  software construction tool - a software utility
   for building software (or other files)
   and keeping built software up-to-date
   whenever the underlying input files change.

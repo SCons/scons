@@ -43,7 +43,7 @@ Command('2', [], Touch('$TARGET'))
 test.write('foo.in', "foo.in 1\n")
 
 
-scons = test.start(arguments = '-Q --interactive')
+scons = test.start(arguments = '-Q --interactive --experimental=legacy_sched')
 
 scons.send("build foo.out 1\n")
 

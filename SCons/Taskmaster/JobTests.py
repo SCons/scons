@@ -202,6 +202,7 @@ class Taskmaster:
         self.parallel_list = [0] * (n+1)
         self.found_parallel = False
         self.Task = Task
+        self.trace = False
 
         # 'guard' guards 'task_begin_list' and 'task_end_list'
         try:
@@ -312,7 +313,9 @@ class ParallelTestCase(JobTestCase):
 
         try:
             taskmaster = Taskmaster(3, self, SleepTask)
+            OptionsParser.values.experimental.append('legacy_sched')
             jobs = SCons.Taskmaster.Job.Jobs(2, taskmaster)
+            OptionsParser.values.experimental.pop()
             jobs.run()
 
             # The key here is that we get(1) and get(2) from the
@@ -346,34 +349,6 @@ class SerialTestCase(unittest.TestCase):
                         "all the tests were not postprocessed")
         self.assertFalse(taskmaster.num_failed,
                     "some task(s) failed to execute")
-
-
-class NoParallelTestCase(JobTestCase):
-
-    def runTest(self) -> None:
-        """test handling lack of parallel support"""
-        def NoParallel(tm, num, stack_size):
-            raise NameError
-        save_Parallel = SCons.Taskmaster.Job.LegacyParallel
-        SCons.Taskmaster.Job.LegacyParallel = NoParallel
-        try:
-            taskmaster = Taskmaster(num_tasks, self, RandomTask)
-            jobs = SCons.Taskmaster.Job.Jobs(2, taskmaster)
-            self.assertTrue(jobs.num_jobs == 1,
-                            "unexpected number of jobs %d" % jobs.num_jobs)
-            jobs.run()
-            self.assertTrue(taskmaster.tasks_were_serial(),
-                            "the tasks were not executed in series")
-            self.assertTrue(taskmaster.all_tasks_are_executed(),
-                            "all the tests were not executed")
-            self.assertTrue(taskmaster.all_tasks_are_iterated(),
-                            "all the tests were not iterated over")
-            self.assertTrue(taskmaster.all_tasks_are_postprocessed(),
-                            "all the tests were not postprocessed")
-            self.assertFalse(taskmaster.num_failed,
-                        "some task(s) failed to execute")
-        finally:
-            SCons.Taskmaster.Job.LegacyParallel = save_Parallel
 
 
 class SerialExceptionTestCase(unittest.TestCase):
@@ -553,14 +528,17 @@ class SerialTaskTest(_SConsTaskTest):
         """test serial jobs with actual Taskmaster and Task"""
         self._test_seq(1)
 
+        # Now run test with LegacyParallel
+        OptionsParser.values.experimental=['legacy_sched']
+        self._test_seq(1)
 
 class ParallelTaskTest(_SConsTaskTest):
     def runTest(self) -> None:
         """test parallel jobs with actual Taskmaster and Task"""
         self._test_seq(num_jobs)
 
-        # Now run test with NewParallel() instead of LegacyParallel
-        OptionsParser.values.experimental=['tm_v2']
+        # Now run test with LegacyParallel
+        OptionsParser.values.experimental=['legacy_sched']
         self._test_seq(num_jobs)
 
 

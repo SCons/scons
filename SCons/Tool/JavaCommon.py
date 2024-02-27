@@ -29,6 +29,8 @@ import glob
 from pathlib import Path
 from typing import List
 
+import SCons.Util
+
 java_parsing = True
 
 default_java_version = '1.4'
@@ -451,8 +453,8 @@ if java_parsing:
 
 
     def parse_java_file(fn, version=default_java_version):
-        with open(fn, encoding='utf-8') as f:
-            data = f.read()
+        with open(fn, "rb") as f:
+            data = SCons.Util.to_Text(f.read())
         return parse_java(data, version)
 
 

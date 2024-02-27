@@ -1,6 +1,7 @@
+Job.NewParallel._start_worker(): [Thread:XXXXX] Starting new worker thread
 Job.NewParallel._work(): [Thread:XXXXX] Gained exclusive access
 Job.NewParallel._work(): [Thread:XXXXX] Starting search
-Job.NewParallel._work(): [Thread:XXXXX] Found {len(results_queue)} completed tasks to process
+Job.NewParallel._work(): [Thread:XXXXX] Found 0 completed tasks to process
 Job.NewParallel._work(): [Thread:XXXXX] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate
@@ -84,7 +85,5 @@ Job.NewParallel._work(): [Thread:XXXXX] Searching for new tasks
 Taskmaster: Looking for a node to evaluate
 Taskmaster: No candidate anymore.
 Job.NewParallel._work(): [Thread:XXXXX] Found no task requiring execution, and have no jobs: marking complete
-Job.NewParallel._work(): [Thread:XXXXX] Gained exclusive access
-Job.NewParallel._work(): [Thread:XXXXX] Completion detected, breaking from main loop
 Job.NewParallel._work(): [Thread:XXXXX] Gained exclusive access
 Job.NewParallel._work(): [Thread:XXXXX] Completion detected, breaking from main loop

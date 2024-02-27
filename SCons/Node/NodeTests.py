@@ -26,11 +26,12 @@ import SCons.compat
 import collections
 import re
 import unittest
+from typing import Optional
 
 import SCons.Errors
 import SCons.Node
 import SCons.Util
-
+from SCons.Util.sctyping import ExecutorType
 
 
 built_it = None
@@ -63,7 +64,7 @@ class MyAction(MyActionBase):
     def __init__(self) -> None:
         self.order = 0
 
-    def __call__(self, target, source, env, executor=None) -> int:
+    def __call__(self, target, source, env, executor: Optional[ExecutorType] = None) -> int:
         global built_it, built_target, built_source, built_args, built_order
         if executor:
             target = executor.get_all_targets()

@@ -76,6 +76,7 @@ from SCons.Util import (
     to_String_for_subst,
     uniquer_hashables,
 )
+from SCons.Util.sctyping import ExecutorType
 
 class _Null:
     pass
@@ -680,7 +681,7 @@ class SubstitutionEnvironment:
     def lvars(self):
         return {}
 
-    def subst(self, string, raw: int=0, target=None, source=None, conv=None, executor=None, overrides: Optional[dict] = None):
+    def subst(self, string, raw: int=0, target=None, source=None, conv=None, executor: Optional[ExecutorType] = None, overrides: Optional[dict] = None):
         """Recursively interpolates construction variables from the
         Environment into the specified string, returning the expanded
         result.  Construction variables are specified by a $ prefix
@@ -706,7 +707,7 @@ class SubstitutionEnvironment:
             nkw[k] = v
         return nkw
 
-    def subst_list(self, string, raw: int=0, target=None, source=None, conv=None, executor=None, overrides: Optional[dict] = None):
+    def subst_list(self, string, raw: int=0, target=None, source=None, conv=None, executor: Optional[ExecutorType] = None, overrides: Optional[dict] = None):
         """Calls through to SCons.Subst.scons_subst_list().
 
         See the documentation for that function.
@@ -2339,6 +2340,7 @@ class Base(SubstitutionEnvironment):
         return ret
 
     def Precious(self, *targets):
+        """Mark *targets* as precious: do not delete before building."""
         tlist = []
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))
@@ -2347,6 +2349,7 @@ class Base(SubstitutionEnvironment):
         return tlist
 
     def Pseudo(self, *targets):
+        """Mark *targets* as pseudo: must not exist."""
         tlist = []
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))
@@ -2355,13 +2358,17 @@ class Base(SubstitutionEnvironment):
         return tlist
 
     def Repository(self, *dirs, **kw) -> None:
+        """Specify Repository directories to search."""
         dirs = self.arg2nodes(list(dirs), self.fs.Dir)
         self.fs.Repository(*dirs, **kw)
 
     def Requires(self, target, prerequisite):
-        """Specify that 'prerequisite' must be built before 'target',
-        (but 'target' does not actually depend on 'prerequisite'
-        and need not be rebuilt if it changes)."""
+        """Specify that *prerequisite* must be built before *target*.
+
+        Creates an order-only relationship, not a full dependency.
+        *prerequisite* must exist before *target* can be built, but
+        a change to *prerequisite* does not trigger a rebuild of *target*.
+        """
         tlist = self.arg2nodes(target, self.fs.Entry)
         plist = self.arg2nodes(prerequisite, self.fs.Entry)
         for t in tlist:
