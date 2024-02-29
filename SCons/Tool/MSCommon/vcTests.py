@@ -215,7 +215,14 @@ class MSVcTestCase(unittest.TestCase):
 
 class Data:
 
-    HAVE_MSVC = True if MSCommon.vc.msvc_default_version() else False
+    DEFAULT_VERSION = MSCommon.vc.msvc_default_version()
+
+    if DEFAULT_VERSION:
+        HAVE_MSVC = True
+        DEFAULT_VERSION_DEF = MSCommon.msvc_version_components(DEFAULT_VERSION)
+    else:
+        HAVE_MSVC = False
+        DEFAULT_VERSION_DEF = None
 
     INSTALLED_VCS_COMPONENTS = MSCommon.vc.get_installed_vcs_components()
 
@@ -230,11 +237,11 @@ class Data:
             if len(comps) != 3:
                 continue
             # full versions only
+            ival = int(comps[-1])
             nloop = 0
             while nloop < 10:
-                ival = int(comps[-1])
                 if ival == 0:
-                    ival = 1000000
+                    ival = 100000
                 ival -= 1
                 version = '{}.{}.{:05d}'.format(comps[0], comps[1], ival)
                 if version not in toolset_seen:
@@ -310,10 +317,18 @@ class MsvcSdkVersionsTests(unittest.TestCase):
             version_def = MSCommon.msvc_version_components(symbol)
             for msvc_uwp_app in (True, False):
                 sdk_list = MSCommon.vc.msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
-                if Data.HAVE_MSVC and version_def.msvc_vernum >= 14.0:
+                if version_def.msvc_vernum < 14.0:
+                    # version < VS2015
+                    # does not accept sdk version argument
+                    self.assertFalse(sdk_list, "SDK list is not empty for msvc version {}".format(repr(symbol)))
+                elif Data.HAVE_MSVC and Data.DEFAULT_VERSION_DEF.msvc_vernum >= 14.0:
+                    # version >= VS2015 and default_version >= VS2015
+                    # no guarantee test is valid: compatible sdks may not be installed as version gap grows
                     self.assertTrue(sdk_list, "SDK list is empty for msvc version {}".format(repr(symbol)))
                 else:
-                    self.assertFalse(sdk_list, "SDK list is not empty for msvc version {}".format(repr(symbol)))
+                    # version >= VS2015 and default_version < VS2015
+                    # skip test: version is not installed; compatible windows sdks may not be installed
+                    pass
 
     def test_valid_vcver_toolsets(self) -> None:
         for symbol in MSCommon.vc._VCVER:

@@ -104,7 +104,7 @@ test.run(chdir='sub dir',
          program=[test.get_msvs_executable(msvs_version)],
          arguments=['foo.sln', '/build', 'Release'])
 
-test.run(program=test.workpath('sub dir', 'foo'), stdout="foo.c\n")
+test.run(program=test.workpath('sub dir', 'foo.exe'), stdout="foo.c\n")
 test.validate_msvs_file(test.workpath('sub dir', 'foo.vcxproj.user'))
 
 
