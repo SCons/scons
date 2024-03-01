@@ -409,7 +409,7 @@ Values that do not look like a valid compiler version
 To have the desired effect, &cv-MSVC_VERSION; must be set by the
 time compiler discovery takes place.
 If the default tools list
-or an excplicit tools list including &t-link-msvc; is used,
+or an explicit tools list including &t-link-msvc; is used,
 discovery takes place as the &consenv; is created,
 so passing it as an argument in the the &f-link-Environment; call
 is the effective solution.
@@ -427,7 +427,7 @@ Note that it is not necessary to install Visual Studio
 to build with &SCons; (for example, you can install only
 Build Tools), but if Visual Studio is installed,
 additional builders such as &b-link-MSVSSolution; and
-&b-link-MSVSProject; become avaialable and will
+&b-link-MSVSProject; become available and will
 correspond to the indicated versions.
 </para>
 

@@ -239,7 +239,7 @@ This file is processed by the bin/SConsDoc.py module
               The name of the file that Visual Studio 7 and
               later will run and debug. This appears as the
               value of the <parameter>Output</parameter> field in the
-              resulting C++ project file. If this is not
+              resulting &MSVC; project file. If this is not
               specified, the default is the same as the specified
               <parameter>buildtarget</parameter> value.
             </para>
@@ -651,7 +651,7 @@ env.MSVSSolution(
     <summary>
       <para>
         The string placed in a generated
-        C++ project file as the value of the
+        &MSVC; project file as the value of the
         <literal>ProjectGUID</literal> attribute. There is no default
         value. If not defined, a new GUID is generated.
       </para>
@@ -660,7 +660,7 @@ env.MSVSSolution(
     <summary>
       <para>
         The path name placed in a generated
-        C++ project file as the value of the
+        &MSVC; project file as the value of the
         <literal>SccAuxPath</literal> attribute if the
         <envar>MSVS_SCC_PROVIDER</envar> &consvar; is
         also set. There is no default value.
@@ -672,7 +672,7 @@ env.MSVSSolution(
         The root path of projects in your SCC workspace, i.e the
         path under which all project and solution files will be
         generated. It is used as a reference path from which the
-        relative paths of the generated C++ project
+        relative paths of the generated &MSVC; project
         and solution files are computed. The relative project file path
         is placed as the value of the <literal>SccLocalPath</literal>
         attribute of the project file and as the values of the
@@ -692,7 +692,7 @@ env.MSVSSolution(
   </cvar> <cvar name="MSVS_SCC_PROJECT_NAME">
     <summary>
       <para>
-        The project name placed in a generated C++
+        The project name placed in a generated &MSVC;
         project file as the value of the
         <literal>SccProjectName</literal> attribute if the
         <envar>MSVS_SCC_PROVIDER</envar> &consvar;
@@ -706,7 +706,7 @@ env.MSVSSolution(
   </cvar> <cvar name="MSVS_SCC_PROVIDER">
     <summary>
       <para>
-        The string placed in a generated C++
+        The string placed in a generated &MSVC;
         project file as the value of the
         <literal>SccProvider</literal> attribute. The string is
         also placed in the <literal>SccProvider0</literal> attribute
@@ -742,7 +742,7 @@ env.MSVSSolution(
   <cvar name="MSVSBUILDCOM">
     <summary>
       <para>
-        The build command line placed in a generated C++
+        The build command line placed in a generated &MSVC;
         project file. The default is to have Visual Studio
         invoke &SCons; with any specified build targets.
       </para>
@@ -751,7 +751,7 @@ env.MSVSSolution(
   <cvar name="MSVSCLEANCOM">
     <summary>
       <para>
-        The clean command line placed in a generated C++
+        The clean command line placed in a generated &MSVC;
         project file. The default is to have Visual Studio
         invoke &SCons; with the <option>-c</option> option to remove
         any specified targets.
@@ -760,7 +760,7 @@ env.MSVSSolution(
   </cvar> <cvar name="MSVSENCODING">
     <summary>
       <para>
-        The encoding string placed in a generated C++
+        The encoding string placed in a generated &MSVC;
         project file. The default is encoding
         <literal>Windows-1252</literal>.
       </para>
@@ -768,13 +768,13 @@ env.MSVSSolution(
   </cvar>
   <cvar name="MSVSPROJECTCOM">
     <summary>
-      <para>The action used to generate C++ project files.</para>
+      <para>The action used to generate &MSVC; project files.</para>
     </summary>
   </cvar>
   <cvar name="MSVSPROJECTSUFFIX">
     <summary>
       <para>
-        The suffix used for C++ project (DSP)
+        The suffix used for &MSVC; project (DSP)
         files. The default value is
         <filename>.vcxproj</filename> when using Visual Studio 2010
         and later, <filename>.vcproj</filename>
@@ -786,7 +786,7 @@ env.MSVSSolution(
   <cvar name="MSVSREBUILDCOM">
     <summary>
       <para>
-        The rebuild command line placed in a generated C++
+        The rebuild command line placed in a generated &MSVC;
         project file. The default is to have Visual
         Studio invoke &SCons; with any specified rebuild targets.
 
@@ -796,7 +796,7 @@ env.MSVSSolution(
   <cvar name="MSVSSCONS">
     <summary>
       <para>
-        The &SCons; used in generated C++ project
+        The &SCons; used in generated &MSVC; project
         files. The default is the version of &SCons; being used to
         generate the project file.
       </para>
@@ -805,14 +805,14 @@ env.MSVSSolution(
   <cvar name="MSVSSCONSFLAGS">
     <summary>
       <para>
-        The &SCons; flags used in generated C++ project files.
+        The &SCons; flags used in generated &MSVC; project files.
       </para>
     </summary>
   </cvar>
   <cvar name="MSVSSCONSCOM">
     <summary>
       <para>
-        The default &SCons; command used in generated C++ project files.
+        The default &SCons; command used in generated &MSVC; project files.
       </para>
     </summary>
   </cvar>
@@ -820,7 +820,7 @@ env.MSVSSolution(
     <summary>
       <para>
         The sconscript file (that is, &SConstruct; or &SConscript;
-        file) that will be invoked by C++ project files
+        file) that will be invoked by &MSVC; project files
         (through the &cv-link-MSVSSCONSCOM; variable). The default
         is the same sconscript file that contains the call to
         &b-link-MSVSProject; to build the project file.
