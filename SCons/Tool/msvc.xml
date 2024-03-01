@@ -27,7 +27,7 @@ This file is processed by the bin/SConsDoc.py module.
 <tool name="msvc">
 <summary>
 <para>
-Sets &consvars; for the Microsoft Visual C/C++ compiler.
+Sets &consvars; for the &MSVC; compiler.
 </para>
 </summary>
 <sets>
@@ -92,7 +92,7 @@ Sets &consvars; for the Microsoft Visual C/C++ compiler.
 <builder name="PCH">
 <summary>
 <para>
-Builds a Microsoft Visual C++ precompiled header.
+Builds a &MSVC; precompiled header.
 Calling this builder
 returns a list of two target nodes: the PCH as the first element,
 and the object file as the second element.
@@ -108,13 +108,12 @@ env['PCH'] = env.PCH('StdAfx.cpp')[0]
 
 <note>
 <para>
-This builder is specific to the PCH implementation
-in  Microsoft Visual C++.
+This builder is specific to the PCH implementation in  &MSVC;.
 Other compiler chains also implement precompiled header support,
 but &b-PCH; does not work with them at this time.
 As a result, the builder is only generated into the
 construction environment when
-Microsoft Visual C++ is being used as the compiler.
+&MSVC; is being used as the compiler.
 </para>
 <para>
 The builder only works correctly in a C++ project.
@@ -147,9 +146,9 @@ it may be necessary to remove that file from the list.
 <builder name="RES">
 <summary>
 <para>
-Builds a Microsoft Visual C++ resource file.
+Builds a &MSVC; resource file.
 This builder method is only provided
-when Microsoft Visual C++ or MinGW is being used as the compiler. The
+when &MSVC; or MinGW is being used as the compiler. The
 <filename>.res</filename>
 (or
 <filename>.o</filename>
@@ -171,7 +170,7 @@ env.RES('resource.rc')
 Options added to the compiler command line
 to support building with precompiled headers.
 The default value expands expands to the appropriate
-Microsoft Visual C++ command-line options
+&MSVC; command-line options
 when the &cv-link-PCH; &consvar; is set.
 </para>
 </summary>
@@ -182,14 +181,14 @@ when the &cv-link-PCH; &consvar; is set.
 <para>
 Options added to the compiler command line
 to support storing debugging information in a
-Microsoft Visual C++ PDB file.
+&MSVC; PDB file.
 The default value expands expands to appropriate
-Microsoft Visual C++ command-line options
+&MSVC; command-line options
 when the &cv-link-PDB; &consvar; is set.
 </para>
 
 <para>
-The Visual C++ compiler option that &SCons; uses by default
+The &MSVC; compiler option that &SCons; uses by default
 to generate PDB information is <option>/Z7</option>.
 This works correctly with parallel (<option>-j</option>) builds
 because it embeds the debug information in the intermediate object files,
@@ -229,7 +228,7 @@ env['CCPDBFLAGS'] = '/Zi /Fd${TARGET}.pdb'
 When set to any true value,
 specifies that &SCons; should batch
 compilation of object files
-when calling the Microsoft Visual C/C++ compiler.
+when calling the &MSVC; compiler.
 All compilations of source files from the same source directory
 that generate target files in a same output directory
 and were configured in &SCons; using the same &consenv;
@@ -248,9 +247,9 @@ will be compiled separately.
 <cvar name="PCH">
 <summary>
 <para>
-A node for the Microsoft Visual C++ precompiled header that will be
+A node for the &MSVC; precompiled header that will be
 used when compiling object files.
-This variable is ignored by tools other than Microsoft Visual C++.
+This variable is ignored by tools other than &MSVC;.
 When this variable is
 defined, &SCons; will add options to the compiler command line to
 cause it to use the precompiled header, and will also set up the
@@ -298,7 +297,7 @@ only if the &cv-link-PDB; &consvar; is set.
 <summary>
 <para>
 This variable specifies how much of a source file is precompiled. This
-variable is ignored by tools other than Microsoft Visual C++, or when
+variable is ignored by tools other than &MSVC;, or when
 the PCH variable is not being used. When this variable is define it
 must be a string that is the name of the header that
 is included at the end of the precompiled portion of the source files, or
@@ -315,7 +314,7 @@ env['PCHSTOP'] = 'StdAfx.h'
 <summary>
 <para>
 The resource compiler used to build
-a Microsoft Visual C++ resource file.
+a &MSVC; resource file.
 </para>
 </summary>
 </cvar>
@@ -324,7 +323,7 @@ a Microsoft Visual C++ resource file.
 <summary>
 <para>
 The command line used to build
-a Microsoft Visual C++ resource file.
+a &MSVC; resource file.
 </para>
 </summary>
 </cvar>
@@ -333,7 +332,7 @@ a Microsoft Visual C++ resource file.
 <summary>
 <para>
 The string displayed when invoking the resource compiler
-to build a Microsoft Visual C++ resource file.
+to build a &MSVC; resource file.
 If this is not set, then &cv-link-RCCOM; (the command line) is displayed.
 </para>
 </summary>
@@ -390,38 +389,45 @@ when the &cv-link-RCINCFLAGS; variable is expanded.
 <cvar name="MSVC_VERSION">
 <summary>
 <para>
-Sets the preferred  version of Microsoft Visual C/C++ to use.
-If the specified version is unavailable (not installed,
-or not discoverable), tool initialization will fail.
+A string to select the preferred  version of &MSVC;.
+If the specified version is unavailable and/or unknown to &SCons;,
+a warning is issued showing the versions actually discovered,
+and the build will eventually fail indicating a missing compiler binary.
 If &cv-MSVC_VERSION; is not set, &SCons; will (by default) select the
-latest version of Visual C/C++ installed on your system.
-</para>
-
-<para>
-&cv-MSVC_VERSION; must be passed as an argument to the &f-link-Environment;
-constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
-loaded via the default tools list or via a tools list passed to the
-&f-link-Environment; constructor.
-Otherwise, &cv-MSVC_VERSION; must be set before the first msvc tool is
-loaded into the environment.
-</para>
-
-<para>
+latest version of &MSVC; installed on your system.
 The valid values for &cv-MSVC_VERSION; represent major versions
 of the compiler, except that versions ending in <literal>Exp</literal>
 refer to "Express" or "Express for Desktop" Visual Studio editions,
-which require distict entries because they use a different
-filesystem layout and have some feature limitations compared to
+which require distinct entries because they use a different
+filesystem layout and have feature limitations compared to
 the full version.
-The following table shows correspondence
-of the selector string to various version indicators
+Values that do not look like a valid compiler version
+<emphasis>string</emphasis> are not supported.
+</para>
+
+<para>
+To have the desired effect, &cv-MSVC_VERSION; must be set by the
+time compiler discovery takes place.
+If the default tools list
+or an explicit tools list including &t-link-msvc; is used,
+discovery takes place as the &consenv; is created,
+so passing it as an argument in the the &f-link-Environment; call
+is the effective solution.
+Otherwise, &cv-MSVC_VERSION; must be set before the first msvc tool is
+loaded into the environment.
+See the manpage section "Construction Environments" for an example.
+</para>
+
+<para>
+The following table shows the correspondence
+of &cv-MSVC_VERSION; values to various version indicators
 ('x' is used as a placeholder for
 a single digit that can vary).
 Note that it is not necessary to install Visual Studio
 to build with &SCons; (for example, you can install only
 Build Tools), but if Visual Studio is installed,
 additional builders such as &b-link-MSVSSolution; and
-&b-link-MSVSProject; become avaialable and will
+&b-link-MSVSProject; become available and will
 correspond to the indicated versions.
 </para>
 
@@ -435,141 +441,148 @@ correspond to the indicated versions.
     <thead>
       <row>
         <entry> SCons Key </entry>
-        <entry> MSVC++ Version </entry>
+        <entry> <literallayout>
+Visual C++
+Version </literallayout></entry>
         <entry> <literal>_MSVC_VER</literal> </entry>
-        <entry> VS Product </entry>
-        <entry> MSBuild/VS Version </entry>
+        <entry> Visual Studio Product </entry>
+        <!--entry> <literallayout>
+Visual Studio
+Product </literallayout></entry-->
+        <entry> <literallayout>
+MSBuild /
+Visual Studio </literallayout></entry>
       </row>
     </thead>
     <tbody>
       <row>
-        <entry> <literal>14.3</literal> </entry>
+        <entry> <literal>"14.3"</literal> </entry>
         <entry> 14.3x </entry>
         <entry> 193x </entry>
         <entry> Visual Studio 2022 </entry>
-        <entry> 17.x </entry>
+        <entry> 17.x, 17.1x </entry>
       </row>
       <row>
-        <entry> <literal>14.2</literal> </entry>
+        <entry> <literal>"14.2"</literal> </entry>
         <entry> 14.2x </entry>
         <entry> 192x </entry>
         <entry> Visual Studio 2019 </entry>
         <entry> 16.x, 16.1x </entry>
       </row>
       <row>
-        <entry> <literal>14.1</literal> </entry>
+        <entry> <literal>"14.1"</literal> </entry>
         <entry> 14.1 or 14.1x </entry>
         <entry> 191x </entry>
         <entry> Visual Studio 2017 </entry>
         <entry> 15.x </entry>
       </row>
       <row>
-        <entry> <literal>14.1Exp</literal> </entry>
+        <entry> <literal>"14.1Exp"</literal> </entry>
         <entry> 14.1 </entry>
         <entry> 1910 </entry>
         <entry> Visual Studio 2017 Express </entry>
         <entry> 15.0 </entry>
       </row>
       <row>
-        <entry> <literal>14.0</literal> </entry>
+        <entry> <literal>"14.0"</literal> </entry>
         <entry> 14.0 </entry>
         <entry> 1900 </entry>
         <entry> Visual Studio 2015 </entry>
         <entry> 14.0 </entry>
       </row>
       <row>
-        <entry> <literal>14.0Exp</literal> </entry>
+        <entry> <literal>"14.0Exp"</literal> </entry>
         <entry> 14.0 </entry>
         <entry> 1900 </entry>
         <entry> Visual Studio 2015 Express </entry>
         <entry> 14.0 </entry>
       </row>
       <row>
-        <entry> <literal>12.0</literal> </entry>
+        <entry> <literal>"12.0"</literal> </entry>
         <entry> 12.0 </entry>
         <entry> 1800 </entry>
         <entry> Visual Studio 2013 </entry>
         <entry> 12.0 </entry>
       </row>
       <row>
-        <entry> <literal>12.0Exp</literal> </entry>
+        <entry> <literal>"12.0Exp"</literal> </entry>
         <entry> 12.0 </entry>
         <entry> 1800 </entry>
         <entry> Visual Studio 2013 Express </entry>
         <entry> 12.0 </entry>
       </row>
       <row>
-        <entry> <literal>11.0</literal> </entry>
+        <entry> <literal>"11.0"</literal> </entry>
         <entry> 11.0 </entry>
         <entry> 1700 </entry>
         <entry> Visual Studio 2012 </entry>
         <entry> 11.0 </entry>
       </row>
       <row>
-        <entry> <literal>11.0Exp</literal> </entry>
+        <entry> <literal>"11.0Exp"</literal> </entry>
         <entry> 11.0 </entry>
         <entry> 1700 </entry>
         <entry> Visual Studio 2012 Express </entry>
         <entry> 11.0 </entry>
       </row>
       <row>
-        <entry> <literal>10.0</literal> </entry>
+        <entry> <literal>"10.0"</literal> </entry>
         <entry> 10.0 </entry>
         <entry> 1600 </entry>
         <entry> Visual Studio 2010 </entry>
         <entry> 10.0 </entry>
       </row>
       <row>
-        <entry> <literal>10.0Exp</literal> </entry>
+        <entry> <literal>"10.0Exp"</literal> </entry>
         <entry> 10.0 </entry>
         <entry> 1600 </entry>
         <entry> Visual C++ Express 2010 </entry>
         <entry> 10.0 </entry>
       </row>
       <row>
-        <entry> <literal>9.0</literal> </entry>
+        <entry> <literal>"9.0"</literal> </entry>
         <entry> 9.0 </entry>
         <entry> 1500 </entry>
         <entry> Visual Studio 2008 </entry>
         <entry> 9.0 </entry>
       </row>
       <row>
-        <entry> <literal>9.0Exp</literal> </entry>
+        <entry> <literal>"9.0Exp"</literal> </entry>
         <entry> 9.0 </entry>
         <entry> 1500 </entry>
         <entry> Visual C++ Express 2008 </entry>
         <entry> 9.0 </entry>
       </row>
       <row>
-        <entry> <literal>8.0</literal> </entry>
+        <entry> <literal>"8.0"</literal> </entry>
         <entry> 8.0 </entry>
         <entry> 1400 </entry>
         <entry> Visual Studio 2005 </entry>
         <entry> 8.0 </entry>
       </row>
       <row>
-        <entry> <literal>8.0Exp</literal> </entry>
+        <entry> <literal>"8.0Exp"</literal> </entry>
         <entry> 8.0 </entry>
         <entry> 1400 </entry>
         <entry> Visual C++ Express 2005 </entry>
         <entry> 8.0 </entry>
       </row>
       <row>
-        <entry> <literal>7.1</literal> </entry>
+        <entry> <literal>"7.1"</literal> </entry>
         <entry> 7.1 </entry>
         <entry> 1300 </entry>
         <entry> Visual Studio .NET 2003 </entry>
         <entry> 7.1 </entry>
       </row>
       <row>
-        <entry> <literal>7.0</literal> </entry>
+        <entry> <literal>"7.0"</literal> </entry>
         <entry> 7.0 </entry>
         <entry> 1200 </entry>
         <entry> Visual Studio .NET 2002 </entry>
         <entry> 7.0 </entry>
       </row>
       <row>
-        <entry> <literal>6.0</literal> </entry>
+        <entry> <literal>"6.0"</literal> </entry>
         <entry> 6.0 </entry>
         <entry> 1100 </entry>
         <entry> Visual Studio 6.0 </entry>
@@ -595,7 +608,7 @@ and &cv-link-MSVC_USE_SETTINGS;.
 <cvar name="MSVC_USE_SCRIPT">
 <summary>
 <para>
-Use a batch script to set up the Microsoft Visual C++ compiler.
+Use a batch script to set up the &MSVC; compiler.
 </para>
 
 <para>
@@ -646,7 +659,7 @@ Provides arguments passed to the script &cv-link-MSVC_USE_SCRIPT;.
 <cvar name="MSVC_USE_SETTINGS">
 <summary>
 <para>
-Use a dictionary to set up the Microsoft Visual C++ compiler.
+Use a dictionary to set up the &MSVC; compiler.
 </para>
 
 <para>
@@ -664,7 +677,7 @@ the environment when bypassing Visual Studio autodetection entirely by setting
 </para>
 
 <para>
-Here is an example of configuring a build environment using the Microsoft Visual C/C++ compiler
+Here is an example of configuring a build environment using the &MSVC; compiler
 included in the Microsoft SDK on a 64-bit host and building for a 64-bit architecture:
 <programlisting>
 # Microsoft SDK 6.0 (MSVC 8.0): 64-bit host and 64-bit target
@@ -753,7 +766,7 @@ ensure successful builds.
 <cvar name="MSVC_UWP_APP">
 <summary>
 <para>
-Build with the Universal Windows Platform (UWP) application Visual C++ libraries.
+Build with the Universal Windows Platform (UWP) application &MSVC; libraries.
 </para>
 
 <para>
@@ -764,8 +777,8 @@ or <literal>None</literal>.
 
 <para>
 When &cv-MSVC_UWP_APP; is enabled (i.e., <literal>True</literal> or
-<literal>'1'</literal>), the Visual C++ environment will be set up to point
-to the Windows Store compatible libraries and Visual C++ runtimes. In doing so,
+<literal>'1'</literal>), the &MSVC; environment will be set up to point
+to the Windows Store compatible libraries and &MSVC; runtimes. In doing so,
 any libraries that are built will be able to be used in a UWP App and published
 to the Windows Store.
 <!-- This flag will only have an effect with Visual Studio 2015 or later. -->
@@ -873,7 +886,7 @@ and also before &f-link-env-Tool; is called to ininitialize any of those tools:
 <cvar name="MSVC_NOTFOUND_POLICY">
 <summary>
 <para>
-Specify the &scons; behavior when the Microsoft Visual C/C++ compiler is not detected.
+Specify the &scons; behavior when the &MSVC; compiler is not detected.
 </para>
 
 <para>
@@ -983,7 +996,7 @@ subject to the conditions listed above. The default &scons; behavior may change 
 <cvar name="MSVC_SCRIPTERROR_POLICY">
 <summary>
 <para>
-Specify the &scons; behavior when Microsoft Visual C/C++ batch file errors are detected.
+Specify the &scons; behavior when &MSVC; batch file errors are detected.
 </para>
 
 <para>
@@ -1113,7 +1126,7 @@ when setting the script error policy to raise an exception (e.g., <literal>'Erro
 <cvar name="MSVC_SCRIPT_ARGS">
 <summary>
 <para>
-Pass user-defined arguments to the Visual C++ batch file determined via autodetection.
+Pass user-defined arguments to the &MSVC; batch file determined via autodetection.
 </para>
 
 <para>
@@ -1371,7 +1384,7 @@ specify a Windows 10 SDK (e.g., <literal>'10.0.20348.0'</literal>) for the build
 <cvar name="MSVC_TOOLSET_VERSION">
 <summary>
 <para>
-Build with a specific Visual C++ toolset version.
+Build with a specific &MSVC; toolset version.
 </para>
 
 <para><emphasis>
@@ -1474,9 +1487,9 @@ prefix is selected.
 <listitem><para>
 When &cv-MSVC_TOOLSET_VERSION; is specified using the major msvc version prefix
 (i.e., <literal>'XX.Y'</literal>) and the major msvc version is that of the latest release of
-Visual Studio, the selected toolset version may not be the same as the default Visual C++ toolset version.
+Visual Studio, the selected toolset version may not be the same as the default &MSVC; toolset version.
 </para><para>
-In the latest release of Visual Studio, the default Visual C++ toolset version is not necessarily the
+In the latest release of Visual Studio, the default &MSVC; toolset version is not necessarily the
 toolset with the largest version number.
 </para></listitem>
 
@@ -1543,7 +1556,7 @@ The burden is on the user to ensure the requisite toolset target architecture bu
 <cvar name="MSVC_SPECTRE_LIBS">
 <summary>
 <para>
-Build with the spectre-mitigated Visual C++ libraries.
+Build with the spectre-mitigated &MSVC; libraries.
 </para>
 
 <para>
@@ -1553,8 +1566,8 @@ The valid values for &cv-MSVC_SPECTRE_LIBS; are: <literal>True</literal>,
 
 <para>
 When &cv-MSVC_SPECTRE_LIBS; is enabled (i.e., <literal>True</literal>),
-the Visual C++ environment will include the paths to the spectre-mitigated implementations
-of the Microsoft Visual C++ libraries.
+the &MSVC; environment will include the paths to the spectre-mitigated implementations
+of the &MSVC; libraries.
 </para>
 
 <para>
@@ -1581,7 +1594,7 @@ components.
 </para>
 
 <para>
-Example - A Visual Studio 2022 build with spectre mitigated Visual C++ libraries:
+Example - A Visual Studio 2022 build with spectre mitigated &MSVC; libraries:
 <example_commands>
 env = Environment(MSVC_VERSION='14.3', MSVC_SPECTRE_LIBS=True)
 </example_commands>

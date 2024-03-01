@@ -779,7 +779,7 @@ the Microsoft toolchain:
   <varlistentry id="t-msvc">
     <term>msvc</term>
     <listitem><para>
-Sets &consvars; for the Microsoft Visual C/C++ compiler.
+Sets &consvars; for the &MSVC; compiler.
 </para>
 <para>Sets: &cv-link-BUILDERS;, &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCDEPFLAGS;, &cv-link-CCFLAGS;, &cv-link-CCPCHFLAGS;, &cv-link-CCPDBFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-CXX;, &cv-link-CXXCOM;, &cv-link-CXXFILESUFFIX;, &cv-link-CXXFLAGS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-OBJPREFIX;, &cv-link-OBJSUFFIX;, &cv-link-PCHCOM;, &cv-link-PCHPDBFLAGS;, &cv-link-RC;, &cv-link-RCCOM;, &cv-link-RCFLAGS;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHCXX;, &cv-link-SHCXXCOM;, &cv-link-SHCXXFLAGS;, &cv-link-SHOBJPREFIX;, &cv-link-SHOBJSUFFIX;.</para><para>Uses: &cv-link-CCCOMSTR;, &cv-link-CXXCOMSTR;, &cv-link-MSVC_NOTFOUND_POLICY;, &cv-link-MSVC_SCRIPTERROR_POLICY;, &cv-link-MSVC_SCRIPT_ARGS;, &cv-link-MSVC_SDK_VERSION;, &cv-link-MSVC_SPECTRE_LIBS;, &cv-link-MSVC_TOOLSET_VERSION;, &cv-link-MSVC_USE_SCRIPT;, &cv-link-MSVC_USE_SCRIPT_ARGS;, &cv-link-MSVC_USE_SETTINGS;, &cv-link-MSVC_VERSION;, &cv-link-PCH;, &cv-link-PCHSTOP;, &cv-link-PDB;, &cv-link-SHCCCOMSTR;, &cv-link-SHCXXCOMSTR;.</para></listitem>
   </varlistentry>

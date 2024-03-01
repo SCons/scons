@@ -578,7 +578,7 @@ SharedLibrary(['file.c', 'another.c'])
   </section>
 
   <section>
-  <title>Microsoft Visual C++ Resource Files: the &RES; Builder</title>
+  <title>&MSVC; Resource Files: the &RES; Builder</title>
 
     <para>
 
