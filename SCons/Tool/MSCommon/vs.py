@@ -28,7 +28,6 @@ MS Compilers: detect Visual Studio and/or Visual C/C++
 import os
 
 import SCons.Errors
-import SCons.Tool.MSCommon.vc
 import SCons.Util
 
 from .common import (
@@ -40,6 +39,14 @@ from .common import (
     read_reg,
 )
 
+from .vc import (
+    find_vc_pdir,
+    get_msvc_version_numeric,
+    reset_installed_vcs,
+    vswhere_register_reset_func,
+    vswhere_update_msvc,
+)
+
 
 class VisualStudio:
     """
@@ -48,6 +55,7 @@ class VisualStudio:
     """
     def __init__(self, version, **kw) -> None:
         self.version = version
+        self.vernum = float(get_msvc_version_numeric(version))
         kw['vc_version']  = kw.get('vc_version', version)
         kw['sdk_version'] = kw.get('sdk_version', version)
         self.__dict__.update(kw)
@@ -66,7 +74,7 @@ class VisualStudio:
         return batch_file
 
     def find_vs_dir_by_vc(self, env):
-        dir = SCons.Tool.MSCommon.vc.find_vc_pdir(self.vc_version, env)
+        dir = find_vc_pdir(self.vc_version, env)
         if not dir:
             debug('no installed VC %s', self.vc_version)
             return None
@@ -411,8 +419,12 @@ SupportedVSList = [
     ),
 ]
 
+SupportedVSWhereList = []
 SupportedVSMap = {}
 for vs in SupportedVSList:
+    if vs.vernum >= 14.1:
+        # VS2017 and later detected via vswhere.exe
+        SupportedVSWhereList.append(vs)
     SupportedVSMap[vs.version] = vs
 
 
@@ -428,6 +440,12 @@ InstalledVSMap  = None
 def get_installed_visual_studios(env=None):
     global InstalledVSList
     global InstalledVSMap
+    debug('')
+    # Calling vswhere_update_msvc may cause installed caches to be cleared.
+    # The installed vcs and visual studios are cleared when new vc roots
+    # are discovered which causes the InstalledVSList and InstalledVSMap
+    # variables to be set to None.
+    vswhere_update_msvc(env)
     if InstalledVSList is None:
         InstalledVSList = []
         InstalledVSMap = {}
@@ -442,6 +460,7 @@ def get_installed_visual_studios(env=None):
 def reset_installed_visual_studios() -> None:
     global InstalledVSList
     global InstalledVSMap
+    debug('')
     InstalledVSList = None
     InstalledVSMap  = None
     for vs in SupportedVSList:
@@ -449,7 +468,20 @@ def reset_installed_visual_studios() -> None:
 
     # Need to clear installed VC's as well as they are used in finding
     # installed VS's
-    SCons.Tool.MSCommon.vc.reset_installed_vcs()
+    reset_installed_vcs()
+
+def _reset_installed_vswhere_visual_studios():
+    # vswhere found new roots: reset VS2017 and later
+    global InstalledVSList
+    global InstalledVSMap
+    debug('')
+    InstalledVSList = None
+    InstalledVSMap  = None
+    for vs in SupportedVSWhereList:
+        vs.reset()
+
+# register vswhere callback function
+vswhere_register_reset_func(_reset_installed_vswhere_visual_studios)
 
 
 # We may be asked to update multiple construction environments with

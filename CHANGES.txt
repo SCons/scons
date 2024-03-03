@@ -80,13 +80,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       of the results from all vswhere executables).  There is a single invocation for
       each vswhere executable that processes the output for all installations.  Prior
       implementations called the vswhere executable for each supported msvc version.
-    - Previously, the installed vcs list was constructed once and cached at runtime.  If
-      a vswhere executable was specified via the construction variable VSWHERE and found
-      additional msvc installations, the new installations were not reflected in the
-      installed vcs list. During runtime, if a user-specified vswhere executable finds
-      new msvc installations, internal runtime caches are cleared and the installed vcs
-      list is reconstructed.
-  
+    - Previously, the installed vcs and visual studios lists were constructed once and
+      cached at runtime.  If a vswhere executable was specified via the construction
+      variable VSWHERE and found additional msvc installations, the new installations
+      were not reflected in the installed vcs and visual studios lists. Now, when a
+      user-specified vswhere executable finds new msvc installations, internal runtime
+      caches are cleared and the installed vcs and visual studios lists are reconstructed
+      on their next retrieval.
+
   From Thaddeus Crews:
     - Implemented SCons.Util.sctyping as a safe means of hinting complex types. Currently
       only implemented for `Executor` as a proof-of-concept.
@@ -1404,7 +1405,7 @@ RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
       in the case where a child process is spawned while a Python action has a
       file open. Original author: Ryan Beasley.
     - Added memoization support for calls to Environment.Value() in order to
-	  improve performance of repeated calls.
+      improve performance of repeated calls.
 
 
   From Jason Kenny

@@ -1008,7 +1008,8 @@ def msvc_find_vswhere():
 
 class _VSWhere:
 
-    reset_funcs = []
+    reset_funcs_list = []
+    reset_funcs_seen = set()
 
     @classmethod
     def reset(cls):
@@ -1036,14 +1037,19 @@ class _VSWhere:
 
     @classmethod
     def register_reset_func(cls, func):
-        cls.reset_funcs.append(func)
+        if func and func not in cls.reset_funcs_seen:
+            cls.reset_funcs_seen.add(func)
+            cls.reset_funcs_list.append(func)
 
     @classmethod
     def call_reset_funcs(cls):
-        for func in cls.reset_funcs:
+        for func in cls.reset_funcs_list:
             func()
 
 _VSWhere.reset()
+
+def vswhere_register_reset_func(func):
+    _VSWhere.register_reset_func(func)
 
 def _filter_vswhere_paths(env):
 
@@ -1117,7 +1123,7 @@ MSVC_INSTANCE = namedtuple('MSVCInstance', [
     'vc_component_suffix',
 ])
 
-def _update_vswhere_msvc_map(env):
+def _vswhere_update_msvc_map(env):
 
     vswhere_paths = _filter_vswhere_paths(env)
     if not vswhere_paths:
@@ -1241,6 +1247,9 @@ def _update_vswhere_msvc_map(env):
 
     return _VSWhere.msvc_map
 
+def vswhere_update_msvc(env):
+    _vswhere_update_msvc_map(env)
+
 _cache_pdir_vswhere_queries = {}
 
 def _reset_pdir_vswhere_queries():
@@ -1267,7 +1276,7 @@ def find_vc_pdir_vswhere(msvc_version, env=None):
     """
     global _cache_pdir_vswhere_queries
 
-    msvc_map = _update_vswhere_msvc_map(env)
+    msvc_map = _vswhere_update_msvc_map(env)
     if not msvc_map:
         return None
 
@@ -1751,9 +1760,9 @@ def _check_files_exist_in_vc_dir(env, vc_dir, msvc_version) -> bool:
 def get_installed_vcs(env=None):
     global __INSTALLED_VCS_RUN
 
-    # the installed vcs cache is cleared
-    # if new vc roots are discovered
-    _update_vswhere_msvc_map(env)
+    debug('')
+    # the installed vcs cache is cleared if new vc roots are discovered
+    _vswhere_update_msvc_map(env)
 
     if __INSTALLED_VCS_RUN is not None:
         return __INSTALLED_VCS_RUN

@@ -70,11 +70,13 @@ FIXES
       msiexec /i VCForPython27.msi ALLUSERS=1
   When installed for all users, Visual Studio 2008 (9.0) Visual C++ For Python is
   now correctly detected.
-- MSVC: The installed vcs list was constructed and cached during the initial
-  invocation. If a vswhere executable was specified via the construction variable
-  VSWHERE and found additional msvc installations, the new installations were not
-  reflected in the installed vcs list. Now, when a user-specified vswhere
-  executable finds new msvc installations, the installed vcs list is reconstructed.
+- MSVC: The installed vcs and visual studios lists were constructed and cached
+  during their initial invocations. If a vswhere executable was specified via the
+  construction variable VSWHERE and found additional msvc installations, the new
+  installations were not reflected in the cached installed vcs and visual studios
+  lists. Now, when a user-specified vswhere executable finds new msvc installations,
+  the installed vcs and visual studios lists are cleared and reconstructed on their
+  next retrieval.
 - On Windows platform, when collecting command output (Configure checks),
   make sure decoding of bytes doesn't fail.
 - Documentation indicated that both Pseudo() and env.Pseudo() were usable,
