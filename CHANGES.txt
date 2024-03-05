@@ -104,6 +104,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       DeprecatedMissingSConscriptWarning) add two warnings to manpage
       (cache-cleanup-error, future-reserved-variable), improve unittest, tweak
       Sphinx build.
+    - Updated Value Node docs and tests.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700

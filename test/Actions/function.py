@@ -39,9 +39,6 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', r"""
 import re
 
-import SCons.Action
-import SCons.Builder
-
 options = Variables()
 options.AddVariables(
     ('header', 'Header string (default cell argument)', 'Head:'),
@@ -91,8 +88,8 @@ def toto(header='%(header)s', trailer='%(trailer)s'):
 
 exec(withClosure % optEnv)
 
-genHeaderBld = SCons.Builder.Builder(
-    action=SCons.Action.Action(toto(), 'Generating $TARGET', varlist=['ENVDEPS']),
+genHeaderBld = Builder(
+    action=Action(toto(), 'Generating $TARGET', varlist=['ENVDEPS']),
     suffix='.gen.h',
 )
 

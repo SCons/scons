@@ -3511,33 +3511,22 @@ gltool(env)  # adds 'opengl' to the TOOLS variable
 </arguments>
 <summary>
 <para>
-Returns a Node object representing the specified &Python; value.  Value
-Nodes can be used as dependencies of targets.  If the result of
-calling
-<function>str</function>(<parameter>value</parameter>)
-changes between SCons runs, any targets depending on
-<function>Value</function>(<parameter>value</parameter>)
-will be rebuilt.
-(This is true even when using timestamps to decide if
-files are up-to-date.)
-When using timestamp source signatures, Value Nodes'
-timestamps are equal to the system time when the Node is created.
+Returns a Node object representing the specified &Python;
+<parameter>value</parameter>.
+Value Nodes can be used as dependencies of targets.
+If the string representation of the Value Node
+changes between &SCons; runs, it is considered
+out of date and any targets depending it will be rebuilt.
+Since Value Nodes have no filesystem representation,
+timestamps are not used; the timestamp deciders
+perform the same content-based up to date check.
 </para>
-
 <para>
-The returned Value Node object has a
-<function>write</function>()
-method that can be used to "build" a Value Node
-by setting a new value.
 The optional
 <parameter>built_value</parameter>
 argument can be specified
 when the Value Node is created
-to indicate the Node should already be considered
-"built."
-There is a corresponding
-<function>read</function>()
-method that will return the built value of the Node.
+to indicate the Node should already be considered "built."
 </para>
 
 <para>
@@ -3545,6 +3534,16 @@ The optional <parameter>name</parameter> parameter can be provided as an
 alternative name for the resulting <literal>Value</literal> node;
 this is advised if the <parameter>value</parameter> parameter
 cannot be converted to a string.
+</para>
+
+<para>
+Value Nodes have a
+<methodname>write</methodname>
+method that can be used to "build" a Value Node
+by setting a new value.
+The corresponding
+<methodname>read</methodname>
+method returns the built value of the Node.
 </para>
 
 <para>
@@ -3556,36 +3555,39 @@ the <parameter>name</parameter> parameter was added.
 Examples:
 </para>
 
+<!-- TODO fix second example or replace - still doesn't work -->
 <example_commands>
 env = Environment()
 
 def create(target, source, env):
-    # A function that will write a 'prefix=$SOURCE'
-    # string into the file name specified as the
-    # $TARGET.
-    with open(str(target[0]), 'wb') as f:
-        f.write('prefix=' + source[0].get_contents())
+    """Action function to create a file from a Value.
 
-# Fetch the prefix= argument, if any, from the command
-# line, and use /usr/local as the default.
+    Writes 'prefix=$SOURCE' into the file name given as $TARGET.
+    """
+    with open(str(target[0]), 'wb') as f:
+        f.write(b'prefix=' + source[0].get_contents() + b'\n')
+
+# Fetch the prefix= argument, if any, from the command line.
+# Use /usr/local as the default.
 prefix = ARGUMENTS.get('prefix', '/usr/local')
 
-# Attach a .Config() builder for the above function action
-# to the construction environment.
+# Attach builder named Config to the construction environment
+# using the 'create' action function above.
 env['BUILDERS']['Config'] = Builder(action=create)
 env.Config(target='package-config', source=Value(prefix))
 
 def build_value(target, source, env):
-    # A function that "builds" a Python Value by updating
-    # the Python value with the contents of the file
-    # specified as the source of the Builder call ($SOURCE).
+    """Action function to "build" a Value.
+
+    Writes contents of $SOURCE into $TARGET, thus updating if it existed.
+    """
     target[0].write(source[0].get_contents())
 
 output = env.Value('before')
 input = env.Value('after')
 
-# Attach a .UpdateValue() builder for the above function
-# action to the construction environment.
+# Attach a builder named UpdateValue to the construction environment
+# using the 'build_value' action function above.
 env['BUILDERS']['UpdateValue'] = Builder(action=build_value)
 env.UpdateValue(target=Value(output), source=Value(input))
 </example_commands>
@@ -3600,7 +3602,7 @@ env.UpdateValue(target=Value(output), source=Value(input))
 <para>
 Sets up a mapping to define a variant build directory in
 <parameter>variant_dir</parameter>.
-<parameter>src_dir</parameter> may not be underneath
+<parameter>src_dir</parameter> must not be underneath
 <parameter>variant_dir</parameter>.
 A &f-VariantDir; mapping is global, even if called using the
 &f-env-VariantDir; form.

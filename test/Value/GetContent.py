@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test the Value node as a build target
@@ -33,18 +32,25 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-import SCons.Script
+import SCons.Node
+
 def null_build(target, source, env):
     pass
+
 env = DefaultEnvironment()
-env['BUILDERS']['ValueBuilder'] =  SCons.Builder.Builder(
-    action=SCons.Action.Action(null_build),
-    target_factory=SCons.Node.Python.Value,    
-)    
-v = env.ValueBuilder("myvalue",env.Dir("#"))
-v[0].get_text_contents()
+env['BUILDERS']['ValueBuilder'] = Builder(
+    action=Action(null_build),
+    target_factory=SCons.Node.Python.Value,
+)
+v = env.ValueBuilder("myvalue", env.Dir("#"))
+_ = v[0].get_text_contents()  # only care it doesn't take exception
 """)
 
 test.run()
 test.pass_test()
 
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

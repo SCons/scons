@@ -96,6 +96,7 @@ DOCUMENTATION
 - The manpage entry for SharedLibrary was clarified.
 - Update API docs for Warnings framework; add two warns to manpage
   enable/disable control.
+- Updated Value Node docs.
 
 DEVELOPMENT
 -----------

@@ -278,9 +278,8 @@ class ThreadPool:
 
         try:
             prev_size = threading.stack_size(stack_size * 1024)
-        except AttributeError as e:
-            # Only print a warning if the stack size has been
-            # explicitly set.
+        except RuntimeError as e:
+            # Only print a warning if the stack size has been explicitly set.
             if explicit_stack_size is not None:
                 msg = "Setting stack size is unsupported by this version of Python:\n    " + \
                     e.args[0]
