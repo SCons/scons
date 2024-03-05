@@ -21,11 +21,28 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""Test Warnings module."""
+
 import unittest
 
 import SCons.Warnings
+from SCons.Warnings import (
+    DependencyWarning,
+    DeprecatedWarning,
+    MandatoryDeprecatedWarning,
+    SConsWarning,
+    WarningOnByDefault,
+)
+
 
 class TestOutput:
+    """Callable class to use as ``_warningOut`` for capturing test output.
+
+    If we've already been called can reset by ``instance.out = None``
+    """
+    def __init__(self) -> None:
+        self.out = None
+
     def __call__(self, x) -> None:
         args = x.args[0]
         if len(args) == 1:
@@ -33,92 +50,73 @@ class TestOutput:
         self.out = str(args)
 
 class WarningsTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        # Setup global state
+        SCons.Warnings._enabled = []
+        SCons.Warnings._warningAsException = False
+        to = TestOutput()
+        SCons.Warnings._warningOut = to
+
     def test_Warning(self) -> None:
         """Test warn function."""
+        to = SCons.Warnings._warningOut
 
-        # Reset global state
-        SCons.Warnings._enabled = []
-        SCons.Warnings._warningAsException = 0
-        
-        to = TestOutput()
-        SCons.Warnings._warningOut=to
-        SCons.Warnings.enableWarningClass(SCons.Warnings.SConsWarning)
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                            "Foo")
+        SCons.Warnings.enableWarningClass(SConsWarning)
+        SCons.Warnings.warn(DeprecatedWarning, "Foo")
         assert to.out == "Foo", to.out
-        SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
-                            "Foo", 1)
+        SCons.Warnings.warn(DependencyWarning, "Foo", 1)
         assert to.out == "('Foo', 1)", to.out
 
     def test_WarningAsExc(self) -> None:
         """Test warnings as exceptions."""
-        
-        # Reset global state
-        SCons.Warnings._enabled = []
-        SCons.Warnings._warningAsException = 0
+        to = SCons.Warnings._warningOut
 
-        SCons.Warnings.enableWarningClass(SCons.Warnings.SConsWarning)
-        old = SCons.Warnings.warningAsException()
-        assert old == 0, old
-        exc_caught = 0
-        try:
-            SCons.Warnings.warn(SCons.Warnings.SConsWarning, "Foo")
-        except:
-            exc_caught = 1
-        assert exc_caught == 1
+        SCons.Warnings.enableWarningClass(WarningOnByDefault)
+        old = SCons.Warnings.warningAsException(True)
+        self.assertFalse(old)
+        # an enabled warning should raise exception
+        self.assertRaises(SConsWarning, SCons.Warnings.warn, WarningOnByDefault, "Foo")
+        to.out = None
+        # a disabled exception should not raise
+        SCons.Warnings.warn(DeprecatedWarning, "Foo")
+        assert to.out == None, to.out
 
-        old = SCons.Warnings.warningAsException(old)
-        assert old == 1, old
-        exc_caught = 0
-        try:
-            SCons.Warnings.warn(SCons.Warnings.SConsWarning, "Foo")
-        except:
-            exc_caught = 1
-        assert exc_caught == 0
+        # make sure original behavior can be restored
+        prev = SCons.Warnings.warningAsException(old)
+        self.assertTrue(prev)
+        SCons.Warnings.warn(WarningOnByDefault, "Foo")
+        assert to.out == "Foo", to.out
 
     def test_Disable(self) -> None:
         """Test disabling/enabling warnings."""
-
-        # Reset global state
-        SCons.Warnings._enabled = []
-        SCons.Warnings._warningAsException = 0
-
-        to = TestOutput()
-        SCons.Warnings._warningOut=to
-        to.out = None
+        to = SCons.Warnings._warningOut
 
         # No warnings by default
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                            "Foo")
+        SCons.Warnings.warn(DeprecatedWarning, "Foo")
         assert to.out is None, to.out
 
-        SCons.Warnings.enableWarningClass(SCons.Warnings.SConsWarning)
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                            "Foo")
+        SCons.Warnings.enableWarningClass(SConsWarning)
+        SCons.Warnings.warn(DeprecatedWarning, "Foo")
         assert to.out == "Foo", to.out
 
         to.out = None
-        SCons.Warnings.suppressWarningClass(SCons.Warnings.DeprecatedWarning)
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                            "Foo")
+        SCons.Warnings.suppressWarningClass(DeprecatedWarning)
+        SCons.Warnings.warn(DeprecatedWarning, "Foo")
         assert to.out is None, to.out
 
-        SCons.Warnings.warn(SCons.Warnings.MandatoryDeprecatedWarning,
-                            "Foo")
+        SCons.Warnings.warn(MandatoryDeprecatedWarning, "Foo")
         assert to.out is None, to.out
 
         # Dependency warnings should still be enabled though
-        SCons.Warnings.enableWarningClass(SCons.Warnings.SConsWarning)
-        SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
-                            "Foo")
+        SCons.Warnings.enableWarningClass(SConsWarning)
+        SCons.Warnings.warn(DependencyWarning, "Foo")
         assert to.out == "Foo", to.out
 
         # Try reenabling all warnings...
-        SCons.Warnings.enableWarningClass(SCons.Warnings.SConsWarning)
+        SCons.Warnings.enableWarningClass(SConsWarning)
 
-        SCons.Warnings.enableWarningClass(SCons.Warnings.SConsWarning)
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                            "Foo")
+        SCons.Warnings.enableWarningClass(SConsWarning)
+        SCons.Warnings.warn(DeprecatedWarning, "Foo")
         assert to.out == "Foo", to.out
 
 if __name__ == "__main__":
