@@ -76,6 +76,7 @@
 <!ENTITY m4             "<application xmlns='http://www.scons.org/dbxsd/v1.0'>m4</application>">
 <!ENTITY Make           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Make</application>">
 <!ENTITY Makepp         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Make++</application>">
+<!ENTITY MSVC           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Microsoft Visual C++</application>">
 <!ENTITY ninja          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>ninja</application>">
 <!ENTITY pdflatex       "<application xmlns='http://www.scons.org/dbxsd/v1.0'>pdflatex</application>">
 <!ENTITY pdftex         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>pdftex</application>">
