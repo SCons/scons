@@ -2174,6 +2174,15 @@ These warnings are disabled by default.</para>
   </varlistentry>
 
   <varlistentry>
+  <term><emphasis role="bold">cache-cleanup-error</emphasis></term>
+  <listitem>
+<para>Warnings about errors when a file retrieved
+from the derived-file cache could not be removed.
+</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
   <term><emphasis role="bold">corrupt-sconsign</emphasis></term>
   <listitem>
 <para>Warnings about unfamiliar signature data in
@@ -2224,6 +2233,16 @@ These warnings are enabled by default.</para>
 <para>Warnings about linking
 Fortran and C++ object files in a single executable,
 which can yield unpredictable behavior with some compilers.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><emphasis role="bold">future-reserved-variable</emphasis></term>
+  <listitem>
+<para>Warnings about construction variables which
+are currently allowed,
+but will become reserved variables in a future release.
+</para>
   </listitem>
   </varlistentry>
 
@@ -2296,6 +2315,10 @@ feature not working when
 is run with the &Python;
 <option>-O</option>
 option or from optimized &Python; (<filename>.pyo</filename>) modules.</para>
+<para>
+Note the "no-" prefix is part of the name of this warning.
+Add an additional "-no" to disable.
+</para>
   </listitem>
   </varlistentry>
 
@@ -2307,6 +2330,10 @@ not being able to support parallel builds when the
 <option>-j</option>
 option is used.
 These warnings are enabled by default.</para>
+<para>
+Note the "no-" prefix is part of the name of this warning.
+Add an additional "-no" to disable.
+</para>
   </listitem>
   </varlistentry>
 
