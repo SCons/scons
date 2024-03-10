@@ -875,9 +875,9 @@ def Parser(version):
 
     def warn_md5_chunksize_deprecated(option, opt, value, parser) -> None:
         if opt == '--md5-chunksize':
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                                "Parameter %s is deprecated. Use "
-                                "--hash-chunksize instead." % opt)
+            SCons.Warnings.warn(SCons.Warnings.DeprecatedOptionsWarning,
+                                f"Option {opt} is deprecated. "
+                                "Use --hash-chunksize instead.")
 
         setattr(parser.values, option.dest, value)
 

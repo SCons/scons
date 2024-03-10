@@ -102,6 +102,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - More consistent use of &Python; in the manpage.  A few links added.
       A warning about overwriting env['ENV'] and one about Configure
       checks possibly not running in in no-exec mode also added.
+    - Update warnings module: adds docstrings, drop three unused warnings
+      (DeprecatedSourceCodeWarning, TaskmasterNeedsExecuteWarning,
+      DeprecatedMissingSConscriptWarning) add two warnings to manpage
+      (cache-cleanup-error, future-reserved-variable), improve unittest, tweak
+      Sphinx build.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700

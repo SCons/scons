@@ -34,6 +34,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   prototype when including a header file. Fixes GH Issue #4320
 - Now supports pre-release Python 3.13
 - Support for Python versions without support for the `threading` package has been removed
+- Dropped three unused warning classes: DeprecatedSourceCodeWarning,
+  TaskmasterNeedsExecuteWarning, DeprecatedMissingSConscriptWarning.
+* Two warning classes that are actually used were added to manpage section on
+  enabling warnings (cache-cleanup-error, future-reserved-variable).
 
 FIXES
 -----
@@ -90,6 +94,8 @@ DOCUMENTATION
   the Scanner Objects section of the manpage.
 - The manpage entry for Pseudo was clarified.
 - The manpage entry for SharedLibrary was clarified.
+- Update API docs for Warnings framework; add two warns to manpage
+  enable/disable control.
 
 DEVELOPMENT
 -----------

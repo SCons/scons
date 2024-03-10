@@ -10,15 +10,17 @@ SCons API Documentation
    This is the **internal** API Documentation for SCons.
    The documentation is automatically generated for each release
    from the source code using the
-   `Sphinx <https://www.sphinx-doc.org>`_ tool.
+   `Sphinx <https://www.sphinx-doc.org>`_ documentation generator.
    Missing information is due to shortcomings in the docstrings in the code,
-   which are by no means complete (contributions welcomed!).
+   which admittedly could use a lot more work (contributions welcomed!).
 
-   The target audience is developers working on SCons itself:
-   what is "Public API" is not clearly deliniated here.
-   The interfaces available for use in SCons configuration scripts,
-   which have a consistency guarantee, are those documented in the
-   `SCons Reference Manual
+   The target audience is both developers working on SCons itself,
+   and those writing external Tools, Builders, etc. and other
+   related functionality, who need to reach beyond the Public API.
+   Note that what is Public API is not clearly deliniated in the API Docs.
+   The interfaces available for use in SCons configuration scripts
+   ("SConscript files"), which have a consistency guarantee,
+   are those documented in the `SCons Reference Manual
    <https://scons.org/doc/production/HTML/scons-man.html>`_.
 
 .. toctree::
