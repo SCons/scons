@@ -90,12 +90,18 @@ DOCUMENTATION
 -------------
 
 - Fixed the Scanner examples in the User Guide to be runnable and added
-  some more explantion. Clarified discussion of the scanner function in
+  some more explanation. Clarified discussion of the scanner function in
   the Scanner Objects section of the manpage.
 - The manpage entry for Pseudo was clarified.
 - The manpage entry for SharedLibrary was clarified.
 - Update API docs for Warnings framework; add two warns to manpage
   enable/disable control.
+- More consistent use of &Python; in the manpage.  A few links added.
+  A warning about overwriting env['ENV'] and one about Configure
+  checks possibly not running in in no-exec mode also added.
+- Clarify how SCons finds the project top directory, and what that is used for.
+
+
 
 DEVELOPMENT
 -----------
