@@ -42,7 +42,7 @@ class SConsLockFailure(Exception):
 class FileLock:
     """Lock a file using a lockfile.
 
-    Locking for the case where multiple processes try to hit an externally
+    Basic locking for when multiple processes may hit an externally
     shared resource that cannot depend on locking within a single SCons
     process. SCons does not have a lot of those, but caches come to mind.
 
@@ -51,8 +51,9 @@ class FileLock:
     and :meth:`release_lock`.
 
     Lock can be a write lock, which is held until released, or a read
-    lock, which releases immediately upon aquisition - the interesting
-    thing being to not read a file which somebody else may be writing,
+    lock, which releases immediately upon aquisition - we want to not
+    read a file which somebody else may be writing, but not create the
+    writers starvation problem of the classic readers/writers lock.
 
     TODO: Should default timeout be None (non-blocking), or 0 (block forever),
        or some arbitrary number?
