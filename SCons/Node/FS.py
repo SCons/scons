@@ -326,7 +326,11 @@ LocalCopy = SCons.Action.Action(LinkFunc, LocalString)
 
 def UnlinkFunc(target, source, env) -> int:
     t = target[0]
-    t.fs.unlink(t.get_abspath())
+    file = t.get_abspath()
+    try:
+        t.fs.unlink(file)
+    except FileNotFoundError:
+        pass
     return 0
 
 Unlink = SCons.Action.Action(UnlinkFunc, None)
@@ -3185,12 +3189,16 @@ class File(Base):
         return None
 
     def do_duplicate(self, src):
+        """Create a duplicate of this file from the specified source."""
         self._createDir()
         if SCons.Node.print_duplicate:
             print(f"dup: relinking variant '{self}' from '{src}'")
         Unlink(self, None, None)
-        e = Link(self, src, None)
-        if isinstance(e, SCons.Errors.BuildError):
+        try:
+            e = Link(self, src, None)
+            if isinstance(e, SCons.Errors.BuildError):
+                raise e
+        except SCons.Errors.BuildError as e:
             raise SCons.Errors.StopError(f"Cannot duplicate `{src.get_internal_path()}' in `{self.dir._path}': {e.errstr}.")
         self.linked = 1
         # The Link() action may or may not have actually
