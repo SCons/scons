@@ -62,6 +62,7 @@ FIXES
   scanners - try harder to decode non-UTF-8 text.
 - PyPackageDir no longer fails if passed a module name which cannot be found,
   now returns None.
+- Add locking around creation of CacheDir config file. Fixes issue #4489.
 
 
 IMPROVEMENTS

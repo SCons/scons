@@ -173,7 +173,7 @@ def read_script_env_cache() -> dict:
     p = Path(CONFIG_CACHE)
     if not CONFIG_CACHE or not p.is_file():
         return envcache
-    with SCons.Util.FileLock(CONFIG_CACHE, timeout=5, writer=True), p.open('r') as f:
+    with SCons.Util.FileLock(CONFIG_CACHE, timeout=5, writer=False), p.open('r') as f:
         # Convert the list of cache entry dictionaries read from
         # json to the cache dictionary. Reconstruct the cache key
         # tuple from the key list written to json.
