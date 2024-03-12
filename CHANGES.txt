@@ -43,7 +43,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       method so that the generated function argument list matches the function's
       prototype when including a header file.
     - For msvc version specifications without an 'Exp' suffix, an express installation
-      is used when no other edition is detected for the msvc version.
+      is used when no other edition is detected for the msvc version.  Similarly, an
+      express installation of the IDE binary is used when no other IDE edition is
+      detected.
     - VS2015 Express (14.0Exp) does not support the sdk version argument.  VS2015 Express
       does not support the store argument for target architectures other than x86.
       Script argument validation now takes into account these restrictions.
@@ -72,6 +74,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       (i.e., msiexec /i VCForPython27.msi ALLUSERS=1), the registry keys are written to
       HKEY_LOCAL_MACHINE rather than HKEY_CURRENT_USER.  An entry was added to query the
       Visual C++ For Python keys in HKLM following the HKCU query, if necessary.
+    - For VS2008, a full development edition (e.g., Professional) is now selected before
+      a Visual C++ For Python edition.  Prior to this change, Visual C++ For Python was
+      selected before a full development edition when both editions are installed.
     - The registry detection of VS2015 (14.0), and earlier, is now cached at runtime and
       is only evaluated once for each msvc version.
     - The vswhere detection of VS2017 (14.1), and later, is now cached at runtime and is

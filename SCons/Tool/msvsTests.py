@@ -635,9 +635,9 @@ class msvsTestCase(unittest.TestCase):
         """Test the merge_default_version() function"""
         pass
 
-    def test_query_versions(self) -> None:
+    def test_query_versions(self, env=None) -> None:
         """Test retrieval of the list of visual studio versions"""
-        v1 = query_versions()
+        v1 = query_versions(env)
         assert not v1 or str(v1[0]) == self.highest_version, \
                (v1, self.highest_version)
         assert len(v1) == self.number_of_versions, v1

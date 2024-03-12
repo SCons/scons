@@ -38,7 +38,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   installation is used when no other edition is detected for the msvc version.
   This was the behavior for Visual Studio 2008 (9.0) through Visual Studio 2015
   (14.0).  This behavior was extended to Visual Studio 2017 (14.1) and Visual
-  Studio 2008 (8.0).
+  Studio 2008 (8.0).  An express installation of the IDE binary is used when no
+  other IDE edition is detected.
 
 FIXES
 -----
@@ -70,6 +71,10 @@ FIXES
       msiexec /i VCForPython27.msi ALLUSERS=1
   When installed for all users, Visual Studio 2008 (9.0) Visual C++ For Python is
   now correctly detected.
+- MSVC: For Visual Studio 2008 (9.0), a full development edition (e.g., Professional)
+  is now selected before a Visual C++ For Python edition. Prior to this change,
+  Visual C++ For Python was selected before a full development edition when both
+  editions are installed.
 - MSVC: The installed vcs and visual studios lists were constructed and cached
   during their initial invocations. If a vswhere executable was specified via the
   construction variable VSWHERE and found additional msvc installations, the new

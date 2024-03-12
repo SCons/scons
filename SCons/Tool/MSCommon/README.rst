@@ -36,7 +36,7 @@ installation is used only when no other installation is detected.
 ======= ======= ========================================================
 Product VCVer   Priority
 ======= ======= ========================================================
-VS2022  14.3	Enterprise, Professional, Community, BuildTools
+VS2022  14.3    Enterprise, Professional, Community, BuildTools
 ------- ------- --------------------------------------------------------
 VS2019  14.2    Enterprise, Professional, Community, BuildTools
 ------- ------- --------------------------------------------------------
@@ -44,15 +44,15 @@ VS2017  14.1    Enterprise, Professional, Community, BuildTools, Express
 ------- ------- --------------------------------------------------------
 VS2017  14.1Exp Express
 ------- ------- --------------------------------------------------------
-VS2015  14.0	[Develop, BuildTools, CmdLine], Express
+VS2015  14.0    [Develop, BuildTools, CmdLine], Express
 ------- ------- --------------------------------------------------------
 VS2015  14.0Exp Express
 ------- ------- --------------------------------------------------------
-VS2013  12.0	Develop, Express
+VS2013  12.0    Develop, Express
 ------- ------- --------------------------------------------------------
 VS2013  12.0Exp Express
 ------- ------- --------------------------------------------------------
-VS2012  11.0	Develop, Express
+VS2012  11.0    Develop, Express
 ------- ------- --------------------------------------------------------
 VS2012  11.0Exp Express
 ------- ------- --------------------------------------------------------
@@ -60,7 +60,7 @@ VS2010  10.0    Develop, Express
 ------- ------- --------------------------------------------------------
 VS2010  10.0Exp Express
 ------- ------- --------------------------------------------------------
-VS2008  9.0     VCForPython, Develop, Express
+VS2008  9.0     Develop, VCForPython, Express
 ------- ------- --------------------------------------------------------
 VS2008  9.0Exp  Express
 ------- ------- --------------------------------------------------------
@@ -105,20 +105,20 @@ and/or linker build failures.
 The VS2015 BuildTools ``vcvarsall.bat`` batch file dispatches to the stand-alone buildtools
 batch file under certain circumstances. A fragment from the vcvarsall batch file is:
 ::
-	if exist "%~dp0..\common7\IDE\devenv.exe" goto setup_VS
-	if exist "%~dp0..\common7\IDE\wdexpress.exe" goto setup_VS
-	if exist "%~dp0..\..\Microsoft Visual C++ Build Tools\vcbuildtools.bat" goto setup_buildsku
+    if exist "%~dp0..\common7\IDE\devenv.exe" goto setup_VS
+    if exist "%~dp0..\common7\IDE\wdexpress.exe" goto setup_VS
+    if exist "%~dp0..\..\Microsoft Visual C++ Build Tools\vcbuildtools.bat" goto setup_buildsku
 
-	:setup_VS
+    :setup_VS
 
-	...
+    ...
 
-	:setup_buildsku
-	if not exist "%~dp0..\..\Microsoft Visual C++ Build Tools\vcbuildtools.bat" goto usage
-	set CurrentDir=%CD%
-	call "%~dp0..\..\Microsoft Visual C++ Build Tools\vcbuildtools.bat" %1 %2
-	cd /d %CurrentDir%
-	goto :eof
+    :setup_buildsku
+    if not exist "%~dp0..\..\Microsoft Visual C++ Build Tools\vcbuildtools.bat" goto usage
+    set CurrentDir=%CD%
+    call "%~dp0..\..\Microsoft Visual C++ Build Tools\vcbuildtools.bat" %1 %2
+    cd /d %CurrentDir%
+    goto :eof
 
 VS2015 Express
 --------------
@@ -136,19 +136,19 @@ architecture.  The generated ``store`` library paths include directories that do
 
 The store library paths appear in two places in the ``vcvarsx86_amd64`` batch file:
 ::
-	:setstorelib
-	@if exist "%VCINSTALLDIR%LIB\amd64\store" set LIB=%VCINSTALLDIR%LIB\amd64\store;%LIB%
-	...
-	:setstorelibpath
-	@if exist "%VCINSTALLDIR%LIB\amd64\store" set LIBPATH=%VCINSTALLDIR%LIB\amd64\store;%LIBPATH%
+    :setstorelib
+    @if exist "%VCINSTALLDIR%LIB\amd64\store" set LIB=%VCINSTALLDIR%LIB\amd64\store;%LIB%
+    ...
+    :setstorelibpath
+    @if exist "%VCINSTALLDIR%LIB\amd64\store" set LIBPATH=%VCINSTALLDIR%LIB\amd64\store;%LIBPATH%
 
 The correct store library paths would be:
 ::
-	:setstorelib
-	@if exist "%VCINSTALLDIR%LIB\store\amd64" set LIB=%VCINSTALLDIR%LIB\store\amd64;%LIB%
-	...
-	:setstorelibpath
-	@if exist "%VCINSTALLDIR%LIB\store\amd64" set LIBPATH=%VCINSTALLDIR%LIB\store\amd64;%LIBPATH%
+    :setstorelib
+    @if exist "%VCINSTALLDIR%LIB\store\amd64" set LIB=%VCINSTALLDIR%LIB\store\amd64;%LIB%
+    ...
+    :setstorelibpath
+    @if exist "%VCINSTALLDIR%LIB\store\amd64" set LIBPATH=%VCINSTALLDIR%LIB\store\amd64;%LIBPATH%
 
 arm Target Architecture
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -158,19 +158,19 @@ architecture.  The generated ``store`` library paths include directories that do
 
 The store library paths appear in two places in the ``vcvarsx86_arm`` batch file:
 ::
-	:setstorelib
-	@if exist "%VCINSTALLDIR%LIB\ARM\store" set LIB=%VCINSTALLDIR%LIB\ARM\store;%LIB%
-	...
-	:setstorelibpath
-	@if exist "%VCINSTALLDIR%LIB\ARM\store" set LIBPATH=%VCINSTALLDIR%LIB\ARM\store;%LIBPATH%
+    :setstorelib
+    @if exist "%VCINSTALLDIR%LIB\ARM\store" set LIB=%VCINSTALLDIR%LIB\ARM\store;%LIB%
+    ...
+    :setstorelibpath
+    @if exist "%VCINSTALLDIR%LIB\ARM\store" set LIBPATH=%VCINSTALLDIR%LIB\ARM\store;%LIBPATH%
 
 The correct store library paths would be file:
 ::
-	:setstorelib
-	@if exist "%VCINSTALLDIR%LIB\store\ARM" set LIB=%VCINSTALLDIR%LIB\store\ARM;%LIB%
-	...
-	:setstorelibpath
-	@if exist "%VCINSTALLDIR%LIB\store\ARM" set LIBPATH=%VCINSTALLDIR%LIB\store\ARM;%LIBPATH%
+    :setstorelib
+    @if exist "%VCINSTALLDIR%LIB\store\ARM" set LIB=%VCINSTALLDIR%LIB\store\ARM;%LIB%
+    ...
+    :setstorelibpath
+    @if exist "%VCINSTALLDIR%LIB\store\ARM" set LIBPATH=%VCINSTALLDIR%LIB\store\ARM;%LIBPATH%
 
 
 Known Issues

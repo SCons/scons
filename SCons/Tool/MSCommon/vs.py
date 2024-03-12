@@ -48,6 +48,12 @@ from .vc import (
 )
 
 
+# Visual Studio express version policy when unqualified version is not installed:
+#     True:  use express version for unqualified version (e.g., use 12.0Exp for 12.0)
+#     False: do not use express version for unqualified version
+_VSEXPRESS_USE_VERSTR = True
+
+
 class VisualStudio:
     """
     An abstract base class for trying to find installed versions of
@@ -55,7 +61,9 @@ class VisualStudio:
     """
     def __init__(self, version, **kw) -> None:
         self.version = version
-        self.vernum = float(get_msvc_version_numeric(version))
+        self.verstr = get_msvc_version_numeric(version)
+        self.vernum = float(self.verstr)
+        self.is_express = True if self.verstr != self.version else False
         kw['vc_version']  = kw.get('vc_version', version)
         kw['sdk_version'] = kw.get('sdk_version', version)
         self.__dict__.update(kw)
@@ -454,8 +462,16 @@ def get_installed_visual_studios(env=None):
             if vs.get_executable(env):
                 debug('found VS %s', vs.version)
                 InstalledVSList.append(vs)
+                if vs.is_express and vs.verstr not in InstalledVSMap:
+                    if _VSEXPRESS_USE_VERSTR:
+                        InstalledVSMap[vs.verstr] = vs
                 InstalledVSMap[vs.version] = vs
     return InstalledVSList
+
+def _get_installed_vss(env=None):
+    get_installed_visual_studios(env)
+    versions = list(InstalledVSMap.keys())
+    return versions
 
 def reset_installed_visual_studios() -> None:
     global InstalledVSList
@@ -519,7 +535,7 @@ vswhere_register_reset_func(_reset_installed_vswhere_visual_studios)
 def msvs_exists(env=None) -> bool:
     return len(get_installed_visual_studios(env)) > 0
 
-def get_vs_by_version(msvs):
+def get_vs_by_version(msvs, env=None):
     global InstalledVSMap
     global SupportedVSMap
 
@@ -527,7 +543,7 @@ def get_vs_by_version(msvs):
     if msvs not in SupportedVSMap:
         msg = "Visual Studio version %s is not supported" % repr(msvs)
         raise SCons.Errors.UserError(msg)
-    get_installed_visual_studios()
+    get_installed_visual_studios(env)
     vs = InstalledVSMap.get(msvs)
     debug('InstalledVSMap:%s', InstalledVSMap)
     debug('found vs:%s', vs)
@@ -556,7 +572,7 @@ def get_default_version(env):
     """
     if 'MSVS' not in env or not SCons.Util.is_Dict(env['MSVS']):
         # get all versions, and remember them for speed later
-        versions = [vs.version for vs in get_installed_visual_studios()]
+        versions = _get_installed_vss(env)
         env['MSVS'] = {'VERSIONS' : versions}
     else:
         versions = env['MSVS'].get('VERSIONS', [])
@@ -602,7 +618,7 @@ def merge_default_version(env) -> None:
 
 # TODO: refers to versions and arch which aren't defined; called nowhere. Drop?
 def msvs_setup_env(env) -> None:
-    msvs = get_vs_by_version(version)
+    msvs = get_vs_by_version(version, env)
     if msvs is None:
         return
     batfilename = msvs.get_batch_file()
@@ -614,7 +630,7 @@ def msvs_setup_env(env) -> None:
 
         vars = ('LIB', 'LIBPATH', 'PATH', 'INCLUDE')
 
-        msvs_list = get_installed_visual_studios()
+        msvs_list = get_installed_visual_studios(env)
         vscommonvarnames = [vs.common_tools_var for vs in msvs_list]
         save_ENV = env['ENV']
         nenv = normalize_env(env['ENV'],
@@ -629,11 +645,10 @@ def msvs_setup_env(env) -> None:
         for k, v in vars.items():
             env.PrependENVPath(k, v, delete_existing=1)
 
-def query_versions():
+def query_versions(env=None):
     """Query the system to get available versions of VS. A version is
     considered when a batfile is found."""
-    msvs_list = get_installed_visual_studios()
-    versions = [msvs.version for msvs in msvs_list]
+    versions = _get_installed_vss(env)
     return versions
 
 # Local Variables:

@@ -103,7 +103,7 @@ _ARM32_ON_ARM64_SKIP_SENDTELEMETRY = True
 # MSVC 9.0 preferred query order:
 #     True:  VCForPython, VisualStudio
 #     False: VisualStudio, VCForPython
-_VC90_Prefer_VCForPython = True
+_VC90_Prefer_VCForPython = False
 
 # Dict to 'canonalize' the arch
 _ARCH_TO_CANONICAL = {
@@ -923,6 +923,21 @@ VSWHERE_PATHS = [os.path.join(p,'vswhere.exe') for p in [
     os.path.expandvars(r"%SCOOP%\shims"),
 ]]
 
+def msvc_find_vswhere():
+    """ Find the location of vswhere """
+    # For bug 3333: support default location of vswhere for both
+    # 64 and 32 bit windows installs.
+    # For bug 3542: also accommodate not being on C: drive.
+    # NB: this gets called from testsuite on non-Windows platforms.
+    # Whether that makes sense or not, don't break it for those.
+    vswhere_path = None
+    for pf in VSWHERE_PATHS:
+        if os.path.exists(pf):
+            vswhere_path = pf
+            break
+
+    return vswhere_path
+
 # normalize user-specified vswhere paths
 
 _cache_user_vswhere_paths = {}
@@ -965,13 +980,7 @@ def _vswhere_user_path(pval):
 
     return vswhere_path
 
-# normalized default vswhere path
-
-_vswhere_paths_processed = [
-    MSVC.Util.normalize_path(pval)
-    for pval in VSWHERE_PATHS
-    if os.path.exists(pval)
-]
+# normalize default vswhere path
 
 _vswhere_path_default = UNDEFINED
 
@@ -980,6 +989,12 @@ def _msvc_default_vswhere():
     global _vswhere_path_default
 
     if _vswhere_path_default == UNDEFINED:
+
+        _vswhere_paths_processed = [
+            MSVC.Util.normalize_path(pval)
+            for pval in VSWHERE_PATHS
+            if os.path.exists(pval)
+        ]
 
         if _vswhere_paths_processed:
             vswhere_path = _vswhere_paths_processed[0]
@@ -990,21 +1005,6 @@ def _msvc_default_vswhere():
         debug('vswhere_path=%s', vswhere_path)
 
     return _vswhere_path_default
-
-def msvc_find_vswhere():
-    """ Find the location of vswhere """
-    # For bug 3333: support default location of vswhere for both
-    # 64 and 32 bit windows installs.
-    # For bug 3542: also accommodate not being on C: drive.
-    # NB: this gets called from testsuite on non-Windows platforms.
-    # Whether that makes sense or not, don't break it for those.
-    vswhere_path = None
-    for pf in VSWHERE_PATHS:
-        if os.path.exists(pf):
-            vswhere_path = pf
-            break
-
-    return vswhere_path
 
 class _VSWhere:
 

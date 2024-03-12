@@ -680,7 +680,7 @@ class TestSConsMSVS(TestSCons):
 import SCons
 import SCons.Tool.MSCommon
 print("self.scons_version =%%s"%%repr(SCons.__%s__))
-print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
+print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=None)))
 """ % 'version'
 
             self.run(arguments = '-n -q -Q -f -', stdin = input)
@@ -738,13 +738,13 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         result = result.replace('<SCC_SLN_INFO>\n', sln_sccinfo)
         return result
 
-    def get_msvs_executable(self, version):
+    def get_msvs_executable(self, version, env=None):
         """Returns a full path to the executable (MSDEV or devenv)
         for the specified version of Visual Studio.
         """
         from SCons.Tool.MSCommon import get_vs_by_version
 
-        msvs = get_vs_by_version(version)
+        msvs = get_vs_by_version(version, env)
         if not msvs:
             return None
         return msvs.get_executable()
