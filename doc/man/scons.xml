@@ -171,18 +171,31 @@ directories through the definition of
 When invoked, &scons;
 looks for a file named
 &SConstruct;
+(other names are also accepted,
+see <xref linkend="sconscript_files"/>)
 in the current directory and reads the
-build configuration from that file
-(other names are allowed,
-see <xref linkend="sconscript_files"/>
-and the <link linkend="opt-f"><option>-f</option></link> option
-for more information).
-The build may be structured in a hierarchical manner:
-the &SConstruct;
-file may specify subsidiary
+build configuration from that file;
+that directory is considered the project top directory.
+Certain command-line options specify alternate
+places to look for the &SConstruct;
+(see
+<link linkend="opt-directory"><option>-C</option></link>,
+<link linkend="opt-D"><option>-D</option></link>,
+<link linkend="opt-up"><option>-u</option></link> and
+<link linkend="opt-U"><option>-U</option></link>),
+which will set the project top directory to the place found.
+A path to the main build configuration file can also be
+specified with the
+<link linkend="opt-f"><option>-f</option></link> option,
+which leaves the current directory as the project top directory.
+</para>
+<para>
+The build configuration may be split into multiple files:
+the &SConstruct; file may specify additional
 configuration files by calling the
 &f-link-SConscript; function,
-and these may, in turn, do the same.
+and any file thus invoked may
+include further files in the same way.
 By convention,
 these subsidiary files are named
 &SConscript;,
@@ -206,10 +219,9 @@ SConscript files when needed.
 &scons;
 looks for a directory named
 <filename>site_scons</filename>
-in various system directories and in the directory containing the
-&SConstruct; file
-or, if specified, the
-directory from the
+in various system directories and in the
+project top directory, or, if specified,
+the directory from the
 <link linkend="opt-site-dir"><option>--site-dir</option></link>
 option instead, and prepends the ones it
 finds to the &Python; module search path (<varname>sys.path</varname>),
@@ -339,16 +351,25 @@ env = Environment(ENV=os.environ.copy())
 
 <para>This comes at the expense of making your build
 dependent on the user's environment being set correctly,
-but it may be more convenient for many configurations.
+but it may be more convenient for some configurations.
 It should not cause problems if done in a build setup which tightly
 controls how the environment is set up before invoking
 &scons;, as in many continuous
 integration setups.
 </para>
 
+<note><para>
+The above fragments are intended to illustrate a concept.
+It is normally not a good idea to wipe out the entire
+default value of the execution environment
+(<literal>env["ENV"]</literal>),
+as it may carry important information for the
+execution of build commands.
+</para></note>
+
 <para>&scons;
 is normally executed in a top-level directory containing an
-&SConstruct; file.
+&SConstruct; file (the project top directory).
 When &scons; is invoked,
 the command line (including the contents of the
 <link linkend="v-SCONSFLAGS">&SCONSFLAGS;</link>
@@ -530,9 +551,8 @@ should be built (on Windows systems):</para>
 </screen>
 
 <para>A subset of a hierarchical tree may be built by
-remaining at the top-level directory (where the
-&SConstruct;
-file lives) and specifying the subdirectory as the target to
+remaining at the project top directory
+and specifying the subdirectory as the target to
 build:</para>
 
 <screen>
@@ -812,11 +832,6 @@ When multiple
 options are given, each subsequent non-absolute
 <option>-C</option> <replaceable>directory</replaceable>
 is interpreted relative to the preceding one.
-This option is similar to using
-<link linkend="opt-sconstruct"><option>-f <replaceable>directory</replaceable>/SConstruct</option></link>,
-but <option>-f</option> does not search for any of the
-predefined &SConstruct; names
-in the specified directory.
 See also options
 <link linkend="opt-up"><option>-u</option></link>,
 <link linkend="opt-U"><option>-U</option></link>
@@ -1719,6 +1734,15 @@ that file is not available to scan for dependencies at all
 in an unbuilt tree, and may contain out of date information in a
 previously built tree.
 </para>
+<para>
+&SCons; cannot perform &f-link-Configure; checks in no-exec mode,
+as they would make changes to the filesystem
+(see &cv-link-CONFIGUREDIR; and &cv-link-CONFIGURELOG;).
+It can use stored information from a previous build,
+if it is not out of date,
+so a "priming" build may make subsequent no-exec runs
+more useful.
+</para>
   </listitem>
   </varlistentry>
 
@@ -2082,7 +2106,7 @@ choices may be specified, separated by commas:</para>
 &SConstruct;, &Sconstruct;, &sconstruct;, &SConstruct.py;,
 &Sconstruct.py; or &sconstruct.py;
 file is found, and uses that
-as the top of the directory tree.
+as the project top directory.
 If no targets are specified on the command line,
 only targets at or below the
 current directory will be built.</para>
@@ -2442,7 +2466,7 @@ though if necessary, also looks for alternative file names
 and &sconstruct.py; in that order.
 A different file name (which can include a pathname part)
 may be specified via the <option>-f</option> option.
-Except for the SConstruct file,
+Except for the &SConstruct; file,
 these files are not searched for automatically;
 you add additional configuration files to the build
 by calling the &f-link-SConscript; function.
@@ -2859,8 +2883,7 @@ of the &SConscript; file currently being processed.
 path strings: if the string begins with
 the <emphasis role="bold">#</emphasis> character it is
 <firstterm>top-relative</firstterm> - it works like a relative path but the
-search follows down from the directory containing the top-level
-&SConstruct; rather than
+search follows down from the project top directory rather than
 from the current directory. The <emphasis role="bold">#</emphasis>
 can optionally be followed by a pathname separator,
 which is ignored if found in that position.
@@ -3026,7 +3049,7 @@ when using the <parameter>chdir</parameter>
 keyword argument--that is,
 the expanded file names
 will still be relative to
-the top-level directory where the &SConstruct; was found,
+the project top directory,
 and consequently incorrect
 relative to the chdir directory.
 If you use the <parameter>chdir</parameter> keyword argument,
@@ -3336,9 +3359,8 @@ object.</para>
 &scons;
 provides a number of other &consenv; methods
 and global functions to
-manipulate the build configuration.</para>
-
-<para>Usually, a &consenv; method
+manipulate the build configuration.
+Usually, a &consenv; method
 and global function with the same name both exist
 for convenience.
 In the following list, the global function
@@ -3362,12 +3384,15 @@ then both forms are listed.</para>
 provide almost identical functionality, with a couple of exceptions.
 First, many of the &consenv; methods affect only that
 &consenv;, while the global function has a
-global effect. Second, where appropriate,
+global effect (or, alternatively, takes an additional
+positional argument to specify the affected &consenv;).
+Second, where appropriate,
 calling the functionality through a &consenv; will
 substitute &consvars; into
-any supplied string arguments, while the global function doesn't have the
-context of a &consenv; to pick variables from,
-so it cannot perform the substitution.
+any supplied string arguments, while the global function,
+unless it takes a &consenv; parameter,
+does not have the context of a &consenv; to pick variables from,
+and thus cannot perform substitutions.
 For example:</para>
 
 <programlisting language="python">
@@ -3389,12 +3414,18 @@ and add a target named
 <emphasis role="bold">foo</emphasis>
 to the list of default targets.
 For more on &consvar; expansion,
-see the next section on
-&consvars;.</para>
+see the
+<link linkend="construction_variables">&Consvars;</link>
+section below.
+</para>
 
-<para>Global functions may be called from custom Python modules that you
-import into an &SConscript; file by adding the following import
-to the Python module:</para>
+<para>
+Global functions are automatically in scope inside
+&SConscript; files.
+If you have custom &Python; code that you import into an &SConscript; file,
+such code will need to bring them into their own scope.
+You can do that by adding the following import
+to the &Python; module:</para>
 
 <programlisting language="python">
 from SCons.Script import *
@@ -3515,7 +3546,7 @@ command line targets or &Default; calls are present.
 <para>
 The elements of this list may be strings
 <emphasis>or</emphasis>
-nodes, so you should run the list through the Python
+nodes, so you should run the list through the &Python;
 <function>str</function>
 function to make sure any Node path names
 are converted to strings.</para>
@@ -3574,7 +3605,7 @@ function. If there are no command line
 targets, this list will have the same contents as
 &BUILD_TARGETS;.
 Since the elements of the list are nodes,
-you need to call the Python
+you need to call the &Python;
 <function>str</function>
 function on them to get the path name for each Node.</para>
 
@@ -3614,9 +3645,9 @@ default target before it's actually been added to the list.</para>
 </variablelist>
 
 <para>
-These variables may be accessed from custom Python modules that you
+These variables may be accessed from custom &Python; modules that you
 import into an &SConscript; file by adding the following
-to the Python module:</para>
+to the &Python; module:</para>
 
 <programlisting language="python">
 from SCons.Script import *
@@ -3647,10 +3678,12 @@ from SCons.Script import *
 <firstterm>&consvars;</firstterm>
 that are used by built-in or user-supplied build rules.
 &Consvar; naming must follow the same rules as
-Python identifier naming:
+&Python; identifier naming:
 the initial character must be an underscore or letter,
 followed by any number of underscores, letters, or digits.
-A &consenv; is not a Python dictionary itself,
+The convention is to use uppercase for all letters
+for easier visual identification.
+A &consenv; is not a &Python; dictionary itself,
 but it can be indexed like one to access a
 &consvar;:</para>
 
@@ -4406,7 +4439,7 @@ pass a dictionary to the &f-link-Configure; function
 as the <parameter>custom_tests</parameter> parameter.
 The dictionary maps the names of the checks
 to the custom check callables
-(either a Python function or an instance of a class implementing a
+(either a &Python; function or an instance of a class implementing a
 <methodname>__call__</methodname> method).
 Each custom check will be called with a
 a <classname>CheckContext</classname>
@@ -4593,8 +4626,8 @@ call the &Variables; function:</para>
   <term><function>Variables</function>([<parameter>files, [args]]</parameter>)</term>
   <listitem>
 <para>If <parameter>files</parameter> is a file or
-list of files, they are executed as Python scripts,
-and the values of (global) Python variables set in
+list of files, they are executed as &Python; scripts,
+and the values of (global) &Python; variables set in
 those files are added as &consvars; in the &DefEnv;.
 If no files are specified,
 or the
@@ -4736,7 +4769,7 @@ The <parameter>args</parameter>
 are tuples (or lists)
 that contain the arguments
 for an individual call to the &Add; method.
-Since tuples are not Python mappings,
+Since tuples are not &Python; mappings,
 the arguments cannot use the keyword form,
 but rather are positional arguments as documented for
 <link linkend='v-Add'><function>Add</function></link>:
@@ -5232,10 +5265,8 @@ The following attributes provide information about a Node:
   <term><replaceable>node</replaceable>.<varname>path</varname></term>
   <listitem>
 <para>The build path
-of the given
-file or directory.
-This path is relative to the top-level directory
-(where the &SConstruct; file is found).
+of the given file or directory.
+This path is relative to the project top directory.
 The build path is the same as the source path if
 <emphasis>variant_dir</emphasis>
 is not being used.</para>
@@ -5252,7 +5283,8 @@ is not being used.</para>
   <varlistentry>
   <term><replaceable>node</replaceable>.<varname>relpath</varname></term>
   <listitem>
-<para>The build path of the given file or directory relative to the root SConstruct file's directory.</para>
+<para>The build path of the given file or directory relative to
+the project top directory.</para>
   </listitem>
   </varlistentry>
 
@@ -5279,7 +5311,7 @@ Dir('.').path
 # Current dir's absolute path
 Dir('.').abspath
 
-# Current dir's path relative to the root SConstruct file's directory
+# Current dir's path relative to the project top directory
 Dir('.').relpath
 
 # Next line is always '.', because it is the top dir's path relative to itself.
@@ -5539,7 +5571,7 @@ a dictionary
 mapping source file name suffixes to
 any combination of command line strings
 (if the builder should accept multiple source file extensions),
-a Python function,
+a &Python; function,
 an Action object
 (see <link linkend='action_objects'>Action Objects</link>)
 or a list of any of the above.</para>
@@ -6026,8 +6058,7 @@ and
 when using the <parameter>chdir</parameter>
 keyword argument--that is,
 the expanded file names
-will still be relative to
-the top-level directory containing the &SConstruct; file,
+will still be relative to the project top directory,
 and consequently incorrect
 relative to the chdir directory.
 Builders created using <parameter>chdir</parameter> keyword argument,
@@ -6048,7 +6079,7 @@ env.MyBuild('sub/dir/foo.out', 'sub/dir/foo.in')
 
 <warning>
 <para>
-Python only keeps one current directory
+&Python; only keeps one current directory
 location even if there are multiple threads.
 This means that use of the
 <parameter>chdir</parameter>
@@ -6193,7 +6224,7 @@ arguments may be lists of Node objects if there is
 more than one target file or source file.
 The actual target and source file name(s) may
 be retrieved from their Node objects
-via the built-in Python <function>str</function> function:</para>
+via the built-in &Python; <function>str</function> function:</para>
 
 <programlisting language="python">
 target_file_name = str(target)
@@ -6330,7 +6361,7 @@ This is necessary whenever you want a target to be rebuilt
 when a specific &consvar; changes.
 This is not often needed for a string action,
 as the expanded variables will normally be part of the command line,
-but may be needed if a Python function action uses
+but may be needed if a &Python; function action uses
 the value of a &consvar; when generating the command line.</para>
 
 <programlisting language="python">
@@ -6380,7 +6411,7 @@ when using the <parameter>chdir</parameter>
 parameter - that is,
 the expanded file names
 will still be relative to
-the top-level directory containing the &SConstruct; file,
+the project top directory,
 and consequently incorrect
 relative to the chdir directory.
 Builders created using <parameter>chdir</parameter> keyword argument,
@@ -6492,7 +6523,7 @@ which will cause
 to batch-build targets
 with matching values of that &consvar;,
 or perhaps return the
-Python <function>id</function>()
+&Python; <function>id</function>()
 of the entire &consenv;,
 in which case
 &scons;
@@ -6621,7 +6652,7 @@ env.Command(
 <para>
 The behavior of <function>Chmod</function> is limited on Windows
 and on WebAssembly platforms,
-see the notes in the Python documentation for
+see the notes in the &Python; documentation for
 <ulink url="https://docs.python.org/3/library/os.html#os.chmod">
 os.chmod</ulink>, which is the underlying function.
 </para>
@@ -6665,7 +6696,7 @@ will be removed.
 If the
 <parameter>must_exist</parameter>
 flag is set to a true value,
-then a Python error will be raised
+then a &Python; error will be raised
 if the specified entry does not exist;
 the default is false,
 that is, the Action will silently do nothing
@@ -7086,7 +7117,7 @@ These are known as <firstterm>special attributes</firstterm>.
   <member><parameter>filebase</parameter> - Like <parameter>file</parameter> but minus its suffix.</member>
   <member><parameter>suffix</parameter> - Just the file suffix.</member>
   <member><parameter>abspath</parameter> - The absolute path name of the file.</member>
-  <member><parameter>relpath</parameter> - The path name of the file relative to the root SConstruct file's directory.</member>
+  <member><parameter>relpath</parameter> - The path name of the file relative to the project top directory.</member>
   <member><parameter>posix</parameter> -
     The path with directories separated by forward slashes
     (<emphasis role="bold">/</emphasis>).
@@ -7172,8 +7203,8 @@ Some modifiers can be combined, like
 If a substitutable expression using the notation
 <literal>${<replaceable>expression</replaceable>}</literal>
 does not appear to match one of the other substitution patterns,
-it is evaluated as a Python expression.
-This uses Python's <function>eval</function> function,
+it is evaluated as a &Python; expression.
+This uses &Python;'s <function>eval</function> function,
 with the <parameter>globals</parameter> parameter set to
 the current environment's set of &consvars;,
 and the result substituted in.
@@ -7229,19 +7260,19 @@ echo foo1 foo2 &gt; foo.out
 </screen>
 
 <para>
-In point of fact, Python expression evaluation is
+In point of fact, &Python; expression evaluation is
 how the special attributes are substituted:
-they are simply attributes of the Python objects
+they are simply attributes of the &Python; objects
 that represent &cv-TARGET;, &cv-SOURCES;, etc.,
 which &SCons; passes to <function>eval</function> which
 returns the value.
 </para>
 
 <caution><para>
-Use of the Python <function>eval</function> function
+Use of the &Python; <function>eval</function> function
 is considered to have security implications, since,
 depending on input sources,
-arbitrary unchecked strings of code can be executed by the Python interpreter.
+arbitrary unchecked strings of code can be executed by the &Python; interpreter.
 Although &SCons; makes use of it in a somewhat restricted context,
 you should be aware of this issue when using the
 <literal>${python-expression-for-subst}</literal> form.
@@ -7483,7 +7514,7 @@ the default is to return File nodes.
   <varlistentry>
   <term><parameter>node_factory</parameter></term>
   <listitem>
-<para>A Python function that will take a string
+<para>A &Python; function that will take a string
 or other object
 and turn it into the appropriate class of Node
 to be returned by this Scanner object,
@@ -7579,8 +7610,8 @@ placing them in a <filename>site_tools</filename> subdirectory
 of a site directory, or in a custom location specified to
 &scons; by giving the
 <parameter>toolpath</parameter> keyword argument to &f-link-Environment;.
-A tool module is a form of Python module, invoked internally
-using the Python import mechanism, so a tool can consist either
+A tool module is a form of &Python; module, invoked internally
+using the &Python; import mechanism, so a tool can consist either
 of a single source file taking the name of the tool
 (e.g. <filename>mytool.py</filename>) or a directory taking
 the name of the tool (e.g. <filename>mytool/</filename>)
@@ -7753,7 +7784,7 @@ env.SomeTool(targets, sources)
 <title>SYSTEM-SPECIFIC BEHAVIOR</title>
 
 <para>&scons; and its configuration files are very portable,
-due largely to its implementation in Python.
+due largely to its implementation in &Python;.
 There are, however, a few portability
 issues waiting to trap the unwary.</para>
 
@@ -7995,7 +8026,7 @@ directory must be in your <envar>PATH</envar>
 environment variable or the
 <varname>['ENV']['PATH']</varname> &consvar; for &scons;
 to detect and use the MinGW tools. When running under the native Windows
-Python; interpreter, &scons; will prefer the MinGW tools over the Cygwin
+&Python; interpreter, &scons; will prefer the MinGW tools over the Cygwin
 tools, if they are both installed, regardless of the order of the bin
 directories in the <envar>PATH</envar> variable.
 If you have both MSVC and MinGW
@@ -8263,7 +8294,7 @@ env.Command('foo', 'foo.x', 'xprocess &lt; $SOURCES &gt; $TARGET')
 <para>The
 &f-link-FindPathDirs;
 function used in the previous example returns a function
-(actually a callable Python object)
+(actually a callable &Python; object)
 that will return a list of directories
 specified in the
 <envar>MYPATH</envar>
@@ -8586,7 +8617,7 @@ However the following variables are imported by
     <term><envar>SCONS_LIB_DIR</envar></term>
     <listitem>
 <para>Specifies the directory that contains the &scons;
-Python module directory. Normally &scons; can deduce this,
+&Python; module directory. Normally &scons; can deduce this,
 but in some circumstances, such as working with a source
 release, it may be necessary to specify
 (for example,

@@ -24,6 +24,8 @@ SPDX-License-Identifier: MIT
          xmlns="http://www.scons.org/dbxsd/v1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<!-- NOTE: this file is incomplete, and main.xml does not currently include it -->
 <title>Built-In Builders</title>
 
   <para>
@@ -135,8 +137,7 @@ Program(['hello.c', 'goodbye.c'])
 
     <scons_example name="buildersbuiltin_libs">
       <file name="SConstruct" printme="1">
-env = Environment(LIBS = ['foo1', 'foo2'],
-                  LIBPATH = ['/usr/dir1', 'dir2'])
+env = Environment(LIBS=['foo1', 'foo2'], LIBPATH=['/usr/dir1', 'dir2'])
 env.Program(['hello.c', 'goodbye.c'])
       </file>
       <file name="hello.c">
@@ -786,8 +787,7 @@ directory/file
 
       <scons_example name="buildersbuiltin_ex3">
         <file name="SConstruct" printme="1">
-env = Environment(TARFLAGS = '-c -z',
-                  TARSUFFIX = '.tgz')
+env = Environment(TARFLAGS='-c -z', TARSUFFIX='.tgz')
 env.Tar('out', 'directory')
         </file>
         <file name="directory/file">
@@ -873,7 +873,7 @@ file2
 
       <programlisting>
 env = Environment()
-env.Java(target = 'classes', source = 'src')
+env.Java(target='classes', source='src')
       </programlisting>
 
       <para>
@@ -902,8 +902,8 @@ XXX Java() screen
 
       <programlisting>
 env = Environment()
-env.Java(target = 'classes', source = 'src')
-env.Jar(target = '', source = 'classes')
+env.Java(target='classes', source='src')
+env.Jar(target='', source='classes')
       </programlisting>
 
       <screen>

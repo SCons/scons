@@ -2999,9 +2999,9 @@ method.
 <summary>
 <para>
 Specifies an order-only relationship
-between the specified target file(s)
-and the specified prerequisite file(s).
-The prerequisite file(s)
+between <parameter>target</parameter>
+and <parameter>prerequisite</parameter>.
+The prerequisites
 will be (re)built, if necessary,
 <emphasis>before</emphasis>
 the target file(s),
@@ -3012,6 +3012,9 @@ the prerequisite file(s) change.
 <parameter>target</parameter> and
 <parameter>prerequisite</parameter> may each
 be a string or Node, or a list of strings or Nodes.
+If there are multiple
+<parameter>target</parameter> values,
+the prerequisite(s) are added to each one.
 Returns a list of the affected target nodes.
 </para>
 
