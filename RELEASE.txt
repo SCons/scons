@@ -80,6 +80,8 @@ IMPROVEMENTS
 - The NewParallel scheduler now only adds threads as new work requiring execution
   is discovered, up to the limit set by -j. This should reduce resource utilization
   when the achievable parallelism in the DAG is less than the -j limit.
+- Dumping an environment with `json` formatting will now explicitly specify if a given
+  value cannot be serialized.
 
 
 PACKAGING

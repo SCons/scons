@@ -44,6 +44,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       prototype when including a header file.
 
   From Thaddeus Crews:
+    - Explicitly wrap non-serializable values in json dump
     - Implemented SCons.Util.sctyping as a safe means of hinting complex types. Currently
       only implemented for `Executor` as a proof-of-concept.
 
