@@ -110,6 +110,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       (cache-cleanup-error, future-reserved-variable), improve unittest, tweak
       Sphinx build.
     - Add locking around creation of CacheDir config file. Fixes #4489.
+    - Clarify MergeFlags usage of a dict argument.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700

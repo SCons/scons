@@ -103,6 +103,7 @@ DOCUMENTATION
   A warning about overwriting env['ENV'] and one about Configure
   checks possibly not running in in no-exec mode also added.
 - Clarify how SCons finds the project top directory, and what that is used for.
+- Clarify MergeFlags usage of a dict argument.
 
 
 
