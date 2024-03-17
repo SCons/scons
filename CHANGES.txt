@@ -111,6 +111,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Sphinx build.
     - Add locking around creation of CacheDir config file. Fixes #4489.
     - Clarify MergeFlags usage of a dict argument.
+    - SCons documentation build can now be controlled through SKIP_DOC
+      variable - rather than just true/false can now specifiy
+      skip none, skip all, skip pdf docs, skip api docs.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700

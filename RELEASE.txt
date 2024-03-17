@@ -88,6 +88,9 @@ PACKAGING
 ---------
 
 - Remove unecessary dependencies on pypi packages from setup.cfg
+- SCons documentation build can now be controlled through SKIP_DOC
+  variable - rather than just true/false can now specifiy
+  skip none, skip all, skip pdf docs, skip api docs.
 
 DOCUMENTATION
 -------------
