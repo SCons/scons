@@ -534,6 +534,11 @@ class SubstitutionEnvironment:
     Environment.Base to create their own flavors of construction
     environment, we'll save that for a future refactoring when this
     class actually becomes useful.)
+
+    Special note: methods here and in actual child classes might be called
+    via proxy from an :class:`OverrideEnvironment`, which isn't in the
+    Python inheritance chain. Take care that methods called with a *self*
+    that's really an ``OverrideEnvironment`` don't make bad assumptions.
     """
 
     def __init__(self, **kw) -> None:
@@ -567,6 +572,20 @@ class SubstitutionEnvironment:
         self._special_set_keys = list(self._special_set.keys())
 
     def __eq__(self, other):
+        """Compare two environments.
+
+        This is used by checks in Builder to determine if duplicate
+        targets have environments that would cause the same result.
+        The more reliable way (respecting the admonition to avoid poking
+        at :attr:`_dict` directly) would be to use ``Dictionary`` so this
+        is sure to work even if one or both are are instances of
+        :class:`OverrideEnvironment`. However an actual
+        ``SubstitutionEnvironment`` doesn't have a ``Dictionary`` method
+        That causes problems for unit tests written to excercise
+        ``SubsitutionEnvironment`` directly, although nobody else seems
+        to ever instantiate one. We count on :class:`OverrideEnvironment`
+        to fake the :attr:`_dict` to make things work.
+        """
         return self._dict == other._dict
 
     def __delitem__(self, key) -> None:
@@ -811,16 +830,30 @@ class SubstitutionEnvironment:
         self.added_methods = [dm for dm in self.added_methods if dm.method is not function]
 
     def Override(self, overrides):
-        """
-        Produce a modified environment whose variables are overridden by
-        the overrides dictionaries.  "overrides" is a dictionary that
-        will override the variables of this environment.
+        """Create an override environment from the current environment.
 
-        This function is much more efficient than Clone() or creating
-        a new Environment because it doesn't copy the construction
+        Produces a modified environment where the current variables are
+        overridden by any same-named variables from the *overrides* dict.
+
+        An override is much more efficient than doing :meth:`~Base.Clone`
+        or creating a new Environment because it doesn't copy the construction
         environment dictionary, it just wraps the underlying construction
         environment, and doesn't even create a wrapper object if there
         are no overrides.
+
+        Using this method is preferred over directly instantiating an
+        :class:`OverrideEnvirionment` because extra checks are performed,
+        substitution takes place, and there is special handling for a
+        *parse_flags* keyword argument.
+
+        This method is not currently exposed as part of the public API,
+        but is invoked internally when things like builder calls have
+        keyword arguments, which are then passed as *overrides* here.
+        Some tools also call this explicitly.
+
+        Returns:
+           A proxy environment of type :class:`OverrideEnvironment`.
+           or the current environment if *overrides* is empty.
         """
         if not overrides: return self
         o = copy_non_reserved_keywords(overrides)
@@ -946,7 +979,7 @@ class SubstitutionEnvironment:
                     else:
                         mapping[append_next_arg_to].append(arg)
                     append_next_arg_to = None
-                elif not arg[0] in ['-', '+']:
+                elif arg[0] not in ['-', '+']:
                     mapping['LIBS'].append(self.fs.File(arg))
                 elif arg == '-dylib_file':
                     mapping['LINKFLAGS'].append(arg)
@@ -1414,7 +1447,6 @@ class Base(SubstitutionEnvironment):
 
         The variable is created if it is not already present.
         """
-
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
             if key == 'CPPDEFINES':
@@ -1676,26 +1708,25 @@ class Base(SubstitutionEnvironment):
         return None
 
 
-    def Dictionary(self, *args):
-        r"""Return construction variables from an environment.
+    def Dictionary(self, *args: str):
+        """Return construction variables from an environment.
 
         Args:
-          \*args (optional): variable names to look up
+          args (optional): variable names to look up
 
         Returns:
-          If `args` omitted, the dictionary of all construction variables.
+          If *args* omitted, the dictionary of all construction variables.
           If one arg, the corresponding value is returned.
           If more than one arg, a list of values is returned.
 
         Raises:
-          KeyError: if any of `args` is not in the construction environment.
-
+          KeyError: if any of *args* is not in the construction environment.
         """
         if not args:
             return self._dict
         dlist = [self._dict[x] for x in args]
         if len(dlist) == 1:
-            dlist = dlist[0]
+            return dlist[0]
         return dlist
 
 
@@ -1857,7 +1888,6 @@ class Base(SubstitutionEnvironment):
 
         The variable is created if it is not already present.
         """
-
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
             if key == 'CPPDEFINES':
@@ -2537,45 +2567,75 @@ class Base(SubstitutionEnvironment):
 
 
 class OverrideEnvironment(Base):
-    """A proxy that overrides variables in a wrapped construction
-    environment by returning values from an overrides dictionary in
-    preference to values from the underlying subject environment.
+    """A proxy that implements override environments.
 
-    This is a lightweight (I hope) proxy that passes through most use of
-    attributes to the underlying Environment.Base class, but has just
-    enough additional methods defined to act like a real construction
-    environment with overridden values.  It can wrap either a Base
-    construction environment, or another OverrideEnvironment, which
-    can in turn nest arbitrary OverrideEnvironments...
+    Returns attributes/methods and construction variables from the
+    base environment *subject*, except that same-named construction
+    variables from *overrides* are returned on read access; assignment
+    to a construction variable creates an override entry - *subject* is
+    not modified. This is a much lighter weight approach for limited-use
+    setups than cloning an environment, for example to handle a builder
+    call with keyword arguments that make a temporary change to the
+    current environment::
 
-    Note that we do *not* call the underlying base class
-    (SubsitutionEnvironment) initialization, because we get most of those
-    from proxying the attributes of the subject construction environment.
-    But because we subclass SubstitutionEnvironment, this class also
-    has inherited arg2nodes() and subst*() methods; those methods can't
-    be proxied because they need *this* object's methods to fetch the
-    values from the overrides dictionary.
+        env.Program(target="foo", source=sources, DEBUG=True)
+
+    While the majority of methods are proxied from the underlying environment
+    class, enough plumbing is defined in this class for it to behave
+    like an ordinary Environment without the caller needing to know it is
+    "special" in some way.  We don't call the initializer of the class
+    we're proxying, rather depend on it already being properly set up.
+
+    Deletion is handled specially, if a variable was explicitly deleted,
+    it should no longer appear to be in the env, but we also don't want to
+    modify the subject environment.
+
+    :class:`OverrideEnvironment` can nest arbitratily, *subject*
+    can be an existing instance. Although instances can be
+    instantiated directly, the expected use is to call the
+    :meth:`~SubstitutionEnvironment.Override` method as a factory.
+
+    Note Python does not give us a way to assure the subject environment
+    is not modified. Assigning to a variable creates a new entry in
+    the override, but moditying a variable will first fetch the one
+    from the subject, and if mutable, it will just be modified in place.
+    For example: ``over_env.Append(CPPDEFINES="-O")``, where ``CPPDEFINES``
+    is an existing list or :class:`~SCons.Util.CLVar`, will successfully
+    append to ``CPPDEFINES`` in the subject env.  To avoid such leakage,
+    clients such as Scanners, Emitters and Action functions called by a
+    Builder using override syntax must take care if modifying an env
+    (which is not advised anyway) in case they were passed an
+    ``OverrideEnvironment``.
     """
 
-    def __init__(self, subject, overrides=None) -> None:
+    def __init__(self, subject, overrides: Optional[dict] = None) -> None:
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.OverrideEnvironment')
+        overrides = {} if overrides is None else overrides
+        # set these directly via __dict__ to avoid trapping by __setattr__
         self.__dict__['__subject'] = subject
-        if overrides is None:
-            self.__dict__['overrides'] = {}
-        else:
-            self.__dict__['overrides'] = overrides
+        self.__dict__['overrides'] = overrides
+        self.__dict__['__deleted'] = []
 
     # Methods that make this class act like a proxy.
+
     def __getattr__(self, name):
+        # Proxied environment methods don't know they could be called with
+        # us as 'self' and may access the _data consvar dict directly.
+        # And they shouldn't *have* to know, so we need to pretend to have one,
+        # and not serve up the one from the subject, or it will miss the
+        # overridden values (and possibly modify the base). Use ourselves
+        # and hope the dict-like methods below are sufficient.
+        if name == '_dict':
+            return self
+
         attr = getattr(self.__dict__['__subject'], name)
-        # Here we check if attr is one of the Wrapper classes. For
-        # example when a pseudo-builder is being called from an
-        # OverrideEnvironment.
-        #
-        # These wrappers when they're constructed capture the
-        # Environment they are being constructed with and so will not
-        # have access to overrided values. So we rebuild them with the
-        # OverrideEnvironment so they have access to overrided values.
+
+        # Check first if attr is one of the Wrapper classes, for example
+        # when a pseudo-builder is being called from an OverrideEnvironment.
+        # These wrappers, when they're constructed, capture the Environment
+        # they are being constructed with and so will not have access to
+        # overridden values. So we rebuild them with the OverrideEnvironment
+        # so they have access to overridden values.
         if isinstance(attr, MethodWrapper):
             return attr.clone(self)
         else:
@@ -2585,13 +2645,21 @@ class OverrideEnvironment(Base):
         setattr(self.__dict__['__subject'], name, value)
 
     # Methods that make this class act like a dictionary.
+
     def __getitem__(self, key):
+        """Return the visible value of *key*.
+
+        Backfills from the subject env if *key* doesn't have an entry in
+        the override, and is not explicity deleted.
+        """
         try:
             return self.__dict__['overrides'][key]
         except KeyError:
+            if key in self.__dict__['__deleted']:
+                raise
             return self.__dict__['__subject'].__getitem__(key)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         # This doesn't have the same performance equation as a "real"
         # environment: in an override you're basically just writing
         # new stuff; it's not a common case to be changing values already
@@ -2599,37 +2667,72 @@ class OverrideEnvironment(Base):
         if not key.isidentifier():
             raise UserError(f"Illegal construction variable {key!r}")
         self.__dict__['overrides'][key] = value
+        if key in self.__dict__['__deleted']:
+            # it's no longer "deleted" if we set it
+            self.__dict__['__deleted'].remove(key)
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
+        """Delete *key* from override.
+
+        Makes *key* not visible in the override. Previously implemented
+        by deleting from ``overrides`` and from ``__subject``, which
+        keeps :meth:`__getitem__` from filling  it back in next time.
+        However, that approach was a form of leak, as the subject
+        environment was modified. So instead we log that it's deleted
+        and use that to make decisions elsewhere.
+        """
         try:
             del self.__dict__['overrides'][key]
         except KeyError:
-            deleted = 0
+            deleted = False
         else:
-            deleted = 1
-        try:
-            result = self.__dict__['__subject'].__delitem__(key)
-        except KeyError:
-            if not deleted:
-                raise
-            result = None
-        return result
+            deleted = True
+        if not deleted and key not in self.__dict__['__subject']:
+            raise KeyError(key)
+        self.__dict__['__deleted'].append(key)
 
     def get(self, key, default=None):
-        """Emulates the get() method of dictionaries."""
+        """Emulates the ``get`` method of dictionaries.
+
+        Backfills from the subject environment if *key* is not in the override
+        and not deleted.
+        """
         try:
             return self.__dict__['overrides'][key]
         except KeyError:
+            if key in self.__dict__['__deleted']:
+                return default
             return self.__dict__['__subject'].get(key, default)
 
     def __contains__(self, key) -> bool:
+        """Emulates the ``contains`` method of dictionaries.
+
+        Backfills from the subject environment if *key* is not in the override
+        and not deleted.
+        """
         if key in self.__dict__['overrides']:
             return True
+        if key in self.__dict__['__deleted']:
+            return False
         return key in self.__dict__['__subject']
 
     def Dictionary(self, *args):
+        """Return construction variables from an environment.
+
+        Returns all the visible variables, or just those in *args* if
+        specified. Obtains a Dictionary view of the subject env, then layers
+        the overrrides on top, after which any any deleted items are removed.
+
+        Returns:
+           Like :meth:`Base.Dictionary`, returns a dict if *args* is
+           omitted; a single value if there is one arg; else a list of values.
+
+        Raises:
+           KeyError: if any of *args* is not visible in the construction environment.
+        """
         d = self.__dict__['__subject'].Dictionary().copy()
         d.update(self.__dict__['overrides'])
+        d = {k: v for k, v in d.items() if k not in self.__dict__['__deleted']}
         if not args:
             return d
         dlist = [d[x] for x in args]
@@ -2638,19 +2741,19 @@ class OverrideEnvironment(Base):
         return dlist
 
     def items(self):
-        """Emulates the items() method of dictionaries."""
+        """Emulates the ``items`` method of dictionaries."""
         return self.Dictionary().items()
 
     def keys(self):
-        """Emulates the keys() method of dictionaries."""
+        """Emulates the ``keys`` method of dictionaries."""
         return self.Dictionary().keys()
 
     def values(self):
-        """Emulates the values() method of dictionaries."""
+        """Emulates the ``values`` method of dictionaries."""
         return self.Dictionary().values()
 
     def setdefault(self, key, default=None):
-        """Emulates the setdefault() method of dictionaries."""
+        """Emulates the ``setdefault`` method of dictionaries."""
         try:
             return self.__getitem__(key)
         except KeyError:
@@ -2658,6 +2761,7 @@ class OverrideEnvironment(Base):
             return default
 
     # Overridden private construction environment methods.
+
     def _update(self, other) -> None:
         self.__dict__['overrides'].update(other)
 
@@ -2680,6 +2784,7 @@ class OverrideEnvironment(Base):
         return lvars
 
     # Overridden public construction environment methods.
+
     def Replace(self, **kw) -> None:
         kw = copy_non_reserved_keywords(kw)
         self.__dict__['overrides'].update(semi_deepcopy(kw))

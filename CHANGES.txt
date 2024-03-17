@@ -12,9 +12,16 @@ NOTE: Python 3.6 support is deprecated and will be dropped in a future release.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
-
-        - Whatever John Doe did.
+  From Mats Wichmann:
+    - Override envirionments, created when giving construction environment
+      keyword arguments to Builder calls (or manually, through the undocumented
+      Override method), were modified not to "leak" on item deletion.  The item
+      will now not be deleted from the base environment.  Methods of regular
+      environments modified to (mostly) not directly access the _dict attribute
+      which stores the construction variables - in case they're called via
+      proxying from an OverrideEnv, which does not have such an attribute
+      (though for completeness, it now pretends to).  Let the dictionary-like
+      methods handle access/update instead.
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
