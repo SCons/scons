@@ -1,15 +1,6 @@
-If you are reading this in the git repository, the contents
-refer to *unreleased* changes since the last SCons release.
-Past official release announcements appear at:
-
-    https://scons.org/tag/releases.html
-
-==================================================================
-
-A new SCons release, 4.6.1, is now available on the SCons download page:
+A new SCons release, 4.7.0, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
-
 
 Here is a summary of the changes since 4.6.0:
 
@@ -19,12 +10,6 @@ NEW FUNCTIONALITY
 - Method unlink_files was added to the TestCmd class that unlinks a list of files
   from a specified directory.  An attempt to unlink a file is made only when the
   file exists; otherwise, the file is ignored.
-
-
-DEPRECATED FUNCTIONALITY
-------------------------
-
-- List anything that's been deprecated since the last release
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
@@ -64,7 +49,6 @@ FIXES
   now returns None.
 - Add locking around creation of CacheDir config file. Fixes issue #4489.
 
-
 IMPROVEMENTS
 ------------
 
@@ -83,13 +67,12 @@ IMPROVEMENTS
 - Dumping an environment with `json` formatting will now explicitly specify if a given
   value cannot be serialized.
 
-
 PACKAGING
 ---------
 
-- Remove unecessary dependencies on pypi packages from setup.cfg
+- Remove unnecessary dependencies on pypi packages from setup.cfg
 - SCons documentation build can now be controlled through SKIP_DOC
-  variable - rather than just true/false can now specifiy
+  variable - rather than just true/false can now specify
   skip none, skip all, skip pdf docs, skip api docs.
 
 DOCUMENTATION
@@ -108,8 +91,6 @@ DOCUMENTATION
 - Clarify how SCons finds the project top directory, and what that is used for.
 - Clarify MergeFlags usage of a dict argument.
 
-
-
 DEVELOPMENT
 -----------
 
@@ -122,3 +103,13 @@ Thanks to the following contributors listed below for their contributions to thi
 .. code-block:: text
 
     git shortlog --no-merges -ns 4.6.0..HEAD
+    26  Andrew Morrow
+    24  Mats Wichmann
+    14  William Deegan
+     7  Joseph Brill
+     6  StenGruener
+     3  Prabhu S. Khalsa
+     3  Thaddeus Crews
+     2  fazledyn-or
+     1  Michał Górny
+     1  Piotr Siupa
