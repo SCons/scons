@@ -36,7 +36,7 @@ copyright_years = strftime('2001 - %Y')
 # This gets inserted into the man pages to reflect the month of release.
 month_year = strftime('%B %Y')
 project = 'scons'
-default_version = '4.6.1'
+default_version = '4.7.0'
 copyright = f"Copyright (c) {copyright_years} The SCons Foundation"
 
 # We let the presence or absence of various utilities determine whether
