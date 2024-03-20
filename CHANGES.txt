@@ -9,6 +9,13 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Mats Wichmann:
+
+    - Updated Value Node docs and tests.
+
+
+RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
+
   From Ataf Fazledin Ahamed:
     - Use of NotImplemented instead of NotImplementedError for special methods
       of _ListVariable class
@@ -44,6 +51,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       prototype when including a header file.
 
   From Thaddeus Crews:
+    - Explicitly wrap non-serializable values in json dump
     - Implemented SCons.Util.sctyping as a safe means of hinting complex types. Currently
       only implemented for `Executor` as a proof-of-concept.
 
@@ -51,7 +59,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix sphinx config to handle SCons versions with post such as: 4.6.0.post1
 
   From Michał Górny:
-    - Remove unecessary dependencies on pypi packages from setup.cfg
+    - Remove unnecessary dependencies on pypi packages from setup.cfg
 
   From Sten Grüner:
     - Fix of the --debug=sconscript option to return exist statements when using return
@@ -108,7 +116,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       DeprecatedMissingSConscriptWarning) add two warnings to manpage
       (cache-cleanup-error, future-reserved-variable), improve unittest, tweak
       Sphinx build.
-    - Updated Value Node docs and tests.
+    - Add locking around creation of CacheDir config file. Fixes #4489.
+    - Clarify MergeFlags usage of a dict argument.
+    - SCons documentation build can now be controlled through SKIP_DOC
+      variable - rather than just true/false can now specify
+      skip none, skip all, skip pdf docs, skip api docs.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700

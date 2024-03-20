@@ -564,7 +564,7 @@ In this case, space-separated strings are not split.</para>
 </listitem>
 <listitem>
 <para>A dictionary is processed in order,
-adding each key:value pair as a valued macro.
+adding each key-value pair as a valued macro.
 Use the value <constant>None</constant> if the macro should not have a value.
 </para>
 </listitem>
@@ -649,7 +649,7 @@ Appending a string <parameter>val</parameter>
 to a dictonary-typed &consvar; enters
 <parameter>val</parameter> as the key in the dictionary,
 and <literal>None</literal> as its value.
-Using a tuple type to supply a <literal>key, value</literal>
+Using a tuple type to supply a key-value pair
 only works for the special case of &cv-CPPDEFINES;
 described above.
 </para>
@@ -2851,35 +2851,38 @@ Returns a list of the target Node or Nodes.
     <listitem><para>
 Merges values from
 <parameter>arg</parameter>
-into &consvars; in the current &consenv;.
-If
-<parameter>arg</parameter>
+into &consvars; in <parameter>env</parameter>.
+If <parameter>arg</parameter> is a dictionary,
+each key-value pair represents a
+&consvar; name and the corresponding flags to merge.
+If <parameter>arg</parameter>
 is not a dictionary,
-it is converted to one by calling
-&f-link-env-ParseFlags;
-on the argument
+&MergeFlags; attempts to convert it to one
 before the values are merged.
-Note that
+&f-link-env-ParseFlags; is used for this,
+so values to be converted are subject to the
+same limitations:
+&ParseFlags; has knowledge of which &consvars; certain
+flags should go to, but not all;
+and only for GCC and compatible compiler chains.
 <parameter>arg</parameter>
-must be a single value,
-so multiple strings must
-be passed in as a list,
-not as separate arguments to
-&f-env-MergeFlags;.
+must be a single object,
+so to pass multiple strings,
+enclose them in a list.
 </para>
 
 <para>
 If <literal>unique</literal> is true (the default),
-duplicate values are not stored.
-When eliminating duplicate values,
-any &consvars; that end with
-the string
+duplicate values are not retained.
+In case of duplication,
+any &consvar; names that end in
 <literal>PATH</literal>
-keep the left-most unique value.
+keep the left-most value so the
+path searcb order is not altered.
 All other &consvars; keep
-the right-most unique value.
+the right-most value.
 If <literal>unique</literal> is false,
-values are added even if they are duplicates.
+values are appended even if they are duplicates.
 </para>
 
 <para>
@@ -2888,14 +2891,14 @@ Examples:
 
 <example_commands>
 # Add an optimization flag to $CCFLAGS.
-env.MergeFlags('-O3')
+env.MergeFlags({'CCFLAGS': '-O3'})
 
 # Combine the flags returned from running pkg-config with an optimization
 # flag and merge the result into the construction variables.
 env.MergeFlags(['!pkg-config gtk+-2.0 --cflags', '-O3'])
 
 # Combine an optimization flag with the flags returned from running pkg-config
-# twice and merge the result into the construction variables.
+# for two distinct packages and merge into the construction variables.
 env.MergeFlags(
     [
         '-O3',
@@ -3633,9 +3636,9 @@ method.
     <term><replaceable>env</replaceable>.<methodname>Requires</methodname>(<parameter>target, prerequisite</parameter>)</term>
     <listitem><para>
 Specifies an order-only relationship
-between the specified target file(s)
-and the specified prerequisite file(s).
-The prerequisite file(s)
+between <parameter>target</parameter>
+and <parameter>prerequisite</parameter>.
+The prerequisites
 will be (re)built, if necessary,
 <emphasis>before</emphasis>
 the target file(s),
@@ -3646,6 +3649,9 @@ the prerequisite file(s) change.
 <parameter>target</parameter> and
 <parameter>prerequisite</parameter> may each
 be a string or Node, or a list of strings or Nodes.
+If there are multiple
+<parameter>target</parameter> values,
+the prerequisite(s) are added to each one.
 Returns a list of the affected target nodes.
 </para>
 
