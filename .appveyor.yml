@@ -36,7 +36,7 @@ environment:
   matrix:
     # Test oldest and newest supported Pythons, and a subset in between.
     # Skipping 3.7 and 3.9 at this time
-    - WINPYTHON: "Python311"
+    - WINPYTHON: "Python312"
 
     - WINPYTHON: "Python310"
 
@@ -50,7 +50,7 @@ matrix:
   exclude:
     # test python 3.6 on Visual Studio 2017 image
     - image: Visual Studio 2017
-      WINPYTHON: "Python311"
+      WINPYTHON: "Python312"
     - image: Visual Studio 2017
       WINPYTHON: "Python310"
     - image: Visual Studio 2017
@@ -58,7 +58,7 @@ matrix:
 
     # test python 3.8 on Visual Studio 2019 image
     - image: Visual Studio 2019
-      WINPYTHON: "Python311"
+      WINPYTHON: "Python312"
     - image: Visual Studio 2019
       WINPYTHON: "Python310"
     - image: Visual Studio 2019

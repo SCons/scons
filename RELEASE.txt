@@ -46,12 +46,13 @@ PACKAGING
 
 - List changes in the way SCons is packaged and/or released
 
+
 DOCUMENTATION
 -------------
 
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
+- Updated Value Node docs.
+
+
 
 DEVELOPMENT
 -----------
