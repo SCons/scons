@@ -12,6 +12,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Mats Wichmann:
 
     - Updated Value Node docs and tests.
+    - Python 3.13 compat: re.sub deprecated count, flags as positional args,
+      caused update-release-info test to fail.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
