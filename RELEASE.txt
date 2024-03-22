@@ -26,8 +26,9 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
+- Dump() with json format selected now recognizes additional compound types
+  (UserDict and UserList), which improves the detail of the display.
+  json output is also sorted, to match the default display.
 
 FIXES
 -----
