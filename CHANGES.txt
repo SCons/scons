@@ -17,6 +17,16 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Dump() with json format selected now recognizes additional compound types
       (UserDict and UserList), which improves the detail of the display.
       json output is also sorted, to match the default display.
+    - Test framework now reports a FAIL if the subprocess call to run
+      the test was aborted by the operating system (this is particularly
+      for Windows when antivirus rejects running a compiled test binary).
+      Previously these failures were not recorded in the fails list and so
+      were easy to miss.
+    - Test framework now uses a subdirectory named "scons" below the base
+      temporary directory. This gives something invariant to tell antivirus
+      software to ignore without having to exclude the tmpdir itself.
+    - MSVS "live" tests of project files adjusted to look for the generated
+      executable with an exe sufffix
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
