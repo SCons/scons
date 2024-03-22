@@ -32,6 +32,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       ones in parent NodeInfoBase and can just be inherited.
     - Update manpage for Tools, and for TOOL, which also gets a minor
       tweak for how it's handled (should be more accurate in a few situations).
+    - Test framework now uses a subdirectory named "scons" below the base
+      temporary directory. This gives something invariant to tell antivirus
+      software to ignore without having to exclude the tmpdir itself.
+    - MSVS "live" tests of project files adjusted to look for the generated
+      executable with an exe sufffix
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700

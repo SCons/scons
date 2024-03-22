@@ -24,7 +24,7 @@ There are a bunch of keyword arguments available at instantiation:
         interpreter='script_interpreter',
         workdir='prefix',
         subdir='subdir',
-        verbose=Boolean,
+        verbose=int,  # verbosity level
         match=default_match_function,
         match_stdout=default_match_stdout_function,
         match_stderr=default_match_stderr_function,
@@ -1030,9 +1030,9 @@ class TestCmd:
         diff=None,
         diff_stdout=None,
         diff_stderr=None,
-        combine: int=0,
-        universal_newlines: bool=True,
-        timeout=None,
+        combine: bool = False,
+        universal_newlines: Optional[bool] = True,
+        timeout: Optional[float] = None,
     ) -> None:
         self.external = os.environ.get('SCONS_EXTERNAL_TEST', 0)
         self._cwd = os.getcwd()
@@ -1503,7 +1503,7 @@ class TestCmd:
               arguments=None,
               universal_newlines=None,
               timeout=None,
-              **kw):
+              **kw) -> Popen:
         """ Starts a program or script for the test environment.
 
         The specified program will have the original directory
@@ -1543,32 +1543,43 @@ class TestCmd:
         # It seems that all pythons up to py3.6 still set text mode if you set encoding.
         # TODO: File enhancement request on python to propagate universal_newlines even
         # if encoding is set.hg c
-        p = Popen(cmd,
-                  stdin=stdin,
-                  stdout=PIPE,
-                  stderr=stderr_value,
-                  env=os.environ,
-                  universal_newlines=False)
+        #
+        # Windows can fail the subprocess call itself (via exception), rather
+        # than having subprocess.Popen report failure - antivirus hit is an
+        # example.  Catch this and report it up as a test fail, as it gets
+        # missed easily otherwise. "Failed to run the test" should ostensibly
+        # be a No Result, but in this case, let's behave diffferently.
+        try:
+            p = Popen(
+                cmd,
+                stdin=stdin,
+                stdout=PIPE,
+                stderr=stderr_value,
+                env=os.environ,
+                universal_newlines=False,
+            )
+        except OSError as e:
+            self.fail_test(message=repr(e))
 
         self.process = p
         return p
 
     @staticmethod
     def fix_binary_stream(stream):
-        """Handle stream from popen when we specify not universal_newlines
+        """Handle stream from popen when universal_newline is not enabled.
 
         This will read from the pipes in binary mode, will not decode the
-        output, and will not convert line endings to \n.
-        We do this because in py3 (3.5) with universal_newlines=True, it will
-        choose the default system locale to decode the output, and this breaks unicode
-        output. Specifically test/option--tree.py which outputs a unicode char.
+        output, and will not convert line endings to \n.  We do this because
+        in py3 (3.5) with universal_newlines=True, it will choose the default
+        system locale to decode the output, and this breaks unicode output.
+        Specifically test/option--tree.py which outputs a unicode char.
 
-        py 3.6 allows us to pass an encoding param to popen thus not requiring the decode
-        nor end of line handling, because we propagate universal_newlines as specified.
+        py 3.6 allows us to pass an encoding param to Popen thus not requiring
+        the decode nor end of line handling, because we propagate
+        universal_newlines as specified.
 
         TODO: Do we need to pass universal newlines into this function?
         """
-
         if not stream:
             return stream
         # It seems that py3.6 still sets text mode if you set encoding.
@@ -1629,8 +1640,8 @@ class TestCmd:
         The specified program will have the original directory
         prepended unless it is enclosed in a [list].
 
-        argument: If this is a dict() then will create arguments with KEY+VALUE for
-                  each entry in the dict.
+        arguments: if a dict() then will create arguments with KEY+VALUE for
+                   each entry in the dict.
         """
         if self.external:
             if not program:
@@ -1818,7 +1829,11 @@ class TestCmd:
         """
         if path is None:
             try:
-                path = tempfile.mkdtemp(prefix=testprefix)
+                # put tests in a subdir of the default, so antivirus
+                # can be given that directory as an "ignore".
+                testdir = Path(tempfile.gettempdir()) / "scons"
+                testdir.mkdir(exist_ok=True)
+                path = tempfile.mkdtemp(prefix=testprefix, dir=testdir)
             except TypeError:
                 path = tempfile.mkdtemp()
         else:

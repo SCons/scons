@@ -48,9 +48,11 @@ FIXES
 IMPROVEMENTS
 ------------
 
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
+- Make the testing framework a little more resilient: the temporary
+  directory for tests now includes a component named "scons" which can
+  be given to antivirus software to exclude; tests which are aborted
+  before startup by the operating system now generate a proper FAILED
+  message and are recorded in the fails list.
 
 PACKAGING
 ---------
