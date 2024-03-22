@@ -3182,7 +3182,8 @@ def generate(env):
         assert len(env.Dump()) > 200, env.Dump()    # no args version
 
         assert env.Dump('FOO', 'json') == '"foo"'    # JSON key version
-        self.assertEqual(env.Dump('FOOFLAGS', 'json'), '"<<non-serializable: CLVar>>"')
+        expect = """[\n    "--bar",\n    "--baz"\n]"""
+        self.assertEqual(env.Dump('FOOFLAGS', 'json'), expect)
         import json
         env_dict = json.loads(env.Dump(format = 'json'))
         assert env_dict['FOO'] == 'foo'    # full JSON version
