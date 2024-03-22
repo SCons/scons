@@ -668,14 +668,14 @@ class TestSCons(TestCommon):
         return s
 
     @staticmethod
-    def to_bytes_re_sub(pattern, repl, str, count: int=0, flags: int=0):
+    def to_bytes_re_sub(pattern, repl, string, count: int=0, flags: int=0):
         """
         Wrapper around re.sub to change pattern and repl to bytes to work with
         both python 2 & 3
         """
         pattern = to_bytes(pattern)
         repl = to_bytes(repl)
-        return re.sub(pattern, repl, str, count, flags)
+        return re.sub(pattern, repl, string, count=count, flags=flags)
 
     def normalize_pdf(self, s):
         s = self.to_bytes_re_sub(r'/(Creation|Mod)Date \(D:[^)]*\)',

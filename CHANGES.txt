@@ -12,6 +12,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Mats Wichmann:
 
     - Updated Value Node docs and tests.
+    - Python 3.13 compat: re.sub deprecated count, flags as positional args,
+      caused update-release-info test to fail.
     - Dump() with json format selected now recognizes additional compound types
       (UserDict and UserList), which improves the detail of the display.
       json output is also sorted, to match the default display.
