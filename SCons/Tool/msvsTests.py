@@ -420,6 +420,11 @@ class DummyEnv:
     def Dir(self, name):
         return self.fs.Dir(name)
 
+    def subst(self, key):
+        if key[0] == '$':
+            key = key[1:]
+        return self[key]
+
 
 class RegKey:
     """key class for storing an 'open' registry key"""
@@ -579,7 +584,7 @@ def DummyQueryValue(key, value):
 def DummyExists(path) -> bool:
     return True
 
-def DummyVsWhere(msvc_version, env):
+def DummyVsWhere(msvc_version, vswhere_exe):
     # not testing versions with vswhere, so return none
     return None
 
@@ -947,7 +952,7 @@ if __name__ == "__main__":
     SCons.Util.RegEnumKey      = DummyEnumKey
     SCons.Util.RegEnumValue    = DummyEnumValue
     SCons.Util.RegQueryValueEx = DummyQueryValue
-    SCons.Tool.MSCommon.vc.find_vc_pdir_vswhere = DummyVsWhere
+    SCons.Tool.MSCommon.vc._find_vc_pdir_vswhere = DummyVsWhere
 
     os.path.exists = DummyExists # make sure all files exist :-)
     os.path.isfile = DummyExists # make sure all files are files :-)

@@ -43,8 +43,7 @@ from .vc import (
     find_vc_pdir,
     get_msvc_version_numeric,
     reset_installed_vcs,
-    vswhere_register_reset_func,
-    vswhere_update_msvc,
+    vswhere_freeze_env,
 )
 
 
@@ -448,12 +447,7 @@ InstalledVSMap  = None
 def get_installed_visual_studios(env=None):
     global InstalledVSList
     global InstalledVSMap
-    debug('')
-    # Calling vswhere_update_msvc may cause installed caches to be cleared.
-    # The installed vcs and visual studios are cleared when new vc roots
-    # are discovered which causes the InstalledVSList and InstalledVSMap
-    # variables to be set to None.
-    vswhere_update_msvc(env)
+    vswhere_freeze_env(env)
     if InstalledVSList is None:
         InstalledVSList = []
         InstalledVSMap = {}
@@ -485,19 +479,6 @@ def reset_installed_visual_studios() -> None:
     # Need to clear installed VC's as well as they are used in finding
     # installed VS's
     reset_installed_vcs()
-
-def _reset_installed_vswhere_visual_studios():
-    # vswhere found new roots: reset VS2017 and later
-    global InstalledVSList
-    global InstalledVSMap
-    debug('')
-    InstalledVSList = None
-    InstalledVSMap  = None
-    for vs in SupportedVSWhereList:
-        vs.reset()
-
-# register vswhere callback function
-vswhere_register_reset_func(_reset_installed_vswhere_visual_studios)
 
 
 # We may be asked to update multiple construction environments with

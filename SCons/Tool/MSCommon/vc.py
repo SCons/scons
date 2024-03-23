@@ -51,13 +51,17 @@ from collections import (
 )
 import json
 from functools import cmp_to_key
+import enum
 
 import SCons.Util
 import SCons.Warnings
 from SCons.Tool import find_program_path
 
 from . import common
-from .common import CONFIG_CACHE, debug
+from .common import (
+    CONFIG_CACHE,
+    debug,
+)
 from .sdk import get_installed_sdks
 
 from . import MSVC
@@ -81,7 +85,13 @@ class MSVCUnsupportedTargetArch(VisualCException):
 class MSVCScriptNotFound(MSVCUserError):
     pass
 
+class MSVCUseScriptError(MSVCUserError):
+    pass
+
 class MSVCUseSettingsError(MSVCUserError):
+    pass
+
+class VSWhereUserError(MSVCUserError):
     pass
 
 # internal exceptions
@@ -914,113 +924,330 @@ def msvc_version_to_maj_min(msvc_version):
         raise ValueError("Unrecognized version %s (%s)" % (msvc_version,msvc_version_numeric)) from None
 
 
-VSWHERE_PATHS = [os.path.join(p,'vswhere.exe') for p in [
+_VSWHERE_EXEGROUP_MSVS = [os.path.join(p, _VSWHERE_EXE) for p in [
+    # For bug 3333: support default location of vswhere for both
+    # 64 and 32 bit windows installs.
+    # For bug 3542: also accommodate not being on C: drive.
     os.path.expandvars(r"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer"),
     os.path.expandvars(r"%ProgramFiles%\Microsoft Visual Studio\Installer"),
+]]
+
+_VSWHERE_EXEGROUP_PKGMGR = [os.path.join(p, _VSWHERE_EXE) for p in [
     os.path.expandvars(r"%ChocolateyInstall%\bin"),
     os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\WinGet\Links"),
     os.path.expanduser(r"~\scoop\shims"),
     os.path.expandvars(r"%SCOOP%\shims"),
 ]]
 
-def msvc_find_vswhere():
-    """ Find the location of vswhere """
-    # For bug 3333: support default location of vswhere for both
-    # 64 and 32 bit windows installs.
-    # For bug 3542: also accommodate not being on C: drive.
-    # NB: this gets called from testsuite on non-Windows platforms.
-    # Whether that makes sense or not, don't break it for those.
-    vswhere_path = None
-    for pf in VSWHERE_PATHS:
-        if os.path.exists(pf):
-            vswhere_path = pf
-            break
+_VSWhereBinary = namedtuple('_VSWhereBinary', [
+    'vswhere_exe',
+    'vswhere_norm',
+])
 
-    return vswhere_path
+class VSWhereBinary(_VSWhereBinary, MSVC.Util.AutoInitialize):
 
-# normalize user-specified vswhere paths
+    _UNDEFINED_VSWHERE_BINARY = None
 
-_cache_user_vswhere_paths = {}
+    _cache_vswhere_paths = {}
 
-def _vswhere_user_path(pval):
-    global _cache_user_vswhere_path
+    @classmethod
+    def _initialize(cls):
+        vswhere_binary = cls(
+            vswhere_exe=None,
+            vswhere_norm=None,
+        )
+        cls._UNDEFINED_VSWHERE_BINARY = vswhere_binary
+        for symbol in (None, ''):
+            cls._cache_vswhere_paths[symbol] = vswhere_binary
 
-    rval = _cache_user_vswhere_paths.get(pval, UNDEFINED)
-    if rval != UNDEFINED:
-        debug('vswhere_path=%s', rval)
-        return rval
+    @classmethod
+    def factory(cls, vswhere_exe):
 
-    vswhere_path = None
-    if pval:
+        if not vswhere_exe:
+            return cls._UNDEFINED_VSWHERE_BINARY
 
-        if not os.path.exists(pval):
+        vswhere_binary = cls._cache_vswhere_paths.get(vswhere_exe)
+        if vswhere_binary:
+            return vswhere_binary
 
-            warn_msg = f'vswhere executable path not found: {pval!r}'
-            SCons.Warnings.warn(MSVC.Warnings.VSWherePathWarning, warn_msg)
-            debug(warn_msg)
+        vswhere_norm = MSVC.Util.normalize_path(vswhere_exe)
 
-        else:
+        vswhere_binary = cls._cache_vswhere_paths.get(vswhere_norm)
+        if vswhere_binary:
+            return vswhere_binary
 
-            # TODO: vswhere_norm = MSVC.Util.normalize_path(pval)
-            vswhere_norm = os.path.normcase(os.path.normpath(pval))
+        vswhere_binary = cls(
+            vswhere_exe=vswhere_exe,
+            vswhere_norm=vswhere_exe,
+        )
 
-            tail = os.path.split(vswhere_norm)[-1]
-            if tail != _VSWHERE_EXE:
+        cls._cache_vswhere_paths[vswhere_exe] = vswhere_binary
+        cls._cache_vswhere_paths[vswhere_norm] = vswhere_binary
 
-                warn_msg = f'unsupported vswhere executable (expected {_VSWHERE_EXE!r}, found {tail!r}): {pval!r}'
-                SCons.Warnings.warn(MSVC.Warnings.VSWherePathWarning, warn_msg)
-                debug(warn_msg)
+        return vswhere_binary
 
-            else:
+class _VSWhereExecutable(MSVC.Util.AutoInitialize):
 
-                vswhere_path = vswhere_norm
-                debug('vswhere_path=%s', vswhere_path)
+    debug_extra = None
 
-    _cache_user_vswhere_paths[pval] = vswhere_path
+    class _VSWhereUserPriority(enum.IntEnum):
+        HIGH = 0               # before msvs locations
+        DEFAULT = enum.auto()  # after msvs locations and before pkgmgr locations
+        LOW = enum.auto()      # after pkgmgr locations
 
-    return vswhere_path
+    priority_default = _VSWhereUserPriority.DEFAULT
+    priority_map = {}
+    priority_symbols = []
+    priority_indmap = {}
 
-# normalize default vswhere path
+    for e in _VSWhereUserPriority:
+        for symbol in (e.name.lower(), e.name.lower().capitalize(), e.name):
+            priority_map[symbol] = e.value
+            priority_symbols.append(symbol)
+        priority_indmap[e.value] = e.name
 
-_vswhere_path_default = UNDEFINED
-
-def _msvc_default_vswhere():
-    global _vswhere_paths_processed
-    global _vswhere_path_default
-
-    if _vswhere_path_default == UNDEFINED:
-
-        _vswhere_paths_processed = [
-            MSVC.Util.normalize_path(pval)
-            for pval in VSWHERE_PATHS
-            if os.path.exists(pval)
-        ]
-
-        if _vswhere_paths_processed:
-            vswhere_path = _vswhere_paths_processed[0]
-        else:
-            vswhere_path = None
-
-        _vswhere_path_default = vswhere_path
-        debug('vswhere_path=%s', vswhere_path)
-
-    return _vswhere_path_default
-
-class _VSWhere:
-
-    reset_funcs_list = []
-    reset_funcs_seen = set()
+    UNDEFINED_VSWHERE_BINARY = VSWhereBinary.factory(None)
 
     @classmethod
     def reset(cls):
 
-        cls.seen_vswhere = set()
-        cls.seen_root = set()
+        cls._vswhere_exegroups = None
+        cls._vswhere_exegroups_user = None
+        cls._vswhere_exegroup_msvs = None
+        cls._vswhere_exegroup_pkgmgr = None
 
-        cls.vswhere_executables = []
+        cls.vswhere_frozen_flag = False
+        cls.vswhere_frozen_binary = None
 
-        cls.msvc_instances = []
-        cls.msvc_map = {}
+    @classmethod
+    def _initialize(cls):
+        cls.debug_extra = common.debug_extra(cls)
+        cls.reset()
+
+    @classmethod
+    def _vswhere_exegroup_binaries(cls, vswhere_exe_list, label):
+        vswhere_binaries = []
+        for vswhere_exe in vswhere_exe_list:
+            if not os.path.exists(vswhere_exe):
+                continue
+            vswhere_binary = VSWhereBinary.factory(vswhere_exe)
+            vswhere_binaries.append(vswhere_binary)
+            debug(
+                "insert exegroup=%s, vswhere_binary=%s",
+                label, vswhere_binary, extra=cls.debug_extra
+            )
+        return vswhere_binaries
+
+    @classmethod
+    def _get_vswhere_exegroups(cls):
+
+        if cls._vswhere_exegroups is None:
+
+            cls._vswhere_exegroup_msvs = cls._vswhere_exegroup_binaries(_VSWHERE_EXEGROUP_MSVS, 'MSVS')
+            cls._vswhere_exegroup_pkgmgr = cls._vswhere_exegroup_binaries(_VSWHERE_EXEGROUP_PKGMGR, 'PKGMGR')
+
+            cls._vswhere_exegroups_user = [
+                [] for e in cls._VSWhereUserPriority
+            ]
+
+            vswhere_exegroups = [
+                cls._vswhere_exegroups_user[cls._VSWhereUserPriority.HIGH],
+                cls._vswhere_exegroup_msvs,
+                cls._vswhere_exegroups_user[cls._VSWhereUserPriority.DEFAULT],
+                cls._vswhere_exegroup_pkgmgr,
+                cls._vswhere_exegroups_user[cls._VSWhereUserPriority.LOW],
+            ]
+
+            cls._vswhere_exegroups = vswhere_exegroups
+
+        return cls._vswhere_exegroups
+
+    @classmethod
+    def _get_vswhere_exegroups_user(cls):
+
+        if cls._vswhere_exegroups_user is None:
+            cls._get_vswhere_exegroups()
+
+        return cls._vswhere_exegroups_user
+
+    @classmethod
+    def _vswhere_exegroup_binary(cls, exegroup):
+        # first vswhere binary in group or UNDEFINED_VSWHERE_BINARY
+        vswhere_binary = exegroup[0] if exegroup else cls.UNDEFINED_VSWHERE_BINARY
+        return vswhere_binary
+
+    @classmethod
+    def _vswhere_current_binary(cls):
+        # first vswhere binary in priority order or UNDEFINED_VSWHERE_BINARY
+        vswhere_binary = cls.UNDEFINED_VSWHERE_BINARY
+        vswhere_exegroups = cls._get_vswhere_exegroups()
+        for exegroup in vswhere_exegroups:
+            binary = cls._vswhere_exegroup_binary(exegroup)
+            if binary == cls.UNDEFINED_VSWHERE_BINARY:
+                continue
+            vswhere_binary = binary
+            break
+        return vswhere_binary
+
+    @classmethod
+    def _vswhere_all_executables(cls):
+        # unique vswhere executables in priority order
+        vswhere_exe_list = []
+        vswhere_norm_set = set()
+        vswhere_exegroups = cls._get_vswhere_exegroups()
+        for exegroup in vswhere_exegroups:
+            for vswhere_binary in exegroup:
+                if vswhere_binary.vswhere_norm in vswhere_norm_set:
+                    continue
+                vswhere_norm_set.add(vswhere_binary.vswhere_norm)
+                vswhere_exe_list.append(vswhere_binary.vswhere_exe)
+        return vswhere_exe_list
+
+    @classmethod
+    def freeze_vswhere_binary(cls):
+        if not cls.vswhere_frozen_flag:
+            cls.vswhere_frozen_flag = True
+            cls.vswhere_frozen_binary = cls._vswhere_current_binary()
+            debug("freeze=%s", cls.vswhere_frozen_binary, extra=cls.debug_extra)
+        return cls.vswhere_frozen_binary
+
+    @classmethod
+    def freeze_vswhere_executable(cls):
+        vswhere_binary = cls.freeze_vswhere_binary()
+        vswhere_exe = vswhere_binary.vswhere_exe
+        return vswhere_exe
+
+    @classmethod
+    def get_vswhere_executable(cls):
+        if cls.vswhere_frozen_flag:
+            vswhere_binary = cls.vswhere_frozen_binary
+        else:
+            vswhere_binary = cls._vswhere_current_binary()
+        vswhere_exe = vswhere_binary.vswhere_exe
+        debug("vswhere_exe=%s", repr(vswhere_exe), extra=cls.debug_extra)
+        return vswhere_exe
+
+    @classmethod
+    def _vswhere_priority_group(cls, priority):
+        if not priority:
+            group = cls.priority_default
+        else:
+            group = cls.priority_map.get(priority)
+            if group is None:
+                msg = f'Value specified for vswhere executable priority is not supported: {priority!r}:\n' \
+                      f'  Valid values are: {cls.priority_symbols}'
+                debug(f'VSWhereUserError: {msg}', extra=cls.debug_extra)
+                raise VSWhereUserError(msg)
+        return group
+
+    @classmethod
+    def register_vswhere_executable(cls, vswhere_exe, priority=None) -> bool:
+
+        vswhere_binary = cls.UNDEFINED_VSWHERE_BINARY
+
+        if not vswhere_exe:
+            # ignore: None or empty
+            return vswhere_binary
+
+        if not os.path.exists(vswhere_exe):
+            msg = f'Specified vswhere executable not found: {vswhere_exe!r}.'
+            debug(f'VSWhereUserError: {msg}', extra=cls.debug_extra)
+            raise VSWhereUserError(msg)
+
+        group = cls._vswhere_priority_group(priority)
+
+        vswhere_binary = VSWhereBinary.factory(vswhere_exe)
+
+        if cls.vswhere_frozen_flag:
+
+            if vswhere_binary.vswhere_norm == cls.vswhere_frozen_binary.vswhere_norm:
+                # ignore: user executable == frozen executable
+                return vswhere_binary
+
+            msg = 'A different vswhere execuable cannot be requested after initial detetection:\n' \
+                  f'  initial vswhere executable:  {cls.vswhere_frozen_binary.vswhere_exe!r}\n' \
+                  f'  request vswhere executable: {vswhere_binary.vswhere_exe!r}'
+
+            debug(f'VSWhereUserError: {msg}', extra=cls.debug_extra)
+            raise VSWhereUserError(msg)
+
+        vswhere_exegroups_user = cls._get_vswhere_exegroups_user()
+
+        exegroup = vswhere_exegroups_user[group]
+        group_binary = cls._vswhere_exegroup_binary(exegroup)
+
+        if vswhere_binary.vswhere_norm == group_binary.vswhere_norm:
+            # ignore: user executable == exegroup[0] executable
+            return vswhere_binary
+
+        exegroup.insert(0, vswhere_binary)
+        debug(
+            "insert exegroup=user[%s], vswhere_binary=%s",
+            cls.priority_indmap[group], vswhere_binary, extra=cls.debug_extra
+        )
+
+        return vswhere_binary
+
+    @classmethod
+    def vswhere_freeze_executable(cls, vswhere_exe):
+        vswhere_binary = cls.register_vswhere_executable(vswhere_exe, priority='high')
+        frozen_binary = cls.freeze_vswhere_binary()
+        return frozen_binary, vswhere_binary
+
+    @classmethod
+    def vswhere_freeze_env(cls, env):
+
+        if env is None:
+            # no environment, no VSWHERE
+            vswhere_exe = None
+            write_vswhere = False
+        elif 'VSWHERE' not in env or not env['VSWHERE']:
+            # environment, VSWHERE undefined
+            vswhere_exe = None
+            write_vswhere = True
+        else:
+            # environment, VSWHERE defined
+            vswhere_exe = env.subst('$VSWHERE')
+            write_vswhere = False
+
+        frozen_binary, vswhere_binary = cls.vswhere_freeze_executable(vswhere_exe)
+
+        if write_vswhere and frozen_binary.vswhere_norm != vswhere_binary.vswhere_norm:
+            env['VSWHERE'] = frozen_binary.vswhere_exe
+            debug(
+                "env['VSWHERE']=%s",
+                repr(frozen_binary.vswhere_exe), extra=cls.debug_extra
+            )
+
+        return frozen_binary, vswhere_binary
+
+# external use
+vswhere_register_executable = _VSWhereExecutable.register_vswhere_executable
+vswhere_get_executable = _VSWhereExecutable.get_vswhere_executable
+vswhere_freeze_executable = _VSWhereExecutable.freeze_vswhere_executable
+
+# internal use
+vswhere_freeze_env = _VSWhereExecutable.vswhere_freeze_env
+
+def msvc_find_vswhere():
+    """ Find the location of vswhere """
+    # NB: this gets called from testsuite on non-Windows platforms.
+    # Whether that makes sense or not, don't break it for those.
+    vswhere_path = _VSWhereExecutable.get_vswhere_executable()
+    return vswhere_path
+
+_MSVCInstance = namedtuple('_MSVCInstance', [
+    'vc_path',
+    'vc_version',
+    'vc_version_numeric',
+    'vc_version_scons',
+    'vc_release',
+    'vc_component_id',
+    'vc_component_rank',
+    'vc_component_suffix',
+])
+
+class MSVCInstance(_MSVCInstance):
 
     @staticmethod
     def msvc_instances_default_order(a, b):
@@ -1035,237 +1262,231 @@ class _VSWhere:
             return 1 if a.vc_component_rank < b.vc_component_rank else -1
         return 0
 
-    @classmethod
-    def register_reset_func(cls, func):
-        if func and func not in cls.reset_funcs_seen:
-            cls.reset_funcs_seen.add(func)
-            cls.reset_funcs_list.append(func)
+class _VSWhere(MSVC.Util.AutoInitialize):
+
+    debug_extra = None
 
     @classmethod
-    def call_reset_funcs(cls):
-        for func in cls.reset_funcs_list:
-            func()
+    def reset(cls):
 
-_VSWhere.reset()
+        cls.seen_vswhere = set()
+        cls.seen_root = set()
 
-def vswhere_register_reset_func(func):
-    _VSWhere.register_reset_func(func)
+        cls.vswhere_executables = []
 
-def _filter_vswhere_paths(env):
+        cls.msvc_instances = []
+        cls.msvc_map = {}
 
-    vswhere_paths = []
+    @classmethod
+    def _initialize(cls):
+        cls.debug_extra = common.debug_extra(cls)
+        cls.reset()
 
-    if env and 'VSWHERE' in env:
-        vswhere_environ = _vswhere_user_path(env.subst('$VSWHERE'))
-        if vswhere_environ and vswhere_environ not in _VSWhere.seen_vswhere:
-            vswhere_paths.append(vswhere_environ)
+    @classmethod
+    def _new_roots_discovered(cls):
+        # TODO(JCB) should not happen due to freezing vswhere.exe
+        # need sanity check?
+        pass
 
-    vswhere_default = _msvc_default_vswhere()
-    if vswhere_default and vswhere_default not in _VSWhere.seen_vswhere:
-        vswhere_paths.append(vswhere_default)
+    @classmethod
+    def _filter_vswhere_paths(cls, vswhere_exe):
 
-    debug('vswhere_paths=%s', vswhere_paths)
-    return vswhere_paths
+        vswhere_paths = []
 
-def _vswhere_query_json_output(vswhere_exe, vswhere_args):
+        if vswhere_exe and vswhere_exe not in cls.seen_vswhere:
+            vswhere_paths.append(vswhere_exe)
 
-    vswhere_json = None
+        return vswhere_paths
 
-    once = True
-    while once:
-        once = False
-        # using break for single exit (unless exception)
+    @classmethod
+    def _vswhere_query_json_output(cls, vswhere_exe, vswhere_args):
 
-        vswhere_cmd = [vswhere_exe] + vswhere_args + ['-format', 'json', '-utf8']
-        debug("running: %s", vswhere_cmd)
+        vswhere_json = None
 
-        try:
-            cp = subprocess.run(vswhere_cmd, stdout=PIPE, stderr=PIPE, check=True)
-        except OSError as e:
-            errmsg = str(e)
-            debug("%s: %s", type(e).__name__, errmsg)
+        once = True
+        while once:
+            once = False
+            # using break for single exit (unless exception)
+
+            vswhere_cmd = [vswhere_exe] + vswhere_args + ['-format', 'json', '-utf8']
+            debug("running: %s", vswhere_cmd, extra=cls.debug_extra)
+
+            try:
+                cp = subprocess.run(vswhere_cmd, stdout=PIPE, stderr=PIPE, check=True)
+            except OSError as e:
+                errmsg = str(e)
+                debug("%s: %s", type(e).__name__, errmsg, extra=cls.debug_extra)
+                break
+            except Exception as e:
+                errmsg = str(e)
+                debug("%s: %s", type(e).__name__, errmsg, extra=cls.debug_extra)
+                raise
+
+            if not cp.stdout:
+                debug("no vswhere information returned", extra=cls.debug_extra)
+                break
+
+            vswhere_output = cp.stdout.decode('utf8', errors='replace')
+            if not vswhere_output:
+                debug("no vswhere information output", extra=cls.debug_extra)
+                break
+
+            try:
+                vswhere_output_json = json.loads(vswhere_output)
+            except json.decoder.JSONDecodeError:
+                debug("json decode exception loading vswhere output", extra=cls.debug_extra)
+                break
+
+            vswhere_json = vswhere_output_json
             break
-        except Exception as e:
-            errmsg = str(e)
-            debug("%s: %s", type(e).__name__, errmsg)
-            raise
 
-        if not cp.stdout:
-            debug("no vswhere information returned")
-            break
-
-        vswhere_output = cp.stdout.decode('utf8', errors='replace')
-        if not vswhere_output:
-            debug("no vswhere information output")
-            break
-
-        try:
-            vswhere_output_json = json.loads(vswhere_output)
-        except json.decoder.JSONDecodeError:
-            debug("json decode exception loading vswhere output")
-            break
-
-        vswhere_json = vswhere_output_json
-        break
-
-    debug('vswhere_json=%s, vswhere_exe=%s', bool(vswhere_json), repr(vswhere_exe))
-
-    return vswhere_json
-
-MSVC_INSTANCE = namedtuple('MSVCInstance', [
-    'vc_path',
-    'vc_version',
-    'vc_version_numeric',
-    'vc_version_scons',
-    'vc_release',
-    'vc_component_id',
-    'vc_component_rank',
-    'vc_component_suffix',
-])
-
-def _vswhere_update_msvc_map(env):
-
-    vswhere_paths = _filter_vswhere_paths(env)
-    if not vswhere_paths:
-        debug('new_roots=False, msvc_instances=%s', len(_VSWhere.msvc_instances))
-        return _VSWhere.msvc_map
-
-    n_instances = len(_VSWhere.msvc_instances)
-
-    for vswhere_exe in vswhere_paths:
-
-        if vswhere_exe in _VSWhere.seen_vswhere:
-            continue
-
-        _VSWhere.seen_vswhere.add(vswhere_exe)
-        _VSWhere.vswhere_executables.append(vswhere_exe)
-
-        debug('vswhere_exe=%s', repr(vswhere_exe))
-
-        vswhere_json = _vswhere_query_json_output(
-            vswhere_exe,
-            ['-all', '-products', '*']
+        debug(
+            'vswhere_json=%s, vswhere_exe=%s',
+            bool(vswhere_json), repr(vswhere_exe), extra=cls.debug_extra
         )
 
-        if not vswhere_json:
-            continue
+        return vswhere_json
 
-        for instance in vswhere_json:
+    @classmethod
+    def vswhere_update_msvc_map(cls, vswhere_exe):
 
-            #print(json.dumps(instance, indent=4, sort_keys=True))
+        frozen_binary, vswhere_binary = _VSWhereExecutable.vswhere_freeze_executable(vswhere_exe)
 
-            installation_path = instance.get('installationPath')
-            if not installation_path or not os.path.exists(installation_path):
+        vswhere_exe = frozen_binary.vswhere_exe
+
+        vswhere_paths = cls._filter_vswhere_paths(vswhere_exe)
+        if not vswhere_paths:
+            return cls.msvc_map
+
+        n_instances = len(cls.msvc_instances)
+
+        for vswhere_exe in vswhere_paths:
+
+            if vswhere_exe in cls.seen_vswhere:
                 continue
 
-            vc_path = os.path.join(installation_path, 'VC')
-            if not os.path.exists(vc_path):
-                continue
+            cls.seen_vswhere.add(vswhere_exe)
+            cls.vswhere_executables.append(vswhere_exe)
 
-            vc_root = MSVC.Util.normalize_path(vc_path)
-            if vc_root in _VSWhere.seen_root:
-                continue
-            _VSWhere.seen_root.add(vc_root)
+            debug('vswhere_exe=%s', repr(vswhere_exe), extra=cls.debug_extra)
 
-            installation_version = instance.get('installationVersion')
-            if not installation_version:
-                continue
-
-            vs_major = installation_version.split('.')[0]
-            if not vs_major in _VSWHERE_VSMAJOR_TO_VCVERSION:
-                debug('ignore vs_major: %s', vs_major)
-                continue
-
-            vc_version = _VSWHERE_VSMAJOR_TO_VCVERSION[vs_major]
-
-            product_id = instance.get('productId')
-            if not product_id:
-                continue
-
-            component_id = product_id.split('.')[-1]
-            if component_id not in _VSWHERE_COMPONENTID_CANDIDATES:
-                debug('ignore component_id: %s', component_id)
-                continue
-
-            component_rank = _VSWHERE_COMPONENTID_RANKING.get(component_id,0)
-            if component_rank == 0:
-                raise MSVCInternalError(f'unknown component_rank for component_id: {component_id!r}')
-
-            scons_suffix = _VSWHERE_COMPONENTID_SCONS_SUFFIX[component_id]
-
-            if scons_suffix:
-                vc_version_scons = vc_version + scons_suffix
-            else:
-                vc_version_scons = vc_version
-
-            is_prerelease = True if instance.get('isPrerelease', False) else False
-            is_release = False if is_prerelease else True
-
-            msvc_instance = MSVC_INSTANCE(
-                vc_path = vc_path,
-                vc_version = vc_version,
-                vc_version_numeric = float(vc_version),
-                vc_version_scons = vc_version_scons,
-                vc_release = is_release,
-                vc_component_id = component_id,
-                vc_component_rank = component_rank,
-                vc_component_suffix = component_suffix,
+            vswhere_json = cls._vswhere_query_json_output(
+                vswhere_exe,
+                ['-all', '-products', '*']
             )
 
-            _VSWhere.msvc_instances.append(msvc_instance)
+            if not vswhere_json:
+                continue
 
-    new_roots = bool(len(_VSWhere.msvc_instances) > n_instances)
-    if new_roots:
+            for instance in vswhere_json:
 
-        _VSWhere.msvc_instances = sorted(
-            _VSWhere.msvc_instances,
-            key=cmp_to_key(_VSWhere.msvc_instances_default_order)
+                #print(json.dumps(instance, indent=4, sort_keys=True))
+
+                installation_path = instance.get('installationPath')
+                if not installation_path or not os.path.exists(installation_path):
+                    continue
+
+                vc_path = os.path.join(installation_path, 'VC')
+                if not os.path.exists(vc_path):
+                    continue
+
+                vc_root = MSVC.Util.normalize_path(vc_path)
+                if vc_root in cls.seen_root:
+                    continue
+                cls.seen_root.add(vc_root)
+
+                installation_version = instance.get('installationVersion')
+                if not installation_version:
+                    continue
+
+                vs_major = installation_version.split('.')[0]
+                if not vs_major in _VSWHERE_VSMAJOR_TO_VCVERSION:
+                    debug('ignore vs_major: %s', vs_major, extra=cls.debug_extra)
+                    continue
+
+                vc_version = _VSWHERE_VSMAJOR_TO_VCVERSION[vs_major]
+
+                product_id = instance.get('productId')
+                if not product_id:
+                    continue
+
+                component_id = product_id.split('.')[-1]
+                if component_id not in _VSWHERE_COMPONENTID_CANDIDATES:
+                    debug('ignore component_id: %s', component_id, extra=cls.debug_extra)
+                    continue
+
+                component_rank = _VSWHERE_COMPONENTID_RANKING.get(component_id,0)
+                if component_rank == 0:
+                    raise MSVCInternalError(f'unknown component_rank for component_id: {component_id!r}')
+
+                scons_suffix = _VSWHERE_COMPONENTID_SCONS_SUFFIX[component_id]
+
+                if scons_suffix:
+                    vc_version_scons = vc_version + scons_suffix
+                else:
+                    vc_version_scons = vc_version
+
+                is_prerelease = True if instance.get('isPrerelease', False) else False
+                is_release = False if is_prerelease else True
+
+                msvc_instance = MSVCInstance(
+                    vc_path = vc_path,
+                    vc_version = vc_version,
+                    vc_version_numeric = float(vc_version),
+                    vc_version_scons = vc_version_scons,
+                    vc_release = is_release,
+                    vc_component_id = component_id,
+                    vc_component_rank = component_rank,
+                    vc_component_suffix = component_suffix,
+                )
+
+                cls.msvc_instances.append(msvc_instance)
+
+        new_roots = bool(len(cls.msvc_instances) > n_instances)
+        if new_roots:
+
+            cls.msvc_instances = sorted(
+                cls.msvc_instances,
+                key=cmp_to_key(MSVCInstance.msvc_instances_default_order)
+            )
+
+            cls.msvc_map = {}
+
+            for msvc_instance in cls.msvc_instances:
+
+                debug(
+                    'msvc instance: msvc_version=%s, is_release=%s, component_id=%s, vc_path=%s',
+                    repr(msvc_instance.vc_version_scons), msvc_instance.vc_release,
+                    repr(msvc_instance.vc_component_id), repr(msvc_instance.vc_path),
+                    extra=cls.debug_extra
+                )
+
+                key = (msvc_instance.vc_version_scons, msvc_instance.vc_release)
+                cls.msvc_map.setdefault(key,[]).append(msvc_instance)
+
+                if msvc_instance.vc_version_scons == msvc_instance.vc_version:
+                    continue
+
+                key = (msvc_instance.vc_version, msvc_instance.vc_release)
+                cls.msvc_map.setdefault(key,[]).append(msvc_instance)
+
+            cls._new_roots_discovered()
+
+        debug(
+            'new_roots=%s, msvc_instances=%s',
+            new_roots, len(cls.msvc_instances), extra=cls.debug_extra
         )
 
-        _VSWhere.msvc_map = {}
-
-        for msvc_instance in _VSWhere.msvc_instances:
-
-            debug(
-                'msvc instance: msvc_version=%s, is_release=%s, component_id=%s, vc_path=%s',
-                repr(msvc_instance.vc_version_scons), msvc_instance.vc_release,
-                repr(msvc_instance.vc_component_id), repr(msvc_instance.vc_path)
-            )
-
-            key = (msvc_instance.vc_version_scons, msvc_instance.vc_release)
-            _VSWhere.msvc_map.setdefault(key,[]).append(msvc_instance)
-
-            if msvc_instance.vc_version_scons == msvc_instance.vc_version:
-                continue
-
-            key = (msvc_instance.vc_version, msvc_instance.vc_release)
-            _VSWhere.msvc_map.setdefault(key,[]).append(msvc_instance)
-
-        _VSWhere.call_reset_funcs()
-
-    debug('new_roots=%s, msvc_instances=%s', new_roots, len(_VSWhere.msvc_instances))
-
-    return _VSWhere.msvc_map
-
-def vswhere_update_msvc(env):
-    _vswhere_update_msvc_map(env)
+        return cls.msvc_map
 
 _cache_pdir_vswhere_queries = {}
 
-def _reset_pdir_vswhere_queries():
-    global _cache_pdir_vswhere_queries
-    _cache_pdir_vswhere_queries = {}
-    debug('reset _cache_pdir_vswhere_queries')
-
-# register pdir vswhere cache reset function with vswhere state manager
-_VSWhere.register_reset_func(_reset_pdir_vswhere_queries)
-
-def find_vc_pdir_vswhere(msvc_version, env=None):
+def _find_vc_pdir_vswhere(msvc_version, vswhere_exe):
     """ Find the MSVC product directory using the vswhere program.
 
     Args:
         msvc_version: MSVC version to search for
-        env: optional to look up VSWHERE variable
+        vswhere_exe: vswhere executable or None
 
     Returns:
         MSVC install dir or None
@@ -1276,7 +1497,7 @@ def find_vc_pdir_vswhere(msvc_version, env=None):
     """
     global _cache_pdir_vswhere_queries
 
-    msvc_map = _vswhere_update_msvc_map(env)
+    msvc_map = _VSWhere.vswhere_update_msvc_map(vswhere_exe)
     if not msvc_map:
         return None
 
@@ -1335,7 +1556,7 @@ def find_vc_pdir_vswhere(msvc_version, env=None):
 
 _cache_pdir_registry_queries = {}
 
-def find_vc_pdir_registry(msvc_version):
+def _find_vc_pdir_registry(msvc_version):
     """ Find the MSVC product directory using the registry.
 
     Args:
@@ -1436,11 +1657,50 @@ def find_vc_pdir_registry(msvc_version):
 
     return pdir
 
-def find_vc_pdir(msvc_version, env=None):
+def _find_vc_pdir(msvc_version, vswhere_exe):
     """Find the MSVC product directory for the given version.
 
-    Use find_vc_pdir_vsvwhere for msvc versions 14.1 and later.
-    Use find_vc_pdir_registry for msvc versions 14.0 and earlier.
+    Args:
+        msvc_version: str
+            msvc version (major.minor, e.g. 10.0)
+
+        vswhere_exe: str
+            vswhere executable or None
+
+    Returns:
+        str: Path found in registry, or None
+
+    Raises:
+        UnsupportedVersion: if the version is not known by this file.
+
+        UnsupportedVersion inherits from VisualCException.
+
+    """
+
+    if msvc_version in _VSWHERE_SUPPORTED_VCVER:
+
+        pdir = _find_vc_pdir_vswhere(msvc_version, vswhere_exe)
+        if pdir:
+            debug('VC found: %s, dir=%s', repr(msvc_version), repr(pdir))
+            return pdir
+
+    elif msvc_version in _VCVER_TO_PRODUCT_DIR:
+
+        pdir = _find_vc_pdir_registry(msvc_version)
+        if pdir:
+            debug('VC found: %s, dir=%s', repr(msvc_version), repr(pdir))
+            return pdir
+
+    else:
+
+        debug("Unknown version of MSVC: %s", repr(msvc_version))
+        raise UnsupportedVersion("Unknown version %s" % repr(msvc_version)) from None
+
+    debug('no VC found for version %s', repr(msvc_version))
+    return None
+
+def find_vc_pdir(msvc_version, env=None):
+    """Find the MSVC product directory for the given version.
 
     Args:
         msvc_version: str
@@ -1458,27 +1718,12 @@ def find_vc_pdir(msvc_version, env=None):
 
     """
 
-    if msvc_version in _VSWHERE_SUPPORTED_VCVER:
+    frozen_binary, _ = _VSWhereExecutable.vswhere_freeze_env(env)
 
-        pdir = find_vc_pdir_vswhere(msvc_version, env)
-        if pdir:
-            debug('VC found: %s, dir=%s', repr(msvc_version), repr(pdir))
-            return pdir
+    pdir = _find_vc_pdir(msvc_version, frozen_binary.vswhere_exe)
+    debug('pdir=%s', repr(pdir))
 
-    elif msvc_version in _VCVER_TO_PRODUCT_DIR:
-
-        pdir = find_vc_pdir_registry(msvc_version)
-        if pdir:
-            debug('VC found: %s, dir=%s', repr(msvc_version), repr(pdir))
-            return pdir
-
-    else:
-
-        debug("Unknown version of MSVC: %s", repr(msvc_version))
-        raise UnsupportedVersion("Unknown version %s" % repr(msvc_version)) from None
-
-    debug('no VC found for version %s', repr(msvc_version))
-    return None
+    return pdir
 
 # register find_vc_pdir function with Kind routines
 # in case of unknown msvc_version (just in case)
@@ -1486,10 +1731,8 @@ MSVC.Kind.register_msvc_version_pdir_func(find_vc_pdir)
 
 def _reset_vc_pdir():
     debug('reset pdir caches')
-    global _cache_user_vswhere_path
     global _cache_pdir_vswhere_queries
     global _cache_pdir_registry_queries
-    _cache_user_vswhere_paths = {}
     _cache_pdir_vswhere_queries = {}
     _cache_pdir_registry_queries = {}
 
@@ -1592,9 +1835,6 @@ def _reset_installed_vcs():
     global __INSTALLED_VCS_RUN
     debug('reset __INSTALLED_VCS_RUN')
     __INSTALLED_VCS_RUN = None
-
-# register vcs cache reset function with vswhere state manager
-_VSWhere.register_reset_func(_reset_installed_vcs)
 
 _VC_TOOLS_VERSION_FILE_PATH = ['Auxiliary', 'Build', 'Microsoft.VCToolsVersion.default.txt']
 _VC_TOOLS_VERSION_FILE = os.sep.join(_VC_TOOLS_VERSION_FILE_PATH)
@@ -1760,9 +2000,7 @@ def _check_files_exist_in_vc_dir(env, vc_dir, msvc_version) -> bool:
 def get_installed_vcs(env=None):
     global __INSTALLED_VCS_RUN
 
-    debug('')
-    # the installed vcs cache is cleared if new vc roots are discovered
-    _vswhere_update_msvc_map(env)
+    _VSWhereExecutable.vswhere_freeze_env(env)
 
     if __INSTALLED_VCS_RUN is not None:
         return __INSTALLED_VCS_RUN
@@ -1788,8 +2026,8 @@ def get_installed_vcs(env=None):
                     debug('no compiler found %s', ver)
             else:
                 debug('return None for ver %s', ver)
-        except (MSVCUnsupportedTargetArch, MSVCUnsupportedHostArch):
-            # Allow this exception to propagate further as it should cause
+        except (MSVCUnsupportedTargetArch, MSVCUnsupportedHostArch, VSWhereUserError):
+            # Allow these exceptions to propagate further as it should cause
             # SCons to exit with an error code
             raise
         except VisualCException as e:
@@ -1807,6 +2045,7 @@ def reset_installed_vcs() -> None:
     """Make it try again to find VC.  This is just for the tests."""
     _reset_installed_vcs()
     _reset_vc_pdir()
+    _VSWhereExecutable.reset()
     _VSWhere.reset()
     MSVC._reset()
 
@@ -2132,6 +2371,9 @@ def get_use_script_use_settings(env):
 
 def msvc_setup_env(env):
     debug('called')
+
+    _VSWhereExecutable.vswhere_freeze_env(env)
+
     version = get_default_version(env)
     if version is None:
         if not msvc_setup_env_user(env):
@@ -2268,8 +2510,11 @@ def msvc_sdk_versions(version=None, msvc_uwp_app: bool=False):
     rval = MSVC.WinSDK.get_msvc_sdk_version_list(version, msvc_uwp_app)
     return rval
 
-def msvc_toolset_versions(msvc_version=None, full: bool=True, sxs: bool=False):
-    debug('msvc_version=%s, full=%s, sxs=%s', repr(msvc_version), repr(full), repr(sxs))
+def msvc_toolset_versions(msvc_version=None, full: bool=True, sxs: bool=False, vswhere_exe=None):
+    debug(
+        'msvc_version=%s, full=%s, sxs=%s, vswhere_exe=%s',
+        repr(msvc_version), repr(full), repr(sxs), repr(vswhere_exe)
+    )
 
     rval = []
 
@@ -2284,7 +2529,7 @@ def msvc_toolset_versions(msvc_version=None, full: bool=True, sxs: bool=False):
         msg = f'Unsupported msvc version {msvc_version!r}'
         raise MSVCArgumentError(msg)
 
-    vc_dir = find_vc_pdir(msvc_version)
+    vc_dir = _find_vc_pdir(msvc_version, vswhere_exe)
     if not vc_dir:
         debug('VC folder not found for version %s', repr(msvc_version))
         return rval
@@ -2292,8 +2537,8 @@ def msvc_toolset_versions(msvc_version=None, full: bool=True, sxs: bool=False):
     rval = MSVC.ScriptArguments._msvc_toolset_versions_internal(msvc_version, vc_dir, full=full, sxs=sxs)
     return rval
 
-def msvc_toolset_versions_spectre(msvc_version=None):
-    debug('msvc_version=%s', repr(msvc_version))
+def msvc_toolset_versions_spectre(msvc_version=None, vswhere_exe=None):
+    debug('msvc_version=%s, vswhere_exe=%s', repr(msvc_version), repr(vswhere_exe))
 
     rval = []
 
@@ -2308,7 +2553,7 @@ def msvc_toolset_versions_spectre(msvc_version=None):
         msg = f'Unsupported msvc version {msvc_version!r}'
         raise MSVCArgumentError(msg)
 
-    vc_dir = find_vc_pdir(msvc_version)
+    vc_dir = _find_vc_pdir(msvc_version, vswhere_exe)
     if not vc_dir:
         debug('VC folder not found for version %s', repr(msvc_version))
         return rval
@@ -2316,7 +2561,7 @@ def msvc_toolset_versions_spectre(msvc_version=None):
     rval = MSVC.ScriptArguments._msvc_toolset_versions_spectre_internal(msvc_version, vc_dir)
     return rval
 
-def msvc_query_version_toolset(version=None, prefer_newest: bool=True):
+def msvc_query_version_toolset(version=None, prefer_newest: bool=True, vswhere_exe=None):
     """
     Returns an msvc version and a toolset version given a version
     specification.
@@ -2352,6 +2597,9 @@ def msvc_query_version_toolset(version=None, prefer_newest: bool=True):
             False: prefer the "native" Visual Studio instance first. If
                    the native Visual Studio instance is not detected, prefer
                    newer Visual Studio instances.
+
+        vswhere_exe: str
+            A vswhere executable location or None.
 
     Returns:
         tuple: A tuple containing the msvc version and the msvc toolset version.
@@ -2427,7 +2675,7 @@ def msvc_query_version_toolset(version=None, prefer_newest: bool=True):
             continue
         seen_msvc_version.add(query_msvc_version)
 
-        vc_dir = find_vc_pdir(query_msvc_version)
+        vc_dir = _find_vc_pdir(query_msvc_version, vswhere_exe)
         if not vc_dir:
             continue
 

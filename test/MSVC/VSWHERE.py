@@ -62,11 +62,14 @@ for l in lines:
         detected_path = l.strip().split('=')[-1]
     elif 'VSWHERE-env' in l:
         env_path = l.strip().split('=')[-1]
+    elif 'VSWHERE-util' in l:
+        util_path = l.strip().split('=')[-1]
 
 # Debug code
 # print("VPP:%s" % default_locations)
 # print("V-D:%s" % detected_path)
 # print("V-E:%s" % env_path)
+# print("V-U:%s" % util_path)
 
 
 test.fail_test(
@@ -87,6 +90,12 @@ test.fail_test(
     message='VSWHERE not\n\t%s\n\t but\n\t%s' % (expected_env_path, env_path),
 )
 
+expected_util_path = os.path.join(test.workdir, 'vswhere.exe')
+test.fail_test(
+    util_path != expected_env_path,
+    message='VSWHERE not\n\t%s\n\t but\n\t%s' % (expected_util_path, util_path),
+)
+
 test.pass_test()
 
 # here for reference, unused
@@ -99,6 +108,7 @@ VSWHERE_PATH=C:\ProgramData\chocolatey\bin\vswhere.exe
 VSWHERE-detect=C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe
 Copy("C:\Users\Bill\AppData\Local\Temp\testcmd.11256.1ae1_as5\vswhere.exe", "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe")
 VSWHERE-env=C:\Users\Bill\AppData\Local\Temp\testcmd.11256.1ae1_as5\vswhere.exe
+VSWHERE-util=C:\Users\Bill\AppData\Local\Temp\testcmd.11256.1ae1_as5\vswhere.exe
 scons: done reading SConscript files.
 scons: Building targets ...
 scons: `.' is up to date.

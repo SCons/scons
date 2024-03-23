@@ -75,13 +75,16 @@ FIXES
   is now selected before a Visual C++ For Python edition. Prior to this change,
   Visual C++ For Python was selected before a full development edition when both
   editions are installed.
-- MSVC: The installed vcs and visual studios lists were constructed and cached
-  during their initial invocations. If a vswhere executable was specified via the
-  construction variable VSWHERE and found additional msvc installations, the new
-  installations were not reflected in the cached installed vcs and visual studios
-  lists. Now, when a user-specified vswhere executable finds new msvc installations,
-  the installed vcs and visual studios lists are cleared and reconstructed on their
-  next retrieval.
+- The vswhere executable is frozen upon initial detection.  Specifying a different
+  vswhere executable via the construction variable VSWHERE after the initial
+  detection now results in an exception.  Multiple bugs in the implementation of
+  specifying a vswhere executable via the construction variable VSWHERE have been
+  fixed.  Previously, when a user specified vswhere executable detects new msvc
+  installations after the initial detection, the internal msvc installation cache
+  and the default msvc version based on the initial detection are no longer valid.
+  For example, when no vswhere executable is found for the initial detection
+  and then later an environment is constructed with a user specified vswhere
+  executable that detects new msvc installations.
 - On Windows platform, when collecting command output (Configure checks),
   make sure decoding of bytes doesn't fail.
 - Documentation indicated that both Pseudo() and env.Pseudo() were usable,

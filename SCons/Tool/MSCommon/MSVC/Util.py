@@ -37,6 +37,15 @@ from ..common import debug
 
 from . import Config
 
+
+# call _initialize method upon class definition completion
+
+class AutoInitialize:
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if hasattr(cls, '_initialize') and callable(getattr(cls, '_initialize', None)):
+            cls._initialize()
+
 # path utilities
 
 # windows drive specification (e.g., 'C:')

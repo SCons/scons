@@ -57,12 +57,22 @@ class VswhereTestCase(unittest.TestCase):
         Verify that msvc_find_vswhere() find's files in the specified paths
         """
         # import pdb; pdb.set_trace()
-        vswhere_dirs = [os.path.splitdrive(p)[1] for p in SCons.Tool.MSCommon.vc.VSWHERE_PATHS]
-        base_dir = test.workpath('fake_vswhere')
-        test_vswhere_dirs = [os.path.join(base_dir,d[1:]) for d in vswhere_dirs]
+        test_all_dirs = []
 
-        SCons.Tool.MSCommon.vc.VSWHERE_PATHS = test_vswhere_dirs
-        for vsw in test_vswhere_dirs:
+        base_dir = test.workpath('fake_vswhere')
+
+        vswhere_dirs = [os.path.splitdrive(p)[1] for p in SCons.Tool.MSCommon.vc._VSWHERE_EXEGROUP_MSVS]
+        test_vswhere_dirs = [os.path.join(base_dir,d[1:]) for d in vswhere_dirs]
+        SCons.Tool.MSCommon.vc._VSWHERE_EXEGROUP_MSVS = test_vswhere_dirs
+        test_all_dirs += test_vswhere_dirs
+
+        vswhere_dirs = [os.path.splitdrive(p)[1] for p in SCons.Tool.MSCommon.vc._VSWHERE_EXEGROUP_PKGMGR]
+        test_vswhere_dirs = [os.path.join(base_dir,d[1:]) for d in vswhere_dirs]
+        SCons.Tool.MSCommon.vc._VSWHERE_EXEGROUP_PKGMGR = test_vswhere_dirs
+        test_all_dirs += test_vswhere_dirs
+
+        for vsw in test_all_dirs:
+            SCons.Tool.MSCommon.vc._VSWhereExecutable.reset()
             VswhereTestCase._createVSWhere(vsw)
             find_path = SCons.Tool.MSCommon.vc.msvc_find_vswhere()
             self.assertTrue(vsw == find_path, "Didn't find vswhere in %s found in %s" % (vsw, find_path))
