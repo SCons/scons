@@ -47,12 +47,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       selected before a full development edition when both editions are installed.
     - The registry detection of VS2015 (14.0), and earlier, is now cached at runtime and
       is only evaluated once for each msvc version.
-    - The vswhere detection of VS2017 (14.1), and later, is now cached at runtime and is
-      only evaluated once for each vswhere executable.  The detected msvc instances for
-      all vswhere executables are merged (i.e., detected msvc instances are the union
-      of the results from all vswhere executables).  There is a single invocation for
-      each vswhere executable that processes the output for all installations.  Prior
-      implementations called the vswhere executable for each supported msvc version.
     - The vswhere executable is frozen upon initial detection.  Specifying a different
       vswhere executable via the construction variable VSWHERE after the initial
       detection now results in an exception.  Multiple bugs in the implementation of
@@ -63,6 +57,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       For example, when no vswhere executable is found for the initial detection
       and then later an environment is constructed with a user specified vswhere
       executable that detects new msvc installations.
+    - The vswhere detection of VS2017 (14.1), and later, is now cached at runtime and is
+      only evaluated once using a single vswhere invocation for all installations.
+      Previously, the vswhere executable was invoked for each supported msvc version.
 
   From Mats Wichmann:
 
