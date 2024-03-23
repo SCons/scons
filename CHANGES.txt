@@ -9,39 +9,7 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From Ataf Fazledin Ahamed:
-    - Use of NotImplemented instead of NotImplementedError for special methods
-      of _ListVariable class
-
   From Joseph Brill:
-    - Fix issue #2755: the msvs tool no longer writes the OS environment SCONS_HOME
-      value into the SCons environment when the SCONS_HOME variable already exists
-      in the SCons environment.  Prior to this change, a valid user-defined SCons
-      environment value for SCONS_HOME would be overwritten with the OS environment
-      value of SCONS_HOME which could be None (i.e., undefined).
-    - Update the windows registry keys for detection of Visual Studio 2015 Express
-      ('14.0Exp'): the VS2015 registry key ('WDExpress') appears to be different
-      than the registry key ('VCExpress') for earlier Visual Studio express
-      versions.  The registry key value is relative to the installation root rather
-      than the VC folder and requires additional path components during evaluation.
-    - Fix the vs-6.0-exec.py test script: the msvs generated project is 'foo.dsp'
-      and the command-line invocation of the Visual Studio development environment
-      program was attempting to build 'test.dsp'.  The command-line invocation was
-      changed to build 'foo.dsp'.
-    - Update the msvs project generation test scripts: the msvs project execution
-      tests could produce a "false positive" test result when the test executable is
-      correctly built via the SConstruct env.Program() call and the command-line
-      invocation of the Visual Studio development environment program fails.  The
-      test passes due to the existence of the test executable from the initial
-      build.  The tests were modified to delete the test executable, object file,
-      and sconsign file prior to the command-line invocation of the VS development
-      binary.
-    - Method unlink_files was added to the TestCmd class that unlinks a list of
-      files from a specified directory.  An attempt to unlink a file is made only
-      when the file exists; otherwise, the file is ignored.
-    - Fix issue #4320: add an optional argument list string to configure's CheckFunc
-      method so that the generated function argument list matches the function's
-      prototype when including a header file.
     - For msvc version specifications without an 'Exp' suffix, an express installation
       is used when no other edition is detected for the msvc version.  Similarly, an
       express installation of the IDE binary is used when no other IDE edition is
@@ -96,7 +64,54 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and then later an environment is constructed with a user specified vswhere
       executable that detects new msvc installations.
 
+  From Mats Wichmann:
+
+    - Updated Value Node docs and tests.
+    - Python 3.13 compat: re.sub deprecated count, flags as positional args,
+      caused update-release-info test to fail.
+    - Dump() with json format selected now recognizes additional compound types
+      (UserDict and UserList), which improves the detail of the display.
+      json output is also sorted, to match the default display.
+
+
+RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
+
+  From Ataf Fazledin Ahamed:
+    - Use of NotImplemented instead of NotImplementedError for special methods
+      of _ListVariable class
+
+  From Joseph Brill:
+    - Fix issue #2755: the msvs tool no longer writes the OS environment SCONS_HOME
+      value into the SCons environment when the SCONS_HOME variable already exists
+      in the SCons environment.  Prior to this change, a valid user-defined SCons
+      environment value for SCONS_HOME would be overwritten with the OS environment
+      value of SCONS_HOME which could be None (i.e., undefined).
+    - Update the windows registry keys for detection of Visual Studio 2015 Express
+      ('14.0Exp'): the VS2015 registry key ('WDExpress') appears to be different
+      than the registry key ('VCExpress') for earlier Visual Studio express
+      versions.  The registry key value is relative to the installation root rather
+      than the VC folder and requires additional path components during evaluation.
+    - Fix the vs-6.0-exec.py test script: the msvs generated project is 'foo.dsp'
+      and the command-line invocation of the Visual Studio development environment
+      program was attempting to build 'test.dsp'.  The command-line invocation was
+      changed to build 'foo.dsp'.
+    - Update the msvs project generation test scripts: the msvs project execution
+      tests could produce a "false positive" test result when the test executable is
+      correctly built via the SConstruct env.Program() call and the command-line
+      invocation of the Visual Studio development environment program fails.  The
+      test passes due to the existence of the test executable from the initial
+      build.  The tests were modified to delete the test executable, object file,
+      and sconsign file prior to the command-line invocation of the VS development
+      binary.
+    - Method unlink_files was added to the TestCmd class that unlinks a list of
+      files from a specified directory.  An attempt to unlink a file is made only
+      when the file exists; otherwise, the file is ignored.
+    - Fix issue #4320: add an optional argument list string to configure's CheckFunc
+      method so that the generated function argument list matches the function's
+      prototype when including a header file.
+
   From Thaddeus Crews:
+    - Explicitly wrap non-serializable values in json dump
     - Implemented SCons.Util.sctyping as a safe means of hinting complex types. Currently
       only implemented for `Executor` as a proof-of-concept.
 
@@ -104,7 +119,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix sphinx config to handle SCons versions with post such as: 4.6.0.post1
 
   From Michał Górny:
-    - Remove unecessary dependencies on pypi packages from setup.cfg
+    - Remove unnecessary dependencies on pypi packages from setup.cfg
 
   From Sten Grüner:
     - Fix of the --debug=sconscript option to return exist statements when using return
@@ -144,6 +159,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       harder to decode non-UTF-8 text. SCons.Util.to_Text now exists
       to convert a byte stream, such as "raw" file data.  Fixes #3569, #4462.
       The Pseudo manpage entry was updated to provide more clarity.
+    - Clarify how SCons finds the project top directory, and what that is used for.
     - The internal routine which implements the PyPackageDir function
       would fail with an exception if called with a module which is
       not found.  It will now return None.  Updated manpage entry and
@@ -152,6 +168,19 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       describe the Microsoft C++ compiler. Update the version table slightly.
       Amplified the usage of MSVC_VERSION.
     - Improve SharedLibrary docs a bit.
+    - More consistent use of &Python; in the manpage.  A few links added.
+      A warning about overwriting env['ENV'] and one about Configure
+      checks possibly not running in in no-exec mode also added.
+    - Update warnings module: adds docstrings, drop three unused warnings
+      (DeprecatedSourceCodeWarning, TaskmasterNeedsExecuteWarning,
+      DeprecatedMissingSConscriptWarning) add two warnings to manpage
+      (cache-cleanup-error, future-reserved-variable), improve unittest, tweak
+      Sphinx build.
+    - Add locking around creation of CacheDir config file. Fixes #4489.
+    - Clarify MergeFlags usage of a dict argument.
+    - SCons documentation build can now be controlled through SKIP_DOC
+      variable - rather than just true/false can now specify
+      skip none, skip all, skip pdf docs, skip api docs.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700

@@ -35,9 +35,9 @@ import os
 import sys
 import re
 import shlex
-from collections import UserDict, deque
+from collections import UserDict, UserList, deque
 from subprocess import PIPE, DEVNULL
-from typing import Optional
+from typing import Optional, Sequence
 
 import SCons.Action
 import SCons.Builder
@@ -633,6 +633,17 @@ class SubstitutionEnvironment:
         return self._dict.setdefault(key, default)
 
     def arg2nodes(self, args, node_factory=_null, lookup_list=_null, **kw):
+        """Converts *args* to a list of nodes.
+
+        Arguments:
+           args - filename strings or nodes to convert; nodes are just
+              added to the list without further processing.
+           node_factory - optional factory to create the nodes; if not
+              specified, will use this environment's ``fs.File method.
+           lookup_list - optional list of lookup functions to call to
+              attempt to find the file referenced by each *args*.
+           kw - keyword arguments that represent additional nodes to add.
+        """
         if node_factory is _null:
             node_factory = self.fs.File
         if lookup_list is _null:
@@ -1676,17 +1687,23 @@ class Base(SubstitutionEnvironment):
         return dlist
 
 
-    def Dump(self, key=None, format: str='pretty'):
-        """ Return construction variables serialized to a string.
+    def Dump(self, key: Optional[str] = None, format: str = 'pretty') -> str:
+        """ Returns a dump of serialized construction variables.
+
+        The display formats are intended for humaan readers when
+        debugging - none of the supported formats produce a result that
+        SCons itself can directly make use of. Objects that cannot
+        directly be represented get a placeholder like
+        ``<function foo at 0x123456>`` or ``<<non-serializable: function>>``.
 
         Args:
-          key (optional): if None, format the whole dict of variables.
-            Else format the value of `key` (Default value = None)
-          format (str, optional): specify the format to serialize to.
-            `"pretty"` generates a pretty-printed string,
-            `"json"` a JSON-formatted string.
-            (Default value = `"pretty"`)
+           key: if ``None``, format the whole dict of variables,
+              else format just the value of *key*.
+           format: specify the format to serialize to. ``"pretty"`` generates
+             a pretty-printed string, ``"json"`` a JSON-formatted string.
 
+        Raises:
+           ValueError: *format* is not a recognized serialization format.
         """
         if key:
             cvars = self.Dictionary(key)
@@ -1696,9 +1713,9 @@ class Base(SubstitutionEnvironment):
         fmt = format.lower()
 
         if fmt == 'pretty':
-            import pprint
-            pp = pprint.PrettyPrinter(indent=2)
+            import pprint  # pylint: disable=import-outside-toplevel
 
+            pp = pprint.PrettyPrinter(indent=2)
             # TODO: pprint doesn't do a nice job on path-style values
             # if the paths contain spaces (i.e. Windows), because the
             # algorithm tries to break lines on spaces, while breaking
@@ -1707,26 +1724,33 @@ class Base(SubstitutionEnvironment):
             return pp.pformat(cvars)
 
         elif fmt == 'json':
-            import json
-            def non_serializable(obj):
-                return str(type(obj).__qualname__)
-            return json.dumps(cvars, indent=4, default=non_serializable)
+            import json  # pylint: disable=import-outside-toplevel
+
+            class DumpEncoder(json.JSONEncoder):
+                """SCons special json Dump formatter."""
+                def default(self, obj):
+                    if isinstance(obj, (UserList, UserDict)):
+                        return obj.data
+                    return f'<<non-serializable: {type(obj).__qualname__}>>'
+
+            return json.dumps(cvars, indent=4, cls=DumpEncoder, sort_keys=True)
         else:
             raise ValueError("Unsupported serialization format: %s." % fmt)
 
 
-    def FindIxes(self, paths, prefix, suffix):
-        """Search a list of paths for something that matches the prefix and suffix.
+    def FindIxes(self, paths: Sequence[str], prefix: str, suffix: str) -> Optional[str]:
+        """Search *paths* for a path that has *prefix* and *suffix*.
 
-        Args:
-          paths: the list of paths or nodes.
-          prefix: construction variable for the prefix.
-          suffix: construction variable for the suffix.
+        Returns on first match.
 
-        Returns: the matched path or None
+        Arguments:
+           paths: the list of paths or nodes.
+           prefix: construction variable for the prefix.
+           suffix: construction variable for the suffix.
 
+        Returns:
+           The matched path or ``None``
         """
-
         suffix = self.subst('$'+suffix)
         prefix = self.subst('$'+prefix)
 

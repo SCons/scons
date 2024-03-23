@@ -143,11 +143,13 @@ SCons.Subst module
 
 SCons.Warnings module
 ---------------------
+.. Turn off inherited members to quiet fluff from the Python base Exception
 
 .. automodule:: SCons.Warnings
     :members:
     :undoc-members:
     :show-inheritance:
+    :no-inherited-members:
 
 SCons.cpp module
 ----------------

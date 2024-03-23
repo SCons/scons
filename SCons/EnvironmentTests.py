@@ -3177,11 +3177,13 @@ def generate(env):
     def test_Dump(self) -> None:
         """Test the Dump() method"""
 
-        env = self.TestEnvironment(FOO = 'foo')
+        env = self.TestEnvironment(FOO='foo', FOOFLAGS=CLVar('--bar --baz'))
         assert env.Dump('FOO') == "'foo'", env.Dump('FOO')
         assert len(env.Dump()) > 200, env.Dump()    # no args version
 
         assert env.Dump('FOO', 'json') == '"foo"'    # JSON key version
+        expect = """[\n    "--bar",\n    "--baz"\n]"""
+        self.assertEqual(env.Dump('FOOFLAGS', 'json'), expect)
         import json
         env_dict = json.loads(env.Dump(format = 'json'))
         assert env_dict['FOO'] == 'foo'    # full JSON version

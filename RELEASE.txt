@@ -6,20 +6,17 @@ Past official release announcements appear at:
 
 ==================================================================
 
-A new SCons release, 4.6.1, is now available on the SCons download page:
+A new SCons release, 4.7.1, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
 
-Here is a summary of the changes since 4.6.0:
+Here is a summary of the changes since 4.7.0:
 
 NEW FUNCTIONALITY
 -----------------
 
-- Method unlink_files was added to the TestCmd class that unlinks a list of files
-  from a specified directory.  An attempt to unlink a file is made only when the
-  file exists; otherwise, the file is ignored.
-
+- List new features (presumably why a checkpoint is being released)
 
 DEPRECATED FUNCTIONALITY
 ------------------------
@@ -29,11 +26,9 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- Add an optional argument list string to configure's CheckFunc method so
-  that the generated function argument list matches the function's
-  prototype when including a header file. Fixes GH Issue #4320
-- Now supports pre-release Python 3.13
-- Support for Python versions without support for the `threading` package has been removed
+- Dump() with json format selected now recognizes additional compound types
+  (UserDict and UserList), which improves the detail of the display.
+  json output is also sorted, to match the default display.
 - MSVC: For msvc version specifications without an 'Exp' suffix, an express
   installation is used when no other edition is detected for the msvc version.
   This was the behavior for Visual Studio 2008 (9.0) through Visual Studio 2015
@@ -44,18 +39,6 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- Fix of the --debug=sconscript option to return exist statements when using return
-  statement with stop flag enabled
-- MSVS: prevent overwriting the SCons environment variable SCONS_HOME with the OS
-  environment value of SCONS_HOME in the msvs tool.
-- MSVC: Fix the detection of Visual Studio 2015 Express ('14.0Exp') by adding a
-  registry key definition and updating the installation root-relative registry value
-  at runtime for the location of the VC folder.
-- MSVS: Fix the msvs project generation test for MSVS 6.0 to use the correct name of
-  the generated project file.
-- MSVS: Fix the msvs project generation test scripts so that "false positive" tests
-  results are not possible when the initial build is successful and the command-line
-  build of the project file fails.
 - MSVC: Visual Studio 2010 (10.0) could be inadvertently detected due to an
   sdk-only install of Windows SDK 7.1.  An sdk-only install of Visual Studio
   2010 is ignored as the msvc batch files will fail. The installed files are
@@ -85,30 +68,10 @@ FIXES
   For example, when no vswhere executable is found for the initial detection
   and then later an environment is constructed with a user specified vswhere
   executable that detects new msvc installations.
-- On Windows platform, when collecting command output (Configure checks),
-  make sure decoding of bytes doesn't fail.
-- Documentation indicated that both Pseudo() and env.Pseudo() were usable,
-  but Pseudo() did not work; is now enabled.
-- Improve handling of file data that SCons itself processes - as in
-  scanners - try harder to decode non-UTF-8 text.
-- PyPackageDir no longer fails if passed a module name which cannot be found,
-  now returns None.
 
 IMPROVEMENTS
 ------------
 
-- Use of NotImplemented instead of NotImplementedError for special methods
-  of _ListVariable class
-- The NewParallel scheduler is now the default, the `tm_v2` flag is removed,
-  and the old scheduler is opt-in under `--experimental=legacy_sched`. Additionally,
-  the new scheduler is now used for -j1 builds as well.
-  NOTE: This should significantly improve SCons performance for larger parallel builds
-        (Larger -j values)
-- CacheDir writes no longer happen within the taskmaster critical section, and therefore
-  can run in parallel with both other CacheDir writes and the taskmaster DAG walk.
-- The NewParallel scheduler now only adds threads as new work requiring execution
-  is discovered, up to the limit set by -j. This should reduce resource utilization
-  when the achievable parallelism in the DAG is less than the -j limit.
 - MSVC: Visual Studio 2015 Express (14.0Exp) does not support the sdk version
   argument. Visual Studio 2015 Express does not support the store argument for
   target architectures other than x86.  Script argument validation now takes into
@@ -120,26 +83,23 @@ IMPROVEMENTS
 PACKAGING
 ---------
 
-- Remove unecessary dependencies on pypi packages from setup.cfg
+- List changes in the way SCons is packaged and/or released
+
 
 DOCUMENTATION
 -------------
 
-- Fixed the Scanner examples in the User Guide to be runnable and added
-  some more explantion. Clarified discussion of the scanner function in
-  the Scanner Objects section of the manpage.
-- The manpage entry for Pseudo was clarified.
-- The manpage entry for SharedLibrary was clarified.
+- Updated Value Node docs.
+
+
 
 DEVELOPMENT
 -----------
 
-- Fix sphinx config to handle SCons versions with post such as: 4.6.0.post1
-- Created SCons.Util.sctyping to contain complex type information, allowing
-  for repo-wide type hinting without causing cyclical dependencies.
+- List visible changes in the way SCons is developed
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.6.0..HEAD
+    git shortlog --no-merges -ns 4.0.1..HEAD

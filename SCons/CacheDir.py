@@ -34,7 +34,7 @@ import uuid
 import SCons.Action
 import SCons.Errors
 import SCons.Warnings
-import SCons
+import SCons.Util
 
 cache_enabled = True
 cache_debug = False
@@ -169,15 +169,16 @@ class CacheDir:
         """
         config_file = os.path.join(path, 'config')
         try:
+            # still use a try block even with exist_ok, might have other fails
             os.makedirs(path, exist_ok=True)
-        except FileExistsError:
-            pass
         except OSError:
             msg = "Failed to create cache directory " + path
             raise SCons.Errors.SConsEnvironmentError(msg)
 
         try:
-            with open(config_file, 'x') as config:
+            with SCons.Util.FileLock(config_file, timeout=5, writer=True), open(
+                config_file, "x"
+            ) as config:
                 self.config['prefix_len'] = 2
                 try:
                     json.dump(self.config, config)
@@ -186,9 +187,11 @@ class CacheDir:
                     raise SCons.Errors.SConsEnvironmentError(msg)
         except FileExistsError:
             try:
-                with open(config_file) as config:
+                with SCons.Util.FileLock(config_file, timeout=5, writer=False), open(
+                    config_file
+                ) as config:
                     self.config = json.load(config)
-            except ValueError:
+            except (ValueError, json.decoder.JSONDecodeError):
                 msg = "Failed to read cache configuration for " + path
                 raise SCons.Errors.SConsEnvironmentError(msg)
 

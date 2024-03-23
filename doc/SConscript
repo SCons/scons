@@ -35,43 +35,78 @@ import SCons.Util
 
 Import('command_line', 'env', 'whereis', 'revaction')
 
+# Check prerequisites and flags for building the documentation.  There are
+# several combinations in play. Conceptually there are five builds:
+# - manpage and user guide output in html (and manpage in roff-style "source")
+# - manpage and user guide output in pdf
+# - API docs with Sphinx output in html
+# - API docs with Sphinx output in pdf
+# - Bundle up the built bits into the tarball for upload to the website.
 #
-# -- Check prerequisites for building the documentation ---
+# These are sometimes a bit in tension. For example, we shouldn't need any
+# doc bits to build the wheel for testing or uploading, except that the
+# manpages (.1 format) are built and dropped into the top directory for
+# use by distribution packagers - even though that's not really a suitable
+# place for them.  And since we're often building the wheel to make a release,
+# we actually may end up wanting the docs anyway.
 #
-skip_doc = False
+# We want to be able to have some choice in combinations, so that for example
+# there's a command to build just the manpages for distros without having
+# to have the whole fop (for pdf) and Sphinx (for API docs) chains setup
+# just to do a successful build, since those won't be part of those
+# packages anyway.
 
-try:
-    import SConsDoc
-    import SConsExamples
-except ImportError as exc:
-    print("doc: SConsDoc failed to import, the error was:")
-    print(f"         ImportError: {exc}")
-    print("     Please make sure that python-lxml is installed.")
-    skip_doc = True
+skip_doc_build = False
+skip_pdf_build = False
+skip_api_build = False
 
-fop = whereis('fop')
-xep = whereis('xep')
+# SKIP_DOC is a csv with various options. It doesn't seem necessary
+# to do a very sophisticated decode of it, but could add that later.
+skip_doc_args = ARGUMENTS.get('SKIP_DOC', 'none').split(',')
+if 'none' not in skip_doc_args:
+    if 'all' in skip_doc_args:
+        skip_doc_build = skip_pdf_build = skip_api_build = True
+    if 'api' in skip_doc_args:
+        skip_api_build = True
+    if 'pdf' in skip_doc_args:
+        skip_pdf_build = True
 
-if not fop and not xep:
-    print("doc: No PDF renderer found (fop|xep)!")
-    skip_doc = True
+if not skip_doc_build:
+    try:
+        import SConsDoc
+        import SConsExamples
+    except ImportError as exc:
+        print("doc: SConsDoc failed to import, the error was:")
+        print(f"         ImportError: {exc}")
+        print("     Please make sure the Python lxml package is installed.")
+        print("     Skipping documentation build.")
+        skip_doc_build = skip_pdf_build = skip_api_build = True
 
-skip_doc_arg = ARGUMENTS.get('SKIP_DOC')
-if skip_doc_arg is not None:
-    skip_doc = skip_doc_arg in ['True', '1', 'true']
+if not skip_pdf_build:
+    fop = whereis('fop')
+    xep = whereis('xep')
+
+    if not fop and not xep:
+        print("doc: No PDF renderer found (fop|xep)!")
+        print("     Skipping PDF generation.")
+        skip_pdf_build = True
+
+if not skip_api_build:
+    ctx = env.Configure()
+    sphinx = ctx.CheckProg("sphinx-build")
+    if sphinx is None:
+        print("doc: Configure did not find sphinx-build")
+        print("     Skipping API docs generation.")
+        skip_api_build = True
+    ctx.Finish()
 
 #
 # --- Configure build
 #
-env = env.Clone()
-
 build = os.path.join(command_line.build_dir, 'doc')
-
 gs = whereis('gs')
 lynx = whereis('lynx')
-
 dist_doc_tar_gz = '$DISTDIR/scons-doc-${VERSION}.tar.gz'
-
 tar_deps = []
 tar_list = []
 
@@ -105,7 +140,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 man_page_list = ['scons.1', 'scons-time.1', 'sconsign.1']
 
 # Template for the MAN page texts when we can't properly
-# create them because the skip_doc flag is set (required
+# create them because the skip_doc_build flag is set (required
 # modules/tools aren't installed in the current system)
 man_replace_tpl = r""".TH "%(uctitle)s" "1" "%(today)s" "SCons %(version)s" "SCons %(version)s"
 .ie \n(.g .ds Aq \(aq
@@ -121,7 +156,7 @@ update the system and try running the build again.
 #
 # --- Processing ---
 #
-if skip_doc:
+if skip_doc_build:
     print("doc: ...skipping building User Guide.")
     print("     ...creating fake MAN pages.")
 
@@ -138,6 +173,7 @@ if skip_doc:
     version = env.subst('$VERSION')
     for m in man_page_list:
         man, _ = os.path.splitext(m)
+        # TODO: add these to Alias?
         with open(os.path.join(scdir, m), "w") as fman:
             fman.write(
                 man_replace_tpl
@@ -158,6 +194,7 @@ else:
     # Always create a version.xml file containing the version information
     # for this run.  Ignore it for dependency purposes so we don't
     # rebuild all the docs every time just because the date changes.
+    # TODO: couldn't we use Textfile + Ignore?
     date, ver, rev, copyright_years = env.Dictionary(
         'DATE', 'VERSION', 'REVISION', 'COPYRIGHT_YEARS'
     )
@@ -311,28 +348,22 @@ else:
     copy_dbfiles(env, toolpath, [], 'gs.py')
     copy_dbfiles(env, toolpath, [], 'zip.py')
 
-    # Each document will live in its own subdirectory "build/doc/xxx".
-    # List them here by their subfolder names. Note how the specifiers
-    # for each subdir (=DOCTARGETS) have nothing to do with which
-    # formats get created, but which of the outputs get installed
-    # to the build folder and added to the different source and binary
-    # packages in the end.
+    # Each document will build in its own subdirectory of "build/doc/".
+    # The *docs* dictionary entries have the document (and thus directory)
+    # name as the key, and a tuple of lists as the value.
     #
-    # In addition to the list of target formats (DOCTARGETS), we also
-    # store some dependency information in this dict. The DOCDEPENDS
-    # list contains all files from each local "MANIFEST", after
-    # installing/copying them to the build directory. It basically
-    # links the original sources to the respective build folder,
-    # such that a simple 'python bootstrap.py' rebuilds the
-    # documentation when a file, like 'doc/user/depends.xml'
-    # for example, changes.
+    # The first list is the document formats enabled ("targets").  Note this
+    # isn't what gets built, but what gets installed into the build folder
+    # source/target lists.
     #
-    # Finally, in DOCNODES we store the created PDF and HTML files,
-    # such that we can then install them in the proper places for
-    # getting picked up by the archiving/packaging stages.
-    DOCTARGETS = 0
-    DOCDEPENDS = 1
-    DOCNODES = 2
+    # The second list ("depends") is for dependency information. Dependencies
+    # are extracted from each local "MANIFEST" and added to this list.
+    # This basically links the original sources to the respective build folder.
+    #
+    # The third list ("nodes") stores the created PDF and HTML files,
+    # so that we can  then install them in the proper places for getting
+    # picked up by the archiving/packaging stages.
+    #
     docs = {
         # 'design': (['chunked', 'pdf'], [], []),
         # 'python10' : (['chunked','html','pdf'], [], []),
@@ -401,7 +432,7 @@ else:
         else:
             revaction([env.File(os.path.join(build, s))], [env.File(s)], env)
 
-    for doc in docs:
+    for doc, (targets, depends, nodes) in docs.items():
         # Read MANIFEST file and copy the listed files to the build directory,
         # while branding them with the SCons copyright and the current
         # revision number...
@@ -423,58 +454,52 @@ else:
             else:
                 target_dir = os.path.join(build, doc)
             if ext in ['.fig', '.jpg', '.svg']:
-                docs[doc][DOCDEPENDS].extend(
+                depends.extend(
                     env.Command(build_s, doc_s, Copy("$TARGET", "$SOURCE"))
                 )
             else:
                 btarget = env.File(build_s)
-                docs[doc][DOCDEPENDS].append(btarget)
+                depends.append(btarget)
                 revaction([btarget], [env.File(doc_s)], env)
 
-    #
-    # For each document, build the document itself in HTML,
-    # and PDF formats.
-    #
-    for doc in docs:
-
-        #
+    # For each document, add targets for each of the selected formats
+    for doc, (targets, depends, nodes) in docs.items():
         # Call SCons in each local doc folder
-        #
         cleanopt = ''
         if env.GetOption('clean'):
             cleanopt = ' -c'
         scdir = os.path.join(build, doc)
         sctargets = []
-        if 'html' in docs[doc][DOCTARGETS]:
+        if 'html' in targets:
             sctargets.append(env.File(os.path.join(scdir, 'index.html')))
-        if 'chunked' in docs[doc][DOCTARGETS]:
+        if 'chunked' in targets:
             sctargets.append(
                 env.File(os.path.join(scdir, f'scons-{doc}', 'index.html'))
             )
-        if 'pdf' in docs[doc][DOCTARGETS]:
+        if 'pdf' in targets and not skip_pdf_build:
             sctargets.append(env.File(os.path.join(scdir, f'scons-{doc}.pdf')))
-        if 'epub' in docs[doc][DOCTARGETS]:
+        if 'epub' in targets:
             sctargets.append(env.File(os.path.join(scdir, f'scons-{doc}.epub')))
 
-        if 'man' in docs[doc][DOCTARGETS]:
+        if 'man' in targets:
             for m in man_page_list:
+                # TODO: add targets to an alias?
                 sctargets.append(os.path.join(scdir, m))
                 man, _1 = os.path.splitext(m)
-
-                sctargets.append(os.path.join(scdir, f'scons-{man}.pdf'))
+                if not skip_pdf_build:
+                    sctargets.append(os.path.join(scdir, f'scons-{man}.pdf'))
                 sctargets.append(os.path.join(scdir, f'scons-{man}.html'))
 
-        docs[doc][DOCNODES].extend(
+        nodes.extend(
             env.Command(
                 target=sctargets,
-                source=buildsuite + docs[doc][DOCDEPENDS],
+                source=buildsuite + depends,
                 action="cd %s && $PYTHON ${SCONS_PY.abspath}%s" % (scdir, cleanopt),
             )
         )
 
     install_css = False
-    for doc in docs:
-
+    for doc, (targets, depends, nodes) in docs.items():
         # Collect the output files for this subfolder
         htmldir = os.path.join(build, 'HTML', f'scons-{doc}')
         htmlindex = os.path.join(htmldir, 'index.html')
@@ -482,7 +507,7 @@ else:
         pdf = os.path.join(build, 'PDF', f'scons-{doc}.pdf')
         epub = os.path.join(build, 'EPUB', f'scons-{doc}.epub')
         text = os.path.join(build, 'TEXT', f'scons-{doc}.txt')
-        if 'chunked' in docs[doc][DOCTARGETS]:
+        if 'chunked' in targets:
             installed_chtml = env.ChunkedInstall(
                 env.Dir(htmldir),
                 os.path.join(build, doc, f'scons-{doc}', 'index.html'),
@@ -490,26 +515,26 @@ else:
             installed_chtml_css = env.Install(
                 env.Dir(htmldir), os.path.join(build, doc, 'scons.css')
             )
-            env.Depends(installed_chtml, docs[doc][DOCNODES])
-            env.Depends(installed_chtml_css, docs[doc][DOCNODES])
+            env.Depends(installed_chtml, nodes)
+            env.Depends(installed_chtml_css, nodes)
 
             tar_deps.extend([htmlindex, installed_chtml_css])
             tar_list.extend([htmldir])
             Local(htmlindex)
             env.Ignore(htmlindex, version_xml)
 
-        if 'html' in docs[doc][DOCTARGETS]:
+        if 'html' in targets:
             env.InstallAs(
                 target=env.File(html),
                 source=env.File(os.path.join(build, doc, 'index.html')),
             )
-            tar_deps.extend([html])
-            tar_list.extend([html])
+            tar_deps.append(html)
+            tar_list.append(html)
             Local(html)
             env.Ignore(html, version_xml)
             install_css = True
 
-        if 'pdf' in docs[doc][DOCTARGETS]:
+        if 'pdf' in targets and not skip_pdf_build:
             env.InstallAs(
                 target=env.File(pdf),
                 source=env.File(os.path.join(build, doc, f'scons-{doc}.pdf')),
@@ -520,7 +545,7 @@ else:
             tar_deps.append(pdf)
             tar_list.append(pdf)
 
-        if 'epub' in docs[doc][DOCTARGETS] and gs:
+        if 'epub' in targets and gs:
             env.InstallAs(
                 target=env.File(epub),
                 source=env.File(os.path.join(build, doc, f'scons-{doc}.epub')),
@@ -532,9 +557,9 @@ else:
             tar_list.append(epub)
 
         if (
-            'text' in docs[doc][DOCTARGETS]
+            'text' in targets
             and lynx
-            and (('html' in docs[doc][DOCTARGETS]) or (doc == 'man'))
+            and ('html' in targets or doc == 'man')
         ):
             texthtml = os.path.join(build, doc, 'index.html')
             if doc == 'man':
@@ -553,24 +578,28 @@ else:
             tar_deps.append(text)
             tar_list.append(text)
 
-        if 'man' in docs[doc][DOCTARGETS]:
+        if 'man' in targets:
             for m in man_page_list:
                 man, _1 = os.path.splitext(m)
 
                 pdf = os.path.join(build, 'PDF', f'{man}-man.pdf')
                 html = os.path.join(build, 'HTML', f'{man}-man.html')
 
-                env.InstallAs(
-                    target=env.File(pdf),
-                    source=env.File(os.path.join(build, 'man', f'scons-{man}.pdf')),
-                )
+                if not skip_pdf_build:
+                    env.InstallAs(
+                        target=env.File(pdf),
+                        source=env.File(os.path.join(build, 'man', f'scons-{man}.pdf')),
+                    )
                 env.InstallAs(
                     target=env.File(html),
                     source=env.File(os.path.join(build, 'man', f'scons-{man}.html')),
                 )
 
-                tar_deps.extend([pdf, html])
-                tar_list.extend([pdf, html])
+                tar_deps.append(html)
+                tar_list.append(html)
+                if not skip_pdf_build:
+                    tar_deps.append(pdf)
+                    tar_list.append(pdf)
 
     # Install CSS file, common to all single HTMLs
     if install_css:
@@ -579,22 +608,26 @@ else:
             target=env.File(css_file),
             source=env.File(os.path.join(build, 'user', 'scons.css')),
         )
-        tar_deps.extend([css_file])
-        tar_list.extend([css_file])
+        tar_deps.append(css_file)
+        tar_list.append(css_file)
         Local(css_file)
 
-if not skip_doc:
+if skip_api_build:
+    Alias("apidoc")
+else:
     # Build API DOCS
     # TODO: Better specify dependencies on source files
-    pdf_file = env.Command(
-        target='#/build/doc/api/scons-api.pdf',
-        source=env.Glob('#/SCons/*'),
-        action=[Delete("#/build/doc/api"), "cd doc && make pdf"],
-    )
-    pdf_install = os.path.join(build, 'PDF', 'scons-api.pdf')
-    env.InstallAs(target=pdf_install, source=pdf_file)
-    tar_deps.append(pdf_install)
-    tar_list.append(pdf_install)
+    if not skip_pdf_build:
+        pdf_file = env.Command(
+            target='#/build/doc/api/scons-api.pdf',
+            source=env.Glob('#/SCons/*'),
+            action=[Delete("#/build/doc/api"), "cd doc && make pdf"],
+        )
+        pdf_install = os.path.join(build, 'PDF', 'scons-api.pdf')
+        env.InstallAs(target=pdf_install, source=pdf_file)
+        tar_deps.append(pdf_install)
+        tar_list.append(pdf_install)
+        Alias('apidoc', pdf_file)
 
     htmldir = os.path.join(build, 'HTML', 'scons-api')
     html_files = env.Command(
@@ -605,6 +638,7 @@ if not skip_doc:
     )
     tar_deps.append(htmldir)
     tar_list.append(htmldir)
+    Alias('apidoc', html_files)
 
 #
 # Now actually create the tar file of the documentation,
