@@ -120,30 +120,31 @@ def save_strings(val) -> None:
     global Save_Strings
     Save_Strings = val
 
-#
-# Avoid unnecessary function calls by recording a Boolean value that
-# tells us whether or not os.path.splitdrive() actually does anything
-# on this system, and therefore whether we need to bother calling it
-# when looking up path names in various methods below.
-#
 
 do_splitdrive = None
-_my_splitdrive =None
+_my_splitdrive = None
 
 def initialize_do_splitdrive() -> None:
-    global do_splitdrive
-    global has_unc
-    drive, path = os.path.splitdrive('X:/foo')
-    # splitunc is removed from python 3.7 and newer
-    # so we can also just test if splitdrive works with UNC
-    has_unc = (hasattr(os.path, 'splitunc')
-        or os.path.splitdrive(r'\\split\drive\test')[0] == r'\\split\drive')
+    """Set up splitdrive usage.
 
-    do_splitdrive = not not drive or has_unc
+    Avoid unnecessary function calls by recording a flag that tells us whether
+    or not :func:`os.path.splitdrive` actually does anything on this system,
+    and therefore whether we need to bother calling it when looking up path
+    names in various methods below.
 
-    global _my_splitdrive
-    if has_unc:
-        def splitdrive(p):
+    If :data:`do_splitdrive` is True, :func:`_my_splitdrive` will be a real
+    function which we can call. As all supported Python versions' ntpath module
+    now handle UNC paths correctly, we no longer special-case that.
+
+    Deferring the setup of ``_my_splitdrive`` also lets unit tests do
+    their thing and test UNC path handling on a POSIX host.
+    """
+    global do_splitdrive, _my_splitdrive
+
+    do_splitdrive = bool(os.path.splitdrive('X:/foo')[0])
+
+    if do_splitdrive:
+        def _my_splitdrive(p):
             if p[1:2] == ':':
                 return p[:2], p[2:]
             if p[0:2] == '//':
@@ -151,12 +152,9 @@ def initialize_do_splitdrive() -> None:
                 # because UNC paths are always absolute.
                 return '//', p[1:]
             return '', p
-    else:
-        def splitdrive(p):
-            if p[1:2] == ':':
-                return p[:2], p[2:]
-            return '', p
-    _my_splitdrive = splitdrive
+    # TODO: the os routine should work and be better debugged than ours,
+    #   but unit test test_unc_path fails on POSIX platforms. Resolve someday.
+    # _my_splitdrive = os.path.splitdrive
 
     # Keep some commonly used values in global variables to skip to
     # module look-up costs.
@@ -1238,7 +1236,10 @@ class FS(LocalFS):
             self.pathTop = os.getcwd()
         else:
             self.pathTop = path
-        self.defaultDrive = _my_normcase(_my_splitdrive(self.pathTop)[0])
+        if do_splitdrive:
+            self.defaultDrive = _my_normcase(_my_splitdrive(self.pathTop)[0])
+        else:
+            self.defaultDrive = ""
 
         self.Top = self.Dir(self.pathTop)
         self.Top._path = '.'
@@ -1554,11 +1555,15 @@ class DirNodeInfo(SCons.Node.NodeInfoBase):
     def str_to_node(self, s):
         top = self.fs.Top
         root = top.root
+        # Python 3.13/Win changed isabs() - after you split C:/foo/bar,
+        # the path part is no longer considerd absolute. Save the passed
+        # path for the isabs check so we can get the right answer.
+        path = s
         if do_splitdrive:
             drive, s = _my_splitdrive(s)
             if drive:
                 root = self.fs.get_root(drive)
-        if not os.path.isabs(s):
+        if not os.path.isabs(path):
             s = top.get_labspath() + '/' + s
         return root._lookup_abs(s, Entry)
 
@@ -2380,7 +2385,7 @@ class RootDir(Dir):
         # The // entry is necessary because os.path.normpath()
         # preserves double slashes at the beginning of a path on Posix
         # platforms.
-        if not has_unc:
+        if not do_splitdrive:
             self._lookupDict['//'] = self
 
     def _morph(self) -> None:
@@ -2511,11 +2516,15 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
     def str_to_node(self, s):
         top = self.fs.Top
         root = top.root
+        # Python 3.13/Win changed isabs() - after you split C:/foo/bar,
+        # the path part is no longer considerd absolute. Save the passed
+        # path for the isabs check so we can get the right answer.
+        path = s
         if do_splitdrive:
             drive, s = _my_splitdrive(s)
             if drive:
                 root = self.fs.get_root(drive)
-        if not os.path.isabs(s):
+        if not os.path.isabs(path):
             s = top.get_labspath() + '/' + s
         return root._lookup_abs(s, Entry)
 
@@ -3534,7 +3543,7 @@ class File(Base):
 
         In all cases self is the target we're checking to see if it's up to date
         """
-        T = 0
+        T = False
         if T: Trace('is_up_to_date(%s):' % self)
         if not self.exists():
             if T: Trace(' not self.exists():')
@@ -3730,7 +3739,10 @@ class FileFinder:
         if fd is None:
             fd = self.default_filedir
         dir, name = os.path.split(fd)
-        drive, d = _my_splitdrive(dir)
+        if do_splitdrive:
+            drive, d = _my_splitdrive(dir)
+        else:
+            drive, d = "", dir
         if not name and d[:1] in ('/', OS_SEP):
             #return p.fs.get_root(drive).dir_on_disk(name)
             return p.fs.get_root(drive)
