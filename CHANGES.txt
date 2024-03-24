@@ -17,6 +17,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Dump() with json format selected now recognizes additional compound types
       (UserDict and UserList), which improves the detail of the display.
       json output is also sorted, to match the default display.
+    - Python 3.13 (alpha) changes the behavior of isabs() on Windows. Adjust
+      SCons usage of in NodeInfo classes to match.  Fixes #4502, #4504.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
