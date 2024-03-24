@@ -58,8 +58,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and then later an environment is constructed with a user specified vswhere
       executable that detects new msvc installations.
     - The vswhere detection of VS2017 (14.1), and later, is now cached at runtime and is
-      only evaluated once using a single vswhere invocation for all installations.
+      only evaluated once using a single vswhere invocation for all msvc versions.
       Previously, the vswhere executable was invoked for each supported msvc version.
+    - The vswhere executable locations for the WinGet and Scoop package managers were
+      added to the default vswhere executable search list after the Chocolatey
+      installation location.
 
   From Mats Wichmann:
 

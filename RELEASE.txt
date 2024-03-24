@@ -35,6 +35,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   (14.0).  This behavior was extended to Visual Studio 2017 (14.1) and Visual
   Studio 2008 (8.0).  An express installation of the IDE binary is used when no
   other IDE edition is detected.
+- The vswhere executable locations for the WinGet and Scoop package managers were
+  added to the default vswhere executable search list after the Chocolatey
+  installation location.
+
 
 FIXES
 -----
@@ -79,6 +83,10 @@ IMPROVEMENTS
 - MSVC: Visual Studio 2015 BuildTools (14.0) does not support the sdk version
   argument and does not support the store argument.  Script argument validation now
   takes into account these restrictions.
+- MSVC: The registry detection of VS2015 (14.0), and earlier, is now cached at runtime
+  and is only evaluated once for each msvc version.
+- MSVC: The vswhere detection of VS2017 (14.1), and later, is now cached at runtime and
+  is only evaluated once using a single vswhere invocation for all msvc versions.
 
 PACKAGING
 ---------
