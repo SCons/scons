@@ -29,6 +29,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - Dump() with json format selected now recognizes additional compound types
   (UserDict and UserList), which improves the detail of the display.
   json output is also sorted, to match the default display.
+- Python 3.13 changes the behavior of isabs() on Windows. Adjust SCons
+  usage of this in NodeInfo classes to avoid test problems.
 - MSVC: For msvc version specifications without an 'Exp' suffix, an express
   installation is used when no other edition is detected for the msvc version.
   This was the behavior for Visual Studio 2008 (9.0) through Visual Studio 2015
@@ -38,7 +40,6 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - The vswhere executable locations for the WinGet and Scoop package managers were
   added to the default vswhere executable search list after the Chocolatey
   installation location.
-
 
 FIXES
 -----
