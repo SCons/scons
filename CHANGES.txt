@@ -27,6 +27,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       software to ignore without having to exclude the tmpdir itself.
     - MSVS "live" tests of project files adjusted to look for the generated
       executable with an exe sufffix
+    - Python 3.13 (alpha) changes the behavior of isabs() on Windows. Adjust
+      SCons usage of in NodeInfo classes to match.  Fixes #4502, #4504.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700

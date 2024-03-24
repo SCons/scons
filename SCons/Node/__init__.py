@@ -1063,6 +1063,7 @@ class Node(metaclass=NoSlotsPyPy):
         # Don't bother scanning non-derived files, because we don't
         # care what their dependencies are.
         # Don't scan again, if we already have scanned.
+        T = False
         if self.implicit is not None:
             return
         self.implicit = []
@@ -1087,7 +1088,12 @@ class Node(metaclass=NoSlotsPyPy):
                 # essentially short-circuits an N*M scan of the
                 # sources for each individual target, which is a hell
                 # of a lot more efficient.
+                def print_nodelist(n):
+                    tgts = [f"{t.path!r}" for t in n]
+                    return f"[{', '.join(tgts)}]"
+
                 for tgt in executor.get_all_targets():
+                    if T: Trace(f"adding implicit {print_nodelist(implicit)} to {tgt!s}\n")
                     tgt.add_to_implicit(implicit)
 
                 if implicit_deps_unchanged or self.is_up_to_date():
@@ -1472,8 +1478,8 @@ class Node(metaclass=NoSlotsPyPy):
 
         @see: FS.File.changed(), FS.File.release_target_info()
         """
-        t = 0
-        if t: Trace('changed(%s [%s], %s)' % (self, classname(self), node))
+        T = False
+        if T: Trace('changed(%s [%s], %s)' % (self, classname(self), node))
         if node is None:
             node = self
 
@@ -1491,25 +1497,24 @@ class Node(metaclass=NoSlotsPyPy):
             # entries to equal the new dependency list, for the benefit
             # of the loop below that updates node information.
             then.extend([None] * diff)
-            if t: Trace(': old %s new %s' % (len(then), len(children)))
+            if T: Trace(': old %s new %s' % (len(then), len(children)))
             result = True
 
         for child, prev_ni in zip(children, then):
             if _decider_map[child.changed_since_last_build](child, self, prev_ni, node):
-                if t: Trace(': %s changed' % child)
+                if T: Trace(f": '{child!s}' changed")
                 result = True
 
         if self.has_builder():
             contents = self.get_executor().get_contents()
             newsig = hash_signature(contents)
             if bi.bactsig != newsig:
-                if t: Trace(': bactsig %s != newsig %s' % (bi.bactsig, newsig))
+                if T: Trace(': bactsig %s != newsig %s' % (bi.bactsig, newsig))
                 result = True
 
         if not result:
-            if t: Trace(': up to date')
-
-        if t: Trace('\n')
+            if T: Trace(': up to date')
+        if T: Trace('\n')
 
         return result
 
