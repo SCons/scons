@@ -177,7 +177,6 @@ def msvc_version_register_kind(msvc_version, kind_t) -> None:
     global _cache_vcver_kind_map
     if kind_t is None:
         kind_t = _VCVER_DETECT_KIND_UNKNOWN
-    # print('register_kind: msvc_version=%s, kind=%s' % (repr(msvc_version), repr(VCVER_KIND_STR[kind_t.kind])))
     debug('msvc_version=%s, kind=%s', repr(msvc_version), repr(VCVER_KIND_STR[kind_t.kind]))
     _cache_vcver_kind_map[msvc_version] = kind_t
 

@@ -426,12 +426,8 @@ SupportedVSList = [
     ),
 ]
 
-SupportedVSWhereList = []
 SupportedVSMap = {}
 for vs in SupportedVSList:
-    if vs.vernum >= 14.1:
-        # VS2017 and later detected via vswhere.exe
-        SupportedVSWhereList.append(vs)
     SupportedVSMap[vs.version] = vs
 
 

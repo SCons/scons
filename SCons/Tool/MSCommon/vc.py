@@ -1272,8 +1272,6 @@ class _VSWhere(MSVC.Util.AutoInitialize):
         cls.seen_vswhere = set()
         cls.seen_root = set()
 
-        cls.vswhere_executables = []
-
         cls.msvc_instances = []
         cls.msvc_map = {}
 
@@ -1283,20 +1281,20 @@ class _VSWhere(MSVC.Util.AutoInitialize):
         cls.reset()
 
     @classmethod
-    def _new_roots_discovered(cls):
-        # TODO(JCB) should not happen due to freezing vswhere.exe
-        # need sanity check?
-        pass
+    def _filter_vswhere_binary(cls, vswhere_binary):
+
+        vswhere_norm = None
+
+        if vswhere_binary.vswhere_norm not in cls.seen_vswhere:
+            cls.seen_vswhere.add(vswhere_binary.vswhere_norm)
+            vswhere_norm = vswhere_binary.vswhere_norm
+
+        return vswhere_norm
 
     @classmethod
-    def _filter_vswhere_paths(cls, vswhere_exe):
-
-        vswhere_paths = []
-
-        if vswhere_exe and vswhere_exe not in cls.seen_vswhere:
-            vswhere_paths.append(vswhere_exe)
-
-        return vswhere_paths
+    def _new_roots_discovered(cls):
+        if len(cls.seen_vswhere) > 1:
+            raise MSVCInternalError(f'vswhere discovered new msvc installations after initial detection')
 
     @classmethod
     def _vswhere_query_json_output(cls, vswhere_exe, vswhere_args):
@@ -1352,95 +1350,85 @@ class _VSWhere(MSVC.Util.AutoInitialize):
 
         frozen_binary, vswhere_binary = _VSWhereExecutable.vswhere_freeze_executable(vswhere_exe)
 
-        vswhere_exe = frozen_binary.vswhere_exe
+        vswhere_norm = cls._filter_vswhere_binary(frozen_binary)
+        if not vswhere_norm:
+            return cls.msvc_map
 
-        vswhere_paths = cls._filter_vswhere_paths(vswhere_exe)
-        if not vswhere_paths:
+        debug('vswhere_norm=%s', repr(vswhere_norm), extra=cls.debug_extra)
+
+        vswhere_json = cls._vswhere_query_json_output(
+            vswhere_norm,
+            ['-all', '-products', '*']
+        )
+
+        if not vswhere_json:
             return cls.msvc_map
 
         n_instances = len(cls.msvc_instances)
 
-        for vswhere_exe in vswhere_paths:
+        for instance in vswhere_json:
 
-            if vswhere_exe in cls.seen_vswhere:
+            #print(json.dumps(instance, indent=4, sort_keys=True))
+
+            installation_path = instance.get('installationPath')
+            if not installation_path or not os.path.exists(installation_path):
                 continue
 
-            cls.seen_vswhere.add(vswhere_exe)
-            cls.vswhere_executables.append(vswhere_exe)
+            vc_path = os.path.join(installation_path, 'VC')
+            if not os.path.exists(vc_path):
+                continue
 
-            debug('vswhere_exe=%s', repr(vswhere_exe), extra=cls.debug_extra)
+            vc_root = MSVC.Util.normalize_path(vc_path)
+            if vc_root in cls.seen_root:
+                continue
+            cls.seen_root.add(vc_root)
 
-            vswhere_json = cls._vswhere_query_json_output(
-                vswhere_exe,
-                ['-all', '-products', '*']
+            installation_version = instance.get('installationVersion')
+            if not installation_version:
+                continue
+
+            vs_major = installation_version.split('.')[0]
+            if not vs_major in _VSWHERE_VSMAJOR_TO_VCVERSION:
+                debug('ignore vs_major: %s', vs_major, extra=cls.debug_extra)
+                continue
+
+            vc_version = _VSWHERE_VSMAJOR_TO_VCVERSION[vs_major]
+
+            product_id = instance.get('productId')
+            if not product_id:
+                continue
+
+            component_id = product_id.split('.')[-1]
+            if component_id not in _VSWHERE_COMPONENTID_CANDIDATES:
+                debug('ignore component_id: %s', component_id, extra=cls.debug_extra)
+                continue
+
+            component_rank = _VSWHERE_COMPONENTID_RANKING.get(component_id,0)
+            if component_rank == 0:
+                raise MSVCInternalError(f'unknown component_rank for component_id: {component_id!r}')
+
+            scons_suffix = _VSWHERE_COMPONENTID_SCONS_SUFFIX[component_id]
+
+            if scons_suffix:
+                vc_version_scons = vc_version + scons_suffix
+            else:
+                vc_version_scons = vc_version
+
+            is_prerelease = True if instance.get('isPrerelease', False) else False
+            is_release = False if is_prerelease else True
+
+            msvc_instance = MSVCInstance(
+                vc_path = vc_path,
+                vc_version = vc_version,
+                vc_version_numeric = float(vc_version),
+                vc_version_scons = vc_version_scons,
+                vc_release = is_release,
+                vc_component_id = component_id,
+                vc_component_rank = component_rank,
+                vc_component_suffix = component_suffix,
             )
 
-            if not vswhere_json:
-                continue
-
-            for instance in vswhere_json:
-
-                #print(json.dumps(instance, indent=4, sort_keys=True))
-
-                installation_path = instance.get('installationPath')
-                if not installation_path or not os.path.exists(installation_path):
-                    continue
-
-                vc_path = os.path.join(installation_path, 'VC')
-                if not os.path.exists(vc_path):
-                    continue
-
-                vc_root = MSVC.Util.normalize_path(vc_path)
-                if vc_root in cls.seen_root:
-                    continue
-                cls.seen_root.add(vc_root)
-
-                installation_version = instance.get('installationVersion')
-                if not installation_version:
-                    continue
-
-                vs_major = installation_version.split('.')[0]
-                if not vs_major in _VSWHERE_VSMAJOR_TO_VCVERSION:
-                    debug('ignore vs_major: %s', vs_major, extra=cls.debug_extra)
-                    continue
-
-                vc_version = _VSWHERE_VSMAJOR_TO_VCVERSION[vs_major]
-
-                product_id = instance.get('productId')
-                if not product_id:
-                    continue
-
-                component_id = product_id.split('.')[-1]
-                if component_id not in _VSWHERE_COMPONENTID_CANDIDATES:
-                    debug('ignore component_id: %s', component_id, extra=cls.debug_extra)
-                    continue
-
-                component_rank = _VSWHERE_COMPONENTID_RANKING.get(component_id,0)
-                if component_rank == 0:
-                    raise MSVCInternalError(f'unknown component_rank for component_id: {component_id!r}')
-
-                scons_suffix = _VSWHERE_COMPONENTID_SCONS_SUFFIX[component_id]
-
-                if scons_suffix:
-                    vc_version_scons = vc_version + scons_suffix
-                else:
-                    vc_version_scons = vc_version
-
-                is_prerelease = True if instance.get('isPrerelease', False) else False
-                is_release = False if is_prerelease else True
-
-                msvc_instance = MSVCInstance(
-                    vc_path = vc_path,
-                    vc_version = vc_version,
-                    vc_version_numeric = float(vc_version),
-                    vc_version_scons = vc_version_scons,
-                    vc_release = is_release,
-                    vc_component_id = component_id,
-                    vc_component_rank = component_rank,
-                    vc_component_suffix = component_suffix,
-                )
-
-                cls.msvc_instances.append(msvc_instance)
+            cls.msvc_instances.append(msvc_instance)
 
         new_roots = bool(len(cls.msvc_instances) > n_instances)
         if new_roots:
