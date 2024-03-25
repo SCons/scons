@@ -363,13 +363,14 @@ Supported MSVC batch file arguments by product:
 +---------+---------+--------+---------+---------+
 | VS2017  | X       | X      | X       | X       |
 +---------+---------+--------+---------+---------+
-| VS2015  | X [1]_  | X [2]_ |         |         |
+| VS2015  | X [1]   | X [2]  |         |         |
 +---------+---------+--------+---------+---------+
 
+Notes:
 
-.. [1] The BuildTools edition does not support the ``store`` argument.  The Express edition
-       supports the ``store`` argument for the ``x86`` target only.
-.. [2] The ``sdk version`` argument is not supported in the BuildTools and Express editions.
+1) The BuildTools edition does not support the ``store`` argument.  The Express edition
+   supports the ``store`` argument for the ``x86`` target only.
+2) The ``sdk version`` argument is not supported in the BuildTools and Express editions.
 
 Supported MSVC batch file arguments in SCons:
 
@@ -493,14 +494,16 @@ SDK Versions
 +------+-------------------+
 | SDK  | Format            |
 +======+===================+
-| 10.0 | 10.0.XXXXX.Y [*]_ |
+| 10.0 | 10.0.XXXXX.Y [1]  |
 +------+-------------------+
 | 8.1  | 8.1               |
 +------+-------------------+
 
-.. [*] The Windows 10 SDK version number is 10.0.20348.0 and earlier.
+Notes:
 
-       The Windows 11 SDK version number is 10.0.22000.194 and later.
+1) The Windows 10 SDK version number is 10.0.20348.0 and earlier.
+
+   The Windows 11 SDK version number is 10.0.22000.194 and later.
 
 BuildTools Versions
 -------------------
