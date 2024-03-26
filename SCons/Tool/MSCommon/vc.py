@@ -978,7 +978,7 @@ class VSWhereBinary(_VSWhereBinary, MSVC.Util.AutoInitialize):
 
         vswhere_binary = cls(
             vswhere_exe=vswhere_exe,
-            vswhere_norm=vswhere_exe,
+            vswhere_norm=vswhere_norm,
         )
 
         cls._cache_vswhere_paths[vswhere_exe] = vswhere_binary
@@ -1104,6 +1104,11 @@ class _VSWhereExecutable(MSVC.Util.AutoInitialize):
         return vswhere_exe_list
 
     @classmethod
+    def is_frozen(cls) -> bool:
+        rval = bool(cls.vswhere_frozen_flag)
+        return rval
+
+    @classmethod
     def freeze_vswhere_binary(cls):
         if not cls.vswhere_frozen_flag:
             cls.vswhere_frozen_flag = True
@@ -1141,7 +1146,7 @@ class _VSWhereExecutable(MSVC.Util.AutoInitialize):
         return group
 
     @classmethod
-    def register_vswhere_executable(cls, vswhere_exe, priority=None) -> bool:
+    def register_vswhere_executable(cls, vswhere_exe, priority=None):
 
         vswhere_binary = cls.UNDEFINED_VSWHERE_BINARY
 
@@ -1222,11 +1227,27 @@ class _VSWhereExecutable(MSVC.Util.AutoInitialize):
         return frozen_binary, vswhere_binary
 
 # external use
-vswhere_register_executable = _VSWhereExecutable.register_vswhere_executable
-vswhere_get_executable = _VSWhereExecutable.get_vswhere_executable
-vswhere_freeze_executable = _VSWhereExecutable.freeze_vswhere_executable
 
-# internal use
+def vswhere_register_executable(vswhere_exe, priority=None, freeze=False):
+    debug('register vswhere_exe=%s, priority=%s, freeze=%s', repr(vswhere_exe), repr(priority), repr(freeze))
+    _VSWhereExecutable.register_vswhere_executable(vswhere_exe, priority=priority)
+    if freeze:
+        _VSWhereExecutable.freeze_vswhere_executable()
+    rval = _VSWhereExecutable.get_vswhere_executable()
+    debug('current vswhere_exe=%s, is_frozen=%s', repr(rval), _VSWhereExecutable.is_frozen())
+    return vswhere_exe
+
+def vswhere_get_executable():
+    debug('')
+    vswhere_exe = _VSWhereExecutable.get_vswhere_executable()
+    return vswhere_exe
+
+def vswhere_freeze_executable():
+    debug('')
+    vswhere_exe = _VSWhereExecutable.freeze_vswhere_executable()
+    return vswhere_exe
+
+# internal use only
 vswhere_freeze_env = _VSWhereExecutable.vswhere_freeze_env
 
 def msvc_find_vswhere():

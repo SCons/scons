@@ -207,13 +207,15 @@ The following issues are known to exist:
 Experimental Features
 =====================
 
-msvc_query_version_toolset(version=None, prefer_newest=True)
-------------------------------------------------------------
+msvc_query_version_toolset(version=None, prefer_newest=True, vswhere_exe=None)
+------------------------------------------------------------------------------
 
 The experimental function ``msvc_query_version_toolset`` was added to ``MSCommon/vc.py``
-and is available via the ``SCons.Tool.MSCommon`` namespace. This function takes a version
-specification or a toolset version specification and a product preference as arguments and
-returns the msvc version and the msvc toolset version for the corresponding version specification.
+and is available via the ``SCons.Tool.MSCommon`` namespace.
+
+This function takes a version specification or a toolset version specification, an optional product
+preference, and an optional vswhere executable location as arguments and returns the msvc version and
+the msvc toolset version for the corresponding version specification.
 
 This is a proxy for using the toolset version for selection until that functionality can be added.
 
