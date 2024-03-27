@@ -109,6 +109,13 @@ class _PathVariableClass:
         except PermissionError:
             m = 'Path for option %s could not be created: %s'
             raise SCons.Errors.UserError(m % (key, val))
+        except OSError as e:
+            if e.errno == 30:
+                # errno == 30 is Read only file system
+                m = 'Path for option %s could not be created: %s'
+                raise SCons.Errors.UserError(m % (key, val))
+            else:
+                raise e
 
     @staticmethod
     def PathIsFile(key, val, env) -> None:
