@@ -19,6 +19,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       json output is also sorted, to match the default display.
     - Python 3.13 (alpha) changes the behavior of isabs() on Windows. Adjust
       SCons usage of in NodeInfo classes to match.  Fixes #4502, #4504.
+    - Drop duplicated __getstate__ and __setstate__ methods in AliasNodeInfo,
+      FileNodeInfo and ValueNodeInfo classes, as they are identical to the
+      ones in parent NodeInfoBase and can just be inherited.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
