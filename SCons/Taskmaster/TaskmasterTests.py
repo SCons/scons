@@ -72,7 +72,7 @@ class Node:
     def disambiguate(self):
         return self
 
-    def push_to_cache(self) -> None:
+    def push_to_cache(self) -> bool:
         pass
 
     def retrieve_from_cache(self) -> bool:

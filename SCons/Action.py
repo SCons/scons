@@ -1454,16 +1454,6 @@ class FunctionAction(_ActionAction):
                 except TypeError:
                     result.command=self.strfunction(target, source, env)
 
-                # FIXME: This maintains backward compatibility with respect to
-                # which type of exceptions were returned by raising an
-                # exception and which ones were returned by value. It would
-                # probably be best to always return them by value here, but
-                # some codes do not check the return value of Actions and I do
-                # not have the time to modify them at this point.
-                if (exc_info[1] and
-                    not isinstance(exc_info[1], SCons.Errors.SConsEnvironmentError)):
-                    raise result
-
             return result
         finally:
             # Break the cycle between the traceback object and this

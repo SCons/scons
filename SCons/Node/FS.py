@@ -2999,7 +2999,7 @@ class File(Base):
         # created.
         self.dir._create()
 
-    def push_to_cache(self) -> None:
+    def push_to_cache(self) -> bool:
         """Try to push the node into a cache
         """
         # This should get called before the Nodes' .built() method is
@@ -3010,10 +3010,10 @@ class File(Base):
         # the node to cache so that the memoization of the self.exists()
         # return value doesn't interfere.
         if self.nocache:
-            return
+            return None
         self.clear_memoized_values()
         if self.exists():
-            self.get_build_env().get_CacheDir().push(self)
+            return self.get_build_env().get_CacheDir().push(self)
 
     def retrieve_from_cache(self) -> bool:
         """Try to retrieve the node's content from a cache
