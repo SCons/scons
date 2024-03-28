@@ -291,7 +291,15 @@ def copy_func(dest, src, symlinks: bool=True) -> int:
 
     elif os.path.islink(src):
         if symlinks:
-            os.symlink(os.readlink(src), dest)
+            try:
+                os.symlink(os.readlink(src), dest)
+            except FileExistsError:
+                raise SCons.Errors.BuildError(
+                    errstr=(
+                        f'Error: Copy() called to create symlink at "{dest}",'
+                        ' but a file already exists at that location.'
+                    )
+                )
             return 0
 
         return copy_func(dest, os.path.realpath(src))

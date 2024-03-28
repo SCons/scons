@@ -207,7 +207,7 @@ class SConfTestCase(unittest.TestCase):
                         return False
                     def prepare(self) -> None:
                         pass
-                    def push_to_cache(self) -> None:
+                    def push_to_cache(self) -> bool:
                         pass
                     def retrieve_from_cache(self) -> bool:
                         return False

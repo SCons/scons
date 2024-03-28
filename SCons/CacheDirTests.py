@@ -164,7 +164,7 @@ class ExceptionTestCase(unittest.TestCase):
         # so that _readconfig* will try to rewrite it
         old_config = os.path.join(self._CacheDir.path, "config")
         os.remove(old_config)
-        
+
         try:
             self._CacheDir._readconfig(self._CacheDir.path)
             assert False, "Should have raised exception and did not"
@@ -315,23 +315,17 @@ class FileTestCase(BaseTestCase):
         old_warn_exceptions = SCons.Warnings.warningAsException(1)
         SCons.Warnings.enableWarningClass(SCons.Warnings.CacheWriteErrorWarning)
 
-        try:
-            cd_f7 = self.test.workpath("cd.f7")
-            self.test.write(cd_f7, "cd.f7\n")
-            f7 = self.File(cd_f7, 'f7_bsig')
+        cd_f7 = self.test.workpath("cd.f7")
+        self.test.write(cd_f7, "cd.f7\n")
+        f7 = self.File(cd_f7, 'f7_bsig')
 
-            warn_caught = 0
-            try:
-                f7.push_to_cache()
-            except SCons.Errors.BuildError as e:
-                assert e.exc_info[0] == SCons.Warnings.CacheWriteErrorWarning
-                warn_caught = 1
-            assert warn_caught
-        finally:
-            shutil.copy2 = save_copy2
-            os.mkdir = save_mkdir
-            SCons.Warnings.warningAsException(old_warn_exceptions)
-            SCons.Warnings.suppressWarningClass(SCons.Warnings.CacheWriteErrorWarning)
+        warn_caught = 0
+        r = f7.push_to_cache()
+        assert r.exc_info[0] == SCons.Warnings.CacheWriteErrorWarning
+        shutil.copy2 = save_copy2
+        os.mkdir = save_mkdir
+        SCons.Warnings.warningAsException(old_warn_exceptions)
+        SCons.Warnings.suppressWarningClass(SCons.Warnings.CacheWriteErrorWarning)
 
     def test_no_strfunction(self) -> None:
         """Test handling no strfunction() for an action."""

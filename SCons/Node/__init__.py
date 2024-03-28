@@ -678,7 +678,7 @@ class Node(metaclass=NoSlotsPyPy):
         except AttributeError:
             pass
 
-    def push_to_cache(self) -> None:
+    def push_to_cache(self) -> bool:
         """Try to push a node into a cache
         """
         pass
