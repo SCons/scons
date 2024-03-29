@@ -10,7 +10,6 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Mats Wichmann:
-
     - Updated Value Node docs and tests.
     - Python 3.13 compat: re.sub deprecated count, flags as positional args,
       caused update-release-info test to fail.
@@ -19,6 +18,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       json output is also sorted, to match the default display.
     - Python 3.13 (alpha) changes the behavior of isabs() on Windows. Adjust
       SCons usage of in NodeInfo classes to match.  Fixes #4502, #4504.
+
+  From Raymond Li:
+    - Fix issue #3935: OSErrors are now no longer hidden during execution of
+      Actions. All exceptions during the execution of an Action are now
+      returned by value rather than by raising an exception, for more
+      consistent behavior.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700

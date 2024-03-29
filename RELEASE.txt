@@ -31,11 +31,13 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   json output is also sorted, to match the default display.
 - Python 3.13 changes the behavior of isabs() on Windows. Adjust SCons
   usage of this in NodeInfo classes to avoid test problems.
+- All exceptions during the execution of an Action are now returned by value
+  rather than by raising an exception, for more consistent behavior.
 
 FIXES
 -----
 
-- List fixes of outright bugs
+- OSErrors are now no longer hidden during the execution of Actions.
 
 IMPROVEMENTS
 ------------
