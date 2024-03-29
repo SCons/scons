@@ -1749,15 +1749,18 @@ more useful.
   <varlistentry id="opt-no-site-dir">
   <term><option>--no-site-dir</option></term>
   <listitem>
-<para>Prevents the automatic addition of the standard
-<filename>site_scons</filename>
-directories to
-<varname>sys.path</varname>.
-Also prevents loading the
-<filename>site_scons/site_init.py</filename>
-modules if they exist, and prevents adding their
-<filename>site_scons/site_tools</filename>
-directories to the toolpath.</para>
+<para>Do not read site directories.
+Neither the standard site directories
+(<filename>site_scons</filename>)
+nor the path specified via a previous
+<option>--site-dir</option> option are
+added to the module search path <varname>sys.path</varname>,
+searched for a <filename>site_init.py</filename> file,
+or have their <filename>site_tools</filename>
+directory included in the tool search path.
+Can be overridden by a subequent
+<option>--site-dir</option> option.
+</para>
   </listitem>
   </varlistentry>
 
@@ -1880,7 +1883,7 @@ Also suppresses SCons status messages.</para>
   <varlistentry id="opt-site-dir">
   <term><option>--site-dir=<replaceable>path</replaceable></option></term>
   <listitem>
-<para>Use a specific <replaceable>path</replaceable> as the site directory
+<para>Use <replaceable>path</replaceable> as the site directory
 rather than searching the list of default site directories.
 This directory will be prepended to
 <varname>sys.path</varname>,
@@ -1888,7 +1891,10 @@ the module
 <filename><replaceable>path</replaceable>/site_init.py</filename>
 will be loaded if it exists, and
 <filename><replaceable>path</replaceable>/site_tools</filename>
-will be added to the default toolpath.</para>
+will be included in the tool search path.
+The option is not additive - if given more than once,
+the last <replaceable>path</replaceable> wins.
+</para>
 
 <para>The default set of site directories searched when
 <option>--site-dir</option>
@@ -2672,7 +2678,7 @@ See <xref linkend="tools"/> for details.
 
 <para>
 The optional <parameter>variables</parameter> keyword argument
-allows passing a Variables object which will be used in the
+allows passing a <classname>Variables</classname> object which will be used in the
 initialization of the &consenv;
 See <xref linkend="commandline_construction_variables"/> for details.
 </para>
@@ -2683,75 +2689,83 @@ See <xref linkend="commandline_construction_variables"/> for details.
 <title>Tools</title>
 
 <para>
-&SCons; has a large number of predefined tool modules
+&SCons; has many included tool modules
 (more properly, <firstterm>tool specification modules</firstterm>)
-which are used to help initialize the &consenv;.
+which are used to help initialize the &consenv; prior to building,
+and more can be written to suit a particular purpose,
+or added from external sources (a repository of
+constributed tools is available).
+More information on writing custom tools can be found in the
+<link linkend='extending_scons'>Extending SCons</link> section
+and specifically <link linkend='tool_modules'>Tool Modules</link>.
+</para>
+
+<para>
 An &SCons; tool is only responsible for setup.
 For example, if an &SConscript; file declares
 the need to construct an object file from
 a C-language source file by calling the
-&b-link-Object; builder, then a tool representing
+&b-link-Object; builder, then a tool module representing
 an available C compiler needs to have run first,
 to set up that builder and all the &consvars;
-it needs in the associated &consenv;; the tool itself
-is not called in the process of the build. Normally this
-happens invisibly as &scons; has per-platform
-lists of default tools, and it steps through those tools,
-calling the ones which are actually applicable,
-skipping those where necessary programs are not
-installed on the build system, or other preconditions are not met.
+it needs in the associated &consenv;.
+The tool itself is not called in the process of the build.
+Tool setup happens when a &consenv; is constructed,
+and in the basic case needs no intervention -
+platform-specific lists of default tools are used
+to examine the specific capabilities of that platform and
+configure the environment,
+skipping those tools which are not applicable.
 </para>
 
 <para>
-A specific set of tools
-with which to initialize an environment when
-creating it
+If necessary, a specific set of tools to
+initialize in an environment during creation
 may be specified using the optional keyword argument
-<parameter>tools</parameter>, which takes a list
-of tool names.
+<parameter>tools</parameter>.
+<parameter>tools</parameter> must be a list,
+even if there are one (or zero) tools.
 This is useful to override the defaults,
-to specify non-default built-in tools, and
-to supply added tools:</para>
+to specify non-default built-in tools,
+and to cause added tools to be called:
+</para>
 
 <programlisting language="python">
 env = Environment(tools=['msvc', 'lex'])
 </programlisting>
 
 <para>
+The <parameter>tools</parameter> argument overrides
+the default tool list, it does not add to it, so be
+sure to include all the tools you need.
+For example, if you are  building a c/c++ program,
+you must specify a tool for at least a compiler and a linker,
+as in <literal>tools=['clang', 'link']</literal>.
+</para>
+
+<para>
+If the <parameter>tools</parameter> argument is omitted,
+or if <parameter>tools</parameter> includes
+the reserved name <literal>'default'</literal>,
+then &SCons; will auto-detect usable tools,
+using the search path from the execution environment
+(that is, <varname><replaceable>env</replaceable>['ENV']['PATH']</varname>)
+for looking up any external programs,
+and the platform name in effect
+to determine the default tools for that platform.
+Note the contents of &PATH; from the external environment
+<varname>os.environ</varname> is <emphasis>not</emphasis> used.
+Changing the <varname>PATH</varname> in the execution environment
+after the &consenv; is constructed will not cause the tools to
+be re-detected.
+</para>
+
+<para>
 Tools can also be directly called by using the &f-link-Tool;
 method (see below).
 </para>
 
-<para>
-The <parameter>tools</parameter> argument overrides
-the default tool list, it does not add to it, so be
-sure to include all the tools you need.
-For example if you are  building a c/c++ program
-you must specify a tool for at least a compiler and a linker,
-as in <literal>tools=['clang', 'link']</literal>.
-The tool name <literal>'default'</literal> can
-be used to retain the default list.
-</para>
-
-<para>If no <parameter>tools</parameter> argument is specified,
-or if <parameter>tools</parameter> includes <literal>'default'</literal>,
-then &scons; will auto-detect usable tools,
-using the execution environment value of <varname>PATH</varname>
-(that is, <varname><replaceable>env</replaceable>['ENV']['PATH']</varname> -
-the external evironment &PATH; from <varname>os.environ</varname>
-is <emphasis>not</emphasis> used)
-for looking up any backing programs, and the platform name in effect
-to determine the default tools for that platform.
-Changing the <varname>PATH</varname>
-variable after the &consenv; is constructed will not cause the tools to
-be re-detected.</para>
-
-<para>Additional tools can be added, see the
-<link linkend='extending_scons'>Extending SCons</link> section
-and specifically <link linkend='tool_modules'>Tool Modules</link>.
-</para>
-
-<para>SCons supports the following tool specifications out of the box:</para>
+<para>&SCons; supports the following tool specifications out of the box:</para>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 <!-- '\" BEGIN GENERATED TOOL DESCRIPTIONS -->
@@ -3674,18 +3688,44 @@ from SCons.Script import *
 <!--     Default: -->
 <!--         (I dunno what this is ;\-) -->
 
-<para>A &consenv; has an associated dictionary of
-<firstterm>&consvars;</firstterm>
-that are used by built-in or user-supplied build rules.
+<para>
+<firstterm>&ConsVars;</firstterm> are key-value pairs
+used to store information in a &consenv; that
+is needed needed for builds using that environment.
 &Consvar; naming must follow the same rules as
 &Python; identifier naming:
 the initial character must be an underscore or letter,
 followed by any number of underscores, letters, or digits.
 The convention is to use uppercase for all letters
 for easier visual identification.
-A &consenv; is not a &Python; dictionary itself,
-but it can be indexed like one to access a
-&consvar;:</para>
+</para>
+
+<para>
+&Consvars; are used to hold many different types of information.
+For example, the &cv-link-CPPDEFINES; variable is how to tell a C/C++
+compiler about preprocessor macros you need for your build.
+The tool discovery that &SCons; performs will cause the
+&cv-link-CXX; variable to hold the name of the C++ compiler,
+if one was detected on the system, but you can give it a different
+value to force a compiler command of a different name to be used.
+Some variables contain lists of filename suffixes that are recognized
+by a particular compiler chain.
+&cv-link-BUILDERS; contains a mapping of configured
+Builder names (e.g. &b-link-Textfile;) to the actual Builder instance
+to call when that Builder is used.
+&Consvars; may include references to other &consvars;:
+the same tool which set up the C/C++ compiler will also set
+up an "action string", describing how to invoke that compiler,
+in &cv-link-CXXCOM;, which contains other &consvars;
+using <literal>$VARIABLE</literal> syntax.
+These references will be expanded and replaced on use
+(see <link linkend="variable_substitution">Variable Substitution</link>).
+</para>
+
+<para>
+&Consvars; are referenced as if they were keys and values
+in a &Python; dictionary:
+</para>
 
 <programlisting language="python">
 env["CC"] = "cc"
@@ -3702,8 +3742,15 @@ cvars = env.Dictionary()
 cvars["CC"] = "cc"
 </programlisting>
 
-<para>&Consvars; can also be passed to the &consenv;
-constructor:</para>
+<para>
+in the previous example, since <varname>cvars</varname>
+is an external copy, the value of &cv-CC; in the
+&consenv; itself is not changed by the assignment.
+</para>
+
+<para>&Consvars; can set by passing them as keyword arguments
+when creating a new &consenv;:
+</para>
 
 <programlisting language="python">
 env = Environment(CC="cc")
@@ -3728,17 +3775,22 @@ This concept is called an <firstterm>override</firstterm>:
 env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
 </programlisting>
 
-<para>A number of useful &consvars; are automatically defined by
-scons for each supported platform, and you can modify these
-or define any additional &consvars; for your own use,
-taking care not to overwrite ones which &SCons; is using.
-The following is a list of the possible
-automatically defined &consvars;.
+<para>Many useful &consvars; are automatically defined by
+&SCons;, tuned to the specific platform in use,
+and you can modify these or define any additional &consvars;
+for use in your own Builders, Scanners and other tools.
+Take care not to overwrite ones which &SCons; is using.
+The following is a list of predefined &consvars;.
+Pay attention to whether the values are ones
+you may be expected to set vs.
+ones that are set to expected values by
+internal tools and other initializations
+and probably should not be modified.
 </para>
 
 <para>Note the actual list available
 at execution time will never include all of these, as the ones
-detected as not being useful (wrong platform, necessary
+detected as not being applicable (wrong platform, necessary
 external command or files not installed, etc.) will not be set up.
 Correct build setups should be resilient to the possible
 absence of certain &consvars; before using them,
@@ -6816,7 +6868,8 @@ see <link linkend="special_attributes">Special Attributes</link> below).
 
 <para>
 If <replaceable>expression</replaceable> refers to a &consvar;,
-it is replaced with the value of that variable in the
+it (including the <literal>$</literal> or <literal>${ }</literal>)
+is replaced with the value of that variable in the
 &consenv; at the time of execution.
 If <replaceable>expression</replaceable> looks like
 a variable name but is not defined in the &consenv;
@@ -7605,22 +7658,22 @@ env.Program('my_prog', ['file1.c', 'file2.f', 'file3.xyz'])
 <title>Tool Modules</title>
 
 <para>
-Additional tools can be added to a project either by
-placing them in a <filename>site_tools</filename> subdirectory
-of a site directory, or in a custom location specified to
-&scons; by giving the
+Custom tools can be added to a project either by
+placing them in the <filename>site_tools</filename> subdirectory
+of a configured site directory,
+or in a location specified by the
 <parameter>toolpath</parameter> keyword argument to &f-link-Environment;.
-A tool module is a form of &Python; module, invoked internally
-using the &Python; import mechanism, so a tool can consist either
-of a single source file taking the name of the tool
-(e.g. <filename>mytool.py</filename>) or a directory taking
-the name of the tool (e.g. <filename>mytool/</filename>)
-which contains at least an <filename>__init__.py</filename> file.
+You have to arrange to call a tool to put it into effect,
+either as part of the list given to the <parameter>tools</parameter>
+keyword argument at &consenv; initialization,
+or by calling &f-link-env-Tool;.
 </para>
 
 <para>
 The <parameter>toolpath</parameter> parameter
-takes a list as its value:
+takes a list of path strings,
+and the <parameter>tools</parameter> parameter
+takes a list of tools, which are often strings:
 </para>
 
 <programlisting language="python">
@@ -7628,23 +7681,23 @@ env = Environment(tools=['default', 'foo'], toolpath=['tools'])
 </programlisting>
 
 <para>
-This looks for a tool specification module (<filename>mytool.py</filename>,
-or directory <filename>mytool</filename>)
+This looks for a tool specification module <literal>foo</literal>
 in directory <filename>tools</filename> and in the standard locations,
 as well as using the ordinary default tools for the platform.
 </para>
 
 <para>
-Directories specified via <parameter>toolpath</parameter> are prepended
-to the existing tool path.
-The default tool path is any <filename>site_tools</filename> directories,
-so tools in a specified <parameter>toolpath</parameter> take priority,
-followed by tools in a <filename>site_tools</filename> directory,
-followed by built-in tools.  For example, adding
+When looking up tool specification modules,
+directories specified via <parameter>toolpath</parameter> are
+considered before the existing tool path
+(<filename>site_tools</filename> subdirectories
+of the default or specified site directories),
+which are in turn considered before built-in tools.
+For example, adding
 a tool specification module <filename>gcc.py</filename> to the toolpath
 directory would override the built-in &t-link-gcc; tool.
-The tool path is stored in the environment and will be
-used by subsequent calls to the &f-link-Tool; method,
+The <parameter>toolpath</parameter> is saved in the environment
+and will be used by subsequent calls to the &f-link-env-Tool; method,
 as well as by &f-link-env-Clone;.
 </para>
 
@@ -7655,7 +7708,14 @@ derived.CustomBuilder()
 </programlisting>
 
 <para>
-A tool specification module must include two functions:
+A tool specification module is a form of &Python; module,
+looked up internally using the &Python; import mechanism,
+so a tool can consist either
+of a single &Python; file taking the name of the tool
+(e.g. <filename>mytool.py</filename>) or a directory taking
+the name of the tool (e.g. <filename>mytool/</filename>)
+which contains at least an <filename>__init__.py</filename> file.
+A tool specification module has two required entry points:
 </para>
 
 <variablelist>
@@ -7665,16 +7725,17 @@ A tool specification module must include two functions:
 <para>Modify the &consenv; <parameter>env</parameter>
 to set up necessary &consvars;, Builders, Emitters, etc.,
 so the facilities represented by the tool can be executed.
-Care should be taken not to overwrite &consvars; intended
-to be settable by the user. For example:
+Take Care not to overwrite &consvars; which may
+have been explicitly set by the user,
+retain and/or append instead. For example:
 </para>
 <programlisting language="python">
 def generate(env):
     ...
     if 'MYTOOL' not in env:
         env['MYTOOL'] = env.Detect("mytool")
-    if 'MYTOOLFLAGS' not in env:
-        env['MYTOOLFLAGS'] = SCons.Util.CLVar('--myarg')
+    flags = env.get('MYTOOLFLAGS', SCons.Util.CLVar())
+    env.AppendUnique(MYTOOLFLAGS='--myarg')
     ...
 </programlisting>
 
@@ -7687,9 +7748,9 @@ to vary its initialization.</para>
   <varlistentry>
     <term><function>exists</function>(<parameter>env</parameter>)</term>
     <listitem>
-<para>Return a true value if the tool can
-be called in the context of <parameter>env</parameter>.
-else false.
+<para>Return a truthy value if the tool can
+be called in the context of <parameter>env</parameter>,
+else return a falsy value.
 Usually this means looking up one or more
 known programs using the <varname>PATH</varname> from the
 supplied <parameter>env</parameter>, but the tool can
@@ -7711,11 +7772,14 @@ and the <function>exists</function> function should still be provided.
 </para>
 </note>
 
-<para>The elements of the <parameter>tools</parameter> list may also
-be functions or callable objects,
-in which case the &Environment; method
-will call those objects
-to update the new &consenv; (see &f-link-Tool; for more details):</para>
+<para>An element of the <parameter>tools</parameter> list may also
+be a function or other callable object
+(including a Tool object returned by a previous call to
+&f-link-Tool;) in which case the &f-link-Environment; function
+will directly call that object
+to update the new &consenv;.
+No tool lookup is done in this case.
+</para>
 
 <programlisting language="python">
 def my_tool(env):
@@ -7724,35 +7788,34 @@ def my_tool(env):
 env = Environment(tools=[my_tool])
 </programlisting>
 
-<para>The individual elements of the <parameter>tools</parameter> list
-may also themselves be lists or tuples of the form
+<para>An element of the <parameter>tools</parameter> list
+may also be a two-element list or tuple of the form
 <literal>(toolname, kw_dict)</literal>.
-SCons searches for the
+SCons searches for the a tool specification module
 <parameter>toolname</parameter>
-specification file as described above, and
-passes
-<parameter>kw_dict</parameter>,
-which must be a dictionary, as keyword arguments to the tool's
-<function>generate</function>
-function.
-The
-<function>generate</function>
-function can use the arguments to modify the tool's behavior
+as described above,
+and passes <parameter>kw_dict</parameter>,
+which must be a dictionary,
+as keyword arguments to the tool's
+<function>generate</function> function.
+The <function>generate</function>
+function can use those arguments to modify the tool's behavior
 by setting up the environment in different ways
 or otherwise changing its initialization.</para>
 
 <programlisting language="python">
 # in tools/my_tool.py:
 def generate(env, **kwargs):
-  # Sets MY_TOOL to the value of keyword 'arg1' '1' if not supplied
-  env['MY_TOOL'] = kwargs.get('arg1', '1')
+    # Sets MY_TOOL to the value of keyword 'arg1' or '1' if not supplied
+    env['MY_TOOL'] = kwargs.get('arg1', '1')
 
 def exists(env):
-  return True
+    return True
 
 # in SConstruct:
-env = Environment(tools=['default', ('my_tool', {'arg1': 'abc'})],
-                  toolpath=['tools'])
+env = Environment(
+    tools=['default', ('my_tool', {'arg1': 'abc'})], toolpath=['tools']
+)
 </programlisting>
 
 <para>The tool specification (<function>my_tool</function> in the example)

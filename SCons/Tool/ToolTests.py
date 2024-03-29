@@ -39,6 +39,7 @@ class DummyEnvironment:
         return progs[0]
     def Append(self, **kw) -> None:
         self.dict.update(kw)
+    AppendUnique = Append  # wrong, but good enough for the use
     def __getitem__(self, key):
         return self.dict[key]
     def __setitem__(self, key, val) -> None:

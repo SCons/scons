@@ -251,7 +251,7 @@ class Tool:
                 kw.update(call_kw)
             else:
                 kw = self.init_kw
-        env.Append(TOOLS=[self.name])
+        env.AppendUnique(TOOLS=[self.name])
         if hasattr(self, 'options'):
             import SCons.Variables
             if 'options' not in env:

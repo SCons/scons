@@ -37,7 +37,7 @@ import re
 import shlex
 from collections import UserDict, UserList, deque
 from subprocess import PIPE, DEVNULL
-from typing import Optional, Sequence
+from typing import Callable, Collection, Optional, Sequence, Union
 
 import SCons.Action
 import SCons.Builder
@@ -1250,9 +1250,11 @@ class Base(SubstitutionEnvironment):
         SCons.Tool.Initializers(self)
 
         if tools is None:
-            tools = self._dict.get('TOOLS', None)
-            if tools is None:
-                tools = ['default']
+            tools = self._dict.get('TOOLS', ['default'])
+        else:
+            # for a new env, if we didn't use TOOLS, make sure it starts empty
+            # so it only shows tools actually initialized.
+            self._dict['TOOLS'] = []
         apply_tools(self, tools, toolpath)
 
         # Now restore the passed-in and customized variables
@@ -2014,11 +2016,20 @@ class Base(SubstitutionEnvironment):
     def _find_toolpath_dir(self, tp):
         return self.fs.Dir(self.subst(tp)).srcnode().get_abspath()
 
-    def Tool(self, tool, toolpath=None, **kwargs) -> SCons.Tool.Tool:
+    def Tool(
+        self, tool: Union[str, Callable], toolpath: Optional[Collection[str]] = None, **kwargs
+    ) -> Callable:
         """Find and run tool module *tool*.
 
+        *tool* is generally a string, but can also be a callable object,
+        in which case it is just called, without any of the setup.
+        The skipped setup includes storing *kwargs* into the created
+        :class:`~SCons.Tool.Tool` instance, which is extracted and used
+        when the instance is called, so in the skip case, the called
+        object will not get the *kwargs*.
+
         .. versionchanged:: 4.2
-           returns the tool module rather than ``None``.
+           returns the tool object rather than ``None``.
         """
         if is_String(tool):
             tool = self.subst(tool)
