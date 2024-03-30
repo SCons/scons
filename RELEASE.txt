@@ -34,12 +34,16 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - Drop duplicated __getstate__ and __setstate__ methods in AliasNodeInfo,
   FileNodeInfo and ValueNodeInfo classes, as they are identical to the
   ones in parent NodeInfoBase and can just be inherited.
-
+- All exceptions during the execution of an Action are now returned by value
+  rather than by raising an exception, for more consistent behavior.
+  NOTE: With this change, user created Actions should now catch and handle
+  expected exceptions (whereas previously many of these were silently caught
+  and suppressed by the SCons Action exection code).
 
 FIXES
 -----
 
-- List fixes of outright bugs
+- OSErrors are now no longer hidden during the execution of Actions.
 
 IMPROVEMENTS
 ------------
