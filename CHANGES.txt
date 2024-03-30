@@ -13,9 +13,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix issue #3935: OSErrors are now no longer hidden during execution of
       Actions. All exceptions during the execution of an Action are now
       returned by value rather than by raising an exception, for more
-      consistent behavior. With this change, user created Actions should now
-      catch and handle expected exceptions (whereas previously many of these
-      were silently caught and suppressed by the SCons Action exection code).
+      consistent behavior.
+      NOTE: With this change, user created Actions should now catch and handle
+      expected exceptions (whereas previously many of these were silently
+      caught and suppressed by the SCons Action exection code).
 
   From Mats Wichmann:
     - Updated Value Node docs and tests.
