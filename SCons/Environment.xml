@@ -241,8 +241,11 @@ for more information).
 <cvar name="TOOLS">
 <summary>
 <para>
-A list of the names of the Tool specifications
-that are part of this construction environment.
+A list of the names of the Tool specification modules
+that were actually initialized in the current &consenv;.
+This may be useful as a diagnostic aid
+to see if a tool did (or did not) run.
+The value is informative and is not guaranteed to be complete.
 </para>
 </summary>
 </cvar>
@@ -3437,32 +3440,43 @@ source_nodes = env.subst('$EXPAND_TO_NODELIST', conv=lambda x: x)
 <para>
 Locates the tool specification module <parameter>name</parameter>
 and returns a callable tool object for that tool.
-The tool module is searched for in standard locations
-and in any paths specified by the optional
-<parameter>toolpath</parameter> parameter.
-The standard locations are &SCons;' own internal
-path for tools plus the toolpath, if any (see the
-<emphasis role="bold">Tools</emphasis> section in the manual page
-for more details).
-Any additional keyword arguments
-<parameter>kwargs</parameter> are passed
-to the tool module's <function>generate</function> function
-during tool object construction.
-</para>
-
-<para>
-When called, the tool object
-updates a &consenv; with &consvars; and arranges
-any other initialization
-needed to use the mechanisms that tool describes.
-</para>
-
-<para>
-When the &f-env-Tool; form is used,
-the tool object is automatically called to update <varname>env</varname>
-and the value of <parameter>tool</parameter> is
+When the environment method (&f-env-Tool;) form is used,
+the tool object is automatically called before the method returns
+to update <varname>env</varname>,
+and <parameter>name</parameter> is
 appended to the &cv-link-TOOLS;
 &consvar; in that environment.
+When the global function &f-Tool; form is used,
+the tool object is constructed but not called,
+as it lacks the context of an environment to update,
+and the returned object needs to be used to arrange for the call.
+</para>
+
+<para>
+The tool module is searched for in the tool search paths (see the
+<emphasis role="bold">Tools</emphasis> section in the manual page
+for details)
+and in any paths specified by the optional
+<parameter>toolpath</parameter> parameter,
+which must be a list of strings.
+If <parameter>toolpath</parameter> is omitted,
+the <parameter>toolpath</parameter>
+supplied when the environment was created,
+if any, is used.
+</para>
+
+<para>
+Any remaining keyword arguments are saved in
+the tool object,
+and will be passed to the tool module's
+<function>generate</function> function
+when the tool object is actually called.
+The <function>generate</function> function
+can update the &consenv; with &consvars; and arrange
+any other initialization
+needed to use the mechanisms that tool describes,
+and can use these extra arguments to help
+guide its actions.
 </para>
 
 <para>
@@ -3481,10 +3495,7 @@ env.Tool('opengl', toolpath=['build/tools'])
 </example_commands>
 
 <para>
-When the global function &f-Tool; form is used,
-the tool object is constructed but not called,
-as it lacks the context of an environment to update.
-The tool object can be passed to an
+The returned tool object can be passed to an
 &f-link-Environment; or &f-link-Clone; call
 as part of the <parameter>tools</parameter> keyword argument,
 in which case the tool is applied to the environment being constructed,
