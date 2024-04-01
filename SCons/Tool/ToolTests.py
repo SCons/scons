@@ -39,7 +39,9 @@ class DummyEnvironment:
         return progs[0]
     def Append(self, **kw) -> None:
         self.dict.update(kw)
-    AppendUnique = Append  # wrong, but good enough for the use
+    # Adding a tool now calls AppendUnique so we need a mocked one. Since
+    # the only usage is adding one tool, using Append is good enough.
+    AppendUnique = Append
     def __getitem__(self, key):
         return self.dict[key]
     def __setitem__(self, key, val) -> None:

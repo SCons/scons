@@ -7725,8 +7725,8 @@ A tool specification module has two required entry points:
 <para>Modify the &consenv; <parameter>env</parameter>
 to set up necessary &consvars;, Builders, Emitters, etc.,
 so the facilities represented by the tool can be executed.
-Take Care not to overwrite &consvars; which may
-have been explicitly set by the user,
+Take care not to overwrite &consvars; which may
+have been explicitly set by the user;
 retain and/or append instead. For example:
 </para>
 <programlisting language="python">
