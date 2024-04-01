@@ -1543,23 +1543,12 @@ class TestCmd:
         # It seems that all pythons up to py3.6 still set text mode if you set encoding.
         # TODO: File enhancement request on python to propagate universal_newlines even
         # if encoding is set.hg c
-        #
-        # Windows can fail the subprocess call itself (via exception), rather
-        # than having subprocess.Popen report failure - antivirus hit is an
-        # example.  Catch this and report it up as a test fail, as it gets
-        # missed easily otherwise. "Failed to run the test" should ostensibly
-        # be a No Result, but in this case, let's behave diffferently.
-        try:
-            p = Popen(
-                cmd,
-                stdin=stdin,
-                stdout=PIPE,
-                stderr=stderr_value,
-                env=os.environ,
-                universal_newlines=False,
-            )
-        except OSError as e:
-            self.fail_test(message=repr(e))
+        p = Popen(cmd,
+                  stdin=stdin,
+                  stdout=PIPE,
+                  stderr=stderr_value,
+                  env=os.environ,
+                  universal_newlines=False)
 
         self.process = p
         return p
@@ -1637,11 +1626,11 @@ class TestCmd:
         Output and error output are saved for future retrieval via
         the stdout() and stderr() methods.
 
-        The specified program will have the original directory
+        The specified *program* will have the original directory
         prepended unless it is enclosed in a [list].
 
-        arguments: if a dict() then will create arguments with KEY+VALUE for
-                   each entry in the dict.
+        If *arguments* is a dict then will create arguments with KEY+VALUE
+        for each entry in the dict.
         """
         if self.external:
             if not program:

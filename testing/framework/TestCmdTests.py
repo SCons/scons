@@ -2605,6 +2605,7 @@ script_recv:  STDERR:  input
             expect = f"script_recv:  {input}"
             assert result == expect, f"Result:[{result}] should match\nExpected:[{expect}]"
 
+            # TODO: Python 3.6+ ResourceWarning: unclosed file <_io.BufferedReader name=9>
             p = test.start(stdin=1)
             input = 'send() input to the receive script\n'
             p.send(input)

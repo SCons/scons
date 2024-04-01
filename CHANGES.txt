@@ -34,7 +34,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       tweak for how it's handled (should be more accurate in a few situations).
     - Test framework now uses a subdirectory named "scons" below the base
       temporary directory. This gives something invariant to tell antivirus
-      software to ignore without having to exclude the tmpdir itself.
+      to ignore without having to exclude tmpdir itself. Fixes #4509.
     - MSVS "live" tests of project files adjusted to look for the generated
       executable with an exe sufffix
 

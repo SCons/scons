@@ -50,9 +50,7 @@ IMPROVEMENTS
 
 - Make the testing framework a little more resilient: the temporary
   directory for tests now includes a component named "scons" which can
-  be given to antivirus software to exclude; tests which are aborted
-  before startup by the operating system now generate a proper FAILED
-  message and are recorded in the fails list.
+  be given to antivirus software to exclude.
 
 PACKAGING
 ---------
