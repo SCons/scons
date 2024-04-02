@@ -79,6 +79,7 @@ class BuildCommandLine:
                 "SKIP_DOC=",
                 "Skip building documents. The value can be 'pdf', 'api', "
                 "''all' or 'none'. A comma-separated list is also allowed. "
+                "Do not set this for an official release build. "
                 "The default is 'none' (build all docs)"
             ),
         ]
