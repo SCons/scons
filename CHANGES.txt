@@ -32,6 +32,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       ones in parent NodeInfoBase and can just be inherited.
     - Update manpage for Tools, and for TOOL, which also gets a minor
       tweak for how it's handled (should be more accurate in a few situations).
+    - Documentation build now properly passes through skipping the PDF
+      (and EPUB) builds of manpage and user guide; this can also be done
+      manually if directly calling doc/man/SConstruct and doc/user/SConstruct
+      by adding SKIP_PDF=1.  This should help with distro packaging of SCons,
+      which now does not need "fop" and other tools to be set up in order to
+      build pdf versions which are then ignored.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700

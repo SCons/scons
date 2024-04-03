@@ -490,11 +490,13 @@ else:
                     sctargets.append(os.path.join(scdir, f'scons-{man}.pdf'))
                 sctargets.append(os.path.join(scdir, f'scons-{man}.html'))
 
+        # pass on the information to skip PDF/EPUB when calling man/guide SConstruct
+        skip_str = "SKIP_PDF=1" if skip_pdf_build else ""
         nodes.extend(
             env.Command(
                 target=sctargets,
                 source=buildsuite + depends,
-                action="cd %s && $PYTHON ${SCONS_PY.abspath}%s" % (scdir, cleanopt),
+                action="cd %s && $PYTHON ${SCONS_PY.abspath}%s %s" % (scdir, cleanopt, skip_str),
             )
         )
 
@@ -545,7 +547,7 @@ else:
             tar_deps.append(pdf)
             tar_list.append(pdf)
 
-        if 'epub' in targets and gs:
+        if 'epub' in targets and not skip_pdf_build and gs:
             env.InstallAs(
                 target=env.File(epub),
                 source=env.File(os.path.join(build, doc, f'scons-{doc}.epub')),
