@@ -69,7 +69,13 @@ DOCUMENTATION
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is developed
+- Documentation build now properly passes through skipping the PDF
+  (and EPUB) builds of manpage and user guide; this can also be done
+  manually if directly calling doc/man/SConstruct and doc/user/SConstruct
+  by adding SKIP_PDF=1. This should help with distro packaging of SCons,
+  which now does not need "fop" and other tools to be set up in order to
+  build pdf versions which are then ignored.
+
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
