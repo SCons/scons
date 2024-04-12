@@ -76,10 +76,21 @@ class Variables:
             if not Variables.instance:
                 Variables.instance=self
 
+    def __str__(self) -> str:
+        """Provide a way to "print" a Variables object."""
+        s = "Variables(\n  options=[\n"
+        for option in self.options:
+            s += f"    {str(option)},\n"
+        s += "  ],\n"
+        s += f"  args={self.args},\n  files={self.files},\n  unknown={self.unknown},\n)"
+        return s
+
     def _do_add(self, key, help: str="", default=None, validator=None, converter=None, **kwargs) -> None:
 
         class Variable:
-            pass
+            def __str__(self) -> str:
+                """Provide a way to "print" a Variable object."""
+                return f"({self.key!r}, {self.aliases}, {self.help!r}, {self.default!r}, {self.validator}, {self.converter})"
 
         option = Variable()
 
