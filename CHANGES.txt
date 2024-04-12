@@ -9,6 +9,10 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Thaddeus Crews:
+    - Fix msvc issue causing cl/link tools to clutter stdout with bloat &
+      incorrectly routed error messages.
+
   From Raymond Li:
     - Fix issue #3935: OSErrors are now no longer hidden during execution of
       Actions. All exceptions during the execution of an Action are now

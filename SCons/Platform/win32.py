@@ -208,7 +208,34 @@ def spawn(sh, escape, cmd, args, env):
     if not sh:
         sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
         return 127
-    return exec_spawn([sh, '/C', escape(' '.join(args))], env)
+
+    # Special case for cl/link due to extremely questionable stdout choices.
+    if args[0] not in ["cl", "link"]:
+        return exec_spawn([sh, '/C', escape(' '.join(args))], env)
+
+    for arg in args:
+        if arg.find(">", 0, 1) != -1 or arg.find("1>", 0, 2) != -1:
+            return exec_spawn([sh, '/C', escape(' '.join(args))], env)
+
+    tmp_stdout, tmp_stdout_name = tempfile.mkstemp()
+    os.close(tmp_stdout)
+    args.append(f">{tmp_stdout_name}")
+    ret = exec_spawn([sh, '/C', escape(' '.join(args))], env)
+
+    try:
+        with open(tmp_stdout_name, "rb") as tmp_stdout:
+            # First line is always bloat, subsequent lines are always errors.
+            # If content exists after discarding the first line, safely decode
+            # & send to stderr.
+            tmp_stdout.readline()
+            content = tmp_stdout.read()
+            if content:
+                sys.stderr.write(content.decode(sys.stdout.encoding, "replace"))
+        os.remove(tmp_stdout_name)
+    except OSError:
+        pass
+
+    return ret
 
 # Windows does not allow special characters in file names anyway, so no
 # need for a complex escape function, we will just quote the arg, except

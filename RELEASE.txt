@@ -48,9 +48,9 @@ FIXES
 IMPROVEMENTS
 ------------
 
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
+- Building with msvc will no longer cause the cl/link tools to flood the
+  command line with bloat. Any cl/link error messages erroneously filtered
+  to stdout will now be properly redirected to stderr.
 
 PACKAGING
 ---------
