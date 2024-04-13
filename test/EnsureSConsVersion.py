@@ -63,6 +63,23 @@ Exit(0)
 
     test.run(status=2)
 
+    test.write('SConstruct', """\
+env = Environment()
+env.EnsureSConsVersion(*env.GetSConsVersion())
+Exit(0)
+""")
+
+    test.run()
+
+    test.write('SConstruct', """\
+env = Environment()
+ver = env.GetSConsVersion()
+env.EnsureSConsVersion(ver[0], ver[1], ver[2])
+Exit(0)
+""")
+
+    test.run()
+
 
 
 test.write('SConstruct', """\
@@ -121,6 +138,20 @@ EnsureSConsVersion(1,0)
 
 test.run(status=2)
 
+test.write('SConstruct', """\
+import SCons
+EnsureSConsVersion(*GetSConsVersion())
+""")
+
+test.run()
+
+test.write('SConstruct', """\
+import SCons
+ver = GetSConsVersion()
+EnsureSConsVersion(ver[0], ver[1], ver[2])
+""")
+
+test.run()
 
 
 test.pass_test()

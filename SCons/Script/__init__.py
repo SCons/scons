@@ -297,6 +297,7 @@ def Variables(files=None, args=ARGUMENTS):
 #
 # Static functions that do not trigger initialization of
 # DefaultEnvironment() and don't use its state.
+GetSConsVersion = _SConscript.SConsEnvironment.GetSConsVersion
 EnsureSConsVersion = _SConscript.SConsEnvironment.EnsureSConsVersion
 EnsurePythonVersion = _SConscript.SConsEnvironment.EnsurePythonVersion
 Exit = _SConscript.SConsEnvironment.Exit

@@ -136,6 +136,18 @@ EnsureSConsVersion(0,96,90)
 </summary>
 </scons_function>
 
+<scons_function name="GetSConsVersion">
+<arguments signature="global">
+()
+</arguments>
+<summary>
+<para>
+Returns the current SCons version in the form of a Tuple[int, int, int],
+representing the major, minor, and revision values respectively.
+</para>
+</summary>
+</scons_function>
+
 <scons_function name="Exit">
 <arguments signature="global">
 ([value])
