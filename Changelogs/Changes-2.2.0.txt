@@ -1,0 +1,47 @@
+RELEASE 2.2.0 - Mon, 05 Aug 2012 15:37:48 +0000
+
+  From dubcanada on Bitbucket:
+    - Fix 32-bit Visual Express C++ on 64-bit Windows (generate 32-bit code)
+
+  From Paweł Tomulik:
+    - Added gettext toolset
+    - Fixed FindSourceFiles to find final sources (leaf nodes).
+
+  From Greg Ward:
+    - Allow Node objects in Java path (#2825)
+
+  From Joshua Hughes:
+    - Make Windows not redefine builtin file as un-inheritable (#2857)
+    - Fix WINDOWS_INSERT_DEF on MinGW (Windows) (#2856)
+
+  From smallbub on Bitbucket:
+    - Fix LINKCOMSTR, SHLINKCOMSTR, and LDMODULECOMSTR on Windows (#2833).
+
+  From Mortoray:
+    - Make -s (silent mode) be silent about entering subdirs (#2976).
+    - Fix cloning of builders when cloning environment (#2821).
+
+  From Gary Oberbrunner:
+    - Show valid Visual Studio architectures in error message
+       when user passes invalid arch.
+
+  From Alexey Petruchik:
+    - Support for Microsoft Visual Studio 11 (both using it
+      and generating MSVS11 solution files).
+
+  From Alexey Klimkin:
+    - Fixed the Taskmaster, curing spurious build failures in
+      multi-threaded runs (#2720).
+
+  From Dirk Baechle:
+    - Improved documentation of command-line variables (#2809).
+    - Fixed scons-doc.py to properly convert main XML files (#2812).
+
+  From Rob Managan:
+    - Updated the TeX builder to support LaTeX's multibib package.
+    - Updated the TeX builder to support LaTeX's biblatex package.
+    - Added support for using biber instead of bibtex by setting
+      env['BIBTEX'] = 'biber'
+
+  From Arve Knudsen:
+    - Test for FORTRANPPFILESUFFIXES (#2129).
