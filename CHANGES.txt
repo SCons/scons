@@ -12,9 +12,11 @@ NOTE: Python 3.6 support is deprecated and will be dropped in a future release.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
-
-        - Whatever John Doe did.
+  From Thaddeus Crews:
+    - Add explicit return types to sctypes `is_*` functions. For Python <=3.9,
+      the return type is simply `bool`, same as before. Python 3.10 and later
+      will benefit from `TypeGuard`/`TypeIs`, to produce intellisense similar
+      to using `isinstance` directly.
 
 
 RELEASE 4.8.0 -  Sun, 07 Jul 2024 17:22:20 -0700

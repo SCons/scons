@@ -56,7 +56,11 @@ DOCUMENTATION
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is developed
+- sctypes `is_*` functions given explicit return types. Python 3.13+ uses
+  `TypeIs` for a near-equivalent of `isinstance`. Python 3.10 through 3.12
+  uses `TypeGuard`, a less accurate implementation but still provides
+  usable type hinting. Python 3.9 and earlier simply returns `bool`, same
+  as before.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
