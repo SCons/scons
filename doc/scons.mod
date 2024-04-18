@@ -291,6 +291,7 @@
 <!ENTITY Touch "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Touch</function>">
 <!ENTITY UnknownOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownOptions</function>">
 <!ENTITY UnknownVariables "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownVariables</function>">
+<!ENTITY Update "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Update</function>">
 
 
 <!-- Environment methods -->
