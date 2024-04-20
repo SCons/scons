@@ -391,8 +391,8 @@ and can be used in the &SConscript; files to modify
 the build in any way:</para>
 
 <programlisting language="python">
-if ARGUMENTS.get('debug', 0):
-    env = Environment(CCFLAGS='-g')
+if ARGUMENTS.get("debug", ""):
+    env = Environment(CCFLAGS="-g")
 else:
     env = Environment()
 </programlisting>
@@ -401,8 +401,8 @@ else:
 in the <link linkend="v-ARGLIST">&ARGLIST;</link> list,
 indexed by their order on the command line.
 This allows you to process them in order rather than by name,
-if necessary. Each &ARGLIST; entry is a tuple containing
-(<replaceable>argname</replaceable>, <replaceable>argvalue</replaceable>).
+if necessary. Each &ARGLIST; entry is a tuple consisting
+of the name and the value.
 </para>
 
 <para>
@@ -3478,7 +3478,7 @@ include:</para>
 <para>In addition to the global functions and methods,
 &scons;
 supports a number of variables
-that can be used in &SConscript; files
+that can be used for run-time queries in &SConscript; files
 to affect how you want the build to be performed.</para>
 
 <variablelist>
@@ -3486,12 +3486,12 @@ to affect how you want the build to be performed.</para>
   <term>&ARGLIST;</term>
   <listitem>
 <para>A list of the
-<emphasis>keyword</emphasis>=<emphasis>value</emphasis>
-arguments specified on the command line.
+<emphasis>variable</emphasis>=<emphasis>value</emphasis>
+build variable arguments specified on the command line.
 Each element in the list is a tuple
-containing the argument.
+consisting of the variable and its value.
 The separate
-<emphasis>keyword</emphasis>
+<emphasis>variable</emphasis>
 and
 <emphasis>value</emphasis>
 elements of the tuple
@@ -3501,16 +3501,25 @@ subscripting for elements
 and
 <emphasis role="bold">[1]</emphasis>
 of the tuple, or, more readably, by using tuple unpacking.
-Example:</para>
+Examples:</para>
 
 <programlisting language="python">
-print("first keyword, value =", ARGLIST[0][0], ARGLIST[0][1])
-print("second keyword, value =", ARGLIST[1][0], ARGLIST[1][1])
-key, value = ARGLIST[2]
-print("third keyword, value =", key, value)
-for key, value in ARGLIST:
-    # process key and value
+print("first variable, value =", ARGLIST[0][0], ARGLIST[0][1])
+print("second variable, value =", ARGLIST[1][0], ARGLIST[1][1])
+var, value = ARGLIST[2]
+print("third variable, value =", var, value)
+for var, value in ARGLIST:
+    # process variable and value
 </programlisting>
+
+<para>
+The values obtained from &ARGLIST;
+(or from <link linkend="v-ARGUMENTS">&ARGUMENTS;</link>)
+are always strings since they originate from outside the &SCons; process.
+As "untrusted data",
+they should be validated before usage,
+and may need conversion to an appropriate type.
+</para>
   </listitem>
   </varlistentry>
 
@@ -3518,24 +3527,28 @@ for key, value in ARGLIST:
   <term>&ARGUMENTS;</term>
   <listitem>
 <para>A dictionary of all the
-<emphasis>keyword</emphasis>=<emphasis>value</emphasis>
-arguments specified on the command line.
-The dictionary is not in order,
-and if a given keyword has
+<emphasis>variable</emphasis>=<emphasis>value</emphasis>
+build variable arguments specified on the command line.
+The dictionary is in command-line order,
+so if a given variable has
 more than one value assigned to it
 on the command line,
 the last (right-most) value is
-the one in the &ARGUMENTS;
+the one saved in the &ARGUMENTS;
 dictionary.</para>
 
 <para>Example:</para>
 
 <programlisting language="python">
-if ARGUMENTS.get('debug', 0):
-    env = Environment(CCFLAGS='-g')
+if ARGUMENTS.get("debug", ""):
+    env = Environment(CCFLAGS="-g")
 else:
     env = Environment()
 </programlisting>
+
+<para>
+See also <link linkend="v-ARGLIST">&ARGLIST;</link>.
+</para>
   </listitem>
   </varlistentry>
 
@@ -3570,8 +3583,7 @@ list of targets specified using the
 &Default; function,
 the contents of the list may change
 on each successive call to &Default;.
-See the
-&DEFAULT_TARGETS; list, below,
+See <link linkend="v-DEFAULT_TARGETS">&DEFAULT_TARGETS;</link>
 for additional information.</para>
 
 <para>Example:</para>
@@ -3590,12 +3602,13 @@ if 'special/program' in BUILD_TARGETS:
   <listitem>
 <para>A list of the targets explicitly specified on
 the command line. If there are command line targets,
-this list will have the same contents as &BUILD_TARGETS;.
+this list has the same contents as
+<link linkend="v-BUILD_TARGETS">&BUILD_TARGETS;</link>.
 If there are no targets specified on the command line,
 the list is empty. The elements of this list are strings.
 This can be used, for example,
 to take specific actions only
-when certain targets are explicitly being built.</para>
+when a certain targets is explicitly requested for building.</para>
 
 <para>Example:</para>
 
@@ -3617,7 +3630,7 @@ that have been specified using the
 &f-link-Default;
 function. If there are no command line
 targets, this list will have the same contents as
-&BUILD_TARGETS;.
+<link linkend="v-BUILD_TARGETS">&BUILD_TARGETS;</link>.
 Since the elements of the list are nodes,
 you need to call the &Python;
 <function>str</function>
@@ -4656,7 +4669,7 @@ env = conf.Finish()
 <para>Often when building software,
 specialized information needs to be conveyed at build time
 to override the defaults in the build scripts.
-Commandline arguments (like <literal>--implcit-cache</literal>)
+Command-line arguments (like <literal>--implcit-cache</literal>)
 and giving names of build targets are two ways to do that.
 Another is to provide variable-assignment arguments
 on the command line.
@@ -4677,21 +4690,23 @@ Variables specified in the above way
 can be manually processed by accessing the
 <link linkend="v-ARGUMENTS">&ARGUMENTS;</link> dictionary
 (or <link linkend="v-ARGLIST">&ARGLIST;</link> list),
-but using a &Variables; object allows you to describe anticipated
-variables and structure them into types with validation,
-value conversion, defaults, help messages and aliases,
-conceptually similar to the structure of options
+but using a &Variables; object allows you to describe
+anticipated variables,
+convert them to a suitable type if necessary,
+validate the values are within defined constraints,
+and define defaults, help messages and aliases.
+This is conceptually similar to the structure of options
 (see &f-link-AddOption;).
-It also allows pulling variables from a saved
-configuration file or a custom dictionary in an &SConscript; file.
+It also allows obtaining values from a saved variables file,
+or from a custom dictionary in an &SConscript; file.
 The processed variables can then be applied to the desired &consenv;.
 </para>
 
 <para>
-Conceptually, arguments are used to convey information to the
+Roughly speaking, arguments are used to convey information to the
 &SCons; program about how it should behave;
 variables are used to convey information to the build
-(though the line between the two is certainly not absolute).
+(although &SCons; does not enforce any such constraint).
 </para>
 
 <para>To obtain an object for manipulating variables,
@@ -4731,8 +4746,8 @@ CC = os.environ.get('CC')
 <para>If
 <parameter>args</parameter>
 is specified, it must be a dictionary.
-The key-value pairs will be added to those
-obtained from
+The key-value pairs from <parameter>args</parameter>
+will be added to those obtained from
 <parameter>files</parameter>, if any.
 Keys from <parameter>args</parameter>
 take precendence over same-named keys from <parameter>files</parameter>.
@@ -4799,7 +4814,7 @@ mechanism to define a variable which the user is
 <emphasis>required</emphasis> to supply;
 if necessary this can be implemented by accessing
 <link linkend="v-ARGUMENTS">&ARGUMENTS;</link> directly,
-although that only applies to the command-line,
+although that only applies to the command line,
 not to any stored-values files.
 </para>
 
@@ -4884,15 +4899,16 @@ vars.Add('COLOR', validator=valid_color)
 <para>A convenience method that adds
 one or more customizable &consvars;
 to a &Variables; object in one call;
-equivalent to calling &Add; multiple times.
+equivalent to calling
+<link linkend='v-Add'><function>Add</function></link>
+multiple times.
 The <parameter>args</parameter>
 are tuples (or lists)
 that contain the arguments
 for an individual call to the &Add; method.
 Since tuples are not &Python; mappings,
 the arguments cannot use the keyword form,
-but rather are positional arguments as documented for
-<link linkend='v-Add'><function>Add</function></link>:
+but rather are positional arguments as documented for &Add;:
 a required name, the other four optional,
 but must be in the specified order if used.
 </para>
