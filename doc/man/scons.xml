@@ -4716,22 +4716,26 @@ call the &Variables; factory function:</para>
   <varlistentry id="v-Variables">
   <term><function>Variables</function>([<parameter>files, [args]]</parameter>)</term>
   <listitem>
-<para>If <parameter>files</parameter> is a file or list of files,
+<para>If <parameter>files</parameter> is a filename or list of filenames,
 they are considered to be &Python; scripts which will
-be executed when the
+be executed to set variables when the
 <link linkend='v-Update'><function>Update</function></link>
 method is called -
 this allows the use of &Python; syntax in the assignments.
+A file can be the result of an earlier call to the
+<link linkend='v-Save'>&Save;</link> method.
 If <parameter>files</parameter> is not specified,
 or the
 <parameter>files</parameter>
 argument is
 <constant>None</constant>,
-then no files will be read
-(supplying <constant>None</constant> is required
+then no files will be read.
+Supplying <constant>None</constant> is required
 if there are no files but you want to specify
 <parameter>args</parameter> as a positional argument;
-this can be omitted if using the keyword argument style).
+this can be omitted if using the keyword argument style.
+If any of <parameter>files</parameter> is missing,
+it is silently skipped.
 </para>
 
 <para>
@@ -4751,10 +4755,11 @@ will be added to those obtained from
 <parameter>files</parameter>, if any.
 Keys from <parameter>args</parameter>
 take precendence over same-named keys from <parameter>files</parameter>.
-The most common usage is to pass the
-&ARGUMENTS; dictionary that holds variables
-specified on the command line,
-allowing you to indicate that if a setting appears
+If omittted, the default is the
+<link linkend="v-ARGUMENTS">&ARGUMENTS;</link>
+dictionary that holds build variables
+specified on the command line.
+Using &ARGUMENTS; allows you to indicate that if a setting appears
 on both the command line and in the file(s),
 the command line setting is preferred.
 However, any dictionary can be passed.
@@ -4827,20 +4832,25 @@ not to any stored-values files.
 <para>Add a customizable &consvar; to the &Variables; object.
 <parameter>key</parameter>
 is either the name of the variable,
-or a tuple (or list), in which case
-the first item in the tuple is taken as the variable name,
+or a sequence of strings, in which case
+the first item in the sequence is taken as the variable name,
 and any remaining values are considered aliases for the variable.
+<parameter>key</parameter> is mandatory,
+there is no default.
 <parameter>help</parameter>
 is the help text for the variable
-(default empty string).
+(defaults to an empty string).
 <parameter>default</parameter>
 is the default value of the variable
-(default <constant>None</constant>).
+(defaults to <constant>None</constant>).
 </para>
 
 <para>
 If the optional <parameter>validator</parameter> argument is supplied,
-it is a callback function to validate the value of the variable.
+it is a callback function to validate the value of the variable
+when the variables are processed
+(that is, when the <link linkend='v-Update'>&Update;</link>
+method runs).
 A validator function must accept three arguments:
 <parameter>key</parameter>,
 <parameter>value</parameter>
@@ -4853,23 +4863,34 @@ No return value is expected from the validator.
 <para>
 If the optional <parameter>converter</parameter> argument is supplied,
 it is a callback function to convert the value into
-one suitable for adding to the environment,
-and should accept either a value
-or a value and &consenv; as parameters.
+one suitable for adding to the &consenv;.
+A converter function must accept the
+<parameter>value</parameter> argument,
+and may declare <parameter>env</parameter>
+as a second argument if it needs access to the
+&consenv; while validating - the function will be called appropriately.
 The converter is called before the validator;
 it must return a value, which is then passed to the
-<parameter>validator</parameter> (if any)
-and finally added to the &consenv; -
-it is recommended to avoid performing validation
-checks in the converter.
+<parameter>validator</parameter> (if any) for checking.
+In general, the converter should not fail,
+leaving validation checks to the validator,
+although if an operation is impossible to complete
+or there is no separate validator
+it can raise a <exceptionname>ValueError</exceptionname>.
 </para>
 
 <para>
 As a special case, if <parameter>key</parameter>
-is a tuple (or list) and is the <emphasis>only</emphasis>
-argument, the tuple is unpacked into the five parameters
-listed above left to right, with any missing members filled with
-the respective default values. This form allows &Add;
+is a sequence and is the <emphasis>only</emphasis>
+argument to &Add;, it is unpacked into the five parameters
+<parameter>key</parameter>,
+<parameter>help</parameter>,
+<parameter>default</parameter>,
+<parameter>validator</parameter> and
+<parameter>converter</parameter>,
+with any missing members from the right filled in with
+the respective default values.
+This form allows it
 to consume a tuple emitted by the convenience functions
 <link linkend='v-BoolVariable'>&BoolVariable;</link>,
 <link linkend='v-EnumVariable'>&EnumVariable;</link>,
@@ -4902,15 +4923,12 @@ to a &Variables; object in one call;
 equivalent to calling
 <link linkend='v-Add'><function>Add</function></link>
 multiple times.
-The <parameter>args</parameter>
-are tuples (or lists)
-that contain the arguments
-for an individual call to the &Add; method.
-Since tuples are not &Python; mappings,
-the arguments cannot use the keyword form,
-but rather are positional arguments as documented for &Add;:
-a required name, the other four optional,
-but must be in the specified order if used.
+Each <parameter>args</parameter> member
+must be a tuple that contains the arguments
+for an individual call to the &Add; method
+using the "special case" form;
+the other calling styles (individual positional
+arguments and/or keyword arguments) are not supported.
 </para>
 
 <programlisting language="python">
@@ -4927,18 +4945,25 @@ opt.AddVariables(
   <varlistentry id="v-Update">
   <term><replaceable>vars</replaceable>.<function>Update</function>(<parameter>env, [args]</parameter>)</term>
   <listitem>
-<para>Process the arguments given as
-<parameter>files</parameter> and/or
-<parameter>args</parameter>
-when the &Variables; object was created,
+<para>Process the input sources recorded
+when the &Variables; object was initialized
 and update
 <parameter>env</parameter>
 with the customized &consvars;.
-Any specified variables that are not
+The names of any variables in the input sources that are not
 configured in the &Variables; object
-will be saved and may be retrieved using the
+are recorded and may be retrieved using the
 <link linkend='v-UnknownVariables'>&UnknownVariables;</link>
 method.</para>
+
+<para>
+If the optional
+<parameter>args</parameter>
+argument is provided, it is a dictionary of variables
+to use in place of the one saved when
+<link linkend='v-Variables'>&Variables;</link>
+was called.
+</para>
 
 <para>Normally, &Update; is not called directly,
 but rather invoked indirectly by passing the &Variables; object to
@@ -5177,9 +5202,9 @@ Any value that is not in
 will raise an error.
 More than one value may be specified,
 separated by commas.
-The default may be a string of
-comma-separated default values,
-or a list of the default values.
+<parameter>default</parameter> may be specified
+either as a string of comma-separated value,
+or as a list of values.
 The optional
 <parameter>map</parameter>
 argument is a dictionary
