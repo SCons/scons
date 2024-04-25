@@ -28,9 +28,9 @@ SPDX-License-Identifier: MIT
 
   <para>
 
-  &SCons; provides a number of ways
-  for you as the build system writer to grant
-  the ability to control the build execution.
+  Software builds are rarely completely static,
+  so &SCons; gives you a number of ways to help control
+  build execution via instructions on the command line.
   The arguments that can be specified on
   the command line are broken down into three types:
 
@@ -70,7 +70,7 @@ SPDX-License-Identifier: MIT
     all of the build variable settings from the command line,
     as well as a higher-level interface that lets you
     define known build variables,
-    including defining types, default vaules, help text,
+    including defining types, default values, help text,
     and automatic validation,
     as well as applying those to a &consenv;.
     See <xref linkend="sect-command-line-variables"></xref>, below.
@@ -117,7 +117,7 @@ SPDX-License-Identifier: MIT
     </para>
 
     <section id="sect-SCONSFLAGS">
-    <title>Not Having to Specify Command-Line Options Each Time:  the &SCONSFLAGS; Environment Variable</title>
+    <title>Not Having to Type Command-Line Options Each Time:  the &SCONSFLAGS; Environment Variable</title>
 
       <para>
 
@@ -214,8 +214,8 @@ C:\Users\foo> <userinput>set SCONSFLAGS="-Q"</userinput>
 
       <para>
 
-      &SCons; provides the &f-link-GetOption; function
-      to query the values set by the various command-line options.
+      The &f-link-GetOption; function
+      lets you query the values set by the various command-line options.
 
       </para>
 
@@ -624,7 +624,7 @@ foo.in
 
       <para>
 
-      &SCons; lets you define your own command-line options
+      You can also define your own command-line options
       for the project with the &f-link-AddOption; function.
       The &AddOption; function takes the same arguments
       as the <function>add_option</function> method
@@ -812,13 +812,6 @@ foo.in
     This allows you to modify
     aspects of your build in response
     to specifications on the command line.
-    (Note that unless you want to require
-    a variable to <emphasis>always</emphasis>
-    be specified you probably want to use
-    the Python dictionary <methodname>get</methodname> method,
-    which allows you to designate a default value
-    to be used if there is no specification
-    on the command line.)
 
     </para>
 
@@ -876,10 +869,10 @@ prog.c
           When you retrieve from the &ARGUMENTS; dictionary,
           it is useful to use the &Python; dictionary
           <methodname>get</methodname> method,
-          so you can supply a default value if there is not
-          one given on the command line. Otherwise, the build
+          so you can supply a default value if the variable is
+          not given on the command line. Otherwise, the build
           will fail with a <exceptionname>KeyError</exceptionname>
-          if the user does not supply the build option.
+          if the variable is not set.
         </para>
       </listitem>
     </itemizedlist>
@@ -1288,7 +1281,7 @@ vars = Variables('custom.py', ARGUMENTS)
       <para>
 
       &SCons; provides a number of convenience functions
-      that provide pre-made behavior definitions
+      that provide behavior definitions
       for various types of command-line build variables.
       These functions all return a tuple which is ready
       to be passed to the &Add; or &AddVariables; method call.

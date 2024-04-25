@@ -4973,9 +4973,6 @@ the &f-link-Environment; function:</para>
 env = Environment(..., variables=vars)
 </programlisting>
 
-<para>
-</para>
-
   </listitem>
   </varlistentry>
 
