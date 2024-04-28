@@ -123,9 +123,6 @@ class TestRuntest(TestCommon):
             kw['program'] = 'runtest.py'
         if 'interpreter' not in kw:
             kw['interpreter'] = [python,]
-            if sys.version_info[0] < 3:
-                kw['interpreter'].append('-tt')
-
         if 'match' not in kw:
             kw['match'] = match_exact
         if 'workdir' not in kw:

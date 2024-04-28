@@ -58,6 +58,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Clean up Variables: more consistently call them variables (finish the
       old change from Options) in docstrings, etc.; some typing and other
       tweaks.  Update manpage and user guide for Variables usage.
+    - Regularize internal usage of Python version strings and drop one
+      old Python 2-only code block in a test.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
