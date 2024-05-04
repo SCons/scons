@@ -214,6 +214,7 @@
 <!ENTITY EnumVariable "<function xmlns='http://www.scons.org/dbxsd/v1.0'>EnumVariable</function>">
 <!ENTITY EnsurePythonVersion "<function xmlns='http://www.scons.org/dbxsd/v1.0'>EnsurePythonVersion</function>">
 <!ENTITY EnsureSConsVersion "<function xmlns='http://www.scons.org/dbxsd/v1.0'>EnsureSConsVersion</function>">
+<!ENTITY GetSConsVersion "<function xmlns='http://www.scons.org/dbxsd/v1.0'>GetSConsVersion</function>">
 <!ENTITY Environment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Environment</function>">
 <!ENTITY Execute "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Execute</function>">
 <!ENTITY Exit "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Exit</function>">

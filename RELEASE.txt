@@ -16,7 +16,7 @@ Here is a summary of the changes since 4.7.0:
 NEW FUNCTIONALITY
 -----------------
 
-- List new features (presumably why a checkpoint is being released)
+- GetSConsVersion() added to retrieve the SCons version.
 
 DEPRECATED FUNCTIONALITY
 ------------------------

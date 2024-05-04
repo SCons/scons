@@ -178,6 +178,32 @@ SCons 1.0 or greater required, but you have SCons 0.98.5
   </section>
 
   <section>
+  <title>Accessing SCons Version:  the &GetSConsVersion; Function</title>
+
+    <para>
+
+    While &EnsureSConsVersion; is acceptable for most cases, there
+    are times where the user will want to support multiple SCons versions
+    simultaneously. In this scenario, it's beneficial to retrieve version
+    information of the currently executing SCons directly. This was previously
+    only possible by accessing SCons internals. From  SCons4.8 onwards, it's now possible
+    to instead call &GetSConsVersion; to recieve a tuple containing the
+    major, minor, and revision values of the current version.
+
+    </para>
+
+    <screen>
+if GetSConsVersion() &gt;= (4, 9):
+    # Some function got a new argument in 4.9 that we want to take advantage of
+    SomeFunc(arg1, arg2, arg3)
+else:
+    # Can't use the extended syntax, but it doesn't warrant exiting prematurely
+    SomeFunc(arg1, arg2)
+    </screen>
+
+  </section>
+
+  <section>
   <title>Explicitly Terminating &SCons; While Reading &SConscript; Files:  the &Exit; Function</title>
 
     <para>
