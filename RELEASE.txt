@@ -21,7 +21,8 @@ NEW FUNCTIONALITY
 DEPRECATED FUNCTIONALITY
 ------------------------
 
-- List anything that's been deprecated since the last release
+- Mark Python 3.6 support as deprecated. Use --warn=no-python-version
+  to quiet the warning.
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------

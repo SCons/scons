@@ -59,8 +59,8 @@ default_version = '4.7.1ayyyymmdd'
 
 # TODO: these need to be hand-edited when there are changes
 python_version_unsupported = (3, 6, 0)
-python_version_deprecated = (3, 6, 0)
-python_version_supported_str = "3.6.0"  # str of lowest non-deprecated version
+python_version_deprecated = (3, 7, 0)  # lowest non-deprecated Python
+python_version_supported_str = "3.7.0"  # str of lowest non-deprecated Python
 
 SConsVersion = default_version
 
@@ -173,7 +173,7 @@ def deprecated_python_version(version=sys.version_info):
 
 if deprecated_python_version():
     msg = r"""
-scons: warning: Support for pre-%s Python version (%s) is deprecated.
+scons: warning: Support for Python older than %s is deprecated (%s detected).
     If this will cause hardship, contact scons-dev@scons.org
 """
     deprecated_python_expr = (

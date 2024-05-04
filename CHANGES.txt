@@ -40,6 +40,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       build pdf versions which are then ignored.
     - Add the ability to print a Variables object for debugging purposes
       (provides a __str__ method in the class).
+    - Mark Python 3.6 support as deprecated.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
