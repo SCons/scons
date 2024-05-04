@@ -279,6 +279,7 @@
 <!ENTITY Return "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Return</function>">
 <!ENTITY RuleSet "<function xmlns='http://www.scons.org/dbxsd/v1.0'>RuleSet</function>">
 <!ENTITY Salt "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Salt</function>">
+<!ENTITY Save "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Save</function>">
 <!ENTITY SetBuildSignatureType "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetBuildSignatureType</function>">
 <!ENTITY SetContentSignatureType "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetContentSignatureType</function>">
 <!ENTITY SetDefault "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetDefault</function>">
@@ -291,6 +292,7 @@
 <!ENTITY Touch "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Touch</function>">
 <!ENTITY UnknownOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownOptions</function>">
 <!ENTITY UnknownVariables "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownVariables</function>">
+<!ENTITY Update "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Update</function>">
 
 
 <!-- Environment methods -->
