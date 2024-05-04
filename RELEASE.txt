@@ -154,6 +154,7 @@ DOCUMENTATION
 - Updated manpage description of Command "builder" and function.
 - Updated the notes about reproducible builds with SCons and the example.
 - Regularized header (copyright, licens) at top of documentation files using SPDX.
+- Updated introductory section of manual page.
 
 
 

@@ -74,7 +74,7 @@ This file is processed by the bin/SConsDoc.py module.
 <refsect1 id='description'>
 <title>DESCRIPTION</title>
 <para>
-&scons;
+&SCons; is an extensible open source build system that
 orchestrates the construction of software
 (and other tangible products such as documentation files)
 by determining which
@@ -105,23 +105,26 @@ The CPython project retired 3.6 in Sept 2021:
 <ulink url="https://peps.python.org/pep-0494"/>.
 </para>
 
-<para>You set up an &SCons;
-build system by writing a script
+<para>
+You set up an &SCons; build by writing a script
 that describes things to build (<firstterm>targets</firstterm>), and,
 if necessary, the rules to build those files (<firstterm>actions</firstterm>).
 &SCons; comes with a collection of <firstterm>Builder</firstterm> methods
-which apply premade actions for building many common software components
+which supply premade Actions for building many common software components
 such as executable programs, object files and libraries,
 so that for many software projects,
 only the targets and input files (<firstterm>sources</firstterm>)
 need be specified in a call to a builder.
-&SCons; thus can operate at a level of abstraction above that of pure filenames.
-For example if you specify a library target named "foo",
+</para>
+
+<para>
+&SCons; operates at a level of abstraction above that of pure filenames.
+For example if you specify a shared library target named "foo",
 &SCons; keeps track of the actual operating system dependent filename
-(such as <filename>libfoo.so</filename> on a GNU/Linux system),
-and how to refer to that library in later construction steps
-that want to use it, so you don't have to specify that precise
-information yourself.
+(such as <filename>libfoo.so</filename> on a GNU/Linux system
+and <filename>foo.dll</filename> on Windows)),
+and gives you a handle to refer to that target in other steps,
+so you don't have to use system-specific strings yourself.
 &SCons; can also scan automatically for dependency information,
 such as header files included by source code files
 (for example, <literal>#include</literal>
@@ -136,23 +139,29 @@ to support additional input file types.
 including a cryptographic hash of the contents of source files,
 is cached for later reuse.
 By default this hash (the <firstterm>&contentsig;</firstterm>)
-is used to determine if a file has changed since the last build,
-although this can be controlled by selecting an appropriate
+is used to decide if a file has changed since the last build,
+although other algorithms can be used by selecting an appropriate
 <firstterm>&f-link-Decider;</firstterm> function.
 Implicit dependency files are also part of out-of-date computation.
 The scanned implicit dependency information can optionally be
 cached and used to speed up future builds.
 A hash of each executed build action (the <firstterm>&buildsig;</firstterm>)
-is cached, so that changes to build instructions (changing flags, etc.)
-or to the build tools themselves (new version)
+is also cached, so that changes to build instructions (changing flags, etc.)
+or to the build tools themselves (e.g. a compiler upgrade)
 can also trigger a rebuild.
 </para>
 
 <para>
-&SCons; supports the concept of separated source and build
-directories through the definition of
+&SCons; supports separated source and build
+directories (also called "out-of-tree builds")
+through the definition of
 <firstterm>variant directories</firstterm>
-(see the &f-link-VariantDir; function).
+Using a separated build directory helps keep
+the source directory clean of artifacts when doing searches,
+allows setting up differing builds ("variants") without conflicts,
+and allows resetting the build by just removing the build directory
+(note that SCons does have a "clean" mode as well).
+See the &f-link-VariantDir; description for more details.
 </para>
 
 <para>
@@ -177,9 +186,10 @@ specified with the
 <link linkend="opt-f"><option>-f</option></link> option,
 which leaves the current directory as the project top directory.
 </para>
+
 <para>
 The build configuration may be split into multiple files:
-the &SConstruct; file may specify additional
+the &SConstruct; file can specify additional
 configuration files by calling the
 &f-link-SConscript; function,
 and any file thus invoked may
@@ -196,23 +206,24 @@ configuration files for a project
 (including the &SConstruct; file),
 regardless of the actual file names or number of such files.
 A hierarchical build is not recursive - all of
-the SConscript files are processed in a single pass,
-although each is processed in a separate context so
-as not to interfere with one another. &SCons; provides
-mechanisms for information to be shared between
-SConscript files when needed.
+the SConscript files are processed in a single pass
+so that &scons; has a picture of the complete
+dependency tree at all times.
+Each SConscript file is processed in a separate context
+so settings made in one script do not leak into another;
+information can however be shared explicitly between scripts.
 </para>
 
 <para>Before reading the &SConscript; files,
 &scons;
-looks for a directory named
-<filename>site_scons</filename>
-in various system directories and in the
-project top directory, or, if specified,
-the directory from the
+looks for a <firstterm>site directory</firstterm> -
+a directory named <filename>site_scons</filename>
+is searched for in various system directories and in the
+project top directory, or if the
 <link linkend="opt-site-dir"><option>--site-dir</option></link>
-option instead, and prepends the ones it
-finds to the &Python; module search path (<varname>sys.path</varname>),
+option is given, checks only for that directory.
+Found site directories are prepended
+to the &Python; module search path (<varname>sys.path</varname>),
 thus allowing modules in such directories to be imported in
 the normal &Python; way in &SConscript; files.
 For each found site directory,
@@ -231,28 +242,31 @@ controlling the site directories.
 
 <para>
 &SConscript; files are written in the
-<firstterm>&Python;</firstterm> programming language,
-although it is normally not necessary to be a &Python;
-programmer to use &scons; effectively.
-&SConscript; files are invoked in a context that makes
-the facilities described in this manual page available
-in their local namespace without any special steps.
+<firstterm>&Python;</firstterm> programming language.
+For many tasks, the simple syntax can be understood from examples,
+so it is normally not necessary to be a &Python;
+programmer to use &SCons; effectively.
+&SConscript; files are executed in a context that makes
+the facilities described in this manual page directly
+available (that is, no need to <literal>import</literal>).
 Standard &Python; scripting capabilities
-such as flow control, data manipulation, and imported &Python; libraries
-are available to use to handle complicated build situations.
+such as flow control, data manipulation, and imported &Python; modules
+are available to use in more complicated build configurations.
 Other &Python; files can be made a part of the build system,
 but they do not automatically have the &SCons; context and
 need to import it if they need access (described later).
 </para>
 
 <para>
-&scons;
-reads and executes all of the included &SConscript; files
+&SCons; reads and executes all of the included &SConscript; files
 <emphasis>before</emphasis>
 it begins building any targets.
-To make this clear,
-&scons;
-prints the following messages about what it is doing:</para>
+Progress messages show this behavior
+(the state change lines - those
+beginning with the <literal>scons:</literal> tag -
+may be suppressed using the
+<link linkend="opt-Q"><option>-Q</option></link> option):
+</para>
 
 <screen>
 $ <userinput>scons foo.out</userinput>
@@ -264,12 +278,6 @@ scons: done building targets.
 $
 </screen>
 
-<para>The status messages
-(lines beginning with the <literal>scons:</literal> tag)
-may be suppressed using the
-<link linkend="opt-Q"><option>-Q</option></link>
-option.</para>
-
 <para>
 To assure reproducible builds,
 &SCons;
@@ -277,30 +285,41 @@ uses a restricted <firstterm>execution environment</firstterm>
 for running external commands used to build targets,
 rather then propagating the full environment
 in effect at the time &scons; was called.
-This helps avoid problems like picking up accidental settings,
+This helps avoid problems like picking up accidental
+or malicious settings,
 temporary debug values that are no longer needed,
 or one developer having different settings than another
-(or than the CI/CD pipeline).
-Environment variables that are needed for proper
-operation of such commands need to be set explicitly,
-which can be done either by assigning the desired values,
-or by picking values individually out of environment variables
-using the &Python; <systemitem>os.environ</systemitem> dictionary.
-The execution environment for a given &consenv; is
-contained in its &cv-link-ENV; &consvar;.
-A few environment variables are picked up automatically -
-see <xref linkend="environment"/>).
+(or than the CI pipeline).
+Environment variables needed for the proper
+operation of such commands must be set in the
+execution environment explicitly,
+either by assigning the desired values,
+or by picking those values individually or collectively
+out of environment variables exposed by the &Python;
+<systemitem>os.environ</systemitem> dictionary
+(as external program inputs they should be validate
+before use).
+The execution environment for a given &consenv;
+is its &cv-link-ENV; value.
+A small number of  environment variables are picked up automatically
+by &scons; itself (see <xref linkend="environment"/>).
 </para>
 
 <para>
-In particular, if the compiler or other commands
-that you want to use to build your target files
-are not in standard system locations,
-&scons;
-will not find them unless
-you explicitly include the locations into the
-<varname>PATH</varname> element of the
-execution environment.
+In particular, if a compiler or other external command
+needed to build a target file
+is not in &scons;' idea of a standard system location,
+it will not be found at runtime unless
+you explicitly add the location into the
+execution environment's <varname>PATH</varname> element.
+This is a particular consideration on Windows platforms,
+where it is common for a command to install into an app-specific
+location and depend on setting
+<varname>PATH</varname> in order for them to be found,
+which does not automatically work for &SCons;.
+</para>
+
+<para>
 One example approach is to
 extract the entire <envar>PATH</envar>
 environment variable and set that into the
@@ -323,13 +342,13 @@ import os
 env = Environment(
     ENV={
         'PATH': os.environ['PATH'],
-        'ANDROID_HOME': os.environ['ANDROID_HOME'],
-        'ANDROID_NDK_HOME': os.environ['ANDROID_NDK_HOME'],
+        'MODULEPATH': os.environ['MODULEPATH'],
+        'PKG_CONFIG_PATH': os.environ['PKG_CONFIG_PATH'],
     }
 )
 </programlisting>
 
-<para>Or you may explicitly propagate the invoking user's
+<para>Or you can explicitly propagate the invoking user's
 complete external environment:</para>
 
 <programlisting language="python">
@@ -435,6 +454,7 @@ and the PharLap ETS compiler.
 On Windows system which identify as <emphasis>cygwin</emphasis>
 (that is, if &scons; is invoked from a cygwin shell),
 the order changes to prefer the GCC toolchain over the MSVC tools.
+<!-- Seems odd to still list OS/2 (though it lives in some form as ArcaOS -->
 On OS/2 systems,
 &scons;
 searches in order for the
@@ -447,13 +467,17 @@ searches for the native compiler tools
 (MIPSpro, Visual Age, aCC, and Forte tools respectively)
 and the GCC tool chain.
 On all other platforms,
-including POSIX (Linux and UNIX) platforms,
+including POSIX (Linux and UNIX) and macOS platforms,
 &scons;
 searches in order
 for the GCC tool chain,
 and the Intel compiler tools.
-These default values may be overridden
-by appropriate setting of &consvars;.</para>
+The defaul tool selection can be pre-empted
+through the use of the <parameter>tools</parameter>
+argument to &consenv; creation methods,
+explcitly calling the &f-link-Tool; loader,
+the through the setting of various setting of &consvars;.
+</para>
 
 <refsect2 id='target_selection'>
 <title>Target Selection</title>
