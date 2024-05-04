@@ -353,7 +353,7 @@ foo.in
       <varname>NUM_CPU</varname> environment variable.
       (This is one of the exception cases
       where the string is spelled differently from
-      the from command-line option.
+      the command-line option.
       The string for fetching or setting the <option>--jobs</option>
       value is <parameter>num_jobs</parameter>
       for historical reasons.)
@@ -387,9 +387,9 @@ foo.in
       But any explicit
       <option>-j</option> or <option>--jobs</option>
       value you specify on the command line is used first,
-      regardless of whether or not
+      whether
       the <envar>NUM_CPU</envar> environment
-      variable is set:
+      variable is set or not:
 
       </para>
 
@@ -753,7 +753,7 @@ foo.in
       (see the immediately following sections for details).
       Thus, they must be collected before &SConscript; processing
       takes place. &AddOption; calls do provide the
-      the necessary instructions to resolve the ambiguity,
+      necessary instructions to resolve the ambiguity,
       but as they appear in &SConscript; files,
       &SCons; does not have the information early enough,
       and unexpected things may happen,
@@ -916,7 +916,7 @@ prog.c
 
     <para>
 
-    To accomodate these requirements,
+    To accommodate these requirements,
     &SCons; also provides an &ARGLIST; variable
     that gives you direct access to build variable
     settings from the command line,
@@ -1000,7 +1000,7 @@ prog.c
       and apply the values to a &consvar;.
       To help with this,
       &SCons; provides a &Variables; container class to
-      hold defintions of such build variables,
+      hold definitions of such build variables,
       and a mechanism to apply the
       build variables to a &consenv;.
       This allows you to control how the build variables affect
@@ -1101,7 +1101,7 @@ bar.c
 
     </section>
 
-    <section id="secr-variables-help">
+    <section id="sec-variables-help">
     <title>Providing Help for Command-Line Build Variables</title>
 
       <para>
@@ -1161,7 +1161,7 @@ Help(vars.GenerateHelpText(env))
 
       <para>
 
-      Being able to to specify the
+      Being able to specify the
       value of a build variable on the command line
       is useful,
       but can still become tedious
@@ -1271,7 +1271,7 @@ vars = Variables('custom.py', ARGUMENTS)
 
       </para>
 
-      <!-- TODO: maybe show a variable used to select between vairable scripts? -->
+      <!-- TODO: maybe show a variable used to select between variable scripts? -->
 
     </section>
 
@@ -1298,11 +1298,11 @@ vars = Variables('custom.py', ARGUMENTS)
         It is often handy to be able to specify a
         variable that controls a simple Boolean variable
         with a &true; or &false; value.
-        It would be even more handy to accomodate
+        It would be even more handy to accommodate
         different preferences for how to represent
         &true; or &false; values.
         The &BoolVariable; function
-        makes it easy to accomodate these
+        makes it easy to accommodate these
         common representations of
         &true; or &false;.
 
@@ -2005,7 +2005,7 @@ vars = Variables()
 vars.AddVariables(
     ('RELEASE', 'Set to 1 to build for release', 0),
     ('CONFIG', 'Configuration file', '/etc/my_config'),
-    BoolVariable('warnings', help='compilation with -Wall and similiar', default=True),
+    BoolVariable('warnings', help='compilation with -Wall and similar', default=True),
     EnumVariable(
         'debug',
         help='debug output and symbols',
@@ -2173,7 +2173,7 @@ foo.c
 
       Now, running &SCons; with the default target
       works as usual,
-      but explicity specifying the &bar; target
+      but explicitly specifying the &bar; target
       on the command line generates the warning message:
 
       </para>
@@ -2430,7 +2430,7 @@ prog1.c
 
         <para>
 
-        (Keep in mind that all of the manipulation of the
+        (Keep in mind that the manipulation of the
         &DEFAULT_TARGETS; list takes place during the
         first phase when &SCons; is reading up the &SConscript; files,
         which is obvious if
