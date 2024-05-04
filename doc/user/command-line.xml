@@ -117,7 +117,7 @@ SPDX-License-Identifier: MIT
     </para>
 
     <section id="sect-SCONSFLAGS">
-    <title>Not Having to Type Command-Line Options Each Time:  the &SCONSFLAGS; Environment Variable</title>
+    <title>How To Avoid Typing Command-Line Options Each Time:  the &SCONSFLAGS; Environment Variable</title>
 
       <para>
 
@@ -619,7 +619,7 @@ foo.in
 
     </section>
 
-    <section id="sec-AddOption">
+    <section id="sect-AddOption">
     <title>Adding Custom Command-Line Options:  the &AddOption; Function</title>
 
       <para>
@@ -1101,7 +1101,7 @@ bar.c
 
     </section>
 
-    <section id="sec-variables-help">
+    <section id="sect-variables-help">
     <title>Providing Help for Command-Line Build Variables</title>
 
       <para>
