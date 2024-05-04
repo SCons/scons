@@ -178,7 +178,7 @@ SCons 1.0 or greater required, but you have SCons 0.98.5
   </section>
 
   <section>
-  <title>Grabbing the current SCons Version:  the &GetSConsVersion; Function</title>
+  <title>Accessing SCons Version:  the &GetSConsVersion; Function</title>
 
     <para>
 
@@ -186,8 +186,7 @@ SCons 1.0 or greater required, but you have SCons 0.98.5
     are times where the user will want to support multiple SCons versions
     simultaneously. In this scenario, it's beneficial to retrieve version
     information of the currently executing SCons directly. This was previously
-    only possible by accessing private class methods, which made the
-    process cumbersome and unintuitive. From 4.8 onwards, it's now possible
+    only possible by accessing SCons internals. From  SCons4.8 onwards, it's now possible
     to instead call &GetSConsVersion; to recieve a tuple containing the
     major, minor, and revision values of the current version.
 
