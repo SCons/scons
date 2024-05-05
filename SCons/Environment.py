@@ -1022,6 +1022,8 @@ class SubstitutionEnvironment:
                     else:
                         key = 'CFLAGS'
                     mapping[key].append(arg)
+                elif arg[:8] == '-stdlib=':
+                    mapping['CXXFLAGS'].append(arg)
                 elif arg[0] == '+':
                     mapping['CCFLAGS'].append(arg)
                     mapping['LINKFLAGS'].append(arg)
