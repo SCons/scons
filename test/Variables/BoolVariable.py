@@ -27,7 +27,6 @@
 Test the BoolVariable canned Variable type.
 """
 
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -69,10 +68,10 @@ check([str(False), str(True)])
 
 expect_stderr = """
 scons: *** Error converting option: warnings
-Invalid value for boolean option: irgendwas
+Invalid value for boolean variable: 'irgendwas'
 """ + test.python_file_line(SConstruct_path, 13)
 
-test.run(arguments='warnings=irgendwas', stderr = expect_stderr, status=2)
+test.run(arguments='warnings=irgendwas', stderr=expect_stderr, status=2)
 
 test.pass_test()
 

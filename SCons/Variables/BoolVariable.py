@@ -27,7 +27,7 @@ Usage example::
 
     opts = Variables()
     opts.Add(BoolVariable('embedded', 'build for an embedded system', False))
-    ...
+    env = Environment(variables=opts)
     if env['embedded']:
         ...
 """
@@ -54,13 +54,13 @@ def _text2bool(val: str) -> bool:
     Raises:
         ValueError: if *val* cannot be converted to boolean.
     """
-
     lval = val.lower()
     if lval in TRUE_STRINGS:
         return True
     if lval in FALSE_STRINGS:
         return False
-    raise ValueError("Invalid value for boolean option: %s" % val)
+    # TODO: leave this check to validator?
+    raise ValueError(f"Invalid value for boolean variable: {val!r}")
 
 
 def _validator(key, val, env) -> None:
@@ -73,23 +73,25 @@ def _validator(key, val, env) -> None:
     Raises:
         KeyError: if *key* is not set in *env*
         UserError: if the value of *key* is not ``True`` or ``False``.
+
     """
-    if not env[key] in (True, False):
-        raise SCons.Errors.UserError(
-            'Invalid value for boolean option %s: %s' % (key, env[key])
-        )
+    if env[key] not in (True, False):
+        msg = f'Invalid value for boolean variable {key!r}: {env[key]}'
+        raise SCons.Errors.UserError(msg) from None
 
-
-def BoolVariable(key, help, default) -> Tuple[str, str, str, Callable, Callable]:
+# lint: W0622: Redefining built-in 'help' (redefined-builtin)
+def BoolVariable(key, help: str, default) -> Tuple[str, str, str, Callable, Callable]:
     """Return a tuple describing a boolean SCons Variable.
 
-    The input parameters describe a boolean option. Returns a tuple
-    including the correct converter and validator.
-    The *help* text will have ``(yes|no)`` automatically appended to show the
-    valid values. The result is usable as input to :meth:`Add`.
+    The input parameters describe a boolean variable, using a string
+    value as described by :const:`TRUE_STRINGS` and :const:`FALSE_STRINGS`.
+    Returns a tuple including the correct converter and validator.
+    The *help* text will have ``(yes|no)`` automatically appended to
+    show the valid values. The result is usable as input to
+    :meth:`~SCons.Variables.Variables.Add`.
     """
-    help = '%s (yes|no)' % help
-    return (key, help, default, _validator, _text2bool)
+    help = f'{help} (yes|no)'
+    return key, help, default, _validator, _text2bool
 
 # Local Variables:
 # tab-width:4

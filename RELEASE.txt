@@ -39,6 +39,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   NOTE: With this change, user created Actions should now catch and handle
   expected exceptions (whereas previously many of these were silently caught
   and suppressed by the SCons Action exection code).
+- The implementation of Variables was slightly refactored, there should
+  not be user-visible changes.
 
 FIXES
 -----
