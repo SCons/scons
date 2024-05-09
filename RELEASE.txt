@@ -39,6 +39,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   NOTE: With this change, user created Actions should now catch and handle
   expected exceptions (whereas previously many of these were silently caught
   and suppressed by the SCons Action exection code).
+- ParseFlags now sorts a --stdlib=libname argument into CXXFLAGS instead
+  of CCFLAGS; the latter variable could cause a compiler warning.
 
 FIXES
 -----
