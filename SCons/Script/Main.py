@@ -65,7 +65,7 @@ from SCons import __version__ as SConsVersion
 
 # these define the range of versions SCons supports
 minimum_python_version = (3, 6, 0)
-deprecated_python_version = (3, 6, 0)
+deprecated_python_version = (3, 7, 0)  # the first non-deprecated version
 
 # ordered list of SConsctruct names to look for if there is no -f flag
 KNOWN_SCONSTRUCT_NAMES = [
@@ -1104,11 +1104,13 @@ def _main(parser):
     # warning about deprecated Python versions--delayed until here
     # in case they disabled the warning in the SConscript files.
     if python_version_deprecated():
-        msg = "Support for pre-%s Python version (%s) is deprecated.\n" + \
-              "    If this will cause hardship, contact scons-dev@scons.org"
         deprecated_version_string = ".".join(map(str, deprecated_python_version))
-        SCons.Warnings.warn(SCons.Warnings.PythonVersionWarning,
-                            msg % (deprecated_version_string, python_version_string()))
+        msg = (
+            f"Support for Python older than {deprecated_version_string}"
+            f" is deprecated ({python_version_string()} detected).\n"
+            "    If this will cause hardship, contact scons-dev@scons.org"
+        )
+        SCons.Warnings.warn(SCons.Warnings.PythonVersionWarning, msg)
 
     if not options.help:
         # [ ] Clarify why we need to create Builder here at all, and
