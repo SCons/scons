@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -34,7 +35,7 @@ following tools:
 <para>
 <itemizedlist mark='opencircle'>
   <listitem><para>
-    &t-link-xgettext; - to extract internationalized messages from source code to 
+    &t-link-xgettext; - to extract internationalized messages from source code to
     <literal>POT</literal> file(s),
   </para></listitem>
   <listitem><para>
@@ -59,7 +60,7 @@ so you're encouraged to see their individual documentation.
 <para>
 Each of the above tools provides its own builder(s) which may be used to
 perform particular activities related to software internationalization. You
-may be however interested in <emphasis>top-level</emphasis> 
+may be however interested in <emphasis>top-level</emphasis>
 &b-link-Translate; builder.
 </para>
 
@@ -100,7 +101,7 @@ a SCons script when invoking &b-Translate;
 # SConscript in 'po/' directory
 env = Environment( tools = ["default", "gettext"] )
 env['POAUTOINIT'] = 1
-env.Translate(['en','pl'], ['../a.cpp','../b.cpp']) 
+env.Translate(['en','pl'], ['../a.cpp','../b.cpp'])
 </example_commands>
 
 <para>
@@ -111,7 +112,7 @@ If you wish, you may also stick to conventional style known from
 </para>
 <example_commands>
 # LINGUAS
-en pl 
+en pl
 #end
 </example_commands>
 
@@ -127,7 +128,7 @@ b.cpp
 env = Environment( tools = ["default", "gettext"] )
 env['POAUTOINIT'] = 1
 env['XGETTEXTPATH'] = ['../']
-env.Translate(LINGUAS_FILE = 1, XGETTEXTFROM = 'POTFILES.in') 
+env.Translate(LINGUAS_FILE = 1, XGETTEXTFROM = 'POTFILES.in')
 </example_commands>
 
 <para>
@@ -154,7 +155,7 @@ Let's prepare a development tree as below
 <example_commands>
  project/
   + SConstruct
-  + build/        
+  + build/
   + src/
       + po/
           + SConscript

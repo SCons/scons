@@ -111,6 +111,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       allow a developer to supply a custom validator, which previously
       could be inhibited by the converter failing before the validator
       is reached.
+    - Regularized header (copyright, licens) at top of documentation files
+      using SPDX.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
