@@ -752,17 +752,10 @@ class TestSCons(TestCommon):
     def unlink_sconsignfile(self, name: str='.sconsign.dblite') -> None:
         """Delete the sconsign file.
 
-        Note on python it seems to append .p3 to the file name so we take
-        care of that.
-
-        TODO the above seems to not be an issue any more.
-
         Args:
             name: expected name of sconsign file
         """
-        if sys.version_info[0] == 3:
-            name += '.p3'
-        self.unlink(name)
+        return self.unlink(name)
 
     def java_ENV(self, version=None):
         """ Initialize JAVA SDK environment.
@@ -1621,7 +1614,7 @@ else:
         if python_h == "False" and python_h_required:
             self.skip_test('Can not find required "Python.h", skipping test.\n', from_fw=True)
 
-        return (python, incpath, libpath, libname)
+        return (python, incpath, libpath, libname + _lib)
 
     def start(self, *args, **kw):
         """

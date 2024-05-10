@@ -892,10 +892,10 @@ def scons_subproc_run(scons_env, *args, **kwargs) -> subprocess.CompletedProcess
     kwargs['check'] = check
 
     # TODO: Python version-compat stuff: remap/remove too-new args if needed
-    if 'text' in kwargs and sys.version_info[:3] < (3, 7):
+    if 'text' in kwargs and sys.version_info < (3, 7):
         kwargs['universal_newlines'] = kwargs.pop('text')
 
-    if 'capture_output' in kwargs and sys.version_info[:3] < (3, 7):
+    if 'capture_output' in kwargs and sys.version_info < (3, 7):
         capture_output = kwargs.pop('capture_output')
         if capture_output:
             kwargs['stdout'] = kwargs['stderr'] = PIPE
