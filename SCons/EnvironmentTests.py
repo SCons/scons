@@ -822,6 +822,7 @@ sys.exit(0)
             "-DFOO -DBAR=value -D BAZ "
             "-fsanitize=memory "
             "-fsanitize-address-use-after-return "
+            "-stdlib=libc++"
         )
 
         d = env.ParseFlags(s)
@@ -841,7 +842,7 @@ sys.exit(0)
                                 '+DD64',
                                 '-fsanitize=memory',
                                 '-fsanitize-address-use-after-return'], repr(d['CCFLAGS'])
-        assert d['CXXFLAGS'] == ['-std=c++0x'], repr(d['CXXFLAGS'])
+        assert d['CXXFLAGS'] == ['-std=c++0x', '-stdlib=libc++'], repr(d['CXXFLAGS'])
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
         assert d['CPPFLAGS'] == ['-Wp,-cpp'], d['CPPFLAGS']
         assert d['CPPPATH'] == ['/usr/include/fum',

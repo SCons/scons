@@ -22,6 +22,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       expected exceptions (whereas previously many of these were silently
       caught and suppressed by the SCons Action exection code).
 
+  From Ryan Carsten Schmidt:
+    - Teach ParseFlags to put a --stdlib=libname argument into CXXFLAGS.
+      If placed in CCFLAGS (the default location), it could be fed to the
+      C compiler (gcc, clang) where it is not applicable and causes a
+      warning message.
+
   From Mats Wichmann:
     - Updated Value Node docs and tests.
     - Python 3.13 compat: re.sub deprecated count, flags as positional args,
