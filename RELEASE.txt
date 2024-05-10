@@ -16,7 +16,7 @@ Here is a summary of the changes since 4.7.0:
 NEW FUNCTIONALITY
 -----------------
 
-- List new features (presumably why a checkpoint is being released)
+- GetSConsVersion() added to retrieve the SCons version.
 
 DEPRECATED FUNCTIONALITY
 ------------------------
@@ -40,6 +40,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   NOTE: With this change, user created Actions should now catch and handle
   expected exceptions (whereas previously many of these were silently caught
   and suppressed by the SCons Action exection code).
+- ParseFlags now sorts a --stdlib=libname argument into CXXFLAGS instead
+  of CCFLAGS; the latter variable could cause a compiler warning.
+- The implementation of Variables was slightly refactored, there should
+  not be user-visible changes.
 
 FIXES
 -----
@@ -49,9 +53,9 @@ FIXES
 IMPROVEMENTS
 ------------
 
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
+- Make the testing framework a little more resilient: the temporary
+  directory for tests now includes a component named "scons" which can
+  be given to antivirus software to exclude.
 
 PACKAGING
 ---------
@@ -64,6 +68,7 @@ DOCUMENTATION
 
 - Updated Value Node docs.
 - Update manpage for Tools, and for the TOOL variable.
+- Update manpage and user guide for Variables usage.
 
 
 

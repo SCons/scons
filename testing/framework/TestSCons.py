@@ -1288,7 +1288,7 @@ SConscript(sconscript)
                     logfile.find("scons: warning: The stored build information has an unexpected class.") >= 0):
                 self.fail_test()
 
-            log = r'file\ \S*%s\,line \d+:' % re.escape(sconstruct) + ls
+            log = r'file \S*%s\,line \d+:' % re.escape(sconstruct) + ls
             if doCheckLog:
                 lastEnd = match_part_of_configlog(log, logfile, lastEnd)
 
@@ -1426,7 +1426,7 @@ SConscript(sconscript)
             sconf_dir = sconf_dir
             sconstruct = sconstruct
 
-            log = r'file\ \S*%s\,line \d+:' % re.escape(sconstruct) + ls
+            log = r'file \S*%s\,line \d+:' % re.escape(sconstruct) + ls
             if doCheckLog:
                 lastEnd = match_part_of_configlog(log, logfile, lastEnd)
 

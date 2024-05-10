@@ -881,11 +881,11 @@ class SubstitutionEnvironment:
             'RPATH'         : [],
         }
 
-        def do_parse(arg) -> None:
-            # if arg is a sequence, recurse with each element
+        def do_parse(arg: Union[str, Sequence]) -> None:
             if not arg:
                 return
 
+            # if arg is a sequence, recurse with each element
             if not is_String(arg):
                 for t in arg: do_parse(t)
                 return
@@ -902,7 +902,7 @@ class SubstitutionEnvironment:
                 else:
                     mapping['CPPDEFINES'].append([t[0], '='.join(t[1:])])
 
-            # Loop through the flags and add them to the appropriate option.
+            # Loop through the flags and add them to the appropriate variable.
             # This tries to strike a balance between checking for all possible
             # flags and keeping the logic to a finite size, so it doesn't
             # check for some that don't occur often.  It particular, if the
@@ -926,6 +926,8 @@ class SubstitutionEnvironment:
             append_next_arg_to = None   # for multi-word args
             for arg in params:
                 if append_next_arg_to:
+                    # these are the second pass for options where the
+                    # option-argument follows as a second word.
                     if append_next_arg_to == 'CPPDEFINES':
                         append_define(arg)
                     elif append_next_arg_to == '-include':
@@ -1022,6 +1024,8 @@ class SubstitutionEnvironment:
                     else:
                         key = 'CFLAGS'
                     mapping[key].append(arg)
+                elif arg.startswith('-stdlib='):
+                    mapping['CXXFLAGS'].append(arg)
                 elif arg[0] == '+':
                     mapping['CCFLAGS'].append(arg)
                     mapping['LINKFLAGS'].append(arg)

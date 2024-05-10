@@ -214,6 +214,7 @@
 <!ENTITY EnumVariable "<function xmlns='http://www.scons.org/dbxsd/v1.0'>EnumVariable</function>">
 <!ENTITY EnsurePythonVersion "<function xmlns='http://www.scons.org/dbxsd/v1.0'>EnsurePythonVersion</function>">
 <!ENTITY EnsureSConsVersion "<function xmlns='http://www.scons.org/dbxsd/v1.0'>EnsureSConsVersion</function>">
+<!ENTITY GetSConsVersion "<function xmlns='http://www.scons.org/dbxsd/v1.0'>GetSConsVersion</function>">
 <!ENTITY Environment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Environment</function>">
 <!ENTITY Execute "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Execute</function>">
 <!ENTITY Exit "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Exit</function>">
@@ -279,6 +280,7 @@
 <!ENTITY Return "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Return</function>">
 <!ENTITY RuleSet "<function xmlns='http://www.scons.org/dbxsd/v1.0'>RuleSet</function>">
 <!ENTITY Salt "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Salt</function>">
+<!ENTITY Save "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Save</function>">
 <!ENTITY SetBuildSignatureType "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetBuildSignatureType</function>">
 <!ENTITY SetContentSignatureType "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetContentSignatureType</function>">
 <!ENTITY SetDefault "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetDefault</function>">
@@ -291,6 +293,7 @@
 <!ENTITY Touch "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Touch</function>">
 <!ENTITY UnknownOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownOptions</function>">
 <!ENTITY UnknownVariables "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownVariables</function>">
+<!ENTITY Update "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Update</function>">
 
 
 <!-- Environment methods -->

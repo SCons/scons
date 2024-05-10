@@ -2687,6 +2687,7 @@ and added to the following construction variables:
 -openmp                 CCFLAGS, LINKFLAGS
 -pthread                CCFLAGS, LINKFLAGS
 -std=                   CFLAGS
+-stdlib=                CXXFLAGS
 -Wa,                    ASFLAGS, CCFLAGS
 -Wl,-rpath=             RPATH
 -Wl,-R,                 RPATH

@@ -9,6 +9,10 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Thaddeus Crews:
+    - GetSConsVersion() to grab the latest SCons version without needing to
+      access SCons internals.
+
   From Raymond Li:
     - Fix issue #3935: OSErrors are now no longer hidden during execution of
       Actions. All exceptions during the execution of an Action are now
@@ -17,6 +21,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       NOTE: With this change, user created Actions should now catch and handle
       expected exceptions (whereas previously many of these were silently
       caught and suppressed by the SCons Action exection code).
+
+  From Ryan Carsten Schmidt:
+    - Teach ParseFlags to put a --stdlib=libname argument into CXXFLAGS.
+      If placed in CCFLAGS (the default location), it could be fed to the
+      C compiler (gcc, clang) where it is not applicable and causes a
+      warning message.
 
   From Mats Wichmann:
     - Updated Value Node docs and tests.
@@ -32,6 +42,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       ones in parent NodeInfoBase and can just be inherited.
     - Update manpage for Tools, and for TOOL, which also gets a minor
       tweak for how it's handled (should be more accurate in a few situations).
+    - Test framework now uses a subdirectory named "scons" below the base
+      temporary directory. This gives something invariant to tell antivirus
+      to ignore without having to exclude tmpdir itself. Fixes #4509.
+    - MSVS "live" tests of project files adjusted to look for the generated
+      executable with an exe sufffix
     - Documentation build now properly passes through skipping the PDF
       (and EPUB) builds of manpage and user guide; this can also be done
       manually if directly calling doc/man/SConstruct and doc/user/SConstruct
@@ -41,6 +56,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add the ability to print a Variables object for debugging purposes
       (provides a __str__ method in the class).
     - Mark Python 3.6 support as deprecated.
+    - Clean up Variables: more consistently call them variables (finish the
+      old change from Options) in docstrings, etc.; some typing and other
+      tweaks.  Update manpage and user guide for Variables usage.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
