@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,14 +22,10 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test the EnumVariable canned Variable type.
 """
-
 
 import TestSCons
 
@@ -38,8 +36,6 @@ SConstruct_path = test.workpath('SConstruct')
 def check(expect):
     result = test.stdout().split('\n')
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
-
-
 
 test.write(SConstruct_path, """\
 from SCons.Variables.EnumVariable import EnumVariable
@@ -72,7 +68,6 @@ print(env['some'])
 Default(env.Alias('dummy', None))
 """)
 
-
 test.run(); check(['no', 'gtk', 'xaver'])
 
 test.run(arguments='debug=yes guilib=Motif some=xAVER')
@@ -82,23 +77,22 @@ test.run(arguments='debug=full guilib=KdE some=EiNs')
 check(['full', 'KdE', 'eins'])
 
 expect_stderr = """
-scons: *** Invalid value for option debug: FULL.  Valid values are: ('yes', 'no', 'full')
+scons: *** Invalid value for enum variable 'debug': 'FULL'. Valid values are: ('yes', 'no', 'full')
 """ + test.python_file_line(SConstruct_path, 21)
 
 test.run(arguments='debug=FULL', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Invalid value for option guilib: irgendwas.  Valid values are: ('motif', 'gtk', 'kde')
+scons: *** Invalid value for enum variable 'guilib': 'irgendwas'. Valid values are: ('motif', 'gtk', 'kde')
 """ + test.python_file_line(SConstruct_path, 21)
 
 test.run(arguments='guilib=IrGeNdwas', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Invalid value for option some: irgendwas.  Valid values are: ('xaver', 'eins')
+scons: *** Invalid value for enum variable 'some': 'irgendwas'. Valid values are: ('xaver', 'eins')
 """ + test.python_file_line(SConstruct_path, 21)
 
 test.run(arguments='some=IrGeNdwas', stderr=expect_stderr, status=2)
-
 
 test.pass_test()
 
