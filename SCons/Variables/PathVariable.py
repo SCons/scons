@@ -26,10 +26,10 @@
 To be used whenever a user-specified path override setting should be allowed.
 
 Arguments to PathVariable are:
-  * *key* - name of this option on the command line (e.g. "prefix")
-  * *help* - help string for option
-  * *default* - default value for this option
-  * *validator* - [optional] validator for option value.  Predefined are:
+  * *key* - name of this variable on the command line (e.g. "prefix")
+  * *help* - help string for variable
+  * *default* - default value for this variable
+  * *validator* - [optional] validator for variable value.  Predefined are:
 
     * *PathAccept* - accepts any path setting; no validation
     * *PathIsDir* - path must be an existing directory
@@ -40,8 +40,8 @@ Arguments to PathVariable are:
   The *validator* is a function that is called and which should return
   True or False to indicate if the path is valid.  The arguments
   to the validator function are: (*key*, *val*, *env*).  *key* is the
-  name of the option, *val* is the path specified for the option,
-  and *env* is the environment to which the Options have been added.
+  name of the variable, *val* is the path specified for the variable,
+  and *env* is the environment to which the Variables have been added.
 
 Usage example::
 
@@ -74,71 +74,83 @@ Usage example::
 
 import os
 import os.path
-from typing import Tuple, Callable
+from typing import Callable, Optional, Tuple
 
 import SCons.Errors
+import SCons.Util
 
 __all__ = ['PathVariable',]
 
 class _PathVariableClass:
+    """Class implementing path variables.
+
+    This class exists mainly to expose the validators without code having
+    to import the names: they will appear as methods of ``PathVariable``,
+    a statically created instance of this class, which is placed in
+    the SConscript namespace.
+
+    Instances are callable to produce a suitable variable tuple.
+    """
 
     @staticmethod
     def PathAccept(key, val, env) -> None:
-        """Accepts any path, no checking done."""
-        pass
+        """Validate path with no checking."""
+        return
 
     @staticmethod
     def PathIsDir(key, val, env) -> None:
-        """Validator to check if Path is a directory."""
-        if not os.path.isdir(val):
-            if os.path.isfile(val):
-                m = 'Directory path for option %s is a file: %s'
-            else:
-                m = 'Directory path for option %s does not exist: %s'
-            raise SCons.Errors.UserError(m % (key, val))
+        """Validate path is a directory."""
+        if os.path.isdir(val):
+            return
+        if os.path.isfile(val):
+            msg = f'Directory path for variable {key!r} is a file: {val}'
+        else:
+            msg = f'Directory path for variable {key!r} does not exist: {val}'
+        raise SCons.Errors.UserError(msg)
 
     @staticmethod
     def PathIsDirCreate(key, val, env) -> None:
-        """Validator to check if Path is a directory,
-           creating it if it does not exist."""
+        """Validate path is a directory, creating if needed."""
+        if os.path.isdir(val):
+            return
         try:
             os.makedirs(val, exist_ok=True)
-        except FileExistsError:
-            m = 'Path for option %s is a file, not a directory: %s'
-            raise SCons.Errors.UserError(m % (key, val))
-        except PermissionError:
-            m = 'Path for option %s could not be created: %s'
-            raise SCons.Errors.UserError(m % (key, val))
-        except OSError:
-            m = 'Path for option %s could not be created: %s'
-            raise SCons.Errors.UserError(m % (key, val))
+        except FileExistsError as exc:
+            msg = f'Path for variable {key!r} is a file, not a directory: {val}'
+            raise SCons.Errors.UserError(msg) from exc
+        except (PermissionError, OSError) as exc:
+            msg = f'Path for variable {key!r} could not be created: {val}'
+            raise SCons.Errors.UserError(msg) from exc
 
     @staticmethod
     def PathIsFile(key, val, env) -> None:
-        """Validator to check if Path is a file"""
+        """Validate path is a file."""
         if not os.path.isfile(val):
             if os.path.isdir(val):
-                m = 'File path for option %s is a directory: %s'
+                msg = f'File path for variable {key!r} is a directory: {val}'
             else:
-                m = 'File path for option %s does not exist: %s'
-            raise SCons.Errors.UserError(m % (key, val))
+                msg = f'File path for variable {key!r} does not exist: {val}'
+            raise SCons.Errors.UserError(msg)
 
     @staticmethod
     def PathExists(key, val, env) -> None:
-        """Validator to check if Path exists"""
+        """Validate path exists."""
         if not os.path.exists(val):
-            m = 'Path for option %s does not exist: %s'
-            raise SCons.Errors.UserError(m % (key, val))
+            msg = f'Path for variable {key!r} does not exist: {val}'
+            raise SCons.Errors.UserError(msg)
 
-    def __call__(self, key, help, default, validator=None) -> Tuple[str, str, str, Callable, None]:
+    # lint: W0622: Redefining built-in 'help' (redefined-builtin)
+    def __call__(
+        self, key, help: str, default, validator: Optional[Callable] = None
+    ) -> Tuple[str, str, str, Callable, None]:
         """Return a tuple describing a path list SCons Variable.
 
-        The input parameters describe a 'path list' option. Returns
+        The input parameters describe a 'path list' variable. Returns
         a tuple with the correct converter and validator appended. The
         result is usable for input to :meth:`Add`.
 
-        The *default* option specifies the default path to use if the
-        user does not specify an override with this option.
+        The *default* parameter specifies the default path to use if the
+        user does not specify an override with this variable.
 
         *validator* is a validator, see this file for examples
         """
@@ -146,9 +158,9 @@ class _PathVariableClass:
             validator = self.PathExists
 
         if SCons.Util.is_List(key) or SCons.Util.is_Tuple(key):
-            helpmsg = '%s ( /path/to/%s )' % (help, key[0])
+            helpmsg = f'{help} ( /path/to/{key[0]} )'
         else:
-            helpmsg = '%s ( /path/to/%s )' % (help, key)
+            helpmsg = f'{help} ( /path/to/{key} )'
         return (key, helpmsg, default, validator, None)
 
 
