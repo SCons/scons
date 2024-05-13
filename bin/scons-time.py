@@ -223,23 +223,25 @@ class Gnuplotter(Plotter):
 
 def untar(fname):
     import tarfile
-    tar = tarfile.open(name=fname, mode='r')
-    for tarinfo in tar:
-        tar.extract(tarinfo)
-    tar.close()
+    with tarfile.open(name=fname, mode='r') as tar:
+        for tarinfo in tar:
+            try:
+                tar.extract(tarinfo, filter="tar")
+            except TypeError:
+                tar.extract(tarinfo)
 
 
 def unzip(fname):
     import zipfile
-    zf = zipfile.ZipFile(fname, 'r')
-    for name in zf.namelist():
-        dir = os.path.dirname(name)
-        try:
-            os.makedirs(dir)
-        except OSError:
-            pass
-        with open(name, 'wb') as f:
-            f.write(zf.read(name))
+    with zipfile.ZipFile(fname, 'r') as zf:
+        for name in zf.namelist():
+            dir = os.path.dirname(name)
+            try:
+                os.makedirs(dir)
+            except OSError:
+                pass
+            with open(name, 'wb') as f:
+                f.write(zf.read(name))
 
 
 def read_tree(dir):

@@ -61,6 +61,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       tweaks.  Update manpage and user guide for Variables usage.
     - Regularize internal usage of Python version strings and drop one
       old Python 2-only code block in a test.
+    - scons-time tests now supply a "filter" argument to tarfile.extract
+      to quiet a warning which was added in Python 3.13 beta 1.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
