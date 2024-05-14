@@ -42,15 +42,16 @@ Can be used as a replacement for autoconf's ``--with-xxx=yyy`` ::
             default='yes'
         )
     )
-    ...
-    if env['x11'] == True:
+    env = Environment(variables=opts)
+    if env['x11'] is True:
         dir = ...  # search X11 in some standard places ...
         env['x11'] = dir
     if env['x11']:
         ...  # build with x11 ...
 """
 
-from typing import Tuple, Callable
+import os
+from typing import Callable, Optional, Tuple
 
 import SCons.Errors
 
@@ -60,7 +61,12 @@ ENABLE_STRINGS = ('1', 'yes', 'true',  'on', 'enable', 'search')
 DISABLE_STRINGS = ('0', 'no',  'false', 'off', 'disable')
 
 def _converter(val):
-    """ """
+    """Convert package variables.
+
+    Returns True or False if one of the recognized truthy or falsy
+    values is seen, else return the value unchanged (expected to
+    be a path string).
+    """
     lval = val.lower()
     if lval in ENABLE_STRINGS:
         return True
@@ -70,35 +76,45 @@ def _converter(val):
 
 
 def _validator(key, val, env, searchfunc) -> None:
-    """ """
-    # NB: searchfunc is currently undocumented and unsupported
-    # TODO write validator, check for path
-    import os
+    """Validate package variable for valid path.
 
+    Checks that if a path is given as the value, that pathname actually exists.
+    """
+    # NOTE: searchfunc is currently undocumented and unsupported
     if env[key] is True:
         if searchfunc:
             env[key] = searchfunc(key, val)
+            # TODO: need to check path, or be sure searchfunc raises.
     elif env[key] and not os.path.exists(val):
-        raise SCons.Errors.UserError(
-            'Path does not exist for option %s: %s' % (key, val))
+        msg = f'Path does not exist for variable {key!r}: {val!r}'
+        raise SCons.Errors.UserError(msg) from None
 
 
-def PackageVariable(key, help, default, searchfunc=None) -> Tuple[str, str, str, Callable, Callable]:
+# lint: W0622: Redefining built-in 'help' (redefined-builtin)
+def PackageVariable(
+    key: str, help: str, default, searchfunc: Optional[Callable] = None
+) -> Tuple[str, str, str, Callable, Callable]:
     """Return a tuple describing a package list SCons Variable.
 
-    The input parameters describe a 'package list' option. Returns
-    a tuple including the correct converter and validator appended.
-    The result is usable as input to :meth:`Add` .
+    The input parameters describe a 'package list' variable. Returns
+    a tuple with the correct converter and validator appended.
+    The result is usable as input to :meth:`~SCons.Variables.Variables.Add`.
 
-    A 'package list' option may either be 'all', 'none' or a pathname
-    string. This information is appended to *help*.
+    A 'package list' variable may either be a truthy string from
+    :const:`ENABLE_STRINGS`, a falsy string from
+    :const:`DISABLE_STRINGS`, or a pathname string.
+    This information is appended to *help* using only one string
+    each for truthy/falsy.
     """
     # NB: searchfunc is currently undocumented and unsupported
-    help = '\n    '.join(
-        (help, '( yes | no | /path/to/%s )' % key))
-    return (key, help, default,
-            lambda k, v, e: _validator(k, v, e, searchfunc),
-            _converter)
+    help = '\n    '.join((help, f'( yes | no | /path/to/{key} )'))
+    return (
+        key,
+        help,
+        default,
+        lambda k, v, e: _validator(k, v, e, searchfunc),
+        _converter,
+    )
 
 # Local Variables:
 # tab-width:4

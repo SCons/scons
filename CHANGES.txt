@@ -64,8 +64,26 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       added to the default vswhere executable search list after the Chocolatey
       installation location.
 
-  From Mats Wichmann:
+  From Thaddeus Crews:
+    - GetSConsVersion() to grab the latest SCons version without needing to
+      access SCons internals.
 
+  From Raymond Li:
+    - Fix issue #3935: OSErrors are now no longer hidden during execution of
+      Actions. All exceptions during the execution of an Action are now
+      returned by value rather than by raising an exception, for more
+      consistent behavior.
+      NOTE: With this change, user created Actions should now catch and handle
+      expected exceptions (whereas previously many of these were silently
+      caught and suppressed by the SCons Action exection code).
+
+  From Ryan Carsten Schmidt:
+    - Teach ParseFlags to put a --stdlib=libname argument into CXXFLAGS.
+      If placed in CCFLAGS (the default location), it could be fed to the
+      C compiler (gcc, clang) where it is not applicable and causes a
+      warning message.
+
+  From Mats Wichmann:
     - Updated Value Node docs and tests.
     - Python 3.13 compat: re.sub deprecated count, flags as positional args,
       caused update-release-info test to fail.
@@ -74,6 +92,30 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       json output is also sorted, to match the default display.
     - Python 3.13 (alpha) changes the behavior of isabs() on Windows. Adjust
       SCons usage of in NodeInfo classes to match.  Fixes #4502, #4504.
+    - Drop duplicated __getstate__ and __setstate__ methods in AliasNodeInfo,
+      FileNodeInfo and ValueNodeInfo classes, as they are identical to the
+      ones in parent NodeInfoBase and can just be inherited.
+    - Update manpage for Tools, and for TOOL, which also gets a minor
+      tweak for how it's handled (should be more accurate in a few situations).
+    - Test framework now uses a subdirectory named "scons" below the base
+      temporary directory. This gives something invariant to tell antivirus
+      to ignore without having to exclude tmpdir itself. Fixes #4509.
+    - MSVS "live" tests of project files adjusted to look for the generated
+      executable with an exe sufffix
+    - Documentation build now properly passes through skipping the PDF
+      (and EPUB) builds of manpage and user guide; this can also be done
+      manually if directly calling doc/man/SConstruct and doc/user/SConstruct
+      by adding SKIP_PDF=1.  This should help with distro packaging of SCons,
+      which now does not need "fop" and other tools to be set up in order to
+      build pdf versions which are then ignored.
+    - Add the ability to print a Variables object for debugging purposes
+      (provides a __str__ method in the class).
+    - Mark Python 3.6 support as deprecated.
+    - Clean up Variables: more consistently call them variables (finish the
+      old change from Options) in docstrings, etc.; some typing and other
+      tweaks.  Update manpage and user guide for Variables usage.
+    - Regularize internal usage of Python version strings and drop one
+      old Python 2-only code block in a test.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700

@@ -26,12 +26,11 @@ SPDX-License-Identifier: MIT
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>Controlling a Build From the Command Line</title>
 
-<para>
+  <para>
 
-  &SCons; provides a number of ways
-  for you as the writer of the &SConscript; files
-  to give you (and your users)
-  the ability to control the build execution.
+  Software builds are rarely completely static,
+  so &SCons; gives you a number of ways to help control
+  build execution via instructions on the command line.
   The arguments that can be specified on
   the command line are broken down into three types:
 
@@ -45,12 +44,13 @@ SPDX-License-Identifier: MIT
     <listitem>
     <para>
 
-    Command-line options always begin with
-    one or two <literal>-</literal> (hyphen) characters.
+    Command-line arguments that begin with a
+    <literal>-</literal> (hyphen) characters
+    are called <firstterm>options</firstterm>.
     &SCons; provides ways for you to examine
-    and set options values from within your &SConscript; files,
-    as well as the ability to define your own
-    custom options.
+    and act on options and their values,
+    as well as the ability to define custom options
+    for your project.
     See <xref linkend="sect-command-line-options"></xref>, below.
 
     </para>
@@ -63,17 +63,16 @@ SPDX-License-Identifier: MIT
     <listitem>
     <para>
 
-    Any command-line argument containing an <literal>=</literal>
-    (equal sign) is considered a variable setting with the form
-    <varname>variable</varname>=<replaceable>value</replaceable>.
+    Command-line arguments containing an <literal>=</literal>
+    (equal sign) character are called <firstterm>build variables</firstterm>
+    (or just <firstterm>variables</firstterm>).
     &SCons; provides direct access to
-    all of the command-line variable settings,
-    the ability to apply command-line variable settings
-    to &consenvs;,
-    and functions for configuring
-    specific types of variables
-    (Boolean values, path names, etc.)
-    with automatic validation of the specified values.
+    all of the build variable settings from the command line,
+    as well as a higher-level interface that lets you
+    define known build variables,
+    including defining types, default values, help text,
+    and automatic validation,
+    as well as applying those to a &consenv;.
     See <xref linkend="sect-command-line-variables"></xref>, below.
 
     </para>
@@ -86,12 +85,12 @@ SPDX-License-Identifier: MIT
     <listitem>
     <para>
 
-    Any command-line argument that is not an option
-    or a variable setting
-    (does not begin with a hyphen
-    and does not contain an equal sign)
-    is considered a target that the you
-    are telling &SCons; to build.
+    Command-line arguments that are neither options
+    nor build variables
+    (that is, do not begin with a hyphen
+    and do not contain an equal sign)
+    are considered <firstterm>targets</firstterm>
+    that you are telling &SCons; to build.
     &SCons; provides access to the list of specified targets,
     as well as ways to set the default list of targets
     from within the &SConscript; files.
@@ -108,21 +107,22 @@ SPDX-License-Identifier: MIT
 
     <para>
 
-    &SCons; has many <firstterm>command-line options</firstterm>
-    that control its behavior.
-    An &SCons; command-line option
-    always begins with one or two hyphen (<literal>-</literal>)
-    characters.
+    &SCons; has many command-line options that control its behavior.
+    A command-line option always begins with one
+    or two hyphen (<literal>-</literal>) characters.
+    The &SCons; manual page contains the description of
+    the current options
+    (see <ulink url="https://scons.org/doc/production/HTML/scons-man.html"/>).
 
     </para>
 
-    <section>
-    <title>Not Having to Specify Command-Line Options Each Time:  the &SCONSFLAGS; Environment Variable</title>
+    <section id="sect-SCONSFLAGS">
+    <title>How To Avoid Typing Command-Line Options Each Time:  the &SCONSFLAGS; Environment Variable</title>
 
       <para>
 
       You may find yourself using
-      the same command-line options every time
+      certain command-line options every time
       you run &SCons;.
       For example, you might find it saves time
       to specify <userinput>-j 2</userinput>
@@ -209,35 +209,33 @@ C:\Users\foo> <userinput>set SCONSFLAGS="-Q"</userinput>
 
     </section>
 
-    <section>
+    <section id="sect-GetOption">
     <title>Getting Values Set by Command-Line Options:  the &GetOption; Function</title>
 
       <para>
 
-      &SCons; provides the &f-link-GetOption; function
-      to get the values set by the various command-line options.
+      The &f-link-GetOption; function
+      lets you query the values set by the various command-line options.
 
       </para>
 
       <para>
 
-      One use case for &GetOption; is to check whether or not
-      the <option>-h</option> or <option>--help</option> option
-      has been specified.
+      One use case for &GetOption; is to check the operation
+      mode in order to bypass some steps,
+      for example, checking whether
+      the <option>-h</option> (or <option>--help</option>)
+      option was given.
       Normally, &SCons; does not print its help text
       until after it has read all of the SConscript files,
-      because it's possible that help text has been added
-      by some subsidiary SConscript file deep in the
-      source tree hierarchy.
+      since any SConscript can make additions to the help text.
       Of course, reading all of the SConscript files
       takes extra time.
       If you know that your configuration does not define
       any additional help text in subsidiary SConscript files,
       you can speed up displaying the command-line help
-      by using the &GetOption; function to load the
-      subsidiary SConscript files only if
-      the <option>-h</option> or <option>--help</option> option
-      has <emphasis>not</emphasis> been specified like this:
+      by using a &GetOption; query as a guard for whether
+      to load the subsidiary SConscript files:
 
       </para>
 
@@ -245,6 +243,15 @@ C:\Users\foo> <userinput>set SCONSFLAGS="-Q"</userinput>
 if not GetOption('help'):
     SConscript('src/SConscript', export='env')
       </sconstruct>
+
+      <para>
+
+      The same technique can be used to special-case the
+      clean (<literal>GetOption('clean')</literal>)
+      and no-execute (<literal>GetOption('no_exec')</literal>)
+      modes.
+
+      </para>
 
       <para>
 
@@ -265,7 +272,9 @@ if not GetOption('help'):
 
       &f-GetOption; can be used to retrieve the values of options
       defined by calls to &f-link-AddOption;. A &f-GetOption; call
-      must appear after the &f-AddOption; call for that option.
+      must appear after the &f-AddOption; call for that option
+      (unlike the defining of build targets,
+      this is a case where "order matters" in &SCons;).
       If the &f-AddOption; call supplied a <parameter>dest</parameter>
       keyword argument, a string with that name is what to pass
       as the argument to &f-GetOption;, otherwise it is a
@@ -276,12 +285,12 @@ if not GetOption('help'):
 
     </section>
 
-    <section>
+    <section id="sect-SetOption">
     <title>Setting Values of Command-Line Options:  the &SetOption; Function</title>
 
       <para>
 
-      You can also set the values of &SCons;
+      You can also set the values of certain (but not all) &SCons;
       command-line options from within the &SConscript; files
       by using the &f-link-SetOption; function.
       The strings that you use to set the values of &SCons;
@@ -344,7 +353,7 @@ foo.in
       <varname>NUM_CPU</varname> environment variable.
       (This is one of the exception cases
       where the string is spelled differently from
-      the from command-line option.
+      the command-line option.
       The string for fetching or setting the <option>--jobs</option>
       value is <parameter>num_jobs</parameter>
       for historical reasons.)
@@ -378,9 +387,9 @@ foo.in
       But any explicit
       <option>-j</option> or <option>--jobs</option>
       value you specify on the command line is used first,
-      regardless of whether or not
+      whether
       the <envar>NUM_CPU</envar> environment
-      variable is set:
+      variable is set or not:
 
       </para>
 
@@ -610,16 +619,17 @@ foo.in
 
     </section>
 
-    <section>
+    <section id="sect-AddOption">
     <title>Adding Custom Command-Line Options:  the &AddOption; Function</title>
 
       <para>
 
-      &SCons; also allows you to define your own
-      command-line options with the &f-link-AddOption; function.
+      You can also define your own command-line options
+      for the project with the &f-link-AddOption; function.
       The &AddOption; function takes the same arguments
       as the <function>add_option</function> method
-      from the standard Python library module <emphasis>optparse</emphasis>.
+      from the &Python; standard library module
+      <systemitem>optparse</systemitem>
       <footnote>
       <para>
       The &AddOption; function is,
@@ -627,13 +637,14 @@ foo.in
       of <classname>optparse.OptionParser</classname>.
       </para>
       </footnote>
+      (see <ulink url="https://docs.python.org/3/library/optparse.html"/>).
       </para>
 
       <para>
       Once you add a custom command-line option
       with the &AddOption; function,
       the value of the option (if any) is immediately available
-      using the standard &f-link-GetOption; function.
+      using the &f-link-GetOption; function.
       The argument to &f-GetOption; must be the name of the
       variable which holds the option.
       If the <parameter>dest</parameter>
@@ -723,35 +734,42 @@ foo.in
 
       <note>
       <para>
-      Option-arguments separated from long options by whitespace,
-      rather than by an <literal>=</literal>, cannot be correctly
-      resolved by &SCons;.
-      While <option>--input=ARG</option>
-      is clearly opt followed by arg, for <option>--input ARG</option>
+      The <systemitem>optparse</systemitem> parser which &SCons; uses
+      allows option-arguments to follow their options after either
+      an <literal>=</literal> or space separator,
+      however the latter form does not work well in &SCons; for
+      added options and should be avoided.
+      &SCons; does not place an ordering constraint on the
+      types of command-line arguments,
+      so while <option>--input=ARG</option> is unambiguous,
+      for <option>--input ARG</option>
       it is not possible to tell without instructions whether
       <parameter>ARG</parameter> is an argument belonging to the
-      <parameter>input</parameter> option or a positional argument.
-      &SCons; treats positional arguments as either
-      command-line build options or command-line targets
-      which are made available for use in an &SConscript;
+      <parameter>input</parameter> option or a standalone word.
+      &SCons; considers words on the command line which do not
+      begin with hyphen as either command-line build variables
+      or command-line targets,
+      both of which are made available for use in an &SConscript;
       (see the immediately following sections for details).
       Thus, they must be collected before &SConscript; processing
-      takes place. Since &AddOption; calls, which provide
-      the processing instructions to resolve any ambiguity,
-      happen in an &SConscript;,
-      &SCons; does not know in time
-      for options added this way, and unexpected things happen,
-      such as option-arguments assigned as targets and/or exceptions
-      due to missing option-arguments.
+      takes place. &AddOption; calls do provide the
+      necessary instructions to resolve the ambiguity,
+      but as they appear in &SConscript; files,
+      &SCons; does not have the information early enough,
+      and unexpected things may happen,
+      such as option-arguments appearing in the list of targets,
+      and processing exceptions due to missing option-arguments.
       </para>
       <para>
-      As a result, this usage style should be avoided when invoking
-      &scons;.  For single-argument
-      options, use the <option>--input=ARG</option> form on the
-      command line. For multiple-argument options
-      (<parameter>nargs</parameter> greater than one),
-      set <parameter>nargs</parameter> to one in
-      &AddOption; calls and either: combine the option-arguments into one word
+      As a result,
+      this usage style should be avoided when invoking &scons;.
+      For single-argument options,
+      tell your users to use the <option>--input=ARG</option>
+      form on the command line.
+      For multiple-argument options
+      (<parameter>nargs</parameter> value greater than one),
+      set <parameter>nargs</parameter> to one in the
+      &AddOption; call and either: combine the option-arguments into one word
       with a separator, and parse the result in your own code
       (see the built-in <option>--debug</option> option, which
       allows specifying multiple arguments as a single comma-separated
@@ -794,13 +812,6 @@ foo.in
     This allows you to modify
     aspects of your build in response
     to specifications on the command line.
-    (Note that unless you want to require
-    a variable <emphasis>always</emphasis>
-    be specified you probably want to use
-    the Python dictionary <methodname>get</methodname> method,
-    which allows you to designate a default value
-    to be used if there is no specification
-    on the command line.)
 
     </para>
 
@@ -841,9 +852,38 @@ prog.c
        <scons_output_command>scons -Q debug=1</scons_output_command>
     </scons_output>
 
+    <note><para>
+
+    Two usage notes (both shown in the example above):
+
+    <itemizedlist>
+      <listitem>
+        <para>
+          No matter how you intend to use them, the values read from
+          a command line (i.e., external to the program) are
+          always strings. You may need to do type conversion.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          When you retrieve from the &ARGUMENTS; dictionary,
+          it is useful to use the &Python; dictionary
+          <methodname>get</methodname> method,
+          so you can supply a default value if the variable is
+          not given on the command line. Otherwise, the build
+          will fail with a <exceptionname>KeyError</exceptionname>
+          if the variable is not set.
+        </para>
+      </listitem>
+    </itemizedlist>
+
+
+
+    </para></note>
+
     <para>
 
-    &SCons; keeps track of the precise command line used to build each object file,
+    &SCons; keeps track of the precise build command used to build each object file,
     and as a result can determine that the object and executable files
     need rebuilding when the value of the <parameter>debug</parameter>
     argument has changed.
@@ -854,7 +894,7 @@ prog.c
 
     The &ARGUMENTS; dictionary has two minor drawbacks.
     First, because it is a dictionary,
-    it can only store one value for each specified keyword,
+    it can only map each keyword to one value,
     and thus only "remembers" the last setting
     for each keyword on the command line.
     This makes the &ARGUMENTS; dictionary
@@ -868,17 +908,18 @@ prog.c
     you want the configuration to
     behave differently in response
     to the order in which the build
-    variable settings were specified on the command line.
+    variable settings were specified on the command line
+    (&Python; versions since 3.6 now maintain dictionaries in
+    insertion order, so this problem is mitigated).
 
     </para>
 
     <para>
 
-    To accomodate these requirements,
-    &SCons; provides an &ARGLIST; variable
-    that gives you direct access to
-    <varname>variable</varname>=<replaceable>value</replaceable>
-    settings on the command line,
+    To accommodate these requirements,
+    &SCons; also provides an &ARGLIST; variable
+    that gives you direct access to build variable
+    settings from the command line,
     in the exact order they were specified,
     and without removing any duplicate settings.
     Each element in the &ARGLIST; variable
@@ -946,7 +987,7 @@ prog.c
 
     </para>
 
-    <section>
+    <section id="sect-controlling-cli-variables">
     <title>Controlling Command-Line Build Variables</title>
 
       <para>
@@ -958,8 +999,8 @@ prog.c
       check for errors and provide appropriate messages,
       and apply the values to a &consvar;.
       To help with this,
-      &SCons; provides a &Variables; class to
-      define such build variables easily,
+      &SCons; provides a &Variables; container class to
+      hold definitions of such build variables,
       and a mechanism to apply the
       build variables to a &consenv;.
       This allows you to control how the build variables affect
@@ -974,7 +1015,7 @@ prog.c
       command line whenever the time comes to build
       a program for release,
       and that the value of this variable
-      should be added to the command line
+      should be added to the build command
       with the appropriate define
       to pass the value to the C compiler.
       Here's how you might do that by setting
@@ -1000,9 +1041,8 @@ bar.c
 
       <para>
 
-      This &SConstruct; file first creates a &Variables; object
-      which uses the values from the command-line options dictionary &ARGUMENTS;
-      (the <literal>vars=Variables(None, ARGUMENTS)</literal> call).
+      This &SConstruct; snippet first creates a &Variables; object which
+      uses the values from the command-line variables dictionary &ARGUMENTS;.
       It then uses the object's &Add;
       method to indicate that the &RELEASE;
       variable can be set on the command line, and that
@@ -1025,15 +1065,32 @@ bar.c
 
       <para>
 
-      Historical note:  In old &SCons; (prior to 0.98.1),
+      The <literal>Variables()</literal> call in this example looks
+      a little awkward. The function takes two optional arguments:
+      a script name and a dictionary.  In order to specify the
+      dictionary as the second argument, you must provide the
+      script argument as the first; since there's actually no script,
+      use <constant>None</constant> as a sentinel value.
+      However, if you omit all the arguments,
+      the default behavior is to read from the &ARGUMENTS; dictionary anyway,
+      which is what we want.  The example shows it this way because the arguments
+      were introduced in this order, but you should feel free to just
+      leave off the arguments if the default behavior is what you want.
+
+      </para>
+
+      <para>
+
+      Historical note:  In old &SCons; (prior to 0.98.1 from 2008),
       these build variables were known as "command-line build options."
-      At that time, class was named &Options;
+      At that time, the class was named &Options;
       and the predefined functions to construct options were named
       &BoolOption;, &EnumOption;, &ListOption;,
       &PathOption;, &PackageOption; and &AddOptions; (contrast
       with the current names in
       <xref linkend="sect-build-variable-functions"></xref>, below).
-      You may encounter these names in older
+      Because the Internet has a very long memory,
+      you may encounter these names in older
       &SConscript; files, wiki pages, blog entries, StackExchange
       articles, etc.
       These old names no longer work, but a mental substitution
@@ -1044,19 +1101,19 @@ bar.c
 
     </section>
 
-    <section>
+    <section id="sect-variables-help">
     <title>Providing Help for Command-Line Build Variables</title>
 
       <para>
 
-      To make command-line build variables most useful,
-      you ideally want to provide
+      To make command-line build variables more useful,
+      you may want to provide
       some help text to describe the available variables
-      when the you ask for help (run <userinput>scons -h</userinput>).
+      when you ask for help (run <userinput>scons -h</userinput>).
       You can write this text by hand,
       but &SCons; provides some assistance.
       Variables objects provide a
-      &GenerateHelpText; method the
+      &GenerateHelpText; method to
       generate text that describes
       the various variables that
       have been added to it. The default text includes
@@ -1072,7 +1129,7 @@ bar.c
 
       <scons_example name="commandline_Variables_Help">
         <file name="SConstruct" printme="1">
-vars = Variables(None, ARGUMENTS)
+vars = Variables()
 vars.Add('RELEASE', help='Set to 1 to build for release', default=0)
 env = Environment(variables=vars)
 Help(vars.GenerateHelpText(env))
@@ -1081,7 +1138,7 @@ Help(vars.GenerateHelpText(env))
 
       <para>
 
-      &SCons; now displays some useful text
+      &scons; now displays some useful text
       when the <option>-h</option> option is used:
 
       </para>
@@ -1099,12 +1156,12 @@ Help(vars.GenerateHelpText(env))
 
     </section>
 
-    <section>
+    <section id="sect-variables-file">
     <title>Reading Build Variables From a File</title>
 
       <para>
 
-      Being able to to specify the
+      Being able to specify the
       value of a build variable on the command line
       is useful,
       but can still become tedious
@@ -1112,8 +1169,7 @@ Help(vars.GenerateHelpText(env))
       every time you run &SCons;.
       To make this easier,
       you can provide customized build variable settings
-      in a local file by providing a
-      file name when the
+      in a &Python; script by providing a file name when the
       &Variables; object is created:
 
       </para>
@@ -1140,7 +1196,7 @@ RELEASE = 1
       <para>
 
       This then allows you to control the &RELEASE;
-      variable by setting it in the &custom_py; file:
+      variable by setting it in the &custom_py; script:
 
       </para>
 
@@ -1149,7 +1205,7 @@ RELEASE = 1
       <para>
 
       Note that this file is actually executed
-      like a Python script.
+      like a &Python; script.
       Now when you run &SCons;:
 
       </para>
@@ -1206,10 +1262,16 @@ vars = Variables('custom.py', ARGUMENTS)
 
       <para>
 
-      where values in the option file &custom_py; get overwritten
-      by the ones specified on the command line.
+      If both a variables script and a dictionary are supplied,
+      the dictionary is evaluated last, so values from the
+      command line "win" if there are any duplicate keys.
+      This rule allows you to move some common settings
+      to a variables script, but still be able to override those
+      for a given build without changing the script.
 
       </para>
+
+      <!-- TODO: maybe show a variable used to select between variable scripts? -->
 
     </section>
 
@@ -1219,7 +1281,7 @@ vars = Variables('custom.py', ARGUMENTS)
       <para>
 
       &SCons; provides a number of convenience functions
-      that provide ready-made behaviors
+      that provide behavior definitions
       for various types of command-line build variables.
       These functions all return a tuple which is ready
       to be passed to the &Add; or &AddVariables; method call.
@@ -1228,7 +1290,7 @@ vars = Variables('custom.py', ARGUMENTS)
 
       </para>
 
-      <section>
+      <section id="sect-variables-bool">
       <title>True/False Values:  the &BoolVariable; Build Variable Function</title>
 
         <para>
@@ -1236,11 +1298,11 @@ vars = Variables('custom.py', ARGUMENTS)
         It is often handy to be able to specify a
         variable that controls a simple Boolean variable
         with a &true; or &false; value.
-        It would be even more handy to accomodate
+        It would be even more handy to accommodate
         different preferences for how to represent
         &true; or &false; values.
         The &BoolVariable; function
-        makes it easy to accomodate these
+        makes it easy to accommodate these
         common representations of
         &true; or &false;.
 
@@ -1340,7 +1402,7 @@ foo.c
 
       </section>
 
-      <section>
+      <section id="sect-variables-enum">
       <title>Single Value From a Selection:  the &EnumVariable; Build Variable Function</title>
 
         <para>
@@ -1576,7 +1638,7 @@ foo.c
 
       </section>
 
-      <section>
+      <section id="sect-variables-list">
       <title>Multiple Values From a List:  the &ListVariable; Build Variable Function</title>
 
         <para>
@@ -1670,7 +1732,7 @@ foo.c
 
       </section>
 
-      <section>
+      <section id="sect-variables-path">
       <title>Path Names:  the &PathVariable; Build Variable Function</title>
 
         <para>
@@ -1856,7 +1918,7 @@ foo.c
 
       </section>
 
-      <section>
+      <section id="sect-variables-package">
       <title>Enabled/Disabled Path Names: the &PackageVariable; Build Variable Function</title>
 
         <para>
@@ -1915,7 +1977,7 @@ foo.c
 
     </section>
 
-    <section>
+    <section id="sect-variables-multiple">
     <title>Adding Multiple Command-Line Build Variables at Once</title>
 
       <para>
@@ -1943,7 +2005,7 @@ vars = Variables()
 vars.AddVariables(
     ('RELEASE', 'Set to 1 to build for release', 0),
     ('CONFIG', 'Configuration file', '/etc/my_config'),
-    BoolVariable('warnings', help='compilation with -Wall and similiar', default=True),
+    BoolVariable('warnings', help='compilation with -Wall and similar', default=True),
     EnumVariable(
         'debug',
         help='debug output and symbols',
@@ -1971,7 +2033,7 @@ vars.AddVariables(
 
     </section>
 
-    <section>
+    <section id="sect-variables-unknown">
     <title>Handling Unknown Command-Line Build Variables:  the &UnknownVariables; Function</title>
 
       <para>
@@ -2074,7 +2136,7 @@ foo.c
   <section id="sect-command-line-targets">
   <title>Command-Line Targets</title>
 
-    <section>
+    <section id="sect-var-COMMAND-LINE-TARGETS">
     <title>Fetching Command-Line Targets: the &COMMAND_LINE_TARGETS; Variable</title>
 
       <para>
@@ -2111,7 +2173,7 @@ foo.c
 
       Now, running &SCons; with the default target
       works as usual,
-      but explicity specifying the &bar; target
+      but explicitly specifying the &bar; target
       on the command line generates the warning message:
 
       </para>
@@ -2132,7 +2194,7 @@ foo.c
 
     </section>
 
-    <section>
+    <section id="sect-default-targets-function">
     <title>Controlling the Default Targets:  the &Default; Function</title>
 
       <para>
@@ -2336,7 +2398,7 @@ prog2.c
          <scons_output_command>scons -Q .</scons_output_command>
       </scons_output>
 
-      <section>
+      <section id="sect-var-DEFAULT-TARGETS">
       <title>Fetching the List of Default Targets: the &DEFAULT_TARGETS; Variable</title>
 
         <para>
@@ -2368,7 +2430,7 @@ prog1.c
 
         <para>
 
-        (Keep in mind that all of the manipulation of the
+        (Keep in mind that the manipulation of the
         &DEFAULT_TARGETS; list takes place during the
         first phase when &SCons; is reading up the &SConscript; files,
         which is obvious if
@@ -2432,7 +2494,7 @@ prog2.c
 
     </section>
 
-    <section>
+    <section id="sect-var-BUILD-TARGETS">
     <title>Fetching the List of Build Targets, Regardless of Origin: the &BUILD_TARGETS; Variable</title>
 
       <para>

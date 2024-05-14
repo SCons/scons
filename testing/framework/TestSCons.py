@@ -59,8 +59,8 @@ default_version = '4.7.1ayyyymmdd'
 
 # TODO: these need to be hand-edited when there are changes
 python_version_unsupported = (3, 6, 0)
-python_version_deprecated = (3, 6, 0)
-python_version_supported_str = "3.6.0"  # str of lowest non-deprecated version
+python_version_deprecated = (3, 7, 0)  # lowest non-deprecated Python
+python_version_supported_str = "3.7.0"  # str of lowest non-deprecated Python
 
 SConsVersion = default_version
 
@@ -173,7 +173,7 @@ def deprecated_python_version(version=sys.version_info):
 
 if deprecated_python_version():
     msg = r"""
-scons: warning: Support for pre-%s Python version (%s) is deprecated.
+scons: warning: Support for Python older than %s is deprecated (%s detected).
     If this will cause hardship, contact scons-dev@scons.org
 """
     deprecated_python_expr = (
@@ -752,17 +752,10 @@ class TestSCons(TestCommon):
     def unlink_sconsignfile(self, name: str='.sconsign.dblite') -> None:
         """Delete the sconsign file.
 
-        Note on python it seems to append .p3 to the file name so we take
-        care of that.
-
-        TODO the above seems to not be an issue any more.
-
         Args:
             name: expected name of sconsign file
         """
-        if sys.version_info[0] == 3:
-            name += '.p3'
-        self.unlink(name)
+        return self.unlink(name)
 
     def java_ENV(self, version=None):
         """ Initialize JAVA SDK environment.
@@ -1288,7 +1281,7 @@ SConscript(sconscript)
                     logfile.find("scons: warning: The stored build information has an unexpected class.") >= 0):
                 self.fail_test()
 
-            log = r'file\ \S*%s\,line \d+:' % re.escape(sconstruct) + ls
+            log = r'file \S*%s\,line \d+:' % re.escape(sconstruct) + ls
             if doCheckLog:
                 lastEnd = match_part_of_configlog(log, logfile, lastEnd)
 
@@ -1426,7 +1419,7 @@ SConscript(sconscript)
             sconf_dir = sconf_dir
             sconstruct = sconstruct
 
-            log = r'file\ \S*%s\,line \d+:' % re.escape(sconstruct) + ls
+            log = r'file \S*%s\,line \d+:' % re.escape(sconstruct) + ls
             if doCheckLog:
                 lastEnd = match_part_of_configlog(log, logfile, lastEnd)
 
@@ -1621,7 +1614,7 @@ else:
         if python_h == "False" and python_h_required:
             self.skip_test('Can not find required "Python.h", skipping test.\n', from_fw=True)
 
-        return (python, incpath, libpath, libname)
+        return (python, incpath, libpath, libname + _lib)
 
     def start(self, *args, **kw):
         """

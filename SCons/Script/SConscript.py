@@ -45,6 +45,7 @@ import re
 import sys
 import traceback
 import time
+from typing import Tuple
 
 class SConscriptReturn(Exception):
     pass
@@ -385,7 +386,7 @@ class SConsEnvironment(SCons.Environment.Base):
     # Private methods of an SConsEnvironment.
     #
     @staticmethod
-    def _get_major_minor_revision(version_string):
+    def _get_major_minor_revision(version_string: str) -> Tuple[int, int, int]:
         """Split a version string into major, minor and (optionally)
         revision parts.
 
@@ -484,15 +485,22 @@ class SConsEnvironment(SCons.Environment.Base):
         SCons.Script._Set_Default_Targets(self, targets)
 
     @staticmethod
-    def EnsureSConsVersion(major, minor, revision: int=0) -> None:
+    def GetSConsVersion() -> Tuple[int, int, int]:
+        """Return the current SCons version.
+
+        .. versionadded:: 4.8.0
+        """
+        return SConsEnvironment._get_major_minor_revision(SCons.__version__)
+
+    @staticmethod
+    def EnsureSConsVersion(major: int, minor: int, revision: int = 0) -> None:
         """Exit abnormally if the SCons version is not late enough."""
         # split string to avoid replacement during build process
         if SCons.__version__ == '__' + 'VERSION__':
             SCons.Warnings.warn(SCons.Warnings.DevelopmentVersionWarning,
                 "EnsureSConsVersion is ignored for development version")
             return
-        scons_ver = SConsEnvironment._get_major_minor_revision(SCons.__version__)
-        if scons_ver < (major, minor, revision):
+        if SConsEnvironment.GetSConsVersion() < (major, minor, revision):
             if revision:
                 scons_ver_string = '%d.%d.%d' % (major, minor, revision)
             else:

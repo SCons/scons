@@ -1,6 +1,7 @@
-***********************
+#######################
 SCons Testing Framework
-***********************
+#######################
+
 .. contents::
    :local:
 
@@ -67,7 +68,7 @@ End-to-end tests are by their nature harder to debug. For the unit
 tests, you're running a test program directly, so you can drop straight
 into the Python debugger by calling ``runtest.py`` with the ``-d / --debug``
 option and setting breakpoints to help examine the internal state as
-the test is running. The e2e tests are each mini SCons projects execected
+the test is running. The e2e tests are each mini SCons projects executed
 by an instance of scons in a subprocess, and the Python debugger isn't
 particularly useful in this context.
 There's a separate section of this document on that topic: see `Debugging
@@ -190,7 +191,7 @@ that path-component in the testing directory.
 The use of an ephemeral test directory means that you can't simply change
 into a directory to debug after a test has gone wrong.
 For a way around this, check out the ``PRESERVE`` environment variable.
-It can be seen in action in `How to convert old tests to use fixures`_ below.
+It can be seen in action in `How to convert old tests to use fixtures`_ below.
 
 Not running tests
 =================
@@ -427,8 +428,8 @@ and you can also visit the SCons Tools
 Index at https://github.com/SCons/scons/wiki/ToolsIndex for a complete
 list of available Tools, though not all may have tests yet.
 
-How to convert old tests to use fixures
----------------------------------------
+How to convert old tests to use fixtures
+----------------------------------------
 
 Tests using the inline ``TestSCons.write()`` method can fairly easily be
 converted to the fixture based approach. For this, we need to get at the
@@ -463,7 +464,7 @@ the optional second argument (or the keyword arg ``dstfile``) to assign
 a name to the file being copied.  For example, some tests need to
 write multiple ``SConstruct`` files across the full run.
 These files can be given different names in the source (perhaps using a
-sufffix to distinguish them), and then be sucessively copied to the
+suffix to distinguish them), and then be successively copied to the
 final name as needed::
 
    test.file_fixture('fixture/SConstruct.part1', 'SConstruct')
@@ -499,8 +500,8 @@ kind of usage that does not lend itself easily to a fixture::
 Here the value of ``_python_`` from the test program is
 pasted in via f-string formatting. A fixture would be hard to use
 here because we don't know the value of ``_python_`` until runtime
-(also note that as it will be a full pathname, it's entered as a
-Python rawstring to avoid interpretation problems on Windows,
+(also note that as it will be an absolute pathname, it's entered using
+Python raw string notation to avoid interpretation problems on Windows,
 where the path separator is a backslash).
 
 The other files created in this test may still be candidates for
@@ -526,7 +527,7 @@ result doesn't match).
 
 Even more irritatingly, added text can cause other tests to fail and
 obscure the error you're looking for.  Say you have three different
-tests in a script excercising different code paths for the same feature,
+tests in a script exercising different code paths for the same feature,
 and the third one is unexpectedly failing. You add some debug prints to
 the affected part of scons, and now the first test of the three starts
 failing, aborting the test run before it even gets to the third test -
@@ -554,7 +555,7 @@ to a file instead, so they don't interrupt the test expectations.
 Or write directly to a trace file of your choosing.
 
 Part of the technique discussed in the section
-`How to Convert Old Tests to Use Fixures`_ can also be helpful
+`How to convert old tests to use fixtures`_ can also be helpful
 for debugging purposes.  If you have a failing test, try::
 
    $ PRESERVE=1 python runtest.py test/failing-test.py
@@ -570,7 +571,7 @@ There are related variables ``PRESERVE_PASS``, ``PRESERVE_FAIL`` and
 was the indicated one, which is helpful if you're trying to work with
 multiple tests showing an unusual result.
 
-From a Windows ``cmd`` shell, you will have to set the envronment
+From a Windows ``cmd`` shell, you will have to set the environment
 variable first, it doesn't work on a single line like the example above for
 POSIX-style shells.
 
@@ -625,7 +626,7 @@ Avoiding tests based on tool existence
 
 For many tests, if the tool being tested is backed by an external program
 which is not installed on the machine under test, it may not be worth
-proceeding with the test. For example, it's hard to test complilng code with
+proceeding with the test. For example, it's hard to test compiling code with
 a C compiler if no C compiler exists. In this case, the test should be
 skipped.
 
@@ -715,7 +716,7 @@ E2E-specific Suggestions:
   ahead and calling the external tool.
 * If using an external tool, be prepared to skip the test if it is unavailable.
 * Do not combine tests that need an external tool with ones that
-  do not - divide these into separate test files. There is no concept
+  do not - split these into separate test files. There is no concept
   of partial skip for e2e tests, so if you successfully complete seven
   of eight tests, and then come to a conditional "skip if tool missing"
   or "skip if on Windows", and that branch is taken, then the

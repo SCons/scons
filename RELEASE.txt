@@ -16,12 +16,13 @@ Here is a summary of the changes since 4.7.0:
 NEW FUNCTIONALITY
 -----------------
 
-- List new features (presumably why a checkpoint is being released)
+- GetSConsVersion() added to retrieve the SCons version.
 
 DEPRECATED FUNCTIONALITY
 ------------------------
 
-- List anything that's been deprecated since the last release
+- Mark Python 3.6 support as deprecated. Use --warn=no-python-version
+  to quiet the warning.
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
@@ -31,6 +32,18 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   json output is also sorted, to match the default display.
 - Python 3.13 changes the behavior of isabs() on Windows. Adjust SCons
   usage of this in NodeInfo classes to avoid test problems.
+- Drop duplicated __getstate__ and __setstate__ methods in AliasNodeInfo,
+  FileNodeInfo and ValueNodeInfo classes, as they are identical to the
+  ones in parent NodeInfoBase and can just be inherited.
+- All exceptions during the execution of an Action are now returned by value
+  rather than by raising an exception, for more consistent behavior.
+  NOTE: With this change, user created Actions should now catch and handle
+  expected exceptions (whereas previously many of these were silently caught
+  and suppressed by the SCons Action exection code).
+- ParseFlags now sorts a --stdlib=libname argument into CXXFLAGS instead
+  of CCFLAGS; the latter variable could cause a compiler warning.
+- The implementation of Variables was slightly refactored, there should
+  not be user-visible changes.
 - MSVC: For msvc version specifications without an 'Exp' suffix, an express
   installation is used when no other edition is detected for the msvc version.
   This was the behavior for Visual Studio 2008 (9.0) through Visual Studio 2015
@@ -44,6 +57,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
+- OSErrors are now no longer hidden during the execution of Actions.
 - MSVC: Visual Studio 2010 (10.0) could be inadvertently detected due to an
   sdk-only install of Windows SDK 7.1.  An sdk-only install of Visual Studio
   2010 is ignored as the msvc batch files will fail. The installed files are
@@ -77,6 +91,9 @@ FIXES
 IMPROVEMENTS
 ------------
 
+- Make the testing framework a little more resilient: the temporary
+  directory for tests now includes a component named "scons" which can
+  be given to antivirus software to exclude.
 - MSVC: Visual Studio 2015 Express (14.0Exp) does not support the sdk version
   argument. Visual Studio 2015 Express does not support the store argument for
   target architectures other than x86.  Script argument validation now takes into
@@ -99,13 +116,21 @@ DOCUMENTATION
 -------------
 
 - Updated Value Node docs.
+- Update manpage for Tools, and for the TOOL variable.
+- Update manpage and user guide for Variables usage.
 
 
 
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is developed
+- Documentation build now properly passes through skipping the PDF
+  (and EPUB) builds of manpage and user guide; this can also be done
+  manually if directly calling doc/man/SConstruct and doc/user/SConstruct
+  by adding SKIP_PDF=1. This should help with distro packaging of SCons,
+  which now does not need "fop" and other tools to be set up in order to
+  build pdf versions which are then ignored.
+
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

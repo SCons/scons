@@ -892,10 +892,10 @@ def scons_subproc_run(scons_env, *args, **kwargs) -> subprocess.CompletedProcess
     kwargs['check'] = check
 
     # TODO: Python version-compat stuff: remap/remove too-new args if needed
-    if 'text' in kwargs and sys.version_info[:3] < (3, 7):
+    if 'text' in kwargs and sys.version_info < (3, 7):
         kwargs['universal_newlines'] = kwargs.pop('text')
 
-    if 'capture_output' in kwargs and sys.version_info[:3] < (3, 7):
+    if 'capture_output' in kwargs and sys.version_info < (3, 7):
         capture_output = kwargs.pop('capture_output')
         if capture_output:
             kwargs['stdout'] = kwargs['stderr'] = PIPE
@@ -1453,16 +1453,6 @@ class FunctionAction(_ActionAction):
                     result.command=self.strfunction(target, source, env, executor)
                 except TypeError:
                     result.command=self.strfunction(target, source, env)
-
-                # FIXME: This maintains backward compatibility with respect to
-                # which type of exceptions were returned by raising an
-                # exception and which ones were returned by value. It would
-                # probably be best to always return them by value here, but
-                # some codes do not check the return value of Actions and I do
-                # not have the time to modify them at this point.
-                if (exc_info[1] and
-                    not isinstance(exc_info[1], EnvironmentError)):
-                    raise result
 
             return result
         finally:

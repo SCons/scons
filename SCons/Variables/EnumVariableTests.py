@@ -121,11 +121,11 @@ class EnumVariableTestCase(unittest.TestCase):
 
         for k, l in table.items():
             x = o0.converter(k)
-            assert x == l[0], "o0 got %s, expected %s" % (x, l[0])
+            assert x == l[0], f"o0 got {x}, expected {l[0]}"
             x = o1.converter(k)
-            assert x == l[1], "o1 got %s, expected %s" % (x, l[1])
+            assert x == l[1], f"o1 got {x}, expected {l[1]}"
             x = o2.converter(k)
-            assert x == l[2], "o2 got %s, expected %s" % (x, l[2])
+            assert x == l[2], f"o2 got {x}, expected {l[2]}"
 
     def test_validator(self) -> None:
         """Test the EnumVariable validator"""
@@ -157,13 +157,11 @@ class EnumVariableTestCase(unittest.TestCase):
             o.validator('X', v, {})
 
         def invalid(o, v) -> None:
-            caught = None
-            try:
+            with self.assertRaises(
+                SCons.Errors.UserError,
+                msg=f"did not catch expected UserError for o = {o.key}, v = {v}",
+            ):
                 o.validator('X', v, {})
-            except SCons.Errors.UserError:
-                caught = 1
-            assert caught, "did not catch expected UserError for o = %s, v = %s" % (o.key, v)
-
         table = {
             'one'   : [  valid,   valid,   valid],
             'One'   : [invalid,   valid,   valid],
