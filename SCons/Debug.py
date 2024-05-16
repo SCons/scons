@@ -23,10 +23,10 @@
 
 """Code for debugging SCons internal things.
 
-Shouldn't be needed by most users. Quick shortcuts:
+Shouldn't be needed by most users. Quick shortcuts::
 
-from SCons.Debug import caller_trace
-caller_trace()
+    from SCons.Debug import caller_trace
+    caller_trace()
 """
 
 import atexit
