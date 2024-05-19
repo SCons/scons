@@ -51,7 +51,7 @@ FIXES
 - OSErrors are now no longer hidden during the execution of Actions.
 - Improved the conversion of a "foreign" exception from an action
   into BuildError by making sure our defaults get applied even in
-  corner cases.
+  corner cases. Fixes Issue #4530
 
 IMPROVEMENTS
 ------------
