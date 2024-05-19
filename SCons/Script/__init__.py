@@ -100,7 +100,6 @@ main                    = Main.main
 BuildTask               = Main.BuildTask
 CleanTask               = Main.CleanTask
 QuestionTask            = Main.QuestionTask
-#PrintHelp               = Main.PrintHelp
 #SConscriptSettableOptions = Main.SConscriptSettableOptions
 
 AddOption               = Main.AddOption
@@ -110,6 +109,7 @@ SetOption               = Main.SetOption
 ValidateOptions         = Main.ValidateOptions
 Progress                = Main.Progress
 GetBuildFailures        = Main.GetBuildFailures
+DebugOptions            = Main.DebugOptions
 
 #keep_going_on_error     = Main.keep_going_on_error
 #print_dtree             = Main.print_dtree
@@ -175,11 +175,11 @@ DefaultEnvironment      = SCons.Defaults.DefaultEnvironment
 
 # Other variables we provide.
 class TargetList(collections.UserList):
-    def _do_nothing(self, *args, **kw):
+    def _do_nothing(self, *args, **kw) -> None:
         pass
-    def _add_Default(self, list):
+    def _add_Default(self, list) -> None:
         self.extend(list)
-    def _clear(self):
+    def _clear(self) -> None:
         del self[:]
 
 ARGUMENTS               = {}
@@ -199,13 +199,13 @@ DEFAULT_TARGETS         = []
 # own targets to BUILD_TARGETS.
 _build_plus_default = TargetList()
 
-def _Add_Arguments(alist):
+def _Add_Arguments(alist) -> None:
     for arg in alist:
         a, b = arg.split('=', 1)
         ARGUMENTS[a] = b
         ARGLIST.append((a, b))
 
-def _Add_Targets(tlist):
+def _Add_Targets(tlist) -> None:
     if tlist:
         COMMAND_LINE_TARGETS.extend(tlist)
         BUILD_TARGETS.extend(tlist)
@@ -225,7 +225,7 @@ def _Set_Default_Targets_Has_Not_Been_Called(d, fs):
 
 _Get_Default_Targets = _Set_Default_Targets_Has_Not_Been_Called
 
-def _Set_Default_Targets(env, tlist):
+def _Set_Default_Targets(env, tlist) -> None:
     global DEFAULT_TARGETS
     global _Get_Default_Targets
     _Get_Default_Targets = _Set_Default_Targets_Has_Been_Called
@@ -247,31 +247,37 @@ def _Set_Default_Targets(env, tlist):
             BUILD_TARGETS._add_Default(nodes)
             _build_plus_default._add_Default(nodes)
 
-#
+
 help_text = None
 
-def HelpFunction(text, append=False):
+
+def HelpFunction(text, append: bool = False, keep_local: bool = False) -> None:
+    """The implementaion of the the ``Help`` method.
+
+    See :meth:`~SCons.Script.SConscript.Help`.
+
+    .. versionchanged:: 4.6.0
+       The *keep_local* parameter was added.
+    """
     global help_text
     if help_text is None:
         if append:
-            s = StringIO()
-            PrintHelp(s)
-            help_text = s.getvalue()
-            s.close()
+            with StringIO() as s:
+                PrintHelp(s, local_only=keep_local)
+                help_text = s.getvalue()
         else:
             help_text = ""
 
-    help_text= help_text + text
+    help_text += text
 
 
-#
 # Will be non-zero if we are reading an SConscript file.
-sconscript_reading = 0
+sconscript_reading: int = 0
 
-_no_missing_sconscript = False
-_warn_missing_sconscript_deprecated = True
+_no_missing_sconscript = True
+_warn_missing_sconscript_deprecated = False  # TODO: now unused
 
-def set_missing_sconscript_error(flag=1):
+def set_missing_sconscript_error(flag: bool = True) -> bool:
     """Set behavior on missing file in SConscript() call.
 
     Returns:
@@ -291,6 +297,7 @@ def Variables(files=None, args=ARGUMENTS):
 #
 # Static functions that do not trigger initialization of
 # DefaultEnvironment() and don't use its state.
+GetSConsVersion = _SConscript.SConsEnvironment.GetSConsVersion
 EnsureSConsVersion = _SConscript.SConsEnvironment.EnsureSConsVersion
 EnsurePythonVersion = _SConscript.SConsEnvironment.EnsurePythonVersion
 Exit = _SConscript.SConsEnvironment.Exit
@@ -337,6 +344,7 @@ GlobalDefaultEnvironmentFunctions = [
     'Local',
     'ParseDepends',
     'Precious',
+    'Pseudo',
     'PyPackageDir',
     'Repository',
     'Requires',

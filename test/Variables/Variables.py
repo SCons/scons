@@ -197,7 +197,7 @@ UNSPECIFIED: An option with no value
     default: None
     actual: None
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 """%(cc, ccflags and ccflags + ' -O' or '-O', cc))
 
 # Test saving of variables and multi loading
@@ -355,7 +355,7 @@ UNSPECIFIED: An option with no value
     default: None
     actual: None
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 """%cc)
 
 test.write('SConstruct', """

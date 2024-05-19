@@ -25,6 +25,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-Clone "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Clone</function>">
 <!ENTITY f-Command "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Command</function>">
 <!ENTITY f-Configure "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Configure</function>">
+<!ENTITY f-DebugOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DebugOptions</function>">
 <!ENTITY f-Decider "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Decider</function>">
 <!ENTITY f-Default "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Default</function>">
 <!ENTITY f-DefaultEnvironment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DefaultEnvironment</function>">
@@ -49,6 +50,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-GetBuildPath "<function xmlns='http://www.scons.org/dbxsd/v1.0'>GetBuildPath</function>">
 <!ENTITY f-GetLaunchDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>GetLaunchDir</function>">
 <!ENTITY f-GetOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>GetOption</function>">
+<!ENTITY f-GetSConsVersion "<function xmlns='http://www.scons.org/dbxsd/v1.0'>GetSConsVersion</function>">
 <!ENTITY f-Glob "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Glob</function>">
 <!ENTITY f-Help "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Help</function>">
 <!ENTITY f-Ignore "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Ignore</function>">
@@ -106,6 +108,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-Clone "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Clone</function>">
 <!ENTITY f-env-Command "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Command</function>">
 <!ENTITY f-env-Configure "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Configure</function>">
+<!ENTITY f-env-DebugOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DebugOptions</function>">
 <!ENTITY f-env-Decider "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Decider</function>">
 <!ENTITY f-env-Default "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Default</function>">
 <!ENTITY f-env-DefaultEnvironment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DefaultEnvironment</function>">
@@ -130,6 +133,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-GetBuildPath "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.GetBuildPath</function>">
 <!ENTITY f-env-GetLaunchDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.GetLaunchDir</function>">
 <!ENTITY f-env-GetOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.GetOption</function>">
+<!ENTITY f-env-GetSConsVersion "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.GetSConsVersion</function>">
 <!ENTITY f-env-Glob "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Glob</function>">
 <!ENTITY f-env-Help "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Help</function>">
 <!ENTITY f-env-Ignore "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Ignore</function>">
@@ -193,6 +197,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-Clone "<link linkend='f-Clone' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Clone</function></link>">
 <!ENTITY f-link-Command "<link linkend='f-Command' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Command</function></link>">
 <!ENTITY f-link-Configure "<link linkend='f-Configure' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Configure</function></link>">
+<!ENTITY f-link-DebugOptions "<link linkend='f-DebugOptions' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DebugOptions</function></link>">
 <!ENTITY f-link-Decider "<link linkend='f-Decider' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Decider</function></link>">
 <!ENTITY f-link-Default "<link linkend='f-Default' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Default</function></link>">
 <!ENTITY f-link-DefaultEnvironment "<link linkend='f-DefaultEnvironment' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DefaultEnvironment</function></link>">
@@ -217,6 +222,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-GetBuildPath "<link linkend='f-GetBuildPath' xmlns='http://www.scons.org/dbxsd/v1.0'><function>GetBuildPath</function></link>">
 <!ENTITY f-link-GetLaunchDir "<link linkend='f-GetLaunchDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>GetLaunchDir</function></link>">
 <!ENTITY f-link-GetOption "<link linkend='f-GetOption' xmlns='http://www.scons.org/dbxsd/v1.0'><function>GetOption</function></link>">
+<!ENTITY f-link-GetSConsVersion "<link linkend='f-GetSConsVersion' xmlns='http://www.scons.org/dbxsd/v1.0'><function>GetSConsVersion</function></link>">
 <!ENTITY f-link-Glob "<link linkend='f-Glob' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Glob</function></link>">
 <!ENTITY f-link-Help "<link linkend='f-Help' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Help</function></link>">
 <!ENTITY f-link-Ignore "<link linkend='f-Ignore' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Ignore</function></link>">
@@ -274,6 +280,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-Clone "<link linkend='f-Clone' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Clone</function></link>">
 <!ENTITY f-link-env-Command "<link linkend='f-Command' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Command</function></link>">
 <!ENTITY f-link-env-Configure "<link linkend='f-Configure' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Configure</function></link>">
+<!ENTITY f-link-env-DebugOptions "<link linkend='f-DebugOptions' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DebugOptions</function></link>">
 <!ENTITY f-link-env-Decider "<link linkend='f-Decider' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Decider</function></link>">
 <!ENTITY f-link-env-Default "<link linkend='f-Default' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Default</function></link>">
 <!ENTITY f-link-env-DefaultEnvironment "<link linkend='f-DefaultEnvironment' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DefaultEnvironment</function></link>">
@@ -298,6 +305,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-GetBuildPath "<link linkend='f-GetBuildPath' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.GetBuildPath</function></link>">
 <!ENTITY f-link-env-GetLaunchDir "<link linkend='f-GetLaunchDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.GetLaunchDir</function></link>">
 <!ENTITY f-link-env-GetOption "<link linkend='f-GetOption' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.GetOption</function></link>">
+<!ENTITY f-link-env-GetSConsVersion "<link linkend='f-GetSConsVersion' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.GetSConsVersion</function></link>">
 <!ENTITY f-link-env-Glob "<link linkend='f-Glob' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Glob</function></link>">
 <!ENTITY f-link-env-Help "<link linkend='f-Help' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Help</function></link>">
 <!ENTITY f-link-env-Ignore "<link linkend='f-Ignore' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Ignore</function></link>">

@@ -26,15 +26,24 @@ Helper functions for Microsoft Visual C/C++.
 """
 
 import os
+import pathlib
 import re
 
 from collections import (
     namedtuple,
 )
 
+from ..common import debug
+
 from . import Config
 
 # path utilities
+
+# windows drive specification (e.g., 'C:')
+_RE_DRIVESPEC = re.compile(r'^[A-Za-z][:]$', re.IGNORECASE)
+
+# windows path separators
+_OS_PATH_SEPS = (os.path.sep, os.path.altsep) if os.path.altsep else (os.path.sep,)
 
 def listdir_dirs(p):
     """
@@ -57,22 +66,92 @@ def listdir_dirs(p):
                 dirs.append((dir_name, dir_path))
     return dirs
 
-def process_path(p):
+def resolve_path(p, ignore_drivespec=True):
     """
-    Normalize a system path
+    Make path absolute resolving any symlinks
 
     Args:
         p: str
             system path
+        ignore_drivespec: bool
+            ignore drive specifications when True
 
     Returns:
-        str: normalized system path
+        str: absolute path with symlinks resolved
 
     """
+
     if p:
+
+        if ignore_drivespec and _RE_DRIVESPEC.match(p):
+            # don't attempt to resolve drive specification (e.g., C:)
+            pass
+        else:
+            # both abspath and resolve necessary for an unqualified file name
+            # on a mapped network drive in order to return a mapped drive letter
+            # path rather than a UNC path.
+            p = os.path.abspath(p)
+            try:
+                p = str(pathlib.Path(p).resolve())
+            except OSError as e:
+                debug(
+                    'caught exception: path=%s, exception=%s(%s)',
+                    repr(p), type(e).__name__, repr(str(e))
+                )
+
+    return p
+
+def normalize_path(
+    p,
+    strip=True,
+    preserve_trailing=False,
+    expand=False,
+    realpath=True,
+    ignore_drivespec=True,
+):
+    """
+    Normalize path
+
+    Args:
+        p: str
+            system path
+        strip: bool
+            remove leading and trailing whitespace when True
+        preserve_trailing: bool
+            preserve trailing path separator when True
+        expand: bool
+            apply expanduser and expandvars when True
+        realpath: bool
+            make the path absolute resolving any symlinks when True
+        ignore_drivespec: bool
+            ignore drive specifications for realpath when True
+
+    Returns:
+        str: normalized path
+
+    """
+
+    if p and strip:
+        p = p.strip()
+
+    if p:
+
+        trailing = bool(preserve_trailing and p.endswith(_OS_PATH_SEPS))
+
+        if expand:
+            p = os.path.expanduser(p)
+            p = os.path.expandvars(p)
+
         p = os.path.normpath(p)
-        p = os.path.realpath(p)
+
+        if realpath:
+            p = resolve_path(p, ignore_drivespec=ignore_drivespec)
+
         p = os.path.normcase(p)
+
+        if trailing:
+            p += os.path.sep
+
     return p
 
 # msvc version and msvc toolset version regexes
@@ -157,21 +236,21 @@ def get_msvc_version_prefix(version):
 
 # toolset version query utilities
 
-def is_toolset_full(toolset_version):
+def is_toolset_full(toolset_version) -> bool:
     rval = False
     if toolset_version:
         if re_toolset_full.match(toolset_version):
             rval = True
     return rval
 
-def is_toolset_140(toolset_version):
+def is_toolset_140(toolset_version) -> bool:
     rval = False
     if toolset_version:
         if re_toolset_140.match(toolset_version):
             rval = True
     return rval
 
-def is_toolset_sxs(toolset_version):
+def is_toolset_sxs(toolset_version) -> bool:
     rval = False
     if toolset_version:
         if re_toolset_sxs.match(toolset_version):
@@ -228,7 +307,7 @@ def msvc_version_components(vcver):
     msvc_vernum = float(msvc_verstr)
 
     msvc_comps = tuple(msvc_verstr.split('.'))
-    msvc_major, msvc_minor = [int(x) for x in msvc_comps]
+    msvc_major, msvc_minor = (int(x) for x in msvc_comps)
 
     msvc_version_components_def = _MSVC_VERSION_COMPONENTS_DEFINITION(
         msvc_version = msvc_version,
@@ -291,7 +370,7 @@ def msvc_extended_version_components(version):
     msvc_vernum = float(msvc_verstr)
 
     msvc_comps = tuple(msvc_verstr.split('.'))
-    msvc_major, msvc_minor = [int(x) for x in msvc_comps]
+    msvc_major, msvc_minor = (int(x) for x in msvc_comps)
 
     msvc_extended_version_components_def = _MSVC_EXTENDED_VERSION_COMPONENTS_DEFINITION(
         msvc_version = msvc_version,
@@ -351,7 +430,7 @@ def msvc_sdk_version_components(version):
     sdk_verstr = '.'.join(sdk_comps[:2])
     sdk_vernum = float(sdk_verstr)
 
-    sdk_major, sdk_minor = [int(x) for x in sdk_comps[:2]]
+    sdk_major, sdk_minor = (int(x) for x in sdk_comps[:2])
 
     msvc_sdk_version_components_def = _MSVC_SDK_VERSION_COMPONENTS_DEFINITION(
         sdk_version = sdk_version,

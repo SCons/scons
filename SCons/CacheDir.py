@@ -34,7 +34,7 @@ import uuid
 import SCons.Action
 import SCons.Errors
 import SCons.Warnings
-import SCons
+import SCons.Util
 
 cache_enabled = True
 cache_debug = False
@@ -43,7 +43,7 @@ cache_show = False
 cache_readonly = False
 cache_tmp_uuid = uuid.uuid4().hex
 
-def CacheRetrieveFunc(target, source, env):
+def CacheRetrieveFunc(target, source, env) -> int:
     t = target[0]
     fs = t.fs
     cd = env.get_CacheDir()
@@ -67,7 +67,7 @@ def CacheRetrieveFunc(target, source, env):
         fs.chmod(t.get_internal_path(), stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     return 0
 
-def CacheRetrieveString(target, source, env):
+def CacheRetrieveString(target, source, env) -> None:
     t = target[0]
     fs = t.fs
     cd = env.get_CacheDir()
@@ -118,7 +118,7 @@ def CachePushFunc(target, source, env):
             cd.copy_to_cache(env, t.get_internal_path(), tempfile)
         fs.rename(tempfile, cachefile)
 
-    except EnvironmentError:
+    except OSError:
         # It's possible someone else tried writing the file at the
         # same time we did, or else that there was some problem like
         # the CacheDir being on a separate file system that's full.
@@ -133,7 +133,7 @@ CachePush = SCons.Action.Action(CachePushFunc, None)
 
 class CacheDir:
 
-    def __init__(self, path):
+    def __init__(self, path) -> None:
         """
         Initialize a CacheDir object.
 
@@ -169,15 +169,16 @@ class CacheDir:
         """
         config_file = os.path.join(path, 'config')
         try:
+            # still use a try block even with exist_ok, might have other fails
             os.makedirs(path, exist_ok=True)
-        except FileExistsError:
-            pass
         except OSError:
             msg = "Failed to create cache directory " + path
             raise SCons.Errors.SConsEnvironmentError(msg)
 
         try:
-            with open(config_file, 'x') as config:
+            with SCons.Util.FileLock(config_file, timeout=5, writer=True), open(
+                config_file, "x"
+            ) as config:
                 self.config['prefix_len'] = 2
                 try:
                     json.dump(self.config, config)
@@ -186,18 +187,20 @@ class CacheDir:
                     raise SCons.Errors.SConsEnvironmentError(msg)
         except FileExistsError:
             try:
-                with open(config_file) as config:
+                with SCons.Util.FileLock(config_file, timeout=5, writer=False), open(
+                    config_file
+                ) as config:
                     self.config = json.load(config)
-            except ValueError:
+            except (ValueError, json.decoder.JSONDecodeError):
                 msg = "Failed to read cache configuration for " + path
                 raise SCons.Errors.SConsEnvironmentError(msg)
 
-    def CacheDebug(self, fmt, target, cachefile):
+    def CacheDebug(self, fmt, target, cachefile) -> None:
         if cache_debug != self.current_cache_debug:
             if cache_debug == '-':
                 self.debugFP = sys.stdout
             elif cache_debug:
-                def debug_cleanup(debugFP):
+                def debug_cleanup(debugFP) -> None:
                     debugFP.close()
 
                 self.debugFP = open(cache_debug, 'w')
@@ -211,35 +214,42 @@ class CacheDir:
                                (self.requests, self.hits, self.misses, self.hit_ratio))
 
     @classmethod
-    def copy_from_cache(cls, env, src, dst):
+    def copy_from_cache(cls, env, src, dst) -> str:
+        """Copy a file from cache."""
         if env.cache_timestamp_newer:
             return env.fs.copy(src, dst)
         else:
             return env.fs.copy2(src, dst)
 
     @classmethod
-    def copy_to_cache(cls, env, src, dst):
+    def copy_to_cache(cls, env, src, dst) -> str:
+        """Copy a file to cache.
+
+        Just use the FS copy2 ("with metadata") method, except do an additional
+        check and if necessary a chmod to ensure the cachefile is writeable,
+        to forestall permission problems if the cache entry is later updated.
+        """
         try:
             result = env.fs.copy2(src, dst)
-            fs = env.File(src).fs
-            st = fs.stat(src)
-            fs.chmod(dst, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+            st = stat.S_IMODE(os.stat(result).st_mode)
+            if not st | stat.S_IWRITE:
+                os.chmod(dst, st | stat.S_IWRITE)
             return result
         except AttributeError as ex:
-            raise EnvironmentError from ex
+            raise OSError from ex
 
     @property
-    def hit_ratio(self):
+    def hit_ratio(self) -> float:
         return (100.0 * self.hits / self.requests if self.requests > 0 else 100)
 
     @property
-    def misses(self):
+    def misses(self) -> int:
         return self.requests - self.hits
 
-    def is_enabled(self):
+    def is_enabled(self) -> bool:
         return cache_enabled and self.path is not None
 
-    def is_readonly(self):
+    def is_readonly(self) -> bool:
         return cache_readonly
 
     def get_cachedir_csig(self, node):
@@ -247,21 +257,27 @@ class CacheDir:
         if cachefile and os.path.exists(cachefile):
             return SCons.Util.hash_file_signature(cachefile, SCons.Node.FS.File.hash_chunksize)
 
-    def cachepath(self, node):
-        """
+    def cachepath(self, node) -> tuple:
+        """Return where to cache a file.
+
+        Given a Node, obtain the configured cache directory and
+        the path to the cached file, which is generated from the
+        node's build signature. If caching is not enabled for the
+        None, return a tuple of None.
         """
         if not self.is_enabled():
             return None, None
 
         sig = node.get_cachedir_bsig()
-
         subdir = sig[:self.config['prefix_len']].upper()
+        cachedir = os.path.join(self.path, subdir)
+        return cachedir, os.path.join(cachedir, sig)
 
-        dir = os.path.join(self.path, subdir)
-        return dir, os.path.join(dir, sig)
+    def retrieve(self, node) -> bool:
+        """Retrieve a node from cache.
 
-    def retrieve(self, node):
-        """
+        Returns True if a successful retrieval resulted.
+
         This method is called from multiple threads in a parallel build,
         so only do thread safe stuff here. Do thread unsafe stuff in
         built().

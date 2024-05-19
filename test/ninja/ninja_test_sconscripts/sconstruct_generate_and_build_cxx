@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 SetOption('experimental','ninja')
 DefaultEnvironment(tools=[])
 env = Environment()

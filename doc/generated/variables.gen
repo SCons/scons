@@ -375,8 +375,8 @@ env['BUILDERS']['NewBuilder'] = bld
     </term>
     <listitem><para>
 The class type that SCons should use when instantiating a
-new &f-link-CacheDir; for the given environment. It must be
-a subclass of the SCons.CacheDir.CacheDir class.
+new &f-link-CacheDir; in this &consenv;. Must be
+a subclass of the <classname>SCons.CacheDir.CacheDir</classname> class.
         </para>
     </listitem>
   </varlistentry>
@@ -447,8 +447,8 @@ See also &cv-link-SHCCFLAGS; for compiling to shared objects.
 Options added to the compiler command line
 to support building with precompiled headers.
 The default value expands expands to the appropriate
-Microsoft Visual C++ command-line options
-when the &cv-link-PCH; construction variable is set.
+&MSVC; command-line options
+when the &cv-link-PCH; &consvar; is set.
 </para>
 </listitem>
   </varlistentry>
@@ -459,14 +459,14 @@ when the &cv-link-PCH; construction variable is set.
     <listitem><para>
 Options added to the compiler command line
 to support storing debugging information in a
-Microsoft Visual C++ PDB file.
+&MSVC; PDB file.
 The default value expands expands to appropriate
-Microsoft Visual C++ command-line options
-when the &cv-link-PDB; construction variable is set.
+&MSVC; command-line options
+when the &cv-link-PDB; &consvar; is set.
 </para>
 
 <para>
-The Visual C++ compiler option that SCons uses by default
+The &MSVC; compiler option that &SCons; uses by default
 to generate PDB information is <option>/Z7</option>.
 This works correctly with parallel (<option>-j</option>) builds
 because it embeds the debug information in the intermediate object files,
@@ -671,6 +671,14 @@ containing the
 <filename>SConstruct</filename>
 file.
 </para>
+<para>
+If variant directories are in use,
+and the configure check results should not be
+shared between variants,
+you can set &cv-CONFIGUREDIR;
+and &cv-link-CONFIGURELOG; so they are
+unique per variant directory.
+</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-CONFIGURELOG">
@@ -685,6 +693,14 @@ in the top-level directory
 containing the
 <filename>SConstruct</filename>
 file.
+</para>
+<para>
+If variant directories are in use,
+and the configure check results should not be
+shared between variants,
+you can set &cv-link-CONFIGUREDIR;
+and &cv-CONFIGURELOG; so they are
+unique per variant directory.
 </para>
 </listitem>
   </varlistentry>
@@ -709,68 +725,111 @@ to each definition in &cv-link-CPPDEFINES;.
     </term>
     <listitem><para>
 A platform independent specification of C preprocessor macro definitions.
-The definitions will be added to command lines
+The definitions are added to command lines
 through the automatically-generated
-&cv-link-_CPPDEFFLAGS; &consvar; (see above),
+&cv-link-_CPPDEFFLAGS; &consvar;,
 which is constructed according to
-the type of value of &cv-CPPDEFINES;:
+the contents of &cv-CPPDEFINES;:
 </para>
 
+<itemizedlist>
+<listitem>
 <para>
 If &cv-CPPDEFINES; is a string,
 the values of the
 &cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
-will be respectively prepended and appended to 
-each definition in &cv-link-CPPDEFINES;.
+are respectively prepended and appended to
+each definition in &cv-CPPDEFINES;,
+split on whitespace.
 </para>
 
 <example_commands>
-# Will add -Dxyz to POSIX compiler command lines,
+# Adds -Dxyz to POSIX compiler command lines,
 # and /Dxyz to Microsoft Visual C++ command lines.
 env = Environment(CPPDEFINES='xyz')
 </example_commands>
 
+</listitem>
+<listitem>
 <para>
 If &cv-CPPDEFINES; is a list,
 the values of the
 &cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
-will be respectively prepended and appended to 
+are respectively prepended and appended to
 each element in the list.
-If any element is a list or tuple,
-then the first item is the name being
-defined and the second item is its value:
+If any element is a tuple (or list)
+then the first item of the tuple is the macro name
+and the second is the macro definition.
+If the definition is not omitted or <literal>None</literal>,
+the name and definition are combined into a single
+<literal>name=definition</literal> item
+before the preending/appending.
 </para>
 
 <example_commands>
-# Will add -DB=2 -DA to POSIX compiler command lines,
+# Adds -DB=2 -DA to POSIX compiler command lines,
 # and /DB=2 /DA to Microsoft Visual C++ command lines.
 env = Environment(CPPDEFINES=[('B', 2), 'A'])
 </example_commands>
 
+</listitem>
+<listitem>
 <para>
 If &cv-CPPDEFINES; is a dictionary,
 the values of the
 &cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
-will be respectively prepended and appended to
-each item from the dictionary.
-The key of each dictionary item
-is a name being defined
-to the dictionary item's corresponding value;
-if the value is
-<literal>None</literal>,
-then the name is defined without an explicit value.
-Note that the resulting flags are sorted by keyword
-to ensure that the order of the options on the
-command line is consistent each time
-&scons;
-is run.
+are respectively prepended and appended to
+each key from the dictionary.
+If the value for a key is not <literal>None</literal>,
+then the key (macro name) and the value
+(macros definition) are combined into a single
+<literal>name=definition</literal> item
+before the prepending/appending.
 </para>
 
 <example_commands>
-# Will add -DA -DB=2 to POSIX compiler command lines,
-# and /DA /DB=2 to Microsoft Visual C++ command lines.
+# Adds -DA -DB=2 to POSIX compiler command lines,
+# or /DA /DB=2 to Microsoft Visual C++ command lines.
 env = Environment(CPPDEFINES={'B':2, 'A':None})
 </example_commands>
+</listitem>
+</itemizedlist>
+
+<para>
+Depending on how contents are added to &cv-CPPDEFINES;,
+it may be transformed into a compound type,
+for example a list containing strings, tuples and/or dictionaries.
+&SCons; can correctly expand such a compound type.
+</para>
+
+<para>
+Note that &SCons; may call the compiler via a shell.
+If a macro definition contains characters such as spaces that
+have meaning to the shell, or is intended to be a string value,
+you may need to use the shell's quoting syntax to avoid
+interpretation by the shell before the preprocessor sees it.
+Function-like macros are not supported via this mechanism
+(and some compilers do not even implement that functionality
+via the command lines).
+When quoting, note that
+one set of quote characters are used to define a &Python; string,
+then quotes embedded inside that would be consumed by the shell
+unless escaped.  These examples may help illustrate:
+</para>
+
+<example_commands>
+env = Environment(CPPDEFINES=['USE_ALT_HEADER=\\"foo_alt.h\\"'])
+env = Environment(CPPDEFINES=[('USE_ALT_HEADER', '\\"foo_alt.h\\"')])
+</example_commands>
+
+<para>
+:<emphasis>Changed in version  4.5</emphasis>:
+&SCons; no longer sorts &cv-CPPDEFINES; values entered
+in dictionary form.  &Python; now preserves dictionary
+keys in the order they are entered, so it is no longer
+necessary to sort them to ensure a stable command line.
+</para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="cv-CPPDEFPREFIX">
@@ -852,23 +911,23 @@ to each directory in &cv-link-CPPPATH;.
     <listitem><para>
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
-directories for include files. 
+directories for include files.
 In general it's not advised to put include directory directives
 directly into &cv-link-CCFLAGS; or &cv-link-CXXFLAGS;
 as the result will be non-portable
 and the directories will not be searched by the dependency scanner.
 &cv-CPPPATH; should be a list of path strings,
 or a single string, not a pathname list joined by
-Python's <systemitem>os.sep</systemitem>.
+Python's <systemitem>os.pathsep</systemitem>.
 </para>
 
 <para>
 Note:
 directory names in &cv-CPPPATH;
 will be looked-up relative to the directory of the SConscript file
-when they are used in a command. 
+when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree use 
+to look-up a directory relative to the root of the source tree use
 the <literal>#</literal> prefix:
 </para>
 
@@ -1138,6 +1197,42 @@ General options that are passed to the D compiler.
     </term>
     <listitem><para>
 DFLAGSUFFIX.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DI_FILE_DIR">
+    <term>
+      <envar>DI_FILE_DIR</envar>
+    </term>
+    <listitem><para>
+Path where .di files will be generated
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DI_FILE_DIR_PREFIX">
+    <term>
+      <envar>DI_FILE_DIR_PREFIX</envar>
+    </term>
+    <listitem><para>
+Prefix to send the di path argument to compiler
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DI_FILE_DIR_SUFFFIX">
+    <term>
+      <envar>DI_FILE_DIR_SUFFFIX</envar>
+    </term>
+    <listitem><para>
+Suffix to send the di path argument to compiler
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DI_FILE_SUFFIX">
+    <term>
+      <envar>DI_FILE_SUFFIX</envar>
+    </term>
+    <listitem><para>
+Suffix of d include files default is .di
 </para>
 </listitem>
   </varlistentry>
@@ -2658,6 +2753,19 @@ target being built.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-FILE_ENCODING">
+    <term>
+      <envar>FILE_ENCODING</envar>
+    </term>
+    <listitem><para>
+File encoding used for files written by &b-link-Textfile; and &b-link-Substfile;.
+Set to "utf-8" by default.
+</para>
+<para>
+<emphasis>New in version  4.5.0.</emphasis>
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-FORTRAN">
     <term>
       <envar>FORTRAN</envar>
@@ -2689,8 +2797,9 @@ in the &cv-link-FORTRANFLAGS;,
     <listitem><para>
 General user-specified options that are passed to the Fortran compiler.
 Similar to &cv-link-FORTRANFLAGS;,
-but this variable is applied to all dialects.
+but this &consvar; is applied to all dialects.
 </para>
+<para><emphasis>New in version 4.4.</emphasis></para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-FORTRANCOMSTR">
@@ -2729,9 +2838,8 @@ contain
 (or similar) include or module search path options
 that scons generates automatically from &cv-link-FORTRANPATH;.
 See
-&cv-link-_FORTRANINCFLAGS; and &cv-link-_FORTRANMODFLAG;,
-below,
-for the variables that expand those options.
+&cv-link-_FORTRANINCFLAGS; and &cv-link-_FORTRANMODFLAG;
+for the &consvars; that expand those options.
 </para>
 </listitem>
   </varlistentry>
@@ -3118,7 +3226,7 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
     </para>
     <para>
       On the <literal>win32</literal> platform,
-      if the Microsoft Visual C++ compiler is available,
+      if the &MSVC; compiler is available,
       &t-link-msvc; tool setup is done using
       &cv-HOST_ARCH; and &cv-link-TARGET_ARCH;.
       Changing the values at any later time will not cause
@@ -3126,11 +3234,11 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
       Valid host arch values are
       <literal>x86</literal> and <literal>arm</literal>
       for 32-bit hosts and
-      <literal>amd64</literal> and <literal>x86_64</literal>
-      for 64-bit hosts.
+      <literal>amd64</literal>, <literal>arm64</literal>,
+      and <literal>x86_64</literal> for 64-bit hosts.
     </para>
     <para>
-      Should be considered immutable. 
+      Should be considered immutable.
       &cv-HOST_ARCH; is not currently used by other platforms,
       but the option is reserved to do so in future
     </para>
@@ -3148,7 +3256,7 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
       <parameter>platform</parameter> argument to &f-link-Environment;).
     </para>
     <para>
-      Should be considered immutable. 
+      Should be considered immutable.
       &cv-HOST_OS; is not currently used by &SCons;,
       but the option is reserved to do so in future
     </para>
@@ -3225,14 +3333,13 @@ determine the version of versioned import library.
       <envar>IMPLICIT_COMMAND_DEPENDENCIES</envar>
     </term>
     <listitem><para>
-Controls whether or not SCons will
+Controls whether or not &SCons; will
 add implicit dependencies for the commands
 executed to build targets.
 </para>
 
 <para>
-By default, SCons will add
-to each target
+By default, &SCons; will add to each target
 an implicit dependency on the command
 represented by the first argument of any
 command line it executes (which is typically
@@ -3476,16 +3583,30 @@ by default.
       <envar>JAVABOOTCLASSPATH</envar>
     </term>
     <listitem><para>
-                Specifies the list of directories that
-                will be added to the
-                &javac; command line
-                via the <option>-bootclasspath</option> option.
-                The individual directory names will be
-                separated by the operating system's path separate character
-                (<filename>:</filename> on UNIX/Linux/POSIX,
-                <filename>;</filename>
-                on Windows).
+                Specifies the location of the bootstrap class files.
+                Can be specified as a string or Node object,
+                or as a list of strings or Node objects.
             </para>
+            <para>
+                The value will be added to the JDK command lines
+                via the <option>-bootclasspath</option> option,
+                which requires a system-specific search path separator.
+                This will be supplied by &SCons; as needed when it
+                constructs the command line if &cv-JAVABOOTCLASSPATH; is
+                provided in list form.
+                If &cv-JAVABOOTCLASSPATH; is a single string containing
+                search path separator characters
+                (<literal>:</literal> for POSIX systems or
+                <literal>;</literal> for Windows), it will not be modified;
+                and so is inherently system-specific;
+                to supply the path in a system-independent manner,
+                give &cv-JAVABOOTCLASSPATH; as a list of paths instead.
+            </para>
+            <note>
+                <para>
+                    Can only be used when compiling for releases prior to JDK 9.
+                </para>
+            </note>
         </listitem>
   </varlistentry>
   <varlistentry id="cv-JAVAC">
@@ -3541,10 +3662,9 @@ env = Environment(JAVACCOMSTR="Compiling class files $TARGETS from $SOURCES")
     </term>
     <listitem><para>
                 The directory in which Java class files may be found.
-                This is stripped from the beginning of any Java .class
-                file names supplied to the
-                <literal>JavaH</literal>
-                builder.
+                This is stripped from the beginning of any Java
+                <filename>.class</filename>
+                file names supplied to the &b-link-JavaH; builder.
             </para>
         </listitem>
   </varlistentry>
@@ -3553,19 +3673,54 @@ env = Environment(JAVACCOMSTR="Compiling class files $TARGETS from $SOURCES")
       <envar>JAVACLASSPATH</envar>
     </term>
     <listitem><para>
-                Specifies the list of directories that
-                will be searched for Java
-                <filename>.class</filename>
-                file.
-                The directories in this list will be added to the
-                &javac; and &javah; command lines
-                via the <option>-classpath</option> option.
-                The individual directory names will be
-                separated by the operating system's path separate character
-                (<filename>:</filename> on UNIX/Linux/POSIX,
-                <filename>;</filename>
-                on Windows).
+                Specifies the class search path for the JDK tools.
+                Can be specified as a string or Node object,
+                or as a list of strings or Node objects.
+                Class path entries may be directory names to search
+                for class files or packages, pathnames to archives
+                (<filename>.jar</filename> or <filename>.zip</filename>)
+                containing classes, or paths ending in a "base name wildcard"
+                character (<literal>*</literal>), which matches files
+                in that directory with a <filename>.jar</filename> suffix.
+                See the Java documentation for more details.
             </para>
+            <para>
+                The value will be added to the JDK command lines
+                via the <option>-classpath</option> option,
+                which requires a system-specific search path separator.
+                This will be supplied by &SCons; as needed when it
+                constructs the command line if &cv-JAVACLASSPATH; is
+                provided in list form.
+                If &cv-JAVACLASSPATH; is a single string containing
+                search path separator characters
+                (<literal>:</literal> for POSIX systems or
+                <literal>;</literal> for Windows), 
+                it will be split on the separator into a list of individual
+                paths for dependency scanning purposes.
+                It will not be modified for JDK command-line usage,
+                so such a string is inherently system-specific;
+                to supply the path in a system-independent manner,
+                give &cv-JAVACLASSPATH; as a list of paths instead.
+            </para>
+            <note>
+              <para>
+                &SCons; <emphasis role="bold">always</emphasis>
+                supplies a <option>-sourcepath</option> 
+                when invoking the Java compiler &javac;,
+                regardless of the setting of &cv-link-JAVASOURCEPATH;,
+                as it passes the path(s) to the source(s) supplied
+                in the call to the &b-link-Java; builder via
+                <option>-sourcepath</option> .
+                From the documentation of the standard Java toolkit for &javac;:
+                <quote>If not compiling code for modules, if the
+                <option>--source-path</option> or <option>-sourcepath</option>
+                option is not specified, then the user class path is also
+                searched for source files.</quote>
+                Since <option>-sourcepath</option> is always supplied,
+                &javac; will not use the contents of the value of
+                &cv-JAVACLASSPATH; when searching for sources.
+              </para>
+            </note>
         </listitem>
   </varlistentry>
   <varlistentry id="cv-JAVACLASSSUFFIX">
@@ -3630,7 +3785,37 @@ for Java classes.
       <envar>JAVAINCLUDES</envar>
     </term>
     <listitem><para>
-                Include path for Java header files (such as jni.h)
+                Include path for Java header files
+                (such as <filename>jni.h</filename>).
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-JAVAPROCESSORPATH">
+    <term>
+      <envar>JAVAPROCESSORPATH</envar>
+    </term>
+    <listitem><para>
+                Specifies the location of the annotation processor class files.
+                Can be specified as a string or Node object,
+                or as a list of strings or Node objects.
+            </para>
+            <para>
+                The value will be added to the JDK command lines
+                via the <option>-processorpath</option> option,
+                which requires a system-specific search path separator.
+                This will be supplied by &SCons; as needed when it
+                constructs the command line if &cv-JAVAPROCESSORPATH; is
+                provided in list form.
+                If &cv-JAVAPROCESSORPATH; is a single string containing
+                search path separator characters
+                (<literal>:</literal> for POSIX systems or
+                <literal>;</literal> for Windows), it will not be modified;
+                and so is inherently system-specific;
+                to supply the path in a system-independent manner,
+                give &cv-JAVAPROCESSORPATH; as a list of paths instead.
+            </para>
+            <para>
+                <emphasis>New in version 4.5.0</emphasis>
             </para>
         </listitem>
   </varlistentry>
@@ -3640,24 +3825,31 @@ for Java classes.
     </term>
     <listitem><para>
                 Specifies the list of directories that
-                will be searched for input
-                <filename>.java</filename>
-                file.
-                The directories in this list will be added to the
-                &javac; command line
-                via the <option>-sourcepath</option> option.
-                The individual directory names will be
-                separated by the operating system's path separate character
-                (<filename>:</filename> on UNIX/Linux/POSIX,
-                <filename>;</filename>
-                on Windows).
+                will be searched for input (source)
+                <filename>.java</filename> files.
+                Can be specified as a string or Node object,
+                or as a list of strings or Node objects.
             </para>
-
             <para>
-                Note that this currently just adds the specified
-                directory via the <option>-sourcepath</option> option.
+                The value will be added to the JDK command lines
+                via the <option>-sourcepath</option> option,
+                which requires a system-specific search path separator,
+                This will be supplied by &SCons; as needed when it
+                constructs the command line if &cv-JAVASOURCEPATH; is
+                provided in list form.
+                If &cv-JAVASOURCEPATH; is a single string containing
+                search path separator characters
+                (<literal>:</literal> for POSIX systems or
+                <literal>;</literal> for Windows), it will not be modified,
+                and so is inherently system-specific;
+                to supply the path in a system-independent manner,
+                give &cv-JAVASOURCEPATH; as a list of paths instead.
+            </para>
+            <para>
+                Note that the specified directories are only added to
+                the command line via the <option>-sourcepath</option> option.
                 &SCons; does not currently search the
-                &cv-JAVASOURCEPATH; directories for dependency
+                &cv-JAVASOURCEPATH; directories for dependent
                 <filename>.java</filename>
                 files.
             </para>
@@ -4067,7 +4259,7 @@ general information on specifying emitters.
 An automatically-generated construction variable
 containing the linker command-line options
 for specifying libraries to be linked with the resulting target.
-The value of &cv-link-_LIBFLAGS; is created
+The value of &cv-_LIBFLAGS; is created
 by respectively prepending and appending &cv-link-LIBLINKPREFIX;
 and &cv-link-LIBLINKSUFFIX;
 to each filename in &cv-link-LIBS;.
@@ -4098,6 +4290,48 @@ when the &cv-link-_LIBFLAGS; variable is automatically generated.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-LIBLITERALPREFIX">
+    <term>
+      <envar>LIBLITERALPREFIX</envar>
+    </term>
+    <listitem><para>
+If the linker supports command line syntax directing
+that the argument specifying a library should be
+searched for literally (without modification),
+&cv-LIBLITERALPREFIX; can be set to that indicator.
+For example, the GNU linker follows this rule:
+<quote>
+<literal>-l:foo</literal> searches the library path
+for a filename called <literal>foo</literal>,
+without converting it to
+<literal>libfoo.so</literal> or
+<literal>libfoo.a</literal>.
+</quote>
+If &cv-LIBLITERALPREFIX; is set,
+&SCons; will not transform a string-valued entry in
+&cv-link-LIBS; that starts with that string.
+The entry will still be surrounded with
+&cv-link-LIBLINKPREFIX; and &cv-link-LIBLINKSUFFIX;
+on the command line.
+This is useful, for example,
+in directing that a static library
+be used when both a static and dynamic library are available
+and linker policy is to prefer dynamic libraries.
+Compared to the example in &cv-link-LIBS;,
+</para>
+<example_commands>
+env.Append(LIBS=":libmylib.a")
+</example_commands>
+<para>
+will let the linker select that specific (static)
+library name if found in the library search path.
+This differs from using a
+<classname>File</classname> object
+to specify the static library,
+as the latter bypasses the library search path entirely.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-LIBPATH">
     <term>
       <envar>LIBPATH</envar>
@@ -4107,7 +4341,7 @@ The list of directories that will be searched for libraries
 specified by the &cv-link-LIBS; &consvar;.
 &cv-LIBPATH; should be a list of path strings,
 or a single string, not a pathname list joined by
-Python's <systemitem>os.sep</systemitem>.
+Python's <systemitem>os.pathsep</systemitem>.
 <!-- XXX OLD
 The implicit dependency scanner will search these
 directories for include files. Don't explicitly put include directory
@@ -4126,9 +4360,9 @@ as the result will be non-portable.
 Note:
 directory names in &cv-LIBPATH; will be looked-up relative to the
 directory of the SConscript file
-when they are used in a command. 
+when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree use 
+to look-up a directory relative to the root of the source tree use
 the <literal>#</literal> prefix:
 </para>
 
@@ -4185,7 +4419,8 @@ to reflect the names of the libraries they create.
       <envar>LIBPREFIXES</envar>
     </term>
     <listitem><para>
-A list of all legal prefixes for library file names.
+A list of all legal prefixes for library file names
+on the current platform.
 When searching for library dependencies,
 SCons will look for files with these prefixes,
 the base library name,
@@ -4198,51 +4433,54 @@ and suffixes from the &cv-link-LIBSUFFIXES; list.
       <envar>LIBS</envar>
     </term>
     <listitem><para>
-A list of one or more libraries
+The list of libraries
 that will be added to the link line
-for linking with any executable program, shared library, or loadable module 
+for linking with any executable program, shared library, or loadable module
 created by the &consenv; or override.
 </para>
 
 <para>
-String-valued library names should include
-only the library base names,
+For portability,
+a string-valued library name should include
+only the base library name,
 without prefixes such as <filename>lib</filename>
 or suffixes such as <filename>.so</filename> or <filename>.dll</filename>.
-The library list will be added to command lines
-through the automatically-generated
-&cv-_LIBFLAGS; &consvar;
-which is constructed by
-respectively prepending and appending the values of the
-&cv-LIBLINKPREFIX; and &cv-LIBLINKSUFFIX; &consvars;
-to each library name in &cv-LIBS;.
-Library name strings should not include a
-path component, instead the compiler will be
-directed to look for libraries in the paths
-specified by &cv-link-LIBPATH;.
+&SCons; <emphasis>will</emphasis> attempt to
+strip prefixes from the &cv-link-LIBPREFIXES; list
+and suffixes from the &cv-link-LIBSUFFIXES; list,
+but depending on that behavior will make the build
+less portable:
+for example, on a POSIX system,
+no attempt will be made to strip a suffix like
+<filename>.dll</filename>.
+Library name strings in &cv-LIBS; should not include a path component:
+instead use &cv-link-LIBPATH; to direct the compiler
+to look for libraries in those paths,
+plus any default paths the linker searches in.
+If &cv-link-LIBLITERALPREFIX; is set to a non-empty string,
+then a string-valued &cv-LIBS; entry
+that starts with &cv-link-LIBLITERALPREFIX;
+will cause the rest of the entry
+to be searched for for unmodified,
+but respecting normal library search paths
+(this is an exception to the guideline above
+about leaving off the prefix/suffix from the library name).
 </para>
 
 <para>
-Any command lines you define that need
-the &cv-LIBS; library list should
-include &cv-_LIBFLAGS;:
-</para>
-
-<example_commands>
-env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE")
-</example_commands>
-
-<para>
-If you add a
-<classname>File</classname>
-object to the
-&cv-LIBS;
-list, the name of that file will be added to
+If a &cv-LIBS; entry is a Node object
+(either as returned by a previous Builder call,
+or as the result of an explicit call to &f-link-File;),
+the pathname from that Node will be added to
 &cv-_LIBFLAGS;,
-and thus to the link line, as-is, without
+and thus to the link line,
+unmodified - without adding
 &cv-LIBLINKPREFIX;
 or
 &cv-LIBLINKSUFFIX;.
+Such entries are searched for literally
+(including any path component);
+the library search paths are not used.
 For example:
 </para>
 
@@ -4251,9 +4489,34 @@ env.Append(LIBS=File('/tmp/mylib.so'))
 </example_commands>
 
 <para>
-In all cases, scons will add dependencies from the executable program to
-all the libraries in this list.
+<!-- is this actually true? -->
+For each &Builder; call that causes linking with libraries,
+&SCons; will add the libraries in the setting of &cv-LIBS;
+in effect at that moment to the dependecy graph
+as dependencies of the target being generated.
 </para>
+
+<para>
+The library list will transformed to command line
+arguments through the automatically-generated
+&cv-link-_LIBFLAGS; &consvar;
+which is constructed by
+respectively prepending and appending the values of the
+&cv-link-LIBLINKPREFIX; and &cv-link-LIBLINKSUFFIX; &consvars;
+to each library name.
+</para>
+
+<para>
+Any command lines you define yourself that need
+the libraries from &cv-LIBS; should include &cv-_LIBFLAGS;
+(as well as &cv-link-_LIBDIRFLAGS;)
+rather than &cv-LIBS;.
+For example:
+</para>
+
+<example_commands>
+env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE")
+</example_commands>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-LIBSUFFIX">
@@ -4276,6 +4539,7 @@ to reflect the names of the libraries they create.
     </term>
     <listitem><para>
 A list of all legal suffixes for library file names.
+on the current platform.
 When searching for library dependencies,
 SCons will look for files with prefixes from the &cv-link-LIBPREFIXES; list,
 the base library name,
@@ -4715,16 +4979,16 @@ and
     </term>
     <listitem><para>
 When set to any true value,
-specifies that SCons should batch
+specifies that &SCons; should batch
 compilation of object files
-when calling the Microsoft Visual C/C++ compiler.
+when calling the &MSVC; compiler.
 All compilations of source files from the same source directory
 that generate target files in a same output directory
-and were configured in SCons using the same construction environment
+and were configured in &SCons; using the same &consenv;
 will be built in a single call to the compiler.
 Only source files that have changed since their
 object files were built will be passed to each compiler invocation
-(via the &cv-link-CHANGED_SOURCES; construction variable).
+(via the &cv-link-CHANGED_SOURCES; &consvar;).
 Any compilations where the object (target) file base name
 (minus the <filename>.obj</filename>)
 does not match the source file base name
@@ -4737,7 +5001,7 @@ will be compiled separately.
       <envar>MSVC_NOTFOUND_POLICY</envar>
     </term>
     <listitem><para>
-Specify the &scons; behavior when the Microsoft Visual C/C++ compiler is not detected.
+Specify the &scons; behavior when the &MSVC; compiler is not detected.
 </para>
 
 <para>
@@ -4839,6 +5103,8 @@ When &cv-MSVC_NOTFOUND_POLICY; is not specified, the default &scons; behavior is
 subject to the conditions listed above. The default &scons; behavior may change in the future.
 </para>
 
+<para><emphasis>New in version 4.4</emphasis></para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVC_SCRIPT_ARGS">
@@ -4846,13 +5112,13 @@ subject to the conditions listed above. The default &scons; behavior may change 
       <envar>MSVC_SCRIPT_ARGS</envar>
     </term>
     <listitem><para>
-Pass user-defined arguments to the Visual C++ batch file determined via autodetection.
+Pass user-defined arguments to the &MSVC; batch file determined via autodetection.
 </para>
 
 <para>
 &cv-MSVC_SCRIPT_ARGS; is available for msvc batch file arguments that do not have first-class support
-via construction variables or when there is an issue with the appropriate construction variable validation.
-When available, it is recommended to use the appropriate construction variables (e.g., &cv-link-MSVC_TOOLSET_VERSION;)
+via &consvars; or when there is an issue with the appropriate &consvar; validation.
+When available, it is recommended to use the appropriate &consvars; (e.g., &cv-link-MSVC_TOOLSET_VERSION;)
 rather than &cv-MSVC_SCRIPT_ARGS; arguments.
 </para>
 
@@ -4976,6 +5242,8 @@ and compatible with the version of msvc selected.
 </itemizedlist>
 </para>
 
+<para><emphasis>New in version 4.4</emphasis></para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVC_SCRIPTERROR_POLICY">
@@ -4983,7 +5251,7 @@ and compatible with the version of msvc selected.
       <envar>MSVC_SCRIPTERROR_POLICY</envar>
     </term>
     <listitem><para>
-Specify the &scons; behavior when Microsoft Visual C/C++ batch file errors are detected.
+Specify the &scons; behavior when &MSVC; batch file errors are detected.
 </para>
 
 <para>
@@ -5028,6 +5296,9 @@ Issue a warning when msvc batch file errors are detected.
 <para>
 Suppress msvc batch file error messages.
 </para>
+
+<para><emphasis>New in version 4.4</emphasis></para>
+
 </listitem>
 </varlistentry>
 
@@ -5101,6 +5372,8 @@ when setting the script error policy to raise an exception (e.g., <literal>'Erro
 
 </itemizedlist>
 </para>
+
+<para><emphasis>New in version 4.4</emphasis></para>
 
 </listitem>
   </varlistentry>
@@ -5221,6 +5494,8 @@ specify a Windows 10 SDK (e.g., <literal>'10.0.20348.0'</literal>) for the build
 </itemizedlist>
 </para>
 
+<para><emphasis>New in version 4.4</emphasis></para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVC_SPECTRE_LIBS">
@@ -5228,7 +5503,7 @@ specify a Windows 10 SDK (e.g., <literal>'10.0.20348.0'</literal>) for the build
       <envar>MSVC_SPECTRE_LIBS</envar>
     </term>
     <listitem><para>
-Build with the spectre-mitigated Visual C++ libraries.
+Build with the spectre-mitigated &MSVC; libraries.
 </para>
 
 <para>
@@ -5238,8 +5513,8 @@ The valid values for &cv-MSVC_SPECTRE_LIBS; are: <literal>True</literal>,
 
 <para>
 When &cv-MSVC_SPECTRE_LIBS; is enabled (i.e., <literal>True</literal>),
-the Visual C++ environment will include the paths to the spectre-mitigated implementations
-of the Microsoft Visual C++ libraries.
+the &MSVC; environment will include the paths to the spectre-mitigated implementations
+of the &MSVC; libraries.
 </para>
 
 <para>
@@ -5266,7 +5541,7 @@ components.
 </para>
 
 <para>
-Example - A Visual Studio 2022 build with spectre mitigated Visual C++ libraries:
+Example - A Visual Studio 2022 build with spectre mitigated &MSVC; libraries:
 <example_commands>
 env = Environment(MSVC_VERSION='14.3', MSVC_SPECTRE_LIBS=True)
 </example_commands>
@@ -5302,6 +5577,8 @@ The burden is on the user to ensure the requisite libraries with spectre mitigat
 </itemizedlist>
 </para>
 
+<para><emphasis>New in version 4.4</emphasis></para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVC_TOOLSET_VERSION">
@@ -5309,7 +5586,7 @@ The burden is on the user to ensure the requisite libraries with spectre mitigat
       <envar>MSVC_TOOLSET_VERSION</envar>
     </term>
     <listitem><para>
-Build with a specific Visual C++ toolset version.
+Build with a specific &MSVC; toolset version.
 </para>
 
 <para><emphasis>
@@ -5412,9 +5689,9 @@ prefix is selected.
 <listitem><para>
 When &cv-MSVC_TOOLSET_VERSION; is specified using the major msvc version prefix
 (i.e., <literal>'XX.Y'</literal>) and the major msvc version is that of the latest release of
-Visual Studio, the selected toolset version may not be the same as the default Visual C++ toolset version.
+Visual Studio, the selected toolset version may not be the same as the default &MSVC; toolset version.
 </para><para>
-In the latest release of Visual Studio, the default Visual C++ toolset version is not necessarily the
+In the latest release of Visual Studio, the default &MSVC; toolset version is not necessarily the
 toolset with the largest version number.
 </para></listitem>
 
@@ -5473,6 +5750,8 @@ The burden is on the user to ensure the requisite toolset target architecture bu
 </itemizedlist>
 </para>
 
+<para><emphasis>New in version 4.4</emphasis></para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVC_USE_SCRIPT">
@@ -5480,7 +5759,7 @@ The burden is on the user to ensure the requisite toolset target architecture bu
       <envar>MSVC_USE_SCRIPT</envar>
     </term>
     <listitem><para>
-Use a batch script to set up the Microsoft Visual C++ compiler.
+Use a batch script to set up the &MSVC; compiler.
 </para>
 
 <para>
@@ -5500,7 +5779,7 @@ This can be useful to force the use of a compiler version that
 Setting
 &cv-MSVC_USE_SCRIPT; to <constant>None</constant> bypasses the
 Visual Studio autodetection entirely;
-use this if you are running SCons in a Visual Studio <command>cmd</command>
+use this if you are running &SCons; in a Visual Studio <command>cmd</command>
 window and importing the shell's environment variables - that
 is, if you are sure everything is set correctly already and
 you don't want &SCons; to change anything.
@@ -5508,6 +5787,12 @@ you don't want &SCons; to change anything.
 <para>
 &cv-MSVC_USE_SCRIPT; ignores &cv-link-MSVC_VERSION; and &cv-link-TARGET_ARCH;.
 </para>
+
+<para><emphasis>Changed in version 4.4:</emphasis>
+new &cv-link-MSVC_USE_SCRIPT_ARGS; provides a
+way to pass arguments.
+</para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVC_USE_SCRIPT_ARGS">
@@ -5517,6 +5802,9 @@ you don't want &SCons; to change anything.
     <listitem><para>
 Provides arguments passed to the script &cv-link-MSVC_USE_SCRIPT;.
 </para>
+
+<para><emphasis>New in version 4.4</emphasis></para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVC_USE_SETTINGS">
@@ -5524,7 +5812,7 @@ Provides arguments passed to the script &cv-link-MSVC_USE_SCRIPT;.
       <envar>MSVC_USE_SETTINGS</envar>
     </term>
     <listitem><para>
-Use a dictionary to set up the Microsoft Visual C++ compiler.
+Use a dictionary to set up the &MSVC; compiler.
 </para>
 
 <para>
@@ -5542,7 +5830,7 @@ the environment when bypassing Visual Studio autodetection entirely by setting
 </para>
 
 <para>
-Here is an example of configuring a build environment using the Microsoft Visual C/C++ compiler
+Here is an example of configuring a build environment using the &MSVC; compiler
 included in the Microsoft SDK on a 64-bit host and building for a 64-bit architecture:
 <programlisting>
 # Microsoft SDK 6.0 (MSVC 8.0): 64-bit host and 64-bit target
@@ -5598,10 +5886,14 @@ therefore may change at any time.
 </emphasis>
 The burden is on the user to ensure the dictionary contents are minimally sufficient to
 ensure successful builds.
-</para></listitem>
+</para>
+
+</listitem>
 
 </itemizedlist>
 </para>
+
+<para><emphasis>New in version 4.4</emphasis></para>
 
 </listitem>
   </varlistentry>
@@ -5610,7 +5902,7 @@ ensure successful builds.
       <envar>MSVC_UWP_APP</envar>
     </term>
     <listitem><para>
-Build with the Universal Windows Platform (UWP) application Visual C++ libraries.
+Build with the Universal Windows Platform (UWP) application &MSVC; libraries.
 </para>
 
 <para>
@@ -5621,8 +5913,8 @@ or <literal>None</literal>.
 
 <para>
 When &cv-MSVC_UWP_APP; is enabled (i.e., <literal>True</literal> or
-<literal>'1'</literal>), the Visual C++ environment will be set up to point
-to the Windows Store compatible libraries and Visual C++ runtimes. In doing so,
+<literal>'1'</literal>), the &MSVC; environment will be set up to point
+to the Windows Store compatible libraries and &MSVC; runtimes. In doing so,
 any libraries that are built will be able to be used in a UWP App and published
 to the Windows Store.
 <!-- This flag will only have an effect with Visual Studio 2015 or later. -->
@@ -5682,47 +5974,217 @@ The burden is on the user to ensure the requisite UWP libraries are installed.
       <envar>MSVC_VERSION</envar>
     </term>
     <listitem><para>
-Sets the preferred  version of Microsoft Visual C/C++ to use.
+A string to select the preferred  version of &MSVC;.
+If the specified version is unavailable and/or unknown to &SCons;,
+a warning is issued showing the versions actually discovered,
+and the build will eventually fail indicating a missing compiler binary.
+If &cv-MSVC_VERSION; is not set, &SCons; will (by default) select the
+latest version of &MSVC; installed on your system.
+The valid values for &cv-MSVC_VERSION; represent major versions
+of the compiler, except that versions ending in <literal>Exp</literal>
+refer to "Express" or "Express for Desktop" Visual Studio editions,
+which require distinct entries because they use a different
+filesystem layout and have feature limitations compared to
+the full version.
+Values that do not look like a valid compiler version
+<emphasis>string</emphasis> are not supported.
 </para>
 
 <para>
-If &cv-MSVC_VERSION; is not set, SCons will (by default) select the
-latest version of Visual C/C++ installed on your system.  If the
-specified version isn't installed, tool initialization will fail.
-</para>
-
-<para>
-&cv-MSVC_VERSION; must be passed as an argument to the &f-link-Environment;
-constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
-loaded via the default tools list or via a tools list passed to the
-&f-link-Environment; constructor.
+To have the desired effect, &cv-MSVC_VERSION; must be set by the
+time compiler discovery takes place.
+If the default tools list
+or an explicit tools list including &t-link-msvc; is used,
+discovery takes place as the &consenv; is created,
+so passing it as an argument in the the &f-link-Environment; call
+is the effective solution.
 Otherwise, &cv-MSVC_VERSION; must be set before the first msvc tool is
 loaded into the environment.
+See the manpage section "Construction Environments" for an example.
 </para>
 
 <para>
-Valid values for Windows are
-<literal>14.3</literal>,
-<literal>14.2</literal>,
-<literal>14.1</literal>,
-<literal>14.1Exp</literal>,
-<literal>14.0</literal>,
-<literal>14.0Exp</literal>,
-<literal>12.0</literal>,
-<literal>12.0Exp</literal>,
-<literal>11.0</literal>,
-<literal>11.0Exp</literal>,
-<literal>10.0</literal>,
-<literal>10.0Exp</literal>,
-<literal>9.0</literal>,
-<literal>9.0Exp</literal>,
-<literal>8.0</literal>,
-<literal>8.0Exp</literal>,
-<literal>7.1</literal>,
-<literal>7.0</literal>,
-and <literal>6.0</literal>.
-Versions ending in <literal>Exp</literal> refer to "Express" or
-"Express for Desktop" editions.
+The following table shows the correspondence
+of &cv-MSVC_VERSION; values to various version indicators
+('x' is used as a placeholder for
+a single digit that can vary).
+Note that it is not necessary to install Visual Studio
+to build with &SCons; (for example, you can install only
+Build Tools), but if Visual Studio is installed,
+additional builders such as &b-link-MSVSSolution; and
+&b-link-MSVSProject; become available and will
+correspond to the indicated versions.
+</para>
+
+<informaltable>
+  <tgroup cols="5">
+    <colspec align="left"/>
+    <colspec align="center"/>
+    <colspec align="center"/>
+    <colspec align="left"/>
+    <colspec align="center"/>
+    <thead>
+      <row>
+        <entry> SCons Key </entry>
+        <entry> <literallayout>
+Visual C++
+Version </literallayout></entry>
+        <entry> <literal>_MSVC_VER</literal> </entry>
+        <entry> Visual Studio Product </entry>
+        <!--entry> <literallayout>
+Visual Studio
+Product </literallayout></entry-->
+        <entry> <literallayout>
+MSBuild /
+Visual Studio </literallayout></entry>
+      </row>
+    </thead>
+    <tbody>
+      <row>
+        <entry> <literal>"14.3"</literal> </entry>
+        <entry> 14.3x </entry>
+        <entry> 193x </entry>
+        <entry> Visual Studio 2022 </entry>
+        <entry> 17.x, 17.1x </entry>
+      </row>
+      <row>
+        <entry> <literal>"14.2"</literal> </entry>
+        <entry> 14.2x </entry>
+        <entry> 192x </entry>
+        <entry> Visual Studio 2019 </entry>
+        <entry> 16.x, 16.1x </entry>
+      </row>
+      <row>
+        <entry> <literal>"14.1"</literal> </entry>
+        <entry> 14.1 or 14.1x </entry>
+        <entry> 191x </entry>
+        <entry> Visual Studio 2017 </entry>
+        <entry> 15.x </entry>
+      </row>
+      <row>
+        <entry> <literal>"14.1Exp"</literal> </entry>
+        <entry> 14.1 </entry>
+        <entry> 1910 </entry>
+        <entry> Visual Studio 2017 Express </entry>
+        <entry> 15.0 </entry>
+      </row>
+      <row>
+        <entry> <literal>"14.0"</literal> </entry>
+        <entry> 14.0 </entry>
+        <entry> 1900 </entry>
+        <entry> Visual Studio 2015 </entry>
+        <entry> 14.0 </entry>
+      </row>
+      <row>
+        <entry> <literal>"14.0Exp"</literal> </entry>
+        <entry> 14.0 </entry>
+        <entry> 1900 </entry>
+        <entry> Visual Studio 2015 Express </entry>
+        <entry> 14.0 </entry>
+      </row>
+      <row>
+        <entry> <literal>"12.0"</literal> </entry>
+        <entry> 12.0 </entry>
+        <entry> 1800 </entry>
+        <entry> Visual Studio 2013 </entry>
+        <entry> 12.0 </entry>
+      </row>
+      <row>
+        <entry> <literal>"12.0Exp"</literal> </entry>
+        <entry> 12.0 </entry>
+        <entry> 1800 </entry>
+        <entry> Visual Studio 2013 Express </entry>
+        <entry> 12.0 </entry>
+      </row>
+      <row>
+        <entry> <literal>"11.0"</literal> </entry>
+        <entry> 11.0 </entry>
+        <entry> 1700 </entry>
+        <entry> Visual Studio 2012 </entry>
+        <entry> 11.0 </entry>
+      </row>
+      <row>
+        <entry> <literal>"11.0Exp"</literal> </entry>
+        <entry> 11.0 </entry>
+        <entry> 1700 </entry>
+        <entry> Visual Studio 2012 Express </entry>
+        <entry> 11.0 </entry>
+      </row>
+      <row>
+        <entry> <literal>"10.0"</literal> </entry>
+        <entry> 10.0 </entry>
+        <entry> 1600 </entry>
+        <entry> Visual Studio 2010 </entry>
+        <entry> 10.0 </entry>
+      </row>
+      <row>
+        <entry> <literal>"10.0Exp"</literal> </entry>
+        <entry> 10.0 </entry>
+        <entry> 1600 </entry>
+        <entry> Visual C++ Express 2010 </entry>
+        <entry> 10.0 </entry>
+      </row>
+      <row>
+        <entry> <literal>"9.0"</literal> </entry>
+        <entry> 9.0 </entry>
+        <entry> 1500 </entry>
+        <entry> Visual Studio 2008 </entry>
+        <entry> 9.0 </entry>
+      </row>
+      <row>
+        <entry> <literal>"9.0Exp"</literal> </entry>
+        <entry> 9.0 </entry>
+        <entry> 1500 </entry>
+        <entry> Visual C++ Express 2008 </entry>
+        <entry> 9.0 </entry>
+      </row>
+      <row>
+        <entry> <literal>"8.0"</literal> </entry>
+        <entry> 8.0 </entry>
+        <entry> 1400 </entry>
+        <entry> Visual Studio 2005 </entry>
+        <entry> 8.0 </entry>
+      </row>
+      <row>
+        <entry> <literal>"8.0Exp"</literal> </entry>
+        <entry> 8.0 </entry>
+        <entry> 1400 </entry>
+        <entry> Visual C++ Express 2005 </entry>
+        <entry> 8.0 </entry>
+      </row>
+      <row>
+        <entry> <literal>"7.1"</literal> </entry>
+        <entry> 7.1 </entry>
+        <entry> 1300 </entry>
+        <entry> Visual Studio .NET 2003 </entry>
+        <entry> 7.1 </entry>
+      </row>
+      <row>
+        <entry> <literal>"7.0"</literal> </entry>
+        <entry> 7.0 </entry>
+        <entry> 1200 </entry>
+        <entry> Visual Studio .NET 2002 </entry>
+        <entry> 7.0 </entry>
+      </row>
+      <row>
+        <entry> <literal>"6.0"</literal> </entry>
+        <entry> 6.0 </entry>
+        <entry> 1100 </entry>
+        <entry> Visual Studio 6.0 </entry>
+        <entry> 6.0 </entry>
+      </row>
+    </tbody>
+  </tgroup>
+</informaltable>
+
+<para>
+The compilation environment can be further or more precisely specified through the
+use of several other &consvars;: see the descriptions of
+&cv-link-MSVC_TOOLSET_VERSION;,
+&cv-link-MSVC_SDK_VERSION;,
+&cv-link-MSVC_USE_SCRIPT;,
+&cv-link-MSVC_USE_SCRIPT_ARGS;,
+and &cv-link-MSVC_USE_SETTINGS;.
 </para>
 
 </listitem>
@@ -5737,28 +6199,39 @@ Versions ending in <literal>Exp</literal> refer to "Express" or
       </para>
       <variablelist>
         <varlistentry>
-          <term>VERSION</term> <listitem>
+          <term>VERSION</term>
+          <listitem>
             <para>the version of MSVS being used (can be set via
-            &cv-link-MSVS_VERSION;)</para>
+            &cv-link-MSVC_VERSION;)</para>
           </listitem>
-        </varlistentry> <varlistentry>
-          <term>VERSIONS</term> <listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>VERSIONS</term>
+          <listitem>
             <para>the available versions of MSVS installed</para>
           </listitem>
-        </varlistentry> <varlistentry>
-          <term>VCINSTALLDIR</term> <listitem>
-            <para>installed directory of Visual C++</para>
+        </varlistentry>
+        <varlistentry>
+          <term>VCINSTALLDIR</term>
+          <listitem>
+            <para>installed directory of &MSVC;</para>
           </listitem>
-        </varlistentry> <varlistentry>
-          <term>VSINSTALLDIR</term> <listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>VSINSTALLDIR</term>
+          <listitem>
             <para>installed directory of Visual Studio</para>
           </listitem>
-        </varlistentry> <varlistentry>
-          <term>FRAMEWORKDIR</term> <listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>FRAMEWORKDIR</term>
+          <listitem>
             <para>installed directory of the .NET framework</para>
           </listitem>
-        </varlistentry> <varlistentry>
-          <term>FRAMEWORKVERSIONS</term> <listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>FRAMEWORKVERSIONS</term>
+          <listitem>
             <para>
               list of installed versions of the .NET framework,
               sorted latest to oldest.
@@ -5795,7 +6268,12 @@ Versions ending in <literal>Exp</literal> refer to "Express" or
           </listitem>
         </varlistentry>
       </variablelist>
-      <para>If a value is not set, it was not available in the registry.</para>
+      <para>If a value is not set, it was not available in the registry.
+      Visual Studio 2017 and later do not use the registry for
+      primary storage of this information, so typically for these
+      versions only  <literal>PROJECTSUFFIX</literal> and
+      <literal>SOLUTIONSUFFIX</literal> will be set.
+      </para>
     </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVS_ARCH">
@@ -5821,11 +6299,9 @@ Versions ending in <literal>Exp</literal> refer to "Express" or
     </term>
     <listitem><para>
         The string placed in a generated
-Microsoft Visual Studio project file as the value of the
+        &MSVC; project file as the value of the
         <literal>ProjectGUID</literal> attribute. There is no default
-        value. If not
-defined, a new GUID is generated.
-
+        value. If not defined, a new GUID is generated.
       </para>
     </listitem>
   </varlistentry>
@@ -5835,12 +6311,10 @@ defined, a new GUID is generated.
     </term>
     <listitem><para>
         The path name placed in a generated
-Microsoft Visual Studio project file as the value of the
+        &MSVC; project file as the value of the
         <literal>SccAuxPath</literal> attribute if the
-        <envar>MSVS_SCC_PROVIDER</envar> construction variable is
-        also set. There is
-no default value.
-
+        <envar>MSVS_SCC_PROVIDER</envar> &consvar; is
+        also set. There is no default value.
       </para>
     </listitem>
   </varlistentry>
@@ -5852,7 +6326,7 @@ no default value.
         The root path of projects in your SCC workspace, i.e the
         path under which all project and solution files will be
         generated. It is used as a reference path from which the
-        relative paths of the generated Microsoft Visual Studio project
+        relative paths of the generated &MSVC; project
         and solution files are computed. The relative project file path
         is placed as the value of the <literal>SccLocalPath</literal>
         attribute of the project file and as the values of the
@@ -5865,7 +6339,7 @@ no default value.
         to the number of projects in the solution) attributes of the
         <literal>GlobalSection(SourceCodeControl)</literal> section of
         the Microsoft Visual Studio solution file. This is used only if
-        the <envar>MSVS_SCC_PROVIDER</envar> construction variable is
+        the <envar>MSVS_SCC_PROVIDER</envar> &consvar; is
         also set. The default value is the current working directory.
       </para>
     </listitem>
@@ -5875,10 +6349,10 @@ no default value.
       <envar>MSVS_SCC_PROJECT_NAME</envar>
     </term>
     <listitem><para>
-        The project name placed in a generated Microsoft
-        Visual Studio project file as the value of the
+        The project name placed in a generated &MSVC;
+        project file as the value of the
         <literal>SccProjectName</literal> attribute if the
-        <envar>MSVS_SCC_PROVIDER</envar> construction variable
+        <envar>MSVS_SCC_PROVIDER</envar> &consvar;
         is also set. In this case the string is also placed in
         the <literal>SccProjectName0</literal> attribute of the
         <literal>GlobalSection(SourceCodeControl)</literal> section
@@ -5892,8 +6366,8 @@ no default value.
       <envar>MSVS_SCC_PROVIDER</envar>
     </term>
     <listitem><para>
-        The string placed in a generated Microsoft
-        Visual Studio project file as the value of the
+        The string placed in a generated &MSVC;
+        project file as the value of the
         <literal>SccProvider</literal> attribute. The string is
         also placed in the <literal>SccProvider0</literal> attribute
         of the <literal>GlobalSection(SourceCodeControl)</literal>
@@ -5906,23 +6380,25 @@ no default value.
     <term>
       <envar>MSVS_VERSION</envar>
     </term>
-    <listitem><para>Sets the preferred version of Microsoft Visual Studio to use.</para>
+    <listitem><para>Set the preferred version of Microsoft Visual Studio to use.</para>
       <para>
         If &cv-MSVS_VERSION; is not set, &SCons; will (by default)
         select the latest version of Visual Studio installed on your
         system. So, if you have version 6 and version 7 (MSVS .NET)
         installed, it will prefer version 7. You can override this by
-        specifying the <envar>MSVS_VERSION</envar> variable in the
-        Environment initialization, setting it to the appropriate
+        specifying the &cv-link-MSVS_VERSION; variable when
+        initializing the Environment, setting it to the appropriate
         version ('6.0' or '7.0', for example). If the specified
         version isn't installed, tool initialization will fail.
       </para>
       <para>
-        This is obsolete: use &cv-MSVC_VERSION; instead. If
-        &cv-MSVS_VERSION; is set and &cv-MSVC_VERSION; is
-        not, &cv-MSVC_VERSION; will be set automatically to
-        &cv-MSVS_VERSION;. If both are set to different values,
-        scons will raise an error.
+        <emphasis>Deprecated since 1.3.0:</emphasis>
+        &cv-MSVS_VERSION; is deprecated in favor of &cv-link-MSVC_VERSION;.
+        As a transitional aid, if &cv-MSVS_VERSION; is set
+        and &cv-MSVC_VERSION; is not,
+        &cv-MSVC_VERSION; will be initialized to the value
+        of &cv-MSVS_VERSION;.
+        An error is raised if If both are set and have different values,
       </para>
     </listitem>
   </varlistentry>
@@ -5931,9 +6407,9 @@ no default value.
       <envar>MSVSBUILDCOM</envar>
     </term>
     <listitem><para>
-        The build command line placed in a generated Microsoft Visual
-        Studio project file. The default is to have Visual Studio
-        invoke SCons with any specified build targets.
+        The build command line placed in a generated &MSVC;
+        project file. The default is to have Visual Studio
+        invoke &SCons; with any specified build targets.
       </para>
     </listitem>
   </varlistentry>
@@ -5942,10 +6418,10 @@ no default value.
       <envar>MSVSCLEANCOM</envar>
     </term>
     <listitem><para>
-        The clean command line placed in a generated Microsoft Visual
-        Studio project file. The default is to have Visual Studio
-        invoke SCons with the -c option to remove any specified
-        targets.
+        The clean command line placed in a generated &MSVC;
+        project file. The default is to have Visual Studio
+        invoke &SCons; with the <option>-c</option> option to remove
+        any specified targets.
       </para>
     </listitem>
   </varlistentry>
@@ -5954,8 +6430,8 @@ no default value.
       <envar>MSVSENCODING</envar>
     </term>
     <listitem><para>
-        The encoding string placed in a generated Microsoft
-        Visual Studio project file. The default is encoding
+        The encoding string placed in a generated &MSVC;
+        project file. The default is encoding
         <literal>Windows-1252</literal>.
       </para>
     </listitem>
@@ -5964,7 +6440,7 @@ no default value.
     <term>
       <envar>MSVSPROJECTCOM</envar>
     </term>
-    <listitem><para>The action used to generate Microsoft Visual Studio project files.</para>
+    <listitem><para>The action used to generate &MSVC; project files.</para>
     </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVSPROJECTSUFFIX">
@@ -5972,11 +6448,12 @@ no default value.
       <envar>MSVSPROJECTSUFFIX</envar>
     </term>
     <listitem><para>
-        The suffix used for Microsoft Visual Studio project (DSP)
-        files. The default value is <filename>.vcproj</filename>
-        when using Visual Studio version 7.x (.NET) or later version,
-        and <filename>.dsp</filename> when using earlier versions of
-        Visual Studio.
+        The suffix used for &MSVC; project (DSP)
+        files. The default value is
+        <filename>.vcxproj</filename> when using Visual Studio 2010
+        and later, <filename>.vcproj</filename>
+        when using Visual Studio versions between 2002 and 2008,
+        and <filename>.dsp</filename> when using Visual Studio 6.0.
       </para>
     </listitem>
   </varlistentry>
@@ -5985,9 +6462,9 @@ no default value.
       <envar>MSVSREBUILDCOM</envar>
     </term>
     <listitem><para>
-        The rebuild command line placed in a generated Microsoft
-        Visual Studio project file. The default is to have Visual
-        Studio invoke SCons with any specified rebuild targets.
+        The rebuild command line placed in a generated &MSVC;
+        project file. The default is to have Visual
+        Studio invoke &SCons; with any specified rebuild targets.
 
       </para>
     </listitem>
@@ -5997,8 +6474,8 @@ no default value.
       <envar>MSVSSCONS</envar>
     </term>
     <listitem><para>
-        The SCons used in generated Microsoft Visual Studio project
-        files. The default is the version of SCons being used to
+        The &SCons; used in generated &MSVC; project
+        files. The default is the version of &SCons; being used to
         generate the project file.
       </para>
     </listitem>
@@ -6008,8 +6485,7 @@ no default value.
       <envar>MSVSSCONSCOM</envar>
     </term>
     <listitem><para>
-        The default SCons command used in generated Microsoft Visual
-        Studio project files.
+        The default &SCons; command used in generated &MSVC; project files.
       </para>
     </listitem>
   </varlistentry>
@@ -6019,10 +6495,10 @@ no default value.
     </term>
     <listitem><para>
         The sconscript file (that is, &SConstruct; or &SConscript;
-        file) that will be invoked by Visual Studio project files
+        file) that will be invoked by &MSVC; project files
         (through the &cv-link-MSVSSCONSCOM; variable). The default
         is the same sconscript file that contains the call to
-        &b-MSVSProject; to build the project file.
+        &b-link-MSVSProject; to build the project file.
       </para>
     </listitem>
   </varlistentry>
@@ -6031,7 +6507,7 @@ no default value.
       <envar>MSVSSCONSFLAGS</envar>
     </term>
     <listitem><para>
-        The SCons flags used in generated Microsoft Visual Studio project files.
+        The &SCons; flags used in generated &MSVC; project files.
       </para>
     </listitem>
   </varlistentry>
@@ -6049,9 +6525,8 @@ no default value.
     <listitem><para>
         The suffix used for Microsoft Visual Studio solution (DSW)
         files. The default value is <filename>.sln</filename>
-        when using Visual Studio version 7.x (.NET), and
-        <filename>.dsw</filename> when using earlier versions of
-        Visual Studio.
+        when using Visual Studio version 7.x (.NET 2002) and later,
+        and <filename>.dsw</filename> when using Visual Studio 6.0.
       </para>
     </listitem>
   </varlistentry>
@@ -6435,17 +6910,19 @@ not the underlying project code itself.
       <envar>PCH</envar>
     </term>
     <listitem><para>
-The Microsoft Visual C++ precompiled header that will be used when compiling
-object files. This variable is ignored by tools other than Microsoft Visual C++.
+A node for the &MSVC; precompiled header that will be
+used when compiling object files.
+This variable is ignored by tools other than &MSVC;.
 When this variable is
-defined SCons will add options to the compiler command line to
+defined, &SCons; will add options to the compiler command line to
 cause it to use the precompiled header, and will also set up the
 dependencies for the PCH file.
-Example:
+Examples:
 </para>
 
 <example_commands>
 env['PCH'] = File('StdAfx.pch')
+env['PCH'] = env.PCH('pch.cc')[0]
 </example_commands>
 </listitem>
   </varlistentry>
@@ -6466,7 +6943,7 @@ builder to generated a precompiled header.
     </term>
     <listitem><para>
 The string displayed when generating a precompiled header.
-If this is not set, then &cv-link-PCHCOM; (the command line) is displayed.
+If not set, then &cv-link-PCHCOM; (the command line) is displayed.
 </para>
 </listitem>
   </varlistentry>
@@ -6475,9 +6952,9 @@ If this is not set, then &cv-link-PCHCOM; (the command line) is displayed.
       <envar>PCHPDBFLAGS</envar>
     </term>
     <listitem><para>
-A construction variable that, when expanded,
+A &consvar; that, when expanded,
 adds the <option>/yD</option> flag to the command line
-only if the &cv-link-PDB; construction variable is set.
+only if the &cv-link-PDB; &consvar; is set.
 </para>
 </listitem>
   </varlistentry>
@@ -6487,7 +6964,7 @@ only if the &cv-link-PDB; construction variable is set.
     </term>
     <listitem><para>
 This variable specifies how much of a source file is precompiled. This
-variable is ignored by tools other than Microsoft Visual C++, or when
+variable is ignored by tools other than &MSVC;, or when
 the PCH variable is not being used. When this variable is define it
 must be a string that is the name of the header that
 is included at the end of the precompiled portion of the source files, or
@@ -6504,9 +6981,9 @@ env['PCHSTOP'] = 'StdAfx.h'
       <envar>PDB</envar>
     </term>
     <listitem><para>
-The Microsoft Visual C++ PDB file that will store debugging information for
+The &MSVC; PDB file that will store debugging information for
 object files, shared libraries, and programs. This variable is ignored by
-tools other than Microsoft Visual C++.
+tools other than &MSVC;.
 When this variable is
 defined SCons will add options to the compiler and linker command line to
 cause them to generate external debugging information, and will also set up the
@@ -6519,7 +6996,7 @@ env['PDB'] = 'hello.pdb'
 </example_commands>
 
 <para>
-The Visual C++ compiler switch that SCons uses by default
+The &MSVC; compiler switch that SCons uses by default
 to generate PDB information is <option>/Z7</option>.
 This works correctly with parallel (<option>-j</option>) builds
 because it embeds the debug information in the intermediate object files,
@@ -6909,51 +7386,63 @@ The prefix used for PostScript file names.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_AUTOSCAN">
+  <varlistentry id="cv-QT3_AUTOSCAN">
     <term>
-      <envar>QT_AUTOSCAN</envar>
+      <envar>QT3_AUTOSCAN</envar>
     </term>
     <listitem><para>
 Turn off scanning for mocable files. Use the &b-link-Moc; Builder to explicitly
 specify files to run <command>moc</command> on.
 </para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-QT_BINPATH">
-    <term>
-      <envar>QT_BINPATH</envar>
-    </term>
-    <listitem><para>
-The path where the Qt binaries are installed.
-The default value is '&cv-link-QTDIR;<filename>/bin</filename>'.
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_AUTOSCAN.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_CPPPATH">
+  <varlistentry id="cv-QT3_BINPATH">
     <term>
-      <envar>QT_CPPPATH</envar>
+      <envar>QT3_BINPATH</envar>
+    </term>
+    <listitem><para>
+The path where the Qt binaries are installed.
+The default value is '&cv-link-QT3DIR;<filename>/bin</filename>'.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_BINPATH.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-QT3_CPPPATH">
+    <term>
+      <envar>QT3_CPPPATH</envar>
     </term>
     <listitem><para>
 The path where the Qt header files are installed.
-The default value is '&cv-link-QTDIR;/include'.
+The default value is '&cv-link-QT3DIR;/include'.
 Note: If you set this variable to <constant>None</constant>,
 the tool won't change the &cv-link-CPPPATH;
 construction variable.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_CPPPATH.
+</para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_DEBUG">
+  <varlistentry id="cv-QT3_DEBUG">
     <term>
-      <envar>QT_DEBUG</envar>
+      <envar>QT3_DEBUG</envar>
     </term>
     <listitem><para>
 Prints lots of debugging information while scanning for moc files.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_DEBUG.
+</para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_LIB">
+  <varlistentry id="cv-QT3_LIB">
     <term>
-      <envar>QT_LIB</envar>
+      <envar>QT3_LIB</envar>
     </term>
     <listitem><para>
 Default value is <literal>'qt'</literal>.
@@ -6961,33 +7450,39 @@ You may want to set this to <literal>'qt-mt'</literal>.
 Note: If you set this variable to <constant>None</constant>,
 the tool won't change the &cv-link-LIBS; variable.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_LIB.
+</para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_LIBPATH">
+  <varlistentry id="cv-QT3_LIBPATH">
     <term>
-      <envar>QT_LIBPATH</envar>
+      <envar>QT3_LIBPATH</envar>
     </term>
     <listitem><para>
 The path where the Qt libraries are installed.
-The default value is '&cv-link-QTDIR;<filename>/lib</filename>'.
+The default value is '&cv-link-QT3DIR;<filename>/lib</filename>'.
 Note: If you set this variable to <constant>None</constant>,
 the tool won't change the &cv-link-LIBPATH;
 construction variable.
 </para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-QT_MOC">
-    <term>
-      <envar>QT_MOC</envar>
-    </term>
-    <listitem><para>
-Default value is '&cv-link-QT_BINPATH;<filename>/moc</filename>'.
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_LIBPATH.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_MOCCXXPREFIX">
+  <varlistentry id="cv-QT3_MOC">
     <term>
-      <envar>QT_MOCCXXPREFIX</envar>
+      <envar>QT3_MOC</envar>
+    </term>
+    <listitem><para>
+Default value is '&cv-link-QT3_BINPATH;<filename>/moc</filename>'.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-QT3_MOCCXXPREFIX">
+    <term>
+      <envar>QT3_MOCCXXPREFIX</envar>
     </term>
     <listitem><para>
 Default value is <literal>''</literal>.
@@ -6995,203 +7490,263 @@ Prefix for <command>moc</command> output files when source is a C++ file.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_MOCCXXSUFFIX">
+  <varlistentry id="cv-QT3_MOCCXXSUFFIX">
     <term>
-      <envar>QT_MOCCXXSUFFIX</envar>
+      <envar>QT3_MOCCXXSUFFIX</envar>
     </term>
     <listitem><para>
 Default value is <literal>'.moc'</literal>.
 Suffix for <command>moc</command> output files when source is a C++ file.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCCXXSUFFIX.
+</para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_MOCFROMCXXCOM">
+  <varlistentry id="cv-QT3_MOCFROMCXXCOM">
     <term>
-      <envar>QT_MOCFROMCXXCOM</envar>
+      <envar>QT3_MOCFROMCXXCOM</envar>
     </term>
     <listitem><para>
 Command to generate a moc file from a C++ file.
 </para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-QT_MOCFROMCXXCOMSTR">
-    <term>
-      <envar>QT_MOCFROMCXXCOMSTR</envar>
-    </term>
-    <listitem><para>
-The string displayed when generating a moc file from a C++ file.
-If this is not set, then &cv-link-QT_MOCFROMCXXCOM; (the command line) is displayed.
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMCXXCOM.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_MOCFROMCXXFLAGS">
+  <varlistentry id="cv-QT3_MOCFROMCXXCOMSTR">
     <term>
-      <envar>QT_MOCFROMCXXFLAGS</envar>
+      <envar>QT3_MOCFROMCXXCOMSTR</envar>
+    </term>
+    <listitem><para>
+The string displayed when generating a moc file from a C++ file.
+If this is not set, then &cv-link-QT3_MOCFROMCXXCOM; (the command line) is displayed.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMCXXCOMSTR.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-QT3_MOCFROMCXXFLAGS">
+    <term>
+      <envar>QT3_MOCFROMCXXFLAGS</envar>
     </term>
     <listitem><para>
 Default value is <literal>'-i'</literal>.
 These flags are passed to <command>moc</command> when moccing a C++ file.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMCXXFLAGS.
+</para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_MOCFROMHCOM">
+  <varlistentry id="cv-QT3_MOCFROMHCOM">
     <term>
-      <envar>QT_MOCFROMHCOM</envar>
+      <envar>QT3_MOCFROMHCOM</envar>
     </term>
     <listitem><para>
 Command to generate a moc file from a header.
 </para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-QT_MOCFROMHCOMSTR">
-    <term>
-      <envar>QT_MOCFROMHCOMSTR</envar>
-    </term>
-    <listitem><para>
-The string displayed when generating a moc file from a C++ file.
-If this is not set, then &cv-link-QT_MOCFROMHCOM; (the command line) is displayed.
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMSHCOM.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_MOCFROMHFLAGS">
+  <varlistentry id="cv-QT3_MOCFROMHCOMSTR">
     <term>
-      <envar>QT_MOCFROMHFLAGS</envar>
+      <envar>QT3_MOCFROMHCOMSTR</envar>
+    </term>
+    <listitem><para>
+The string displayed when generating a moc file from a C++ file.
+If this is not set, then &cv-link-QT3_MOCFROMHCOM; (the command line) is displayed.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMSHCOMSTR.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-QT3_MOCFROMHFLAGS">
+    <term>
+      <envar>QT3_MOCFROMHFLAGS</envar>
     </term>
     <listitem><para>
 Default value is <literal>''</literal>. These flags are passed to <command>moc</command>
 when moccing a header file.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMSHFLAGS.
+</para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_MOCHPREFIX">
+  <varlistentry id="cv-QT3_MOCHPREFIX">
     <term>
-      <envar>QT_MOCHPREFIX</envar>
+      <envar>QT3_MOCHPREFIX</envar>
     </term>
     <listitem><para>
 Default value is <literal>'moc_'</literal>.
 Prefix for <command>moc</command> output files when source is a header.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCHPREFIX.
+</para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_MOCHSUFFIX">
+  <varlistentry id="cv-QT3_MOCHSUFFIX">
     <term>
-      <envar>QT_MOCHSUFFIX</envar>
+      <envar>QT3_MOCHSUFFIX</envar>
     </term>
     <listitem><para>
 Default value is '&cv-link-CXXFILESUFFIX;'.
 Suffix for moc output files when source is a header.
 </para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-QT_UIC">
-    <term>
-      <envar>QT_UIC</envar>
-    </term>
-    <listitem><para>
-Default value is '&cv-link-QT_BINPATH;<filename>/uic</filename>'.
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCHSUFFIX.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_UICCOM">
+  <varlistentry id="cv-QT3_UIC">
     <term>
-      <envar>QT_UICCOM</envar>
+      <envar>QT3_UIC</envar>
+    </term>
+    <listitem><para>
+Default value is '&cv-link-QT3_BINPATH;<filename>/uic</filename>'.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UIC.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-QT3_UICCOM">
+    <term>
+      <envar>QT3_UICCOM</envar>
     </term>
     <listitem><para>
 Command to generate header files from <filename>.ui</filename> files.
 </para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-QT_UICCOMSTR">
-    <term>
-      <envar>QT_UICCOMSTR</envar>
-    </term>
-    <listitem><para>
-The string displayed when generating header files from <filename>.ui</filename> files.
-If this is not set, then &cv-link-QT_UICCOM; (the command line) is displayed.
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICCOM.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_UICDECLFLAGS">
+  <varlistentry id="cv-QT3_UICCOMSTR">
     <term>
-      <envar>QT_UICDECLFLAGS</envar>
+      <envar>QT3_UICCOMSTR</envar>
+    </term>
+    <listitem><para>
+The string displayed when generating header files from <filename>.ui</filename> files.
+If this is not set, then &cv-link-QT3_UICCOM; (the command line) is displayed.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICCOMSTR.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-QT3_UICDECLFLAGS">
+    <term>
+      <envar>QT3_UICDECLFLAGS</envar>
     </term>
     <listitem><para>
 Default value is ''. These flags are passed to <command>uic</command>
 when creating a header file from a <filename>.ui</filename> file.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICDECLFLAGS.
+</para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_UICDECLPREFIX">
+  <varlistentry id="cv-QT3_UICDECLPREFIX">
     <term>
-      <envar>QT_UICDECLPREFIX</envar>
+      <envar>QT3_UICDECLPREFIX</envar>
     </term>
     <listitem><para>
 Default value is <literal>''</literal>.
 Prefix for <command>uic</command> generated header files.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICDECLPREFIX.
+</para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_UICDECLSUFFIX">
+  <varlistentry id="cv-QT3_UICDECLSUFFIX">
     <term>
-      <envar>QT_UICDECLSUFFIX</envar>
+      <envar>QT3_UICDECLSUFFIX</envar>
     </term>
     <listitem><para>
 Default value is <literal>'.h'</literal>.
 Suffix for <command>uic</command> generated header files.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICDECLSUFFIX.
+</para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_UICIMPLFLAGS">
+  <varlistentry id="cv-QT3_UICIMPLFLAGS">
     <term>
-      <envar>QT_UICIMPLFLAGS</envar>
+      <envar>QT3_UICIMPLFLAGS</envar>
     </term>
     <listitem><para>
 Default value is <literal>''</literal>.
 These flags are passed to <command>uic</command> when creating a C++
 file from a <filename>.ui</filename> file.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICIMPFLAGS.
+</para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_UICIMPLPREFIX">
+  <varlistentry id="cv-QT3_UICIMPLPREFIX">
     <term>
-      <envar>QT_UICIMPLPREFIX</envar>
+      <envar>QT3_UICIMPLPREFIX</envar>
     </term>
     <listitem><para>
 Default value is <literal>'uic_'</literal>.
 Prefix for uic generated implementation files.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICIMPLPREFIX.
+</para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_UICIMPLSUFFIX">
+  <varlistentry id="cv-QT3_UICIMPLSUFFIX">
     <term>
-      <envar>QT_UICIMPLSUFFIX</envar>
+      <envar>QT3_UICIMPLSUFFIX</envar>
     </term>
     <listitem><para>
 Default value is '&cv-link-CXXFILESUFFIX;'. Suffix for uic generated implementation
 files.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICIMPLSUFFIX.
+</para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QT_UISUFFIX">
+  <varlistentry id="cv-QT3_UISUFFIX">
     <term>
-      <envar>QT_UISUFFIX</envar>
+      <envar>QT3_UISUFFIX</envar>
     </term>
     <listitem><para>
 Default value is <literal>'.ui'</literal>.
 Suffix of designer input files.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UISUFFIX.
+</para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-QTDIR">
+  <varlistentry id="cv-QT3DIR">
     <term>
-      <envar>QTDIR</envar>
+      <envar>QT3DIR</envar>
     </term>
     <listitem><para>
 The path to the Qt installation to build against.
 If not already set,
-&t-link-qt; tool tries to obtain this from
+&t-link-qt3; tool tries to obtain this from
 <varname>os.environ</varname>;
 if not found there, it tries to make a guess.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QTDIR.
 </para>
 </listitem>
   </varlistentry>
@@ -7242,7 +7797,7 @@ General options passed to the archive indexer.
     </term>
     <listitem><para>
 The resource compiler used to build
-a Microsoft Visual C++ resource file.
+a &MSVC; resource file.
 </para>
 </listitem>
   </varlistentry>
@@ -7252,7 +7807,7 @@ a Microsoft Visual C++ resource file.
     </term>
     <listitem><para>
 The command line used to build
-a Microsoft Visual C++ resource file.
+a &MSVC; resource file.
 </para>
 </listitem>
   </varlistentry>
@@ -7262,7 +7817,7 @@ a Microsoft Visual C++ resource file.
     </term>
     <listitem><para>
 The string displayed when invoking the resource compiler
-to build a Microsoft Visual C++ resource file.
+to build a &MSVC; resource file.
 If this is not set, then &cv-link-RCCOM; (the command line) is displayed.
 </para>
 </listitem>
@@ -7281,7 +7836,7 @@ The flags passed to the resource compiler by the &b-link-RES; builder.
       <envar>RCINCFLAGS</envar>
     </term>
     <listitem><para>
-An automatically-generated construction variable
+An automatically-generated &consvar;
 containing the command-line options
 for specifying directories to be searched
 by the resource compiler.
@@ -7301,7 +7856,7 @@ of each directory in &cv-link-CPPPATH;.
 The prefix (flag) used to specify an include directory
 on the resource compiler command line.
 This will be prepended to the beginning of each directory
-in the &cv-link-CPPPATH; construction variable
+in the &cv-link-CPPPATH; &consvar;
 when the &cv-link-RCINCFLAGS; variable is expanded.
 </para>
 </listitem>
@@ -7314,7 +7869,7 @@ when the &cv-link-RCINCFLAGS; variable is expanded.
 The suffix used to specify an include directory
 on the resource compiler command line.
 This will be appended to the end of each directory
-in the &cv-link-CPPPATH; construction variable
+in the &cv-link-CPPPATH; &consvar;
 when the &cv-link-RCINCFLAGS; variable is expanded.
 </para>
 </listitem>
@@ -7411,7 +7966,9 @@ If this is not set, then &cv-link-RMICCOM; (the command line) is displayed.
 </para>
 
 <example_commands>
-env = Environment(RMICCOMSTR = "Generating stub/skeleton class files $TARGETS from $SOURCES")
+env = Environment(
+    RMICCOMSTR="Generating stub/skeleton class files $TARGETS from $SOURCES"
+)
 </example_commands>
 </listitem>
   </varlistentry>
@@ -7574,11 +8131,11 @@ for more information.
       <envar>SCONS_HOME</envar>
     </term>
     <listitem><para>
-        The (optional) path to the SCons library directory,
+        The (optional) path to the &SCons; library directory,
         initialized from the external environment. If set, this is
         used to construct a shorter and more efficient search path in
-        the &cv-link-MSVSSCONS; command line executed from Microsoft
-        Visual Studio project files.
+        the &cv-link-MSVSSCONS; command line executed from C++
+        project files.
       </para>
     </listitem>
   </varlistentry>
@@ -7790,21 +8347,39 @@ construction variable for more information.
       <envar>SHELL_ENV_GENERATORS</envar>
     </term>
     <listitem><para>
-Must be a list (or an iterable) containing functions where each function generates or
-alters the environment dictionary which will be used
-when executing the &cv-link-SPAWN; function. The functions will initially 
-be passed a reference of the current execution environment (e.g. env['ENV']), 
-and each called while iterating the list. Each function must return a dictionary
-which will then be passed to the next function iterated. The return dictionary 
-should contain keys which represent the environment variables and their respective
-values.
-
-This primary purpose of this construction variable is to give the user the ability
-to substitute execution environment variables based on env, targets, and sources. 
-If desired, the user can completely customize the execution environment for particular
-targets.
+A hook allowing the execution environment to be modified prior
+to the actual execution of a command line from an action
+via the spawner function defined by &cv-link-SPAWN;.
+Allows substitution based on targets and sources,
+as well as values from the &consenv;,
+adding extra environment variables, etc.
     </para>
 
+    <para>
+The value must be a list (or other iterable)
+of functions which each generate or
+alter the execution environment dictionary.
+The first function will be passed a copy of the initial execution environment
+(&cv-link-ENV; in the current &consenv;);
+the dictionary returned by that function is passed to the next,
+until the iterable is exhausted and the result returned
+for use by the command spawner.
+The original execution environment is not modified.
+    </para>
+
+    <para>
+Each function provided in &cv-SHELL_ENV_GENERATORS; must accept four
+arguments and return a dictionary:
+<varname>env</varname> is the &consenv; for this action;
+<varname>target</varname> is the list of targets associated with this action;
+<varname>source</varname> is the list of sources associated with this action;
+and <varname>shell_env</varname> is the current dictionary after iterating
+any previous &cv-SHELL_ENV_GENERATORS; functions
+(this can be compared to the original execution environment,
+which is available as <literal>env['ENV']</literal>, to detect any changes).
+    </para>
+
+    <para>Example:</para>
     <example_commands>
 def custom_shell_env(env, target, source, shell_env):
     """customize shell_env if desired"""
@@ -7815,24 +8390,7 @@ def custom_shell_env(env, target, source, shell_env):
 env["SHELL_ENV_GENERATORS"] = [custom_shell_env]
     </example_commands>
 
-    <para>
-      <varname>env</varname>
-The SCons construction environment from which the
-execution environment can be derived from.
-    </para>
-    <para>
-    <varname>target</varname>
-The list of targets associated with this action.
-    </para>
-    <para>
-    <varname>source</varname>
-The list of sources associated with this action.
-    </para>
-    <para>
-    <varname>shell_env</varname>
-The current shell_env after iterating other SHELL_ENV_GENERATORS functions. This can be compared
-to the passed env['ENV'] to detect any changes.
-    </para>
+  <para><emphasis>Available since 4.4</emphasis></para>
   </listitem>
   </varlistentry>
   <varlistentry id="cv-SHF03">
@@ -8980,7 +9538,7 @@ for more information).
     </para>
     <para>
       On the <literal>win32</literal> platform,
-      if the Microsoft Visual C++ compiler is available,
+      if the &MSVC; compiler is available,
       &t-link-msvc; tool setup is done using
       &cv-link-HOST_ARCH; and &cv-TARGET_ARCH;.
       If a value is not specified,
@@ -9068,7 +9626,7 @@ an alternate command line so the invoked tool will make
 use of the contents of the temporary file.
 If you need to replace the default tempfile object,
 the callable should take into account the settings of
-&cv-link-MAXLINELENGTH;, 
+&cv-link-MAXLINELENGTH;,
 &cv-link-TEMPFILEPREFIX;,
 &cv-link-TEMPFILESUFFIX;,
 &cv-link-TEMPFILEARGJOIN;,
@@ -9083,7 +9641,7 @@ and
       <envar>TEMPFILEARGESCFUNC</envar>
     </term>
     <listitem><para>
-The default argument escape function is 
+The default argument escape function is
 <function>SCons.Subst.quote_spaces</function>.
 If you need to apply extra operations on a command argument
 (to fix Windows slashes, normalize paths, etc.)
@@ -9143,7 +9701,7 @@ The directory to create the long-lines temporary file in.
     <listitem><para>
 The prefix for the name of the temporary file used
 to store command lines exceeding &cv-link-MAXLINELENGTH;.
-The default prefix is <literal>'@'</literal>, which works for the Microsoft
+The default prefix is <literal>'@'</literal>, which works for the &MSVC;
 and GNU toolchains on Windows.
 Set this appropriately for other toolchains,
 for example <literal>'-@'</literal> for the diab compiler
@@ -9312,10 +9870,10 @@ Specify the location of <filename>vswhere.exe</filename>.
     It provides full information about installations of 2017 and later editions.
     With the <option>-legacy</option> argument, <filename>vswhere.exe</filename> can detect installations of the 2010 through 2015
     editions with limited data returned.
-If <envar>VSWHERE</envar> is set, SCons will use that location.
+If <envar>VSWHERE</envar> is set, &SCons; will use that location.
 </para>
 <para>
-    Otherwise SCons will look in the following locations and set <envar>VSWHERE</envar> to the path of the first <filename>vswhere.exe</filename>
+    Otherwise &SCons; will look in the following locations and set <envar>VSWHERE</envar> to the path of the first <filename>vswhere.exe</filename>
 located.
 </para>
 
@@ -9394,7 +9952,7 @@ and must be supplied by the developer.
 If set to true,
 &scons;
 will add the manifest file
-generated by Microsoft Visual C++ 8.0 and later
+generated by &MSVC; 8.0 and later
 to the target list so &SCons; will be aware they
 were generated.
 In the case of an executable, the manifest file name
@@ -9455,7 +10013,7 @@ Defaults to <filename>.exp</filename>.
     </term>
     <listitem><para>
 The prefix used for executable program manifest files
-generated by Microsoft Visual C/C++.
+generated by &MSVC;.
 Defaults to empty.
 </para>
 </listitem>
@@ -9466,7 +10024,7 @@ Defaults to empty.
     </term>
     <listitem><para>
 The suffix used for executable program manifest files
-generated by Microsoft Visual C/C++.
+generated by &MSVC;.
 Defaults to <filename>.manifest</filename>.
 </para>
 </listitem>
@@ -9477,7 +10035,7 @@ Defaults to <filename>.manifest</filename>.
     </term>
     <listitem><para>
 The prefix used for shared library manifest files
-generated by Microsoft Visual C/C++.
+generated by &MSVC;.
 Defaults to empty.
 </para>
 </listitem>
@@ -9488,7 +10046,7 @@ Defaults to empty.
     </term>
     <listitem><para>
 The suffix used for shared library manifest files
-generated by Microsoft Visual C/C++.
+generated by &MSVC;.
 Defaults to <filename>.manifest</filename>.
 </para>
 </listitem>
@@ -9726,7 +10284,9 @@ to disable debug package generation.
 To enable debug package generation, include this
 variable set either to None, or to a custom
 list that does not include the default line.
-Added in version 3.1.
+</para>
+<para>
+<emphasis>New in version  3.1.</emphasis>
 </para>
 
 <example_commands>
@@ -10082,6 +10642,30 @@ Will be emitted as a <option>--graph=</option>
 command-line option. Use this in preference to including
 <option>--graph=</option> in &cv-link-YACCFLAGS; directly.
 </para>
+<para><emphasis>New in version 4.4.0.</emphasis></para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-YACC_GRAPH_FILE_SUFFIX">
+    <term>
+      <envar>YACC_GRAPH_FILE_SUFFIX</envar>
+    </term>
+    <listitem><para>
+Previously specified by &cv-link-YACCVCGFILESUFFIX;.
+</para>
+<para>
+The suffix of the file
+containing a graph of the grammar automaton
+when the <option>-g</option> option
+(or <option>--graph=</option> without an option-argument)
+is used in &cv-link-YACCFLAGS;.
+Note that setting this variable informs &SCons;
+how to construct the graph filename for tracking purposes,
+it does not affect the actual generated filename.
+Various yacc tools have emitted various formats
+at different times.
+Set this to match what your parser generator produces.
+</para>
+<para><emphasis>New in version 4.X.Y</emphasis>. </para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-YACC_HEADER_FILE">
@@ -10094,6 +10678,7 @@ Will be emitted as a <option>--header=</option>
 command-line option. Use this in preference to including
 <option>--header=</option> in &cv-link-YACCFLAGS; directly.
 </para>
+<para><emphasis>New in version 4.4.0.</emphasis></para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-YACCCOM">
@@ -10134,12 +10719,19 @@ and adds those to the target list.
 </para>
 
 <para>
-If a <option>-d</option> option is present,
+If the <option>-d</option> option is present in &cv-YACCFLAGS;
 &scons; assumes that the call will also create a header file
 with the suffix defined by &cv-link-YACCHFILESUFFIX;
 if the yacc source file ends in a <filename>.y</filename> suffix,
 or a file with the suffix defined by &cv-link-YACCHXXFILESUFFIX;
 if the yacc source file ends in a <filename>.yy</filename> suffix.
+The header will have the same base name as the requested target.
+This is only correct if the executable is <command>bison</command>
+(or <command>win_bison</command>).
+If using Berkeley yacc (<command>byacc</command>),
+<filename>y.tab.h</filename> is always written -
+avoid the <option>-d</option> in this case and
+use &cv-link-YACC_HEADER_FILE; instead.
 </para>
 
 <para>
@@ -10156,22 +10748,31 @@ with the suffix <filename>.output</filename>.
 
 <para>
 Also recognized are GNU &bison; options
-<option>--header=</option> and its deprecated synonym
-<option>--defines=</option>,
+<option>--header</option>
+(and its deprecated synonym <option>--defines</option>),
 which is similar to
 <option>-d</option>
-but the output filename is named by the option argument;
-and <option>--graph=</option>,
+but gives the option to explicitly name the output header file
+through an option argument;
+and <option>--graph</option>,
 which is similar to
 <option>-g</option>
-but the output filename is named by the option argument.
+but gives the option to explicitly name the output graph file
+through an option argument.
+The file suffixes described for
+<option>-d</option> and <option>-g</option> above
+are not applied if these are used in the option=argument form.
 </para>
 
 <para>
 Note that files specified by <option>--header=</option> and
 <option>--graph=</option> may not be properly handled
-by &SCons; in all situations. Consider using
-&cv-link-YACC_HEADER_FILE; and &cv-link-YACC_GRAPH_FILE; instead.
+by &SCons; in all situations, and using those in &cv-YACCFLAGS;
+should be considered legacy support only.
+Consider using &cv-link-YACC_HEADER_FILE;
+and &cv-link-YACC_GRAPH_FILE; instead
+if the files need to be explicitly named
+(<emphasis>new in version 4.4.0</emphasis>).
 </para>
 </listitem>
   </varlistentry>
@@ -10182,14 +10783,13 @@ by &SCons; in all situations. Consider using
     <listitem><para>
 The suffix of the C
 header file generated by the parser generator
-when the
-<option>-d</option>
-option is used.
-Note that setting this variable does not cause
-the parser generator to generate a header
-file with the specified suffix,
-it exists to allow you to specify
-what suffix the parser generator will use of its own accord.
+when the <option>-d</option> option
+(or <option>--header</option> without an option-argument)
+is used in &cv-link-YACCFLAGS;.
+Note that setting this variable informs &SCons;
+how to construct the header filename for tracking purposes,
+it does not affect the actual generated filename.
+Set this to match what your parser generator produces.
 The default value is
 <filename>.h</filename>.
 </para>
@@ -10202,22 +10802,14 @@ The default value is
     <listitem><para>
 The suffix of the C++
 header file generated by the parser generator
-when the
-<option>-d</option>
-option is used.
-Note that setting this variable does not cause
-the parser generator to generate a header
-file with the specified suffix,
-it exists to allow you to specify
-what suffix the parser generator will use of its own accord.
-The default value is
-<filename>.hpp</filename>,
-except on Mac OS X,
-where the default is
-<filename>${TARGET.suffix}.h</filename>.
-because the default &bison; parser generator just
-appends <filename>.h</filename>
-to the name of the generated C++ file.
+when the <option>-d</option> option
+(or <option>--header</option> without an option-argument)
+is used in &cv-link-YACCFLAGS;.
+Note that setting this variable informs &SCons;
+how to construct the header filename for tracking purposes,
+it does not affect the actual generated filename.
+Set this to match what your parser generator produces.
+The default value is <filename>.hpp</filename>.
 </para>
 </listitem>
   </varlistentry>
@@ -10226,18 +10818,14 @@ to the name of the generated C++ file.
       <envar>YACCVCGFILESUFFIX</envar>
     </term>
     <listitem><para>
-The suffix of the file
-containing the VCG grammar automaton definition
-when the
-<option>--graph=</option>
-option is used.
-Note that setting this variable does not cause
-the parser generator to generate a VCG
-file with the specified suffix,
-it exists to allow you to specify
-what suffix the parser generator will use of its own accord.
-The default value is
-<filename>.vcg</filename>.
+Obsoleted. Use &cv-link-YACC_GRAPH_FILE_SUFFIX; instead.
+The value is used only if &cv-YACC_GRAPH_FILE_SUFFIX; is not set.
+The default value is <filename>.gv</filename>.
+</para>
+<para>
+<emphasis>Changed in version 4.X.Y</emphasis>: deprecated. The default value
+changed from <filename>.vcg</filename> (&bison; stopped generating
+<filename>.vcg</filename> output with version 2.4, in 2006).
 </para>
 </listitem>
   </varlistentry>

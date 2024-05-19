@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,24 +22,21 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test use of pre-compiled headers when the source .cpp file shows
 up in both the env.PCH() and the env.Program() source list.
 
-Issue 2505:  http://github.com/SCons/scons/issues/2505
+Issue 2505:  https://github.com/SCons/scons/issues/2505
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
-
 test.skip_if_not_msvc()
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment(tools=['msvc', 'mslink'])
 env['PCH'] = env.PCH('Source1.cpp')[0]
 env['PCHSTOP'] = 'Header1.hpp'
@@ -86,12 +85,11 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = ".")
-
-test.run(program=test.workpath('foo'+TestSCons._exe),
-         stdout="Source1.cpp\nSource2.cpp\nfoo.cpp\n")
-
-
+test.run(arguments=".")
+test.run(
+    program=test.workpath('foo' + TestSCons._exe),
+    stdout="Source1.cpp\nSource2.cpp\nfoo.cpp\n",
+)
 
 test.pass_test()
 

@@ -29,6 +29,8 @@ import glob
 from pathlib import Path
 from typing import List
 
+import SCons.Util
+
 java_parsing = True
 
 default_java_version = '1.4'
@@ -100,7 +102,7 @@ if java_parsing:
         """The initial state for parsing a Java file for classes,
         interfaces, and anonymous inner classes."""
 
-        def __init__(self, version=default_java_version):
+        def __init__(self, version=default_java_version) -> None:
             if version not in (
                 '1.1',
                 '1.2',
@@ -121,6 +123,10 @@ if java_parsing:
                 '15.0',
                 '16.0',
                 '17.0',
+                '18.0',
+                '19.0',
+                '20.0',
+                '21.0',
             ):
                 msg = "Java version %s not supported" % version
                 raise NotImplementedError(msg)
@@ -136,7 +142,7 @@ if java_parsing:
             self.anonStacksStack = [[0]]
             self.package = None
 
-        def trace(self):
+        def trace(self) -> None:
             pass
 
         def __getClassState(self):
@@ -175,10 +181,10 @@ if java_parsing:
         def _getAnonStack(self):
             return self.anonStacksStack[-1]
 
-        def openBracket(self):
+        def openBracket(self) -> None:
             self.brackets = self.brackets + 1
 
-        def closeBracket(self):
+        def closeBracket(self) -> None:
             self.brackets = self.brackets - 1
             if len(self.stackBrackets) and \
                     self.brackets == self.stackBrackets[-1]:
@@ -223,7 +229,7 @@ if java_parsing:
                 return self.__getSkipState()
             return self
 
-        def addAnonClass(self):
+        def addAnonClass(self) -> None:
             """Add an anonymous inner class"""
             if self.version in ('1.1', '1.2', '1.3', '1.4'):
                 clazz = self.listClasses[0]
@@ -245,6 +251,10 @@ if java_parsing:
                 '15.0',
                 '16.0',
                 '17.0',
+                '18.0',
+                '19.0',
+                '20.0',
+                '21.0',
             ):
                 self.stackAnonClassBrackets.append(self.brackets)
                 className = []
@@ -257,7 +267,7 @@ if java_parsing:
             self.nextAnon = self.nextAnon + 1
             self._getAnonStack().append(0)
 
-        def setPackage(self, package):
+        def setPackage(self, package) -> None:
             self.package = package
 
 
@@ -267,7 +277,7 @@ if java_parsing:
         within the confines of a scope.
         """
 
-        def __init__(self, old_state):
+        def __init__(self, old_state) -> None:
             self.outer_state = old_state.outer_state
             self.old_state = old_state
             self.brackets = 0
@@ -296,10 +306,10 @@ if java_parsing:
                 self.skipState = ret
                 return ret
 
-        def openBracket(self):
+        def openBracket(self) -> None:
             self.brackets = self.brackets + 1
 
-        def closeBracket(self):
+        def closeBracket(self) -> None:
             self.brackets = self.brackets - 1
 
         def parseToken(self, token):
@@ -332,7 +342,7 @@ if java_parsing:
     class AnonClassState:
         """A state that looks for anonymous inner classes."""
 
-        def __init__(self, old_state):
+        def __init__(self, old_state) -> None:
             # outer_state is always an instance of OuterState
             self.outer_state = old_state.outer_state
             self.old_state = old_state
@@ -373,7 +383,7 @@ if java_parsing:
         """A state that will skip a specified number of tokens before
         reverting to the previous state."""
 
-        def __init__(self, tokens_to_skip, old_state):
+        def __init__(self, tokens_to_skip, old_state) -> None:
             self.tokens_to_skip = tokens_to_skip
             self.old_state = old_state
 
@@ -387,7 +397,7 @@ if java_parsing:
     class ClassState:
         """A state we go into when we hit a class or interface keyword."""
 
-        def __init__(self, outer_state):
+        def __init__(self, outer_state) -> None:
             # outer_state is always an instance of OuterState
             self.outer_state = outer_state
 
@@ -419,7 +429,7 @@ if java_parsing:
         """A state that will ignore all tokens until it gets to a
         specified token."""
 
-        def __init__(self, ignore_until, old_state):
+        def __init__(self, ignore_until, old_state) -> None:
             self.ignore_until = ignore_until
             self.old_state = old_state
 
@@ -433,7 +443,7 @@ if java_parsing:
         """The state we enter when we encounter the package keyword.
         We assume the next token will be the package name."""
 
-        def __init__(self, outer_state):
+        def __init__(self, outer_state) -> None:
             # outer_state is always an instance of OuterState
             self.outer_state = outer_state
 
@@ -443,8 +453,8 @@ if java_parsing:
 
 
     def parse_java_file(fn, version=default_java_version):
-        with open(fn, 'r', encoding='utf-8') as f:
-            data = f.read()
+        with open(fn, "rb") as f:
+            data = SCons.Util.to_Text(f.read())
         return parse_java(data, version)
 
 
@@ -471,7 +481,7 @@ else:
     # Java-file parsing takes too long (although it shouldn't relative
     # to how long the Java compiler itself seems to take...).
 
-    def parse_java_file(fn):
+    def parse_java_file(fn, version=default_java_version):
         """ "Parse" a .java file.
 
         This actually just splits the file name, so the assumption here
@@ -511,7 +521,7 @@ def get_java_install_dirs(platform, version=None) -> List[str]:
             extracts the next-to-last component, then trims it further if
             it had a complex name, like 'java-1.8.0-openjdk-1.8.0.312-1',
             to try and put it on a common footing with the more common style,
-            which looks like 'jdk-11.0.2'. 
+            which looks like 'jdk-11.0.2'.
 
             This is certainly fragile, and if someone has a 9.0 it won't
             sort right since this will still be alphabetic, BUT 9.0 was

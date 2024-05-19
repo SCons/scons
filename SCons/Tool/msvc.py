@@ -44,8 +44,13 @@ import SCons.Util
 import SCons.Warnings
 import SCons.Scanner.RC
 
-from .MSCommon import msvc_setup_env_tool, msvc_setup_env_once, msvc_version_to_maj_min, msvc_find_vswhere
-from .MSCommon.common import get_pch_node
+from SCons.Tool.MSCommon import (
+    msvc_setup_env_tool,
+    msvc_setup_env_once,
+    msvc_version_to_maj_min,
+    msvc_find_vswhere,
+)
+from SCons.Tool.MSCommon.common import get_pch_node
 
 tool_name = 'msvc'
 
@@ -60,7 +65,7 @@ def validate_vars(env):
         if not SCons.Util.is_String(env['PCHSTOP']):
             raise SCons.Errors.UserError("The PCHSTOP construction variable must be a string: %r"%env['PCHSTOP'])
 
-def msvc_set_PCHPDBFLAGS(env):
+def msvc_set_PCHPDBFLAGS(env) -> None:
     """
     Set appropriate PCHPDBFLAGS for the MSVC version being used.
     """
@@ -229,7 +234,7 @@ ShCXXAction = SCons.Action.Action("$SHCXXCOM", "$SHCXXCOMSTR",
 
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for MSVC++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 

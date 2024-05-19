@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test that we can actually build a simple program using our generated
@@ -34,6 +33,7 @@ import os
 import sys
 
 import TestSConsMSVS
+from TestSConsMSVS import _obj, _exe
 
 test = TestSConsMSVS.TestSConsMSVS()
 
@@ -43,18 +43,16 @@ if sys.platform != 'win32':
 
 msvs_version = '14.0'
 
-if not msvs_version in test.msvs_versions():
+if msvs_version not in test.msvs_versions():
     msg = "Visual Studio %s not installed; skipping test.\n" % msvs_version
     test.skip_test(msg)
-
-
 
 # Let SCons figure out the Visual Studio environment variables for us and
 # print out a statement that we can exec to suck them into our external
 # environment so we can execute devenv and really try to build something.
 
-test.run(arguments = '-n -q -Q -f -', stdin = """\
-env = Environment(tools = ['msvc'], MSVS_VERSION='%(msvs_version)s')
+test.run(arguments='-n -q -Q -f -', stdin="""\
+env = Environment(tools=['msvc'], MSVS_VERSION='%(msvs_version)s')
 if env.WhereIs('cl'):
     print("os.environ.update(%%s)" %% repr(env['ENV']))
 """ % locals())
@@ -65,18 +63,18 @@ if test.stdout() == "":
 
 exec(test.stdout())
 
-
-
 test.subdir('sub dir')
-
 test.write(['sub dir', 'SConstruct'], """\
-env=Environment(MSVS_VERSION = '%(msvs_version)s')
+DefaultEnvironment(tools=[])
+env = Environment(MSVS_VERSION='%(msvs_version)s')
 
-env.MSVSProject(target = 'foo.vcxproj',
-                srcs = ['foo.c'],
-                buildtarget = 'foo.exe',
-                variant = 'Release',
-                DebugSettings = {'LocalDebuggerCommandArguments':'echo "<foo.c>" > output.txt'})
+env.MSVSProject(
+    target='foo.vcxproj',
+    srcs=['foo.c'],
+    buildtarget='foo.exe',
+    variant='Release',
+    DebugSettings={'LocalDebuggerCommandArguments': 'echo "<foo.c>" > output.txt'},
+)
 env.Program('foo.c')
 """ % locals())
 
@@ -92,19 +90,22 @@ main(int argc, char *argv)
 
 test.run(chdir='sub dir', arguments='.')
 
+test.unlink_files('sub dir', ['foo' + _exe, 'foo' + _obj, '.sconsign.dblite'])
 test.vcproj_sys_path(test.workpath('sub dir', 'foo.vcxproj'))
 
 import SCons.Platform.win32
-system_dll_path = os.path.join( SCons.Platform.win32.get_system_root(), 'System32' )
+
+system_dll_path = os.path.join(SCons.Platform.win32.get_system_root(), 'System32')
 os.environ['PATH'] = os.environ['PATH'] + os.pathsep + system_dll_path
 
-test.run(chdir='sub dir',
-         program=[test.get_msvs_executable(msvs_version)],
-         arguments=['foo.sln', '/build', 'Release'])
+test.run(
+    chdir='sub dir',
+    program=[test.get_msvs_executable(msvs_version)],
+    arguments=['foo.sln', '/build', 'Release'],
+)
 
-test.run(program=test.workpath('sub dir', 'foo'), stdout="foo.c\n")
+test.run(program=test.workpath('sub dir', 'foo' + _exe), stdout="foo.c\n")
 test.validate_msvs_file(test.workpath('sub dir', 'foo.vcxproj.user'))
-
 
 test.pass_test()
 

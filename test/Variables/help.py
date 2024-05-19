@@ -43,7 +43,7 @@ libdirvar = os.path.join('$qtdir', 'lib')
 
 test.subdir(qtpath)
 test.subdir(libpath)
-         
+
 test.write('SConstruct', """
 from SCons.Variables import (
     BoolVariable,
@@ -148,7 +148,7 @@ qt_libraries: where the Qt library is installed ( /path/to/qt_libraries )
     default: %(libdirvar)s
     actual: %(libpath)s
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 """ % locals())
 
 

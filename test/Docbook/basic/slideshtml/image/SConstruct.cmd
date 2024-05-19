@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 import xsltver
 
 v = xsltver.detectXsltVersion('/usr/share/xml/docbook/stylesheet/docbook-xsl')
@@ -7,7 +11,10 @@ if v >= (1, 78, 0):
     # Use namespace-aware input file
     ns_ext = 'ns'
 
+DefaultEnvironment(tools=[])
 env = Environment(DOCBOOK_PREFER_XSLTPROC=1, tools=['docbook'])
 env.Append(DOCBOOK_XSLTPROCFLAGS=['--novalid', '--nonet'])
-env.DocbookSlidesHtml('virt'+ns_ext, xsl='/usr/share/xml/docbook/stylesheet/docbook-xsl/slides/xhtml/plain.xsl')
-
+env.DocbookSlidesHtml(
+    'virt' + ns_ext,
+    xsl='/usr/share/xml/docbook/stylesheet/docbook-xsl/slides/xhtml/plain.xsl',
+)

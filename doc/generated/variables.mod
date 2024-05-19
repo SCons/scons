@@ -80,6 +80,10 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-DFLAGPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DFLAGPREFIX</envar>">
 <!ENTITY cv-DFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DFLAGS</envar>">
 <!ENTITY cv-DFLAGSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DFLAGSUFFIX</envar>">
+<!ENTITY cv-DI_FILE_DIR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DI_FILE_DIR</envar>">
+<!ENTITY cv-DI_FILE_DIR_PREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DI_FILE_DIR_PREFIX</envar>">
+<!ENTITY cv-DI_FILE_DIR_SUFFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DI_FILE_DIR_SUFFFIX</envar>">
+<!ENTITY cv-DI_FILE_SUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DI_FILE_SUFFIX</envar>">
 <!ENTITY cv-DINCPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DINCPREFIX</envar>">
 <!ENTITY cv-DINCSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DINCSUFFIX</envar>">
 <!ENTITY cv-Dir "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$Dir</envar>">
@@ -184,6 +188,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-F95PPCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$F95PPCOMSTR</envar>">
 <!ENTITY cv-F95PPFILESUFFIXES "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$F95PPFILESUFFIXES</envar>">
 <!ENTITY cv-File "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$File</envar>">
+<!ENTITY cv-FILE_ENCODING "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$FILE_ENCODING</envar>">
 <!ENTITY cv-FORTRAN "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$FORTRAN</envar>">
 <!ENTITY cv-FORTRANCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$FORTRANCOM</envar>">
 <!ENTITY cv-FORTRANCOMMONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$FORTRANCOMMONFLAGS</envar>">
@@ -245,6 +250,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-JAVAHCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAHCOMSTR</envar>">
 <!ENTITY cv-JAVAHFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAHFLAGS</envar>">
 <!ENTITY cv-JAVAINCLUDES "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAINCLUDES</envar>">
+<!ENTITY cv-JAVAPROCESSORPATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAPROCESSORPATH</envar>">
 <!ENTITY cv-JAVASOURCEPATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVASOURCEPATH</envar>">
 <!ENTITY cv-JAVASUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVASUFFIX</envar>">
 <!ENTITY cv-JAVAVERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAVERSION</envar>">
@@ -280,6 +286,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-_LIBFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_LIBFLAGS</envar>">
 <!ENTITY cv-LIBLINKPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBLINKPREFIX</envar>">
 <!ENTITY cv-LIBLINKSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBLINKSUFFIX</envar>">
+<!ENTITY cv-LIBLITERALPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBLITERALPREFIX</envar>">
 <!ENTITY cv-LIBPATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBPATH</envar>">
 <!ENTITY cv-LIBPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBPREFIX</envar>">
 <!ENTITY cv-LIBPREFIXES "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBPREFIXES</envar>">
@@ -419,34 +426,34 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-PSCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$PSCOMSTR</envar>">
 <!ENTITY cv-PSPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$PSPREFIX</envar>">
 <!ENTITY cv-PSSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$PSSUFFIX</envar>">
-<!ENTITY cv-QT_AUTOSCAN "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_AUTOSCAN</envar>">
-<!ENTITY cv-QT_BINPATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_BINPATH</envar>">
-<!ENTITY cv-QT_CPPPATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_CPPPATH</envar>">
-<!ENTITY cv-QT_DEBUG "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_DEBUG</envar>">
-<!ENTITY cv-QT_LIB "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_LIB</envar>">
-<!ENTITY cv-QT_LIBPATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_LIBPATH</envar>">
-<!ENTITY cv-QT_MOC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_MOC</envar>">
-<!ENTITY cv-QT_MOCCXXPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_MOCCXXPREFIX</envar>">
-<!ENTITY cv-QT_MOCCXXSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_MOCCXXSUFFIX</envar>">
-<!ENTITY cv-QT_MOCFROMCXXCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_MOCFROMCXXCOM</envar>">
-<!ENTITY cv-QT_MOCFROMCXXCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_MOCFROMCXXCOMSTR</envar>">
-<!ENTITY cv-QT_MOCFROMCXXFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_MOCFROMCXXFLAGS</envar>">
-<!ENTITY cv-QT_MOCFROMHCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_MOCFROMHCOM</envar>">
-<!ENTITY cv-QT_MOCFROMHCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_MOCFROMHCOMSTR</envar>">
-<!ENTITY cv-QT_MOCFROMHFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_MOCFROMHFLAGS</envar>">
-<!ENTITY cv-QT_MOCHPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_MOCHPREFIX</envar>">
-<!ENTITY cv-QT_MOCHSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_MOCHSUFFIX</envar>">
-<!ENTITY cv-QT_UIC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_UIC</envar>">
-<!ENTITY cv-QT_UICCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_UICCOM</envar>">
-<!ENTITY cv-QT_UICCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_UICCOMSTR</envar>">
-<!ENTITY cv-QT_UICDECLFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_UICDECLFLAGS</envar>">
-<!ENTITY cv-QT_UICDECLPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_UICDECLPREFIX</envar>">
-<!ENTITY cv-QT_UICDECLSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_UICDECLSUFFIX</envar>">
-<!ENTITY cv-QT_UICIMPLFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_UICIMPLFLAGS</envar>">
-<!ENTITY cv-QT_UICIMPLPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_UICIMPLPREFIX</envar>">
-<!ENTITY cv-QT_UICIMPLSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_UICIMPLSUFFIX</envar>">
-<!ENTITY cv-QT_UISUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT_UISUFFIX</envar>">
-<!ENTITY cv-QTDIR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QTDIR</envar>">
+<!ENTITY cv-QT3_AUTOSCAN "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_AUTOSCAN</envar>">
+<!ENTITY cv-QT3_BINPATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_BINPATH</envar>">
+<!ENTITY cv-QT3_CPPPATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_CPPPATH</envar>">
+<!ENTITY cv-QT3_DEBUG "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_DEBUG</envar>">
+<!ENTITY cv-QT3_LIB "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_LIB</envar>">
+<!ENTITY cv-QT3_LIBPATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_LIBPATH</envar>">
+<!ENTITY cv-QT3_MOC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_MOC</envar>">
+<!ENTITY cv-QT3_MOCCXXPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_MOCCXXPREFIX</envar>">
+<!ENTITY cv-QT3_MOCCXXSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_MOCCXXSUFFIX</envar>">
+<!ENTITY cv-QT3_MOCFROMCXXCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_MOCFROMCXXCOM</envar>">
+<!ENTITY cv-QT3_MOCFROMCXXCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_MOCFROMCXXCOMSTR</envar>">
+<!ENTITY cv-QT3_MOCFROMCXXFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_MOCFROMCXXFLAGS</envar>">
+<!ENTITY cv-QT3_MOCFROMHCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_MOCFROMHCOM</envar>">
+<!ENTITY cv-QT3_MOCFROMHCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_MOCFROMHCOMSTR</envar>">
+<!ENTITY cv-QT3_MOCFROMHFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_MOCFROMHFLAGS</envar>">
+<!ENTITY cv-QT3_MOCHPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_MOCHPREFIX</envar>">
+<!ENTITY cv-QT3_MOCHSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_MOCHSUFFIX</envar>">
+<!ENTITY cv-QT3_UIC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_UIC</envar>">
+<!ENTITY cv-QT3_UICCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_UICCOM</envar>">
+<!ENTITY cv-QT3_UICCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_UICCOMSTR</envar>">
+<!ENTITY cv-QT3_UICDECLFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_UICDECLFLAGS</envar>">
+<!ENTITY cv-QT3_UICDECLPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_UICDECLPREFIX</envar>">
+<!ENTITY cv-QT3_UICDECLSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_UICDECLSUFFIX</envar>">
+<!ENTITY cv-QT3_UICIMPLFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_UICIMPLFLAGS</envar>">
+<!ENTITY cv-QT3_UICIMPLPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_UICIMPLPREFIX</envar>">
+<!ENTITY cv-QT3_UICIMPLSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_UICIMPLSUFFIX</envar>">
+<!ENTITY cv-QT3_UISUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3_UISUFFIX</envar>">
+<!ENTITY cv-QT3DIR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$QT3DIR</envar>">
 <!ENTITY cv-RANLIB "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$RANLIB</envar>">
 <!ENTITY cv-RANLIBCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$RANLIBCOM</envar>">
 <!ENTITY cv-RANLIBCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$RANLIBCOMSTR</envar>">
@@ -660,6 +667,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-XGETTEXTPATHSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$XGETTEXTPATHSUFFIX</envar>">
 <!ENTITY cv-YACC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACC</envar>">
 <!ENTITY cv-YACC_GRAPH_FILE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACC_GRAPH_FILE</envar>">
+<!ENTITY cv-YACC_GRAPH_FILE_SUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACC_GRAPH_FILE_SUFFIX</envar>">
 <!ENTITY cv-YACC_HEADER_FILE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACC_HEADER_FILE</envar>">
 <!ENTITY cv-YACCCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACCCOM</envar>">
 <!ENTITY cv-YACCCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACCCOMSTR</envar>">
@@ -754,6 +762,10 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-DFLAGPREFIX "<link linkend='cv-DFLAGPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DFLAGPREFIX</envar></link>">
 <!ENTITY cv-link-DFLAGS "<link linkend='cv-DFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DFLAGS</envar></link>">
 <!ENTITY cv-link-DFLAGSUFFIX "<link linkend='cv-DFLAGSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DFLAGSUFFIX</envar></link>">
+<!ENTITY cv-link-DI_FILE_DIR "<link linkend='cv-DI_FILE_DIR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DI_FILE_DIR</envar></link>">
+<!ENTITY cv-link-DI_FILE_DIR_PREFIX "<link linkend='cv-DI_FILE_DIR_PREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DI_FILE_DIR_PREFIX</envar></link>">
+<!ENTITY cv-link-DI_FILE_DIR_SUFFFIX "<link linkend='cv-DI_FILE_DIR_SUFFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DI_FILE_DIR_SUFFFIX</envar></link>">
+<!ENTITY cv-link-DI_FILE_SUFFIX "<link linkend='cv-DI_FILE_SUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DI_FILE_SUFFIX</envar></link>">
 <!ENTITY cv-link-DINCPREFIX "<link linkend='cv-DINCPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DINCPREFIX</envar></link>">
 <!ENTITY cv-link-DINCSUFFIX "<link linkend='cv-DINCSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DINCSUFFIX</envar></link>">
 <!ENTITY cv-link-Dir "<link linkend='cv-Dir' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$Dir</envar></link>">
@@ -858,6 +870,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-F95PPCOMSTR "<link linkend='cv-F95PPCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$F95PPCOMSTR</envar></link>">
 <!ENTITY cv-link-F95PPFILESUFFIXES "<link linkend='cv-F95PPFILESUFFIXES' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$F95PPFILESUFFIXES</envar></link>">
 <!ENTITY cv-link-File "<link linkend='cv-File' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$File</envar></link>">
+<!ENTITY cv-link-FILE_ENCODING "<link linkend='cv-FILE_ENCODING' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$FILE_ENCODING</envar></link>">
 <!ENTITY cv-link-FORTRAN "<link linkend='cv-FORTRAN' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$FORTRAN</envar></link>">
 <!ENTITY cv-link-FORTRANCOM "<link linkend='cv-FORTRANCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$FORTRANCOM</envar></link>">
 <!ENTITY cv-link-FORTRANCOMMONFLAGS "<link linkend='cv-FORTRANCOMMONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$FORTRANCOMMONFLAGS</envar></link>">
@@ -919,6 +932,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-JAVAHCOMSTR "<link linkend='cv-JAVAHCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAHCOMSTR</envar></link>">
 <!ENTITY cv-link-JAVAHFLAGS "<link linkend='cv-JAVAHFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAHFLAGS</envar></link>">
 <!ENTITY cv-link-JAVAINCLUDES "<link linkend='cv-JAVAINCLUDES' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAINCLUDES</envar></link>">
+<!ENTITY cv-link-JAVAPROCESSORPATH "<link linkend='cv-JAVAPROCESSORPATH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAPROCESSORPATH</envar></link>">
 <!ENTITY cv-link-JAVASOURCEPATH "<link linkend='cv-JAVASOURCEPATH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVASOURCEPATH</envar></link>">
 <!ENTITY cv-link-JAVASUFFIX "<link linkend='cv-JAVASUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVASUFFIX</envar></link>">
 <!ENTITY cv-link-JAVAVERSION "<link linkend='cv-JAVAVERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAVERSION</envar></link>">
@@ -954,6 +968,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-_LIBFLAGS "<link linkend='cv-_LIBFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_LIBFLAGS</envar></link>">
 <!ENTITY cv-link-LIBLINKPREFIX "<link linkend='cv-LIBLINKPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBLINKPREFIX</envar></link>">
 <!ENTITY cv-link-LIBLINKSUFFIX "<link linkend='cv-LIBLINKSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBLINKSUFFIX</envar></link>">
+<!ENTITY cv-link-LIBLITERALPREFIX "<link linkend='cv-LIBLITERALPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBLITERALPREFIX</envar></link>">
 <!ENTITY cv-link-LIBPATH "<link linkend='cv-LIBPATH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBPATH</envar></link>">
 <!ENTITY cv-link-LIBPREFIX "<link linkend='cv-LIBPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBPREFIX</envar></link>">
 <!ENTITY cv-link-LIBPREFIXES "<link linkend='cv-LIBPREFIXES' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBPREFIXES</envar></link>">
@@ -1093,34 +1108,34 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-PSCOMSTR "<link linkend='cv-PSCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$PSCOMSTR</envar></link>">
 <!ENTITY cv-link-PSPREFIX "<link linkend='cv-PSPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$PSPREFIX</envar></link>">
 <!ENTITY cv-link-PSSUFFIX "<link linkend='cv-PSSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$PSSUFFIX</envar></link>">
-<!ENTITY cv-link-QT_AUTOSCAN "<link linkend='cv-QT_AUTOSCAN' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_AUTOSCAN</envar></link>">
-<!ENTITY cv-link-QT_BINPATH "<link linkend='cv-QT_BINPATH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_BINPATH</envar></link>">
-<!ENTITY cv-link-QT_CPPPATH "<link linkend='cv-QT_CPPPATH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_CPPPATH</envar></link>">
-<!ENTITY cv-link-QT_DEBUG "<link linkend='cv-QT_DEBUG' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_DEBUG</envar></link>">
-<!ENTITY cv-link-QT_LIB "<link linkend='cv-QT_LIB' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_LIB</envar></link>">
-<!ENTITY cv-link-QT_LIBPATH "<link linkend='cv-QT_LIBPATH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_LIBPATH</envar></link>">
-<!ENTITY cv-link-QT_MOC "<link linkend='cv-QT_MOC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_MOC</envar></link>">
-<!ENTITY cv-link-QT_MOCCXXPREFIX "<link linkend='cv-QT_MOCCXXPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_MOCCXXPREFIX</envar></link>">
-<!ENTITY cv-link-QT_MOCCXXSUFFIX "<link linkend='cv-QT_MOCCXXSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_MOCCXXSUFFIX</envar></link>">
-<!ENTITY cv-link-QT_MOCFROMCXXCOM "<link linkend='cv-QT_MOCFROMCXXCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_MOCFROMCXXCOM</envar></link>">
-<!ENTITY cv-link-QT_MOCFROMCXXCOMSTR "<link linkend='cv-QT_MOCFROMCXXCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_MOCFROMCXXCOMSTR</envar></link>">
-<!ENTITY cv-link-QT_MOCFROMCXXFLAGS "<link linkend='cv-QT_MOCFROMCXXFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_MOCFROMCXXFLAGS</envar></link>">
-<!ENTITY cv-link-QT_MOCFROMHCOM "<link linkend='cv-QT_MOCFROMHCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_MOCFROMHCOM</envar></link>">
-<!ENTITY cv-link-QT_MOCFROMHCOMSTR "<link linkend='cv-QT_MOCFROMHCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_MOCFROMHCOMSTR</envar></link>">
-<!ENTITY cv-link-QT_MOCFROMHFLAGS "<link linkend='cv-QT_MOCFROMHFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_MOCFROMHFLAGS</envar></link>">
-<!ENTITY cv-link-QT_MOCHPREFIX "<link linkend='cv-QT_MOCHPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_MOCHPREFIX</envar></link>">
-<!ENTITY cv-link-QT_MOCHSUFFIX "<link linkend='cv-QT_MOCHSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_MOCHSUFFIX</envar></link>">
-<!ENTITY cv-link-QT_UIC "<link linkend='cv-QT_UIC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_UIC</envar></link>">
-<!ENTITY cv-link-QT_UICCOM "<link linkend='cv-QT_UICCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_UICCOM</envar></link>">
-<!ENTITY cv-link-QT_UICCOMSTR "<link linkend='cv-QT_UICCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_UICCOMSTR</envar></link>">
-<!ENTITY cv-link-QT_UICDECLFLAGS "<link linkend='cv-QT_UICDECLFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_UICDECLFLAGS</envar></link>">
-<!ENTITY cv-link-QT_UICDECLPREFIX "<link linkend='cv-QT_UICDECLPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_UICDECLPREFIX</envar></link>">
-<!ENTITY cv-link-QT_UICDECLSUFFIX "<link linkend='cv-QT_UICDECLSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_UICDECLSUFFIX</envar></link>">
-<!ENTITY cv-link-QT_UICIMPLFLAGS "<link linkend='cv-QT_UICIMPLFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_UICIMPLFLAGS</envar></link>">
-<!ENTITY cv-link-QT_UICIMPLPREFIX "<link linkend='cv-QT_UICIMPLPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_UICIMPLPREFIX</envar></link>">
-<!ENTITY cv-link-QT_UICIMPLSUFFIX "<link linkend='cv-QT_UICIMPLSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_UICIMPLSUFFIX</envar></link>">
-<!ENTITY cv-link-QT_UISUFFIX "<link linkend='cv-QT_UISUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT_UISUFFIX</envar></link>">
-<!ENTITY cv-link-QTDIR "<link linkend='cv-QTDIR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QTDIR</envar></link>">
+<!ENTITY cv-link-QT3_AUTOSCAN "<link linkend='cv-QT3_AUTOSCAN' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_AUTOSCAN</envar></link>">
+<!ENTITY cv-link-QT3_BINPATH "<link linkend='cv-QT3_BINPATH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_BINPATH</envar></link>">
+<!ENTITY cv-link-QT3_CPPPATH "<link linkend='cv-QT3_CPPPATH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_CPPPATH</envar></link>">
+<!ENTITY cv-link-QT3_DEBUG "<link linkend='cv-QT3_DEBUG' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_DEBUG</envar></link>">
+<!ENTITY cv-link-QT3_LIB "<link linkend='cv-QT3_LIB' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_LIB</envar></link>">
+<!ENTITY cv-link-QT3_LIBPATH "<link linkend='cv-QT3_LIBPATH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_LIBPATH</envar></link>">
+<!ENTITY cv-link-QT3_MOC "<link linkend='cv-QT3_MOC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_MOC</envar></link>">
+<!ENTITY cv-link-QT3_MOCCXXPREFIX "<link linkend='cv-QT3_MOCCXXPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_MOCCXXPREFIX</envar></link>">
+<!ENTITY cv-link-QT3_MOCCXXSUFFIX "<link linkend='cv-QT3_MOCCXXSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_MOCCXXSUFFIX</envar></link>">
+<!ENTITY cv-link-QT3_MOCFROMCXXCOM "<link linkend='cv-QT3_MOCFROMCXXCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_MOCFROMCXXCOM</envar></link>">
+<!ENTITY cv-link-QT3_MOCFROMCXXCOMSTR "<link linkend='cv-QT3_MOCFROMCXXCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_MOCFROMCXXCOMSTR</envar></link>">
+<!ENTITY cv-link-QT3_MOCFROMCXXFLAGS "<link linkend='cv-QT3_MOCFROMCXXFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_MOCFROMCXXFLAGS</envar></link>">
+<!ENTITY cv-link-QT3_MOCFROMHCOM "<link linkend='cv-QT3_MOCFROMHCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_MOCFROMHCOM</envar></link>">
+<!ENTITY cv-link-QT3_MOCFROMHCOMSTR "<link linkend='cv-QT3_MOCFROMHCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_MOCFROMHCOMSTR</envar></link>">
+<!ENTITY cv-link-QT3_MOCFROMHFLAGS "<link linkend='cv-QT3_MOCFROMHFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_MOCFROMHFLAGS</envar></link>">
+<!ENTITY cv-link-QT3_MOCHPREFIX "<link linkend='cv-QT3_MOCHPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_MOCHPREFIX</envar></link>">
+<!ENTITY cv-link-QT3_MOCHSUFFIX "<link linkend='cv-QT3_MOCHSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_MOCHSUFFIX</envar></link>">
+<!ENTITY cv-link-QT3_UIC "<link linkend='cv-QT3_UIC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_UIC</envar></link>">
+<!ENTITY cv-link-QT3_UICCOM "<link linkend='cv-QT3_UICCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_UICCOM</envar></link>">
+<!ENTITY cv-link-QT3_UICCOMSTR "<link linkend='cv-QT3_UICCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_UICCOMSTR</envar></link>">
+<!ENTITY cv-link-QT3_UICDECLFLAGS "<link linkend='cv-QT3_UICDECLFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_UICDECLFLAGS</envar></link>">
+<!ENTITY cv-link-QT3_UICDECLPREFIX "<link linkend='cv-QT3_UICDECLPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_UICDECLPREFIX</envar></link>">
+<!ENTITY cv-link-QT3_UICDECLSUFFIX "<link linkend='cv-QT3_UICDECLSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_UICDECLSUFFIX</envar></link>">
+<!ENTITY cv-link-QT3_UICIMPLFLAGS "<link linkend='cv-QT3_UICIMPLFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_UICIMPLFLAGS</envar></link>">
+<!ENTITY cv-link-QT3_UICIMPLPREFIX "<link linkend='cv-QT3_UICIMPLPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_UICIMPLPREFIX</envar></link>">
+<!ENTITY cv-link-QT3_UICIMPLSUFFIX "<link linkend='cv-QT3_UICIMPLSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_UICIMPLSUFFIX</envar></link>">
+<!ENTITY cv-link-QT3_UISUFFIX "<link linkend='cv-QT3_UISUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3_UISUFFIX</envar></link>">
+<!ENTITY cv-link-QT3DIR "<link linkend='cv-QT3DIR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$QT3DIR</envar></link>">
 <!ENTITY cv-link-RANLIB "<link linkend='cv-RANLIB' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$RANLIB</envar></link>">
 <!ENTITY cv-link-RANLIBCOM "<link linkend='cv-RANLIBCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$RANLIBCOM</envar></link>">
 <!ENTITY cv-link-RANLIBCOMSTR "<link linkend='cv-RANLIBCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$RANLIBCOMSTR</envar></link>">
@@ -1334,6 +1349,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-XGETTEXTPATHSUFFIX "<link linkend='cv-XGETTEXTPATHSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$XGETTEXTPATHSUFFIX</envar></link>">
 <!ENTITY cv-link-YACC "<link linkend='cv-YACC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACC</envar></link>">
 <!ENTITY cv-link-YACC_GRAPH_FILE "<link linkend='cv-YACC_GRAPH_FILE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACC_GRAPH_FILE</envar></link>">
+<!ENTITY cv-link-YACC_GRAPH_FILE_SUFFIX "<link linkend='cv-YACC_GRAPH_FILE_SUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACC_GRAPH_FILE_SUFFIX</envar></link>">
 <!ENTITY cv-link-YACC_HEADER_FILE "<link linkend='cv-YACC_HEADER_FILE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACC_HEADER_FILE</envar></link>">
 <!ENTITY cv-link-YACCCOM "<link linkend='cv-YACCCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACCCOM</envar></link>">
 <!ENTITY cv-link-YACCCOMSTR "<link linkend='cv-YACCCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACCCOMSTR</envar></link>">

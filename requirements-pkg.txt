@@ -8,6 +8,8 @@
 readme-renderer
 
 # sphinx pinned because it has broken several times on new releases
-sphinx>=5.1.1
+sphinx < 7.0
 sphinx-book-theme
 rst2pdf
+
+build

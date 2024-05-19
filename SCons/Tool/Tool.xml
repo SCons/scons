@@ -37,10 +37,19 @@ Example:
 
 <example_commands>
 # builds foo.c
-env.CFile(target = 'foo.c', source = 'foo.l')
+env.CFile(target='foo.c', source='foo.l')
+
 # builds bar.c
-env.CFile(target = 'bar', source = 'bar.y')
+env.CFile(target='bar', source='bar.y')
 </example_commands>
+
+<!--para>  ** Left here for reference, does not need to be user-visible. **
+Note that for yacc files,
+the output file name is derived from <parameter>target</parameter>,
+or from the source file name if a target is not specified;
+the traditional yacc default name
+<filename>y.tab.c</filename> is not used.
+</para-->
 </summary>
 </builder>
 
@@ -59,10 +68,19 @@ Example:
 
 <example_commands>
 # builds foo.cc
-env.CXXFile(target = 'foo.cc', source = 'foo.ll')
+env.CXXFile(target='foo.cc', source='foo.ll')
+
 # builds bar.cc
-env.CXXFile(target = 'bar', source = 'bar.yy')
+env.CXXFile(target='bar', source='bar.yy')
 </example_commands>
+
+<!--para>  ** Left here for reference, does not need to be user-visible. **
+Note that for yacc files,
+the output file name is derived from <parameter>target</parameter>,
+or from the source file name if a target is not specified;
+the traditional yacc default name
+<filename>y.tab.cc</filename> is not used.
+</para -->
 </summary>
 </builder>
 
@@ -132,13 +150,24 @@ env.Program(target='foo', source=['foo.o', 'bar.c', 'baz.f'])
 <summary>
 <para>
 Builds a shared library
-(<filename>.so</filename> on a POSIX system,
-<filename>.dll</filename> on Windows)
 given one or more object files
-or C, C++, D or Fortran source files.
-If any source files are given,
-then they will be automatically
-compiled to object files.
+and/or C, C++, D or Fortran source files.
+Any source files listed in the
+<parameter>source</parameter> parameter
+will be automatically
+compiled to object files suitable
+for use in a shared library.
+Any object files listed in the
+<parameter>source</parameter> parameter
+must have been built for a shared library
+(that is, using the
+&b-SharedObject;
+builder method).
+&scons;
+will raise an error if there is any mismatch.
+</para>
+
+<para>
 The target library file prefix,
 specified by the &cv-link-SHLIBPREFIX; &consvar;
 (by default, <filename>lib</filename> on POSIX systems,
@@ -147,7 +176,13 @@ and suffix,
 specified by the &cv-link-SHLIBSUFFIX; &consvar;
 (by default, <filename>.dll</filename> on Windows systems,
 <filename>.so</filename> on POSIX systems),
-are automatically added to the target if not already present.
+are automatically added (if not already present)
+to the target name to make up the library filename.
+On a POSIX system, if the &cv-link-SHLIBVERSION; &consvar; is set,
+it is appended (following a period) to the resulting library name.
+</para>
+
+<para>
 Example:
 </para>
 
@@ -177,16 +212,6 @@ if there is not already a <filename>.dll.a</filename> file explicitly
 listed in the targets.
 </para>
 
-<para>
-Any object files listed in the
-<parameter>source</parameter>
-must have been built for a shared library
-(that is, using the
-&b-SharedObject;
-builder method).
-&scons;
-will raise an error if there is any mismatch.
-</para>
 
 <para>
 On some platforms, there is a distinction between a shared library
@@ -196,7 +221,7 @@ For maximum portability, use the &b-link-LoadableModule; builder for the latter.
 </para>
 
 <para>
-When the &cv-link-SHLIBVERSION; &consvar; is defined, a versioned
+If &cv-link-SHLIBVERSION; is defined, a versioned
 shared library is created. This modifies &cv-link-SHLINKFLAGS; as required,
 adds the version number to the library name, and creates any
 symbolic links that are needed.
@@ -207,17 +232,25 @@ env.SharedLibrary(target='bar', source=['bar.c', 'foo.o'], SHLIBVERSION='1.5.2')
 </example_commands>
 
 <para>
-On a POSIX system, versions with a single token create exactly one symlink:
-<filename>libbar.so.6</filename> would have symlink <filename>libbar.so</filename> only.
-On a POSIX system, versions with two or more
-tokens create exactly two symlinks: <filename>libbar.so.2.3.1</filename> would have symlinks
-<filename>libbar.so</filename> and <filename>libbar.so.2</filename>; on a Darwin (OSX) system the library would be
-<filename>libbar.2.3.1.dylib</filename> and the link would be <filename>libbar.dylib</filename>.
+On a POSIX system, supplying a simple version string (no dots)
+creates exactly one symbolic link: <literal>SHLIBVERSION="1"</literal>
+would create (for example) library <filename>libbar.so.1</filename>
+and symbolic link <filename>libbar.so</filename>.
+Supplying a dotted version string will create two symbolic links
+(irrespective of the number of segments in the version):
+<literal>SHLIBVERSION="1.5.2"</literal> for the same library
+would create library <filename>libbar.so.1.5.2</filename>
+and symbolic links <filename>libbar.so</filename> and
+<filename>libbar.so.1</filename>. A Darwin (OSX)
+system creates one symlink in either case,
+for the second example the library would be
+<filename>libbar.1.5.2.dylib</filename>
+and the link would be <filename>libbar.dylib</filename>.
 </para>
 
 <para>
-On Windows systems, specifying
-<parameter>register=1</parameter>
+On Windows systems, specifying the
+<parameter>register=1</parameter> keyword argument
 will cause the <filename>.dll</filename> to be
 registered after it is built.
 The command that is run is determined by the &cv-link-REGSVR; &consvar;

@@ -105,7 +105,7 @@ TOOL_ALIASES = {
 
 
 class Tool:
-    def __init__(self, name, toolpath=None, **kwargs):
+    def __init__(self, name, toolpath=None, **kwargs) -> None:
         if toolpath is None:
             toolpath = []
 
@@ -241,7 +241,7 @@ class Tool:
                 msg = "No tool named '{self.name}': {e}"
                 raise SCons.Errors.SConsEnvironmentError(msg)
 
-    def __call__(self, env, *args, **kw):
+    def __call__(self, env, *args, **kw) -> None:
         if self.init_kw is not None:
             # Merge call kws into init kws;
             # but don't bash self.init_kw.
@@ -251,7 +251,7 @@ class Tool:
                 kw.update(call_kw)
             else:
                 kw = self.init_kw
-        env.Append(TOOLS=[self.name])
+        env.AppendUnique(TOOLS=[self.name])
         if hasattr(self, 'options'):
             import SCons.Variables
             if 'options' not in env:
@@ -264,7 +264,7 @@ class Tool:
 
         self.generate(env, *args, **kw)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -324,7 +324,7 @@ def createStaticLibBuilder(env):
     return static_lib
 
 
-def createSharedLibBuilder(env, shlib_suffix='$_SHLIBSUFFIX'):
+def createSharedLibBuilder(env, shlib_suffix: str='$_SHLIBSUFFIX'):
     """This is a utility function that creates the SharedLibrary
     Builder in an Environment if it is not there already.
 
@@ -354,7 +354,7 @@ def createSharedLibBuilder(env, shlib_suffix='$_SHLIBSUFFIX'):
     return shared_lib
 
 
-def createLoadableModuleBuilder(env, loadable_module_suffix='$_LDMODULESUFFIX'):
+def createLoadableModuleBuilder(env, loadable_module_suffix: str='$_LDMODULESUFFIX'):
     """This is a utility function that creates the LoadableModule
     Builder in an Environment if it is not there already.
 
@@ -557,7 +557,7 @@ class ToolInitializerMethod:
     environment in place of this particular instance.
     """
 
-    def __init__(self, name, initializer):
+    def __init__(self, name, initializer) -> None:
         """
         Note:  we store the tool name as __name__ so it can be used by
         the class that attaches this to a construction environment.
@@ -608,7 +608,7 @@ class ToolInitializer:
     that we want to use to delay Tool searches until necessary.
     """
 
-    def __init__(self, env, tools, names):
+    def __init__(self, env, tools, names) -> None:
         if not SCons.Util.is_List(tools):
             tools = [tools]
         if not SCons.Util.is_List(names):
@@ -622,7 +622,7 @@ class ToolInitializer:
             self.methods[name] = method
             env.AddMethod(method)
 
-    def remove_methods(self, env):
+    def remove_methods(self, env) -> None:
         """
         Removes the methods that were added by the tool initialization
         so we no longer copy and re-bind them when the construction
@@ -631,7 +631,7 @@ class ToolInitializer:
         for method in self.methods.values():
             env.RemoveMethod(method)
 
-    def apply_tools(self, env):
+    def apply_tools(self, env) -> None:
         """
         Searches the list of associated Tool modules for one that
         exists, and applies that to the construction environment.
@@ -649,7 +649,7 @@ class ToolInitializer:
         # the ToolInitializer class.
 
 
-def Initializers(env):
+def Initializers(env) -> None:
     ToolInitializer(env, ['install'], ['_InternalInstall', '_InternalInstallAs', '_InternalInstallVersionedLib'])
 
     def Install(self, *args, **kw):
@@ -824,7 +824,7 @@ def tool_list(platform, env):
     return [x for x in tools if x]
 
 
-def find_program_path(env, key_program, default_paths=None, add_path=False) -> Optional[str]:
+def find_program_path(env, key_program, default_paths=None, add_path: bool=False) -> Optional[str]:
     """
     Find the location of a tool using various means.
 

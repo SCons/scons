@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
@@ -39,7 +38,7 @@ scons: done reading SConscript files.
 Help text
 goes here.
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 """
 
 test.run(arguments = '-h', stdout = expect)
@@ -55,7 +54,7 @@ scons: done reading SConscript files.
 Even more
 help text!
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 """
 
 test.run(arguments = '-h', stdout = expect)
@@ -77,7 +76,7 @@ Multiline
 help
 text!
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 """
 
 test.run(arguments = '-h', stdout = expect)
@@ -85,47 +84,46 @@ test.run(arguments = '-h', stdout = expect)
 # Bug #2831 - append flag to Help doesn't wipe out addoptions and variables used together
 test.write('SConstruct', r"""
 
-AddOption('--debugging',
-	dest='debugging',
-	action='store_true',
-	default=False,
-	metavar='BDEBUGGING',
-	help='Compile with debugging symbols')
+AddOption(
+    '--debugging',
+    dest='debugging',
+    action='store_true',
+    default=False,
+    metavar='BDEBUGGING',
+    help='Compile with debugging symbols',
+)
 
 vars = Variables()
-vars.Add(ListVariable('buildmod', 'List of modules to build', 'none',
-                    ['python']))
-
+vars.Add(ListVariable('buildmod', 'List of modules to build', 'none', ['python']))
+DefaultEnvironment(tools=[])
 env = Environment()
-
-Help(vars.GenerateHelpText(env),append=True)
+Help(vars.GenerateHelpText(env), append=True)
 """)
 
 expect = ".*--debugging.*Compile with debugging symbols.*buildmod: List of modules to build.*"
-
 test.run(arguments = '-h', stdout = expect, match=TestSCons.match_re_dotall)
-
 
 # Bug 2831
 # This test checks to verify that append=False doesn't include anything
 # but the expected help for the specified Variable()
 
 test.write('SConstruct', r"""
-
-AddOption('--debugging',
-	dest='debugging',
-	action='store_true',
-	default=False,
-	metavar='BDEBUGGING',
-	help='Compile with debugging symbols')
+AddOption(
+    '--debugging',
+    dest='debugging',
+    action='store_true',
+    default=False,
+    metavar='BDEBUGGING',
+    help='Compile with debugging symbols',
+)
 
 vars = Variables()
-vars.Add(ListVariable('buildmod', 'List of modules to build', 'none',
-                    ['python']))
+vars.Add(ListVariable('buildmod', 'List of modules to build', 'none', ['python']))
 
+DefaultEnvironment(tools=[])
 env = Environment()
 
-Help(vars.GenerateHelpText(env),append=False)
+Help(vars.GenerateHelpText(env), append=False)
 """)
 
 expect = """\
@@ -138,11 +136,48 @@ buildmod: List of modules to build
     default: none
     actual: None
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 """
 
-test.run(arguments = '-h', stdout = expect)
+test.run(arguments='-h', stdout=expect)
 
+# Enhancement: keep_local flag saves the AddOption help,
+# but not SCons' own help.
+test.write('SConstruct', r"""
+AddOption(
+    '--debugging',
+    dest='debugging',
+    action='store_true',
+    default=False,
+    metavar='BDEBUGGING',
+    help='Compile with debugging symbols',
+)
+
+vars = Variables()
+vars.Add(ListVariable('buildmod', 'List of modules to build', 'none', ['python']))
+
+DefaultEnvironment(tools=[])
+env = Environment()
+
+Help(vars.GenerateHelpText(env), append=True, keep_local=True)
+""")
+
+expect = """\
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+Local Options:
+  --debugging  Compile with debugging symbols
+
+buildmod: List of modules to build
+    (all|none|comma-separated list of names)
+    allowed names: python
+    default: none
+    actual: None
+
+Use scons -H for help about SCons built-in command-line options.
+"""
+
+test.run(arguments='-h', stdout=expect)
 
 
 test.pass_test()

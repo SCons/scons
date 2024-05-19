@@ -1,8 +1,9 @@
-# -*- mode:python; coding:utf-8; -*-
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
 
 import os
 
-environment = Environment(
-    tools=['link', '{}'])
-
+DefaultEnvironment(tools=[])
+environment = Environment(tools=['link', '{}'])
 environment.Program('helloWorld.d')

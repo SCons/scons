@@ -35,7 +35,7 @@ def DScanner():
     return ds
 
 class D(Classic):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             name="DScanner",
             suffixes='$DSUFFIXES',
@@ -43,13 +43,16 @@ class D(Classic):
             regex=r'(?:import\s+)([\w\s=,.]+)(?:\s*:[\s\w,=]+)?(?:;)',
         )
 
-    def find_include(self, include, source_dir, path):
+    @staticmethod
+    def find_include(include, source_dir, path):
         # translate dots (package separators) to slashes
         inc = include.replace('.', '/')
 
-        i = SCons.Node.FS.find_file(inc + '.d', (source_dir,) + path)
+        # According to https://dlang.org/dmd-linux.html#interface-files
+        # Prefer .di files over .d files when processing includes(imports)
+        i = SCons.Node.FS.find_file(inc + '.di', (source_dir,) + path)
         if i is None:
-            i = SCons.Node.FS.find_file(inc + '.di', (source_dir,) + path)
+            i = SCons.Node.FS.find_file(inc + '.d', (source_dir,) + path)
         return i, include
 
     def find_include_names(self, node):

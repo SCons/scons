@@ -26,6 +26,8 @@
 import os
 import re
 
+import SCons.Util
+
 # First "subsystem" of regular expressions that we set up:
 #
 # Stuff to turn the C preprocessor directives in a file's contents into
@@ -180,7 +182,7 @@ del override
 class FunctionEvaluator:
     """Handles delayed evaluation of a #define function call."""
 
-    def __init__(self, name, args, expansion):
+    def __init__(self, name, args, expansion) -> None:
         """
         Squirrels away the arguments and expansion value of a #define
         macro function for later evaluation when we must actually expand
@@ -230,7 +232,7 @@ function_arg_separator = re.compile(r',\s*')
 class PreProcessor:
     """The main workhorse class for handling C pre-processing."""
 
-    def __init__(self, current=os.curdir, cpppath=(), dict={}, all=0, depth=-1):
+    def __init__(self, current=os.curdir, cpppath=(), dict={}, all: int=0, depth=-1) -> None:
         global Table
 
         cpppath = tuple(cpppath)
@@ -339,7 +341,7 @@ class PreProcessor:
 
     # Dispatch table stack manipulation methods.
 
-    def save(self):
+    def save(self) -> None:
         """
         Pushes the current dispatch table on the stack and re-initializes
         the current dispatch table to the default.
@@ -347,7 +349,7 @@ class PreProcessor:
         self.stack.append(self.dispatch_table)
         self.dispatch_table = self.default_table.copy()
 
-    def restore(self):
+    def restore(self) -> None:
         """
         Pops the previous dispatch table off the stack and makes it the
         current one.
@@ -357,14 +359,14 @@ class PreProcessor:
 
     # Utility methods.
 
-    def do_nothing(self, t):
+    def do_nothing(self, t) -> None:
         """
         Null method for when we explicitly want the action for a
         specific preprocessor directive to do nothing.
         """
         pass
 
-    def scons_current_file(self, t):
+    def scons_current_file(self, t) -> None:
         self.current_file = t[1]
 
     def eval_expression(self, t):
@@ -381,7 +383,7 @@ class PreProcessor:
         except (NameError, TypeError, SyntaxError):
             return 0
 
-    def initialize_result(self, fname):
+    def initialize_result(self, fname) -> None:
         self.result = [fname]
 
     def finalize_result(self, fname):
@@ -401,13 +403,13 @@ class PreProcessor:
                 return f
         return None
 
-    def read_file(self, file):
-        with open(file) as f:
-            return f.read()
+    def read_file(self, file) -> str:
+        with open(file, 'rb') as f:
+            return SCons.Util.to_Text(f.read())
 
     # Start and stop processing include lines.
 
-    def start_handling_includes(self, t=None):
+    def start_handling_includes(self, t=None) -> None:
         """
         Causes the PreProcessor object to start processing #import,
         #include and #include_next lines.
@@ -424,7 +426,7 @@ class PreProcessor:
         for k in ('import', 'include', 'include_next', 'define', 'undef'):
             d[k] = p[k]
 
-    def stop_handling_includes(self, t=None):
+    def stop_handling_includes(self, t=None) -> None:
         """
         Causes the PreProcessor object to stop processing #import,
         #include and #include_next lines.
@@ -444,7 +446,7 @@ class PreProcessor:
     # (Note that what actually gets called for a given directive at any
     # point in time is really controlled by the dispatch_table.)
 
-    def _do_if_else_condition(self, condition):
+    def _do_if_else_condition(self, condition) -> None:
         """
         Common logic for evaluating the conditions on #if, #ifdef and
         #ifndef lines.
@@ -460,25 +462,25 @@ class PreProcessor:
             d['elif'] = self.do_elif
             d['else'] = self.start_handling_includes
 
-    def do_ifdef(self, t):
+    def do_ifdef(self, t) -> None:
         """
         Default handling of a #ifdef line.
         """
         self._do_if_else_condition(t[1] in self.cpp_namespace)
 
-    def do_ifndef(self, t):
+    def do_ifndef(self, t) -> None:
         """
         Default handling of a #ifndef line.
         """
         self._do_if_else_condition(t[1] not in self.cpp_namespace)
 
-    def do_if(self, t):
+    def do_if(self, t) -> None:
         """
         Default handling of a #if line.
         """
         self._do_if_else_condition(self.eval_expression(t))
 
-    def do_elif(self, t):
+    def do_elif(self, t) -> None:
         """
         Default handling of a #elif line.
         """
@@ -488,19 +490,19 @@ class PreProcessor:
             d['elif'] = self.stop_handling_includes
             d['else'] = self.stop_handling_includes
 
-    def do_else(self, t):
+    def do_else(self, t) -> None:
         """
         Default handling of a #else line.
         """
         pass
 
-    def do_endif(self, t):
+    def do_endif(self, t) -> None:
         """
         Default handling of a #endif line.
         """
         self.restore()
 
-    def do_define(self, t):
+    def do_define(self, t) -> None:
         """
         Default handling of a #define line.
         """
@@ -519,21 +521,21 @@ class PreProcessor:
         else:
             self.cpp_namespace[name] = expansion
 
-    def do_undef(self, t):
+    def do_undef(self, t) -> None:
         """
         Default handling of a #undef line.
         """
         try: del self.cpp_namespace[t[1]]
         except KeyError: pass
 
-    def do_import(self, t):
+    def do_import(self, t) -> None:
         """
         Default handling of a #import line.
         """
         # XXX finish this -- maybe borrow/share logic from do_include()...?
         pass
 
-    def do_include(self, t):
+    def do_include(self, t) -> None:
         """
         Default handling of a #include line.
         """
@@ -561,8 +563,7 @@ class PreProcessor:
                      [('scons_current_file', self.current_file)]
         self.tuples[:] = new_tuples + self.tuples
 
-    # Date: Tue, 22 Nov 2005 20:26:09 -0500
-    # From: Stefan Seefeld <seefeld@sympatico.ca>
+    # From: Stefan Seefeld <seefeld@sympatico.ca> (22 Nov 2005)
     #
     # By the way, #include_next is not the same as #include. The difference
     # being that #include_next starts its search in the path following the
@@ -570,10 +571,12 @@ class PreProcessor:
     # include paths are ['/foo', '/bar'], and you are looking at a header
     # '/foo/baz.h', it might issue an '#include_next <baz.h>' which would
     # correctly resolve to '/bar/baz.h' (if that exists), but *not* see
-    # '/foo/baz.h' again. See http://www.delorie.com/gnu/docs/gcc/cpp_11.html
-    # for more reasoning.
+    # '/foo/baz.h' again. See
+    # https://gcc.gnu.org/onlinedocs/cpp/Wrapper-Headers.html for more notes.
     #
-    # I have no idea in what context 'import' might be used.
+    # I have no idea in what context #import might be used.
+    # Update: possibly these notes?
+    # https://github.com/MicrosoftDocs/cpp-docs/blob/main/docs/preprocessor/hash-import-directive-cpp.md
 
     # XXX is #include_next really the same as #include ?
     do_include_next = do_include
@@ -614,7 +617,7 @@ class PreProcessor:
                 return None
         return (t[0], s[0], s[1:-1])
 
-    def all_include(self, t):
+    def all_include(self, t) -> None:
         """
         """
         self.result.append(self.resolve_include(t))
@@ -630,7 +633,7 @@ class DumbPreProcessor(PreProcessor):
     an example of how the main PreProcessor class can be sub-classed
     to tailor its behavior.
     """
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         PreProcessor.__init__(self, *args, **kw)
         d = self.default_table
         for func in ['if', 'elif', 'else', 'endif', 'ifdef', 'ifndef']:

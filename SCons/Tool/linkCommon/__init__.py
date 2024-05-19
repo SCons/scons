@@ -45,7 +45,7 @@ def StringizeLibSymlinks(symlinks):
         return symlinks
 
 
-def EmitLibSymlinks(env, symlinks, libnode, **kw):
+def EmitLibSymlinks(env, symlinks, libnode, **kw) -> None:
     """Used by emitters to handle (shared/versioned) library symlinks"""
     Verbose = False
 
@@ -66,7 +66,7 @@ def EmitLibSymlinks(env, symlinks, libnode, **kw):
             print("EmitLibSymlinks: Clean(%r,%r)" % (linktgt.get_path(), [x.get_path() for x in clean_list]))
 
 
-def CreateLibSymlinks(env, symlinks):
+def CreateLibSymlinks(env, symlinks) -> int:
     """Physically creates symlinks. The symlinks argument must be a list in
     form [ (link, linktarget), ... ], where link and linktarget are SCons
     nodes.
@@ -92,7 +92,7 @@ def CreateLibSymlinks(env, symlinks):
     return 0
 
 
-def LibSymlinksActionFunction(target, source, env):
+def LibSymlinksActionFunction(target, source, env) -> int:
     for tgt in target:
         symlinks = getattr(getattr(tgt, 'attributes', None), 'shliblinks', None)
         if symlinks:
@@ -127,7 +127,7 @@ def _call_env_subst(env, string, *args, **kw):
     return env.subst(string, *args, **kw2)
 
 
-def smart_link(source, target, env, for_signature):
+def smart_link(source, target, env, for_signature) -> str:
     import SCons.Tool.cxx
     import SCons.Tool.FortranCommon
 
@@ -137,11 +137,14 @@ def smart_link(source, target, env, for_signature):
     if has_cplusplus and has_fortran and not has_d:
         global issued_mixed_link_warning
         if not issued_mixed_link_warning:
-            msg = "Using $CXX to link Fortran and C++ code together.\n\t" + \
-                  "This may generate a buggy executable if the '%s'\n\t" + \
-                  "compiler does not know how to deal with Fortran runtimes."
-            SCons.Warnings.warn(SCons.Warnings.FortranCxxMixWarning,
-                                msg % env.subst('$CXX'))
+            msg = (
+                "Using $CXX to link Fortran and C++ code together.\n"
+                "    This may generate a buggy executable if the '%s'\n"
+                "    compiler does not know how to deal with Fortran runtimes."
+            )
+            SCons.Warnings.warn(
+                SCons.Warnings.FortranCxxMixWarning, msg % env.subst('$CXX')
+            )
             issued_mixed_link_warning = True
         return '$CXX'
     elif has_d:
@@ -158,10 +161,10 @@ def smart_link(source, target, env, for_signature):
 def lib_emitter(target, source, env, **kw):
     verbose = False
     if verbose:
-        print("_lib_emitter: target[0]={!r}".format(target[0].get_path()))
+        print(f"_lib_emitter: target[0]={target[0].get_path()!r}")
     for tgt in target:
         if SCons.Util.is_String(tgt):
             tgt = env.File(tgt)
-        tgt.attributes.shared = 1
+        tgt.attributes.shared = True
 
     return target, source

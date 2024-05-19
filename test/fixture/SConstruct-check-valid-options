@@ -1,5 +1,11 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 import sys
 from SCons.Script.SConsOptions import SConsOptionParser, SConsBadOptionError
+
+DefaultEnvironment(tools=[])
 
 AddOption(
     '--testing',
@@ -12,8 +18,10 @@ elif ARGUMENTS.get('raise', 0) == '2':
     try:
         ValidateOptions(throw_exception=True)
     except SConsBadOptionError as e:
-        print("Parser is SConsOptionParser:%s" % (isinstance(e.parser, SConsOptionParser)))
-        print("Message is :%s" % e.opt_str)
+        print(
+            f"Parser is SConsOptionParser: {isinstance(e.parser, SConsOptionParser)}"
+        )
+        print(f"Message is: {e.opt_str}")
         Exit(3)
 else:
     ValidateOptions()

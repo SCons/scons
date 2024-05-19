@@ -26,7 +26,8 @@
 """
 Test case for the bug report:
 "[ 1088979 ] Unnecessary rebuild with generated header file"
-(<http://sourceforge.net/tracker/index.php?func=detail&aid=1088979&group_id=30337&atid=398971>).
+(<https://sourceforge.net/tracker/index.php?func=detail&aid=1088979&group_id=30337&atid=398971>).
+(historical - dead link)
 
 Unnecessary rebuild with generated header file
 Scons rebuilds some nodes when invoked twice. The
@@ -83,7 +84,7 @@ env = Environment()
 kernelDefines = env.Command("header.hh", "header.hh.in", Copy('$TARGET', '$SOURCE'))
 kernelImporterSource = env.Command("generated.cc", ["%s"], "%s")
 kernelImporter = env.Program(kernelImporterSource + ["main.cc"])
-kernelImports = env.Command("KernelImport.hh", kernelImporter, ".%s$SOURCE > $TARGET")
+kernelImports = env.Command("KernelImport.hh", kernelImporter, r".%s$SOURCE > $TARGET")
 osLinuxModule = env.StaticObject(["target.cc"])
 """ % (generator_name, kernel_action, sep))
 

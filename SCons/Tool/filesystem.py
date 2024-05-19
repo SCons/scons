@@ -1,14 +1,6 @@
-"""SCons.Tool.filesystem
-
-Tool-specific initialization for the filesystem tools.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -28,9 +20,13 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Tool-specific initialization for the filesystem tools.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+"""
 
 import SCons
 from SCons.Tool.install import copyFunc
@@ -48,7 +44,7 @@ def copyto_emitter(target, source, env):
 
     return (n_target, source)
 
-def copy_action_func(target, source, env):
+def copy_action_func(target, source, env) -> int:
     assert( len(target) == len(source) ), "\ntarget: %s\nsource: %s" %(list(map(str, target)),list(map(str, source)))
 
     for t, s in zip(target, source):
@@ -62,7 +58,7 @@ def copy_action_str(target, source, env):
 
 copy_action = SCons.Action.Action( copy_action_func, copy_action_str )
 
-def generate(env):
+def generate(env) -> None:
     try:
         env['BUILDERS']['CopyTo']
         env['BUILDERS']['CopyAs']
@@ -88,8 +84,8 @@ def generate(env):
 
         env['COPYSTR'] = 'Copy file(s): "$SOURCES" to "$TARGETS"'
 
-def exists(env):
-    return 1
+def exists(env) -> bool:
+    return True
 
 # Local Variables:
 # tab-width:4

@@ -437,7 +437,7 @@ arch_canon = {
 
 # End of rpmrc dictionaries (Marker, don't change or remove!)
 
-def defaultMachine(use_rpm_default=True):
+def defaultMachine(use_rpm_default: bool=True):
     """ Return the canonicalized machine name. """
 
     if use_rpm_default:
@@ -471,7 +471,7 @@ def defaultNames():
     """ Return the canonicalized machine and system name. """
     return defaultMachine(), defaultSystem()
 
-def updateRpmDicts(rpmrc, pyfile):
+def updateRpmDicts(rpmrc, pyfile) -> None:
     """ Read the given rpmrc file with RPM definitions and update the
         info dictionaries in the file pyfile with it.
         The arguments will usually be 'rpmrc.in' from a recent RPM source
@@ -480,10 +480,10 @@ def updateRpmDicts(rpmrc, pyfile):
     """
     try:
         # Read old rpmutils.py file
-        with open(pyfile,"r") as f:
+        with open(pyfile) as f:
             oldpy = f.readlines()
         # Read current rpmrc.in file
-        with open(rpmrc,"r") as f:
+        with open(rpmrc) as f:
             rpm = f.readlines()
         # Parse for data
         data = {}
@@ -531,10 +531,10 @@ def updateRpmDicts(rpmrc, pyfile):
     except:
         pass
 
-def usage():
+def usage() -> None:
     print("rpmutils.py rpmrc.in rpmutils.py")
 
-def main():
+def main() -> None:
     import sys
 
     if len(sys.argv) < 3:

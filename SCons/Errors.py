@@ -27,7 +27,10 @@ Used to handle internal and user errors in SCons.
 """
 
 import shutil
-import SCons.Util
+from typing import Optional
+
+from SCons.Util.sctypes import to_String, is_String
+from SCons.Util.sctyping import ExecutorType
 
 # Note that not all Errors are defined here, some are at the point of use
 
@@ -71,13 +74,13 @@ class BuildError(Exception):
     """
 
     def __init__(self,
-                 node=None, errstr="Unknown error", status=2, exitstatus=2,
-                 filename=None, executor=None, action=None, command=None,
-                 exc_info=(None, None, None)):
+                 node=None, errstr: str="Unknown error", status: int=2, exitstatus: int=2,
+                 filename=None, executor: Optional[ExecutorType] = None, action=None, command=None,
+                 exc_info=(None, None, None)) -> None:
 
         # py3: errstr should be string and not bytes.
 
-        self.errstr = SCons.Util.to_String(errstr)
+        self.errstr = to_String(errstr)
         self.status = status
         self.exitstatus = exitstatus
         self.filename = filename
@@ -91,7 +94,7 @@ class BuildError(Exception):
         super().__init__(node, errstr, status, exitstatus, filename,
                          executor, action, command, exc_info)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.filename:
             return self.filename + ': ' + self.errstr
         else:
@@ -113,7 +116,7 @@ class MSVCError(IOError):
     pass
 
 class ExplicitExit(Exception):
-    def __init__(self, node=None, status=None, *args):
+    def __init__(self, node=None, status=None, *args) -> None:
         self.node = node
         self.status = status
         self.exitstatus = status
@@ -174,8 +177,12 @@ def convert_to_BuildError(status, exc_info=None):
         # (for example, failure to create the directory in which the
         # target file will appear).
         filename = getattr(status, 'filename', None)
-        strerror = getattr(status, 'strerror', str(status))
-        errno = getattr(status, 'errno', 2)
+        strerror = getattr(status, 'strerror', None)
+        if strerror is None:
+            strerror = str(status)
+        errno = getattr(status, 'errno', None)
+        if errno is None:
+            errno = 2
 
         buildError = BuildError(
             errstr=strerror,
@@ -189,7 +196,7 @@ def convert_to_BuildError(status, exc_info=None):
             status=2,
             exitstatus=2,
             exc_info=exc_info)
-    elif SCons.Util.is_String(status):
+    elif is_String(status):
         buildError = BuildError(
             errstr=status,
             status=2,

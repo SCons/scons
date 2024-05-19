@@ -99,7 +99,10 @@ There are the following methods for internal use within this module:
 
 """
 
+import os
 from collections import UserDict, UserList
+from contextlib import suppress
+from typing import Optional
 
 import SCons.Action
 import SCons.Debug
@@ -109,6 +112,7 @@ import SCons.Util
 import SCons.Warnings
 from SCons.Debug import logInstanceCreation
 from SCons.Errors import InternalError, UserError
+from SCons.Util.sctyping import ExecutorType
 
 class _Null:
     pass
@@ -130,14 +134,14 @@ class DictCmdGenerator(SCons.Util.Selector):
     to return the proper action based on the file suffix of
     the source file."""
 
-    def __init__(self, mapping=None, source_ext_match=True):
+    def __init__(self, mapping=None, source_ext_match: bool=True) -> None:
         super().__init__(mapping)
         self.source_ext_match = source_ext_match
 
     def src_suffixes(self):
         return list(self.keys())
 
-    def add_action(self, suffix, action):
+    def add_action(self, suffix, action) -> None:
         """Add a suffix-action pair to the mapping.
         """
         self[suffix] = action
@@ -222,12 +226,12 @@ class OverrideWarner(UserDict):
     can actually invoke multiple builders.  This class only emits the
     warnings once, no matter how many Builders are invoked.
     """
-    def __init__(self, mapping):
+    def __init__(self, mapping) -> None:
         super().__init__(mapping)
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Builder.OverrideWarner')
         self.already_warned = None
 
-    def warn(self):
+    def warn(self) -> None:
         if self.already_warned:
             return
         for k in self.keys():
@@ -335,7 +339,7 @@ class EmitterProxy:
     look there at actual build time to see if it holds
     a callable.  If so, we will call that as the actual
     emitter."""
-    def __init__(self, var):
+    def __init__(self, var) -> None:
         self.var = SCons.Util.to_String(var)
 
     def __call__(self, target, source, env):
@@ -375,23 +379,23 @@ class BuilderBase:
     """
 
     def __init__(self,  action = None,
-                        prefix = '',
-                        suffix = '',
-                        src_suffix = '',
+                        prefix: str = '',
+                        suffix: str = '',
+                        src_suffix: str = '',
                         target_factory = None,
                         source_factory = None,
                         target_scanner = None,
                         source_scanner = None,
                         emitter = None,
-                        multi = 0,
+                        multi: int = 0,
                         env = None,
-                        single_source = 0,
+                        single_source: bool = False,
                         name = None,
                         chdir = _null,
-                        is_explicit = 1,
+                        is_explicit: bool = True,
                         src_builder = None,
-                        ensure_suffix = False,
-                        **overrides):
+                        ensure_suffix: bool = False,
+                        **overrides) -> None:
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Builder.BuilderBase')
         self._memo = {}
         self.action = action
@@ -439,7 +443,7 @@ class BuilderBase:
             src_builder = [ src_builder ]
         self.src_builder = src_builder
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         raise InternalError("Do not test for the Node.builder attribute directly; use Node.has_builder() instead")
 
     def get_name(self, env):
@@ -471,7 +475,7 @@ class BuilderBase:
             suffixes = []
         return match_splitext(path, suffixes)
 
-    def _adjustixes(self, files, pre, suf, ensure_suffix=False):
+    def _adjustixes(self, files, pre, suf, ensure_suffix: bool=False):
         if not files:
             return []
         result = []
@@ -479,6 +483,11 @@ class BuilderBase:
             files = [files]
 
         for f in files:
+            # fspath() is to catch PathLike paths. We avoid the simpler
+            # str(f) so as not to "lose" files that are already Nodes:
+            # TypeError: expected str, bytes or os.PathLike object, not File
+            with suppress(TypeError):
+                f = os.fspath(f)
             if SCons.Util.is_String(f):
                 f = SCons.Util.adjustixes(f, pre, suf, ensure_suffix)
             result.append(f)
@@ -582,7 +591,7 @@ class BuilderBase:
         # build this particular list of targets from this particular list of
         # sources.
 
-        executor = None
+        executor: Optional[ExecutorType] = None
         key = None
 
         if self.multi:
@@ -673,7 +682,7 @@ class BuilderBase:
             prefix = prefix(env, sources)
         return env.subst(prefix)
 
-    def set_suffix(self, suffix):
+    def set_suffix(self, suffix) -> None:
         if not callable(suffix):
             suffix = self.adjust_suffix(suffix)
         self.suffix = suffix
@@ -684,7 +693,7 @@ class BuilderBase:
             suffix = suffix(env, sources)
         return env.subst(suffix)
 
-    def set_src_suffix(self, src_suffix):
+    def set_src_suffix(self, src_suffix) -> None:
         if not src_suffix:
             src_suffix = []
         elif not SCons.Util.is_List(src_suffix):
@@ -698,7 +707,7 @@ class BuilderBase:
             return ''
         return ret[0]
 
-    def add_emitter(self, suffix, emitter):
+    def add_emitter(self, suffix, emitter) -> None:
         """Add a suffix-emitter mapping to this Builder.
 
         This assumes that emitter has been initialized with an
@@ -708,7 +717,7 @@ class BuilderBase:
         """
         self.emitter[suffix] = emitter
 
-    def add_src_builder(self, builder):
+    def add_src_builder(self, builder) -> None:
         """
         Add a new Builder to the list of src_builders.
 
@@ -875,7 +884,7 @@ class CompositeBuilder(SCons.Util.Proxy):
     to the DictCmdGenerator's add_action() method.
     """
 
-    def __init__(self, builder, cmdgen):
+    def __init__(self, builder, cmdgen) -> None:
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Builder.CompositeBuilder')
         super().__init__(builder)
 
@@ -885,11 +894,11 @@ class CompositeBuilder(SCons.Util.Proxy):
 
     __call__ = SCons.Util.Delegate('__call__')
 
-    def add_action(self, suffix, action):
+    def add_action(self, suffix, action) -> None:
         self.cmdgen.add_action(suffix, action)
         self.set_src_suffix(self.cmdgen.src_suffixes())
 
-def is_a_Builder(obj):
+def is_a_Builder(obj) -> bool:
     """"Returns True if the specified obj is one of our Builder classes.
 
     The test is complicated a bit by the fact that CompositeBuilder

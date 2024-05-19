@@ -39,7 +39,7 @@ import SCons.Tool
 from . import link
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for gnulink to an Environment."""
     link.generate(env)
 
@@ -51,6 +51,9 @@ def generate(env):
     env['RPATHPREFIX'] = '-Wl,-rpath='
     env['RPATHSUFFIX'] = ''
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
+
+    env['LIBLITERALPREFIX'] = ':'
+
 
 
 def exists(env):

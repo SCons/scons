@@ -51,7 +51,7 @@ def _running_in_virtualenv():
             (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix))
 
 
-def _is_path_in(path, base):
+def _is_path_in(path, base) -> bool:
     """Returns true if **path** is located under the **base** directory."""
     if not path or not base: # empty path may happen, base too
         return False
@@ -59,7 +59,7 @@ def _is_path_in(path, base):
     return (not rp.startswith(os.path.pardir)) and (not rp == os.path.curdir)
 
 
-def _inject_venv_variables(env):
+def _inject_venv_variables(env) -> None:
     if 'ENV' not in env:
         env['ENV'] = {}
     ENV = env['ENV']
@@ -69,7 +69,7 @@ def _inject_venv_variables(env):
         except KeyError:
             pass
 
-def _inject_venv_path(env, path_list=None):
+def _inject_venv_path(env, path_list=None) -> None:
     """Modify environment such that SCons will take into account its virtualenv
     when running external tools."""
     if path_list is None:
@@ -86,7 +86,7 @@ def select_paths_in_venv(path_list):
     return [path for path in path_list if IsInVirtualenv(path)]
 
 
-def ImportVirtualenv(env):
+def ImportVirtualenv(env) -> None:
     """Copies virtualenv-related environment variables from OS environment
     to ``env['ENV']`` and prepends virtualenv's PATH to ``env['ENV']['PATH']``.
     """

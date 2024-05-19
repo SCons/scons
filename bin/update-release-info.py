@@ -218,7 +218,7 @@ class UpdateFile:
 
     def sub(self, pattern, replacement, count=1):
         """ XXX """
-        self.content = re.sub(pattern, replacement, self.content, count)
+        self.content = re.sub(pattern, replacement, self.content, count=count)
 
     def replace_assign(self, name, replacement, count=1):
         """ XXX """
@@ -226,11 +226,11 @@ class UpdateFile:
 
     def replace_version(self, count=1):
         """ XXX """
-        self.content = self.match_rel.sub(rel_info.version_string, self.content, count)
+        self.content = self.match_rel.sub(rel_info.version_string, self.content, count=count)
 
     def replace_date(self, count=1):
         """ XXX """
-        self.content = self.match_date.sub(rel_info.new_date, self.content, count)
+        self.content = self.match_date.sub(rel_info.new_date, self.content, count=count)
 
     def __del__(self):
         """ XXX """

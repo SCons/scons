@@ -47,12 +47,13 @@ test = TestSCons.TestSCons()
 
 test.subdir('sub1')
 test.subdir('sub2')
+test.subdir('sub3')
 
 test.dir_fixture('YACCFLAGS-fixture')
 
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
-SConscript(dirs=['sub1', 'sub2'])
+SConscript(dirs=['sub1', 'sub2', 'sub3'])
 """)
 
 # this SConscript is for the options-in-flags version
@@ -90,8 +91,50 @@ env.CFile(
 """ % locals())
 test.write(['sub2', 'aaa.y'], "aaa.y\nYACCFLAGS\n")
 
+# this SConscript is to try various other flag combos
+test.write(['sub3', 'SConscript'], """\
+import sys
+
+env = Environment(
+    YACC=r'%(_python_)s myyacc.py',
+    YACCFLAGS='-x --header=header.h --graph=graph.g',
+    tools=['yacc', '%(linker)s', '%(compiler)s'],
+)
+
+def check(targets, expected):
+    t = [str(target) for target in targets]
+    assert t == expected, t
+
+targs1 = env.CFile('trg1', source='aaa.y', YACCFLAGS='-d')
+check(targs1, ['trg1.c', 'trg1.h'])
+
+targs2 = env.CXXFile('trg2', source='aaa.yy', YACCFLAGS='-d')
+check(targs2, ['trg2.cc', 'trg2.hpp'])
+
+targs3 = env.CFile('trg3', source='aaa.y', YACCFLAGS='--defines=zot.q')
+check(targs3, ['trg3.c', 'zot.q'])
+
+targs4 = env.CFile('trg4', source='aaa.y', YACCFLAGS='--header')
+check(targs4, ['trg4.c', 'trg4.h'])
+
+targs5 = env.CFile('trg5', source='aaa.y', YACCFLAGS='-H')
+check(targs5, ['trg5.c', 'trg5.h'])
+
+targs6 = env.CFile('trg6', source='aaa.y', YACCFLAGS='-g')
+check(targs6, ['trg6.c', 'trg6.gv'])
+
+targs7 = env.CFile('trg7', source='aaa.y', YACCFLAGS='-g -H')
+check(targs7, ['trg7.c', 'trg7.h', 'trg7.gv'])
+
+targs8 = env.CFile('trg8', source='aaa.y', YACCFLAGS='--graph --header')
+check(targs8, ['trg8.c', 'trg8.h', 'trg8.gv'])
+""" % locals())
+
+test.write(['sub3', 'aaa.y'], "aaa.y\nYACCFLAGS\n")
+test.write(['sub3', 'aaa.yy'], "aaa.yy\nYACCFLAGS\n")
+
 test.run('.', stderr=None)
-test.must_match(['sub1', 'aaa.c'], "aaa.y\n -x --header=header.h --graph=graph.g\n")
+test.must_match(['sub1', 'aaa.c'], "aaa.y\n-x --header=header.h --graph=graph.g\n")
 
 # NOTE: this behavior is "wrong" but we're keeping it for compat:
 # the generated files should go into 'sub1', not the topdir.
@@ -109,7 +152,7 @@ test.must_match(['graph.g'], 'yacc graph\n')
 sub2 = Path('sub2')
 headerfile = sub2 / 'header.h'
 graphfile = sub2 / 'graph.g'
-yaccflags = f"aaa.y\n -x --header={headerfile} --graph={graphfile}\n"
+yaccflags = f"aaa.y\n-x --header={headerfile} --graph={graphfile}\n"
 test.must_match(['sub2', 'aaa.c'], yaccflags)
 test.must_match(['sub2', 'header.h'], 'yacc header\n')
 test.must_match(['sub2', 'graph.g'], 'yacc graph\n')

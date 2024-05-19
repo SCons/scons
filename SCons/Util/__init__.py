@@ -21,24 +21,50 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""SCons utility functions
+"""
+SCons utility functions
 
 This package contains routines for use by other parts of SCons.
+Candidates for inclusion here are routines that do not need other parts
+of SCons (other than Util), and have a reasonable chance of being useful
+in multiple places, rather then being topical only to one module/package.
 """
+
+# Warning: SCons.Util may not be able to import other parts of SCons
+# globally without hitting import loops, as various modules import
+# SCons.Util themselves. If a top-level import fails, try a local import.
+# If local imports work, please annotate them for pylint (and for human
+# readers) to know why, with:
+#   importstuff  # pylint: disable=import-outside-toplevel
+#
+# Be aware that Black will break this if the annotated line is too long -
+# which it almost certainly will be. It will split it like this:
+#       from SCons.Errors import (
+#           SConsEnvironmentError,
+#       )  # pylint: disable=import-outside-toplevel
+# That's syntactically valid as far as Python goes, but pylint will not
+# recorgnize the annotation comment unless it's on the first line, like:
+#       from SCons.Errors import (  # pylint: disable=import-outside-toplevel
+#           SConsEnvironmentError,
+#       )
+# (issue filed on this upstream, for now just be aware)
 
 import copy
 import hashlib
+import logging
 import os
 import re
 import sys
 import time
-from collections import UserDict, UserList, OrderedDict
+from collections import UserDict, UserList, deque
 from contextlib import suppress
 from types import MethodType, FunctionType
-from typing import Optional, Union
+from typing import Optional, Union, Any, List
 from logging import Formatter
 
-from .types import (
+# Util split into a package. Make sure things that used to work
+# when importing just Util itself still work:
+from .sctypes import (
     DictTypes,
     ListTypes,
     SequenceTypes,
@@ -55,6 +81,7 @@ from .types import (
     to_String,
     to_String_for_subst,
     to_String_for_signature,
+    to_Text,
     to_bytes,
     to_str,
     get_env_bool,
@@ -81,24 +108,7 @@ from .envs import (
     AddPathIfNotExists,
     AddMethod,
 )
-
-
-# Note: the Util package cannot import other parts of SCons globally without
-# hitting import loops. Both of these modules import SCons.Util early on,
-# and are imported in many other modules:
-# --> SCons.Warnings
-# --> SCons.Errors
-# If you run into places that have to do local imports for this reason,
-# annotate them for pylint and for human readers to know why:
-#   pylint: disable=import-outside-toplevel
-# Be aware that Black can break this if the annotated line is too
-# long and it wants to split:
-#       from SCons.Errors import (
-#           SConsEnvironmentError,
-#       )  # pylint: disable=import-outside-toplevel
-# That's syntactically valid, but pylint won't recorgnize it with the
-# annotation at the end, it would have to be on the first line
-# (issues filed upstream, for now just be aware)
+from .filelock import FileLock, SConsLockFailure
 
 PYPY = hasattr(sys, 'pypy_translation_info')
 
@@ -183,10 +193,10 @@ class NodeList(UserList):
     ['foo', 'bar']
     """
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.data)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return ' '.join(map(str, self.data))
 
     def __iter__(self):
@@ -214,7 +224,7 @@ class DisplayEngine:
 
     print_it = True
 
-    def __call__(self, text, append_newline=1):
+    def __call__(self, text, append_newline: int=1) -> None:
         if not self.print_it:
             return
 
@@ -231,26 +241,33 @@ class DisplayEngine:
         with suppress(IOError):
             sys.stdout.write(str(text))
 
-    def set_mode(self, mode):
+    def set_mode(self, mode) -> None:
         self.print_it = mode
 
 display = DisplayEngine()
 
 
-# TODO: W0102: Dangerous default value [] as argument (dangerous-default-value)
-def render_tree(root, child_func, prune=0, margin=[0], visited=None) -> str:
+# TODO: check if this could cause problems
+# pylint: disable=dangerous-default-value
+def render_tree(
+    root,
+    child_func,
+    prune: bool = False,
+    margin: List[bool] = [False],
+    visited: Optional[dict] = None,
+) -> str:
     """Render a tree of nodes into an ASCII tree view.
 
     Args:
         root: the root node of the tree
         child_func: the function called to get the children of a node
         prune: don't visit the same node twice
-        margin: the format of the left margin to use for children of `root`.
-          1 results in a pipe, and 0 results in no pipe.
+        margin: the format of the left margin to use for children of *root*.
+          Each entry represents a column where a true value will display
+          a vertical bar and a false one a blank.
         visited: a dictionary of visited nodes in the current branch if
-          `prune` is 0, or in the whole tree if `prune` is 1.
+          *prune* is false, or in the whole tree if *prune* is true.
     """
-
     rname = str(root)
 
     # Initialize 'visited' dict, if required
@@ -274,7 +291,7 @@ def render_tree(root, child_func, prune=0, margin=[0], visited=None) -> str:
     visited[rname] = True
 
     for i, child in enumerate(children):
-        margin.append(i < len(children)-1)
+        margin.append(i < len(children) - 1)
         retval = retval + render_tree(child, child_func, prune, margin, visited)
         margin.pop()
 
@@ -298,14 +315,15 @@ BOX_VERT_RIGHT = chr(0x251c)  # '├'
 BOX_HORIZ_DOWN = chr(0x252c)  # '┬'
 
 
-# TODO: W0102: Dangerous default value [] as argument (dangerous-default-value)
+# TODO: check if this could cause problems
+# pylint: disable=dangerous-default-value
 def print_tree(
     root,
     child_func,
-    prune=0,
-    showtags=False,
-    margin=[0],
-    visited=None,
+    prune: bool = False,
+    showtags: int = 0,
+    margin: List[bool] = [False],
+    visited: Optional[dict] = None,
     lastChild: bool = False,
     singleLineDraw: bool = False,
 ) -> None:
@@ -320,10 +338,13 @@ def print_tree(
         child_func: the function called to get the children of a node
         prune: don't visit the same node twice
         showtags: print status information to the left of each node line
+            The default is false (value 0). A value of 2 will also print
+            a legend for the margin tags.
         margin: the format of the left margin to use for children of *root*.
-          1 results in a pipe, and 0 results in no pipe.
+          Each entry represents a column, where a true value will display
+          a vertical bar and a false one a blank.
         visited: a dictionary of visited nodes in the current branch if
-          *prune* is 0, or in the whole tree if *prune* is 1.
+          *prune* is false, or in the whole tree if *prune* is true.
         lastChild: this is the last leaf of a branch
         singleLineDraw: use line-drawing characters rather than ASCII.
     """
@@ -404,7 +425,7 @@ def print_tree(
 
     # if this item has children:
     if children:
-        margin.append(1)  # Initialize margin with 1 for vertical bar.
+        margin.append(True)  # Initialize margin for vertical bar.
         idx = IDX(showtags)
         _child = 0  # Initialize this for the first child.
         for C in children[:-1]:
@@ -420,19 +441,19 @@ def print_tree(
                 singleLineDraw,
             )
         # margins are with space (index 0) because we arrived to the last child.
-        margin[-1] = 0
+        margin[-1] = False
         # for this call child and nr of children needs to be set 0, to signal the second phase.
         print_tree(children[-1], child_func, prune, idx, margin, visited, True, singleLineDraw)
         margin.pop()  # destroy the last margin added
 
 
-def do_flatten(
+def do_flatten(  # pylint: disable=redefined-outer-name,redefined-builtin
     sequence,
     result,
     isinstance=isinstance,
     StringTypes=StringTypes,
     SequenceTypes=SequenceTypes,
-):  # pylint: disable=redefined-outer-name,redefined-builtin
+) -> None:
     for item in sequence:
         if isinstance(item, StringTypes) or not isinstance(item, SequenceTypes):
             result.append(item)
@@ -516,6 +537,7 @@ _semi_deepcopy_dispatch = {
     tuple: _semi_deepcopy_tuple,
 }
 
+
 def semi_deepcopy(obj):
     copier = _semi_deepcopy_dispatch.get(type(obj))
     if copier:
@@ -527,7 +549,7 @@ def semi_deepcopy(obj):
     if isinstance(obj, UserDict):
         return obj.__class__(semi_deepcopy_dict(obj))
 
-    if isinstance(obj, UserList):
+    if isinstance(obj, (UserList, deque)):
         return obj.__class__(_semi_deepcopy_list(obj))
 
     return obj
@@ -536,7 +558,7 @@ def semi_deepcopy(obj):
 class Proxy:
     """A simple generic Proxy class, forwarding all calls to subject.
 
-    This means you can take an object, let's call it `'obj_a`,
+    This means you can take an object, let's call it `'obj_a``,
     and wrap it in this Proxy class, with a statement like this::
 
         proxy_obj = Proxy(obj_a)
@@ -546,14 +568,15 @@ class Proxy:
         x = proxy_obj.var1
 
     since the :class:`Proxy` class does not have a :attr:`var1` attribute
-    (but presumably `objA` does), the request actually is equivalent to saying::
+    (but presumably ``obj_a`` does), the request actually is equivalent
+    to saying::
 
         x = obj_a.var1
 
     Inherit from this class to create a Proxy.
 
     With Python 3.5+ this does *not* work transparently
-    for :class:`Proxy` subclasses that use special .__*__() method names,
+    for :class:`Proxy` subclasses that use special dunder method names,
     because those names are now bound to the class, not the individual
     instances.  You now need to know in advance which special method names you
     want to pass on to the underlying Proxy object, and specifically delegate
@@ -563,7 +586,7 @@ class Proxy:
             __str__ = Delegate('__str__')
     """
 
-    def __init__(self, subject):
+    def __init__(self, subject) -> None:
         """Wrap an object as a Proxy object"""
         self._subject = subject
 
@@ -592,7 +615,7 @@ class Delegate:
         class Foo(Proxy):
             __str__ = Delegate('__str__')
     """
-    def __init__(self, attribute):
+    def __init__(self, attribute) -> None:
         self.attribute = attribute
 
     def __get__(self, obj, cls):
@@ -757,14 +780,14 @@ else:
             f = os.path.join(p, file)
             if os.path.isfile(f):
                 try:
-                    st = os.stat(f)
+                    mode = os.stat(f).st_mode
                 except OSError:
                     # os.stat() raises OSError, not IOError if the file
                     # doesn't exist, so in this case we let IOError get
                     # raised so as to not mask possibly serious disk or
                     # network issues.
                     continue
-                if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
+                if stat.S_IXUSR & mode:
                     try:
                         reject.index(f)
                     except ValueError:
@@ -773,46 +796,61 @@ else:
         return None
 
 WhereIs.__doc__ = """\
-Return the path to an executable that matches `file`.
+Return the path to an executable that matches *file*.
 
-Searches the given `path` for `file`, respecting any filename
-extensions `pathext` (on the Windows platform only), and
-returns the full path to the matching command.  If no
-command is found, return ``None``.
+Searches the given *path* for *file*, considering any filename
+extensions in *pathext* (on the Windows platform only), and
+returns the full path to the matching command of the first match,
+or ``None`` if there are no matches.
+Will not select any path name or names in the optional
+*reject* list.
 
-If `path` is not specified, :attr:`os.environ[PATH]` is used.
-If `pathext` is not specified, :attr:`os.environ[PATHEXT]`
-is used. Will not select any path name or names in the optional
-`reject` list.
+If *path* is ``None`` (the default), :attr:`os.environ[PATH]` is used.
+On Windows, If *pathext* is ``None`` (the default),
+:attr:`os.environ[PATHEXT]` is used.
+
+The construction environment method of the same name wraps a
+call to this function by filling in *path* from the execution
+environment if it is ``None`` (and for *pathext* on Windows,
+if necessary), so if called from there, this function
+will not backfill from :attr:`os.environ`.
+
+Note:
+   Finding things in :attr:`os.environ` may answer the question
+   "does *file* exist on the system", but not the question
+   "can SCons use that executable", unless the path element that
+   yields the match is also in the the Execution Environment
+   (e.g. ``env['ENV']['PATH']``). Since this utility function has no
+   environment reference, it cannot make that determination.
 """
 
 
 if sys.platform == 'cygwin':
     import subprocess  # pylint: disable=import-outside-toplevel
 
-    def get_native_path(path) -> str:
+    def get_native_path(path: str) -> str:
         cp = subprocess.run(('cygpath', '-w', path), check=False, stdout=subprocess.PIPE)
         return cp.stdout.decode().replace('\n', '')
 else:
-    def get_native_path(path) -> str:
+    def get_native_path(path: str) -> str:
         return path
 
 get_native_path.__doc__ = """\
 Transform an absolute path into a native path for the system.
 
 In Cygwin, this converts from a Cygwin path to a Windows path,
-without regard to whether `path` refers to an existing file
-system object.  For other platforms, `path` is unchanged.
+without regard to whether *path* refers to an existing file
+system object.  For other platforms, *path* is unchanged.
 """
 
 
 def Split(arg) -> list:
     """Returns a list of file names or other objects.
 
-    If `arg` is a string, it will be split on strings of white-space
-    characters within the string.  If `arg` is already a list, the list
-    will be returned untouched. If `arg` is any other type of object,
-    it will be returned as a list containing just the object.
+    If *arg* is a string, it will be split on whitespace
+    within the string.  If *arg* is already a list, the list
+    will be returned untouched. If *arg* is any other type of object,
+    it will be returned in a single-item list.
 
     >>> print(Split(" this  is  a  string  "))
     ['this', 'is', 'a', 'string']
@@ -852,12 +890,14 @@ class CLVar(UserList):
     >>> c = CLVar("--some --opts and args")
     >>> print(len(c), repr(c))
     4 ['--some', '--opts', 'and', 'args']
-    >>> c += "    strips spaces    "
+    >>> c += "   strips spaces   "
     >>> print(len(c), repr(c))
     6 ['--some', '--opts', 'and', 'args', 'strips', 'spaces']
+    >>> c += ["   does not split or strip   "]
+    7 ['--some', '--opts', 'and', 'args', 'strips', 'spaces', '   does not split or strip   ']
     """
 
-    def __init__(self, initlist=None):
+    def __init__(self, initlist=None) -> None:
         super().__init__(Split(initlist if initlist is not None else []))
 
     def __add__(self, other):
@@ -869,16 +909,19 @@ class CLVar(UserList):
     def __iadd__(self, other):
         return super().__iadd__(CLVar(other))
 
-    def __str__(self):
+    def __str__(self) -> str:
         # Some cases the data can contain Nodes, so make sure they
         # processed to string before handing them over to join.
         return ' '.join([str(d) for d in self.data])
 
 
-class Selector(OrderedDict):
-    """A callable ordered dictionary that maps file suffixes to
-    dictionary values.  We preserve the order in which items are added
-    so that :func:`get_suffix` calls always return the first suffix added.
+class Selector(dict):
+    """A callable dict for file suffix lookup.
+
+    Often used to associate actions or emitters with file types.
+
+    Depends on insertion order being preserved so that :meth:`get_suffix`
+    calls always return the first suffix added.
     """
     def __call__(self, env, source, ext=None):
         if ext is None:
@@ -888,7 +931,7 @@ class Selector(OrderedDict):
                 ext = ""
         try:
             return self[ext]
-        except KeyError:
+        except KeyError as exc:
             # Try to perform Environment substitution on the keys of
             # the dictionary before giving up.
             s_dict = {}
@@ -900,7 +943,7 @@ class Selector(OrderedDict):
                         # to the same suffix.  If one suffix is literal
                         # and a variable suffix contains this literal,
                         # the literal wins and we don't raise an error.
-                        raise KeyError(s_dict[s_k][0], k, s_k)
+                        raise KeyError(s_dict[s_k][0], k, s_k) from exc
                     s_dict[s_k] = (k, v)
             try:
                 return s_dict[ext][1]
@@ -914,15 +957,18 @@ class Selector(OrderedDict):
 if sys.platform == 'cygwin':
     # On Cygwin, os.path.normcase() lies, so just report back the
     # fact that the underlying Windows OS is case-insensitive.
-    def case_sensitive_suffixes(s1, s2) -> bool:  # pylint: disable=unused-argument
+    def case_sensitive_suffixes(s1: str, s2: str) -> bool:  # pylint: disable=unused-argument
         return False
 
 else:
-    def case_sensitive_suffixes(s1, s2) -> bool:
+    def case_sensitive_suffixes(s1: str, s2: str) -> bool:
         return os.path.normcase(s1) != os.path.normcase(s2)
 
+case_sensitive_suffixes.__doc__ = """\
+Returns whether platform distinguishes case in file suffixes."""
 
-def adjustixes(fname, pre, suf, ensure_suffix=False) -> str:
+
+def adjustixes(fname, pre, suf, ensure_suffix: bool=False) -> str:
     """Adjust filename prefixes and suffixes as needed.
 
     Add `prefix` to `fname` if specified.
@@ -956,6 +1002,17 @@ def adjustixes(fname, pre, suf, ensure_suffix=False) -> str:
 def unique(seq):
     """Return a list of the elements in seq without duplicates, ignoring order.
 
+    For best speed, all sequence elements should be hashable.  Then
+    :func:`unique` will usually work in linear time.
+
+    If not possible, the sequence elements should enjoy a total
+    ordering, and if ``list(s).sort()`` doesn't raise ``TypeError``
+    it is assumed that they do enjoy a total ordering.  Then
+    :func:`unique` will usually work in O(N*log2(N)) time.
+
+    If that's not possible either, the sequence elements must support
+    equality-testing.  Then :func:`unique` will usually work in quadratic time.
+
     >>> mylist = unique([1, 2, 3, 1, 2, 3])
     >>> print(sorted(mylist))
     [1, 2, 3]
@@ -965,17 +1022,6 @@ def unique(seq):
     >>> mylist = unique(([1, 2], [2, 3], [1, 2]))
     >>> print(sorted(mylist))
     [[1, 2], [2, 3]]
-
-    For best speed, all sequence elements should be hashable.  Then
-    unique() will usually work in linear time.
-
-    If not possible, the sequence elements should enjoy a total
-    ordering, and if list(s).sort() doesn't raise TypeError it's
-    assumed that they do enjoy a total ordering.  Then unique() will
-    usually work in O(N*log2(N)) time.
-
-    If that's not possible either, the sequence elements must support
-    equality-testing.  Then unique() will usually work in quadratic time.
     """
 
     if not seq:
@@ -1044,12 +1090,12 @@ def logical_lines(physical_lines, joiner=''.join):
 
 
 class LogicalLines:
-    """ Wrapper class for the logical_lines method.
+    """Wrapper class for the :func:`logical_lines` function.
 
     Allows us to read all "logical" lines at once from a given file object.
     """
 
-    def __init__(self, fileobj):
+    def __init__(self, fileobj) -> None:
         self.fileobj = fileobj
 
     def readlines(self):
@@ -1059,20 +1105,21 @@ class LogicalLines:
 class UniqueList(UserList):
     """A list which maintains uniqueness.
 
-    Uniquing is lazy: rather than being assured on list changes, it is fixed
+    Uniquing is lazy: rather than being enforced on list changes, it is fixed
     up on access by those methods which need to act on a unique list to be
-    correct. That means things like "in" don't have to eat the uniquing time.
+    correct. That means things like membership tests don't have to eat the
+    uniquing time.
     """
-    def __init__(self, initlist=None):
+    def __init__(self, initlist=None) -> None:
         super().__init__(initlist)
         self.unique = True
 
-    def __make_unique(self):
+    def __make_unique(self) -> None:
         if not self.unique:
             self.data = uniquer_hashables(self.data)
             self.unique = True
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         self.__make_unique()
         return super().__repr__()
 
@@ -1102,7 +1149,7 @@ class UniqueList(UserList):
 
     # __contains__ doesn't need to worry about uniquing, inherit
 
-    def __len__(self):
+    def __len__(self) -> int:
         self.__make_unique()
         return super().__len__()
 
@@ -1110,7 +1157,7 @@ class UniqueList(UserList):
         self.__make_unique()
         return super().__getitem__(i)
 
-    def __setitem__(self, i, item):
+    def __setitem__(self, i, item) -> None:
         super().__setitem__(i, item)
         self.unique = False
 
@@ -1146,11 +1193,11 @@ class UniqueList(UserList):
         result.unique = False
         return result
 
-    def append(self, item):
+    def append(self, item) -> None:
         super().append(item)
         self.unique = False
 
-    def insert(self, i, item):
+    def insert(self, i, item) -> None:
         super().insert(i, item)
         self.unique = False
 
@@ -1162,7 +1209,7 @@ class UniqueList(UserList):
         self.__make_unique()
         return super().index(item, *args)
 
-    def reverse(self):
+    def reverse(self) -> None:
         self.__make_unique()
         super().reverse()
 
@@ -1171,7 +1218,7 @@ class UniqueList(UserList):
         self.__make_unique()
         return super().sort(*args, **kwds)
 
-    def extend(self, other):
+    def extend(self, other) -> None:
         super().extend(other)
         self.unique = False
 
@@ -1181,10 +1228,10 @@ class Unbuffered:
 
     Delegates everything else to the wrapped object.
     """
-    def __init__(self, file):
+    def __init__(self, file) -> None:
         self.file = file
 
-    def write(self, arg):
+    def write(self, arg) -> None:
         # Stdout might be connected to a pipe that has been closed
         # by now. The most likely reason for the pipe being closed
         # is that the user has press ctrl-c. It this is the case,
@@ -1196,7 +1243,7 @@ class Unbuffered:
             self.file.write(arg)
             self.file.flush()
 
-    def writelines(self, arg):
+    def writelines(self, arg) -> None:
         with suppress(IOError):
             self.file.writelines(arg)
             self.file.flush()
@@ -1219,31 +1266,35 @@ def make_path_relative(path) -> str:
     return path
 
 
-def silent_intern(x):
-    """
+def silent_intern(__string: Any) -> str:
+    """Intern a string without failing.
+
     Perform :mod:`sys.intern` on the passed argument and return the result.
     If the input is ineligible for interning the original argument is
     returned and no exception is thrown.
     """
     try:
-        return sys.intern(x)
+        return sys.intern(__string)
     except TypeError:
-        return x
+        return __string
 
 
 def cmp(a, b) -> bool:
-    """A cmp function because one is no longer available in python3."""
+    """A cmp function because one is no longer available in Python3."""
     return (a > b) - (a < b)
 
 
 def print_time():
     """Hack to return a value from Main if can't import Main."""
+    # this specifically violates the rule of Util not depending on other
+    # parts of SCons in order to work around other import-loop issues.
+    #
     # pylint: disable=redefined-outer-name,import-outside-toplevel
     from SCons.Script.Main import print_time
     return print_time
 
 
-def wait_for_process_to_die(pid):
+def wait_for_process_to_die(pid) -> None:
     """
     Wait for specified process to die, or alternatively kill it
     NOTE: This function operates best with psutil pypi package
@@ -1276,20 +1327,31 @@ def wait_for_process_to_die(pid):
 
 # From: https://stackoverflow.com/questions/1741972/how-to-use-different-formatters-with-the-same-logging-handler-in-python
 class DispatchingFormatter(Formatter):
+    """Logging formatter which dispatches to various formatters."""
 
-    def __init__(self, formatters, default_formatter):
+    def __init__(self, formatters, default_formatter) -> None:
         self._formatters = formatters
         self._default_formatter = default_formatter
 
     def format(self, record):
-        formatter = self._formatters.get(record.name, self._default_formatter)
+        # Search from record's logger up to its parents:
+        logger = logging.getLogger(record.name)
+        while logger:
+            # Check if suitable formatter for current logger exists:
+            if logger.name in self._formatters:
+                formatter = self._formatters[logger.name]
+                break
+            logger = logger.parent
+        else:
+            # If no formatter found, just use default:
+            formatter = self._default_formatter
         return formatter.format(record)
 
 
 def sanitize_shell_env(execution_env: dict) -> dict:
     """Sanitize all values in *execution_env*
 
-    The execution environment (typically comes from (env['ENV']) is
+    The execution environment (typically comes from ``env['ENV']``) is
     propagated to the shell, and may need to be cleaned first.
 
     Args:

@@ -50,7 +50,7 @@ TarBuilder = SCons.Builder.Builder(action = TarAction,
                                    multi = 1)
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for tar to an Environment."""
     try:
         bld = env['BUILDERS']['Tar']

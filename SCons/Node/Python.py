@@ -37,37 +37,6 @@ class ValueNodeInfo(SCons.Node.NodeInfoBase):
     def str_to_node(self, s):
         return ValueWithMemo(s)
 
-    def __getstate__(self):
-        """
-        Return all fields that shall be pickled. Walk the slots in the class
-        hierarchy and add those to the state dictionary. If a '__dict__' slot
-        is available, copy all entries to the dictionary. Also include the
-        version id, which is fixed for all instances of a class.
-        """
-        state = getattr(self, '__dict__', {}).copy()
-        for obj in type(self).mro():
-            for name in getattr(obj, '__slots__', ()):
-                if hasattr(self, name):
-                    state[name] = getattr(self, name)
-
-        state['_version_id'] = self.current_version_id
-        try:
-            del state['__weakref__']
-        except KeyError:
-            pass
-
-        return state
-
-    def __setstate__(self, state):
-        """
-        Restore the attributes from a pickled state.
-        """
-        # TODO check or discard version
-        del state['_version_id']
-        for key, value in state.items():
-            if key not in ('__weakref__',):
-                setattr(self, key, value)
-
 
 class ValueBuildInfo(SCons.Node.BuildInfoBase):
     __slots__ = ()
@@ -87,7 +56,7 @@ class Value(SCons.Node.Node):
     NodeInfo = ValueNodeInfo
     BuildInfo = ValueBuildInfo
 
-    def __init__(self, value, built_value=None, name=None):
+    def __init__(self, value, built_value=None, name=None) -> None:
         super().__init__()
         self.value = value
         self.changed_since_last_build = 6
@@ -105,25 +74,25 @@ class Value(SCons.Node.Node):
     def str_for_display(self):
         return repr(self.value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.value)
 
-    def make_ready(self):
+    def make_ready(self) -> None:
         self.get_csig()
 
-    def build(self, **kw):
+    def build(self, **kw) -> None:
         if not hasattr(self, 'built_value'):
             SCons.Node.Node.build(self, **kw)
 
     is_up_to_date = SCons.Node.Node.children_are_up_to_date
 
-    def is_under(self, dir):
+    def is_under(self, dir) -> bool:
         # Make Value nodes get built regardless of
         # what directory scons was run from. Value nodes
         # are outside the filesystem:
-        return 1
+        return True
 
-    def write(self, built_value):
+    def write(self, built_value) -> None:
         """Set the value of the node."""
         self.built_value = built_value
 

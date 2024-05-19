@@ -78,8 +78,8 @@ def get_memory_info(process=None):
                                ctypes.sizeof(counters))
     if not ret:
         raise ctypes.WinError()
-    info = dict((name, getattr(counters, name))
-                for name, _ in counters._fields_)
+    info = {name: getattr(counters, name)
+                for name, _ in counters._fields_}
     return info
 
 

@@ -25,16 +25,17 @@
 
 import re
 import os.path
-from typing import Tuple
+from typing import Tuple, List
 
 import SCons.Scanner.Fortran
 import SCons.Tool
 import SCons.Util
-from SCons.Action import Action
+from SCons.Action import Action, CommandAction
+from SCons.Defaults import StaticObjectEmitter, SharedObjectEmitter
 
 
 def isfortran(env, source) -> bool:
-    """Returns True if source has any fortran files in it.
+    """Returns True if *source* has any fortran files in it.
 
     Only checks based on filename suffixes, does not examine code.
     """
@@ -62,14 +63,14 @@ def _fortranEmitter(target, source, env) -> Tuple:
     Called by both the static and shared object emitters,
     mainly to account for generated module files.
     """
-
     node = source[0].rfile()
     if not node.exists() and not node.is_derived():
-       print("Could not locate " + str(node.name))
-       return ([], [])
+        print("Could not locate " + str(node.name))
+        return [], []
+
     # This has to match the def_regex in the Fortran scanner
     mod_regex = r"""(?i)^\s*MODULE\s+(?!PROCEDURE|SUBROUTINE|FUNCTION|PURE|ELEMENTAL)(\w+)"""
-    cre = re.compile(mod_regex,re.M)
+    cre = re.compile(mod_regex, re.M)
     # Retrieve all USE'd module names
     modules = cre.findall(node.get_text_contents())
     # Remove unique items from the list
@@ -77,45 +78,48 @@ def _fortranEmitter(target, source, env) -> Tuple:
     # Convert module name to a .mod filename
     suffix = env.subst('$FORTRANMODSUFFIX', target=target, source=source)
     moddir = env.subst('$FORTRANMODDIR', target=target, source=source)
-    modules = [x.lower() + suffix for x in modules]
-    for m in modules:
-       target.append(env.fs.File(m, moddir))
-    return (target, source)
+    modules = [mod.lower() + suffix for mod in modules]
+    for module in modules:
+        target.append(env.fs.File(module, moddir))
+    return target, source
 
 
 def FortranEmitter(target, source, env) -> Tuple:
-    import SCons.Defaults
+    """Create emitter for static objects."""
     target, source = _fortranEmitter(target, source, env)
-    return SCons.Defaults.StaticObjectEmitter(target, source, env)
+    return StaticObjectEmitter(target, source, env)
 
 
 def ShFortranEmitter(target, source, env) -> Tuple:
-    import SCons.Defaults
+    """Create emitter for shared objects."""
     target, source = _fortranEmitter(target, source, env)
-    return SCons.Defaults.SharedObjectEmitter(target, source, env)
+    return SharedObjectEmitter(target, source, env)
 
 
-def ComputeFortranSuffixes(suffixes, ppsuffixes) -> None:
+def ComputeFortranSuffixes(suffixes: List[str], ppsuffixes: List[str]) -> None:
     """Update the suffix lists to reflect the platform requirements.
 
     If upper-cased suffixes can be distinguished from lower, those are
     added to *ppsuffixes*. If not, they are added to *suffixes*.
 
     Args:
-        suffixes (list): indicate regular Fortran source files
-        ppsuffixes (list): indicate Fortran source files that should be
+        suffixes: regular Fortran source files
+        ppsuffixes: Fortran source files that should be
           be run through the pre-processor
     """
     assert len(suffixes) > 0
     s = suffixes[0]
     sup = s.upper()
-    upper_suffixes = [_.upper() for _ in suffixes]
+    upper_suffixes = [suf.upper() for suf in suffixes]
     if SCons.Util.case_sensitive_suffixes(s, sup):
         ppsuffixes.extend(upper_suffixes)
     else:
         suffixes.extend(upper_suffixes)
 
-def CreateDialectActions(dialect) -> Tuple[Action, Action, Action, Action]:
+
+def CreateDialectActions(
+    dialect: str,
+) -> Tuple[CommandAction, CommandAction, CommandAction, CommandAction]:
     """Create dialect specific actions."""
     CompAction = Action(f'${dialect}COM ', cmdstr=f'${dialect}COMSTR')
     CompPPAction = Action(f'${dialect}PPCOM ', cmdstr=f'${dialect}PPCOMSTR')
@@ -124,14 +128,20 @@ def CreateDialectActions(dialect) -> Tuple[Action, Action, Action, Action]:
     return CompAction, CompPPAction, ShCompAction, ShCompPPAction
 
 
-def DialectAddToEnv(env, dialect, suffixes, ppsuffixes, support_mods=False) -> None:
+def DialectAddToEnv(
+    env,
+    dialect: str,
+    suffixes: List[str],
+    ppsuffixes: List[str],
+    support_mods: bool = False,
+) -> None:
     """Add dialect specific construction variables.
 
     Args:
-        dialect (str): dialect name
-        suffixes (list): suffixes associated with this dialect
-        ppsuffixes (list): suffixes using cpp associated with this dialect
-        support_mods (bool): whether this dialect supports modules
+        dialect: dialect name
+        suffixes: suffixes associated with this dialect
+        ppsuffixes: suffixes using cpp associated with this dialect
+        support_mods: whether this dialect supports modules
     """
     ComputeFortranSuffixes(suffixes, ppsuffixes)
 
@@ -184,16 +194,8 @@ def DialectAddToEnv(env, dialect, suffixes, ppsuffixes, support_mods=False) -> N
 
 def add_fortran_to_env(env) -> None:
     """Add Builders and construction variables for Fortran/generic."""
-    try:
-        FortranSuffixes = env['FORTRANFILESUFFIXES']
-    except KeyError:
-        FortranSuffixes = ['.f', '.for', '.ftn']
-
-    try:
-        FortranPPSuffixes = env['FORTRANPPFILESUFFIXES']
-    except KeyError:
-        FortranPPSuffixes = ['.fpp', '.FPP']
-
+    FortranSuffixes = env.get('FORTRANFILESUFFIXES', ['.f', '.for', '.ftn'])
+    FortranPPSuffixes = env.get('FORTRANPPFILESUFFIXES', ['.fpp', '.FPP'])
     DialectAddToEnv(env, "FORTRAN", FortranSuffixes, FortranPPSuffixes, support_mods=True)
 
     # Module support
@@ -206,72 +208,32 @@ def add_fortran_to_env(env) -> None:
 
 def add_f77_to_env(env) -> None:
     """Add Builders and construction variables for f77 dialect."""
-    try:
-        F77Suffixes = env['F77FILESUFFIXES']
-    except KeyError:
-        F77Suffixes = ['.f77']
-
-    try:
-        F77PPSuffixes = env['F77PPFILESUFFIXES']
-    except KeyError:
-        F77PPSuffixes = []
-
+    F77Suffixes = env.get('F77FILESUFFIXES', ['.f77'])
+    F77PPSuffixes = env.get('F77PPFILESUFFIXES', [])
     DialectAddToEnv(env, "F77", F77Suffixes, F77PPSuffixes)
 
 def add_f90_to_env(env) -> None:
     """Add Builders and construction variables for f90 dialect."""
-    try:
-        F90Suffixes = env['F90FILESUFFIXES']
-    except KeyError:
-        F90Suffixes = ['.f90']
-
-    try:
-        F90PPSuffixes = env['F90PPFILESUFFIXES']
-    except KeyError:
-        F90PPSuffixes = []
-
+    F90Suffixes = env.get('F90FILESUFFIXES', ['.f90'])
+    F90PPSuffixes = env.get('F90PPFILESUFFIXES', [])
     DialectAddToEnv(env, "F90", F90Suffixes, F90PPSuffixes, support_mods=True)
 
 def add_f95_to_env(env) -> None:
     """Add Builders and construction variables for f95 dialect."""
-    try:
-        F95Suffixes = env['F95FILESUFFIXES']
-    except KeyError:
-        F95Suffixes = ['.f95']
-
-    try:
-        F95PPSuffixes = env['F95PPFILESUFFIXES']
-    except KeyError:
-        F95PPSuffixes = []
-
+    F95Suffixes = env.get('F95FILESUFFIXES', ['.f95'])
+    F95PPSuffixes = env.get('F95PPFILESUFFIXES', [])
     DialectAddToEnv(env, "F95", F95Suffixes, F95PPSuffixes, support_mods=True)
 
 def add_f03_to_env(env) -> None:
     """Add Builders and construction variables for f03 dialect."""
-    try:
-        F03Suffixes = env['F03FILESUFFIXES']
-    except KeyError:
-        F03Suffixes = ['.f03']
-
-    try:
-        F03PPSuffixes = env['F03PPFILESUFFIXES']
-    except KeyError:
-        F03PPSuffixes = []
-
+    F03Suffixes = env.get('F03FILESUFFIXES', ['.f03'])
+    F03PPSuffixes = env.get('F03PPFILESUFFIXES', [])
     DialectAddToEnv(env, "F03", F03Suffixes, F03PPSuffixes, support_mods=True)
 
 def add_f08_to_env(env) -> None:
     """Add Builders and construction variables for f08 dialect."""
-    try:
-        F08Suffixes = env['F08FILESUFFIXES']
-    except KeyError:
-        F08Suffixes = ['.f08']
-
-    try:
-        F08PPSuffixes = env['F08PPFILESUFFIXES']
-    except KeyError:
-        F08PPSuffixes = []
-
+    F08Suffixes = env.get('F08FILESUFFIXES', ['.f08'])
+    F08PPSuffixes = env.get('F08PPFILESUFFIXES', [])
     DialectAddToEnv(env, "F08", F08Suffixes, F08PPSuffixes, support_mods=True)
 
 def add_all_to_env(env) -> None:

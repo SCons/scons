@@ -36,19 +36,19 @@ from SCons.Subst import (Literal, SUBST_CMD, SUBST_RAW, SUBST_SIG, SpecialAttrWr
 
 class DummyNode:
     """Simple node work-alike."""
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         self.name = os.path.normpath(name)
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
-    def is_literal(self):
-        return 1
+    def is_literal(self) -> bool:
+        return True
     def rfile(self):
         return self
     def get_subst_proxy(self):
         return self
 
 class DummyEnv:
-    def __init__(self, dict={}):
+    def __init__(self, dict={}) -> None:
         self.dict = dict
 
     def Dictionary(self, key = None):
@@ -68,13 +68,13 @@ class DummyEnv:
         dict["SOURCES"] = 'ssig'
         return dict
 
-def cs(target=None, source=None, env=None, for_signature=None):
+def cs(target=None, source=None, env=None, for_signature=None) -> str:
     return 'cs'
 
 def cl(target=None, source=None, env=None, for_signature=None):
     return ['cl']
 
-def CmdGen1(target, source, env, for_signature):
+def CmdGen1(target, source, env, for_signature) -> str:
     # Nifty trick...since Environment references are interpolated,
     # instantiate an instance of a callable class with this one,
     # which will then get evaluated.
@@ -83,7 +83,7 @@ def CmdGen1(target, source, env, for_signature):
     return "${CMDGEN2('foo', %d)}" % for_signature
 
 class CmdGen2:
-    def __init__(self, mystr, forsig):
+    def __init__(self, mystr, forsig) -> None:
         self.mystr = mystr
         self.expect_for_signature = forsig
 
@@ -94,14 +94,14 @@ class CmdGen2:
         return [ self.mystr, env.Dictionary('BAR') ]
 
 
-def CallableWithDefault(target, source, env, for_signature, other_value="default"):
+def CallableWithDefault(target, source, env, for_signature, other_value: str="default") -> str:
     assert str(target) == 't', target
     assert str(source) == 's', source
     return "CallableWithDefault: %s"%other_value
 
 PartialCallable = partial(CallableWithDefault, other_value="partial")
 
-def CallableWithNoDefault(target, source, env, for_signature, other_value):
+def CallableWithNoDefault(target, source, env, for_signature, other_value) -> str:
     assert str(target) == 't', target
     assert str(source) == 's', source
     return "CallableWithNoDefault: %s"%other_value
@@ -120,7 +120,7 @@ else:
 class SubstTestCase(unittest.TestCase):
     class MyNode(DummyNode):
         """Simple node work-alike with some extra stuff for testing."""
-        def __init__(self, name):
+        def __init__(self, name) -> None:
             super().__init__(name)
             class Attribute:
                 pass
@@ -132,19 +132,19 @@ class SubstTestCase(unittest.TestCase):
         foo = 1
 
     class TestLiteral:
-        def __init__(self, literal):
+        def __init__(self, literal) -> None:
             self.literal = literal
-        def __str__(self):
+        def __str__(self) -> str:
             return self.literal
-        def is_literal(self):
-            return 1
+        def is_literal(self) -> bool:
+            return True
 
     class TestCallable:
-        def __init__(self, value):
+        def __init__(self, value) -> None:
             self.value = value
-        def __call__(self):
+        def __call__(self) -> None:
             pass
-        def __str__(self):
+        def __str__(self) -> str:
             return self.value
 
     # only use of this is currently commented out below
@@ -253,7 +253,7 @@ class SubstTestCase(unittest.TestCase):
         'DEFS'      : [ ('Q1', '"q1"'), ('Q2', '"$AAA"') ],
     }
 
-    def basic_comparisons(self, function, convert):
+    def basic_comparisons(self, function, convert) -> None:
         env = DummyEnv(self.loc)
         cases = self.basic_cases[:]
         kwargs = {'target' : self.target, 'source' : self.source,
@@ -476,7 +476,7 @@ class scons_subst_TestCase(SubstTestCase):
             ["|", "|", "c", "1"],
     ]
 
-    def test_subst_env(self):
+    def test_subst_env(self) -> None:
         """Test scons_subst():  expansion dictionary"""
         # The expansion dictionary no longer comes from the construction
         # environment automatically.
@@ -484,7 +484,7 @@ class scons_subst_TestCase(SubstTestCase):
         s = scons_subst('$AAA', env)
         assert s == '', s
 
-    def test_subst_SUBST_modes(self):
+    def test_subst_SUBST_modes(self) -> None:
         """Test scons_subst():  SUBST_* modes"""
         env = DummyEnv(self.loc)
         subst_cases = self.subst_cases[:]
@@ -512,7 +512,7 @@ class scons_subst_TestCase(SubstTestCase):
             del subst_cases[:4]
         assert failed == 0, "%d subst() mode cases failed" % failed
 
-    def test_subst_target_source(self):
+    def test_subst_target_source(self) -> None:
         """Test scons_subst():  target= and source= arguments"""
         env = DummyEnv(self.loc)
         t1 = self.MyNode('t1')
@@ -534,7 +534,7 @@ class scons_subst_TestCase(SubstTestCase):
         result = scons_subst("$TARGETS $SOURCE", env, target=[], source=[])
         assert result == " ", result
 
-    def test_subst_callable_expansion(self):
+    def test_subst_callable_expansion(self) -> None:
         """Test scons_subst():  expanding a callable"""
         env = DummyEnv(self.loc)
         gvars = env.Dictionary()
@@ -543,7 +543,7 @@ class scons_subst_TestCase(SubstTestCase):
                              gvars=gvars)
         assert newcom == "test foo bar with spaces.out s t", newcom
 
-    def test_subst_callable_with_default_expansion(self):
+    def test_subst_callable_with_default_expansion(self) -> None:
         """Test scons_subst():  expanding a callable with a default value arg"""
         env = DummyEnv(self.loc)
         gvars = env.Dictionary()
@@ -552,7 +552,7 @@ class scons_subst_TestCase(SubstTestCase):
                              gvars=gvars)
         assert newcom == "test CallableWithDefault: default s t", newcom
 
-    def test_subst_partial_callable_with_default_expansion(self):
+    def test_subst_partial_callable_with_default_expansion(self) -> None:
         """Test scons_subst():  expanding a functools.partial callable which sets
            the default value in the callable"""
         env = DummyEnv(self.loc)
@@ -562,7 +562,7 @@ class scons_subst_TestCase(SubstTestCase):
                              gvars=gvars)
         assert newcom == "test CallableWithDefault: partial s t", newcom
 
-    def test_subst_partial_callable_with_no_default_expansion(self):
+    def test_subst_partial_callable_with_no_default_expansion(self) -> None:
         """Test scons_subst():  expanding a functools.partial callable which sets
            the value for extraneous function argument"""
         env = DummyEnv(self.loc)
@@ -640,7 +640,7 @@ class scons_subst_TestCase(SubstTestCase):
             raise AssertionError("did not catch expected UserError")
 
         try:
-            def func(a, b, c):
+            def func(a, b, c) -> None:
                 pass
             scons_subst("${func(1)}", env, gvars={'func':func})
         except SCons.Errors.UserError as e:
@@ -654,7 +654,7 @@ class scons_subst_TestCase(SubstTestCase):
         else:
             raise AssertionError("did not catch expected UserError")
 
-    def test_subst_raw_function(self):
+    def test_subst_raw_function(self) -> None:
         """Test scons_subst():  fetch function with SUBST_RAW plus conv"""
         # Test that the combination of SUBST_RAW plus a pass-through
         # conversion routine allows us to fetch a function through the
@@ -682,7 +682,7 @@ class scons_subst_TestCase(SubstTestCase):
         node = scons_subst("$NODE", env, mode=SUBST_SIG, conv=s, gvars=gvars)
         assert node is n1, node
 
-    def test_subst_overriding_gvars(self):
+    def test_subst_overriding_gvars(self) -> None:
         """Test scons_subst():  supplying an overriding gvars dictionary"""
         env = DummyEnv({'XXX' : 'xxx'})
         result = scons_subst('$XXX', env, gvars=env.Dictionary())
@@ -691,7 +691,7 @@ class scons_subst_TestCase(SubstTestCase):
         assert result == 'yyy', result
 
 class CLVar_TestCase(unittest.TestCase):
-    def test_CLVar(self):
+    def test_CLVar(self) -> None:
         """Test scons_subst() and scons_subst_list() with CLVar objects"""
 
         loc = {}
@@ -714,7 +714,7 @@ class CLVar_TestCase(unittest.TestCase):
         assert cmd_list[0][4] == "test", cmd_list[0][4]
 
 
-    def test_subst_overriding_lvars_overrides(self):
+    def test_subst_overriding_lvars_overrides(self) -> None:
         """Test that optional passed arg overrides overrides gvars, and existing lvars."""
         env=DummyEnv({'XXX' : 'xxx'})
         result = scons_subst('$XXX', env, gvars=env.Dictionary(), overrides={'XXX': 'yyz'})
@@ -931,7 +931,7 @@ class scons_subst_list_TestCase(SubstTestCase):
             [["|", "|", "c", "1"]],
     ]
 
-    def test_subst_env(self):
+    def test_subst_env(self) -> None:
         """Test scons_subst_list():  expansion dictionary"""
         # The expansion dictionary no longer comes from the construction
         # environment automatically.
@@ -939,7 +939,7 @@ class scons_subst_list_TestCase(SubstTestCase):
         s = scons_subst_list('$AAA', env)
         assert s == [[]], s
 
-    def test_subst_target_source(self):
+    def test_subst_target_source(self) -> None:
         """Test scons_subst_list():  target= and source= arguments"""
         env = DummyEnv(self.loc)
         gvars = env.Dictionary()
@@ -966,7 +966,7 @@ class scons_subst_list_TestCase(SubstTestCase):
                                     gvars=gvars)
         assert cmd_list == [['testing', 'foo', 'bar with spaces.out', 't', 's']], cmd_list
 
-    def test_subst_escape(self):
+    def test_subst_escape(self) -> None:
         """Test scons_subst_list():  escape functionality"""
         env = DummyEnv(self.loc)
         gvars = env.Dictionary()
@@ -1009,7 +1009,7 @@ class scons_subst_list_TestCase(SubstTestCase):
         c = cmd_list[0][2].escape(escape_func)
         assert c == 't"', c
 
-    def test_subst_SUBST_modes(self):
+    def test_subst_SUBST_modes(self) -> None:
         """Test scons_subst_list():  SUBST_* modes"""
         env = DummyEnv(self.loc)
         subst_list_cases = self.subst_list_cases[:]
@@ -1073,7 +1073,7 @@ class scons_subst_list_TestCase(SubstTestCase):
         else:
             raise AssertionError("did not catch expected SyntaxError")
 
-    def test_subst_raw_function(self):
+    def test_subst_raw_function(self) -> None:
         """Test scons_subst_list():  fetch function with SUBST_RAW plus conv"""
         # Test that the combination of SUBST_RAW plus a pass-through
         # conversion routine allows us to fetch a function through the
@@ -1086,7 +1086,7 @@ class scons_subst_list_TestCase(SubstTestCase):
         r = scons_subst_list("$CALLABLE2", env, mode=SUBST_RAW, gvars=gvars)
         assert r == [['callable-2']], repr(r)
 
-    def test_subst_list_overriding_gvars(self):
+    def test_subst_list_overriding_gvars(self) -> None:
         """Test scons_subst_list():  overriding conv()"""
         env = DummyEnv()
         def s(obj):
@@ -1102,7 +1102,7 @@ class scons_subst_list_TestCase(SubstTestCase):
         node = scons_subst_list("$NODE", env, mode=SUBST_SIG, conv=s, gvars=gvars)
         assert node == [[n1]], node
 
-    def test_subst_list_overriding_gvars2(self):
+    def test_subst_list_overriding_gvars2(self) -> None:
         """Test scons_subst_list():  supplying an overriding gvars dictionary"""
         env = DummyEnv({'XXX' : 'xxx'})
         result = scons_subst_list('$XXX', env, gvars=env.Dictionary())
@@ -1110,7 +1110,7 @@ class scons_subst_list_TestCase(SubstTestCase):
         result = scons_subst_list('$XXX', env, gvars={'XXX' : 'yyy'})
         assert result == [['yyy']], result
 
-    def test_subst_list_overriding_lvars_overrides(self):
+    def test_subst_list_overriding_lvars_overrides(self) -> None:
         """Test that optional passed arg overrides overrides gvars, and existing lvars."""
         env = DummyEnv({'XXX':'xxx'})
         result = scons_subst_list('$XXX', env, gvars=env.Dictionary(), overrides={'XXX': 'yyy'})
@@ -1168,7 +1168,7 @@ class scons_subst_once_TestCase(unittest.TestCase):
         ['x', 'x $RECURSE y', 'y'],
     ]
 
-    def test_subst_once(self):
+    def test_subst_once(self) -> None:
         """Test the scons_subst_once() function"""
         env = DummyEnv(self.loc)
         cases = self.basic_cases[:]
@@ -1185,7 +1185,7 @@ class scons_subst_once_TestCase(unittest.TestCase):
         assert failed == 0, "%d subst() cases failed" % failed
 
 class quote_spaces_TestCase(unittest.TestCase):
-    def test_quote_spaces(self):
+    def test_quote_spaces(self) -> None:
         """Test the quote_spaces() method..."""
         q = quote_spaces('x')
         assert q == 'x', q
@@ -1197,30 +1197,31 @@ class quote_spaces_TestCase(unittest.TestCase):
         assert q == '"x\tx"', q
 
     class Node:
-        def __init__(self, name, children=[]):
+        def __init__(self, name, children=[]) -> None:
             self.children = children
             self.name = name
-        def __str__(self):
+
+        def __str__(self) -> str:
             return self.name
-        def exists(self):
-            return 1
-        def rexists(self):
-            return 1
-        def has_builder(self):
-            return 1
-        def has_explicit_builder(self):
-            return 1
-        def side_effect(self):
-            return 1
-        def precious(self):
-            return 1
-        def always_build(self):
-            return 1
-        def current(self):
-            return 1
+        def exists(self) -> bool:
+            return True
+        def rexists(self) -> bool:
+            return True
+        def has_builder(self) -> bool:
+            return True
+        def has_explicit_builder(self) -> bool:
+            return True
+        def side_effect(self) -> bool:
+            return True
+        def precious(self) -> bool:
+            return True
+        def always_build(self) -> bool:
+            return True
+        def current(self) -> bool:
+            return True
 
 class LiteralTestCase(unittest.TestCase):
-    def test_Literal(self):
+    def test_Literal(self) -> None:
         """Test the Literal() function."""
         input_list = [ '$FOO', Literal('$BAR') ]
         gvars = { 'FOO' : 'BAZ', 'BAR' : 'BLAT' }
@@ -1232,13 +1233,13 @@ class LiteralTestCase(unittest.TestCase):
         cmd_list = escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**$BAR**'], cmd_list
 
-    def test_LiteralEqualsTest(self):
+    def test_LiteralEqualsTest(self) -> None:
         """Test that Literals compare for equality properly"""
         assert Literal('a literal') == Literal('a literal')
         assert Literal('a literal') != Literal('b literal')
 
 class SpecialAttrWrapperTestCase(unittest.TestCase):
-    def test_SpecialAttrWrapper(self):
+    def test_SpecialAttrWrapper(self) -> None:
         """Test the SpecialAttrWrapper() function."""
         input_list = [ '$FOO', SpecialAttrWrapper('$BAR', 'BLEH') ]
         gvars = { 'FOO' : 'BAZ', 'BAR' : 'BLAT' }
@@ -1255,7 +1256,7 @@ class SpecialAttrWrapperTestCase(unittest.TestCase):
         assert cmd_list == ['BAZ', '**BLEH**'], cmd_list
 
 class subst_dict_TestCase(unittest.TestCase):
-    def test_subst_dict(self):
+    def test_subst_dict(self) -> None:
         """Test substituting dictionary values in an Action
         """
         t = DummyNode('t')
@@ -1280,9 +1281,9 @@ class subst_dict_TestCase(unittest.TestCase):
 
         class V:
             # Fake Value node with no rfile() method.
-            def __init__(self, name):
+            def __init__(self, name) -> None:
                 self.name = name
-            def __str__(self):
+            def __str__(self) -> str:
                 return 'v-'+self.name
             def get_subst_proxy(self):
                 return self

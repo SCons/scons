@@ -48,7 +48,7 @@ acc = None
 
 try:
     dirs = os.listdir('/opt')
-except (IOError, OSError):
+except OSError:
     # Not being able to read the directory because it doesn't exist
     # (IOError) or isn't readable (OSError) is okay.
     dirs = []
@@ -60,7 +60,7 @@ for dir in dirs:
         break
 
         
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for g++ to an Environment."""
     cplusplus.generate(env)
 

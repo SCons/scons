@@ -28,18 +28,19 @@ import SCons.Errors
 import SCons.Variables
 
 import TestCmd
+from TestCmd import IS_WINDOWS
 
 class PathVariableTestCase(unittest.TestCase):
-    def test_PathVariable(self):
+    def test_PathVariable(self) -> None:
         """Test PathVariable creation"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PathVariable('test',
-                                          'test option help',
+                                          'test build variable help',
                                           '/default/path'))
 
         o = opts.options[0]
         assert o.key == 'test', o.key
-        assert o.help == 'test option help ( /path/to/test )', repr(o.help)
+        assert o.help == 'test build variable help ( /path/to/test )', repr(o.help)
         assert o.default == '/default/path', o.default
         assert o.validator is not None, o.validator
         assert o.converter is None, o.converter
@@ -48,7 +49,7 @@ class PathVariableTestCase(unittest.TestCase):
         """Test the PathExists validator"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PathVariable('test',
-                                          'test option help',
+                                          'test build variable help',
                                           '/default/path',
                                           SCons.Variables.PathVariable.PathExists))
 
@@ -56,22 +57,19 @@ class PathVariableTestCase(unittest.TestCase):
         test.write('exists', 'exists\n')
 
         o = opts.options[0]
-
         o.validator('X', test.workpath('exists'), {})
 
         dne = test.workpath('does_not_exist')
-        try:
+        with self.assertRaises(SCons.Errors.UserError) as cm:
             o.validator('X', dne, {})
-        except SCons.Errors.UserError as e:
-            assert str(e) == 'Path for option X does not exist: %s' % dne, e
-        except:
-            raise Exception("did not catch expected UserError")
+        e = cm.exception
+        self.assertEqual(str(e), f"Path for variable 'X' does not exist: {dne}")
 
     def test_PathIsDir(self):
         """Test the PathIsDir validator"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PathVariable('test',
-                                          'test option help',
+                                          'test build variable help',
                                           '/default/path',
                                           SCons.Variables.PathVariable.PathIsDir))
 
@@ -80,30 +78,25 @@ class PathVariableTestCase(unittest.TestCase):
         test.write('file', "file\n")
 
         o = opts.options[0]
-
         o.validator('X', test.workpath('dir'), {})
 
         f = test.workpath('file')
-        try:
+        with self.assertRaises(SCons.Errors.UserError) as cm:
             o.validator('X', f, {})
-        except SCons.Errors.UserError as e:
-            assert str(e) == 'Directory path for option X is a file: %s' % f, e
-        except:
-            raise Exception("did not catch expected UserError")
+        e = cm.exception
+        self.assertEqual(str(e), f"Directory path for variable 'X' is a file: {f}")
 
         dne = test.workpath('does_not_exist')
-        try:
+        with self.assertRaises(SCons.Errors.UserError) as cm:
             o.validator('X', dne, {})
-        except SCons.Errors.UserError as e:
-            assert str(e) == 'Directory path for option X does not exist: %s' % dne, e
-        except Exception as e:
-            raise Exception("did not catch expected UserError") from e
+        e = cm.exception
+        self.assertEqual(str(e), f"Directory path for variable 'X' does not exist: {dne}")
 
     def test_PathIsDirCreate(self):
         """Test the PathIsDirCreate validator"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PathVariable('test',
-                                          'test option help',
+                                          'test build variable help',
                                           '/default/path',
                                           SCons.Variables.PathVariable.PathIsDirCreate))
 
@@ -117,26 +110,26 @@ class PathVariableTestCase(unittest.TestCase):
         assert os.path.isdir(d)
 
         f = test.workpath('file')
-        try:
+        with self.assertRaises(SCons.Errors.UserError) as cm:
             o.validator('X', f, {})
-        except SCons.Errors.UserError as e:
-            assert str(e) == 'Path for option X is a file, not a directory: %s' % f, e
-        except Exception as e:
-            raise Exception("did not catch expected UserError") from e
+        e = cm.exception
+        self.assertEqual(str(e), f"Path for variable 'X' is a file, not a directory: {f}")
 
-        f = '/yyy/zzz'  # this not exists and should fail to create
-        try:
+        # pick a directory path that can't be mkdir'd
+        if IS_WINDOWS:
+            f = r'\\noserver\noshare\yyy\zzz'
+        else:
+            f = '/yyy/zzz'
+        with self.assertRaises(SCons.Errors.UserError) as cm:
             o.validator('X', f, {})
-        except SCons.Errors.UserError as e:
-            assert str(e) == 'Path for option X could not be created: %s' % f, e
-        except Exception as e:
-            raise Exception("did not catch expected UserError") from e
+        e = cm.exception
+        self.assertEqual(str(e), f"Path for variable 'X' could not be created: {f}")
 
     def test_PathIsFile(self):
         """Test the PathIsFile validator"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PathVariable('test',
-                                          'test option help',
+                                          'test build variable help',
                                           '/default/path',
                                           SCons.Variables.PathVariable.PathIsFile))
 
@@ -145,30 +138,25 @@ class PathVariableTestCase(unittest.TestCase):
         test.write('file', "file\n")
 
         o = opts.options[0]
-
         o.validator('X', test.workpath('file'), {})
 
         d = test.workpath('d')
-        try:
+        with self.assertRaises(SCons.Errors.UserError) as cm:
             o.validator('X', d, {})
-        except SCons.Errors.UserError as e:
-            assert str(e) == 'File path for option X does not exist: %s' % d, e
-        except:
-            raise Exception("did not catch expected UserError")
+        e = cm.exception
+        self.assertEqual(str(e), f"File path for variable 'X' does not exist: {d}")
 
         dne = test.workpath('does_not_exist')
-        try:
+        with self.assertRaises(SCons.Errors.UserError) as cm:
             o.validator('X', dne, {})
-        except SCons.Errors.UserError as e:
-            assert str(e) == 'File path for option X does not exist: %s' % dne, e
-        except:
-            raise Exception("did not catch expected UserError")
+        e = cm.exception
+        self.assertEqual(str(e), f"File path for variable 'X' does not exist: {dne}")
 
-    def test_PathAccept(self):
+    def test_PathAccept(self) -> None:
         """Test the PathAccept validator"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PathVariable('test',
-                                          'test option help',
+                                          'test build variable help',
                                           '/default/path',
                                           SCons.Variables.PathVariable.PathAccept))
 
@@ -177,7 +165,6 @@ class PathVariableTestCase(unittest.TestCase):
         test.write('file', "file\n")
 
         o = opts.options[0]
-
         o.validator('X', test.workpath('file'), {})
 
         d = test.workpath('d')
@@ -190,44 +177,37 @@ class PathVariableTestCase(unittest.TestCase):
         """Test the PathVariable validator argument"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PathVariable('test',
-                                          'test option help',
+                                          'test variable help',
                                           '/default/path'))
 
         test = TestCmd.TestCmd(workdir='')
         test.write('exists', 'exists\n')
 
         o = opts.options[0]
-
         o.validator('X', test.workpath('exists'), {})
 
         dne = test.workpath('does_not_exist')
-        try:
+        with self.assertRaises(SCons.Errors.UserError) as cm:
             o.validator('X', dne, {})
-        except SCons.Errors.UserError as e:
-            expect = 'Path for option X does not exist: %s' % dne
-            assert str(e) == expect, e
-        else:
-            raise Exception("did not catch expected UserError")
+        e = cm.exception
+        self.assertEqual(str(e), f"Path for variable 'X' does not exist: {dne}")
+
+        class ValidatorError(Exception):
+            pass
 
         def my_validator(key, val, env):
-            raise Exception("my_validator() got called for %s, %s!" % (key, val))
+            raise ValidatorError(f"my_validator() got called for {key!r}, {val}!")
 
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PathVariable('test2',
                                           'more help',
                                           '/default/path/again',
                                           my_validator))
-
         o = opts.options[0]
-
-        try:
+        with self.assertRaises(ValidatorError) as cm:
             o.validator('Y', 'value', {})
-        except Exception as e:
-            assert str(e) == 'my_validator() got called for Y, value!', e
-        else:
-            raise Exception("did not catch expected exception from my_validator()")
-
-
+        e = cm.exception
+        self.assertEqual(str(e), f"my_validator() got called for 'Y', value!")
 
 
 if __name__ == "__main__":

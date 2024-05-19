@@ -24,17 +24,19 @@ import os
 import shutil
 from os.path import join as joinpath
 from collections import OrderedDict
+from typing import Optional
 
 import SCons
 from SCons.Action import get_default_ENV, _string_from_cmd_list
 from SCons.Script import AddOption
 from SCons.Util import is_List, flatten_sequence
+from SCons.Util.sctyping import ExecutorType
 
 class NinjaExperimentalWarning(SCons.Warnings.WarningOnByDefault):
     pass
 
 
-def ninja_add_command_line_options():
+def ninja_add_command_line_options() -> None:
     """
     Add additional command line arguments to SCons specific to the ninja tool
     """
@@ -59,11 +61,11 @@ def ninja_add_command_line_options():
               action="store_true",
               default=False,
               help='Allow scons to skip regeneration of the ninja file and restarting of the daemon. ' +
-                    'Care should be taken in cases where Glob is in use or SCons generated files are used in ' + 
+                    'Care should be taken in cases where Glob is in use or SCons generated files are used in ' +
                     'command lines.')
 
 
-def is_valid_dependent_node(node):
+def is_valid_dependent_node(node) -> bool:
     """
     Return True if node is not an alias or is an alias that has children
 
@@ -76,7 +78,7 @@ def is_valid_dependent_node(node):
     are valid implicit dependencies.
     """
     if isinstance(node, SCons.Node.Alias.Alias):
-        return node.children()
+        return bool(node.children())
 
     return not node.get_env().get("NINJA_SKIP")
 
@@ -92,7 +94,7 @@ def alias_to_ninja_build(node):
     }
 
 
-def check_invalid_ninja_node(node):
+def check_invalid_ninja_node(node) -> bool:
     return not isinstance(node, (SCons.Node.FS.Base, SCons.Node.Alias.Alias))
 
 
@@ -129,7 +131,7 @@ def get_order_only(node):
     return [get_path(src_file(prereq)) for prereq in filter_ninja_nodes(node.prerequisites)]
 
 
-def get_dependencies(node, skip_sources=False):
+def get_dependencies(node, skip_sources: bool=False):
     """Return a list of dependencies for node."""
     if skip_sources:
         return [
@@ -236,7 +238,7 @@ def to_escaped_list(env, lst):
     return sorted([dep.escape(env.get("ESCAPE", lambda x: x)) for dep in deps_list])
 
 
-def generate_depfile(env, node, dependencies):
+def generate_depfile(env, node, dependencies) -> None:
     """
     Ninja tool function for writing a depfile. The depfile should include
     the node path followed by all the dependent files in a makefile format.
@@ -250,7 +252,7 @@ def generate_depfile(env, node, dependencies):
 
     need_rewrite = False
     try:
-        with open(depfile, 'r') as f:
+        with open(depfile) as f:
             need_rewrite = (f.read() != depfile_contents)
     except FileNotFoundError:
         need_rewrite = True
@@ -281,7 +283,7 @@ def ninja_recursive_sorted_dict(build):
     return sorted_dict
 
 
-def ninja_sorted_build(ninja, **build):
+def ninja_sorted_build(ninja, **build) -> None:
     sorted_dict = ninja_recursive_sorted_dict(build)
     ninja.build(**sorted_dict)
 
@@ -315,7 +317,7 @@ def get_command_env(env, target, source):
     scons_specified_env = SCons.Util.sanitize_shell_env(scons_specified_env)
     for key, value in scons_specified_env.items():
         if windows:
-            command_env += "set '{}={}' && ".format(key, value)
+            command_env += f"set '{key}={value}' && "
         else:
             # We address here *only* the specific case that a user might have
             # an environment variable which somehow gets included and has
@@ -323,7 +325,7 @@ def get_command_env(env, target, source):
             # doesn't make builds on paths with spaces (Ninja and SCons issues)
             # nor expanding response file paths with spaces (Ninja issue) work.
             value = value.replace(r' ', r'$ ')
-            command_env += "export {}='{}';".format(key, value)
+            command_env += f"export {key}='{value}';"
 
     env["NINJA_ENV_VAR_CACHE"] = command_env
     return command_env
@@ -344,7 +346,7 @@ def get_comstr(env, action, targets, sources):
     return action.genstring(targets, sources, env)
 
 
-def generate_command(env, node, action, targets, sources, executor=None):
+def generate_command(env, node, action, targets, sources, executor: Optional[ExecutorType] = None):
     # Actions like CommandAction have a method called process that is
     # used by SCons to generate the cmd_line they need to run. So
     # check if it's a thing like CommandAction and call it if we can.
@@ -437,7 +439,7 @@ def ninja_whereis(thing, *_args, **_kwargs):
         return path
 
 
-def ninja_print_conf_log(s, target, source, env):
+def ninja_print_conf_log(s, target, source, env) -> None:
     """Command line print only for conftest to generate a correct conf log."""
     if target and target[0].is_conftest():
         action = SCons.Action._ActionAction()

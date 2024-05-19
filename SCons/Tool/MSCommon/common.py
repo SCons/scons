@@ -29,9 +29,9 @@ import copy
 import json
 import os
 import re
-import subprocess
 import sys
 from contextlib import suppress
+from subprocess import DEVNULL, PIPE
 from pathlib import Path
 
 import SCons.Util
@@ -46,63 +46,118 @@ LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
 if LOGFILE:
     import logging
 
-    modulelist = (
-        # root module and parent/root module
-        'MSCommon', 'Tool',
-        # python library and below: correct iff scons does not have a lib folder
-        'lib',
-        # scons modules
-        'SCons', 'test', 'scons'
-    )
-
-    def get_relative_filename(filename, module_list):
-        if not filename:
-            return filename
-        for module in module_list:
-            try:
-                ind = filename.rindex(module)
-                return filename[ind:]
-            except ValueError:
-                pass
-        return filename
-
     class _Debug_Filter(logging.Filter):
         # custom filter for module relative filename
-        def filter(self, record):
-            relfilename = get_relative_filename(record.pathname, modulelist)
+
+        modulelist = (
+            # root module and parent/root module
+            'MSCommon', 'Tool',
+            # python library and below: correct iff scons does not have a lib folder
+            'lib',
+            # scons modules
+            'SCons', 'test', 'scons'
+        )
+
+        def get_relative_filename(self, filename, module_list):
+            if not filename:
+                return filename
+            for module in module_list:
+                try:
+                    ind = filename.rindex(module)
+                    return filename[ind:]
+                except ValueError:
+                    pass
+            return filename
+
+        def filter(self, record) -> bool:
+            relfilename = self.get_relative_filename(record.pathname, self.modulelist)
             relfilename = relfilename.replace('\\', '/')
             record.relfilename = relfilename
             return True
 
-    # Log format looks like:
-    #   00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3'        [file]
-    #   debug: 00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3' [stdout]
-    log_format=(
-        '%(relativeCreated)05dms'
-        ':%(relfilename)s'
-        ':%(funcName)s'
-        '#%(lineno)s'
-        ': %(message)s'
-    )
+    class _CustomFormatter(logging.Formatter):
+
+        # Log format looks like:
+        #   00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3'        [file]
+        #   debug: 00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3' [stdout]
+
+        log_format=(
+            '%(relativeCreated)05dms'
+            ':%(relfilename)s'
+            ':%(funcName)s'
+            '#%(lineno)s'
+            ': %(message)s'
+        )
+
+        log_format_classname=(
+            '%(relativeCreated)05dms'
+            ':%(relfilename)s'
+            ':%(classname)s'
+            '.%(funcName)s'
+            '#%(lineno)s'
+            ': %(message)s'
+        )
+
+        def __init__(self, log_prefix):
+            super().__init__()
+            if log_prefix:
+                self.log_format = log_prefix + self.log_format
+                self.log_format_classname = log_prefix + self.log_format_classname
+            log_record = logging.LogRecord(
+                '',    # name (str)
+                0,     # level (int)
+                '',    # pathname (str)
+                0,     # lineno (int)
+                None,  # msg (Any)
+                {},    # args (tuple | dict[str, Any])
+                None   # exc_info (tuple[type[BaseException], BaseException, types.TracebackType] | None)
+            )
+            self.default_attrs = set(log_record.__dict__.keys())
+            self.default_attrs.add('relfilename')
+
+        def format(self, record):
+            extras = set(record.__dict__.keys()) - self.default_attrs
+            if 'classname' in extras:
+                log_format = self.log_format_classname
+            else:
+                log_format = self.log_format
+            formatter = logging.Formatter(log_format)
+            return formatter.format(record)
+
     if LOGFILE == '-':
-        log_format = 'debug: ' + log_format
+        log_prefix = 'debug: '
         log_handler = logging.StreamHandler(sys.stdout)
     else:
+        log_prefix = ''
         log_handler = logging.FileHandler(filename=LOGFILE)
-    log_formatter = logging.Formatter(log_format)
+    log_formatter = _CustomFormatter(log_prefix)
     log_handler.setFormatter(log_formatter)
     logger = logging.getLogger(name=__name__)
     logger.setLevel(level=logging.DEBUG)
     logger.addHandler(log_handler)
     logger.addFilter(_Debug_Filter())
     debug = logger.debug
+
+    def debug_extra(cls=None):
+        if cls:
+            extra = {'classname': cls.__qualname__}
+        else:
+            extra = None
+        return extra
+
+    DEBUG_ENABLED = True
+
 else:
-    def debug(x, *args):
+    def debug(x, *args, **kwargs):
         return None
 
+    def debug_extra(*args, **kwargs):
+        return None
+
+    DEBUG_ENABLED = False
 
 # SCONS_CACHE_MSVC_CONFIG is public, and is documented.
-CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG')
+CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG', '')
 if CONFIG_CACHE in ('1', 'true', 'True'):
     CONFIG_CACHE = os.path.join(os.path.expanduser('~'), 'scons_msvc_cache.json')
 
@@ -112,56 +167,69 @@ if CONFIG_CACHE:
     if os.environ.get('SCONS_CACHE_MSVC_FORCE_DEFAULTS') in ('1', 'true', 'True'):
         CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS = True
 
-def read_script_env_cache():
+def read_script_env_cache() -> dict:
     """ fetch cached msvc env vars if requested, else return empty dict """
     envcache = {}
-    if CONFIG_CACHE:
+    p = Path(CONFIG_CACHE)
+    if not CONFIG_CACHE or not p.is_file():
+        return envcache
+    with SCons.Util.FileLock(CONFIG_CACHE, timeout=5, writer=False), p.open('r') as f:
+        # Convert the list of cache entry dictionaries read from
+        # json to the cache dictionary. Reconstruct the cache key
+        # tuple from the key list written to json.
+        # Note we need to take a write lock on the cachefile, as if there's
+        # an error and we try to remove it, that's "writing" on Windows.
         try:
-            p = Path(CONFIG_CACHE)
-            with p.open('r') as f:
-                # Convert the list of cache entry dictionaries read from
-                # json to the cache dictionary. Reconstruct the cache key
-                # tuple from the key list written to json.
-                envcache_list = json.load(f)
-                if isinstance(envcache_list, list):
-                    envcache = {tuple(d['key']): d['data'] for d in envcache_list}
-                else:
-                    # don't fail if incompatible format, just proceed without it
-                    warn_msg = "Incompatible format for msvc cache file {}: file may be overwritten.".format(
-                        repr(CONFIG_CACHE)
-                    )
-                    SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg)
-                    debug(warn_msg)
-        except FileNotFoundError:
-            # don't fail if no cache file, just proceed without it
-            pass
+            envcache_list = json.load(f)
+        except json.JSONDecodeError:
+            # If we couldn't decode it, it could be corrupt. Toss.
+            with suppress(FileNotFoundError):
+                p.unlink()
+            warn_msg = "Could not decode msvc cache file %s: dropping."
+            SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg % CONFIG_CACHE)
+            debug(warn_msg, CONFIG_CACHE)
+        else:
+            if isinstance(envcache_list, list):
+                envcache = {tuple(d['key']): d['data'] for d in envcache_list}
+            else:
+                # don't fail if incompatible format, just proceed without it
+                warn_msg = "Incompatible format for msvc cache file %s: file may be overwritten."
+                SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg % CONFIG_CACHE)
+                debug(warn_msg, CONFIG_CACHE)
+
     return envcache
 
 
-def write_script_env_cache(cache):
+def write_script_env_cache(cache) -> None:
     """ write out cache of msvc env vars if requested """
-    if CONFIG_CACHE:
-        try:
-            p = Path(CONFIG_CACHE)
-            with p.open('w') as f:
-                # Convert the cache dictionary to a list of cache entry
-                # dictionaries. The cache key is converted from a tuple to
-                # a list for compatibility with json.
-                envcache_list = [{'key': list(key), 'data': data} for key, data in cache.items()]
-                json.dump(envcache_list, f, indent=2)
-        except TypeError:
-            # data can't serialize to json, don't leave partial file
-            with suppress(FileNotFoundError):
-                p.unlink()
-        except IOError:
-            # can't write the file, just skip
-            pass
+    if not CONFIG_CACHE:
+        return
+
+    p = Path(CONFIG_CACHE)
+    try:
+        with SCons.Util.FileLock(CONFIG_CACHE, timeout=5, writer=True), p.open('w') as f:
+            # Convert the cache dictionary to a list of cache entry
+            # dictionaries. The cache key is converted from a tuple to
+            # a list for compatibility with json.
+            envcache_list = [
+                {'key': list(key), 'data': data} for key, data in cache.items()
+            ]
+            json.dump(envcache_list, f, indent=2)
+    except TypeError:
+        # data can't serialize to json, don't leave partial file
+        with suppress(FileNotFoundError):
+            p.unlink()
+    except OSError:
+        # can't write the file, just skip
+        pass
+
+    return
 
 
 _is_win64 = None
 
 
-def is_win64():
+def is_win64() -> bool:
     """Return true if running on windows 64 bits.
 
     Works whether python itself runs in 64 bits or 32 bits."""
@@ -196,9 +264,8 @@ def read_reg(value, hkroot=SCons.Util.HKEY_LOCAL_MACHINE):
     return SCons.Util.RegGetValue(hkroot, value)[0]
 
 
-def has_reg(value):
-    """Return True if the given key exists in HKEY_LOCAL_MACHINE, False
-    otherwise."""
+def has_reg(value) -> bool:
+    """Return True if the given key exists in HKEY_LOCAL_MACHINE."""
     try:
         SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, value)
         ret = True
@@ -209,7 +276,18 @@ def has_reg(value):
 # Functions for fetching environment variable settings from batch files.
 
 
-def normalize_env(env, keys, force=False):
+def _force_vscmd_skip_sendtelemetry(env):
+
+    if 'VSCMD_SKIP_SENDTELEMETRY' in env['ENV']:
+        return False
+
+    env['ENV']['VSCMD_SKIP_SENDTELEMETRY'] = '1'
+    debug("force env['ENV']['VSCMD_SKIP_SENDTELEMETRY']=%s", env['ENV']['VSCMD_SKIP_SENDTELEMETRY'])
+
+    return True
+
+
+def normalize_env(env, keys, force: bool=False):
     """Given a dictionary representing a shell environment, add the variables
     from os.environ needed for the processing of .bat files; the keys are
     controlled by the keys argument.
@@ -257,7 +335,7 @@ def normalize_env(env, keys, force=False):
     return normenv
 
 
-def get_output(vcbat, args=None, env=None):
+def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
     """Parse the output of given bat file, with given args."""
 
     if env is None:
@@ -296,51 +374,36 @@ def get_output(vcbat, args=None, env=None):
     ]
     env['ENV'] = normalize_env(env['ENV'], vs_vc_vars, force=False)
 
+    if skip_sendtelemetry:
+        _force_vscmd_skip_sendtelemetry(env)
+
     if args:
         debug("Calling '%s %s'", vcbat, args)
-        popen = SCons.Action._subproc(env,
-                                      '"%s" %s & set' % (vcbat, args),
-                                      stdin='devnull',
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
+        cmd_str = '"%s" %s & set' % (vcbat, args)
     else:
         debug("Calling '%s'", vcbat)
-        popen = SCons.Action._subproc(env,
-                                      '"%s" & set' % vcbat,
-                                      stdin='devnull',
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
+        cmd_str = '"%s" & set' % vcbat
 
-    # Use the .stdout and .stderr attributes directly because the
-    # .communicate() method uses the threading module on Windows
-    # and won't work under Pythons not built with threading.
-    with popen.stdout:
-        stdout = popen.stdout.read()
-    with popen.stderr:
-        stderr = popen.stderr.read()
+    cp = SCons.Action.scons_subproc_run(
+        env, cmd_str, stdin=DEVNULL, stdout=PIPE, stderr=PIPE,
+    )
 
     # Extra debug logic, uncomment if necessary
-    # debug('stdout:%s', stdout)
-    # debug('stderr:%s', stderr)
+    # debug('stdout:%s', cp.stdout)
+    # debug('stderr:%s', cp.stderr)
 
     # Ongoing problems getting non-corrupted text led to this
     # changing to "oem" from "mbcs" - the scripts run presumably
     # attached to a console, so some particular rules apply.
-    # Unfortunately, "oem" not defined in Python 3.5, so get another way
-    if sys.version_info.major == 3 and sys.version_info.minor < 6:
-        from ctypes import windll
-
-        OEM = "cp{}".format(windll.kernel32.GetConsoleOutputCP())
-    else:
-        OEM = "oem"
-    if stderr:
+    OEM = "oem"
+    if cp.stderr:
         # TODO: find something better to do with stderr;
         # this at least prevents errors from getting swallowed.
-        sys.stderr.write(stderr.decode(OEM))
-    if popen.wait() != 0:
-        raise IOError(stderr.decode(OEM))
+        sys.stderr.write(cp.stderr.decode(OEM))
+    if cp.returncode != 0:
+        raise OSError(cp.stderr.decode(OEM))
 
-    return stdout.decode(OEM)
+    return cp.stdout.decode(OEM)
 
 
 KEEPLIST = (
@@ -367,9 +430,9 @@ def parse_output(output, keep=KEEPLIST):
     # rdk will  keep the regex to match the .bat file output line starts
     rdk = {}
     for i in keep:
-        rdk[i] = re.compile('%s=(.*)' % i, re.I)
+        rdk[i] = re.compile(r'%s=(.*)' % i, re.I)
 
-    def add_env(rmatch, key, dkeep=dkeep):
+    def add_env(rmatch, key, dkeep=dkeep) -> None:
         path_list = rmatch.group(1).split(os.pathsep)
         for path in path_list:
             # Do not add empty paths (when a var ends with ;)

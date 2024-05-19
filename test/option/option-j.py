@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,14 +22,11 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 """
 This tests the -j command line option, and the num_jobs
 SConscript settable option.
 """
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 import sys
@@ -121,43 +120,6 @@ test.fail_test(start2 < finish1)
 # Make sure that a parallel build using a list builder
 # succeeds.
 test.run(arguments='-j 2 out')
-
-if sys.platform != 'win32' and sys.version_info[0] == 2:
-    # Test breaks on win32 when using real subprocess is not the only
-    # package to import threading
-    #
-    # Test that we fall back and warn properly if there's no threading.py
-    # module (simulated), which is the case if this version of Python wasn't
-    # built with threading support.
-
-    test.subdir('pythonlib')
-
-    test.write(['pythonlib', 'threading.py'], "raise ImportError\n")
-
-    save_pythonpath = os.environ.get('PYTHONPATH', '')
-    os.environ['PYTHONPATH'] = test.workpath('pythonlib')
-
-    #start2, finish1 = RunTest('-j 2 f1, f2', "fifth")
-
-    test.write('f1.in', 'f1.in pythonlib\n')
-    test.write('f2.in', 'f2.in pythonlib\n')
-
-    test.run(arguments = "-j 2 f1 f2", stderr=None)
-
-    warn = """scons: warning: parallel builds are unsupported by this version of Python;
-\tignoring -j or num_jobs option."""
-    test.must_contain_all_lines(test.stderr(), [warn])
-
-    str = test.read("f1", mode='r')
-    start1,finish1 = list(map(float, str.split("\n")))
-
-    str = test.read("f2", mode='r')
-    start2,finish2 = list(map(float, str.split("\n")))
-
-    test.fail_test(start2 < finish1)
-
-    os.environ['PYTHONPATH'] = save_pythonpath
-
 
 # Test SetJobs() with no -j:
 test.write('SConstruct', """

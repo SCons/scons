@@ -35,7 +35,7 @@ import SCons.CacheDir
 built_it = None
 
 class Action:
-    def __call__(self, targets, sources, env, **kw):
+    def __call__(self, targets, sources, env, **kw) -> int:
         global built_it
         if kw.get('execute', 1):
             built_it = 1
@@ -46,7 +46,7 @@ class Action:
         return bytearray('','utf-8')
 
 class Builder:
-    def __init__(self, environment, action):
+    def __init__(self, environment, action) -> None:
         self.env = environment
         self.action = action
         self.overrides = {}
@@ -54,7 +54,7 @@ class Builder:
         self.target_scanner = None
 
 class Environment:
-    def __init__(self, cachedir):
+    def __init__(self, cachedir) -> None:
         self.cachedir = cachedir
     def Override(self, overrides):
         return self
@@ -65,7 +65,7 @@ class BaseTestCase(unittest.TestCase):
     """
     Base fixtures common to our other unittest classes.
     """
-    def setUp(self):
+    def setUp(self) -> None:
         self.test = TestCmd(workdir='')
 
         import SCons.Node.FS
@@ -82,7 +82,7 @@ class BaseTestCase(unittest.TestCase):
             #node.binfo.ninfo.bsig = bsig
         return node
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         os.remove(os.path.join(self._CacheDir.path, 'config'))
         os.rmdir(self._CacheDir.path)
         # Should that be shutil.rmtree?
@@ -91,7 +91,7 @@ class CacheDirTestCase(BaseTestCase):
     """
     Test calling CacheDir code directly.
     """
-    def test_cachepath(self):
+    def test_cachepath(self) -> None:
         """Test the cachepath() method"""
 
         # Verify how the cachepath() method determines the name
@@ -117,15 +117,15 @@ class ExceptionTestCase(unittest.TestCase):
 
     # Don't inherit from BaseTestCase, we're by definition trying to
     # break things so we really want a clean slate for each test.
-    def setUp(self):
+    def setUp(self) -> None:
         self.tmpdir = tempfile.mkdtemp()
         self._CacheDir = SCons.CacheDir.CacheDir(self.tmpdir)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)
 
     @unittest.skipIf(sys.platform.startswith("win"), "This fixture will not trigger an OSError on Windows")
-    def test_throws_correct_on_OSError(self):
+    def test_throws_correct_on_OSError(self) -> None:
         """Test that the correct error is thrown when cache directory cannot be created."""
         privileged_dir = os.path.join(self.tmpdir, "privileged")
         try:
@@ -140,11 +140,11 @@ class ExceptionTestCase(unittest.TestCase):
             shutil.rmtree(privileged_dir)
 
 
-    def test_throws_correct_when_failed_to_write_configfile(self):
+    def test_throws_correct_when_failed_to_write_configfile(self) -> None:
         class Unserializable:
             """A class which the JSON should not be able to serialize"""
 
-            def __init__(self, oldconfig):
+            def __init__(self, oldconfig) -> None:
                 self.something = 1 # Make the object unserializable
                 # Pretend to be the old config just enough
                 self.__dict__["prefix_len"] = oldconfig["prefix_len"]
@@ -155,7 +155,7 @@ class ExceptionTestCase(unittest.TestCase):
                 else:
                     return None
 
-            def __setitem__(self, name, value):
+            def __setitem__(self, name, value) -> None:
                 self.__dict__[name] = value
 
         oldconfig = self._CacheDir.config
@@ -164,14 +164,14 @@ class ExceptionTestCase(unittest.TestCase):
         # so that _readconfig* will try to rewrite it
         old_config = os.path.join(self._CacheDir.path, "config")
         os.remove(old_config)
-        
+
         try:
             self._CacheDir._readconfig(self._CacheDir.path)
             assert False, "Should have raised exception and did not"
         except SCons.Errors.SConsEnvironmentError as e:
             assert str(e) == "Failed to write cache configuration for {}".format(self._CacheDir.path)
 
-    def test_raise_environment_error_on_invalid_json(self):
+    def test_raise_environment_error_on_invalid_json(self) -> None:
         config_file = os.path.join(self._CacheDir.path, "config")
         with open(config_file, "r") as cfg:
             content = cfg.read()
@@ -195,19 +195,19 @@ class FileTestCase(BaseTestCase):
     # when the CacheDir support was refactored into its own module.
     # Look in the history for Node/FSTests.py if any of this needs
     # to be re-examined.
-    def retrieve_succeed(self, target, source, env, execute=1):
+    def retrieve_succeed(self, target, source, env, execute: int=1) -> int:
         self.retrieved.append(target)
         return 0
 
-    def retrieve_fail(self, target, source, env, execute=1):
+    def retrieve_fail(self, target, source, env, execute: int=1) -> int:
         self.retrieved.append(target)
         return 1
 
-    def push(self, target, source, env):
+    def push(self, target, source, env) -> int:
         self.pushed.append(target)
         return 0
 
-    def test_CacheRetrieve(self):
+    def test_CacheRetrieve(self) -> None:
         """Test the CacheRetrieve() function"""
 
         save_CacheRetrieve = SCons.CacheDir.CacheRetrieve
@@ -235,7 +235,7 @@ class FileTestCase(BaseTestCase):
         finally:
             SCons.CacheDir.CacheRetrieve = save_CacheRetrieve
 
-    def test_CacheRetrieveSilent(self):
+    def test_CacheRetrieveSilent(self) -> None:
         """Test the CacheRetrieveSilent() function"""
 
         save_CacheRetrieveSilent = SCons.CacheDir.CacheRetrieveSilent
@@ -264,7 +264,7 @@ class FileTestCase(BaseTestCase):
         finally:
             SCons.CacheDir.CacheRetrieveSilent = save_CacheRetrieveSilent
 
-    def test_CachePush(self):
+    def test_CachePush(self) -> None:
         """Test the CachePush() function"""
 
         save_CachePush = SCons.CacheDir.CachePush
@@ -299,7 +299,7 @@ class FileTestCase(BaseTestCase):
         finally:
             SCons.CacheDir.CachePush = save_CachePush
 
-    def test_warning(self):
+    def test_warning(self) -> None:
         """Test raising a warning if we can't copy a file to cache."""
 
         test = TestCmd(workdir='')
@@ -309,31 +309,25 @@ class FileTestCase(BaseTestCase):
             raise OSError
         shutil.copy2 = copy2
         save_mkdir = os.mkdir
-        def mkdir(dir, mode=0):
+        def mkdir(dir, mode: int=0) -> None:
             pass
         os.mkdir = mkdir
         old_warn_exceptions = SCons.Warnings.warningAsException(1)
         SCons.Warnings.enableWarningClass(SCons.Warnings.CacheWriteErrorWarning)
 
-        try:
-            cd_f7 = self.test.workpath("cd.f7")
-            self.test.write(cd_f7, "cd.f7\n")
-            f7 = self.File(cd_f7, 'f7_bsig')
+        cd_f7 = self.test.workpath("cd.f7")
+        self.test.write(cd_f7, "cd.f7\n")
+        f7 = self.File(cd_f7, 'f7_bsig')
 
-            warn_caught = 0
-            try:
-                f7.push_to_cache()
-            except SCons.Errors.BuildError as e:
-                assert e.exc_info[0] == SCons.Warnings.CacheWriteErrorWarning
-                warn_caught = 1
-            assert warn_caught
-        finally:
-            shutil.copy2 = save_copy2
-            os.mkdir = save_mkdir
-            SCons.Warnings.warningAsException(old_warn_exceptions)
-            SCons.Warnings.suppressWarningClass(SCons.Warnings.CacheWriteErrorWarning)
+        warn_caught = 0
+        r = f7.push_to_cache()
+        assert r.exc_info[0] == SCons.Warnings.CacheWriteErrorWarning
+        shutil.copy2 = save_copy2
+        os.mkdir = save_mkdir
+        SCons.Warnings.warningAsException(old_warn_exceptions)
+        SCons.Warnings.suppressWarningClass(SCons.Warnings.CacheWriteErrorWarning)
 
-    def test_no_strfunction(self):
+    def test_no_strfunction(self) -> None:
         """Test handling no strfunction() for an action."""
 
         save_CacheRetrieveSilent = SCons.CacheDir.CacheRetrieveSilent

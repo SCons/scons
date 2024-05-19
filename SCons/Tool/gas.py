@@ -40,7 +40,7 @@ except:
 
 assemblers = ['as', 'gas']
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for as to an Environment."""
     as_module.generate(env)
 

@@ -48,7 +48,7 @@ def smart_linkflags(source, target, env, for_signature):
     return ''
 
 
-def generate(env):
+def generate(env) -> None:
     """
     Add Builders and construction variables for Visual Age linker to
     an Environment.

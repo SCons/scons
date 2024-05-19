@@ -1,4 +1,10 @@
 <?xml version='1.0'?>
+
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+-->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
@@ -17,46 +23,19 @@
          xmlns="http://www.scons.org/dbxsd/v1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
 <title>Less Simple Things to Do With Builds</title>
-
-<!--
-
-  __COPYRIGHT__
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--->
 
   <para>
 
+  Of course, most builds are more complicated than in the previous chapter.
   In this chapter,
-  you will see several examples of
-  very simple build configurations using &SCons;,
-  which will demonstrate how easy
-  it is to use &SCons; to
-  build programs from several different programming languages
-  on different types of systems.
+  you will learn about builds that incorporate multiple source files,
+  and then about building multiple targets that share some source files.
 
   </para>
 
-  <section>
+  <section id="sect-target-name">
   <title>Specifying the Name of the Target (Output) File</title>
 
     <para>
@@ -71,14 +50,15 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
 Program('hello.c')
-    </programlisting>
+    </sconstruct>
 
     <para>
 
     If you want to build a program with
-    a different name than the base of the source file name,
+    a different base name than the base of the source file name
+    (or even the same name),
     you simply put the target file name
     to the left of the source file name:
 
@@ -95,14 +75,14 @@ int main() { printf("Hello, world!\n"); }
 
     <para>
 
-    (&SCons; requires the target file name first,
+    &SCons; requires the target file name first,
     followed by the source file name,
     so that the order mimics that of an
     assignment statement in most programming languages,
-    including Python:
+    including &Python;:
     <literal>"target = source files"</literal>. For an
     alternative way to supply this information, see
-    <xref linkend="keyword-args"></xref>).
+    <xref linkend="sect-keyword-args"></xref>.
 
     </para>
 
@@ -130,7 +110,7 @@ int main() { printf("Hello, world!\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-multi-source">
   <title>Compiling Multiple Source Files</title>
 
     <para>
@@ -141,7 +121,7 @@ int main() { printf("Hello, world!\n"); }
     that you'll need to build a program from
     many input source files, not just one.
     To do this, you need to put the
-    source files in a Python list
+    source files in a &Python; list
     (enclosed in square brackets),
     like so:
 
@@ -182,15 +162,11 @@ void file2() { printf("file2.c\n"); }
     &SCons; will name the resulting program &prog;
     (or &prog_exe; on a Windows system).
     If you want to specify a different program name,
-    then (as we've seen in the previous section)
+    then (as described in the previous section)
     you slide the list of source files
     over to the right
     to make room for the output program file name.
-    (&SCons; puts the output file name to the left
-    of the source file names
-    so that the order mimics that of an
-    assignment statement:  <literal>program = source files</literal>.)
-    This makes our example:
+    Here is the updated example:
 
     </para>
 
@@ -231,7 +207,7 @@ void file2() { printf("file2.c\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-glob-source">
   <title>Making a list of files with &Glob;</title>
 
     <para>
@@ -256,7 +232,8 @@ Program('program', Glob('*.c'))
     <para>
 
     &f-Glob; has powerful capabilities - it matches even if the
-    file does not exist, but &SCons; can determine that it would
+    file does not currently exist,
+    but &SCons; can determine that it would
     exist after a build.
     You will meet it again reading about
     variant directories
@@ -268,12 +245,12 @@ Program('program', Glob('*.c'))
 
   </section>
 
-  <section>
+  <section id="sect-single-list">
   <title>Specifying Single Files Vs. Lists of Files</title>
 
     <para>
 
-    We've now shown you two ways to specify
+    You've now seen two ways to specify
     the source for a program,
     one with a list of files:
 
@@ -295,7 +272,7 @@ Program('hello', 'hello.c')
 
     <para>
 
-    You could actually put a single file name in a list, too,
+    You can actually put a single file name in a list, too,
     which you might prefer just for the sake of consistency:
 
     </para>
@@ -321,7 +298,7 @@ Program('hello', ['hello.c'])
     Although &SCons; functions
     are forgiving about whether or not you
     use a string vs. a list for a single file name,
-    Python itself is more strict about
+    &Python; itself is more strict about
     treating lists and strings differently.
     So where &SCons; allows either
     a string or list:
@@ -336,7 +313,7 @@ Program('program2', ['program2.c'])
 
     <para>
 
-    Trying to do "Python things" that mix strings and
+    Trying to do "&Python; things" that mix strings and
     lists will cause errors or lead to incorrect results:
 
     </para>
@@ -357,18 +334,18 @@ Program('program2', common_sources + ['program2.c'])
 
   </section>
 
-  <section>
+  <section id="sect-source-split">
   <title>Making Lists of Files Easier to Read</title>
 
     <para>
 
-    One drawback to the use of a Python list
+    One drawback to the use of a &Python; list
     for source files is that
     each file name must be enclosed in quotes
     (either single quotes or double quotes).
     This can get cumbersome and difficult to read
     when the list of file names is long.
-    Fortunately, &SCons; and Python provide a number of ways
+    Fortunately, &SCons; and &Python; provide a number of ways
     to make sure that
     the &SConstruct; file stays easy to read.
 
@@ -378,7 +355,7 @@ Program('program2', common_sources + ['program2.c'])
 
     To make long lists of file names
     easier to deal with, &SCons; provides a
-    &Split; function
+    &f-link-Split; function
     that takes a quoted list of file names,
     with the names separated by spaces or other white-space characters,
     and turns it into a list of separate file names.
@@ -387,17 +364,17 @@ Program('program2', common_sources + ['program2.c'])
 
     </para>
 
-    <programlisting>
+    <sconstruct>
 Program('program', Split('main.c file1.c file2.c'))
-    </programlisting>
+    </sconstruct>
 
     <para>
 
-    (If you're already familiar with Python,
+    (If you're already familiar with &Python;,
     you'll have realized that this is similar to the
     <function>split()</function> method
-    in the Python standard <function>string</function> module.
-    Unlike the <function>split()</function> member function of strings,
+    of &Python; string objects..
+    Unlike the <function>split()</function> method,
     however, the &Split; function
     does not require a string as input
     and will wrap up a single non-string object in a list,
@@ -421,10 +398,10 @@ Program('program', Split('main.c file1.c file2.c'))
 
     </para>
 
-    <programlisting>
+    <sconstruct>
 src_files = Split('main.c file1.c file2.c')
 Program('program', src_files)
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -437,44 +414,47 @@ Program('program', src_files)
 
     </para>
 
-    <programlisting>
-src_files = Split("""main.c
-                     file1.c
-                     file2.c""")
+    <sconstruct>
+src_files = Split("""
+    main.c
+    file1.c
+    file2.c
+""")
 Program('program', src_files)
-    </programlisting>
+    </sconstruct>
 
     <para>
 
-    (Note in this example that we used
-    the Python "triple-quote" syntax,
-    which allows a string to contain
-    multiple lines.
+    (Note this example uses
+    the &Python; "triple-quote" syntax,
+    which allows a string to span multiple lines.
     The three quotes can be either
-    single or double quotes.)
+    single or double quotes as long as they match.)
 
     </para>
 
   </section>
 
-  <section id="keyword-args">
+  <section id="sect-keyword-args">
   <title>Keyword Arguments</title>
 
     <para>
 
     &SCons; also allows you to identify
     the output file and input source files
-    using Python keyword arguments
+    using &Python; <firstterm>keyword arguments</firstterm>
     <parameter>target</parameter> and
     <parameter>source</parameter>.
-    The Python syntax for this is:
+    A keyword argument is an argument preceded by an identifier,
+    of the form <literal>name=value</literal>, in a function call.
+    The usage looks like this example:
 
     </para>
 
-    <programlisting>
+    <sconstruct>
 src_files = Split('main.c file1.c file2.c')
 Program(target='program', source=src_files)
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -484,10 +464,10 @@ Program(target='program', source=src_files)
 
     </para>
 
-    <programlisting>
+    <sconstruct>
 src_files = Split('main.c file1.c file2.c')
 Program(source=src_files, target='program')
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -502,7 +482,7 @@ Program(source=src_files, target='program')
 
   </section>
 
-  <section>
+  <section id="sect-multi-targets">
   <title>Compiling Multiple Programs</title>
 
     <para>
@@ -549,14 +529,14 @@ void bar2() { printf("bar2.c\n"); }
     &SCons; does, however, recognize that
     the individual object files must be built
     before the resulting program can be built.
-    We'll discuss this in greater detail in
-    the "Dependencies" section, below.
+    (This will be covered in greater detail in
+    <xref linkend="chap-depends"/>, below.)
 
     </para>
 
   </section>
 
-  <section>
+  <section id="sect-sharing-sources">
   <title>Sharing Source Files Between Multiple Programs</title>
 
     <para>
@@ -623,20 +603,20 @@ void common22() { printf("common2.c\n"); }
     repeating the common files in the list for each program
     can be a maintenance problem when you need to change the
     list of common files.
-    You can simplify this by creating a separate Python list
+    You can simplify this by creating a separate &Python; list
     to hold the common file names,
     and concatenating it with other lists
-    using the Python &plus; operator:
+    using the &Python; &plus; operator:
 
     </para>
 
-    <programlisting>
+    <sconstruct>
 common = ['common1.c', 'common2.c']
 foo_files = ['foo.c'] + common
 bar_files = ['bar1.c', 'bar2.c'] + common
 Program('foo', foo_files)
 Program('bar', bar_files)
-    </programlisting>
+    </sconstruct>
 
     <para>
 

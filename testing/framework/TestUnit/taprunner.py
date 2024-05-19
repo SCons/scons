@@ -1,6 +1,6 @@
 """
 Format unittest results in Test Anything Protocol (TAP).
-http://testanything.org/tap-version-13-specification.html
+https://testanything.org/tap-version-13-specification.html
 
 Public domain work by:
   anatoly techtonik <techtonik@gmail.com>
@@ -24,7 +24,7 @@ except ImportError:
 
 class TAPTestResult(TextTestResult):
 
-    def _process(self, test, msg, failtype = None, directive = None):
+    def _process(self, test, msg, failtype = None, directive = None) -> None:
         """ increase the counter, format and output TAP info """
         # counterhack: increase test counter
         test.suite.tap_counter += 1
@@ -42,29 +42,29 @@ class TAPTestResult(TextTestResult):
         # [ ] write test __doc__ (if exists) in comment
         self.stream.flush()
 
-    def addSuccess(self, test):
+    def addSuccess(self, test) -> None:
         super().addSuccess(test)
         self._process(test, "ok")
 
-    def addFailure(self, test, err):
+    def addFailure(self, test, err) -> None:
         super().addFailure(test, err)
         self._process(test, "not ok", "FAIL")
         # [ ] add structured data about assertion
 
-    def addError(self, test, err):
+    def addError(self, test, err) -> None:
         super().addError(test, err)
         self._process(test, "not ok", "ERROR")
         # [ ] add structured data about exception
 
-    def addSkip(self, test, reason):
+    def addSkip(self, test, reason) -> None:
         super().addSkip(test, reason)
         self._process(test, "ok", directive=("  # SKIP  %s" % reason))
 
-    def addExpectedFailure(self, test, err):
+    def addExpectedFailure(self, test, err) -> None:
         super().addExpectedFailure(test, err)
         self._process(test, "not ok", directive="  # TODO")
 
-    def addUnexpectedSuccess(self, test):
+    def addUnexpectedSuccess(self, test) -> None:
         super().addUnexpectedSuccess(test)
         self._process(test, "not ok", "FAIL (unexpected success)")
 
@@ -98,22 +98,22 @@ if __name__ == "__main__":
     import unittest
 
     class Test(unittest.TestCase):
-       def test_ok(self):
+       def test_ok(self) -> None:
            pass
-       def test_fail(self):
+       def test_fail(self) -> None:
            self.assertTrue(False)
-       def test_error(self):
+       def test_error(self) -> None:
            bad_symbol
        @unittest.skip("skipin'")
-       def test_skip(self):
+       def test_skip(self) -> None:
            pass
        @unittest.expectedFailure
-       def test_not_ready(self):
+       def test_not_ready(self) -> None:
            self.fail()
        @unittest.expectedFailure
-       def test_invalid_fail_mark(self):
+       def test_invalid_fail_mark(self) -> None:
            pass
-       def test_another_ok(self):
+       def test_another_ok(self) -> None:
            pass
 
 

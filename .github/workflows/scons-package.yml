@@ -14,16 +14,16 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4.1.1
 
     - name: Set up Python 3.10
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5.0.0
       with:
         python-version: '3.10'
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install --upgrade pip setuptools wheel build
         #python -m pip install flake8 pytest
         if [ -f requirements-pkg.txt ]; then pip install -r requirements-pkg.txt; elif [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         sudo apt-get update

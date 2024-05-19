@@ -28,40 +28,123 @@ Test helper functions for Microsoft Visual C/C++.
 import unittest
 import os
 import re
+import sys
+import pathlib
 
 from SCons.Tool.MSCommon.MSVC import Config
 from SCons.Tool.MSCommon.MSVC import Util
 from SCons.Tool.MSCommon.MSVC import WinSDK
 
+def resolve(p):
+    p = os.path.abspath(p)
+    p = str(pathlib.Path(p).resolve())
+    return p
+
+def normalize(*comps):
+    p = os.path.join(*comps)
+    p = os.path.normpath(p)
+    p = os.path.normcase(p)
+    return p
+
 class Data:
 
-    UTIL_PARENT_DIR = os.path.join(os.path.dirname(Util.__file__), os.pardir)
+    IS_WINDOWS = sys.platform == 'win32'
+
+    CWD = os.getcwd()
+
+    UTIL_MODULE = os.path.dirname(Util.__file__)
+    UTIL_MODULE_PARENT = os.path.join(UTIL_MODULE, os.pardir)
+
+    HOME = pathlib.Path.home()
+    HOMEDRIVE = HOME.drive
+    HOMEPATH = str(HOME)
+
+    REALPATH_CWD = resolve(CWD)
+
+    REALPATH_UTIL_MODULE = resolve(UTIL_MODULE)
+    REALPATH_UTIL_MODULE_PARENT = resolve(UTIL_MODULE_PARENT)
+
+    REALPATH_HOMEPATH = resolve(HOMEPATH)
+    REALPATH_HOMEPATH_PARENT = resolve(os.path.join(HOMEPATH, os.pardir))
+    REALPATH_HOMEDRIVE = resolve(HOMEDRIVE)
+    REALPATH_HOMEDRIVE_CWD = resolve(HOMEDRIVE)
 
 class UtilTests(unittest.TestCase):
 
-    def test_listdir_dirs(self):
+    def test_listdir_dirs(self) -> None:
         func = Util.listdir_dirs
         for dirname, expect in [
             (None, False), ('', False), ('doesnotexist.xyz.abc', False),
-            (Data.UTIL_PARENT_DIR, True),
+            (Data.UTIL_MODULE_PARENT, True),
         ]:
             dirs = func(dirname)
             self.assertTrue((len(dirs) > 0) == expect, "{}({}): {}".format(
                 func.__name__, repr(dirname), 'list is empty' if expect else 'list is not empty'
             ))
 
-    def test_process_path(self):
-        func = Util.process_path
-        for p, expect in [
-            (None, True), ('', True),
-            ('doesnotexist.xyz.abc', False), (Data.UTIL_PARENT_DIR, False),
-        ]:
-            rval = func(p)
-            self.assertTrue((p == rval) == expect, "{}({}): {}".format(
+    def test_resolve_path(self) -> None:
+        func = Util.resolve_path
+        # default kwargs:
+        #     ignore_drivespec=True
+        test_list = [
+            (Data.UTIL_MODULE, Data.REALPATH_UTIL_MODULE, {}),
+            (os.path.join(Data.UTIL_MODULE, os.pardir), Data.REALPATH_UTIL_MODULE_PARENT, {}),
+            (Data.HOMEPATH, Data.REALPATH_HOMEPATH, {}),
+            (os.path.join(Data.HOMEPATH, os.pardir), Data.REALPATH_HOMEPATH_PARENT, {}),
+        ]
+        if Data.IS_WINDOWS:
+            test_list.extend([
+                (Data.HOMEDRIVE, Data.HOMEDRIVE, {}),
+                (Data.HOMEDRIVE, Data.HOMEDRIVE, {'ignore_drivespec': True}),
+                (Data.HOMEDRIVE, Data.REALPATH_HOMEDRIVE_CWD, {'ignore_drivespec': False}),
+            ])
+        for p, expect, kwargs in test_list:
+            rval = func(p, **kwargs)
+            # print(repr(p), repr(expect), repr(rval))
+            self.assertTrue(rval == expect, "{}({}): {}".format(
                 func.__name__, repr(p), repr(rval)
             ))
 
-    def test_get_version_prefix(self):
+    def test_normalize_path(self) -> None:
+        func = Util.normalize_path
+        # default kwargs:
+        #     strip=True
+        #     preserve_trailing=False
+        #     expand=False
+        #     realpath=True
+        #     ignore_drivespec=True
+        test_list = [
+            (Data.UTIL_MODULE, normalize(Data.REALPATH_UTIL_MODULE), {}),
+            (os.path.join(Data.UTIL_MODULE, os.pardir), normalize(Data.REALPATH_UTIL_MODULE_PARENT), {}),
+            (None, None, {}),
+            ('', '', {'realpath': False}),
+            ('', '', {'realpath': True}),
+            ('DoesNotExist.xyz.abc', normalize('DoesNotExist.xyz.abc'), {'realpath': False}),
+            ('DoesNotExist.xyz.abc', normalize(Data.REALPATH_CWD, 'DoesNotExist.xyz.abc'), {'realpath': True}),
+            ('  DoesNotExist.xyz.abc  ', normalize(Data.REALPATH_CWD, 'DoesNotExist.xyz.abc'), {'realpath': True}),
+            ('  ~  ', '~', {'realpath': False, 'expand': False}),
+            ('  ~  ', normalize(Data.REALPATH_HOMEPATH), {'realpath': True, 'expand': True}),
+        ]
+        if Data.IS_WINDOWS:
+            test_list.extend([
+                ('DoesNotExist.xyz.abc/', normalize('DoesNotExist.xyz.abc') + os.path.sep, {'realpath': False, 'preserve_trailing': True}),
+                ('  DoesNotExist.xyz.abc\\  ', normalize('DoesNotExist.xyz.abc') + os.path.sep, {'realpath': False, 'preserve_trailing': True}),
+                ('  ~/  ', normalize(Data.REALPATH_HOMEPATH) + os.path.sep, {'realpath': True, 'expand': True, 'preserve_trailing': True}),
+                ('  ~\\  ', normalize(Data.REALPATH_HOMEPATH) + os.path.sep, {'realpath': True, 'expand': True, 'preserve_trailing': True}),
+                (' ~/ ', normalize(Data.REALPATH_CWD, '~') + os.path.sep, {'realpath': True, 'expand': False, 'preserve_trailing': True}),
+                (' ~\\ ', normalize(Data.REALPATH_CWD, '~') + os.path.sep, {'realpath': True, 'expand': False, 'preserve_trailing': True}),
+                (Data.HOMEDRIVE, normalize(Data.HOMEDRIVE), {}),
+                (Data.HOMEDRIVE, normalize(Data.HOMEDRIVE), {'ignore_drivespec': True}),
+                (Data.HOMEDRIVE, normalize(Data.REALPATH_HOMEDRIVE_CWD), {'ignore_drivespec': False}),
+            ])
+        for p, expect, kwargs in test_list:
+            rval = func(p, **kwargs)
+            # print(repr(p), repr(expect), repr(rval))
+            self.assertTrue(rval == expect, "{}({}): {}".format(
+                func.__name__, repr(p), repr(rval)
+            ))
+
+    def test_get_version_prefix(self) -> None:
         func = Util.get_version_prefix
         for version, expect in [
             (None, ''), ('', ''),
@@ -76,7 +159,7 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(version), repr(prefix), repr(expect)
             ))
 
-    def test_get_msvc_version_prefix(self):
+    def test_get_msvc_version_prefix(self) -> None:
         func = Util.get_msvc_version_prefix
         for version, expect in [
             (None, ''), ('', ''),
@@ -91,7 +174,7 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(version), repr(prefix), repr(expect)
             ))
 
-    def test_is_toolset_full(self):
+    def test_is_toolset_full(self) -> None:
         func = Util.is_toolset_full
         for toolset, expect in [
             (None, False), ('', False),
@@ -103,7 +186,7 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(toolset), repr(rval)
             ))
 
-    def test_is_toolset_140(self):
+    def test_is_toolset_140(self) -> None:
         func = Util.is_toolset_140
         for toolset, expect in [
             (None, False), ('', False),
@@ -115,7 +198,7 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(toolset), repr(rval)
             ))
 
-    def test_is_toolset_sxs(self):
+    def test_is_toolset_sxs(self) -> None:
         func = Util.is_toolset_sxs
         for toolset, expect in [
             (None, False), ('', False),
@@ -127,7 +210,7 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(toolset), repr(rval)
             ))
 
-    def test_msvc_version_components(self):
+    def test_msvc_version_components(self) -> None:
         func = Util.msvc_version_components
         for vcver, expect in [
             (None, False), ('', False), ('ABC', False), ('14', False), ('14.1.', False), ('14.16', False),
@@ -145,7 +228,7 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(vcver)
             ))
 
-    def test_msvc_extended_version_components(self):
+    def test_msvc_extended_version_components(self) -> None:
         func = Util.msvc_extended_version_components
         # normal code paths
         for vcver, expect in [
@@ -184,7 +267,7 @@ class UtilTests(unittest.TestCase):
             ))
         Util.re_extended_version = save_re
 
-    def test_msvc_sdk_version_components(self):
+    def test_msvc_sdk_version_components(self) -> None:
         func = Util.msvc_sdk_version_components
         for vcver, expect in [
             (None, False), ('', False), ('ABC', False), ('14', False), ('14.1.', False), ('14.16', False),

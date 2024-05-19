@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: MIT
+//
+// Copyright The SCons Foundation
+
 module mod1;
 import std.stdio;
 

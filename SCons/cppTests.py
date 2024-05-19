@@ -26,7 +26,7 @@ import unittest
 
 import TestUnit
 
-import cpp
+import SCons.cpp as cpp
 
 
 basic_input = """
@@ -441,89 +441,89 @@ if_no_space_input = """
 
 
 class cppTestCase(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.cpp = self.cpp_class(current = ".",
                                   cpppath = ['/usr/include'],
                                   dict={"SHELL_ESCAPED_H": '\\"file-shell-computed-yes\\"'})
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         """Test basic #include scanning"""
         expect = self.basic_expect
         result = self.cpp.process_contents(basic_input)
         assert expect == result, (expect, result)
 
-    def test_substitution(self):
+    def test_substitution(self) -> None:
         """Test substitution of #include files using CPP variables"""
         expect = self.substitution_expect
         result = self.cpp.process_contents(substitution_input)
         assert expect == result, (expect, result)
 
-    def test_ifdef(self):
+    def test_ifdef(self) -> None:
         """Test basic #ifdef processing"""
         expect = self.ifdef_expect
         result = self.cpp.process_contents(ifdef_input)
         assert expect == result, (expect, result)
 
-    def test_if_boolean(self):
+    def test_if_boolean(self) -> None:
         """Test #if with Boolean values"""
         expect = self.if_boolean_expect
         result = self.cpp.process_contents(if_boolean_input)
         assert expect == result, (expect, result)
 
-    def test_if_defined(self):
+    def test_if_defined(self) -> None:
         """Test #if defined() idioms"""
         expect = self.if_defined_expect
         result = self.cpp.process_contents(if_defined_input)
         assert expect == result, (expect, result)
 
-    def test_expression(self):
+    def test_expression(self) -> None:
         """Test #if with arithmetic expressions"""
         expect = self.expression_expect
         result = self.cpp.process_contents(expression_input)
         assert expect == result, (expect, result)
 
-    def test_undef(self):
+    def test_undef(self) -> None:
         """Test #undef handling"""
         expect = self.undef_expect
         result = self.cpp.process_contents(undef_input)
         assert expect == result, (expect, result)
 
-    def test_macro_function(self):
+    def test_macro_function(self) -> None:
         """Test using macro functions to express file names"""
         expect = self.macro_function_expect
         result = self.cpp.process_contents(macro_function_input)
         assert expect == result, (expect, result)
 
-    def test_token_pasting(self):
+    def test_token_pasting(self) -> None:
         """Test token-pasting to construct file names"""
         expect = self.token_pasting_expect
         result = self.cpp.process_contents(token_pasting_input)
         assert expect == result, (expect, result)
 
-    def test_no_space(self):
+    def test_no_space(self) -> None:
         """Test no space between #include and the quote"""
         expect = self.no_space_expect
         result = self.cpp.process_contents(no_space_input)
         assert expect == result, (expect, result)
 
-    def test_nested_ifs(self):
+    def test_nested_ifs(self) -> None:
         expect = self.nested_ifs_expect
         result = self.cpp.process_contents(nested_ifs_input)
         assert expect == result, (expect, result)
 
-    def test_ifndef(self):
+    def test_ifndef(self) -> None:
         """Test basic #ifndef processing"""
         expect = self.ifndef_expect
         result = self.cpp.process_contents(ifndef_input)
         assert expect == result, (expect, result)
 
-    def test_if_defined_no_space(self):
+    def test_if_defined_no_space(self) -> None:
         """Test #if(defined, i.e.without space but parenthesis"""
         expect = self.if_defined_no_space_expect
         result = self.cpp.process_contents(if_defined_no_space_input)
         assert expect == result, (expect, result)
 
-    def test_if_no_space(self):
+    def test_if_no_space(self) -> None:
         """Test #if(, i.e. without space but parenthesis"""
         expect = self.if_no_space_expect
         result = self.cpp.process_contents(if_no_space_input)
@@ -531,7 +531,7 @@ class cppTestCase(unittest.TestCase):
 
 
 class cppAllTestCase(cppTestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.cpp = self.cpp_class(current = ".",
                                   cpppath = ['/usr/include'],
                                   dict={"SHELL_ESCAPED_H": '\\"file-shell-computed-yes\\"'},
@@ -792,7 +792,7 @@ import tempfile
 
 _Cleanup = []
 
-def _clean():
+def _clean() -> None:
     for dir in _Cleanup:
         if os.path.exists(dir):
             shutil.rmtree(dir)
@@ -807,14 +807,14 @@ else:
 class fileTestCase(unittest.TestCase):
     cpp_class = cpp.DumbPreProcessor
 
-    def setUp(self):
+    def setUp(self) -> None:
         path = tempfile.mkdtemp(prefix=tmpprefix)
         _Cleanup.append(path)
         self.tempdir = path
         self.orig_cwd = os.getcwd()
         os.chdir(path)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         os.chdir(self.orig_cwd)
         shutil.rmtree(self.tempdir)
         _Cleanup.remove(self.tempdir)
@@ -828,11 +828,11 @@ class fileTestCase(unittest.TestCase):
             return l
         return '\n'.join(map(strip_spaces, lines))
 
-    def write(self, file, contents):
+    def write(self, file, contents) -> None:
         with open(file, 'w') as f:
             f.write(self.strip_initial_spaces(contents))
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         """Test basic file inclusion"""
         self.write('f1.h', """\
         #include "f2.h"
@@ -847,7 +847,7 @@ class fileTestCase(unittest.TestCase):
         result = p('f1.h')
         assert result == ['f2.h', 'f3.h'], result
 
-    def test_current_file(self):
+    def test_current_file(self) -> None:
         """Test use of the .current_file attribute"""
         self.write('f1.h', """\
         #include <f2.h>
@@ -858,7 +858,7 @@ class fileTestCase(unittest.TestCase):
         self.write('f3.h', """\
         """)
         class MyPreProcessor(cpp.DumbPreProcessor):
-            def __init__(self, *args, **kw):
+            def __init__(self, *args, **kw) -> None:
                 super().__init__(*args, **kw)
                 self.files = []
             def __call__(self, file):

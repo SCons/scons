@@ -552,7 +552,9 @@ to disable debug package generation.
 To enable debug package generation, include this
 variable set either to None, or to a custom
 list that does not include the default line.
-Added in version 3.1.
+</para>
+<para>
+<emphasis>New in version  3.1.</emphasis>
 </para>
 
 <example_commands>

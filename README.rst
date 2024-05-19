@@ -167,7 +167,7 @@ messages during installation like this::
   Consider adding this directory to PATH or, if you prefer to suppress this warning,
   use --no-warn-script-location.
 
-If you are running on a system which uses a package manager 
+If you are running on a system which uses a package manager
 (for example most Linux distributions), you may, at your option,
 use the package manager (e.g. ``apt``, ``dnf``, ``yum``,
 ``zypper``, ``brew``, ``pacman`` etc.) to install a version
@@ -299,4 +299,4 @@ many contributors, including but not at all limited to:
 
 \... and many others.
 
-Copyright (c) 2001 - 2021 The SCons Foundation
+Copyright (c) 2001 - 2024 The SCons Foundation

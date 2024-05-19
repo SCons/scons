@@ -27,11 +27,12 @@ import collections
 
 import TestCmd
 
-from SCons.Defaults import mkdir_func, _defines
+from SCons.Defaults import mkdir_func, _defines, processDefines
+from SCons.Errors import UserError
 
 
 class DummyEnvironment(collections.UserDict):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__()
         self.data.update(kwargs)
 
@@ -47,7 +48,7 @@ class DummyEnvironment(collections.UserDict):
 
 
 class DefaultsTestCase(unittest.TestCase):
-    def test_mkdir_func0(self):
+    def test_mkdir_func0(self) -> None:
         test = TestCmd.TestCmd(workdir='')
         test.subdir('sub')
         subdir2 = test.workpath('sub', 'dir1', 'dir2')
@@ -55,7 +56,7 @@ class DefaultsTestCase(unittest.TestCase):
         mkdir_func(subdir2)
         mkdir_func(subdir2)  # 2nd time should be OK too
 
-    def test_mkdir_func1(self):
+    def test_mkdir_func1(self) -> None:
         test = TestCmd.TestCmd(workdir='')
         test.subdir('sub')
         subdir1 = test.workpath('sub', 'dir1')
@@ -65,7 +66,7 @@ class DefaultsTestCase(unittest.TestCase):
         mkdir_func(subdir2)
         mkdir_func(subdir1)
 
-    def test_mkdir_func2(self):
+    def test_mkdir_func2(self) -> None:
         test = TestCmd.TestCmd(workdir='')
         test.subdir('sub')
         subdir1 = test.workpath('sub', 'dir1')
@@ -83,25 +84,73 @@ class DefaultsTestCase(unittest.TestCase):
         else:
             self.fail("expected OSError")
 
-    def test__defines_no_target_or_source_arg(self):
+    def test__defines_no_target_or_source_arg(self) -> None:
         """
         Verify that _defines() function can handle either or neither source or
         target being specified
         """
         env = DummyEnvironment()
 
-        # Neither source or target specified
-        x = _defines('-D', ['A', 'B', 'C'], 'XYZ', env)
-        self.assertEqual(x, ['-DAXYZ', '-DBXYZ', '-DCXYZ'])
+        with self.subTest():
+            # Neither source or target specified
+            x = _defines('-D', ['A', 'B', 'C'], 'XYZ', env)
+            self.assertEqual(x, ['-DAXYZ', '-DBXYZ', '-DCXYZ'])
 
-        # only source specified
-        y = _defines('-D', ['AA', 'BA', 'CA'], 'XYZA', env, 'XYZ')
-        self.assertEqual(y, ['-DAAXYZA', '-DBAXYZA', '-DCAXYZA'])
+        with self.subTest():
+            # only source specified
+            y = _defines('-D', ['AA', 'BA', 'CA'], 'XYZA', env, 'XYZ')
+            self.assertEqual(y, ['-DAAXYZA', '-DBAXYZA', '-DCAXYZA'])
 
-        # source and target specified
-        z = _defines('-D', ['AAB', 'BAB', 'CAB'], 'XYZAB', env, 'XYZ', 'abc')
-        self.assertEqual(z,['-DAABXYZAB', '-DBABXYZAB', '-DCABXYZAB'])
+        with self.subTest():
+            # source and target specified
+            z = _defines('-D', ['AAB', 'BAB', 'CAB'], 'XYZAB', env, 'XYZ', 'abc')
+            self.assertEqual(z, ['-DAABXYZAB', '-DBABXYZAB', '-DCABXYZAB'])
 
+    def test_processDefines(self) -> None:
+        """Verify correct handling in processDefines."""
+        env = DummyEnvironment()
+
+        with self.subTest():
+            # macro name only
+            rv = processDefines('name')
+            self.assertEqual(rv, ['name'])
+
+        with self.subTest():
+            # macro with value
+            rv = processDefines('name=val')
+            self.assertEqual(rv, ['name=val'])
+
+        with self.subTest():
+            # space-separated macros
+            rv = processDefines('name1 name2=val2')
+            self.assertEqual(rv, ['name1', 'name2=val2'])
+
+        with self.subTest():
+            # single list
+            rv = processDefines(['name', 'val'])
+            self.assertEqual(rv, ['name', 'val'])
+
+        with self.subTest():
+            # single tuple
+            rv = processDefines(('name', 'val'))
+            self.assertEqual(rv, ['name=val'])
+
+        with self.subTest():
+            # single dict
+            rv = processDefines({'foo': None, 'name': 'val'})
+            self.assertEqual(rv, ['foo', 'name=val'])
+
+        with self.subTest():
+            # compound list
+            rv = processDefines(['foo', ('name', 'val'), ['name2', 'val2']])
+            self.assertEqual(rv, ['foo', 'name=val', 'name2=val2'])
+
+        with self.subTest():
+            # invalid tuple
+            with self.assertRaises(
+                UserError, msg="Invalid tuple should throw SCons.Errors.UserError"
+            ):
+                rv = processDefines([('name', 'val', 'bad')])
 
 
 if __name__ == "__main__":

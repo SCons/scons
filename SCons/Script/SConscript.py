@@ -45,6 +45,7 @@ import re
 import sys
 import traceback
 import time
+from typing import Tuple
 
 class SConscriptReturn(Exception):
     pass
@@ -104,7 +105,7 @@ def compute_exports(exports):
 
 class Frame:
     """A frame on the SConstruct/SConscript call stack"""
-    def __init__(self, fs, exports, sconscript):
+    def __init__(self, fs, exports, sconscript) -> None:
         self.globals = BuildDefaultGlobals()
         self.retval = None
         self.prev_dir = fs.getcwd()
@@ -145,40 +146,32 @@ def Return(*vars, **kw):
 
 stack_bottom = '% Stack boTTom %' # hard to define a variable w/this name :)
 
-def handle_missing_SConscript(f, must_exist=None):
+def handle_missing_SConscript(f: str, must_exist: bool = True) -> None:
     """Take appropriate action on missing file in SConscript() call.
 
     Print a warning or raise an exception on missing file, unless
-    missing is explicitly allowed by the *must_exist* value.
-    On first warning, print a deprecation message.
+    missing is explicitly allowed by the *must_exist* parameter or by
+    a global flag.
 
     Args:
-        f (str): path of missing configuration file
-        must_exist (bool): if true, fail.  If false, but not ``None``,
-          allow the file to be missing.  The default is ``None``,
-          which means issue the warning.  The default is deprecated.
+        f: path to missing configuration file
+        must_exist: if true (the default), fail.  If false
+          do nothing, allowing a build to declare it's okay to be missing.
 
     Raises:
-        UserError: if *must_exist* is true or if global
+       UserError: if *must_exist* is true or if global
           :data:`SCons.Script._no_missing_sconscript` is true.
+
+    .. versionchanged: 4.6.0
+       Changed default from False.
     """
+    if not must_exist:  # explicitly set False: ok
+        return
+    if not SCons.Script._no_missing_sconscript:  # system default changed: ok
+        return
+    msg = f"missing SConscript file {f.get_internal_path()!r}"
+    raise SCons.Errors.UserError(msg)
 
-    if must_exist or (SCons.Script._no_missing_sconscript and must_exist is not False):
-        msg = "Fatal: missing SConscript '%s'" % f.get_internal_path()
-        raise SCons.Errors.UserError(msg)
-
-    if must_exist is None:
-        if SCons.Script._warn_missing_sconscript_deprecated:
-            msg = (
-                "Calling missing SConscript without error is deprecated.\n"
-                "Transition by adding must_exist=False to SConscript calls.\n"
-                "Missing SConscript '%s'" % f.get_internal_path()
-            )
-            SCons.Warnings.warn(SCons.Warnings.MissingSConscriptWarning, msg)
-            SCons.Script._warn_missing_sconscript_deprecated = False
-        else:
-            msg = "Ignoring missing SConscript '%s'" % f.get_internal_path()
-            SCons.Warnings.warn(SCons.Warnings.MissingSConscriptWarning, msg)
 
 def _SConscript(fs, *files, **kw):
     top = fs.Top
@@ -282,9 +275,16 @@ def _SConscript(fs, *files, **kw):
                             scriptdata = _file_.read()
                             scriptname = _file_.name
                             _file_.close()
+                            if SCons.Debug.sconscript_trace:
+                                print("scons: Entering "+str(scriptname))
                             exec(compile(scriptdata, scriptname, 'exec'), call_stack[-1].globals)
+                            if SCons.Debug.sconscript_trace:
+                                print("scons: Exiting "+str(scriptname))
                         except SConscriptReturn:
-                            pass
+                            if SCons.Debug.sconscript_trace:
+                                print("scons: Exiting "+str(scriptname))
+                            else:
+                                pass
                     finally:
                         if Main.print_time:
                             elapsed = time.perf_counter() - start_time
@@ -294,7 +294,7 @@ def _SConscript(fs, *files, **kw):
                             call_stack[-1].globals.update({__file__:old_file})
 
                 else:
-                    handle_missing_SConscript(f, kw.get('must_exist', None))
+                    handle_missing_SConscript(f, kw.get('must_exist', True))
 
         finally:
             SCons.Script.sconscript_reading = SCons.Script.sconscript_reading - 1
@@ -332,7 +332,7 @@ def _SConscript(fs, *files, **kw):
     else:
         return tuple(results)
 
-def SConscript_exception(file=sys.stderr):
+def SConscript_exception(file=sys.stderr) -> None:
     """Print an exception stack trace just for the SConscript file(s).
     This will show users who have Python errors where the problem is,
     without cluttering the output with all of the internal calls leading
@@ -386,7 +386,7 @@ class SConsEnvironment(SCons.Environment.Base):
     # Private methods of an SConsEnvironment.
     #
     @staticmethod
-    def _get_major_minor_revision(version_string):
+    def _get_major_minor_revision(version_string: str) -> Tuple[int, int, int]:
         """Split a version string into major, minor and (optionally)
         revision parts.
 
@@ -481,19 +481,26 @@ class SConsEnvironment(SCons.Environment.Base):
         kw['_depth'] = kw.get('_depth', 0) + 1
         return SCons.Environment.Base.Configure(self, *args, **kw)
 
-    def Default(self, *targets):
+    def Default(self, *targets) -> None:
         SCons.Script._Set_Default_Targets(self, targets)
 
     @staticmethod
-    def EnsureSConsVersion(major, minor, revision=0):
+    def GetSConsVersion() -> Tuple[int, int, int]:
+        """Return the current SCons version.
+
+        .. versionadded:: 4.8.0
+        """
+        return SConsEnvironment._get_major_minor_revision(SCons.__version__)
+
+    @staticmethod
+    def EnsureSConsVersion(major: int, minor: int, revision: int = 0) -> None:
         """Exit abnormally if the SCons version is not late enough."""
         # split string to avoid replacement during build process
         if SCons.__version__ == '__' + 'VERSION__':
             SCons.Warnings.warn(SCons.Warnings.DevelopmentVersionWarning,
                 "EnsureSConsVersion is ignored for development version")
             return
-        scons_ver = SConsEnvironment._get_major_minor_revision(SCons.__version__)
-        if scons_ver < (major, minor, revision):
+        if SConsEnvironment.GetSConsVersion() < (major, minor, revision):
             if revision:
                 scons_ver_string = '%d.%d.%d' % (major, minor, revision)
             else:
@@ -503,7 +510,7 @@ class SConsEnvironment(SCons.Environment.Base):
             sys.exit(2)
 
     @staticmethod
-    def EnsurePythonVersion(major, minor):
+    def EnsurePythonVersion(major, minor) -> None:
         """Exit abnormally if the Python version is not late enough."""
         if sys.version_info < (major, minor):
             v = sys.version.split()[0]
@@ -511,10 +518,10 @@ class SConsEnvironment(SCons.Environment.Base):
             sys.exit(2)
 
     @staticmethod
-    def Exit(value=0):
+    def Exit(value: int=0) -> None:
         sys.exit(value)
 
-    def Export(self, *vars, **kw):
+    def Export(self, *vars, **kw) -> None:
         for var in vars:
             global_exports.update(compute_exports(self.Split(var)))
         global_exports.update(kw)
@@ -528,10 +535,25 @@ class SConsEnvironment(SCons.Environment.Base):
         name = self.subst(name)
         return SCons.Script.Main.GetOption(name)
 
+    def Help(self, text, append: bool = False, keep_local: bool = False) -> None:
+        """Update the help text.
 
-    def Help(self, text, append=False):
+        The previous help text has *text* appended to it, except on the
+        first call. On first call, the values of *append* and *keep_local*
+        are considered to determine what is appended to.
+
+        Arguments:
+           text: string to add to the help text.
+           append: on first call, if true, keep the existing help text
+              (default False).
+           keep_local: on first call, if true and *append* is also true,
+              keep only the help text from AddOption calls.
+
+        .. versionchanged:: 4.6.0
+           The *keep_local* parameter was added.
+        """
         text = self.subst(text, raw=1)
-        SCons.Script.HelpFunction(text, append=append)
+        SCons.Script.HelpFunction(text, append=append, keep_local=keep_local)
 
     def Import(self, *vars):
         try:
@@ -602,7 +624,7 @@ class SConsEnvironment(SCons.Environment.Base):
         global sconscript_chdir
         sconscript_chdir = flag
 
-    def SetOption(self, name, value):
+    def SetOption(self, name, value) -> None:
         name = self.subst(name)
         SCons.Script.Main.SetOption(name, value)
 
@@ -650,7 +672,7 @@ class DefaultEnvironmentCall:
     thereby prevent expansion of construction variables (since from
     the user's point of view this was called as a global function,
     with no associated construction environment)."""
-    def __init__(self, method_name, subst=0):
+    def __init__(self, method_name, subst: int=0) -> None:
         self.method_name = method_name
         if subst:
             self.factory = SCons.Defaults.DefaultEnvironment
@@ -674,7 +696,7 @@ def BuildDefaultGlobals():
 
         import SCons.Script
         d = SCons.Script.__dict__
-        def not_a_module(m, d=d, mtype=type(SCons.Script)):
+        def not_a_module(m, d=d, mtype=type(SCons.Script)) -> bool:
              return not isinstance(d[m], mtype)
         for m in filter(not_a_module, dir(SCons.Script)):
              GlobalDict[m] = d[m]

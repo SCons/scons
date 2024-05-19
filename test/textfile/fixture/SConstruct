@@ -1,8 +1,12 @@
-DefaultEnvironment(tools=[])
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
 
+DefaultEnvironment(tools=[])
 env = Environment(tools=['textfile'])
 data0 = ['Goethe', 'Schiller']
-data = ['lalala', 42, data0, 'tanteratei']
+data = ['lalala', 42, data0, 'tanteratei',
+        '×'] # <-- this is unicode /xd7 symbol
 
 env.Textfile('foo1', data)
 env.Textfile('foo2', data, LINESEPARATOR='|*')
@@ -10,9 +14,11 @@ env.Textfile('foo1a.txt', data + [''])
 env.Textfile('foo2a.txt', data + [''], LINESEPARATOR='|*')
 
 issue_4021_textfile = r'<HintPath>..\..\..\@HINT_PATH@\Datalogics.PDFL.dll</HintPath>'
-env.Textfile('issue-4021.txt', issue_4021_textfile,
-             SUBST_DICT={'@HINT_PATH@': r'NETCore\bin\$$(Platform)\$$(Configuration)'})
-
+env.Textfile(
+    'issue-4021.txt',
+    issue_4021_textfile,
+    SUBST_DICT={'@HINT_PATH@': r'NETCore\bin\$$(Platform)\$$(Configuration)'},
+)
 # recreate the list with the data wrapped in Value()
 data0 = list(map(Value, data0))
 data = list(map(Value, data))

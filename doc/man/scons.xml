@@ -108,13 +108,20 @@ details do not have to be recalculated each run.
 
 <para>&scons; requires &Python; 3.6 or later to run;
 there should be no other dependencies or requirements,
-unless the experimental Ninja tool is used.
+unless the experimental Ninja tool is used (requires the ninja package).
 </para>
 <para>
 <emphasis>Changed in version 4.3.0:</emphasis>
-support for &Python; 3.5 is removed;
-the CPython project has retired 3.5:
-<ulink url="https://www.python.org/dev/peps/pep-0478"/>.
+support for &Python; 3.5 is removed.
+The CPython project retired 3.5 in Sept 2020:
+<ulink url="https://peps.python.org/pep-0478"/>.
+</para>
+<para>
+<emphasis>Changed in version 4.8.0:</emphasis>
+support for &Python; 3.6 is deprecated and will be removed
+in a future &SCons; release.
+The CPython project retired 3.6 in Sept 2021:
+<ulink url="https://peps.python.org/pep-0494"/>.
 </para>
 
 <para>You set up an &SCons;
@@ -171,18 +178,31 @@ directories through the definition of
 When invoked, &scons;
 looks for a file named
 &SConstruct;
+(other names are also accepted,
+see <xref linkend="sconscript_files"/>)
 in the current directory and reads the
-build configuration from that file
-(other names are allowed,
-see <xref linkend="sconscript_files"/> 
-and the <link linkend="opt-f"><option>-f</option></link> option
-for more information).
-The build may be structured in a hierarchical manner:
-the &SConstruct;
-file may specify subsidiary
+build configuration from that file;
+that directory is considered the project top directory.
+Certain command-line options specify alternate
+places to look for the &SConstruct;
+(see
+<link linkend="opt-directory"><option>-C</option></link>,
+<link linkend="opt-D"><option>-D</option></link>,
+<link linkend="opt-up"><option>-u</option></link> and
+<link linkend="opt-U"><option>-U</option></link>),
+which will set the project top directory to the place found.
+A path to the main build configuration file can also be
+specified with the
+<link linkend="opt-f"><option>-f</option></link> option,
+which leaves the current directory as the project top directory.
+</para>
+<para>
+The build configuration may be split into multiple files:
+the &SConstruct; file may specify additional
 configuration files by calling the
-&f-link-SConscript; function, 
-and these may, in turn, do the same.
+&f-link-SConscript; function,
+and any file thus invoked may
+include further files in the same way.
 By convention,
 these subsidiary files are named
 &SConscript;,
@@ -206,10 +226,9 @@ SConscript files when needed.
 &scons;
 looks for a directory named
 <filename>site_scons</filename>
-in various system directories and in the directory containing the
-&SConstruct; file
-or, if specified, the
-directory from the
+in various system directories and in the
+project top directory, or, if specified,
+the directory from the
 <link linkend="opt-site-dir"><option>--site-dir</option></link>
 option instead, and prepends the ones it
 finds to the &Python; module search path (<varname>sys.path</varname>),
@@ -339,16 +358,25 @@ env = Environment(ENV=os.environ.copy())
 
 <para>This comes at the expense of making your build
 dependent on the user's environment being set correctly,
-but it may be more convenient for many configurations.
+but it may be more convenient for some configurations.
 It should not cause problems if done in a build setup which tightly
 controls how the environment is set up before invoking
 &scons;, as in many continuous
 integration setups.
 </para>
 
+<note><para>
+The above fragments are intended to illustrate a concept.
+It is normally not a good idea to wipe out the entire
+default value of the execution environment
+(<literal>env["ENV"]</literal>),
+as it may carry important information for the
+execution of build commands.
+</para></note>
+
 <para>&scons;
 is normally executed in a top-level directory containing an
-&SConstruct; file.
+&SConstruct; file (the project top directory).
 When &scons; is invoked,
 the command line (including the contents of the
 <link linkend="v-SCONSFLAGS">&SCONSFLAGS;</link>
@@ -370,8 +398,8 @@ and can be used in the &SConscript; files to modify
 the build in any way:</para>
 
 <programlisting language="python">
-if ARGUMENTS.get('debug', 0):
-    env = Environment(CCFLAGS='-g')
+if ARGUMENTS.get("debug", ""):
+    env = Environment(CCFLAGS="-g")
 else:
     env = Environment()
 </programlisting>
@@ -380,8 +408,8 @@ else:
 in the <link linkend="v-ARGLIST">&ARGLIST;</link> list,
 indexed by their order on the command line.
 This allows you to process them in order rather than by name,
-if necessary. Each &ARGLIST; entry is a tuple containing
-(<replaceable>argname</replaceable>, <replaceable>argvalue</replaceable>).
+if necessary. Each &ARGLIST; entry is a tuple consisting
+of the name and the value.
 </para>
 
 <para>
@@ -419,7 +447,7 @@ on various systems and initializes itself based on what is found.
 On Windows systems which identify as <emphasis>win32</emphasis>,
 &scons;
 searches in order for the
-Microsoft Visual C++ tools,
+&MSVC; tools,
 the MinGW tool chain,
 the Intel compiler tools,
 and the PharLap ETS compiler.
@@ -431,7 +459,7 @@ On OS/2 systems,
 searches in order for the
 OS/2 compiler,
 the GCC tool chain,
-and the Microsoft Visual C++ tools,
+and the &MSVC; tools,
 On SGI IRIX, IBM AIX, Hewlett Packard HP-UX, and Oracle Solaris systems,
 &scons;
 searches for the native compiler tools
@@ -530,9 +558,8 @@ should be built (on Windows systems):</para>
 </screen>
 
 <para>A subset of a hierarchical tree may be built by
-remaining at the top-level directory (where the
-&SConstruct;
-file lives) and specifying the subdirectory as the target to
+remaining at the project top directory
+and specifying the subdirectory as the target to
 build:</para>
 
 <screen>
@@ -812,11 +839,6 @@ When multiple
 options are given, each subsequent non-absolute
 <option>-C</option> <replaceable>directory</replaceable>
 is interpreted relative to the preceding one.
-This option is similar to using
-<link linkend="opt-sconstruct"><option>-f <replaceable>directory</replaceable>/SConstruct</option></link>,
-but <option>-f</option> does not search for any of the
-predefined &SConstruct; names
-in the specified directory.
 See also options
 <link linkend="opt-up"><option>-u</option></link>,
 <link linkend="opt-U"><option>-U</option></link>
@@ -929,6 +951,21 @@ $ <userinput>scons --debug=includes foo.o</userinput>
   </listitem>
   </varlistentry>
 
+<varlistentry>
+  <term><emphasis role="bold">json</emphasis></term>
+  <listitem>
+    <para>Write info to a JSON file for any of the following debug options if they are enabled: <emphasis>memory</emphasis>,
+    <emphasis>count</emphasis>, <emphasis>time</emphasis>, <emphasis>action-timestamps</emphasis> </para>
+    <para>The default output file is <literal>scons_stats.json</literal></para>
+    <para>The file name/path can be modified by using &f-link-DebugOptions; for example <literal>DebugOptions(json='path/to/file.json')</literal></para>
+
+<screen>
+$ <userinput>scons --debug=memory,json foo.o</userinput>
+</screen>
+
+  </listitem>
+  </varlistentry>
+
   <varlistentry>
   <term><emphasis role="bold">memoizer</emphasis></term>
   <listitem>
@@ -959,9 +996,53 @@ of the various classes used internally by SCons.</para>
   <varlistentry>
   <term><emphasis role="bold">pdb</emphasis></term>
   <listitem>
-<para>Re-run &scons; under the control of the
+<para>Run &scons; under control of the
 <systemitem>pdb</systemitem>
 &Python; debugger.</para>
+<screen>
+$ <userinput>scons --debug=pdb</userinput>
+> /usr/lib/python3.11/site-packages/SCons/Script/Main.py(869)_main()
+-> options = parser.values
+(Pdb)
+</screen>
+<note>
+<para><systemitem>pdb</systemitem> will stop at the
+beginning of the &scons; main routine on startup.
+The search path (<systemitem>sys.path</systemitem>)
+at that point will include the location of the running &scons;,
+but not of the project itself.
+If you need to set breakpoints in your project files,
+you will either need to add to the path,
+or use absolute pathnames when referring to project files.
+A <filename>.pdbrc</filename> file in the project root
+can be used to add the current directory to the search path
+to avoid having to enter it by hand,
+along these lines:
+</para>
+<programlisting language="python">
+sys.path.append('.')
+</programlisting>
+<para>
+Due to the implementation of the
+<systemitem>pdb</systemitem> module,
+the <command>break</command>,
+<command>tbreak</command>
+and <command>clear</command>
+commands only understand references to filenames
+which have a <filename>.py</filename> extension.
+(although the suffix itself can be omitted),
+<emphasis>except</emphasis> if you use an absolute path.
+As a special exception to that rule, the names
+&SConstruct; and &SConscript; are recognized without
+needing the <filename>.py</filename> extension.
+</para>
+<para>
+<emphasis>Changed in version 4.6.0</emphasis>:
+The names &SConstruct; and &SConscript; are now
+recognized without requiring
+<filename>.py</filename> suffix.
+</para>
+</note>
   </listitem>
   </varlistentry>
 
@@ -1060,6 +1141,12 @@ should take place in parallel.)
 </para>
   </listitem>
   </varlistentry>
+  <varlistentry>
+  <term><emphasis role="bold">sconscript</emphasis></term>
+  <listitem>
+<para>Enables output indicating entering and exiting each SConscript file.</para>
+  </listitem>
+  </varlistentry>
   </variablelist> <!-- end nested list -->
   </listitem>
   </varlistentry>
@@ -1146,8 +1233,8 @@ the mechanisms in the specified order.</para>
         A comma-separated string can be used to select multiple features.
         The default setting is <literal>none</literal>.</para>
       <para>Current available features are:
-        <literal>ninja</literal> (<emphasis>added in version 4.2</emphasis>),
-        <literal>tm_v2</literal> (<emphasis>added in version 4.4.1</emphasis>).
+        <literal>ninja</literal> (<emphasis>New in version 4.2</emphasis>),
+        <literal>legacy_sched</literal> (<emphasis>New in version 4.6.0</emphasis>).
       </para>
       <caution><para>
         No Support offered for any features or tools enabled by this flag.
@@ -1216,7 +1303,7 @@ small block-size slows down the build considerably.</para>
 <para>The default value is to use a chunk size of 64 kilobytes, which should
 be appropriate for most uses.</para>
 
-<para><emphasis>New in version 4.2.</emphasis></para>
+<para><emphasis>New in version 4.1.</emphasis></para>
   </listitem>
   </varlistentry>
 
@@ -1256,7 +1343,7 @@ For example, <option>--hash-format=sha256</option> uses a SConsign
 database named <filename>.sconsign_sha256.dblite</filename>.
 </para>
 
-<para><emphasis>New in version 4.2.</emphasis></para>
+<para><emphasis>New in version 4.1.</emphasis></para>
   </listitem>
 </varlistentry>
 
@@ -1654,21 +1741,33 @@ that file is not available to scan for dependencies at all
 in an unbuilt tree, and may contain out of date information in a
 previously built tree.
 </para>
+<para>
+&SCons; cannot perform &f-link-Configure; checks in no-exec mode,
+as they would make changes to the filesystem
+(see &cv-link-CONFIGUREDIR; and &cv-link-CONFIGURELOG;).
+It can use stored information from a previous build,
+if it is not out of date,
+so a "priming" build may make subsequent no-exec runs
+more useful.
+</para>
   </listitem>
   </varlistentry>
 
   <varlistentry id="opt-no-site-dir">
   <term><option>--no-site-dir</option></term>
   <listitem>
-<para>Prevents the automatic addition of the standard
-<filename>site_scons</filename>
-directories to
-<varname>sys.path</varname>.
-Also prevents loading the
-<filename>site_scons/site_init.py</filename>
-modules if they exist, and prevents adding their
-<filename>site_scons/site_tools</filename>
-directories to the toolpath.</para>
+<para>Do not read site directories.
+Neither the standard site directories
+(<filename>site_scons</filename>)
+nor the path specified via a previous
+<option>--site-dir</option> option are
+added to the module search path <varname>sys.path</varname>,
+searched for a <filename>site_init.py</filename> file,
+or have their <filename>site_tools</filename>
+directory included in the tool search path.
+Can be overridden by a subequent
+<option>--site-dir</option> option.
+</para>
   </listitem>
   </varlistentry>
 
@@ -1791,7 +1890,7 @@ Also suppresses SCons status messages.</para>
   <varlistentry id="opt-site-dir">
   <term><option>--site-dir=<replaceable>path</replaceable></option></term>
   <listitem>
-<para>Use a specific <replaceable>path</replaceable> as the site directory
+<para>Use <replaceable>path</replaceable> as the site directory
 rather than searching the list of default site directories.
 This directory will be prepended to
 <varname>sys.path</varname>,
@@ -1799,7 +1898,10 @@ the module
 <filename><replaceable>path</replaceable>/site_init.py</filename>
 will be loaded if it exists, and
 <filename><replaceable>path</replaceable>/site_tools</filename>
-will be added to the default toolpath.</para>
+will be included in the tool search path.
+The option is not additive - if given more than once,
+the last <replaceable>path</replaceable> wins.
+</para>
 
 <para>The default set of site directories searched when
 <option>--site-dir</option>
@@ -2017,7 +2119,7 @@ choices may be specified, separated by commas:</para>
 &SConstruct;, &Sconstruct;, &sconstruct;, &SConstruct.py;,
 &Sconstruct.py; or &sconstruct.py;
 file is found, and uses that
-as the top of the directory tree.
+as the project top directory.
 If no targets are specified on the command line,
 only targets at or below the
 current directory will be built.</para>
@@ -2109,6 +2211,15 @@ These warnings are disabled by default.</para>
   </varlistentry>
 
   <varlistentry>
+  <term><emphasis role="bold">cache-cleanup-error</emphasis></term>
+  <listitem>
+<para>Warnings about errors when a file retrieved
+from the derived-file cache could not be removed.
+</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
   <term><emphasis role="bold">corrupt-sconsign</emphasis></term>
   <listitem>
 <para>Warnings about unfamiliar signature data in
@@ -2163,6 +2274,16 @@ which can yield unpredictable behavior with some compilers.</para>
   </varlistentry>
 
   <varlistentry>
+  <term><emphasis role="bold">future-reserved-variable</emphasis></term>
+  <listitem>
+<para>Warnings about construction variables which
+are currently allowed,
+but will become reserved variables in a future release.
+</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
   <term><emphasis role="bold">future-deprecated</emphasis></term>
   <listitem>
 <para>Warnings about features
@@ -2213,13 +2334,13 @@ of this tool module.
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <!--varlistentry>   Removed in 4.6.0
   <term><emphasis role="bold">missing-sconscript</emphasis></term>
   <listitem>
 <para>Warnings about missing &SConscript; files.
 These warnings are enabled by default.</para>
   </listitem>
-  </varlistentry>
+  </varlistentry-->
 
   <varlistentry>
   <term><emphasis role="bold">no-object-count</emphasis></term>
@@ -2231,6 +2352,10 @@ feature not working when
 is run with the &Python;
 <option>-O</option>
 option or from optimized &Python; (<filename>.pyo</filename>) modules.</para>
+<para>
+Note the "no-" prefix is part of the name of this warning.
+Add an additional "-no" to disable.
+</para>
   </listitem>
   </varlistentry>
 
@@ -2242,6 +2367,10 @@ not being able to support parallel builds when the
 <option>-j</option>
 option is used.
 These warnings are enabled by default.</para>
+<para>
+Note the "no-" prefix is part of the name of this warning.
+Add an additional "-no" to disable.
+</para>
   </listitem>
   </varlistentry>
 
@@ -2282,7 +2411,7 @@ These warnings are enabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><emphasis role="bold">target_not_build</emphasis></term>
+  <term><emphasis role="bold">target-not-built</emphasis></term>
   <listitem>
 <para>Warnings about a build rule not building the
  expected targets. These warnings are disabled by default.</para>
@@ -2350,7 +2479,7 @@ though if necessary, also looks for alternative file names
 and &sconstruct.py; in that order.
 A different file name (which can include a pathname part)
 may be specified via the <option>-f</option> option.
-Except for the SConstruct file,
+Except for the &SConstruct; file,
 these files are not searched for automatically;
 you add additional configuration files to the build
 by calling the &f-link-SConscript; function.
@@ -2419,7 +2548,7 @@ env['FOO'] = 'foo'
 referenced only when the tools are initializided,
 so you either need either to supply them as part of the call to
 &f-link-Environment;, or defer tool initialization.
-For example, initializing the Microsoft Visual C++ version you wish to use:
+For example, initializing the &MSVC; version you wish to use:
 </para>
 
 <programlisting language="python">
@@ -2556,7 +2685,7 @@ See <xref linkend="tools"/> for details.
 
 <para>
 The optional <parameter>variables</parameter> keyword argument
-allows passing a Variables object which will be used in the
+allows passing a <classname>Variables</classname> object which will be used in the
 initialization of the &consenv;
 See <xref linkend="commandline_construction_variables"/> for details.
 </para>
@@ -2567,75 +2696,83 @@ See <xref linkend="commandline_construction_variables"/> for details.
 <title>Tools</title>
 
 <para>
-&SCons; has a large number of predefined tool modules
+&SCons; has many included tool modules
 (more properly, <firstterm>tool specification modules</firstterm>)
-which are used to help initialize the &consenv;.
+which are used to help initialize the &consenv; prior to building,
+and more can be written to suit a particular purpose,
+or added from external sources (a repository of
+constributed tools is available).
+More information on writing custom tools can be found in the
+<link linkend='extending_scons'>Extending SCons</link> section
+and specifically <link linkend='tool_modules'>Tool Modules</link>.
+</para>
+
+<para>
 An &SCons; tool is only responsible for setup.
 For example, if an &SConscript; file declares
 the need to construct an object file from
 a C-language source file by calling the
-&b-link-Object; builder, then a tool representing
+&b-link-Object; builder, then a tool module representing
 an available C compiler needs to have run first,
 to set up that builder and all the &consvars;
-it needs in the associated &consenv;; the tool itself
-is not called in the process of the build. Normally this
-happens invisibly as &scons; has per-platform
-lists of default tools, and it steps through those tools,
-calling the ones which are actually applicable,
-skipping those where necessary programs are not
-installed on the build system, or other preconditions are not met.
+it needs in the associated &consenv;.
+The tool itself is not called in the process of the build.
+Tool setup happens when a &consenv; is constructed,
+and in the basic case needs no intervention -
+platform-specific lists of default tools are used
+to examine the specific capabilities of that platform and
+configure the environment,
+skipping those tools which are not applicable.
 </para>
 
 <para>
-A specific set of tools
-with which to initialize an environment when
-creating it
+If necessary, a specific set of tools to
+initialize in an environment during creation
 may be specified using the optional keyword argument
-<parameter>tools</parameter>, which takes a list
-of tool names.
+<parameter>tools</parameter>.
+<parameter>tools</parameter> must be a list,
+even if there are one (or zero) tools.
 This is useful to override the defaults,
-to specify non-default built-in tools, and
-to supply added tools:</para>
+to specify non-default built-in tools,
+and to cause added tools to be called:
+</para>
 
 <programlisting language="python">
 env = Environment(tools=['msvc', 'lex'])
 </programlisting>
 
 <para>
+The <parameter>tools</parameter> argument overrides
+the default tool list, it does not add to it, so be
+sure to include all the tools you need.
+For example, if you are  building a c/c++ program,
+you must specify a tool for at least a compiler and a linker,
+as in <literal>tools=['clang', 'link']</literal>.
+</para>
+
+<para>
+If the <parameter>tools</parameter> argument is omitted,
+or if <parameter>tools</parameter> includes
+the reserved name <literal>'default'</literal>,
+then &SCons; will auto-detect usable tools,
+using the search path from the execution environment
+(that is, <varname><replaceable>env</replaceable>['ENV']['PATH']</varname>)
+for looking up any external programs,
+and the platform name in effect
+to determine the default tools for that platform.
+Note the contents of &PATH; from the external environment
+<varname>os.environ</varname> is <emphasis>not</emphasis> used.
+Changing the <varname>PATH</varname> in the execution environment
+after the &consenv; is constructed will not cause the tools to
+be re-detected.
+</para>
+
+<para>
 Tools can also be directly called by using the &f-link-Tool;
 method (see below).
 </para>
 
-<para>
-The <parameter>tools</parameter> argument overrides
-the default tool list, it does not add to it, so be
-sure to include all the tools you need.
-For example if you are  building a c/c++ program
-you must specify a tool for at least a compiler and a linker,
-as in <literal>tools=['clang', 'link']</literal>.
-The tool name <literal>'default'</literal> can
-be used to retain the default list.
-</para>
-
-<para>If no <parameter>tools</parameter> argument is specified,
-or if <parameter>tools</parameter> includes <literal>'default'</literal>,
-then &scons; will auto-detect usable tools,
-using the execution environment value of <varname>PATH</varname>
-(that is, <varname><replaceable>env</replaceable>['ENV']['PATH']</varname> -
-the external evironment &PATH; from <varname>os.environ</varname>
-is <emphasis>not</emphasis> used)
-for looking up any backing programs, and the platform name in effect
-to determine the default tools for that platform.
-Changing the <varname>PATH</varname>
-variable after the &consenv; is constructed will not cause the tools to
-be re-detected.</para>
-
-<para>Additional tools can be added, see the
-<link linkend='extending_scons'>Extending SCons</link> section
-and specifically <link linkend='tool_modules'>Tool Modules</link>.
-</para>
-
-<para>SCons supports the following tool specifications out of the box:</para>
+<para>&SCons; supports the following tool specifications out of the box:</para>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 <!-- '\" BEGIN GENERATED TOOL DESCRIPTIONS -->
@@ -2767,8 +2904,7 @@ of the &SConscript; file currently being processed.
 path strings: if the string begins with
 the <emphasis role="bold">#</emphasis> character it is
 <firstterm>top-relative</firstterm> - it works like a relative path but the
-search follows down from the directory containing the top-level
-&SConstruct; rather than
+search follows down from the project top directory rather than
 from the current directory. The <emphasis role="bold">#</emphasis>
 can optionally be followed by a pathname separator,
 which is ignored if found in that position.
@@ -2934,7 +3070,7 @@ when using the <parameter>chdir</parameter>
 keyword argument--that is,
 the expanded file names
 will still be relative to
-the top-level directory where the &SConstruct; was found,
+the project top directory,
 and consequently incorrect
 relative to the chdir directory.
 If you use the <parameter>chdir</parameter> keyword argument,
@@ -3244,9 +3380,8 @@ object.</para>
 &scons;
 provides a number of other &consenv; methods
 and global functions to
-manipulate the build configuration.</para>
-
-<para>Usually, a &consenv; method
+manipulate the build configuration.
+Usually, a &consenv; method
 and global function with the same name both exist
 for convenience.
 In the following list, the global function
@@ -3270,12 +3405,15 @@ then both forms are listed.</para>
 provide almost identical functionality, with a couple of exceptions.
 First, many of the &consenv; methods affect only that
 &consenv;, while the global function has a
-global effect. Second, where appropriate,
+global effect (or, alternatively, takes an additional
+positional argument to specify the affected &consenv;).
+Second, where appropriate,
 calling the functionality through a &consenv; will
 substitute &consvars; into
-any supplied string arguments, while the global function doesn't have the
-context of a &consenv; to pick variables from,
-so it cannot perform the substitution.
+any supplied string arguments, while the global function,
+unless it takes a &consenv; parameter,
+does not have the context of a &consenv; to pick variables from,
+and thus cannot perform substitutions.
 For example:</para>
 
 <programlisting language="python">
@@ -3297,12 +3435,18 @@ and add a target named
 <emphasis role="bold">foo</emphasis>
 to the list of default targets.
 For more on &consvar; expansion,
-see the next section on
-&consvars;.</para>
+see the
+<link linkend="construction_variables">&Consvars;</link>
+section below.
+</para>
 
-<para>Global functions may be called from custom Python modules that you
-import into an &SConscript; file by adding the following import
-to the Python module:</para>
+<para>
+Global functions are automatically in scope inside
+&SConscript; files.
+If you have custom &Python; code that you import into an &SConscript; file,
+such code will need to bring them into their own scope.
+You can do that by adding the following import
+to the &Python; module:</para>
 
 <programlisting language="python">
 from SCons.Script import *
@@ -3341,7 +3485,7 @@ include:</para>
 <para>In addition to the global functions and methods,
 &scons;
 supports a number of variables
-that can be used in &SConscript; files
+that can be used for run-time queries in &SConscript; files
 to affect how you want the build to be performed.</para>
 
 <variablelist>
@@ -3349,12 +3493,12 @@ to affect how you want the build to be performed.</para>
   <term>&ARGLIST;</term>
   <listitem>
 <para>A list of the
-<emphasis>keyword</emphasis>=<emphasis>value</emphasis>
-arguments specified on the command line.
+<emphasis>variable</emphasis>=<emphasis>value</emphasis>
+build variable arguments specified on the command line.
 Each element in the list is a tuple
-containing the argument.
+consisting of the variable and its value.
 The separate
-<emphasis>keyword</emphasis>
+<emphasis>variable</emphasis>
 and
 <emphasis>value</emphasis>
 elements of the tuple
@@ -3364,16 +3508,25 @@ subscripting for elements
 and
 <emphasis role="bold">[1]</emphasis>
 of the tuple, or, more readably, by using tuple unpacking.
-Example:</para>
+Examples:</para>
 
 <programlisting language="python">
-print("first keyword, value =", ARGLIST[0][0], ARGLIST[0][1])
-print("second keyword, value =", ARGLIST[1][0], ARGLIST[1][1])
-key, value = ARGLIST[2]
-print("third keyword, value =", key, value)
-for key, value in ARGLIST:
-    # process key and value
+print("first variable, value =", ARGLIST[0][0], ARGLIST[0][1])
+print("second variable, value =", ARGLIST[1][0], ARGLIST[1][1])
+var, value = ARGLIST[2]
+print("third variable, value =", var, value)
+for var, value in ARGLIST:
+    # process variable and value
 </programlisting>
+
+<para>
+The values obtained from &ARGLIST;
+(or from <link linkend="v-ARGUMENTS">&ARGUMENTS;</link>)
+are always strings since they originate from outside the &SCons; process.
+As "untrusted data",
+they should be validated before usage,
+and may need conversion to an appropriate type.
+</para>
   </listitem>
   </varlistentry>
 
@@ -3381,24 +3534,28 @@ for key, value in ARGLIST:
   <term>&ARGUMENTS;</term>
   <listitem>
 <para>A dictionary of all the
-<emphasis>keyword</emphasis>=<emphasis>value</emphasis>
-arguments specified on the command line.
-The dictionary is not in order,
-and if a given keyword has
+<emphasis>variable</emphasis>=<emphasis>value</emphasis>
+build variable arguments specified on the command line.
+The dictionary is in command-line order,
+so if a given variable has
 more than one value assigned to it
 on the command line,
 the last (right-most) value is
-the one in the &ARGUMENTS;
+the one saved in the &ARGUMENTS;
 dictionary.</para>
 
 <para>Example:</para>
 
 <programlisting language="python">
-if ARGUMENTS.get('debug', 0):
-    env = Environment(CCFLAGS='-g')
+if ARGUMENTS.get("debug", ""):
+    env = Environment(CCFLAGS="-g")
 else:
     env = Environment()
 </programlisting>
+
+<para>
+See also <link linkend="v-ARGLIST">&ARGLIST;</link>.
+</para>
   </listitem>
   </varlistentry>
 
@@ -3423,7 +3580,7 @@ command line targets or &Default; calls are present.
 <para>
 The elements of this list may be strings
 <emphasis>or</emphasis>
-nodes, so you should run the list through the Python
+nodes, so you should run the list through the &Python;
 <function>str</function>
 function to make sure any Node path names
 are converted to strings.</para>
@@ -3433,8 +3590,7 @@ list of targets specified using the
 &Default; function,
 the contents of the list may change
 on each successive call to &Default;.
-See the
-&DEFAULT_TARGETS; list, below,
+See <link linkend="v-DEFAULT_TARGETS">&DEFAULT_TARGETS;</link>
 for additional information.</para>
 
 <para>Example:</para>
@@ -3453,12 +3609,13 @@ if 'special/program' in BUILD_TARGETS:
   <listitem>
 <para>A list of the targets explicitly specified on
 the command line. If there are command line targets,
-this list will have the same contents as &BUILD_TARGETS;.
+this list has the same contents as
+<link linkend="v-BUILD_TARGETS">&BUILD_TARGETS;</link>.
 If there are no targets specified on the command line,
 the list is empty. The elements of this list are strings.
 This can be used, for example,
 to take specific actions only
-when certain targets are explicitly being built.</para>
+when a certain targets is explicitly requested for building.</para>
 
 <para>Example:</para>
 
@@ -3480,9 +3637,9 @@ that have been specified using the
 &f-link-Default;
 function. If there are no command line
 targets, this list will have the same contents as
-&BUILD_TARGETS;.
+<link linkend="v-BUILD_TARGETS">&BUILD_TARGETS;</link>.
 Since the elements of the list are nodes,
-you need to call the Python
+you need to call the &Python;
 <function>str</function>
 function on them to get the path name for each Node.</para>
 
@@ -3522,9 +3679,9 @@ default target before it's actually been added to the list.</para>
 </variablelist>
 
 <para>
-These variables may be accessed from custom Python modules that you
+These variables may be accessed from custom &Python; modules that you
 import into an &SConscript; file by adding the following
-to the Python module:</para>
+to the &Python; module:</para>
 
 <programlisting language="python">
 from SCons.Script import *
@@ -3551,16 +3708,44 @@ from SCons.Script import *
 <!--     Default: -->
 <!--         (I dunno what this is ;\-) -->
 
-<para>A &consenv; has an associated dictionary of
-<firstterm>&consvars;</firstterm>
-that are used by built-in or user-supplied build rules.
+<para>
+<firstterm>&ConsVars;</firstterm> are key-value pairs
+used to store information in a &consenv; that
+is needed needed for builds using that environment.
 &Consvar; naming must follow the same rules as
-Python identifier naming:
+&Python; identifier naming:
 the initial character must be an underscore or letter,
 followed by any number of underscores, letters, or digits.
-A &consenv; is not a Python dictionary itself,
-but it can be indexed like one to access a
-&consvar;:</para>
+The convention is to use uppercase for all letters
+for easier visual identification.
+</para>
+
+<para>
+&Consvars; are used to hold many different types of information.
+For example, the &cv-link-CPPDEFINES; variable is how to tell a C/C++
+compiler about preprocessor macros you need for your build.
+The tool discovery that &SCons; performs will cause the
+&cv-link-CXX; variable to hold the name of the C++ compiler,
+if one was detected on the system, but you can give it a different
+value to force a compiler command of a different name to be used.
+Some variables contain lists of filename suffixes that are recognized
+by a particular compiler chain.
+&cv-link-BUILDERS; contains a mapping of configured
+Builder names (e.g. &b-link-Textfile;) to the actual Builder instance
+to call when that Builder is used.
+&Consvars; may include references to other &consvars;:
+the same tool which set up the C/C++ compiler will also set
+up an "action string", describing how to invoke that compiler,
+in &cv-link-CXXCOM;, which contains other &consvars;
+using <literal>$VARIABLE</literal> syntax.
+These references will be expanded and replaced on use
+(see <link linkend="variable_substitution">Variable Substitution</link>).
+</para>
+
+<para>
+&Consvars; are referenced as if they were keys and values
+in a &Python; dictionary:
+</para>
 
 <programlisting language="python">
 env["CC"] = "cc"
@@ -3577,8 +3762,15 @@ cvars = env.Dictionary()
 cvars["CC"] = "cc"
 </programlisting>
 
-<para>&Consvars; can also be passed to the &consenv;
-constructor:</para>
+<para>
+in the previous example, since <varname>cvars</varname>
+is an external copy, the value of &cv-CC; in the
+&consenv; itself is not changed by the assignment.
+</para>
+
+<para>&Consvars; can set by passing them as keyword arguments
+when creating a new &consenv;:
+</para>
 
 <programlisting language="python">
 env = Environment(CC="cc")
@@ -3603,17 +3795,22 @@ This concept is called an <firstterm>override</firstterm>:
 env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
 </programlisting>
 
-<para>A number of useful &consvars; are automatically defined by
-scons for each supported platform, and you can modify these
-or define any additional &consvars; for your own use,
-taking care not to overwrite ones which &SCons; is using.
-The following is a list of the possible
-automatically defined &consvars;.
+<para>Many useful &consvars; are automatically defined by
+&SCons;, tuned to the specific platform in use,
+and you can modify these or define any additional &consvars;
+for use in your own Builders, Scanners and other tools.
+Take care not to overwrite ones which &SCons; is using.
+The following is a list of predefined &consvars;.
+Pay attention to whether the values are ones
+you may be expected to set vs.
+ones that are set to expected values by
+internal tools and other initializations
+and probably should not be modified.
 </para>
 
 <para>Note the actual list available
 at execution time will never include all of these, as the ones
-detected as not being useful (wrong platform, necessary
+detected as not being applicable (wrong platform, necessary
 external command or files not installed, etc.) will not be set up.
 Correct build setups should be resilient to the possible
 absence of certain &consvars; before using them,
@@ -3665,7 +3862,7 @@ does not maintain an explicit cache of the tested values
 (this is different than &Autoconf;),
 but uses its normal dependency tracking to keep the checked values
 up to date. However, users may override this behaviour with the
-<option>--config</option>
+<link linkend="opt-config"><option>--config</option></link>
 command line option.</para>
 
 <variablelist>
@@ -3795,13 +3992,16 @@ env = conf.Finish()
 <para>A &configure_context;
 has the following predefined methods which
 can be used to perform checks. Where
-<parameter>language</parameter> is a required or
-optional parameter, the choice can currently
-be C or C++. The spellings accepted for
+<parameter>language</parameter> is an optional parameter,
+it specifies the compiler to use for the check,
+currently a choice of C or C++.
+The spellings accepted for
 C are <quote>C</quote> or <quote>c</quote>;
 for C++ the value can be
 <quote>CXX</quote>, <quote>cxx</quote>, <quote>C++</quote>
 or <quote>c++</quote>.
+If <parameter>language</parameter> is omitted,
+<quote>C</quote> is assumed.
 </para>
 
 <variablelist>
@@ -3810,7 +4010,7 @@ or <quote>c++</quote>.
   <listitem>
 <para>Checks if
 <parameter>header</parameter>
-is usable in the specified language.
+is usable in the specified <parameter>language</parameter>.
 <parameter>header</parameter>
 may be a list,
 in which case the last item in the list
@@ -3826,14 +4026,8 @@ must be
 a two character string, where the first character denotes the opening
 quote and the second character denotes the closing quote.
 By default, both characters  are <markup>"</markup> (double quote).
-The optional argument
-<parameter>language</parameter>
-should be either
-<emphasis role="bold">C</emphasis>
-or
-<emphasis role="bold">C++</emphasis>
-and selects the compiler to be used for the check.
-Returns a boolean indicating success or failure.</para>
+</para>
+<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
@@ -3892,91 +4086,118 @@ Returns a boolean indicating success or failure.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>CheckFunc</methodname>(<parameter>function_name, [header, language]</parameter>)</term>
+  <term><replaceable>context</replaceable>.<methodname>CheckFunc</methodname>(<parameter>function_name, [header, language, funcargs]</parameter>)</term>
   <listitem>
-<para>Checks if the specified
-C or C++ library function is available based on the
-context's local environment settings (that is, using
-the values of &cv-link-CFLAGS;, &cv-link-CPPFLAGS;, &cv-link-LIBS;
-or other relevant &consvars;).
+<para>Checks if <parameter>function_name</parameter> is usable
+in the context's local environment, using the compiler
+specified by <parameter>language</parameter> - that is,
+can a check referencing it be compiled using the current values
+of &cv-link-CFLAGS;, &cv-link-CPPFLAGS;,
+&cv-link-LIBS; or other relevant &consvars;.
 </para>
 
 <para>
-<parameter>function_name</parameter>
-is the name of the function to check for.
 The optional
 <parameter>header</parameter>
-argument is a string
-that will be
-placed at the top
-of the test file
-that will be compiled
-to check if the function exists;
-the default is:</para>
+argument is a string representing a code fragment
+to place at the top of the test program
+that will be compiled to check if the function exists.
+If omitted, the default stanza will be
+(with <parameter>function_name</parameter> appropriately substituted):
+</para>
 
 <programlisting language="C">
 #ifdef __cplusplus
 extern "C"
 #endif
-char function_name();
+char function_name(void);
 </programlisting>
 
 <para>
-Returns an empty string on success, a string containing
-an error message on failure.
+If <parameter>header</parameter> is supplied, it should <emphasis>not</emphasis> include
+the standard header file that declares <parameter>function_name</parameter> and it
+<emphasis>should</emphasis> include a dummy prototype similar to the default case.  If
+this is not possible, the optional <parameter>funcargs</parameter> argument can be used
+to specify a string containing an argument list with the same number and type of
+arguments as the prototype.  The arguments can simply be constant values of the correct
+type.  Modern C/C++ compilers reject implicit function declarations and may also reject
+function calls whose arguments are not type compatible with the prototype.
+</para>
+
+<para>
+<emphasis>Changed in version 4.7.0: added the <parameter>funcargs</parameter>.</emphasis>
+</para>
+
+<para>Returns a boolean indicating success or failure.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><replaceable>context</replaceable>.<methodname>CheckLib</methodname>(<parameter>[library, symbol, header, language, autoadd=True, append=True, unique=False]</parameter>) </term>
+  <listitem>
+<para>Checks if
+<parameter>library</parameter>
+provides
+<parameter>symbol</parameter> by compiling a simple stub program
+with the compiler selected by <parameter>language</parameter>,
+and optionally adds that library to the context.
+If supplied, the text of <parameter>header</parameter> is included at the
+top of the stub.
+If <parameter>autoadd</parameter> is true (the default),
+and the library provides the specified
+<parameter>symbol</parameter> (as defined by successfully
+linking the stub program),
+it is added to the &cv-link-LIBS; &consvar; in the context.
+if <parameter>append</parameter> is true (the default),
+the library is appended, otherwise it is prepended.
+If <parameter>unique</parameter> is true,
+and the library would otherwise be added but is
+already present in &cv-link-LIBS; in the configure context,
+it will not be added again. The default is <literal>False</literal>.
+</para>
+<para>
+<parameter>library</parameter> can be a list of library names,
+or <constant>None</constant> (the default if the argument is omitted).
+If the former, <parameter>symbol</parameter> is checked against
+each library name in order, returning
+(and reporting success) on the first
+successful test; if the latter,
+it is checked with the current value of &cv-LIBS;
+(in this case no library name would be added).
+If <parameter>symbol</parameter>
+is omitted or <constant>None</constant>,
+then <function>CheckLib</function>
+just checks if
+you can link against the specified
+<parameter>library</parameter>,
+Note though it is legal syntax, it would
+not be very useful to call this method
+with <parameter>library</parameter>
+and <parameter>symbol</parameter> both
+omitted or <constant>None</constant> -
+at least one should be supplied.
+</para>
+<para>Returns a boolean indicating success or failure.</para>
+<para>
+<emphasis>Changed in version 4.5.0: added the
+<parameter>append</parameter> and <parameter>unique</parameter>
+parameters.</emphasis>
 </para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>CheckLib</methodname>(<parameter>[library, symbol, header, language, autoadd=True]</parameter>) </term>
-  <listitem>
-<para>Checks if
-<parameter>library</parameter>
-provides
-<parameter>symbol</parameter>.
-If
-<parameter>autoadd</parameter>
-is true (the default) and the library provides the specified
-<parameter>symbol</parameter>,
-appends the library to the <varname>LIBS</varname> &consvar;
-<parameter>library</parameter>
-may also be <constant>None</constant> (the default),
-in which case
-<parameter>symbol</parameter>
-is checked with the current <varname>LIBS</varname> variable,
-or a list of library names,
-in which case each library in the list
-will be checked for
-<parameter>symbol</parameter>.
-If
-<parameter>symbol</parameter>
-is not set or is
-<constant>None</constant>,
-then
-<function>CheckLib</function>
-just checks if
-you can link against the specified
-<parameter>library</parameter>.
-Note though it is legal syntax, it would
-not be very useful to call this method
-with <parameter>library</parameter>
-and <parameter>symbol</parameter> both
-omitted or <constant>None</constant>.
-Returns a boolean indicating success or failure.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>CheckLibWithHeader</methodname>(<parameter>library, header, language, [call, autoadd=True]</parameter>)</term>
+  <term><replaceable>context</replaceable>.<methodname>CheckLibWithHeader</methodname>(<parameter>library, header, [language, call, autoadd=True, append=True, unique=False]</parameter>)</term>
   <listitem>
 
-<para>Provides a more sophisticated way to check against libraries then the
-<function>CheckLib</function> call.
+<para>Provides an alternative to the
+<methodname>CheckLib</methodname> method
+for checking for libraries usable in a build.
 <parameter>library</parameter>
-specifies the library or a list of libraries to check.
+specifies a library or list of libraries to check.
 <parameter>header</parameter>
-specifies a header to check for.
+specifies a header to include in the test program,
+and <parameter>language</parameter> indicates the compiler to use.
 <parameter>header</parameter>
 may be a list,
 in which case the last item in the list
@@ -3986,18 +4207,30 @@ header files whose
 <literal>#include</literal>
 lines should precede the
 header line being checked for.
-<parameter>call</parameter>
-can be any valid expression (with a trailing ';').
-If
-<parameter>call</parameter>
-is not set,
-the default simply checks that you
-can link against the specified
+A code fragment
+(must be a a valid expression, including a trailing semicolon)
+to serve as the test can be supplied in
+<parameter>call</parameter>;
+if not supplied,
+the default checks the ability to link against the specified
 <parameter>library</parameter>.
-<parameter>autoadd</parameter> (default true)
-specifies whether to add the library to the environment if the check
-succeeds.
-Returns a boolean indicating success or failure.</para>
+If <parameter>autoadd</parameter> is true (the default),
+the first library that passes the check
+is added to the &cv-link-LIBS; &consvar; in the context
+and the method returns.
+If <parameter>append</parameter> is true (the default),
+the library is appended, otherwise prepended.
+If <parameter>unique</parameter> is true,
+and the library would otherwise be added but is
+already present in &cv-link-LIBS; in the configure context,
+it will not be added again. The default is <literal>False</literal>.
+</para>
+<para>Returns a boolean indicating success or failure.</para>
+<para>
+<emphasis>Changed in version 4.5.0: added the
+<parameter>append</parameter> and <parameter>unique</parameter>
+parameters.</emphasis>
+</para>
   </listitem>
   </varlistentry>
 
@@ -4019,11 +4252,7 @@ Example:</para>
 sconf.CheckType('foo_type', '#include "my_types.h"', 'C++')
 </programlisting>
 
-<para>
-Returns an empty string on success, a string containing
-an error message on failure.
-</para>
-
+<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
@@ -4050,7 +4279,7 @@ is supplied, it should be an integer size;
 <parameter>type_name</parameter> is actually
 that size.
 Returns the size in bytes, or zero if the type was not found
-(or if the size did not match <parameter>expect</parameter>).</para>
+(or if the size did not match optional <parameter>expect</parameter>).</para>
 
 <para>
 For example,</para>
@@ -4081,6 +4310,7 @@ for C source files, so by setting relevant &consvars;
 it can be used to detect if particular compiler flags will
 be accepted or rejected by the compiler.
 </para>
+<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
@@ -4101,6 +4331,7 @@ for C++ source files, so by setting relevant &consvars;
 it can be used to detect if particular compiler flags will
 be accepted or rejected by the compiler.
 </para>
+<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
@@ -4123,6 +4354,7 @@ be accepted or rejected by the compiler.
 Note this does not check whether a shared library/dll can
 be created.
 </para>
+<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
@@ -4145,6 +4377,7 @@ be accepted or rejected by the compiler.
 Note this does not check whether a shared library/dll can
 be created.
 </para>
+<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
@@ -4171,7 +4404,8 @@ is a string containing one or more
 <literal>#include</literal>
 lines that will be inserted into the program
 that will be run to test for the existence of the symbol.
-Returns a boolean indicating success or failure.</para>
+</para>
+<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
@@ -4277,7 +4511,7 @@ pass a dictionary to the &f-link-Configure; function
 as the <parameter>custom_tests</parameter> parameter.
 The dictionary maps the names of the checks
 to the custom check callables
-(either a Python function or an instance of a class implementing a
+(either a &Python; function or an instance of a class implementing a
 <methodname>__call__</methodname> method).
 Each custom check will be called with a
 a <classname>CheckContext</classname>
@@ -4440,63 +4674,101 @@ env = conf.Finish()
 <title>Command-Line Construction Variables</title>
 
 <para>Often when building software,
-some variables need to be specified at build time.
-For example, libraries needed for the build may be in non-standard
-locations, or site-specific compiler options may need to be passed to the
-compiler.
-&SCons;
-provides a <firstterm>&Variables;</firstterm>
-object to support overriding &consvars; with values obtained
-from various sources, often from the command line:</para>
+specialized information needs to be conveyed at build time
+to override the defaults in the build scripts.
+Command-line arguments (like <literal>--implcit-cache</literal>)
+and giving names of build targets are two ways to do that.
+Another is to provide variable-assignment arguments
+on the command line.
+For the particular case where you want to specify new
+values for &consvars;,
+&SCons; provides a <firstterm>&Variables;</firstterm>
+object to simplify collecting those
+and updating a &consenv; with the values.
+The typical calling style looks like:
+</para>
 
 <screen>
 <userinput>scons VARIABLE=foo</userinput>
 </screen>
 
-<para>The variable values can also be specified in a configuration file
-or an &SConscript; file.</para>
+<para>
+Variables specified in the above way
+can be manually processed by accessing the
+<link linkend="v-ARGUMENTS">&ARGUMENTS;</link> dictionary
+(or <link linkend="v-ARGLIST">&ARGLIST;</link> list),
+but using a &Variables; object allows you to describe
+anticipated variables,
+convert them to a suitable type if necessary,
+validate the values are within defined constraints,
+and define defaults, help messages and aliases.
+This is conceptually similar to the structure of options
+(see &f-link-AddOption;).
+It also allows obtaining values from a saved variables file,
+or from a custom dictionary in an &SConscript; file.
+The processed variables can then be applied to the desired &consenv;.
+</para>
 
-<para>To obtain the object for manipulating values,
-call the &Variables; function:</para>
+<para>
+Roughly speaking, arguments are used to convey information to the
+&SCons; program about how it should behave;
+variables are used to convey information to the build
+(although &SCons; does not enforce any such constraint).
+</para>
+
+<para>To obtain an object for manipulating variables,
+call the &Variables; factory function:</para>
 
 <variablelist>
   <varlistentry id="v-Variables">
   <term><function>Variables</function>([<parameter>files, [args]]</parameter>)</term>
   <listitem>
-<para>If <parameter>files</parameter> is a file or
-list of files, they are executed as Python scripts,
-and the values of (global) Python variables set in
-those files are added as &consvars; in the &DefEnv;.
-If no files are specified,
+<para>If <parameter>files</parameter> is a filename or list of filenames,
+they are considered to be &Python; scripts which will
+be executed to set variables when the
+<link linkend='v-Update'><function>Update</function></link>
+method is called -
+this allows the use of &Python; syntax in the assignments.
+A file can be the result of an earlier call to the
+<link linkend='v-Save'>&Save;</link> method.
+If <parameter>files</parameter> is not specified,
 or the
 <parameter>files</parameter>
 argument is
 <constant>None</constant>,
-then no files will be read
-(supplying <constant>None</constant> is necessary
+then no files will be read.
+Supplying <constant>None</constant> is required
 if there are no files but you want to specify
-<parameter>args</parameter> as a positional argument).
+<parameter>args</parameter> as a positional argument;
+this can be omitted if using the keyword argument style.
+If any of <parameter>files</parameter> is missing,
+it is silently skipped.
 </para>
 
 <para>
-The following example file
+Either of the following example file
 contents could be used to set an alternative C compiler:</para>
 
 <programlisting language="python">
 CC = 'my_cc'
+CC = os.environ.get('CC')
 </programlisting>
 
 <para>If
 <parameter>args</parameter>
-is specified, it is a dictionary of
-values that will override anything read from
-<parameter>files</parameter>.
-The primary use is to pass the
-&ARGUMENTS; dictionary that holds variables
-specified on the command line,
-allowing you to indicate that if a setting appears
+is specified, it must be a dictionary.
+The key-value pairs from <parameter>args</parameter>
+will be added to those obtained from
+<parameter>files</parameter>, if any.
+Keys from <parameter>args</parameter>
+take precendence over same-named keys from <parameter>files</parameter>.
+If omittted, the default is the
+<link linkend="v-ARGUMENTS">&ARGUMENTS;</link>
+dictionary that holds build variables
+specified on the command line.
+Using &ARGUMENTS; allows you to indicate that if a setting appears
 on both the command line and in the file(s),
-the command line setting takes precedence.
+the command line setting is preferred.
 However, any dictionary can be passed.
 Examples:</para>
 
@@ -4504,6 +4776,7 @@ Examples:</para>
 vars = Variables('custom.py')
 vars = Variables('overrides.py', ARGUMENTS)
 vars = Variables(None, {FOO:'expansion', BAR:7})
+vars = Variables(args={FOO:'expansion', BAR:7})
 </programlisting>
 
 <para>
@@ -4513,74 +4786,126 @@ Calling &Variables; with no arguments is equivalent to:
 vars = Variables(files=None, args=ARGUMENTS)
 </programlisting>
 
+  </listitem>
+  </varlistentry>
+</variablelist>
+
+<para>
+A &Variables; object serves as a container for
+descriptions of variables,
+which are added by calling methods of the object.
+Each variable consists of a name (which will
+become a &consvar;), aliases for the name,
+a help message, a default value,
+and functions to validate and convert values.
+Once the object is asked to process variables,
+it matches up data from the input
+sources it was given with the definitions,
+and generates key-value pairs which are added
+to the specified &consenv;,
+except that if any variable was described
+to have a default of <literal>None</literal>,
+it is <emphasis>not</emphasis> added to
+the construction environment unless it
+appears in the input sources.
+Otherwise, a variable not in the
+input sources is added using its default value.
+</para>
+
 <para>
 Note that since the variables are eventually added as &consvars;,
 you should choose variable names which do not unintentionally change
 pre-defined &consvars; that your project will make use of
-(see <xref linkend="construction_variables"/>).
+(see <xref linkend="construction_variables"/> for a reference),
+since variables obtained have values overridden, not merged.
 </para>
 
-  </listitem>
-  </varlistentry>
-  </variablelist>
+<para>
+Also note there is currently no way to use the &Variables;
+mechanism to define a variable which the user is
+<emphasis>required</emphasis> to supply;
+if necessary this can be implemented by accessing
+<link linkend="v-ARGUMENTS">&ARGUMENTS;</link> directly,
+although that only applies to the command line,
+not to any stored-values files.
+</para>
 
-<para>Variables objects have the following methods:</para>
+<para>A Variables object has the following methods:</para>
 
-  <variablelist>
+<variablelist>
   <varlistentry id="v-Add">
   <term><replaceable>vars</replaceable>.<function>Add</function>(<parameter>key, [help, default, validator, converter]</parameter>)</term>
   <listitem>
-<para>Add a customizable &consvar; to the Variables object.
+<para>Add a customizable &consvar; to the &Variables; object.
 <parameter>key</parameter>
 is either the name of the variable,
-or a tuple (or list), in which case
-the first item in the tuple is taken as the variable name,
+or a sequence of strings, in which case
+the first item in the sequence is taken as the variable name,
 and any remaining values are considered aliases for the variable.
+<parameter>key</parameter> is mandatory,
+there is no default.
 <parameter>help</parameter>
 is the help text for the variable
-(default empty string).
+(defaults to an empty string).
 <parameter>default</parameter>
 is the default value of the variable
-(default <constant>None</constant>).
-If <parameter>default</parameter> is
-<constant>None</constant>
-and a value is not specified,
-the &consvar; will not
-be added to the &consenv;.
+(defaults to <constant>None</constant>).
 </para>
+
 <para>
-As a special case, if <parameter>key</parameter>
-is a tuple (or list) and is the <emphasis>only</emphasis>
-argument, the tuple is unpacked into the five parameters
-listed above left to right, with any missing members filled with
-the respecitive default values. This form allows <function>Add</function>
-to consume a tuple emitted by the convenience functions
-<link linkend='v-BoolVariable'><function>BoolVariable</function></link>,
-<link linkend='v-EnumVariable'><function>EnumVariable</function></link>,
-<link linkend='v-ListVariable'><function>ListVariable</function></link>,
-<link linkend='v-PackageVariable'><function>PackageVariable</function></link>
-and
-<link linkend='v-PathVariable'><function>PathVariable</function></link>.
-</para>
-<para>
-If the optional <parameter>validator</parameter> is supplied,
-it is called to validate the value of the variable.
-A function supplied as a validator must accept
-three arguments: <parameter>key</parameter>,
-<parameter>value</parameter> and <parameter>env</parameter>,
-and should raise an exception with a helpful error message
+If the optional <parameter>validator</parameter> argument is supplied,
+it is a callback function to validate the value of the variable
+when the variables are processed
+(that is, when the <link linkend='v-Update'>&Update;</link>
+method runs).
+A validator function must accept three arguments:
+<parameter>key</parameter>,
+<parameter>value</parameter>
+and <parameter>env</parameter>,
+and should raise an exception (with a helpful error message)
 if <parameter>value</parameter> is invalid.
 No return value is expected from the validator.
 </para>
+
 <para>
-If the optional <parameter>converter</parameter> is supplied,
-it is called to convert the value before putting it in the environment,
-and should take either a value
-or a value and environment as parameters.
-The converter function must return a value,
-which will be converted into a string and be passed to the
-<parameter>validator</parameter> (if any)
-and then added to the &consenv;.</para>
+If the optional <parameter>converter</parameter> argument is supplied,
+it is a callback function to convert the value into
+one suitable for adding to the &consenv;.
+A converter function must accept the
+<parameter>value</parameter> argument,
+and may declare <parameter>env</parameter>
+as a second argument if it needs access to the
+&consenv; while validating - the function will be called appropriately.
+The converter is called before the validator;
+it must return a value, which is then passed to the
+<parameter>validator</parameter> (if any) for checking.
+In general, the converter should not fail,
+leaving validation checks to the validator,
+although if an operation is impossible to complete
+or there is no separate validator
+it can raise a <exceptionname>ValueError</exceptionname>.
+</para>
+
+<para>
+As a special case, if <parameter>key</parameter>
+is a sequence and is the <emphasis>only</emphasis>
+argument to &Add;, it is unpacked into the five parameters
+<parameter>key</parameter>,
+<parameter>help</parameter>,
+<parameter>default</parameter>,
+<parameter>validator</parameter> and
+<parameter>converter</parameter>,
+with any missing members from the right filled in with
+the respective default values.
+This form allows it
+to consume a tuple emitted by the convenience functions
+<link linkend='v-BoolVariable'>&BoolVariable;</link>,
+<link linkend='v-EnumVariable'>&EnumVariable;</link>,
+<link linkend='v-ListVariable'>&ListVariable;</link>,
+<link linkend='v-PackageVariable'>&PackageVariable;</link>
+and
+<link linkend='v-PathVariable'>&PathVariable;</link>.
+</para>
 
 <para>Examples:</para>
 
@@ -4601,18 +4926,16 @@ vars.Add('COLOR', validator=valid_color)
   <listitem>
 <para>A convenience method that adds
 one or more customizable &consvars;
-to a Variables object in one call;
-equivalent to calling &Add; multiple times.
-The <parameter>args</parameter>
-are tuples (or lists)
-that contain the arguments
-for an individual call to the &Add; method.
-Since tuples are not Python mappings,
-the arguments cannot use the keyword form,
-but rather are positional arguments as documented for
-<link linkend='v-Add'><function>Add</function></link>:
-a required name, the other four optional,
-but must be in the specified order if used.
+to a &Variables; object in one call;
+equivalent to calling
+<link linkend='v-Add'><function>Add</function></link>
+multiple times.
+Each <parameter>args</parameter> member
+must be a tuple that contains the arguments
+for an individual call to the &Add; method
+using the "special case" form;
+the other calling styles (individual positional
+arguments and/or keyword arguments) are not supported.
 </para>
 
 <programlisting language="python">
@@ -4629,22 +4952,32 @@ opt.AddVariables(
   <varlistentry id="v-Update">
   <term><replaceable>vars</replaceable>.<function>Update</function>(<parameter>env, [args]</parameter>)</term>
   <listitem>
-<para>Update a &consenv;
+<para>Process the input sources recorded
+when the &Variables; object was initialized
+and update
 <parameter>env</parameter>
 with the customized &consvars;.
-Any specified variables that are not
-configured for the Variables object
-will be saved and may be
-retrieved using the
+The names of any variables in the input sources that are not
+configured in the &Variables; object
+are recorded and may be retrieved using the
 <link linkend='v-UnknownVariables'>&UnknownVariables;</link>
 method.</para>
 
-<para>Normally this method is not called directly,
-but rather invoked indirectly by passing the Variables object to
+<para>
+If the optional
+<parameter>args</parameter>
+argument is provided, it is a dictionary of variables
+to use in place of the one saved when
+<link linkend='v-Variables'>&Variables;</link>
+was called.
+</para>
+
+<para>Normally, &Update; is not called directly,
+but rather invoked indirectly by passing the &Variables; object to
 the &f-link-Environment; function:</para>
 
 <programlisting language="python">
-env = Environment(variables=vars)
+env = Environment(..., variables=vars)
 </programlisting>
 
   </listitem>
@@ -4654,11 +4987,15 @@ env = Environment(variables=vars)
   <term><replaceable>vars</replaceable>.<function>UnknownVariables</function>()</term>
   <listitem>
 <para>Returns a dictionary containing any
-variables that were specified
-either in the files or the dictionary
-with which the Variables object was initialized,
-but for which the Variables object was
-not configured.</para>
+variables that were specified in the
+<parameter>files</parameter> and/or
+<parameter>args</parameter> parameters
+when <link linkend='v-Variables'>&Variables;</link>
+was called, but the object was not actually configured for.
+This information is not available until the
+<link linkend='v-Update'><function>Update</function></link>
+method has run.
+</para>
 
 <programlisting language="python">
 env = Environment(variables=vars)
@@ -4672,13 +5009,14 @@ for key, value in vars.UnknownVariables():
   <varlistentry id="v-Save">
   <term><replaceable>vars</replaceable>.<function>Save</function>(<parameter>filename, env</parameter>)</term>
   <listitem>
-<para>Save the currently set variables into a script file named
-by <parameter>filename</parameter>. Only variables that are
-set to non-default values are saved.
-You can load these saved settings on a subsequent run
+<para>Saves the currently set variables into a script file named
+by <parameter>filename</parameter>.
+This provides a way to cache particular variable settings for reuse.
+Only variables that are set to non-default values are saved.
+You can load these saved variables on a subsequent run
 by passing <parameter>filename</parameter> to the
 <link linkend='v-Variables'>&Variables;</link> function,
-providing a way to cache particular settings for reuse.
+
 </para>
 
 <programlisting language="python">
@@ -4695,22 +5033,28 @@ vars.Save('variables.cache', env)
   <varlistentry id="v-GenerateHelpText">
   <term><replaceable>vars</replaceable>.<function>GenerateHelpText</function>(<parameter>env, [sort]</parameter>)</term>
   <listitem>
-<para>Generate help text documenting the customizable construction
-variables, suitable for passing in to the &f-link-Help; function.
-<parameter>env</parameter>
-is the &consenv; that will be used to get the actual values
-of the customizable variables. If the (optional)
-value of <parameter>sort</parameter>
-is callable, it is used as a comparison function to
+<para>
+Return a formatted string with the help text collected
+from all the variables configured in this &Variables; object.
+This string is suitable for passing in to the &f-link-Help; function.
+The generated string include an indication of the
+actual value in the environment given by <parameter>env</parameter>.
+</para>
+
+<para>
+If the optional
+<parameter>sort</parameter> parameter is set to
+a callable value, it is used as a comparison function to
 determine how to sort the added variables.
 This function must accept two arguments, compare them,
 and return a negative integer if the first is
-less-than the second, zero for equality, or a positive integer
-for greater-than.
-
-Optionally a Boolean value of <constant>True</constant>
-for <parameter>sort</parameter> will cause a standard
-alphabetical sort to be performed.</para>
+less-than the second, zero if equal, or a positive integer
+if greater-than.
+If <parameter>sort</parameter> is not callable,
+but is set to <constant>True</constant>,
+an alphabetical sort is performed.
+The default is <constant>False</constant> (unsorted).
+</para>
 
 <programlisting language="python">
 Help(vars.GenerateHelpText(env))
@@ -4729,7 +5073,7 @@ Help(vars.GenerateHelpText(env, sort=cmp))
   <listitem>
 <para>Returns a formatted string
 containing the printable help text
-for one option.
+for the single option <parameter>opt</parameter>.
 It is normally not called directly,
 but is called by the &GenerateHelpText;
 method to create the returned help text.
@@ -4751,31 +5095,30 @@ vars.FormatVariableHelpText = my_format
 </programlisting>
   </listitem>
   </varlistentry>
-  </variablelist>
+</variablelist>
 
 
-<para>To make it more convenient to work with customizable Variables,
-&scons;
-provides a number of functions
-that make it easy to set up
-various types of Variables.
-Each of these return a tuple ready to be passed to
+<para>
+To make it more convenient to describe custom variables,
+&SCons; provides some pre-defined variable types,
+acessible through factory functions that generate
+a tuple appropriate for directly passing to
 the &Add; or &AddVariables; method:</para>
 
-  <variablelist>
+<variablelist>
   <varlistentry id="v-BoolVariable">
   <term><function>BoolVariable</function>(<parameter>key, help, default</parameter>)</term>
   <listitem>
-<para>Return a tuple of arguments
-to set up a Boolean option.
-The option will use
+<para>
+Set up a Boolean variable.
+The variable will use
 the specified name
 <parameter>key</parameter>,
 have a default value of
 <parameter>default</parameter>,
 and <parameter>help</parameter>
 will form the descriptive part of the help text.
-The option will interpret the command-line values
+The variable will interpret the command-line values
 <userinput>y</userinput>,
 <userinput>yes</userinput>,
 <userinput>t</userinput>,
@@ -4801,30 +5144,26 @@ as false.</para>
   <varlistentry id="v-EnumVariable">
   <term><function>EnumVariable</function>(<parameter>key, help, default, allowed_values, [map, ignorecase]</parameter>)</term>
   <listitem>
-<para>Returns a tuple of arguments
-to set up an option
-whose value may be one
-of a specified list of legal enumerated values.
-The option will use
-the specified name
+<para>
+Set up a variable
+whose value may only be from
+a specified list ("enumeration") of values.
+The variable will have the name
 <parameter>key</parameter>,
 have a default value of
-<parameter>default</parameter>,
+<parameter>default</parameter>
 and <parameter>help</parameter>
 will form the descriptive part of the help text.
-The option will only support those
-values in the
+Any value that is not in
 <parameter>allowed_values</parameter>
-list.
-The optional
+will raise an error,
+except that the optional
 <parameter>map</parameter>
 argument is a dictionary
-that can be used to convert
-input values into specific legal values
-in the
-<parameter>allowed_values</parameter>
-list.
-If the value of
+that can be used to map additional names into
+a particular name in the
+<parameter>allowed_values</parameter> list.
+If the value of optional
 <parameter>ignore_case</parameter>
 is
 <literal>0</literal>
@@ -4850,28 +5189,26 @@ converted to lower case.</para>
   <varlistentry id="v-ListVariable">
   <term><function>ListVariable</function>(<parameter>key, help, default, names, [map]</parameter>)</term>
   <listitem>
-<para>Returns a tuple of arguments
-to set up an option
+<para>
+Set up a variable
 whose value may be one or more
-of a specified list of legal enumerated values.
-The option will use
-the specified name
+from a specified list of values.
+The variable will have the name
 <parameter>key</parameter>,
 have a default value of
 <parameter>default</parameter>,
 and <parameter>help</parameter>
 will form the descriptive part of the help text.
-The option will only accept the values
-<quote>all</quote>,
-<quote>none</quote>,
-or the values in the
-<parameter>names</parameter>
-list.
+Any value that is not in
+<parameter>names</parameter> or the special values
+<userinput>all</userinput> or
+<userinput>none</userinput>
+will raise an error.
 More than one value may be specified,
 separated by commas.
-The default may be a string of
-comma-separated default values,
-or a list of the default values.
+<parameter>default</parameter> may be specified
+either as a string of comma-separated value,
+or as a list of values.
 The optional
 <parameter>map</parameter>
 argument is a dictionary
@@ -4889,60 +5226,72 @@ reflected in the generated help message).  </para>
   <varlistentry id="v-PackageVariable">
   <term><function>PackageVariable</function>(<parameter>key, help, default</parameter>)</term>
   <listitem>
-<para>Returns a tuple of arguments
-to set up an option
-whose value is a path name
-of a package that may be
-enabled, disabled or
-given an explicit path name.
-The option will use
-the specified name
-<parameter>key</parameter>,
-have a default value of
+<para>
+Set up a variable for a <emphasis>package</emphasis>,
+where if the variable is specified,
+the &consvar; named by <parameter>key</parameter>
+will end with a value of <literal>True</literal>,
+<literal>False</literal>, or a user-specified value.
+For example,
+a package could be a third-party software component,
+the build could use the information to
+exclude the package, include the package in the standard way,
+or include the package using a specified
+directory path to find the package files.
+</para>
+<para>
+The variable will have a default value
 <parameter>default</parameter>,
 and <parameter>help</parameter>
 will form the descriptive part of the help text.
-The option will support the values
+The variable supports (case-insensitive) truthy values
+<userinput>1</userinput>,
 <userinput>yes</userinput>,
 <userinput>true</userinput>,
 <userinput>on</userinput>,
 <userinput>enable</userinput>
-or
-<userinput>search</userinput>,
-in which case the specified
-<parameter>default</parameter>
-will be used,
-or the option may be set to an
-arbitrary string
-(typically the path name to a package
-that is being enabled).
-The option will also support the values
+and
+<userinput>search</userinput>
+to indicate the package is "enabled",
+and the (case-insensitive) falsy values
+<userinput>0</userinput>,
 <userinput>no</userinput>,
 <userinput>false</userinput>,
 <userinput>off</userinput>
-or
+and
 <userinput>disable</userinput>
-to disable use of the specified option.</para>
+to indicate the package is "disabled".
+</para>
+<para>
+The value
+of the variable may also be set to an
+arbitrary string,
+which is taken to be the path name to the package
+that is being enabled.
+The validator will raise an exception
+if this path does not exist in the filesystem.
+</para>
   </listitem>
   </varlistentry>
 
   <varlistentry id="v-PathVariable">
   <term><function>PathVariable</function>(<parameter>key, help, default, [validator]</parameter>)</term>
   <listitem>
-<para>Returns a tuple of arguments
-to set up an option
+<para>
+Set up a variable
 whose value is expected to be a path name.
-The option will use
-the specified name
-<parameter>key</parameter>,
-have a default value of
+The &consvar; named by <parameter>key</parameter>
+will have have a default value of
 <parameter>default</parameter>,
 and <parameter>help</parameter>
 will form the descriptive part of the help text.
-An additional
-<parameter>validator</parameter>
-may be specified
-that will be called to
+</para>
+
+<para>
+An optional
+<parameter>validator</parameter> argument
+may be specified.
+The validator will be called to
 verify that the specified path
 is acceptable.
 SCons supplies the
@@ -4995,14 +5344,14 @@ created as part of the build process, for example.</para>
 You may supply your own
 <emphasis>validator</emphasis>
 function,
-which must accept three arguments
-(<parameter>key</parameter>,
+which must accept three arguments:
+<parameter>key</parameter>,
 the name of the variable to be set;
 <parameter>val</parameter>,
 the specified value being checked;
 and
 <parameter>env</parameter>,
-the &consenv;)
+the &consenv;,
 and should raise an exception
 if the specified value is not acceptable.</para>
   </listitem>
@@ -5103,10 +5452,8 @@ The following attributes provide information about a Node:
   <term><replaceable>node</replaceable>.<varname>path</varname></term>
   <listitem>
 <para>The build path
-of the given
-file or directory.
-This path is relative to the top-level directory
-(where the &SConstruct; file is found).
+of the given file or directory.
+This path is relative to the project top directory.
 The build path is the same as the source path if
 <emphasis>variant_dir</emphasis>
 is not being used.</para>
@@ -5123,7 +5470,8 @@ is not being used.</para>
   <varlistentry>
   <term><replaceable>node</replaceable>.<varname>relpath</varname></term>
   <listitem>
-<para>The build path of the given file or directory relative to the root SConstruct file's directory.</para>
+<para>The build path of the given file or directory relative to
+the project top directory.</para>
   </listitem>
   </varlistentry>
 
@@ -5150,7 +5498,7 @@ Dir('.').path
 # Current dir's absolute path
 Dir('.').abspath
 
-# Current dir's path relative to the root SConstruct file's directory
+# Current dir's path relative to the project top directory
 Dir('.').relpath
 
 # Next line is always '.', because it is the top dir's path relative to itself.
@@ -5410,7 +5758,7 @@ a dictionary
 mapping source file name suffixes to
 any combination of command line strings
 (if the builder should accept multiple source file extensions),
-a Python function,
+a &Python; function,
 an Action object
 (see <link linkend='action_objects'>Action Objects</link>)
 or a list of any of the above.</para>
@@ -5532,7 +5880,7 @@ may be a string or a list of strings.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="target_scanner">
   <term><parameter>target_scanner</parameter></term>
   <listitem>
 <para>A Scanner object that
@@ -5550,7 +5898,7 @@ for information about creating Scanner objects.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="source_scanner">
   <term><parameter>source_scanner</parameter></term>
   <listitem>
 <para>A Scanner object that
@@ -5897,8 +6245,7 @@ and
 when using the <parameter>chdir</parameter>
 keyword argument--that is,
 the expanded file names
-will still be relative to
-the top-level directory containing the &SConstruct; file,
+will still be relative to the project top directory,
 and consequently incorrect
 relative to the chdir directory.
 Builders created using <parameter>chdir</parameter> keyword argument,
@@ -5919,7 +6266,7 @@ env.MyBuild('sub/dir/foo.out', 'sub/dir/foo.in')
 
 <warning>
 <para>
-Python only keeps one current directory
+&Python; only keeps one current directory
 location even if there are multiple threads.
 This means that use of the
 <parameter>chdir</parameter>
@@ -6064,7 +6411,7 @@ arguments may be lists of Node objects if there is
 more than one target file or source file.
 The actual target and source file name(s) may
 be retrieved from their Node objects
-via the built-in Python <function>str</function> function:</para>
+via the built-in &Python; <function>str</function> function:</para>
 
 <programlisting language="python">
 target_file_name = str(target)
@@ -6201,7 +6548,7 @@ This is necessary whenever you want a target to be rebuilt
 when a specific &consvar; changes.
 This is not often needed for a string action,
 as the expanded variables will normally be part of the command line,
-but may be needed if a Python function action uses
+but may be needed if a &Python; function action uses
 the value of a &consvar; when generating the command line.</para>
 
 <programlisting language="python">
@@ -6251,7 +6598,7 @@ when using the <parameter>chdir</parameter>
 parameter - that is,
 the expanded file names
 will still be relative to
-the top-level directory containing the &SConstruct; file,
+the project top directory,
 and consequently incorrect
 relative to the chdir directory.
 Builders created using <parameter>chdir</parameter> keyword argument,
@@ -6304,7 +6651,7 @@ by processing multiple independent source files simultaneously.
 of multiple object files
 by passing multiple source files
 to a single invocation of a compiler
-such as Microsoft's Visual C / C++ compiler.)
+such as &MSVC;.
 If the
 <parameter>batch_key</parameter>
 argument evaluates True and is not a callable object,
@@ -6363,7 +6710,7 @@ which will cause
 to batch-build targets
 with matching values of that &consvar;,
 or perhaps return the
-Python <function>id</function>()
+&Python; <function>id</function>()
 of the entire &consenv;,
 in which case
 &scons;
@@ -6490,9 +6837,11 @@ env.Command(
 </programlisting>
 
 <para>
-The behavior of <function>Chmod</function> is limited on Windows,
-see the notes in the Python documentation for
-<systemitem>os.chmod</systemitem>, which is the underlying function.
+The behavior of <function>Chmod</function> is limited on Windows
+and on WebAssembly platforms,
+see the notes in the &Python; documentation for
+<ulink url="https://docs.python.org/3/library/os.html#os.chmod">
+os.chmod</ulink>, which is the underlying function.
 </para>
 
   </listitem>
@@ -6534,7 +6883,7 @@ will be removed.
 If the
 <parameter>must_exist</parameter>
 flag is set to a true value,
-then a Python error will be raised
+then a &Python; error will be raised
 if the specified entry does not exist;
 the default is false,
 that is, the Action will silently do nothing
@@ -6654,7 +7003,8 @@ see <link linkend="special_attributes">Special Attributes</link> below).
 
 <para>
 If <replaceable>expression</replaceable> refers to a &consvar;,
-it is replaced with the value of that variable in the
+it (including the <literal>$</literal> or <literal>${ }</literal>)
+is replaced with the value of that variable in the
 &consenv; at the time of execution.
 If <replaceable>expression</replaceable> looks like
 a variable name but is not defined in the &consenv;
@@ -6955,7 +7305,7 @@ These are known as <firstterm>special attributes</firstterm>.
   <member><parameter>filebase</parameter> - Like <parameter>file</parameter> but minus its suffix.</member>
   <member><parameter>suffix</parameter> - Just the file suffix.</member>
   <member><parameter>abspath</parameter> - The absolute path name of the file.</member>
-  <member><parameter>relpath</parameter> - The path name of the file relative to the root SConstruct file's directory.</member>
+  <member><parameter>relpath</parameter> - The path name of the file relative to the project top directory.</member>
   <member><parameter>posix</parameter> -
     The path with directories separated by forward slashes
     (<emphasis role="bold">/</emphasis>).
@@ -7041,8 +7391,8 @@ Some modifiers can be combined, like
 If a substitutable expression using the notation
 <literal>${<replaceable>expression</replaceable>}</literal>
 does not appear to match one of the other substitution patterns,
-it is evaluated as a Python expression.
-This uses Python's <function>eval</function> function,
+it is evaluated as a &Python; expression.
+This uses &Python;'s <function>eval</function> function,
 with the <parameter>globals</parameter> parameter set to
 the current environment's set of &consvars;,
 and the result substituted in.
@@ -7098,19 +7448,19 @@ echo foo1 foo2 &gt; foo.out
 </screen>
 
 <para>
-In point of fact, Python expression evaluation is
+In point of fact, &Python; expression evaluation is
 how the special attributes are substituted:
-they are simply attributes of the Python objects
+they are simply attributes of the &Python; objects
 that represent &cv-TARGET;, &cv-SOURCES;, etc.,
 which &SCons; passes to <function>eval</function> which
 returns the value.
 </para>
 
 <caution><para>
-Use of the Python <function>eval</function> function
+Use of the &Python; <function>eval</function> function
 is considered to have security implications, since,
 depending on input sources,
-arbitrary unchecked strings of code can be executed by the Python interpreter.
+arbitrary unchecked strings of code can be executed by the &Python; interpreter.
 Although &SCons; makes use of it in a somewhat restricted context,
 you should be aware of this issue when using the
 <literal>${python-expression-for-subst}</literal> form.
@@ -7139,11 +7489,12 @@ the rest are optional:
   <term><parameter>function</parameter></term>
   <listitem>
 <para>
-A scanner function to call to process
+A function which can process ("scan")
 a given Node (usually a file)
 and return a list of Nodes
-representing the implicit
-dependencies (usually files) found in the contents.
+representing any implicit
+dependencies (usually files) which will be tracked
+for the Node.
 The function must accept three required arguments,
 <parameter>node</parameter>,
 <parameter>env</parameter> and
@@ -7156,52 +7507,51 @@ the internal &SCons; node representing the file to scan,
 the scan, and <parameter>path</parameter> is a tuple
 of directories that can be searched for files,
 as generated by the optional scanner
-<parameter>path_function</parameter> (see below).
-If <parameter>argument</parameter> was supplied when the Scanner
-object was created, it is given as <parameter>arg</parameter>
-when the scanner function is called; since <parameter>argument</parameter>
-is optional, the default is no <parameter>arg</parameter>.
+<xref linkend="path_function"/>.
+If the <xref linkend="scanner-argument"/>
+parameter was supplied when the Scanner object was created,
+it is passed as the <parameter>arg</parameter> parameter
+to the scanner function when it is called.
+Since <parameter>argument</parameter> is optional,
+the scanner function <emphasis>may</emphasis> be
+called without an <parameter>arg</parameter> parameter.
 </para>
+
 <para>
-The function can use use
+The scanner function can make use of
 <function>str</function>(<parameter>node</parameter>)
 to fetch the name of the file,
-<replaceable>node</replaceable>.<function>dir</function>
+<parameter>node</parameter>.<methodname>dir</methodname>
 to fetch the directory the file is in,
-<replaceable>node</replaceable>.<function>get_contents</function>()
+<parameter>node</parameter>.<methodname>get_contents</methodname>()
 to fetch the contents of the file as bytes or
-<replaceable>node</replaceable>.<function>get_text_contents</function>()
+<parameter>node</parameter>.<methodname>get_text_contents</methodname>()
 to fetch the contents of the file as text.
 </para>
+
 <para>
-The function must take into account the <parameter>path</parameter>
-directories when generating the dependency Nodes. To illustrate this,
-a C language source file may contain a line like
-<literal>#include "foo.h"</literal>.  However, there is no guarantee
-that <filename>foo.h</filename> exists in the current directory:
-the contents of &cv-link-CPPPATH; is passed to the C preprocessor which
-will look in those places for the header,
-so the scanner function needs to look in those places as well
-in order to build Nodes with correct paths.
-Using &f-link-FindPathDirs; with an argument of <literal>CPPPATH</literal>
-as the <parameter>path_function</parameter> in the &f-Scanner; call
-means the scanner function will be called with the paths extracted
-from &cv-CPPPATH; in the environment <parameter>env</parameter>
-passed as the <parameter>paths</parameter> parameter.
+The scanner function should account for any directories
+listed in the <parameter>path</parameter> parameter
+when determining the existence of possible dependencies.
+External tools such as the C/C++ preprocessor are given
+lists of directories to search for source file inclusion directives
+(e.g.  <literal>#include "myheader.h"</literal>).
+That list is generated from the relevant path variable
+(e.g. &cv-link-CPPPATH; for C/C++). The Scanner can be
+directed to pass the same list on to the scanner function
+via the <parameter>path</parameter> parameter so it can
+search in the same places.
+The Scanner is enabled to pass this list via the
+<xref linkend="path_function"/> argument at Scanner creation time.
 </para>
+
 <para>
-Note that the file to scan is
-<emphasis>not</emphasis>
-guaranteed to exist at the time the scanner is called -
-it could be a generated file which has not been generated yet -
-so the scanner function must be tolerant of that.
-</para>
-<para>
-Alternatively, you can supply a dictionary as the
-<parameter>function</parameter> parameter,
-to map keys (such as file suffixes) to other Scanner objects.
+Instead of a scanner function, you can supply a dictionary as the
+<parameter>function</parameter> parameter.
+The dictionary must map keys (such as file suffixes)
+to other Scanner objects.
 A Scanner created this way serves as a dispatcher:
-the Scanner's <parameter>skeys</parameter> parameter is
+the Scanner's <xref linkend="skeys"/> parameter is
 automatically populated with the dictionary's keys,
 indicating that the Scanner handles Nodes which would be
 selected by those keys; the mapping is then used to pass
@@ -7209,6 +7559,46 @@ the file on to a different Scanner that would not have been
 selected to handle that Node based on its
 own <parameter>skeys</parameter>.
 </para>
+
+<para>
+Note that the file to scan is
+<emphasis>not</emphasis>
+guaranteed to exist at the time the scanner is called -
+it could be a generated file which has not been generated yet -
+so the scanner function must be tolerant of that.
+</para>
+
+<para>
+While many scanner functions operate on source code files by
+looking for known patterns in the code, they can really
+do anything they need to.
+For example, the &b-link-Program; Builder is assigned a
+<xref linkend="target_scanner"/> which examines the
+list of libraries supplied for the build (&cv-link-LIBS;)
+and decides whether to add them as dependencies,
+it does not look <emphasis>inside</emphasis> the built binary.
+</para>
+
+<para>
+It is up to the scanner function to decide whether or not to
+generate an &SCons; dependency for candidates identified by scanning.
+Dependencies are a key part of &SCons; operation,
+enabling both rebuild determination and correct ordering of builds.
+It is particularly important that generated files which are
+dependencies are added into the Node graph,
+or use-before-create failures are likely.
+However, not everything may need to be tracked as a dependency.
+In some cases, implementation-provided header files change
+infrequently but are included very widely,
+so tracking them in the &SCons; node graph could become quite
+expensive for limited benefit -
+consider for example the C standard header file
+<filename>string.h</filename>.
+The scanner function is not passed any special information
+to help make this choice, so the decision making encoded
+in the scanner function must be carefully considered.
+</para>
+
   </listitem>
   </varlistentry>
 
@@ -7221,7 +7611,7 @@ The default value is <literal>"NONE"</literal>.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="scanner-argument">
   <term><parameter>argument</parameter></term>
   <listitem>
 <para>If specified,
@@ -7235,7 +7625,7 @@ as the optional parameter each of those functions takes.
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="skeys">
   <term><parameter>skeys</parameter></term>
   <listitem>
 <para>Scanner key(s) indicating the file types
@@ -7251,10 +7641,13 @@ it will be expanded into a list by the current environment.
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="path_function">
   <term><parameter>path_function</parameter></term>
   <listitem>
-<para>A Python function that takes four or five arguments:
+<para>
+If specified, a function to generate paths to pass to
+the scanner function to search while generating dependencies.
+The function must take five arguments:
 a &consenv;,
 a Node for the directory containing
 the &SConscript; file in which
@@ -7262,16 +7655,28 @@ the first target was defined,
 a list of target nodes,
 a list of source nodes,
 and the value of <parameter>argument</parameter>
-if it was supplied when the Scanner was created.
+if it was supplied when the Scanner was created
+(since <parameter>argument</parameter> is optional,
+the function may be called without this argument,
+the <parameter>path_function</parameter>
+should be prepared for this).
 Must return a tuple of directories
 that can be searched for files to be returned
 by this Scanner object.
-(Note that the
-&f-link-FindPathDirs;
-function can be used to return a ready-made
+</para>
+
+<para>
+The &f-link-FindPathDirs;
+function can be called to return a ready-made
 <parameter>path_function</parameter>
 for a given &consvar; name,
-instead of having to write your own function from scratch.)
+which is often easier than writing your own function from scratch.
+For example,
+<userinput>path_function=FindPathDirs('CPPPATH')</userinput>
+means the scanner function will be called with the paths extracted
+from &cv-CPPPATH; in the &consenv; <parameter>env</parameter>,
+and passed as the <parameter>path</parameter> parameter
+to the scanner function.
 </para>
   </listitem>
   </varlistentry>
@@ -7297,7 +7702,7 @@ the default is to return File nodes.
   <varlistentry>
   <term><parameter>node_factory</parameter></term>
   <listitem>
-<para>A Python function that will take a string
+<para>A &Python; function that will take a string
 or other object
 and turn it into the appropriate class of Node
 to be returned by this Scanner object,
@@ -7388,22 +7793,22 @@ env.Program('my_prog', ['file1.c', 'file2.f', 'file3.xyz'])
 <title>Tool Modules</title>
 
 <para>
-Additional tools can be added to a project either by
-placing them in a <filename>site_tools</filename> subdirectory
-of a site directory, or in a custom location specified to
-&scons; by giving the
+Custom tools can be added to a project either by
+placing them in the <filename>site_tools</filename> subdirectory
+of a configured site directory,
+or in a location specified by the
 <parameter>toolpath</parameter> keyword argument to &f-link-Environment;.
-A tool module is a form of Python module, invoked internally
-using the Python import mechanism, so a tool can consist either
-of a single source file taking the name of the tool
-(e.g. <filename>mytool.py</filename>) or a directory taking
-the name of the tool (e.g. <filename>mytool/</filename>)
-which contains at least an <filename>__init__.py</filename> file.
+You have to arrange to call a tool to put it into effect,
+either as part of the list given to the <parameter>tools</parameter>
+keyword argument at &consenv; initialization,
+or by calling &f-link-env-Tool;.
 </para>
 
 <para>
 The <parameter>toolpath</parameter> parameter
-takes a list as its value:
+takes a list of path strings,
+and the <parameter>tools</parameter> parameter
+takes a list of tools, which are often strings:
 </para>
 
 <programlisting language="python">
@@ -7411,23 +7816,23 @@ env = Environment(tools=['default', 'foo'], toolpath=['tools'])
 </programlisting>
 
 <para>
-This looks for a tool specification module (<filename>mytool.py</filename>,
-or directory <filename>mytool</filename>)
+This looks for a tool specification module <literal>foo</literal>
 in directory <filename>tools</filename> and in the standard locations,
 as well as using the ordinary default tools for the platform.
 </para>
 
 <para>
-Directories specified via <parameter>toolpath</parameter> are prepended
-to the existing tool path.
-The default tool path is any <filename>site_tools</filename> directories,
-so tools in a specified <parameter>toolpath</parameter> take priority,
-followed by tools in a <filename>site_tools</filename> directory,
-followed by built-in tools.  For example, adding
+When looking up tool specification modules,
+directories specified via <parameter>toolpath</parameter> are
+considered before the existing tool path
+(<filename>site_tools</filename> subdirectories
+of the default or specified site directories),
+which are in turn considered before built-in tools.
+For example, adding
 a tool specification module <filename>gcc.py</filename> to the toolpath
 directory would override the built-in &t-link-gcc; tool.
-The tool path is stored in the environment and will be
-used by subsequent calls to the &f-link-Tool; method,
+The <parameter>toolpath</parameter> is saved in the environment
+and will be used by subsequent calls to the &f-link-env-Tool; method,
 as well as by &f-link-env-Clone;.
 </para>
 
@@ -7438,7 +7843,14 @@ derived.CustomBuilder()
 </programlisting>
 
 <para>
-A tool specification module must include two functions:
+A tool specification module is a form of &Python; module,
+looked up internally using the &Python; import mechanism,
+so a tool can consist either
+of a single &Python; file taking the name of the tool
+(e.g. <filename>mytool.py</filename>) or a directory taking
+the name of the tool (e.g. <filename>mytool/</filename>)
+which contains at least an <filename>__init__.py</filename> file.
+A tool specification module has two required entry points:
 </para>
 
 <variablelist>
@@ -7448,16 +7860,17 @@ A tool specification module must include two functions:
 <para>Modify the &consenv; <parameter>env</parameter>
 to set up necessary &consvars;, Builders, Emitters, etc.,
 so the facilities represented by the tool can be executed.
-Care should be taken not to overwrite &consvars; intended
-to be settable by the user. For example:
+Take care not to overwrite &consvars; which may
+have been explicitly set by the user;
+retain and/or append instead. For example:
 </para>
 <programlisting language="python">
 def generate(env):
     ...
     if 'MYTOOL' not in env:
         env['MYTOOL'] = env.Detect("mytool")
-    if 'MYTOOLFLAGS' not in env:
-        env['MYTOOLFLAGS'] = SCons.Util.CLVar('--myarg')
+    flags = env.get('MYTOOLFLAGS', SCons.Util.CLVar())
+    env.AppendUnique(MYTOOLFLAGS='--myarg')
     ...
 </programlisting>
 
@@ -7470,9 +7883,9 @@ to vary its initialization.</para>
   <varlistentry>
     <term><function>exists</function>(<parameter>env</parameter>)</term>
     <listitem>
-<para>Return a true value if the tool can
-be called in the context of <parameter>env</parameter>.
-else false.
+<para>Return a truthy value if the tool can
+be called in the context of <parameter>env</parameter>,
+else return a falsy value.
 Usually this means looking up one or more
 known programs using the <varname>PATH</varname> from the
 supplied <parameter>env</parameter>, but the tool can
@@ -7494,11 +7907,14 @@ and the <function>exists</function> function should still be provided.
 </para>
 </note>
 
-<para>The elements of the <parameter>tools</parameter> list may also
-be functions or callable objects,
-in which case the &Environment; method
-will call those objects
-to update the new &consenv; (see &f-link-Tool; for more details):</para>
+<para>An element of the <parameter>tools</parameter> list may also
+be a function or other callable object
+(including a Tool object returned by a previous call to
+&f-link-Tool;) in which case the &f-link-Environment; function
+will directly call that object
+to update the new &consenv;.
+No tool lookup is done in this case.
+</para>
 
 <programlisting language="python">
 def my_tool(env):
@@ -7507,35 +7923,34 @@ def my_tool(env):
 env = Environment(tools=[my_tool])
 </programlisting>
 
-<para>The individual elements of the <parameter>tools</parameter> list
-may also themselves be lists or tuples of the form
+<para>An element of the <parameter>tools</parameter> list
+may also be a two-element list or tuple of the form
 <literal>(toolname, kw_dict)</literal>.
-SCons searches for the
+SCons searches for the a tool specification module
 <parameter>toolname</parameter>
-specification file as described above, and
-passes
-<parameter>kw_dict</parameter>,
-which must be a dictionary, as keyword arguments to the tool's
-<function>generate</function>
-function.
-The
-<function>generate</function>
-function can use the arguments to modify the tool's behavior
+as described above,
+and passes <parameter>kw_dict</parameter>,
+which must be a dictionary,
+as keyword arguments to the tool's
+<function>generate</function> function.
+The <function>generate</function>
+function can use those arguments to modify the tool's behavior
 by setting up the environment in different ways
 or otherwise changing its initialization.</para>
 
 <programlisting language="python">
 # in tools/my_tool.py:
 def generate(env, **kwargs):
-  # Sets MY_TOOL to the value of keyword 'arg1' '1' if not supplied
-  env['MY_TOOL'] = kwargs.get('arg1', '1')
+    # Sets MY_TOOL to the value of keyword 'arg1' or '1' if not supplied
+    env['MY_TOOL'] = kwargs.get('arg1', '1')
 
 def exists(env):
-  return True
+    return True
 
 # in SConstruct:
-env = Environment(tools=['default', ('my_tool', {'arg1': 'abc'})],
-                  toolpath=['tools'])
+env = Environment(
+    tools=['default', ('my_tool', {'arg1': 'abc'})], toolpath=['tools']
+)
 </programlisting>
 
 <para>The tool specification (<function>my_tool</function> in the example)
@@ -7567,7 +7982,7 @@ env.SomeTool(targets, sources)
 <title>SYSTEM-SPECIFIC BEHAVIOR</title>
 
 <para>&scons; and its configuration files are very portable,
-due largely to its implementation in Python.
+due largely to its implementation in &Python;.
 There are, however, a few portability
 issues waiting to trap the unwary.</para>
 
@@ -7748,7 +8163,7 @@ the issue by adopting the following guidelines:
 When using Cygwin's &gcc; for compiling,
 use the Cygwin-supplied &Python; interpreter
 to run &scons;;
-when using Microsoft Visual C/C++
+when using &MSVC;
 (or some other "native" Windows compiler)
 use the python.org, Microsoft Store, ActiveState or other
 native version of &Python; to run &scons;.
@@ -7809,7 +8224,7 @@ directory must be in your <envar>PATH</envar>
 environment variable or the
 <varname>['ENV']['PATH']</varname> &consvar; for &scons;
 to detect and use the MinGW tools. When running under the native Windows
-Python; interpreter, &scons; will prefer the MinGW tools over the Cygwin
+&Python; interpreter, &scons; will prefer the MinGW tools over the Cygwin
 tools, if they are both installed, regardless of the order of the bin
 directories in the <envar>PATH</envar> variable.
 If you have both MSVC and MinGW
@@ -8077,7 +8492,7 @@ env.Command('foo', 'foo.x', 'xprocess &lt; $SOURCES &gt; $TARGET')
 <para>The
 &f-link-FindPathDirs;
 function used in the previous example returns a function
-(actually a callable Python object)
+(actually a callable &Python; object)
 that will return a list of directories
 specified in the
 <envar>MYPATH</envar>
@@ -8299,7 +8714,7 @@ CC: The C compiler.
 </refsect2>
 
 <refsect2 id='using_microsoft_visual_c_precompiled_hea'>
-<title>Using Microsoft Visual C++ precompiled headers</title>
+<title>Using &MSVC; precompiled headers</title>
 
 <para>Since <filename>windows.h</filename> includes everything
 and the kitchen sink, it can take quite
@@ -8363,7 +8778,7 @@ headers consult the MSDN documentation for
 </refsect2>
 
 <refsect2 id='using_microsoft_visual_c_external_debugg'>
-<title>Using Microsoft Visual C++ external debugging information</title>
+<title>Using &MSVC; external debugging information</title>
 
 <para>Since including debugging information in programs and shared libraries can
 cause their size to increase significantly, Microsoft provides a mechanism
@@ -8400,7 +8815,7 @@ However the following variables are imported by
     <term><envar>SCONS_LIB_DIR</envar></term>
     <listitem>
 <para>Specifies the directory that contains the &scons;
-Python module directory. Normally &scons; can deduce this,
+&Python; module directory. Normally &scons; can deduce this,
 but in some circumstances, such as working with a source
 release, it may be necessary to specify
 (for example,
@@ -8426,7 +8841,7 @@ so the command line can be used to override
     <term><envar>SCONS_CACHE_MSVC_CONFIG</envar></term>
     <listitem>
 <para>(Windows only). If set, save the shell environment variables
-generated when setting up the Microsoft Visual C++ compiler
+generated when setting up the &MSVC; compiler
 (and/or Build Tools) to a cache file, to give these settings
 persistence across &scons; invocations.
 Generating this information is relatively expensive,

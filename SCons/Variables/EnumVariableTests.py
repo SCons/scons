@@ -27,7 +27,7 @@ import SCons.Errors
 import SCons.Variables
 
 class EnumVariableTestCase(unittest.TestCase):
-    def test_EnumVariable(self):
+    def test_EnumVariable(self) -> None:
         """Test EnumVariable creation"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.EnumVariable('test', 'test option help', 0,
@@ -41,7 +41,7 @@ class EnumVariableTestCase(unittest.TestCase):
         assert o.validator is not None, o.validator
         assert o.converter is not None, o.converter
 
-    def test_converter(self):
+    def test_converter(self) -> None:
         """Test the EnumVariable converter"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.EnumVariable('test', 'test option help', 0,
@@ -121,13 +121,13 @@ class EnumVariableTestCase(unittest.TestCase):
 
         for k, l in table.items():
             x = o0.converter(k)
-            assert x == l[0], "o0 got %s, expected %s" % (x, l[0])
+            assert x == l[0], f"o0 got {x}, expected {l[0]}"
             x = o1.converter(k)
-            assert x == l[1], "o1 got %s, expected %s" % (x, l[1])
+            assert x == l[1], f"o1 got {x}, expected {l[1]}"
             x = o2.converter(k)
-            assert x == l[2], "o2 got %s, expected %s" % (x, l[2])
+            assert x == l[2], f"o2 got {x}, expected {l[2]}"
 
-    def test_validator(self):
+    def test_validator(self) -> None:
         """Test the EnumVariable validator"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.EnumVariable('test0', 'test option help', 0,
@@ -153,17 +153,15 @@ class EnumVariableTestCase(unittest.TestCase):
         o1 = opts.options[1]
         o2 = opts.options[2]
 
-        def valid(o, v):
+        def valid(o, v) -> None:
             o.validator('X', v, {})
 
-        def invalid(o, v):
-            caught = None
-            try:
+        def invalid(o, v) -> None:
+            with self.assertRaises(
+                SCons.Errors.UserError,
+                msg=f"did not catch expected UserError for o = {o.key}, v = {v}",
+            ):
                 o.validator('X', v, {})
-            except SCons.Errors.UserError:
-                caught = 1
-            assert caught, "did not catch expected UserError for o = %s, v = %s" % (o.key, v)
-
         table = {
             'one'   : [  valid,   valid,   valid],
             'One'   : [invalid,   valid,   valid],

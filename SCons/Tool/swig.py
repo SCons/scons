@@ -30,8 +30,8 @@ selection method.
 
 import os.path
 import re
-import subprocess
 import sys
+from subprocess import PIPE
 
 import SCons.Action
 import SCons.Defaults
@@ -46,7 +46,7 @@ swigs = [ 'swig', 'swig3.0', 'swig2.0' ]
 
 SwigAction = SCons.Action.Action('$SWIGCOM', '$SWIGCOMSTR')
 
-def swigSuffixEmitter(env, source):
+def swigSuffixEmitter(env, source) -> str:
     if '-c++' in SCons.Util.CLVar(env.subst("$SWIGFLAGS", source=source)):
         return '$SWIGCXXFILESUFFIX'
     else:
@@ -68,7 +68,7 @@ def _find_modules(src):
         with open(src) as f:
             data = f.read()
         matches = _reModule.findall(data)
-    except IOError:
+    except OSError:
         # If the file's not yet generated, guess the module name from the file stem
         matches = []
         mnames.append(os.path.splitext(os.path.basename(src))[0])
@@ -78,7 +78,7 @@ def _find_modules(src):
         directors = directors or 'directors' in m[0]
     return mnames, directors
 
-def _add_director_header_targets(target, env):
+def _add_director_header_targets(target, env) -> None:
     # Directors only work with C++ code, not C
     suffix = env.subst(env['SWIGCXXFILESUFFIX'])
     # For each file ending in SWIGCXXFILESUFFIX, add a new target director
@@ -136,17 +136,13 @@ def _get_swig_version(env, swig):
     swig = env.subst(swig)
     if not swig:
         return version
-    pipe = SCons.Action._subproc(env, SCons.Util.CLVar(swig) + ['-version'],
-                                 stdin = 'devnull',
-                                 stderr = 'devnull',
-                                 stdout = subprocess.PIPE)
-    if pipe.wait() != 0:
+
+    cp = SCons.Action.scons_subproc_run(
+        env, SCons.Util.CLVar(swig) + ['-version'], stdout=PIPE
+    )
+    if cp.returncode:
         return version
-
-    # MAYBE:   out = SCons.Util.to_str (pipe.stdout.read())
-    with pipe.stdout:
-        out = SCons.Util.to_str(pipe.stdout.read())
-
+    out = SCons.Util.to_str(cp.stdout)
     match = re.search(r'SWIG Version\s+(\S+).*', out, re.MULTILINE)
     if match:
         version = match.group(1)
@@ -158,7 +154,7 @@ def _get_swig_version(env, swig):
 
     return version
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for swig to an Environment."""
     c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
 

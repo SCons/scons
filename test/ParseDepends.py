@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 
@@ -40,18 +39,19 @@ with open(sys.argv[1], 'wb') as f, open(sys.argv[2], 'rb') as afp2, open(sys.arg
     f.write(afp2.read() + afp3.read())
 """)
 
-test.write('SConstruct', """
-Foo = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES subdir/foo.dep')
-Bar = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES subdir/bar.dep')
-env = Environment(BUILDERS = { 'Foo' : Foo, 'Bar' : Bar }, SUBDIR='subdir')
+test.write('SConstruct', """\
+Foo = Builder(action=r'%(_python_)s build.py $TARGET $SOURCES subdir/foo.dep')
+Bar = Builder(action=r'%(_python_)s build.py $TARGET $SOURCES subdir/bar.dep')
+DefaultEnvironment(tools=[])
+env = Environment(tools=[], BUILDERS={'Foo': Foo, 'Bar': Bar}, SUBDIR='subdir')
 env.ParseDepends('foo.d')
 env.ParseDepends('bar.d')
-env.Foo(target = 'f1.out', source = 'f1.in')
-env.Foo(target = 'f2.out', source = 'f2.in')
-env.Bar(target = 'subdir/f3.out', source = 'f3.in')
+env.Foo(target='f1.out', source='f1.in')
+env.Foo(target='f2.out', source='f2.in')
+env.Bar(target='subdir/f3.out', source='f3.in')
 SConscript('subdir/SConscript', "env")
-env.Foo(target = 'f5.out', source = 'f5.in')
-env.Bar(target = 'sub2/f6.out', source = 'f6.in')
+env.Foo(target='f5.out', source='f5.in')
+env.Bar(target='sub2/f6.out', source='f6.in')
 """ % locals())
 
 test.write('foo.d', "f1.out f2.out: %s\n" % os.path.join('subdir', 'foo.dep'))
@@ -137,14 +137,16 @@ test.must_match(['sub2', 'f6.out'], "f6.in 3\nsubdir/bar.dep 3\n")
 
 
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 ParseDepends('nonexistent_file')
 """)
 
 test.run()
 
-test.write('SConstruct', """
-ParseDepends('nonexistent_file', must_exist=1)
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
+ParseDepends('nonexistent_file', must_exist=True)
 """)
 
 test.run(status=2, stderr=None)

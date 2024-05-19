@@ -35,7 +35,7 @@ from SCons.Tool.FortranCommon import add_all_to_env, add_f77_to_env
 compilers = ['g77', 'f77']
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for g77 to an Environment."""
     add_all_to_env(env)
     add_f77_to_env(env)

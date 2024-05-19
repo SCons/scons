@@ -78,7 +78,7 @@ class FindENVPathDirs:
     A class to bind a specific E{*}PATH variable name to a function that
     will return all of the E{*}path directories.
     """
-    def __init__(self, variable):
+    def __init__(self, variable) -> None:
         self.variable = variable
 
     def __call__(self, env, dir=None, target=None, source=None, argument=None):
@@ -175,7 +175,7 @@ class LaTeX(ScannerBase):
                         'includefrom', 'subincludefrom',
                         'inputfrom', 'subinputfrom']
 
-    def __init__(self, name, suffixes, graphics_extensions, *args, **kwargs):
+    def __init__(self, name, suffixes, graphics_extensions, *args, **kwargs) -> None:
         regex = r'''
             \\(
                 include
@@ -219,7 +219,7 @@ class LaTeX(ScannerBase):
             back and uses a dictionary of tuples rather than a single tuple
             of paths.
             """
-            def __init__(self, dictionary):
+            def __init__(self, dictionary) -> None:
                 self.dictionary = {}
                 for k,n in dictionary.items():
                     self.dictionary[k] = (FindPathDirs(n), FindENVPathDirs(n))
@@ -241,7 +241,7 @@ class LaTeX(ScannerBase):
             Do not scan *.eps, *.pdf, *.jpg, etc.
             """
 
-            def __init__(self, suffixes):
+            def __init__(self, suffixes) -> None:
                 self.suffixes = suffixes
 
             def __call__(self, node, env):
@@ -289,7 +289,8 @@ class LaTeX(ScannerBase):
                 return [filename+e for e in self.graphics_extensions]
         return [filename]
 
-    def sort_key(self, include):
+    @staticmethod
+    def sort_key(include):
         return SCons.Node.FS._my_normcase(str(include))
 
     def find_include(self, include, source_dir, path):
@@ -331,7 +332,7 @@ class LaTeX(ScannerBase):
             line_continues_a_comment = len(comment) > 0
         return '\n'.join(out).rstrip()+'\n'
 
-    def scan(self, node, subdir='.'):
+    def scan(self, node, subdir: str='.'):
         # Modify the default scan function to allow for the regular
         # expression to return a comma separated list of file names
         # as can be the case with the bibliography keyword.

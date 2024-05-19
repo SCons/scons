@@ -26,7 +26,7 @@ import unittest
 from  SCons.EnvironmentValues import EnvironmentValues
 
 class MyTestCase(unittest.TestCase):
-    def test_simple_environmentValues(self):
+    def test_simple_environmentValues(self) -> None:
         """Test comparing SubstitutionEnvironments
         """
 

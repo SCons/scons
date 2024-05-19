@@ -30,7 +30,7 @@ class ArchDefinition:
     """
     A class for defining architecture-specific settings and logic.
     """
-    def __init__(self, arch, synonyms=[]):
+    def __init__(self, arch, synonyms=[]) -> None:
         self.arch = arch
         self.synonyms = synonyms
 

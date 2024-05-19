@@ -73,7 +73,7 @@ def _verify_re_sdk_dispatch_map():
     for sdk_version in Config.MSVC_SDK_VERSIONS:
         if sdk_version in re_sdk_dispatch_map:
             continue
-        err_msg = 'sdk version {} not in re_sdk_dispatch_map'.format(sdk_version)
+        err_msg = f'sdk version {sdk_version} not in re_sdk_dispatch_map'
         raise MSVCInternalError(err_msg)
     return None
 
@@ -107,12 +107,12 @@ _MSVC_FORCE_DEFAULT_TOOLSET = False
 # Force default arguments
 _MSVC_FORCE_DEFAULT_ARGUMENTS = False
 
-def _msvc_force_default_sdk(force=True):
+def _msvc_force_default_sdk(force: bool=True) -> None:
     global _MSVC_FORCE_DEFAULT_SDK
     _MSVC_FORCE_DEFAULT_SDK = force
     debug('_MSVC_FORCE_DEFAULT_SDK=%s', repr(force))
 
-def _msvc_force_default_toolset(force=True):
+def _msvc_force_default_toolset(force: bool=True) -> None:
     global _MSVC_FORCE_DEFAULT_TOOLSET
     _MSVC_FORCE_DEFAULT_TOOLSET = force
     debug('_MSVC_FORCE_DEFAULT_TOOLSET=%s', repr(force))
@@ -227,7 +227,7 @@ def _msvc_script_argument_uwp(env, msvc, arglist):
 
     return uwp_arg
 
-def _user_script_argument_uwp(env, uwp, user_argstr):
+def _user_script_argument_uwp(env, uwp, user_argstr) -> bool:
 
     matches = [m for m in re_vcvars_uwp.finditer(user_argstr)]
     if not matches:
@@ -235,7 +235,7 @@ def _user_script_argument_uwp(env, uwp, user_argstr):
 
     if len(matches) > 1:
         debug('multiple uwp declarations: MSVC_SCRIPT_ARGS=%s', repr(user_argstr))
-        err_msg = "multiple uwp declarations: MSVC_SCRIPT_ARGS={}".format(repr(user_argstr))
+        err_msg = f"multiple uwp declarations: MSVC_SCRIPT_ARGS={user_argstr!r}"
         raise MSVCArgumentError(err_msg)
 
     if not uwp:
@@ -270,7 +270,7 @@ def _msvc_script_argument_sdk_constraints(msvc, sdk_version):
             return None
 
     debug('invalid: method exit: sdk_version=%s', repr(sdk_version))
-    err_msg = "MSVC_SDK_VERSION ({}) is not supported".format(repr(sdk_version))
+    err_msg = f"MSVC_SDK_VERSION ({sdk_version!r}) is not supported"
     return err_msg
 
 def _msvc_script_argument_sdk_platform_constraints(msvc, toolset, sdk_version, platform_def):
@@ -331,7 +331,7 @@ def _msvc_script_argument_sdk(env, msvc, toolset, platform_def, arglist):
 
     return sdk_version
 
-def _msvc_script_default_sdk(env, msvc, platform_def, arglist, force_sdk=False):
+def _msvc_script_default_sdk(env, msvc, platform_def, arglist, force_sdk: bool=False):
 
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2015.vc_buildtools_def.vc_version_numeric:
         return None
@@ -361,7 +361,7 @@ def _user_script_argument_sdk(env, sdk_version, user_argstr):
 
     if len(matches) > 1:
         debug('multiple sdk version declarations: MSVC_SCRIPT_ARGS=%s', repr(user_argstr))
-        err_msg = "multiple sdk version declarations: MSVC_SCRIPT_ARGS={}".format(repr(user_argstr))
+        err_msg = f"multiple sdk version declarations: MSVC_SCRIPT_ARGS={user_argstr!r}"
         raise MSVCArgumentError(err_msg)
 
     if not sdk_version:
@@ -390,7 +390,7 @@ def _msvc_have140_toolset():
 
     return _toolset_have140_cache
 
-def _reset_have140_cache():
+def _reset_have140_cache() -> None:
     global _toolset_have140_cache
     debug('reset: cache')
     _toolset_have140_cache = None
@@ -434,7 +434,7 @@ def _msvc_read_toolset_folders(msvc, vc_dir):
             sxs_folder, sxs_version = _msvc_sxs_toolset_folder(msvc, sxs_folder)
             if not sxs_version:
                 continue
-            filename = 'Microsoft.VCToolsVersion.{}.txt'.format(sxs_folder)
+            filename = f'Microsoft.VCToolsVersion.{sxs_folder}.txt'
             filepath = os.path.join(sxs_path, filename)
             debug('sxs toolset: check file=%s', repr(filepath))
             if os.path.exists(filepath):
@@ -496,7 +496,7 @@ def _msvc_read_toolset_default(msvc, vc_dir):
     build_dir = os.path.join(vc_dir, "Auxiliary", "Build")
 
     # VS2019+
-    filename = "Microsoft.VCToolsVersion.{}.default.txt".format(msvc.vs_def.vc_buildtools_def.vc_buildtools)
+    filename = f"Microsoft.VCToolsVersion.{msvc.vs_def.vc_buildtools_def.vc_buildtools}.default.txt"
     filepath = os.path.join(build_dir, filename)
 
     debug('default toolset: check file=%s', repr(filepath))
@@ -520,7 +520,7 @@ def _msvc_read_toolset_default(msvc, vc_dir):
 _toolset_version_cache = {}
 _toolset_default_cache = {}
 
-def _reset_toolset_cache():
+def _reset_toolset_cache() -> None:
     global _toolset_version_cache
     global _toolset_default_cache
     debug('reset: toolset cache')
@@ -639,7 +639,7 @@ def _msvc_script_argument_toolset_constraints(msvc, toolset_version):
         return None
 
     debug('invalid: method exit: toolset_version=%s', repr(toolset_version))
-    err_msg = "MSVC_TOOLSET_VERSION ({}) format is not supported".format(repr(toolset_version))
+    err_msg = f"MSVC_TOOLSET_VERSION ({toolset_version!r}) format is not supported"
     return err_msg
 
 def _msvc_script_argument_toolset_vcvars(msvc, toolset_version, vc_dir):
@@ -681,12 +681,12 @@ def _msvc_script_argument_toolset(env, msvc, vc_dir, arglist):
     toolset_vcvars = _msvc_script_argument_toolset_vcvars(msvc, toolset_version, vc_dir)
 
     # toolset may not be installed for host/target
-    argpair = (SortOrder.TOOLSET, '-vcvars_ver={}'.format(toolset_vcvars))
+    argpair = (SortOrder.TOOLSET, f'-vcvars_ver={toolset_vcvars}')
     arglist.append(argpair)
 
     return toolset_vcvars
 
-def _msvc_script_default_toolset(env, msvc, vc_dir, arglist, force_toolset=False):
+def _msvc_script_default_toolset(env, msvc, vc_dir, arglist, force_toolset: bool=False):
 
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2017.vc_buildtools_def.vc_version_numeric:
         return None
@@ -698,7 +698,7 @@ def _msvc_script_default_toolset(env, msvc, vc_dir, arglist, force_toolset=False
     debug('MSVC_VERSION=%s, toolset_default=%s', repr(msvc.version), repr(toolset_default))
 
     if force_toolset:
-        argpair = (SortOrder.TOOLSET, '-vcvars_ver={}'.format(toolset_default))
+        argpair = (SortOrder.TOOLSET, f'-vcvars_ver={toolset_default}')
         arglist.append(argpair)
 
     return toolset_default
@@ -711,7 +711,7 @@ def _user_script_argument_toolset(env, toolset_version, user_argstr):
 
     if len(matches) > 1:
         debug('multiple toolset version declarations: MSVC_SCRIPT_ARGS=%s', repr(user_argstr))
-        err_msg = "multiple toolset version declarations: MSVC_SCRIPT_ARGS={}".format(repr(user_argstr))
+        err_msg = f"multiple toolset version declarations: MSVC_SCRIPT_ARGS={user_argstr!r}"
         raise MSVCArgumentError(err_msg)
 
     if not toolset_version:
@@ -799,7 +799,7 @@ def _msvc_script_argument_spectre(env, msvc, vc_dir, toolset, platform_def, argl
     spectre_arg = 'spectre'
 
     # spectre libs may not be installed for host/target
-    argpair = (SortOrder.SPECTRE, '-vcvars_spectre_libs={}'.format(spectre_arg))
+    argpair = (SortOrder.SPECTRE, f'-vcvars_spectre_libs={spectre_arg}')
     arglist.append(argpair)
 
     return spectre_arg
@@ -812,7 +812,7 @@ def _user_script_argument_spectre(env, spectre, user_argstr):
 
     if len(matches) > 1:
         debug('multiple spectre declarations: MSVC_SCRIPT_ARGS=%s', repr(user_argstr))
-        err_msg = "multiple spectre declarations: MSVC_SCRIPT_ARGS={}".format(repr(user_argstr))
+        err_msg = f"multiple spectre declarations: MSVC_SCRIPT_ARGS={user_argstr!r}"
         raise MSVCArgumentError(err_msg)
 
     if not spectre:
@@ -853,7 +853,7 @@ def _msvc_script_argument_user(env, msvc, arglist):
 
     return script_args
 
-def _msvc_process_construction_variables(env):
+def _msvc_process_construction_variables(env) -> bool:
 
     for cache_variable in [
         _MSVC_FORCE_DEFAULT_TOOLSET,
@@ -982,7 +982,7 @@ def _msvc_toolset_internal(msvc_version, toolset_version, vc_dir):
 
     return toolset_vcvars
 
-def _msvc_toolset_versions_internal(msvc_version, vc_dir, full=True, sxs=False):
+def _msvc_toolset_versions_internal(msvc_version, vc_dir, full: bool=True, sxs: bool=False):
 
     msvc = _msvc_version(msvc_version)
 
@@ -1020,12 +1020,12 @@ def _msvc_toolset_versions_spectre_internal(msvc_version, vc_dir):
 
     return spectre_toolset_versions
 
-def reset():
+def reset() -> None:
     debug('')
     _reset_have140_cache()
     _reset_toolset_cache()
 
-def verify():
+def verify() -> None:
     debug('')
     _verify_re_sdk_dispatch_map()
 

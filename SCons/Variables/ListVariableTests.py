@@ -28,7 +28,7 @@ import SCons.Errors
 import SCons.Variables
 
 class ListVariableTestCase(unittest.TestCase):
-    def test_ListVariable(self):
+    def test_ListVariable(self) -> None:
         """Test ListVariable creation"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.ListVariable('test', 'test option help', 'all',
@@ -49,7 +49,7 @@ class ListVariableTestCase(unittest.TestCase):
         o = opts.options[0]
         assert o.default == 'one,three'
 
-    def test_converter(self):
+    def test_converter(self) -> None:
         """Test the ListVariable converter"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.ListVariable('test', 'test option help', 'all',
@@ -101,14 +101,10 @@ class ListVariableTestCase(unittest.TestCase):
         x = o.converter('three,ONE,TWO')
         assert str(x) == 'all', x
 
-        caught = None
-        try:
+        with self.assertRaises(ValueError):
             x = o.converter('no_match')
-        except ValueError:
-            caught = 1
-        assert caught, "did not catch expected ValueError"
 
-    def test_copy(self):
+    def test_copy(self) -> None:
         """Test copying a ListVariable like an Environment would"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.ListVariable('test', 'test option help', 'all',

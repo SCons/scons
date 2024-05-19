@@ -1,0 +1,3 @@
+DefaultEnvironment(tools=[])
+env = Environment(tools = ['gfortran', 'gnulink'])
+env.SharedLibrary('gfortran_shared', ['gfortran_shared.f'])

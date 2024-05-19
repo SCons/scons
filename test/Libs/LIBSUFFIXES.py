@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,29 +22,31 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+Test LIBSUFFIXES.
+
+Depends on a live compiler to build library and executable,
+and actually runs the executable.
+"""
 
 import os
 import sys
+
 import TestSCons
+from TestSCons import lib_
 
 if sys.platform == 'win32':
-    lib_ = ''
     import SCons.Tool.MSCommon as msc
     if not msc.msvc_exists():
         lib_ = 'lib'
-else:
-    lib_ = 'lib'
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
-env = Environment(LIBSUFFIX = '.xxx',
-                  LIBSUFFIXES = ['.xxx'])
-lib = env.Library(target = 'foo', source = 'foo.c')
-env.Program(target = 'prog', source = ['prog.c', lib])
+test.write('SConstruct', """\
+env = Environment(LIBSUFFIX='.xxx', LIBSUFFIXES=['.xxx'])
+lib = env.Library(target='foo', source='foo.c')
+env.Program(target='prog', source=['prog.c', lib])
 """)
 
 test.write('foo.c', r"""
@@ -69,13 +73,10 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = '.',
-         stderr=TestSCons.noisy_ar,
-         match=TestSCons.match_re_dotall)
-
+test.run(arguments='.', stderr=TestSCons.noisy_ar, match=TestSCons.match_re_dotall)
 test.fail_test(not os.path.exists(test.workpath(lib_ + 'foo.xxx')))
 
-test.run(program = test.workpath('prog'), stdout = "foo.c\nprog.c\n")
+test.run(program=test.workpath('prog'), stdout="foo.c\nprog.c\n")
 
 test.pass_test()
 

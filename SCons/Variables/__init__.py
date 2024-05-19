@@ -57,7 +57,7 @@ class Variables:
     """
     instance = None
 
-    def __init__(self, files=None, args=None, is_global=True):
+    def __init__(self, files=None, args=None, is_global: bool=True) -> None:
         if args is None:
             args = {}
         self.options = []
@@ -76,10 +76,21 @@ class Variables:
             if not Variables.instance:
                 Variables.instance=self
 
-    def _do_add(self, key, help="", default=None, validator=None, converter=None, **kwargs) -> None:
+    def __str__(self) -> str:
+        """Provide a way to "print" a Variables object."""
+        s = "Variables(\n  options=[\n"
+        for option in self.options:
+            s += f"    {str(option)},\n"
+        s += "  ],\n"
+        s += f"  args={self.args},\n  files={self.files},\n  unknown={self.unknown},\n)"
+        return s
+
+    def _do_add(self, key, help: str="", default=None, validator=None, converter=None, **kwargs) -> None:
 
         class Variable:
-            pass
+            def __str__(self) -> str:
+                """Provide a way to "print" a Variable object."""
+                return f"({self.key!r}, {self.aliases}, {self.help!r}, {self.default!r}, {self.validator}, {self.converter})"
 
         option = Variable()
 
@@ -182,7 +193,7 @@ class Variables:
                     sys.path.insert(0, dir)
                 try:
                     values['__name__'] = filename
-                    with open(filename, 'r') as f:
+                    with open(filename) as f:
                         contents = f.read()
                     exec(contents, {}, values)
                 finally:
@@ -285,7 +296,7 @@ class Variables:
                             fh.write('%s = %s\n' % (option.key, repr(value)))
                     except KeyError:
                         pass
-        except IOError as x:
+        except OSError as x:
             raise SCons.Errors.UserError('Error writing options to file: %s\n%s' % (filename, x))
 
     def GenerateHelpText(self, env, sort=None) -> str:

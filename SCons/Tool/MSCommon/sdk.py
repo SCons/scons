@@ -45,10 +45,9 @@ from .common import debug, read_reg
 # seem to be any sane registry key, so the precise location is hardcoded.
 #
 # For versions below 2003R1, it seems the PSDK is included with Visual Studio?
-#
-# Also, per the following:
-#     http://benjamin.smedbergs.us/blog/tag/atl/
 # VC++ Professional comes with the SDK, VC++ Express does not.
+#
+# Of course, all this changed again after Express was phased out (2005).
 
 # Location of the SDK (checked for 6.1 only)
 _CURINSTALLED_SDK_HKEY_ROOT = \
@@ -59,7 +58,7 @@ class SDKDefinition:
     """
     An abstract base class for trying to find installed SDK directories.
     """
-    def __init__(self, version, **kw):
+    def __init__(self, version, **kw) -> None:
         self.version = version
         self.__dict__.update(kw)
 
@@ -130,7 +129,7 @@ class WindowsSDK(SDKDefinition):
     A subclass for trying to find installed Windows SDK directories.
     """
     HKEY_FMT = r'Software\Microsoft\Microsoft SDKs\Windows\v%s\InstallationFolder'
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         super().__init__(*args, **kw)
         self.hkey_data = self.version
 
@@ -139,7 +138,7 @@ class PlatformSDK(SDKDefinition):
     A subclass for trying to find installed Platform SDK directories.
     """
     HKEY_FMT = r'Software\Microsoft\MicrosoftSDK\InstalledSDKS\%s\Install Dir'
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         super().__init__(*args, **kw)
         self.hkey_data = self.uuid
 
@@ -306,7 +305,7 @@ def get_installed_sdks():
 
 SDKEnvironmentUpdates = {}
 
-def set_sdk_by_directory(env, sdk_dir):
+def set_sdk_by_directory(env, sdk_dir) -> None:
     global SDKEnvironmentUpdates
     debug('set_sdk_by_directory: Using dir:%s', sdk_dir)
     try:
@@ -334,7 +333,7 @@ def set_sdk_by_directory(env, sdk_dir):
 
 def get_sdk_by_version(mssdk):
     if mssdk not in SupportedSDKMap:
-        raise SCons.Errors.UserError("SDK version {} is not supported".format(repr(mssdk)))
+        raise SCons.Errors.UserError(f"SDK version {mssdk!r} is not supported")
     get_installed_sdks()
     return InstalledSDKMap.get(mssdk)
 

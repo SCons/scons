@@ -36,7 +36,7 @@ from . import link
 
 linkers = ['CC', 'cc']
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for MIPSPro to an Environment."""
     link.generate(env)
     

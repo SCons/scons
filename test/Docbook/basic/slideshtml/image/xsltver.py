@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 import os
 import re
 
@@ -7,7 +11,7 @@ def detectXsltVersion(fpath):
         file couldn't be found/parsed correctly.
     """
     with open(os.path.join(fpath, 'VERSION'), 'rb') as fin:
-        re_version = re.compile("<fm:Version>([^<]+)</fm:Version>".encode('utf-8'))
+        re_version = re.compile(b"<fm:Version>([^<]+)</fm:Version>")
         m = re_version.search(fin.read())
         if m:
             try:

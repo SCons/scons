@@ -1,0 +1,16 @@
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q --tree=prune</userinput>
+cc -o build/hello.o -c build/hello.c
+cc -o build/hello build/hello.o
++-.
+  +-SConstruct
+  +-build
+  | +-build/SConscript
+  | +-build/hello
+  | | +-build/hello.o
+  | |   +-build/hello.c
+  | +-build/hello.c
+  | +-[build/hello.o]
+  +-src
+    +-src/SConscript
+    +-src/hello.c
+</screen>

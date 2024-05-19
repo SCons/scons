@@ -199,7 +199,7 @@ def Package(env, target=None, source=None, **kw):
 #
 added = False
 
-def generate(env):
+def generate(env) -> None:
     global added
     if not added:
         added = True
@@ -218,11 +218,11 @@ def generate(env):
         env['BUILDERS']['Tag'] = Tag
 
 
-def exists(env):
-    return 1
+def exists(env) -> bool:
+    return True
 
 
-def options(opts):
+def options(opts) -> None:
     opts.AddVariables(
         EnumVariable('PACKAGETYPE',
                      'the type of package to create.',
@@ -235,7 +235,7 @@ def options(opts):
 # Internal utility functions
 #
 
-def copy_attr(f1, f2):
+def copy_attr(f1, f2) -> None:
     """ Copies the special packaging file attributes from f1 to f2.
     """
     if f1._tags:
@@ -247,7 +247,7 @@ def copy_attr(f1, f2):
         for attr in pattrs:
             f2.Tag(attr, f1.GetTag(attr))
 
-def putintopackageroot(target, source, env, pkgroot, honor_install_location=1):
+def putintopackageroot(target, source, env, pkgroot, honor_install_location: int=1):
     """ Copies all source files to the directory given in pkgroot.
 
     If honor_install_location is set and the copied source file has an
@@ -298,7 +298,7 @@ def stripinstallbuilder(target, source, env):
 
     It also warns about files which have no install builder attached.
     """
-    def has_no_install_location(file):
+    def has_no_install_location(file) -> bool:
         return not (file.has_builder() and hasattr(file.builder, 'name')
                     and file.builder.name in ["InstallBuilder", "InstallAsBuilder"])
 

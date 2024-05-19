@@ -47,7 +47,7 @@ class Patch:
                 return hook
 
             @classmethod
-            def restore(cls):
+            def restore(cls) -> None:
                 Config.MSVC_SDK_VERSIONS = cls.MSVC_SDK_VERSIONS
 
     class Registry:
@@ -69,54 +69,54 @@ class Patch:
                 return hook
 
             @classmethod
-            def restore(cls):
+            def restore(cls) -> None:
                 Registry.sdk_query_paths = cls.sdk_query_paths
 
 class WinSDKTests(unittest.TestCase):
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         Patch.Registry.sdk_query_paths.enable_duplicate()
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
         Patch.Registry.sdk_query_paths.restore()
 
-    def test_verify(self):
+    def test_verify(self) -> None:
         MSVC_SDK_VERSIONS = Patch.Config.MSVC_SDK_VERSIONS.enable_copy()
         MSVC_SDK_VERSIONS.add('99.0')
         with self.assertRaises(MSVCInternalError):
             WinSDK.verify()
         Patch.Config.MSVC_SDK_VERSIONS.restore()
 
-    def _run_reset(self):
+    def _run_reset(self) -> None:
         WinSDK.reset()
         self.assertFalse(WinSDK._sdk_map_cache, "WinSDK._sdk_map_cache was not reset")
         self.assertFalse(WinSDK._sdk_cache, "WinSDK._sdk_cache was not reset")
 
-    def _run_get_msvc_sdk_version_list(self):
+    def _run_get_msvc_sdk_version_list(self) -> None:
         for vcver in Config.MSVC_VERSION_SUFFIX.keys():
             for msvc_uwp_app in (True, False):
                 _ = WinSDK.get_msvc_sdk_version_list(vcver, msvc_uwp_app=msvc_uwp_app)
 
-    def _run_version_list_sdk_map(self):
+    def _run_version_list_sdk_map(self) -> None:
         for vcver in Config.MSVC_VERSION_SUFFIX.keys():
             vs_def = Config.MSVC_VERSION_SUFFIX.get(vcver)
             if not vs_def.vc_sdk_versions:
                 continue
             _ = WinSDK._version_list_sdk_map(vs_def.vc_sdk_versions)
 
-    def test_version_list_sdk_map(self):
+    def test_version_list_sdk_map(self) -> None:
         self._run_version_list_sdk_map()
         self._run_version_list_sdk_map()
         self.assertTrue(WinSDK._sdk_map_cache, "WinSDK._sdk_map_cache is empty")
 
-    def test_get_msvc_sdk_version_list(self):
+    def test_get_msvc_sdk_version_list(self) -> None:
         self._run_get_msvc_sdk_version_list()
         self._run_get_msvc_sdk_version_list()
         self.assertTrue(WinSDK._sdk_cache, "WinSDK._sdk_cache is empty")
 
-    def test_get_msvc_sdk_version_list_empty(self):
+    def test_get_msvc_sdk_version_list_empty(self) -> None:
         func = WinSDK.get_msvc_sdk_version_list
         for vcver in [None, '', '99', '99.9']:
             sdk_versions = func(vcver)
@@ -124,7 +124,7 @@ class WinSDKTests(unittest.TestCase):
                 func.__name__, repr(vcver)
             ))
 
-    def test_reset(self):
+    def test_reset(self) -> None:
         self._run_reset()
 
 if __name__ == "__main__":

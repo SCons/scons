@@ -40,15 +40,16 @@ if sys.platform == 'win32':
         r'C:\cygwin\bin'
     ]
 
-def generate(env):
+def generate(env) -> None:
     posix.generate(env)
 
     env['PROGPREFIX']  = ''
     env['PROGSUFFIX']  = '.exe'
     env['SHLIBPREFIX'] = ''
     env['SHLIBSUFFIX'] = '.dll'
-    env['LIBPREFIXES'] = [ '$LIBPREFIX', '$SHLIBPREFIX', '$IMPLIBPREFIX' ]
-    env['LIBSUFFIXES'] = [ '$LIBSUFFIX', '$SHLIBSUFFIX', '$IMPLIBSUFFIX' ]
+    env['LIBPREFIXES'] = ['$LIBPREFIX', '$SHLIBPREFIX', '$IMPLIBPREFIX']
+    env['LIBSUFFIXES'] = ['$LIBSUFFIX', '$SHLIBSUFFIX', '$IMPLIBSUFFIX']
+    env['LIBLITERAPPREFIX'] = ':'
     env['TEMPFILE']    = TempFileMunge
     env['TEMPFILEPREFIX'] = '@'
     env['MAXLINELENGTH']  = 2048

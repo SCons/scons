@@ -9,6 +9,423 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Thaddeus Crews:
+    - GetSConsVersion() to grab the latest SCons version without needing to
+      access SCons internals.
+
+  From Raymond Li:
+    - Fix issue #3935: OSErrors are now no longer hidden during execution of
+      Actions. All exceptions during the execution of an Action are now
+      returned by value rather than by raising an exception, for more
+      consistent behavior.
+      NOTE: With this change, user created Actions should now catch and handle
+      expected exceptions (whereas previously many of these were silently
+      caught and suppressed by the SCons Action exection code).
+
+  From Ryan Carsten Schmidt:
+    - Teach ParseFlags to put a --stdlib=libname argument into CXXFLAGS.
+      If placed in CCFLAGS (the default location), it could be fed to the
+      C compiler (gcc, clang) where it is not applicable and causes a
+      warning message.
+
+  From Mats Wichmann:
+    - Updated Value Node docs and tests.
+    - Python 3.13 compat: re.sub deprecated count, flags as positional args,
+      caused update-release-info test to fail.
+    - Dump() with json format selected now recognizes additional compound types
+      (UserDict and UserList), which improves the detail of the display.
+      json output is also sorted, to match the default display.
+    - Python 3.13 (alpha) changes the behavior of isabs() on Windows. Adjust
+      SCons usage of in NodeInfo classes to match.  Fixes #4502, #4504.
+    - Drop duplicated __getstate__ and __setstate__ methods in AliasNodeInfo,
+      FileNodeInfo and ValueNodeInfo classes, as they are identical to the
+      ones in parent NodeInfoBase and can just be inherited.
+    - Update manpage for Tools, and for TOOL, which also gets a minor
+      tweak for how it's handled (should be more accurate in a few situations).
+    - Test framework now uses a subdirectory named "scons" below the base
+      temporary directory. This gives something invariant to tell antivirus
+      to ignore without having to exclude tmpdir itself. Fixes #4509.
+    - MSVS "live" tests of project files adjusted to look for the generated
+      executable with an exe sufffix
+    - Documentation build now properly passes through skipping the PDF
+      (and EPUB) builds of manpage and user guide; this can also be done
+      manually if directly calling doc/man/SConstruct and doc/user/SConstruct
+      by adding SKIP_PDF=1.  This should help with distro packaging of SCons,
+      which now does not need "fop" and other tools to be set up in order to
+      build pdf versions which are then ignored.
+    - Add the ability to print a Variables object for debugging purposes
+      (provides a __str__ method in the class).
+    - Mark Python 3.6 support as deprecated.
+    - Clean up Variables: more consistently call them variables (finish the
+      old change from Options) in docstrings, etc.; some typing and other
+      tweaks.  Update manpage and user guide for Variables usage.
+    - Regularize internal usage of Python version strings and drop one
+      old Python 2-only code block in a test.
+    - scons-time tests now supply a "filter" argument to tarfile.extract
+      to quiet a warning which was added in Python 3.13 beta 1.
+    - Improved the conversion of a "foreign" exception from an action
+      into BuildError by making sure our defaults get applied even in
+      corner cases. Fixes #4530.
+    - Restructured API docs build (Sphinx) so main module contents appear
+      on a given page *before* the submodule docs, not after. Also
+      tweaked the Util package doc build so it's structured more like the
+      other packages (a missed part of the transition when it was split).
+
+
+RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
+
+  From Ataf Fazledin Ahamed:
+    - Use of NotImplemented instead of NotImplementedError for special methods
+      of _ListVariable class
+
+  From Joseph Brill:
+    - Fix issue #2755: the msvs tool no longer writes the OS environment SCONS_HOME
+      value into the SCons environment when the SCONS_HOME variable already exists
+      in the SCons environment.  Prior to this change, a valid user-defined SCons
+      environment value for SCONS_HOME would be overwritten with the OS environment
+      value of SCONS_HOME which could be None (i.e., undefined).
+    - Update the windows registry keys for detection of Visual Studio 2015 Express
+      ('14.0Exp'): the VS2015 registry key ('WDExpress') appears to be different
+      than the registry key ('VCExpress') for earlier Visual Studio express
+      versions.  The registry key value is relative to the installation root rather
+      than the VC folder and requires additional path components during evaluation.
+    - Fix the vs-6.0-exec.py test script: the msvs generated project is 'foo.dsp'
+      and the command-line invocation of the Visual Studio development environment
+      program was attempting to build 'test.dsp'.  The command-line invocation was
+      changed to build 'foo.dsp'.
+    - Update the msvs project generation test scripts: the msvs project execution
+      tests could produce a "false positive" test result when the test executable is
+      correctly built via the SConstruct env.Program() call and the command-line
+      invocation of the Visual Studio development environment program fails.  The
+      test passes due to the existence of the test executable from the initial
+      build.  The tests were modified to delete the test executable, object file,
+      and sconsign file prior to the command-line invocation of the VS development
+      binary.
+    - Method unlink_files was added to the TestCmd class that unlinks a list of
+      files from a specified directory.  An attempt to unlink a file is made only
+      when the file exists; otherwise, the file is ignored.
+    - Fix issue #4320: add an optional argument list string to configure's CheckFunc
+      method so that the generated function argument list matches the function's
+      prototype when including a header file.
+
+  From Thaddeus Crews:
+    - Explicitly wrap non-serializable values in json dump
+    - Implemented SCons.Util.sctyping as a safe means of hinting complex types. Currently
+      only implemented for `Executor` as a proof-of-concept.
+
+  From William Deegan:
+    - Fix sphinx config to handle SCons versions with post such as: 4.6.0.post1
+
+  From Michał Górny:
+    - Remove unnecessary dependencies on pypi packages from setup.cfg
+
+  From Sten Grüner:
+    - Fix of the --debug=sconscript option to return exist statements when using return
+      statement with stop flag enabled
+
+  From Prabhu S. Khalsa:
+    - Fix typo in user documentation (issue #4458)
+
+  From Andrew Morrow:
+    - The NewParallel scheduler is now the default, the `tm_v2` flag is removed,
+      and the old scheduler is opt-in under `--experimental=legacy_sched`. Additionally,
+      the new scheduler is now used for -j1 builds as well.
+    - A python interpreter with support for the `threading` package is now required,
+      and this is enforced on startup. SCons currently sets its minimum supported
+      Python to 3.6, and it was not until Python 3.7 where `threading` became
+      default supported. In practice, we expect most real world Python 3.6 deployments
+      will have `threading` support enabled, so this will not be an issue.
+    - CacheDir writes no longer happen within the taskmaster critical section,
+      and therefore can run in parallel with both other CacheDir writes and the
+      taskmaster DAG walk.
+    - The NewParallel scheduler now only adds threads as new work requiring execution
+      is discovered, up to the limit set by -j. This should reduce resource utilization
+      when the achievable parallelism in the DAG is less than the -j limit.
+
+  From Mats Wichmann:
+    - Add support for Python 3.13 (as of alpha 2). So far only affects
+      expected bytecodes in ActionTests.py.
+    - sconsign cleanup - remove some dead code, minor manpage tweaks.
+    - Be more cautious about encodings fetching command output on Windows.
+      Problem occurs in piped-spawn scenario, used by Configure tests.
+      Fixes #3529.
+    - Clarify/fix documentation of Scanners in User Guide and Manpage.
+      Fixes #4468.
+    - Fix bad typing in Action.py: process() and strfunction().
+    - Add Pseudo() to global functions, had been omitted. Fixes #4474.
+    - Improve handling of file data that SCons itself processes - try
+      harder to decode non-UTF-8 text. SCons.Util.to_Text now exists
+      to convert a byte stream, such as "raw" file data.  Fixes #3569, #4462.
+      The Pseudo manpage entry was updated to provide more clarity.
+    - Clarify how SCons finds the project top directory, and what that is used for.
+    - The internal routine which implements the PyPackageDir function
+      would fail with an exception if called with a module which is
+      not found.  It will now return None.  Updated manpage entry and
+      docstring..
+    - Doc update: standardized on the use of a new entity &MSVC; to
+      describe the Microsoft C++ compiler. Update the version table slightly.
+      Amplified the usage of MSVC_VERSION.
+    - Improve SharedLibrary docs a bit.
+    - More consistent use of &Python; in the manpage.  A few links added.
+      A warning about overwriting env['ENV'] and one about Configure
+      checks possibly not running in in no-exec mode also added.
+    - Update warnings module: adds docstrings, drop three unused warnings
+      (DeprecatedSourceCodeWarning, TaskmasterNeedsExecuteWarning,
+      DeprecatedMissingSConscriptWarning) add two warnings to manpage
+      (cache-cleanup-error, future-reserved-variable), improve unittest, tweak
+      Sphinx build.
+    - Add locking around creation of CacheDir config file. Fixes #4489.
+    - Clarify MergeFlags usage of a dict argument.
+    - SCons documentation build can now be controlled through SKIP_DOC
+      variable - rather than just true/false can now specify
+      skip none, skip all, skip pdf docs, skip api docs.
+
+
+RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
+
+  From Max Bachmann:
+    - Add missing directories to searched paths for mingw installs
+
+  From Joseph Brill:
+    - Fix issue #4312: the cached installed msvc list had an indirect dependency
+      on the target architecture in the environment dictionary.  The first call
+      to construct the installed msvc list now forces the target architecture to be
+      undefined, constructs the installed msvc list, and then restores the original
+      target architecture.
+      Note: an indirect dependency on the VSWHERE construction variable in the
+      environment remains.
+    - Fix issue #4312: explicitly guard against an empty regular expression list
+      when msvc is not installed.
+    - When trying to find a valid msvc batch file, check that the compiler executable
+      (cl.exe) exists for VS6 to VS2015 to avoid executing the msvc batch file.  Always
+      check that the compiler executable is found on the msvc script environment path
+      after running the msvc batch file.  Only use the sdk batch files when all of the
+      msvc script host/target combinations have been exhausted and a valid script was
+      not found.
+    - Add ARM64 host configurations for windows and msvc.
+      Note: VS2013 and earlier has not been tested on ARM64.
+    - If necessary, automatically define VSCMD_SKIP_SENDTELEMETRY for VS2019 and later
+      on ARM64 hosts when using an arm32 build of python to prevent a powershell dll
+      not found error pop-up window.
+    - Fix an issue where test SConfTests.py would fail when mscommon debugging
+      was enabled.  The mscommon debug filter class registered with the logging
+      module was refactored.
+    - Add arm64 to the MSVS supported architectures list for VS2017 and later to be
+      consistent with the current documentation of MSVS_ARCH.
+    - Fix an issue with an unhandled MissingConfiguration exception due to an msvc
+      registry query that returns a path that does not exist.  Multiple invocation
+      paths were not prepared to handle the MissingConfiguration exception.  The
+      MissingConfiguration exception type was removed.
+    - The MSCommon module import was changed from a relative import to a top-level
+      absolute import in the following Microsoft tools: midl, mslib, mslink, mssdk, msvc,
+      msvs. Moving any of these tools that used relative imports to the scons site tools
+      folder would fail on import (i.e., the relative import paths become invalid when
+      moved).
+    - The detection of the msvc compiler executable (cl.exe) has been modified:
+        * The host os environment path is no longer evaluated for the existence of the
+          msvc compiler executable when searching the detection dictionary.
+        * The existence of the msvc compiler executable is checked in the detection
+          dictionary and the scons ENV path before the detection dictionary is merged
+          into the scons ENV.
+        * Different warnings are produced when the msvc compiler is not detected in the
+          detection dictionary based on whether or not an msvc compiler was detected in
+          the scons ENV path (i.e., a msvc compiler executable already exists in the
+          user's ENV path prior to detection).
+        * The warning message issued when a msvc compiler executable is not found in the
+          detection dictionary was modified by adding the word "requested":
+            Old warning: "Could not find MSVC compiler 'cl'."
+            New warning: "Could not find requested MSVC compiler 'cl'.".
+        * An additonal sentence is appended to the warning message issued when an msvc
+          compiler executable is not found in the msvc detection dictionary and is found
+          in the user's ENV path prior to detection:
+            " A 'cl' was found on the scons ENV path which may be erroneous."
+
+  From Vitaly Cheptsov:
+    - Fix race condition in `Mkdir` which can happen when two `SConscript`
+      are processed simultaneously by two separate build commands.
+
+  From William Deegan:
+    - The --debug flag now has a 'json' option which will write information
+      generated by --debug={count, memory, time, action-timestamps} and about
+      the build.
+    - Obsoleted YACCVCGFILESUFFIX, being replaced by YACC_GRAPH_FILE_SUFFIX.
+      If YACC_GRAPH_FILE_SUFFIX is not set, it will respect YACCVCGFILESUFFIX.
+
+  From Sten Grüner
+    - The newly added --debug=sconscript option (new) will output notices when
+      entering an exiting each SConscript as they are processed.
+
+  From Philipp Maierhöfer:
+    - Fix gfortran tool initialization. Defaults to using binary named gfortran
+      as would be expected, and properly set's SHFORTRAN flags to include -fPIC
+      where previously it was only doing so for the other fortran versions (F77,..)
+
+  From Jonathon Reinhart:
+    - Fix another instance of `int main()` in CheckLib() causing failures
+      when using -Wstrict-prototypes.
+
+  From Mats Wichmann
+    - C scanner's dictifyCPPDEFINES routine did not understand the possible
+      combinations of CPPDEFINES - not aware of a "name=value" string either
+      embedded in a sequence, or by itself.  The conditional C scanner thus
+      did not always properly apply the defines. The regular C scanner does
+      not use these, so was not affected.  [fixes #4193]
+    - Minor cleanup for ValidateOptions - docs and docstring tweaked,
+      add missed versionadded indicator.
+    - Added some typing annotations generated by a tool, to eliminate manual
+      work in future on things which are safe for the tool to produce.
+      Then manually fixed up some things related to bool that the tool did
+      not handly ideally. For example, simple functions which just did
+      "return 1" were interpreted by the tool as returning int, when bool
+      was really the intent.  Functions/methods named like "is_*", "has_*",
+      "exists" are now pretty consistently marked as "-> bool".
+    - Simplify some code due to pylint observation: "C2801: Unnecessarily
+      calls dunder method __call__. Invoke instance directly."
+    - Python 3.9 dropped the alias base64.decodestring, deprecated since 3.1.
+      Only used in msvs.py. Use base64.decodebytes instead.
+    - When debugging (--debug=pdb), the filenames SConstruct and SConscript
+      are now recognized when manipulating breakpoints. Previously,
+      only a full pathname to an sconscript file worked, as pdb requires
+      a .py extension to open a file that is not an absolute path.
+    - SCons test runner now uses pathlib to normalize and compare paths
+      to test files.
+    - D compilers : added support for generation of .di interface files.
+      New variables DI_FILE_DIR, DI_FILE_DIR_PREFIX, DI_FILE_DIR_SUFFIX,
+      DI_FILE_SUFFIX.
+    - Fixed: when using the mingw tool, if an msys2 Python is used (os.sep
+      is '/' rather than the Windows default '\'), certain Configure checks
+      could fail due to the construction of the path to run the compiled check.
+    - Added effort to find mingw if it comes from Chocolatey install of msys2.
+    - Minor doc fixes: signature of Alias() now matches implementation
+      to avoid problem if kwargs used; case of Alias with no targets is
+      mentioned in text (was already shown in example); now mention that
+      Action([item]) does not return a ListAction - previously implied
+      that if arg was a list, a ListAction was *always* returned; mention
+      default Decider and sort the names of available decider functions,
+      and add a version marking.  Minor fiddling with Alias.py docstrings.
+    - Python 3.12 support: new bytecodes for ActionTests.py, adapt to
+      changes to pathlib module in runtest.py (PosixPath no longer
+      converts slashes if given a Windows-style path). Also switch to
+      using `subTest` in `ActionTests`, so that we can see all 21 fails
+      due to bytecode changes (previously testcases aborted on the first
+      assert fail so we only saw seven), and use unittest asserts to
+      simplify complex printing stanzas.
+    - Added copyright headers to files in test/ that didn't have them.
+    - Drop three unused methods from the Environment Base class:
+      get_src_sig_type and get_tgt_sig_type, as well as "private"
+      _changed_source. These were orphaned when the long-deprecated
+      Source Signatures and Target Signatures were removed, these were
+      missed at that time.
+    - Remove dead code: some mocked classes in unit tests had methods
+      which have been removed from the Node class they're mocking,
+      there's no need to shadow those any more as there are no callers.
+      The methods are depends_on (base functionality removed in 2005)
+      and is_pseudeo_derived (base functionality removed in 2006). There
+      may well be more!
+    - Added pass_test() call to test/MSVC/MSVC_BATCH-spaces-targetdir.py.
+      It looked it was missing a more detailed check, but it should be
+      sufficient just to check the build worked. Renamed the fixture
+      dir to follow naming convention in test/MSVC overall, and added
+      a sconstest.skip file, also to follow convention.
+    - Marked some scanner methods as @staticmethod.
+    - Class ActionBase is now an abstract base class to more accurately
+      reflect its usage. Derived _ActionAction inherits the ABC, so it
+      now declares (actually raises NotImplementedError) two methods it
+      doesn't use so it can be instantiated by unittests and others.
+    - The yacc tool now understands the bison behavior of --header,
+      --defines and --graph being called without option-argument as being
+      synonyms for -d (first two) and -g. -H also recognized as a synonym
+      for -d.  Default value for $YACC_GRAPH_FILE_SUFFIX changed to '.gv'
+      to match current bison default (since bison 3.8).  Set this variable
+      to '.dot' if using byacc. The graph file name (-g) is now generated
+      relative to the requested target file name, not to the source file
+      name, to match actual current behavior (only affects if target
+      explicitly requested with a different base name
+      than source).  Docs updated.  Fixes #4326 and #4327.
+    - Cleaned up dblite module (checker warnings, etc.).
+    - Some cleanup in the FortranCommon tool.
+    - Rewrite the internal _subproc routine - a new scons_subproc_run() now
+      makes use of Python's subprocess.run in a more natural way, getting
+      around some of the issues with attempted context manager use, fetching
+      output, etc. - we let the subprocess module do the hard work,
+      since it's well debugged and supported.  _subproc is no longer
+      called by internal code, but remains in place in case there are builds
+      which call to it (even though it was never "published API").
+    - Changed the message about scons -H to clarify it shows built-in options.
+    - Improve CacheDir() Documentation.
+    - Release-building setup tweaked. (most of) the targets listed in
+      SCons' own "scons --help" now work again.
+    - Fix platform unit test on Windows for Py 3.12+. Fixes #4376.
+    - More tweaking of test framework overview (which is duplicated onto
+      the website, but not in the regular documentation section).
+    - Extend range of recognized Java versions to 20.
+    - Builder calls now accept PathLike objects in source lists. Fixes #4398.
+    - The Help() function now takes an additional keyword argument
+      keep_local: when starting to build a help message, you can now
+      retain help from AddOption calls, but omit help for SCons' own
+      command-line options with "Help(newtext, append=True, local_only=True)".
+    - A little more code "modernization", done via "pypgrade" tool set
+      to "3.6 and above" setting.
+    - Finish the change to make calling SConscript() with a nonexistent
+      file an error. It has issued a warning since 3.0, with "warn instead
+      of fail" deprecated since 3.1.  Fixes #3958.
+    - Minor (non-functional) cleanup of some tests, particuarly test/MSVC.
+    - Added more error handling while reading msvc config cache.
+      (Enabled/specified by SCONS_CACHE_MSVC_CONFIG).
+      The existing cache will be discarded if there's a decode error reading it.
+      It's possible there's a race condition creating this issue in certain CI
+      builds.  Also add a simple filesystem-based locking protocol to try to
+      avoid the problem occuring.
+    - Update the first two chapters on building with SCons in the User Guide.
+    - Update docs on Export/Import - make sure mutable/immutable status has
+      been mentioned.
+    - Some cleanup to the Util package, including renaming SCons.Util.types
+      to SCons.Util.sctypes to avoid any possible confusion with the
+      Python stdlib types module.
+    - TeX tests: skip tests that use makeindex or epstopdf not installed, or
+      if `kpsewhich glossaries.sty` fails.
+    - Added a .note.GNU-stack section to the test assembler files to
+      avoid the GNU linker issuing warnings for its absence.
+    - Eliminate more http: references (mostly in comments/docstrings where
+      they really weren't harmful). A few links labeled dead with no alt.
+    - Add JDK 21 LTS support
+    - Add a LIBLITERALPREFIX variable which can be set to the linker's
+      prefix for considering a library argument unmodified (e.g. for the
+      GNU linker, the ':' in '-l:libfoo.a'). Fixes Github issue #3951.
+    - Update PCH builder docs with some usage notes.
+
+RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
+
+  From Michał Górny:
+    - Remove the redundant `wheel` dependency from `pyproject.toml`,
+      as it is added automatically by the setuptools PEP517 backend.
+
+  From Mats Wichmann
+    -  Fix a problem (#4321) in 4.5.0/4.5.1 where ParseConfig could cause an
+       exception in MergeFlags when the result would be to add preprocessor
+       defines to existing CPPDEFINES. The following code illustrates the
+       circumstances that could trigger this:
+          env=Environment(CPPDEFINES=['a'])
+          env.Append(CPPDEFINES=['b'])
+          env.MergeFlags({'CPPDEFINES': 'c'})
+
+
+RELEASE 4.5.1 -  Mon, 06 Mar 2023 14:08:29 -0700
+
+  From Mats Wichmann
+    - Fix a problem in 4.5.0 where using something like the following code
+      will cause a Clone()'d environment to share the CPPDEFINES with the
+      original Environment() which was cloned. Causing leakage of changes
+      to CPPDEFINES when they should be completely independent after the Clone.
+          env=Environment(CPPDEFINES=['a'])
+          env.Append(CPPDEFINES=['b']) (or AppendUnique,Prepend,PrependUnique)
+          env1=env.Clone()
+          env1.Append(CPPDEFINES=['c']) (or any other modification, but not overwriting CPPDEFINES
+      Now env['CPPDEFINES'] will contain 'c' when it should not.
+
+
+RELEASE 4.5.0 -  Sun, 05 Mar 2023 14:08:29 -0700
+
   From Anatoli Babenia:
     - Do not initialize DefaultEnvironment when calling EnsureSConsVersion(),
       EnsurePythonVersion(), Exit(), GetLaunchDir() and SConscriptChdir().
@@ -41,6 +458,18 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed Issue #4275 - when outputting compilation db and TEMPFILE was in use, the compilation db would have
       command lines using the generated tempfile for long command lines, instead of the full command line for
       the compilation step for the source/target pair.
+    - Renamed the qt tools to qt3 since the logic in that tool is only for QT version 3.  Renamed all env vars
+      which affect qt3 from QT_ to QT3_.  If you are still using SCons to build QT 3 code, you'll need to update
+      your SConscripts.  Note that using 'qt' tool has been deprecated for some time.
+
+  From David H:
+    - Added JAVAPROCESSORPATH construction variable which populates -processorpath.
+    - Updated JavaScanner to scan JAVAPROCESSORPATH.
+
+  From Nickolai Korshunov
+    - Added FILE_ENCODING, to allow explicitly setting the text encoding for files
+      written by the Textfile() and Substfile() builders. If not specified, Textfile() and Substfile() builders
+      will write files as UTF-8. Fixed Issue #4302.
 
   From Dan Mezhiborsky:
     - Add newline to end of compilation db (compile_commands.json).
@@ -50,6 +479,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       for a specified builder from the CacheDir, fails to do so, and then runs into an error
       when deleting the files which were retrieved. Previously if this happened there was no
       errors or warnings.
+    - Fix issue #2757, where Configure checks that perform a check which reads a modified source
+      (including program, source or header file(s)) would incorrectly mark that file "up to date" so the
+      actual build would not see the file as modified. Leading to incorrect incremental builds.
+      Now configure checks now clear node info for non conftest nodes, so they will be re-evaluated for
+      the real taskmaster run when the build commences.
 
   From Andrew Morrow
     - Avoid returning UniqueList for `children` and other `Executor` APIs. This type
@@ -58,6 +492,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Ryan Saunders:
     - Fixed runtest.py failure on Windows caused by excessive escaping of the path to python.exe.
+
+  From Lukas Schrangl:
+    - Run LaTeX after biber/bibtex only if necessary
 
   From Flaviu Tamas:
     - Added -fsanitize support to ParseFlags().  This will propagate to CCFLAGS and LINKFLAGS.
@@ -96,7 +533,38 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - The single-file Util module was split into a package with a few
       functional areas getting their own files - Util.py had grown to
       over 2100 lines.
-
+    - Add a zipapp package of scons-local: can use SCons from a local
+      file which does not need unpacking.
+    - Additional explanations for MSVSProject and MSVSSolution builders.
+    - Fix a problem (present in 4.4.0 only) where a Java inner class could
+      not be cached because the emitted filename contained a '$' and when
+      looked up through a node ended up generating a Python SyntaxError
+      because it was passed through scons_subst().
+    - Have the gfortran tool do a better job of honoring user preferences
+      for the dialect tools (F77, F90, F03 and F09, as well as the shared-library
+      equivalents SHF77,  SHF90, SHF03, SHF09). Previously these were
+      unconditionally overwritten to 'gfortran'; the change should be more
+      in line with expectations of how these variables should work.
+      Also cleaned a few Fortran tests - test behavior does not change.
+    - Updated MSVC documentation - adds "version added" annotations on recently
+      added construction variables and provides a version-mapping table.
+    - Add Python 3.12 support, and indicate 3.11/3.12 support in package.
+      3.12 is in alpha for this SCons release, the bytecode sequences
+      embedded in SCons/ActionTests.py may need to change later, but
+      based on what is known now, 3.12 itself should work with this release.
+    - Add "append" keyword argument to Configure context's CheckLib and
+      CheckLibWithHeader to control whether to append or prepend (issue #2767)
+      Also added "unique" keyword, to control whether a library is added
+      or not if it is already in the $LIBS construction var in the
+      configure context. (issue #2768).
+    - Completely refactored the CPPDEFINES logic in Append/AppendUnique/Prepend/PrependUnique
+      This change fixes the following GH Issues:
+      - GH Issue #3876 - Append() and AppendUnique() will handle CPPDEFINES the same
+      - GH Issue #4254 - Make handling tuples in CPPDEFINES consistent.
+      - We no longer sort the keys added to CPPDEFINES by their dictionary keys.
+        We take advantage that their order is now stable based on insertion order
+        in Python 3.5+
+      - Added/modifed unit and system tests to verify these changes.
 
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
@@ -259,16 +727,16 @@ RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
     - Ninja:Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
       Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
       format. Compiler tools will also configure the variable automatically.
-    - Ninja: Made ninja tool force the ninja file as the only target. 
+    - Ninja: Made ninja tool force the ninja file as the only target.
     - Ninja: Improved the default targets setup and made sure there is always a default target for
       the ninja file, which excludes targets that start and stop the daemon.
     - Ninja: Update ninja tool so targets passed to SCons are propagated to ninja when scons
       automatically executes ninja.
-    - Small refactor of scons daemons using a shared StateInfo class for communication 
+    - Small refactor of scons daemons using a shared StateInfo class for communication
       between the scons interactive thread and the http server thread. Added error handling
       for scons interactive failing to startup.
     - Ninja: Updated ninja scons daemon scripts to output errors to stderr as well as the daemon log.
-    - Ninja: Fix typo in ninja scons daemon startup which causes ConnectionRefusedError to not retry 
+    - Ninja: Fix typo in ninja scons daemon startup which causes ConnectionRefusedError to not retry
     - Added SHELL_ENV_GENERATORS construction variable. This variable should be set to a list
       (or an iterable) which contains functions to be called in order
       when constructing the execution environment (Generally this is the shell environment
@@ -510,7 +978,7 @@ RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
     - Fix Issue #3906 - `IMPLICIT_COMMAND_DEPENDENCIES` was not properly disabled when
       set to any string value (For example ['none','false','no','off'])
       Also previously 'All' wouldn't have the desired affect.
-      
+
   From Ivan Kravets:
     - Provide a custom argument escape function for `TempFileMunge` using a new
       `TEMPFILEARGESCFUNC` variable. Useful if you need to apply extra operations on
@@ -1044,7 +1512,6 @@ RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
         - JSON encoding errors for CacheDir config
         - JSON decoding errors for CacheDir config
 
-
 RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
 
   From Joseph Brill:
@@ -1058,12 +1525,12 @@ RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
       scons: rebuilding `file3' because:
            the dependency order changed:
            ->Sources
-           Old:xxx	New:zzz
-           Old:yyy	New:yyy
-           Old:zzz	New:xxx
+           Old:xxx  New:zzz
+           Old:yyy  New:yyy
+           Old:zzz  New:xxx
            ->Depends
            ->Implicit
-           Old:/usr/bin/python	New:/usr/bin/python
+           Old:/usr/bin/python  New:/usr/bin/python
     - Fix Issue #3350 - SCons Exception EnvironmentError is conflicting with Python's EnvironmentError.
     - Fix spurious rebuilds on second build for cases where builder has > 1 target and the source file
       is generated. This was causing the > 1th target to not have it's implicit list cleared when the source
@@ -7603,4 +8070,3 @@ A brief overview of important functionality available in release 0.01:
   - Linux packages available in RPM and Debian format.
 
   - Windows installer available.
-

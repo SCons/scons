@@ -76,6 +76,7 @@
 <!ENTITY m4             "<application xmlns='http://www.scons.org/dbxsd/v1.0'>m4</application>">
 <!ENTITY Make           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Make</application>">
 <!ENTITY Makepp         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Make++</application>">
+<!ENTITY MSVC           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Microsoft Visual C++</application>">
 <!ENTITY ninja          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>ninja</application>">
 <!ENTITY pdflatex       "<application xmlns='http://www.scons.org/dbxsd/v1.0'>pdflatex</application>">
 <!ENTITY pdftex         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>pdftex</application>">
@@ -92,15 +93,23 @@
 <!ENTITY zip            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>zip</application>">
 
 
+<!-- Concepts: these are key SCons things, which may *also* be classes, etc.
+     but are marked here for inclusion in a glossary
+-->
+<!ENTITY Action "<glossterm linkend='gls-action' xmlns='http://www.scons.org/dbxsd/v1.0'>Action</glossterm>">
+<!ENTITY Builder "<glossterm linkend='gls-builder' xmlns='http://www.scons.org/dbxsd/v1.0'>Builder</glossterm>">
+<!ENTITY Builders "<glossterm linkend='gls-builder' xmlns='http://www.scons.org/dbxsd/v1.0'>Builders</glossterm>">
+<!ENTITY Scanner "<glossterm linkend='gls-scanner' xmlns='http://www.scons.org/dbxsd/v1.0'>Scanner</glossterm>">
+<!ENTITY Scanners "<glossterm linkend='gls-scanner' xmlns='http://www.scons.org/dbxsd/v1.0'>Scanners</glossterm>">
+
+
 <!-- Classes.  -->
 
-<!ENTITY Action "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Action</classname>">
 <!ENTITY ActionBase "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>ActionBase</classname>">
 <!ENTITY BuildInfo "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>BuildInfo</classname>">
 <!ENTITY CommandAction "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>CommandAction</classname>">
 <!ENTITY FunctionAction "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>FunctionAction</classname>">
 <!ENTITY ListAction "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>ListAction</classname>">
-<!ENTITY Builder "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Builder</classname>">
 <!ENTITY BuilderBase "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>BuilderBase</classname>">
 <!ENTITY CompositeBuilder "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>CompositeBuilder</classname>">
 <!ENTITY MultiStepBuilder "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>MultiStepBuilder</classname>">
@@ -110,7 +119,6 @@
 <!ENTITY Parallel "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Parallel</classname>">
 <!ENTITY Node "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Node</classname>">
 <!ENTITY Node_FS "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Node.FS</classname>">
-<!ENTITY Scanner "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Scanner</classname>">
 <!ENTITY Sig "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Sig</classname>">
 <!ENTITY Signature "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Signature</classname>">
 <!ENTITY Taskmaster "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Taskmaster</classname>">
@@ -206,6 +214,7 @@
 <!ENTITY EnumVariable "<function xmlns='http://www.scons.org/dbxsd/v1.0'>EnumVariable</function>">
 <!ENTITY EnsurePythonVersion "<function xmlns='http://www.scons.org/dbxsd/v1.0'>EnsurePythonVersion</function>">
 <!ENTITY EnsureSConsVersion "<function xmlns='http://www.scons.org/dbxsd/v1.0'>EnsureSConsVersion</function>">
+<!ENTITY GetSConsVersion "<function xmlns='http://www.scons.org/dbxsd/v1.0'>GetSConsVersion</function>">
 <!ENTITY Environment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Environment</function>">
 <!ENTITY Execute "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Execute</function>">
 <!ENTITY Exit "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Exit</function>">
@@ -271,6 +280,7 @@
 <!ENTITY Return "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Return</function>">
 <!ENTITY RuleSet "<function xmlns='http://www.scons.org/dbxsd/v1.0'>RuleSet</function>">
 <!ENTITY Salt "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Salt</function>">
+<!ENTITY Save "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Save</function>">
 <!ENTITY SetBuildSignatureType "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetBuildSignatureType</function>">
 <!ENTITY SetContentSignatureType "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetContentSignatureType</function>">
 <!ENTITY SetDefault "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetDefault</function>">
@@ -283,6 +293,7 @@
 <!ENTITY Touch "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Touch</function>">
 <!ENTITY UnknownOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownOptions</function>">
 <!ENTITY UnknownVariables "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownVariables</function>">
+<!ENTITY Update "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Update</function>">
 
 
 <!-- Environment methods -->

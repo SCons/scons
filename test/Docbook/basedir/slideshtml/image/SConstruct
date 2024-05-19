@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 import xsltver
 
 v = xsltver.detectXsltVersion('/usr/share/xml/docbook/stylesheet/docbook-xsl')
@@ -7,6 +11,7 @@ if v >= (1, 78, 0):
     # Use namespace-aware input file
     ns_ext = 'ns'
     
+DefaultEnvironment(tools=[])
 env = Environment(tools=['docbook'])
 env.DocbookSlidesHtml('virt'+ns_ext, xsl='slides.xsl', base_dir='output/')
 

@@ -1,11 +1,12 @@
-# __COPYRIGHT__
+# SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+# SPDX-License-Identifier: MIT
 
 When adding a new file, add it to main.xml and MANIFEST.
 
 To build the .xml files from the .in files:
   scons -D BUILDDOC=1 foo.xml
 To build the whole PDF doc from this dir, for testing:
-  scons -D ../../build/doc/PDF/scons-user.pdf 
+  scons -D ../../build/doc/PDF/scons-user.pdf
 
 Writing examples: here's a simple template.
 

@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+DefaultEnvironment(tools=[])
+env = Environment()
+env.Append(CPPPATH=['.'])
+conf1 = Configure(env)
+conf1.CheckHeader("header1.h")
+conf1.CheckHeader("header3.h")
+conf1.Finish()
+env.Program('out', 'main.c')

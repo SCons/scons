@@ -43,8 +43,11 @@ import SCons.Tool.msvc
 import SCons.Tool.msvs
 import SCons.Util
 
-from .MSCommon import msvc_setup_env_once, msvc_setup_env_tool
-from .MSCommon.common import get_pch_node
+from SCons.Tool.MSCommon import (
+    msvc_setup_env_once,
+    msvc_setup_env_tool,
+)
+from SCons.Tool.MSCommon.common import get_pch_node
 
 tool_name = 'mslink'
 
@@ -256,7 +259,7 @@ compositeLdmodAction = ldmodLinkAction + regServerCheck + embedManifestDllCheckA
 exeLinkAction = SCons.Action.Action('${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET.windows $_LIBDIRFLAGS $_LIBFLAGS $_PDB $SOURCES.windows", "$LINKCOMSTR")}', '$LINKCOMSTR')
 compositeLinkAction = exeLinkAction + embedManifestExeCheckAction
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for ar to an Environment."""
     SCons.Tool.createSharedLibBuilder(env, shlib_suffix='$SHLIBSUFFIX')
     SCons.Tool.createProgBuilder(env)

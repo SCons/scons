@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
@@ -32,23 +31,25 @@ _obj = TestSCons._shobj
 obj_ = TestSCons.shobj_
 
 test = TestSCons.TestSCons()
+# ref: test/Fortran/fixture/myfortran_flags.py
 test.file_fixture(['fixture', 'myfortran_flags.py'])
 
 test.write('SConstruct', """
-env = Environment(SHF95 = r'%(_python_)s myfortran_flags.py g95',
-                  SHFORTRAN = r'%(_python_)s myfortran_flags.py fortran')
-env.Append(SHF95FLAGS = '-x',
-           SHFORTRANFLAGS = '-y')
-env.SharedObject(target = 'test01', source = 'test01.f')
-env.SharedObject(target = 'test02', source = 'test02.F')
-env.SharedObject(target = 'test03', source = 'test03.for')
-env.SharedObject(target = 'test04', source = 'test04.FOR')
-env.SharedObject(target = 'test05', source = 'test05.ftn')
-env.SharedObject(target = 'test06', source = 'test06.FTN')
-env.SharedObject(target = 'test07', source = 'test07.fpp')
-env.SharedObject(target = 'test08', source = 'test08.FPP')
-env.SharedObject(target = 'test13', source = 'test13.f95')
-env.SharedObject(target = 'test14', source = 'test14.F95')
+env = Environment(
+    SHF95=r'%(_python_)s myfortran_flags.py g95',
+    SHFORTRAN=r'%(_python_)s myfortran_flags.py fortran',
+)
+env.Append(SHF95FLAGS='-x', SHFORTRANFLAGS='-y')
+env.SharedObject(target='test01', source='test01.f')
+env.SharedObject(target='test02', source='test02.F')
+env.SharedObject(target='test03', source='test03.for')
+env.SharedObject(target='test04', source='test04.FOR')
+env.SharedObject(target='test05', source='test05.ftn')
+env.SharedObject(target='test06', source='test06.FTN')
+env.SharedObject(target='test07', source='test07.fpp')
+env.SharedObject(target='test08', source='test08.FPP')
+env.SharedObject(target='test13', source='test13.f95')
+env.SharedObject(target='test14', source='test14.F95')
 """ % locals())
 
 test.write('test01.f',   "This is a .f file.\n#fortran\n")
@@ -62,8 +63,7 @@ test.write('test08.FPP', "This is a .FPP file.\n#fortran\n")
 test.write('test13.f95', "This is a .f95 file.\n#g95\n")
 test.write('test14.F95', "This is a .F95 file.\n#g95\n")
 
-test.run(arguments = '.', stderr = None)
-
+test.run(arguments='.', stderr=None)
 test.must_match(obj_ + 'test01' + _obj, " -c -y\nThis is a .f file.\n")
 test.must_match(obj_ + 'test02' + _obj, " -c -y\nThis is a .F file.\n")
 test.must_match(obj_ + 'test03' + _obj, " -c -y\nThis is a .for file.\n")
@@ -75,29 +75,24 @@ test.must_match(obj_ + 'test08' + _obj, " -c -y\nThis is a .FPP file.\n")
 test.must_match(obj_ + 'test13' + _obj, " -c -x\nThis is a .f95 file.\n")
 test.must_match(obj_ + 'test14' + _obj, " -c -x\nThis is a .F95 file.\n")
 
-
-
 fc = 'f95'
 g95 = test.detect_tool(fc)
-
 if g95:
-
     test.subdir('x')
-
     test.write(['x','dummy.i'],
 """
 # Exists only such that -Ix finds the directory...
 """)
 
+    # ref: test/fixture/wrapper.py
     test.file_fixture('wrapper.py')
-
     test.write('SConstruct', """
-foo = Environment(SHF95 = '%(fc)s')
+foo = Environment(SHF95='%(fc)s')
 shf95 = foo.Dictionary('SHF95')
-bar = foo.Clone(SHF95 = r'%(_python_)s wrapper.py ' + shf95)
-bar.Append(SHF95FLAGS = '-Ix')
-foo.SharedLibrary(target = 'foo/foo', source = 'foo.f95')
-bar.SharedLibrary(target = 'bar/bar', source = 'bar.f95')
+bar = foo.Clone(SHF95=r'%(_python_)s wrapper.py ' + shf95)
+bar.Append(SHF95FLAGS='-Ix')
+foo.SharedLibrary(target='foo/foo', source='foo.f95')
+bar.SharedLibrary(target='bar/bar', source='bar.f95')
 """ % locals())
 
     test.write('foo.f95', r"""
@@ -114,17 +109,15 @@ bar.SharedLibrary(target = 'bar/bar', source = 'bar.f95')
       END
 """)
 
-
-    test.run(arguments = 'foo', stderr = None)
-
+    test.run(arguments='foo', stderr=None)
     test.must_not_exist('wrapper.out')
 
     import sys
-    if sys.platform[:5] == 'sunos':
-        test.run(arguments = 'bar', stderr = None)
-    else:
-        test.run(arguments = 'bar')
 
+    if sys.platform.startswith('sunos'):
+        test.run(arguments='bar', stderr=None)
+    else:
+        test.run(arguments='bar')
     test.must_match('wrapper.out', "wrapper.py\n")
 
 test.pass_test()
