@@ -101,7 +101,6 @@ print(env['profile'])
 Default(env.Alias('dummy', None))
 """ % locals())
 
-
 test.run(arguments='-h',
          stdout = """\
 scons: Reading SConscript files ...
@@ -150,8 +149,6 @@ qt_libraries: where the Qt library is installed ( /path/to/qt_libraries )
 
 Use scons -H for help about SCons built-in command-line options.
 """ % locals())
-
-
 
 test.pass_test()
 

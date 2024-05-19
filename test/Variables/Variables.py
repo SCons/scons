@@ -27,7 +27,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
 print(env['CC'])
@@ -37,19 +37,17 @@ Default(env.Alias('dummy', None))
 test.run()
 cc, ccflags = test.stdout().split('\n')[1:3]
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 # test validator.  Change a key and add a new one to the environment
 def validator(key, value, environ):
     environ[key] = "v"
     environ["valid_key"] = "v"
 
-
-def old_converter (value):
+def old_converter(value):
     return "old_converter"
 
-def new_converter (value, env):
+def new_converter(value, env):
     return "new_converter"
-
 
 opts = Variables('custom.py')
 opts.Add('RELEASE_BUILD',
@@ -90,15 +88,17 @@ opts.Add('UNSPECIFIED',
 
 def test_tool(env):
     if env['RELEASE_BUILD']:
-        env.Append(CCFLAGS = '-O')
+        env.Append(CCFLAGS='-O')
     if env['DEBUG_BUILD']:
-        env.Append(CCFLAGS = '-g')
-
+        env.Append(CCFLAGS='-g')
 
 DefaultEnvironment(tools=[])  # test speedup
 env = Environment(variables=opts, tools=['default', test_tool])
 
-Help('Variables settable in custom.py or on the command line:\\n' + opts.GenerateHelpText(env))
+Help(
+    'Variables settable in custom.py or on the command line:\\n'
+    + opts.GenerateHelpText(env)
+)
 
 print(env['RELEASE_BUILD'])
 print(env['DEBUG_BUILD'])
@@ -121,7 +121,6 @@ opts.Update(env)
 assert env['RELEASE_BUILD'] == r
 
 Default(env.Alias('dummy', None))
-
 """)
 
 def check(expect):
@@ -146,7 +145,7 @@ check(['0', '1', cc, (ccflags + ' -g').strip(), 'v', 'v'])
 test.run(arguments='CCFLAGS=--taco')
 check(['0', '1', cc, (ccflags + ' -g').strip(), 'v', 'v'])
 
-test.write('custom.py', """
+test.write('custom.py', """\
 DEBUG_BUILD=0
 RELEASE_BUILD=1
 """)
@@ -157,8 +156,7 @@ check(['1', '0', cc, (ccflags + ' -O').strip(), 'v', 'v'])
 test.run(arguments='DEBUG_BUILD=1')
 check(['1', '1', cc, (ccflags + ' -O -g').strip(), 'v', 'v'])
 
-test.run(arguments='-h',
-         stdout = """\
+test.run(arguments='-h', stdout = """\
 scons: Reading SConscript files ...
 1
 0
@@ -220,7 +218,7 @@ opts.Add('UNSPECIFIED',
          'An option with no value')
 
 DefaultEnvironment(tools=[])  # test speedup
-env = Environment(variables = opts)
+env = Environment(variables=opts)
 
 print(env['RELEASE_BUILD'])
 print(env['DEBUG_BUILD'])
@@ -241,18 +239,18 @@ def checkSave(file, expected):
 # First test with no command line variables
 # This should just leave the custom.py settings
 test.run()
-check(['1','0'])
-checkSave('variables.saved', { 'RELEASE_BUILD':1, 'DEBUG_BUILD':0})
+check(['1', '0'])
+checkSave('variables.saved', {'RELEASE_BUILD': 1, 'DEBUG_BUILD': 0})
 
 # Override with command line arguments
 test.run(arguments='DEBUG_BUILD=3')
-check(['1','3'])
-checkSave('variables.saved', {'RELEASE_BUILD':1, 'DEBUG_BUILD':3})
+check(['1', '3'])
+checkSave('variables.saved', {'RELEASE_BUILD': 1, 'DEBUG_BUILD': 3})
 
 # Now make sure that saved variables are overridding the custom.py
 test.run()
-check(['1','3'])
-checkSave('variables.saved', {'DEBUG_BUILD':3, 'RELEASE_BUILD':1})
+check(['1', '3'])
+checkSave('variables.saved', {'DEBUG_BUILD': 3, 'RELEASE_BUILD': 1})
 
 # Load no variables from file(s)
 # Used to test for correct output in save option file
@@ -279,7 +277,7 @@ opts.Add('LISTOPTION_TEST',
          names = ['a','b','c',])
 
 DefaultEnvironment(tools=[])  # test speedup
-env = Environment(variables = opts)
+env = Environment(variables=opts)
 
 print(env['RELEASE_BUILD'])
 print(env['DEBUG_BUILD'])
@@ -329,12 +327,13 @@ env = Environment(variables=opts)
 def compare(a, b):
     return (a > b) - (a < b)
 
-Help('Variables settable in custom.py or on the command line:\\n' + opts.GenerateHelpText(env,sort=compare))
-
+Help(
+    'Variables settable in custom.py or on the command line:\\n'
+    + opts.GenerateHelpText(env, sort=compare)
+)
 """)
 
-test.run(arguments='-h',
-         stdout = """\
+test.run(arguments='-h', stdout = """\
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
 Variables settable in custom.py or on the command line:
@@ -360,9 +359,10 @@ Use scons -H for help about SCons built-in command-line options.
 
 test.write('SConstruct', """
 import SCons.Variables
+
 DefaultEnvironment(tools=[])  # test speedup
-env1 = Environment(variables = Variables())
-env2 = Environment(variables = SCons.Variables.Variables())
+env1 = Environment(variables=Variables())
+env2 = Environment(variables=SCons.Variables.Variables())
 """)
 
 test.run()

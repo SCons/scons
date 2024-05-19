@@ -67,7 +67,7 @@ test.run(arguments='warnings=0 profile=no profile=true')
 check([str(False), str(True)])
 
 expect_stderr = """
-scons: *** Error converting option: warnings
+scons: *** Error converting option: 'warnings'
 Invalid value for boolean variable: 'irgendwas'
 """ + test.python_file_line(SConstruct_path, 13)
 
