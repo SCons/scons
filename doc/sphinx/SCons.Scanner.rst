@@ -1,6 +1,15 @@
 SCons.Scanner package
 =====================
 
+Module contents
+---------------
+
+.. automodule:: SCons.Scanner
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Submodules
 ----------
 
@@ -80,15 +89,6 @@ SCons.Scanner.SWIG module
 -------------------------
 
 .. automodule:: SCons.Scanner.SWIG
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: SCons.Scanner
     :members:
     :undoc-members:
     :show-inheritance:

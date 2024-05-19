@@ -66,6 +66,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Improved the conversion of a "foreign" exception from an action
       into BuildError by making sure our defaults get applied even in
       corner cases. Fixes #4530.
+    - Restructured API docs build (Sphinx) so main module contents appear
+      on a given page *before* the submodule docs, not after. Also
+      tweaked the Util package doc build so it's structured more like the
+      other packages (a missed part of the transition when it was split).
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700

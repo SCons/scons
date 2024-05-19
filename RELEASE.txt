@@ -72,6 +72,8 @@ DOCUMENTATION
 - Updated Value Node docs.
 - Update manpage for Tools, and for the TOOL variable.
 - Update manpage and user guide for Variables usage.
+- Restructured API Docs build so main package contents are listed
+  before contents of package submodules.
 
 
 
