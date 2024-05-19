@@ -1,6 +1,15 @@
 SCons.Platform package
 ======================
 
+Module contents
+---------------
+
+.. automodule:: SCons.Platform
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Submodules
 ----------
 
@@ -88,15 +97,6 @@ SCons.Platform.win32 module
 ---------------------------
 
 .. automodule:: SCons.Platform.win32
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: SCons.Platform
     :members:
     :undoc-members:
     :show-inheritance:
