@@ -149,8 +149,6 @@ Invalid value(s) for option: foo,bar
 
 test.run(arguments='shared=foo,x11,,,bar', stderr=expect_stderr, status=2)
 
-
-
 test.write('SConstruct', """
 from SCons.Variables import ListVariable
 
@@ -173,8 +171,6 @@ Default(env.Alias('dummy', None))
 test.run(stdout=test.wrap_stdout(read_str="ENET,GPIB\n", build_str="""\
 scons: Nothing to be done for `dummy'.
 """))
-
-
 
 test.pass_test()
 

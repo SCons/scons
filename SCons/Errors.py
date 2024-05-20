@@ -177,8 +177,12 @@ def convert_to_BuildError(status, exc_info=None):
         # (for example, failure to create the directory in which the
         # target file will appear).
         filename = getattr(status, 'filename', None)
-        strerror = getattr(status, 'strerror', str(status))
-        errno = getattr(status, 'errno', 2)
+        strerror = getattr(status, 'strerror', None)
+        if strerror is None:
+            strerror = str(status)
+        errno = getattr(status, 'errno', None)
+        if errno is None:
+            errno = 2
 
         buildError = BuildError(
             errstr=strerror,

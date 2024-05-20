@@ -58,6 +58,9 @@ FIXES
 -----
 
 - OSErrors are now no longer hidden during the execution of Actions.
+- Improved the conversion of a "foreign" exception from an action
+  into BuildError by making sure our defaults get applied even in
+  corner cases. Fixes Issue #4530
 - MSVC: Visual Studio 2010 (10.0) could be inadvertently detected due to an
   sdk-only install of Windows SDK 7.1.  An sdk-only install of Visual Studio
   2010 is ignored as the msvc batch files will fail. The installed files are
@@ -118,6 +121,8 @@ DOCUMENTATION
 - Updated Value Node docs.
 - Update manpage for Tools, and for the TOOL variable.
 - Update manpage and user guide for Variables usage.
+- Restructured API Docs build so main package contents are listed
+  before contents of package submodules.
 
 
 

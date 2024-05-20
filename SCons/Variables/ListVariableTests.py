@@ -101,12 +101,8 @@ class ListVariableTestCase(unittest.TestCase):
         x = o.converter('three,ONE,TWO')
         assert str(x) == 'all', x
 
-        caught = None
-        try:
+        with self.assertRaises(ValueError):
             x = o.converter('no_match')
-        except ValueError:
-            caught = 1
-        assert caught, "did not catch expected ValueError"
 
     def test_copy(self) -> None:
         """Test copying a ListVariable like an Environment would"""

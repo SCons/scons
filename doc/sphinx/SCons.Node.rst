@@ -1,6 +1,15 @@
 SCons.Node package
 ==================
 
+Module contents
+---------------
+
+.. automodule:: SCons.Node
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Submodules
 ----------
 
@@ -24,15 +33,6 @@ SCons.Node.Python module
 ------------------------
 
 .. automodule:: SCons.Node.Python
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: SCons.Node
     :members:
     :undoc-members:
     :show-inheritance:
