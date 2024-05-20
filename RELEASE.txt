@@ -74,6 +74,7 @@ DOCUMENTATION
 - Update manpage and user guide for Variables usage.
 - Restructured API Docs build so main package contents are listed
   before contents of package submodules.
+- Updated manpage description of Command "builder" and function.
 
 
 
