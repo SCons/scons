@@ -113,7 +113,7 @@ check(['gl,qt', '0', 'gl qt', 'gl qt', "['gl qt']"])
 
 
 expect_stderr = """
-scons: *** Error converting option: shared
+scons: *** Error converting option: 'shared'
 Invalid value(s) for option: foo
 """ + test.python_file_line(SConstruct_path, 20)
 
@@ -122,28 +122,28 @@ test.run(arguments='shared=foo', stderr=expect_stderr, status=2)
 # be paranoid in testing some more combinations
 
 expect_stderr = """
-scons: *** Error converting option: shared
+scons: *** Error converting option: 'shared'
 Invalid value(s) for option: foo
 """ + test.python_file_line(SConstruct_path, 20)
 
 test.run(arguments='shared=foo,ical', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Error converting option: shared
+scons: *** Error converting option: 'shared'
 Invalid value(s) for option: foo
 """ + test.python_file_line(SConstruct_path, 20)
 
 test.run(arguments='shared=ical,foo', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Error converting option: shared
+scons: *** Error converting option: 'shared'
 Invalid value(s) for option: foo
 """ + test.python_file_line(SConstruct_path, 20)
 
 test.run(arguments='shared=ical,foo,x11', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Error converting option: shared
+scons: *** Error converting option: 'shared'
 Invalid value(s) for option: foo,bar
 """ + test.python_file_line(SConstruct_path, 20)
 
