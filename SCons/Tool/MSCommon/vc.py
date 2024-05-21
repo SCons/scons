@@ -1203,11 +1203,11 @@ class _VSWhereExecutable(MSVC.Util.AutoInitialize):
     def vswhere_freeze_env(cls, env):
 
         if env is None:
-            # no environment, no VSWHERE
+            # no environment, VSWHERE undefined
             vswhere_exe = None
             write_vswhere = False
-        elif 'VSWHERE' not in env or not env['VSWHERE']:
-            # environment, VSWHERE undefined
+        elif not env.get('VSWHERE'):
+            # environment, VSWHERE undefined/none/empty
             vswhere_exe = None
             write_vswhere = True
         else:
