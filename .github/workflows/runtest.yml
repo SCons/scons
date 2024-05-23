@@ -17,8 +17,8 @@ on:
 jobs:
   # This workflow contains a single job called "runtest"
   runtest:
-      fail-fast: false
     strategy:
+      fail-fast: false
       matrix:
         os: ['ubuntu-22.04', 'ubuntu-24.04']
 
