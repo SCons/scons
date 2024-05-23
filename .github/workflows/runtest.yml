@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Linux Testing
+name: Full Test Suite
 
 # Controls when the workflow will run
 on:
@@ -20,7 +20,7 @@ jobs:
 
     strategy:
       matrix:
-        os: ['ubuntu-22.04']
+        os: ['ubuntu-22.04', 'ubuntu-24.04', 'windows-latest']
 
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
@@ -30,10 +30,11 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4.1.1
 
-      - name: Set up Python 3.10 ${{ matrix.os }}
-        uses: actions/setup-python@v5.0.0
+      # Defaults are: 22.04 - 3.10, 24.04 - 3.12, windows-latest 3.9
+      - name: Set up Python 3.12 ${{ matrix.os }}
+        uses: actions/setup-python@v5.1.0
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
       - name: Install dependencies including ninja ${{ matrix.os }}
         run: |
