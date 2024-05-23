@@ -9,17 +9,17 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  package:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v4.1.1
+    - uses: actions/checkout@v4.1.6
 
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v5.0.0
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5.1.0
       with:
-        python-version: '3.10'
+        python-version: '3.12'
 
     - name: Install dependencies
       run: |
