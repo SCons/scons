@@ -15,12 +15,11 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-
+  # This workflow contains a single job called "runtest"
+  runtest:
     strategy:
       matrix:
-        os: ['ubuntu-22.04', 'ubuntu-24.04', 'windows-latest']
+        os: ['ubuntu-24.04', 'windows-latest']
 
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
@@ -28,7 +27,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.1.6
 
       # Defaults are: 22.04 - 3.10, 24.04 - 3.12, windows-latest 3.9
       - name: Set up Python 3.12 ${{ matrix.os }}
@@ -42,9 +41,14 @@ jobs:
           python -m pip install -r requirements-dev.txt
           # sudo apt-get update
 
+      - name: Install Ubuntu packages ${{ 'ubuntu-24.04' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install libtirpc-dev
+
       - name: runtest ${{ matrix.os }}
         run: |
-          python runtest.py --all --time --jobs=2
+          python runtest.py --all --time --jobs=4
 
       - name: Archive Failed tests ${{ matrix.os }}
         uses: actions/upload-artifact@v3.1.3
