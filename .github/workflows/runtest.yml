@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Full Test Suite
+name: Full Test Suite on Linux
 
 # Controls when the workflow will run
 on:
@@ -19,17 +19,19 @@ jobs:
   runtest:
     strategy:
       matrix:
-        os: ['ubuntu-24.04', 'windows-latest']
+        os: ['ubuntu-22.04', 'ubuntu-24.04']
 
-    # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4.1.6
 
-      # Defaults are: 22.04 - 3.10, 24.04 - 3.12, windows-latest 3.9
+      - name: Install Ubuntu packages $${matrix.os}}
+        run: |
+          sudo apt-get update
+          sudo apt-get install libtirpc-dev
+
       - name: Set up Python 3.12 ${{ matrix.os }}
         uses: actions/setup-python@v5.1.0
         with:
@@ -40,11 +42,6 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install -r requirements-dev.txt
           # sudo apt-get update
-
-      - name: Install Ubuntu packages ${{ 'ubuntu-24.04' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install libtirpc-dev
 
       - name: runtest ${{ matrix.os }}
         run: |
