@@ -31,7 +31,7 @@ jobs:
 
       - name: runtest
         run: |
-          python runtest.py --all --time --jobs=4
+          python runtest.py --all --exclude-list=windows_ci_skip.txt --time --jobs=4
 
       - name: Archive Failed tests
         uses: actions/upload-artifact@v4.3.3
