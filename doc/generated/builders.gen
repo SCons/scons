@@ -39,15 +39,16 @@ env.CFile(target='bar', source='bar.y')
     <term><function>Command</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>Command</methodname>()</term>
     <listitem><para>
-The &b-Command; "Builder" is actually
-a function that looks like a Builder,
-but takes a required third argument, which is the
-action to take to construct the target
-from the source, used for "one-off" builds
-where a full builder is not needed.
-Thus it does not follow the builder
-calling rules described at the start of this section.
-See instead the &f-link-Command; function description
+There is actually no Builder named &Command;,
+rather the term "Command Builder" refers to
+a function which, on each call, creates and calls
+an anonymous Builder.
+This is useful for "one-off" builds
+where a full Builder is not needed.
+Since the anonymous Builder is never hooked
+into the standard Builder framework,
+an Action must always be specfied.
+See the &f-link-Command; function description
 for the calling syntax and details.
 </para>
 </listitem>

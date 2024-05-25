@@ -387,7 +387,7 @@ class BuilderBase:
                         target_scanner = None,
                         source_scanner = None,
                         emitter = None,
-                        multi: int = 0,
+                        multi: bool = False,
                         env = None,
                         single_source: bool = False,
                         name = None,
