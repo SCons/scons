@@ -5,23 +5,11 @@
 # src/engine/SCons/Util.py.
 
 import types
-try:
-    from collections import UserDict, UserList, UserString
-except ImportError:
-    # No 'collections' module or no UserFoo in collections
-    exec('from UserDict import UserDict')
-    exec('from UserList import UserList')
-    exec('from UserString import UserString')
+from collections import UserDict, UserList, UserString
 
-InstanceType = types.InstanceType
 DictType = dict
 ListType = list
 StringType = str
-try: unicode
-except NameError:
-    UnicodeType = None
-else:
-    UnicodeType = unicode
 
 
 # The original implementations, pretty straightforward checks for the
@@ -29,42 +17,29 @@ else:
 # User* type.
 
 def original_is_Dict(e):
-    return isinstance(e, (dict,UserDict))
+    return isinstance(e, (dict, UserDict))
 
 def original_is_List(e):
-    return isinstance(e, (list,UserList))
+    return isinstance(e, (list, UserList))
 
-if UnicodeType is not None:
-    def original_is_String(e):
-        return isinstance(e, (str,unicode,UserString))
-else:
-    def original_is_String(e):
-        return isinstance(e, (str,UserString))
-
+def original_is_String(e):
+    return isinstance(e, (str, UserString))
 
 
 # New candidates that explicitly check for whether the object is an
 # InstanceType before calling isinstance() on the corresponding User*
 # type.
+# InstanceType was only for old-style classes, so absent in Python 3
+# this this is no different than the previous
 
 def checkInstanceType_is_Dict(e):
-    return isinstance(e, dict) or \
-           (isinstance(e, types.InstanceType) and isinstance(e, UserDict))
+    return isinstance(e, (dict, UserDict))
 
 def checkInstanceType_is_List(e):
-    return isinstance(e, list) \
-        or (isinstance(e, types.InstanceType) and isinstance(e, UserList))
+    return isinstance(e, (list, UserList))
 
-if UnicodeType is not None:
-    def checkInstanceType_is_String(e):
-        return isinstance(e, str) \
-            or isinstance(e, unicode) \
-            or (isinstance(e, types.InstanceType) and isinstance(e, UserString))
-else:
-    def checkInstanceType_is_String(e):
-        return isinstance(e, str) \
-            or (isinstance(e, types.InstanceType) and isinstance(e, UserString))
-
+def checkInstanceType_is_String(e):
+    return isinstance(e, (str, UserString))
 
 
 # Improved candidates that cache the type(e) result in a variable
@@ -72,26 +47,15 @@ else:
 
 def cache_type_e_is_Dict(e):
     t = type(e)
-    return t is dict or \
-           (t is types.InstanceType and isinstance(e, UserDict))
+    return t is dict or isinstance(e, UserDict)
 
 def cache_type_e_is_List(e):
     t = type(e)
-    return t is list \
-        or (t is types.InstanceType and isinstance(e, UserList))
+    return t is list or isinstance(e, UserList)
 
-if UnicodeType is not None:
-    def cache_type_e_is_String(e):
-        t = type(e)
-        return t is str \
-            or t is unicode \
-            or (t is types.InstanceType and isinstance(e, UserString))
-else:
-    def cache_type_e_is_String(e):
-        t = type(e)
-        return t is str \
-            or (t is types.InstanceType and isinstance(e, UserString))
-
+def cache_type_e_is_String(e):
+    t = type(e)
+    return t is str or isinstance(e, UserString)
 
 
 # Improved candidates that cache the type(e) result in a variable
@@ -100,26 +64,15 @@ else:
 
 def global_cache_type_e_is_Dict(e):
     t = type(e)
-    return t is DictType or \
-           (t is InstanceType and isinstance(e, UserDict))
+    return t is DictType or isinstance(e, UserDict)
 
 def global_cache_type_e_is_List(e):
     t = type(e)
-    return t is ListType \
-        or (t is InstanceType and isinstance(e, UserList))
+    return t is ListType or isinstance(e, UserList)
 
-if UnicodeType is not None:
-    def global_cache_type_e_is_String(e):
-        t = type(e)
-        return t is StringType \
-            or t is UnicodeType \
-            or (t is InstanceType and isinstance(e, UserString))
-else:
-    def global_cache_type_e_is_String(e):
-        t = type(e)
-        return t is StringType \
-            or (t is InstanceType and isinstance(e, UserString))
-
+def global_cache_type_e_is_String(e):
+    t = type(e)
+    return t is StringType or isinstance(e, UserString)
 
 
 # Alternative that uses a myType() function to map the User* objects
@@ -131,20 +84,11 @@ instanceTypeMap = {
     UserString : str,
 }
 
-if UnicodeType is not None:
-    def myType(obj):
-        t = type(obj)
-        if t is types.InstanceType:
-            t = instanceTypeMap.get(obj.__class__, t)
-        elif t is unicode:
-            t = str
-        return t
-else:
-    def myType(obj):
-        t = type(obj)
-        if t is types.InstanceType:
-            t = instanceTypeMap.get(obj.__class__, t)
-        return t
+def myType(obj):
+    t = type(obj)
+    if t is types.InstanceType:
+        t = instanceTypeMap.get(obj.__class__, t)
+    return t
 
 def myType_is_Dict(e):
     return myType(e) is dict
