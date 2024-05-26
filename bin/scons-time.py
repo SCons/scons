@@ -552,7 +552,7 @@ class SConsTimer:
         specified prefix, extracts the run numbers from each file name,
         and returns the next run number after the largest it finds.
         """
-        x = re.compile(re.escape(prefix) + '-([0-9]+).*')
+        x = re.compile(re.escape(prefix) + r'-([0-9]+).*')
         matches = [x.match(e) for e in os.listdir(dir)]
         matches = [_f for _f in matches if _f]
         if not matches:

@@ -1027,49 +1027,69 @@ wx_env = env.Clone(parse_flags='!wx-config --cflags --cxxflags')
     <term><function>Command</function>(<parameter>target, source, action, [key=val, ...]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Command</methodname>(<parameter>target, source, action, [key=val, ...]</parameter>)</term>
     <listitem><para>
-Executes a specific <parameter>action</parameter>
-(or list of actions)
-to build a <parameter>target</parameter> file or files
-from a <parameter>source</parameter> file or files.
-This is more convenient
-than defining a separate Builder object
-for a single special-case build.
+Creates an anonymous builder and calls it,
+thus recording <parameter>action</parameter>
+to build <parameter>target</parameter>
+from <parameter>source</parameter>
+into the dependency tree.
+This can be more convenient for a single special-case build
+than having to define and add a new named Builder.
 </para>
 
 <para>
 The
-&Command; function accepts
-<parameter>source_scanner</parameter>,
-<parameter>target_scanner</parameter>,
-<parameter>source_factory</parameter>, and
-<parameter>target_factory</parameter>
-keyword arguments. These arguments can
-be used to specify
-a Scanner object
-that will be used to apply a custom
-scanner for a source or target.
+&Command; function accepts the
+<parameter>source_scanner</parameter> and
+<parameter>target_scanner</parameter>
+keyword arguments which are used to specify
+custom scanners for the specified sources or targets.
+The value must be a Scanner object.
 For example, the global
 <literal>DirScanner</literal>
 object can be used
 if any of the sources will be directories
 that must be scanned on-disk for
 changes to files that aren't
-already specified in other Builder of function calls.
-The <parameter>*_factory</parameter> arguments take a factory function that
-&Command; will use to turn any sources or targets
-specified as strings into SCons Nodes.
+already specified in other Builder or function calls.
+</para>
+
+<para>
+The
+&Command; function also accepts the
+<parameter>source_factory</parameter> and
+<parameter>target_factory</parameter>
+keyword arguments which are used to specify
+factory functions to create &SCons; Nodes
+from any sources or targets specified as strings.
+If any sources or targets are already Node objects,
+they are not further transformed even if
+a factory is specified for them.
+The default for each is the &Entry; factory.
+</para>
+
+<para>
+These four arguments, if given, are used
+in the creation of the Builder.
+Other Builder-specific keyword arguments
+are not recognized as such.
 See the manpage section "Builder Objects"
 for more information about how these
 arguments work in a Builder.
 </para>
 
 <para>
-Any other keyword arguments specified override any
-same-named existing construction variables.
+Any remaining keyword arguments are passed on to the
+generated builder when it is called,
+and behave as described in the manpage section "Builder Methods",
+in short:
+recognized arguments have their specified meanings,
+while the rest are used to override
+any same-named existing &consvars;
+from the &consenv;.
 </para>
 
 <para>
-An action can be an external command,
+<parameter>action</parameter> can be an external command,
 specified as a string,
 or a callable &Python; object;
 see the manpage section "Action Objects"
@@ -1614,7 +1634,7 @@ would supply a string as a directory name
 to a Builder method or function.
 Directory Nodes have attributes and methods
 that are useful in many situations;
-see manpage section "File and Directory Nodes"
+see manpage section "Filesystem Nodes"
 for more information.
 </para>
 </listitem>
@@ -1937,7 +1957,7 @@ would supply a string as a file name
 to a Builder method or function.
 File Nodes have attributes and methods
 that are useful in many situations;
-see manpage section "File and Directory Nodes"
+see manpage section "Filesystem Nodes"
 for more information.
 </para>
 </listitem>
@@ -2543,6 +2563,15 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
 </tbody>
 </tgroup>
 </informaltable>
+</listitem>
+  </varlistentry>
+  <varlistentry id="f-GetSConsVersion">
+    <term><function>GetSConsVersion</function>()</term>
+    <listitem><para>
+Returns the current SCons version in the form of a Tuple[int, int, int],
+representing the major, minor, and revision values respectively.
+<emphasis>Added in 4.7.1</emphasis>.
+</para>
 </listitem>
   </varlistentry>
   <varlistentry id="f-Glob">
@@ -3176,6 +3205,7 @@ and added to the following construction variables:
 -openmp                 CCFLAGS, LINKFLAGS
 -pthread                CCFLAGS, LINKFLAGS
 -std=                   CFLAGS
+-stdlib=                CXXFLAGS
 -Wa,                    ASFLAGS, CCFLAGS
 -Wl,-rpath=             RPATH
 -Wl,-R,                 RPATH
@@ -4565,32 +4595,43 @@ Tag('file2.txt', DOC)
     <listitem><para>
 Locates the tool specification module <parameter>name</parameter>
 and returns a callable tool object for that tool.
-The tool module is searched for in standard locations
-and in any paths specified by the optional
-<parameter>toolpath</parameter> parameter.
-The standard locations are &SCons;' own internal
-path for tools plus the toolpath, if any (see the
-<emphasis role="bold">Tools</emphasis> section in the manual page
-for more details).
-Any additional keyword arguments
-<parameter>kwargs</parameter> are passed
-to the tool module's <function>generate</function> function
-during tool object construction.
-</para>
-
-<para>
-When called, the tool object
-updates a &consenv; with &consvars; and arranges
-any other initialization
-needed to use the mechanisms that tool describes.
-</para>
-
-<para>
-When the &f-env-Tool; form is used,
-the tool object is automatically called to update <varname>env</varname>
-and the value of <parameter>tool</parameter> is
+When the environment method (&f-env-Tool;) form is used,
+the tool object is automatically called before the method returns
+to update <varname>env</varname>,
+and <parameter>name</parameter> is
 appended to the &cv-link-TOOLS;
 &consvar; in that environment.
+When the global function &f-Tool; form is used,
+the tool object is constructed but not called,
+as it lacks the context of an environment to update,
+and the returned object needs to be used to arrange for the call.
+</para>
+
+<para>
+The tool module is searched for in the tool search paths (see the
+<emphasis role="bold">Tools</emphasis> section in the manual page
+for details)
+and in any paths specified by the optional
+<parameter>toolpath</parameter> parameter,
+which must be a list of strings.
+If <parameter>toolpath</parameter> is omitted,
+the <parameter>toolpath</parameter>
+supplied when the environment was created,
+if any, is used.
+</para>
+
+<para>
+Any remaining keyword arguments are saved in
+the tool object,
+and will be passed to the tool module's
+<function>generate</function> function
+when the tool object is actually called.
+The <function>generate</function> function
+can update the &consenv; with &consvars; and arrange
+any other initialization
+needed to use the mechanisms that tool describes,
+and can use these extra arguments to help
+guide its actions.
 </para>
 
 <para>
@@ -4609,10 +4650,7 @@ env.Tool('opengl', toolpath=['build/tools'])
 </example_commands>
 
 <para>
-When the global function &f-Tool; form is used,
-the tool object is constructed but not called,
-as it lacks the context of an environment to update.
-The tool object can be passed to an
+The returned tool object can be passed to an
 &f-link-Environment; or &f-link-Clone; call
 as part of the <parameter>tools</parameter> keyword argument,
 in which case the tool is applied to the environment being constructed,
@@ -4714,33 +4752,22 @@ except SConsBadOptionError as e:
     <term><function>Value</function>(<parameter>value, [built_value], [name]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Value</methodname>(<parameter>value, [built_value], [name]</parameter>)</term>
     <listitem><para>
-Returns a Node object representing the specified &Python; value.  Value
-Nodes can be used as dependencies of targets.  If the result of
-calling
-<function>str</function>(<parameter>value</parameter>)
-changes between SCons runs, any targets depending on
-<function>Value</function>(<parameter>value</parameter>)
-will be rebuilt.
-(This is true even when using timestamps to decide if
-files are up-to-date.)
-When using timestamp source signatures, Value Nodes'
-timestamps are equal to the system time when the Node is created.
+Returns a Node object representing the specified &Python;
+<parameter>value</parameter>.
+Value Nodes can be used as dependencies of targets.
+If the string representation of the Value Node
+changes between &SCons; runs, it is considered
+out of date and any targets depending it will be rebuilt.
+Since Value Nodes have no filesystem representation,
+timestamps are not used; the timestamp deciders
+perform the same content-based up to date check.
 </para>
-
 <para>
-The returned Value Node object has a
-<function>write</function>()
-method that can be used to "build" a Value Node
-by setting a new value.
 The optional
 <parameter>built_value</parameter>
 argument can be specified
 when the Value Node is created
-to indicate the Node should already be considered
-"built."
-There is a corresponding
-<function>read</function>()
-method that will return the built value of the Node.
+to indicate the Node should already be considered "built."
 </para>
 
 <para>
@@ -4748,6 +4775,16 @@ The optional <parameter>name</parameter> parameter can be provided as an
 alternative name for the resulting <literal>Value</literal> node;
 this is advised if the <parameter>value</parameter> parameter
 cannot be converted to a string.
+</para>
+
+<para>
+Value Nodes have a
+<methodname>write</methodname>
+method that can be used to "build" a Value Node
+by setting a new value.
+The corresponding
+<methodname>read</methodname>
+method returns the built value of the Node.
 </para>
 
 <para>
@@ -4763,32 +4800,34 @@ Examples:
 env = Environment()
 
 def create(target, source, env):
-    # A function that will write a 'prefix=$SOURCE'
-    # string into the file name specified as the
-    # $TARGET.
-    with open(str(target[0]), 'wb') as f:
-        f.write('prefix=' + source[0].get_contents())
+    """Action function to create a file from a Value.
 
-# Fetch the prefix= argument, if any, from the command
-# line, and use /usr/local as the default.
+    Writes 'prefix=$SOURCE' into the file name given as $TARGET.
+    """
+    with open(str(target[0]), 'wb') as f:
+        f.write(b'prefix=' + source[0].get_contents() + b'\n')
+
+# Fetch the prefix= argument, if any, from the command line.
+# Use /usr/local as the default.
 prefix = ARGUMENTS.get('prefix', '/usr/local')
 
-# Attach a .Config() builder for the above function action
-# to the construction environment.
+# Attach builder named Config to the construction environment
+# using the 'create' action function above.
 env['BUILDERS']['Config'] = Builder(action=create)
 env.Config(target='package-config', source=Value(prefix))
 
 def build_value(target, source, env):
-    # A function that "builds" a Python Value by updating
-    # the Python value with the contents of the file
-    # specified as the source of the Builder call ($SOURCE).
+    """Action function to "build" a Value.
+
+    Writes contents of $SOURCE into $TARGET, thus updating if it existed.
+    """
     target[0].write(source[0].get_contents())
 
 output = env.Value('before')
 input = env.Value('after')
 
-# Attach a .UpdateValue() builder for the above function
-# action to the construction environment.
+# Attach a builder named UpdateValue to the construction environment
+# using the 'build_value' action function above.
 env['BUILDERS']['UpdateValue'] = Builder(action=build_value)
 env.UpdateValue(target=Value(output), source=Value(input))
 </example_commands>
@@ -4800,7 +4839,7 @@ env.UpdateValue(target=Value(output), source=Value(input))
     <listitem><para>
 Sets up a mapping to define a variant build directory in
 <parameter>variant_dir</parameter>.
-<parameter>src_dir</parameter> may not be underneath
+<parameter>src_dir</parameter> must not be underneath
 <parameter>variant_dir</parameter>.
 A &f-VariantDir; mapping is global, even if called using the
 &f-env-VariantDir; form.

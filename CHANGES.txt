@@ -125,6 +125,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       on a given page *before* the submodule docs, not after. Also
       tweaked the Util package doc build so it's structured more like the
       other packages (a missed part of the transition when it was split).
+    - Updated manpage description of Command "builder" and function.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700

@@ -9801,8 +9801,11 @@ The suffix used for &b-link-Textfile; file names;
       <envar>TOOLS</envar>
     </term>
     <listitem><para>
-A list of the names of the Tool specifications
-that are part of this construction environment.
+A list of the names of the Tool specification modules
+that were actually initialized in the current &consenv;.
+This may be useful as a diagnostic aid
+to see if a tool did (or did not) run.
+The value is informative and is not guaranteed to be complete.
 </para>
 </listitem>
   </varlistentry>

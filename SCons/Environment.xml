@@ -1125,15 +1125,16 @@ wx_env = env.Clone(parse_flags='!wx-config --cflags --cxxflags')
 <builder name="Command">
 <summary>
 <para>
-The &b-Command; "Builder" is actually
-a function that looks like a Builder,
-but takes a required third argument, which is the
-action to take to construct the target
-from the source, used for "one-off" builds
-where a full builder is not needed.
-Thus it does not follow the builder
-calling rules described at the start of this section.
-See instead the &f-link-Command; function description
+There is actually no Builder named &Command;,
+rather the term "Command Builder" refers to
+a function which, on each call, creates and calls
+an anonymous Builder.
+This is useful for "one-off" builds
+where a full Builder is not needed.
+Since the anonymous Builder is never hooked
+into the standard Builder framework,
+an Action must always be specfied.
+See the &f-link-Command; function description
 for the calling syntax and details.
 </para>
 </summary>
@@ -1145,49 +1146,69 @@ for the calling syntax and details.
 </arguments>
 <summary>
 <para>
-Executes a specific <parameter>action</parameter>
-(or list of actions)
-to build a <parameter>target</parameter> file or files
-from a <parameter>source</parameter> file or files.
-This is more convenient
-than defining a separate Builder object
-for a single special-case build.
+Creates an anonymous builder and calls it,
+thus recording <parameter>action</parameter>
+to build <parameter>target</parameter>
+from <parameter>source</parameter>
+into the dependency tree.
+This can be more convenient for a single special-case build
+than having to define and add a new named Builder.
 </para>
 
 <para>
 The
-&Command; function accepts
-<parameter>source_scanner</parameter>,
-<parameter>target_scanner</parameter>,
-<parameter>source_factory</parameter>, and
-<parameter>target_factory</parameter>
-keyword arguments. These arguments can
-be used to specify
-a Scanner object
-that will be used to apply a custom
-scanner for a source or target.
+&Command; function accepts the
+<parameter>source_scanner</parameter> and
+<parameter>target_scanner</parameter>
+keyword arguments which are used to specify
+custom scanners for the specified sources or targets.
+The value must be a Scanner object.
 For example, the global
 <literal>DirScanner</literal>
 object can be used
 if any of the sources will be directories
 that must be scanned on-disk for
 changes to files that aren't
-already specified in other Builder of function calls.
-The <parameter>*_factory</parameter> arguments take a factory function that
-&Command; will use to turn any sources or targets
-specified as strings into SCons Nodes.
+already specified in other Builder or function calls.
+</para>
+
+<para>
+The
+&Command; function also accepts the
+<parameter>source_factory</parameter> and
+<parameter>target_factory</parameter>
+keyword arguments which are used to specify
+factory functions to create &SCons; Nodes
+from any sources or targets specified as strings.
+If any sources or targets are already Node objects,
+they are not further transformed even if
+a factory is specified for them.
+The default for each is the &Entry; factory.
+</para>
+
+<para>
+These four arguments, if given, are used
+in the creation of the Builder.
+Other Builder-specific keyword arguments
+are not recognized as such.
 See the manpage section "Builder Objects"
 for more information about how these
 arguments work in a Builder.
 </para>
 
 <para>
-Any other keyword arguments specified override any
-same-named existing construction variables.
+Any remaining keyword arguments are passed on to the
+generated builder when it is called,
+and behave as described in the manpage section "Builder Methods",
+in short:
+recognized arguments have their specified meanings,
+while the rest are used to override
+any same-named existing &consvars;
+from the &consenv;.
 </para>
 
 <para>
-An action can be an external command,
+<parameter>action</parameter> can be an external command,
 specified as a string,
 or a callable &Python; object;
 see the manpage section "Action Objects"
@@ -1649,7 +1670,7 @@ would supply a string as a directory name
 to a Builder method or function.
 Directory Nodes have attributes and methods
 that are useful in many situations;
-see manpage section "File and Directory Nodes"
+see manpage section "Filesystem Nodes"
 for more information.
 </para>
 </summary>
@@ -1849,7 +1870,7 @@ would supply a string as a file name
 to a Builder method or function.
 File Nodes have attributes and methods
 that are useful in many situations;
-see manpage section "File and Directory Nodes"
+see manpage section "Filesystem Nodes"
 for more information.
 </para>
 </summary>

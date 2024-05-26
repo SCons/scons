@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Linux Testing
+name: Full Test Suite on Linux
 
 # Controls when the workflow will run
 on:
@@ -15,25 +15,28 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-
+  # This workflow contains a single job called "runtest"
+  runtest:
     strategy:
+      fail-fast: false
       matrix:
-        os: ['ubuntu-22.04']
+        os: ['ubuntu-22.04', 'ubuntu-24.04']
 
-    # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.1.6
 
-      - name: Set up Python 3.10 ${{ matrix.os }}
-        uses: actions/setup-python@v5.0.0
+      - name: Install Ubuntu packages $${matrix.os}}
+        run: |
+          sudo apt-get update
+          sudo apt-get install libtirpc-dev
+
+      - name: Set up Python 3.12 ${{ matrix.os }}
+        uses: actions/setup-python@v5.1.0
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
       - name: Install dependencies including ninja ${{ matrix.os }}
         run: |
@@ -43,10 +46,10 @@ jobs:
 
       - name: runtest ${{ matrix.os }}
         run: |
-          python runtest.py --all --time --jobs=2
+          python runtest.py --all --time --jobs=4
 
       - name: Archive Failed tests ${{ matrix.os }}
-        uses: actions/upload-artifact@v3.1.3
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: ${{ matrix.os }}-failed-tests
           path: |

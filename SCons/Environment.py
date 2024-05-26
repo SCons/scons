@@ -2208,52 +2208,44 @@ class Base(SubstitutionEnvironment):
         return SCons.SConf.SConf(*nargs, **nkw)
 
     def Command(self, target, source, action, **kw):
-        """Builds the supplied target files from the supplied
-        source files using the supplied action.  Action may
-        be any type that the Builder constructor will accept
-        for an action."""
+        """Set up a one-off build command.
+
+        Builds *target* from *source* using *action*, which may be
+        be any type that the Builder factory will accept for an action.
+        Generates an anonymous builder and calls it, to add the details
+        to the build graph. The builder is not named, added to ``BUILDERS``,
+        or otherwise saved.
+
+        Recognizes the :func:`~SCons.Builder.Builder` keywords
+        ``source_scanner``, ``target_scanner``, ``source_factory`` and
+        ``target_factory``.  All other arguments from *kw* are passed on
+        to the builder when it is called.
+        """
+        # Build a kwarg dict for the builder construction
         bkw = {
             'action': action,
             'target_factory': self.fs.Entry,
             'source_factory': self.fs.Entry,
         }
-        # source scanner
-        try:
-            bkw['source_scanner'] = kw['source_scanner']
-        except KeyError:
-            pass
-        else:
-            del kw['source_scanner']
 
-        # target scanner
-        try:
-            bkw['target_scanner'] = kw['target_scanner']
-        except KeyError:
-            pass
-        else:
-            del kw['target_scanner']
-
-        # source factory
-        try:
-            bkw['source_factory'] = kw['source_factory']
-        except KeyError:
-            pass
-        else:
-            del kw['source_factory']
-
-        # target factory
-        try:
-            bkw['target_factory'] = kw['target_factory']
-        except KeyError:
-            pass
-        else:
-            del kw['target_factory']
+        # Recognize these kwargs for the builder construction and take
+        # them out of the args for the subsequent builder call.
+        for arg in [
+            'source_scanner',
+            'target_scanner',
+            'source_factory',
+            'target_factory',
+        ]:
+            try:
+                bkw[arg] = kw.pop(arg)
+            except KeyError:
+                pass
 
         bld = SCons.Builder.Builder(**bkw)
         return bld(self, target, source, **kw)
 
     def Depends(self, target, dependency):
-        """Explicity specify that 'target's depend on 'dependency'."""
+        """Explicity specify that *target* depends on *dependency*."""
         tlist = self.arg2nodes(target, self.fs.Entry)
         dlist = self.arg2nodes(dependency, self.fs.Entry)
         for t in tlist:
@@ -2281,7 +2273,7 @@ class Base(SubstitutionEnvironment):
         return self.fs.PyPackageDir(s)
 
     def NoClean(self, *targets):
-        """Tags a target so that it will not be cleaned by -c"""
+        """Tag target(s) so that it will not be cleaned by -c."""
         tlist = []
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))
@@ -2290,7 +2282,7 @@ class Base(SubstitutionEnvironment):
         return tlist
 
     def NoCache(self, *targets):
-        """Tags a target so that it will not be cached"""
+        """Tag target(s) so that it will not be cached."""
         tlist = []
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))

@@ -3042,7 +3042,6 @@ option,
 because individual worker threads spawned
 by &SCons; interfere with each other
 when they start changing directory.</para>
-</warning>
 
 <programlisting language="python">
 # scons will change to the "sub" subdirectory
@@ -3059,6 +3058,7 @@ env.Command(
 # "cp" command.
 env.Command('sub/dir/foo.out', 'sub/dir/foo.in', "cp foo.in foo.out", chdir=True)
 </programlisting>
+</warning>
 
 <para>Note that &SCons; will
 <emphasis>not</emphasis>
@@ -3887,10 +3887,10 @@ for the &consenv; method form the instance provides the values.
 on an attempt to create a new context when there is an active context.
 </para>
 <para><parameter>custom_tests</parameter>
-specifies a dictionary containing custom tests
-(see the section on custom tests below).
+specifies a dictionary containing custom checks
+(see  <link linkend="custom_checks">details below</link>).
 The default value is <constant>None</constant>,
-meaning no custom tests are added to the &configure_context;.</para>
+to indicate there are no custom checks in the &configure_context;.</para>
 <para>
 <parameter>conf_dir</parameter>
 specifies a directory where the test cases are built.
@@ -4504,7 +4504,8 @@ conf.Define("A_SYMBOL", 1, "Set to 1 if you have a symbol")
   </varlistentry>
 </variablelist>
 
-<para>You can define your own custom checks
+<para id="custom_checks" xreflabel="custom checks">
+You can define your own custom checks
 in addition to using the predefined checks.
 To enable custom checks,
 pass a dictionary to the &f-link-Configure; function
@@ -4637,7 +4638,7 @@ is set to the build target node if the build was successful.</para>
   </listitem>
   </varlistentry>
 </variablelist>
-<para>Example of implementing and using custom tests:</para>
+<para>Example of implementing and using custom checks:</para>
 
 <programlisting language="python">
 def CheckQt(chk_ctx, qtdir):
@@ -5425,9 +5426,8 @@ and a matching environment method to create instances:
 <para>
 The &f-link-File; and &f-link-Dir;
 functions/methods return
-File and Directory Nodes, respectively.
-File and Directory Nodes
-(collectively, Filesystem Nodes)
+File Nodes and Directory Nodes, respectively.
+Such <firstterm>Filesystem Nodes</firstterm>
 represent build components that correspond to an entry
 in the computer's filesystem,
 whether or not such an entry exists at the time the Node is created.
@@ -5514,7 +5514,7 @@ print("foo will be built in", foo[0].path)
 
 <para>
 Filesystem Node objects have methods to create new
-File and Directory Nodes relative to the original Node.
+Filesystem Nodes relative to the original Node.
 There are also times when you may need to refer to an entry
 in a filesystem without knowing in advance whether it's a
 file or a directory.
@@ -5796,17 +5796,17 @@ may also be a callable object.  The default target prefix
 may be indicated by a dictionary entry with a key of <constant>None</constant>.</para>
 
 <programlisting language="python">
-b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
-            prefix="file-")
+b = Builder("build_it &lt; $SOURCE &gt; $TARGET", prefix="file-")
 
 def gen_prefix(env, sources):
     return "file-" + env['PLATFORM'] + '-'
 
-b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
-            prefix=gen_prefix)
+b = Builder("build_it &lt; $SOURCE &gt; $TARGET", prefix=gen_prefix)
 
-b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
-            suffix={None: "file-", "$SRC_SFX_A": gen_prefix})
+b = Builder(
+    "build_it &lt; $SOURCE &gt; $TARGET",
+    suffix={None: "file-", "$SRC_SFX_A": gen_prefix},
+)
 </programlisting>
   </listitem>
   </varlistentry>
@@ -5824,17 +5824,16 @@ dictionary is untouched and you need to manually prepend a <literal>'.'</literal
 if one is required.</para>
 
 <programlisting language="python">
-b = Builder("build_it &lt; $SOURCE &gt; $TARGET"
-            suffix="-file")
+b = Builder("build_it &lt; $SOURCE &gt; $TARGET", suffix="-file")
 
 def gen_suffix(env, sources):
     return "." + env['PLATFORM'] + "-file"
 
-b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
-            suffix=gen_suffix)
-
-b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
-            suffix={None: ".sfx1", "$SRC_SFX_A": gen_suffix})
+b = Builder("build_it &lt; $SOURCE &gt; $TARGET", suffix=gen_suffix)
+b = Builder(
+    "build_it &lt; $SOURCE &gt; $TARGET",
+    suffix={None: ".sfx1", "$SRC_SFX_A": gen_suffix},
+)
 </programlisting>
   </listitem>
   </varlistentry>
@@ -5852,11 +5851,10 @@ is to leave unchanged
 any target string that looks like it already has a suffix.</para>
 
 <programlisting language="python">
-b1 = Builder("build_it &lt; $SOURCE &gt; $TARGET"
-             suffix = ".out")
-b2 = Builder("build_it &lt; $SOURCE &gt; $TARGET"
-             suffix = ".out",
-             ensure_suffix=True)
+b1 = Builder("build_it &lt; $SOURCE &gt; $TARGET", suffix=".out")
+b2 = Builder(
+    "build_it &lt; $SOURCE &gt; $TARGET", suffix=".out", ensure_suffix=True
+)
 env = Environment()
 env['BUILDERS']['B1'] = b1
 env['BUILDERS']['B2'] = b2
@@ -5886,15 +5884,15 @@ may be a string or a list of strings.</para>
 <para>A Scanner object that
 will be invoked to find
 implicit dependencies for this target file.
-This keyword argument should be used
-for Scanner objects that find
+Use only to specify Scanner objects that find
 implicit dependencies
-based only on the target file
-and the &consenv;,
+based on the target file
+and &consenv;,
 <emphasis>not</emphasis>
-for implicit dependencies based on source files.
+for implicit dependencies based on source files
+(use <xref linkend="source_scanner"/> for those).
 See <xref linkend="scanner_objects"/>
-for information about creating Scanner objects.</para>
+for information about creating your own Scanner objects.</para>
   </listitem>
   </varlistentry>
 
@@ -5906,8 +5904,7 @@ will be invoked to
 find implicit dependencies in
 any source files
 used to build this target file.
-This is where you would
-specify a scanner to
+Use to specify a scanner to
 find things like
 <literal>#include</literal>
 lines in source files.
@@ -5931,31 +5928,33 @@ for information about creating your own Scanner objects.</para>
 <para>A factory function that the Builder will use
 to turn any targets specified as strings into SCons Nodes.
 By default,
-SCons assumes that all targets are files.
-Other useful target_factory
-values include
-<emphasis role="bold">Dir</emphasis>,
+SCons assumes that all targets are files
+(that is, the default factory is &File;).
+Other useful <parameter>target_factory</parameter>
+values include &Dir;
 for when a Builder creates a directory target,
-and
-<emphasis role="bold">Entry</emphasis>,
+and &Entry;
 for when a Builder can create either a file
 or directory target.</para>
 
 <para>Example:</para>
 
 <programlisting language="python">
+def my_mkdir(target, source, env):
+    # target[0] will be a Dir node for 'new_directory'
+
 MakeDirectoryBuilder = Builder(action=my_mkdir, target_factory=Dir)
 env = Environment()
 env.Append(BUILDERS={'MakeDirectory': MakeDirectoryBuilder})
 env.MakeDirectory('new_directory', [])
 </programlisting>
 
-<para>Note that the call to this <function>MakeDirectory</function> Builder
+<para>Note that the call to the <function>MakeDirectory</function> Builder
 needs to specify an empty source list
-to make the string represent the builder's target;
-without that, it would assume the argument is the source,
-and would try to deduce the target name from it,
-which in the absence of an automatically-added prefix or suffix
+to make the filename string represent the builder's target.
+&SCons; assumes a single positional argument to a builder
+is the source, and would try to deduce the target name from it,
+which, in the absence of an automatically-added prefix or suffix,
 would lead to a matching target and source name
 and a circular dependency.</para>
   </listitem>
@@ -5967,23 +5966,26 @@ and a circular dependency.</para>
 <para>A factory function that the Builder will use
 to turn any sources specified as strings into SCons Nodes.
 By default,
-SCons assumes that all source are files.
-Other useful source_factory
-values include
-<emphasis role="bold">Dir</emphasis>,
+SCons assumes that all source are files
+(that is, the default factory is &File;).
+Other useful <parameter>source_factory</parameter>
+values include &Dir;
 for when a Builder uses a directory as a source,
-and
-<emphasis role="bold">Entry</emphasis>,
+and &Entry;
 for when a Builder can use files
 or directories (or both) as sources.</para>
 
 <para>Example:</para>
 
 <programlisting language="python">
-CollectBuilder = Builder(action=my_mkdir, source_factory=Entry)
+def collect(target, source, env):
+    # target[0] will default to a File node for 'archive' (no target_factory)
+    # source[0] will be a Dir node for 'directory_name'
+
+CollectBuilder = Builder(action=collect, source_factory=Dir)
 env = Environment()
 env.Append(BUILDERS={'Collect': CollectBuilder})
-env.Collect('archive', ['directory_name', 'file_name'])
+env.Collect('archive', 'directory_name')
 </programlisting>
   </listitem>
   </varlistentry>
@@ -6185,10 +6187,8 @@ and
 <filename>foo.extra</filename>.</para>
 
 <programlisting language="python">
-b = Builder(action={'.in' : 'build $SOURCES &gt; $TARGET'},
-            source_ext_match=False)
-
-env = Environment(BUILDERS={'MyBuild':b})
+b = Builder(action={'.in': 'build $SOURCES &gt; $TARGET'}, source_ext_match=False)
+env = Environment(BUILDERS={'MyBuild': b})
 env.MyBuild('foo.out', ['foo.in', 'foo.extra'])
 </programlisting>
 
@@ -6258,8 +6258,7 @@ to use just the filename portion of the
 targets and source.</para>
 
 <programlisting language="python">
-b = Builder(action="build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
-            chdir=1)
+b = Builder(action="build &lt; ${SOURCE.file} &gt; ${TARGET.file}", chdir=True)
 env = Environment(BUILDERS={'MyBuild' : b})
 env.MyBuild('sub/dir/foo.out', 'sub/dir/foo.in')
 </programlisting>
@@ -6636,8 +6635,7 @@ def always_succeed(s):
     # Always return 0, which indicates success.
     return 0
 
-a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
-           exitstatfunc=always_succeed)
+a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}", exitstatfunc=always_succeed)
 </programlisting>
   </listitem>
   </varlistentry>
