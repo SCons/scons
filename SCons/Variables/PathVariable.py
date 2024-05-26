@@ -118,9 +118,16 @@ class _PathVariableClass:
         except FileExistsError as exc:
             msg = f'Path for variable {key!r} is a file, not a directory: {val}'
             raise SCons.Errors.UserError(msg) from exc
-        except (PermissionError, OSError) as exc:
+        except PermissionError:
             msg = f'Path for variable {key!r} could not be created: {val}'
             raise SCons.Errors.UserError(msg) from exc
+        except OSError as e:
+            if e.errno == 30:
+                # errno == 30 is Read only file system
+                msg = f'Path for variable {key!r} could not be created: {val}'
+                raise SCons.Errors.UserError(msg) from exc
+            else:
+                raise e
 
     @staticmethod
     def PathIsFile(key, val, env) -> None:
