@@ -2,12 +2,75 @@
 build-backend = "setuptools.build_meta"
 requires = ["setuptools"]
 
+[project]
+name = "SCons"
+description = "Open Source next-generation build tool."
+requires-python = ">=3.6"
+license = { text = "MIT" }
+readme = { file = "README-package.rst", content-type = "text/x-rst" }
+authors = [{ name = "William Deegan", email = "bill@baddogconsulting.com" }]
+dynamic = ["version"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Topic :: Software Development :: Build Tools",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+]
+
+[project.urls]
+Homepage = "https://www.scons.org/"
+Documentation = "https://scons.org/documentation.html"
+Twitter = "https://twitter.com/SConsProject"
+GitHub = "https://github.com/SCons/scons"
+Bug-Tracker = "https://github.com/SCons/scons/issues"
+Discord = "https://discord.gg/pejaFYrD9n"
+"Mailing lists" = "https://scons.org/lists.html"
+
+[project.scripts]
+scons = "SCons.Script.Main:main"
+sconsign = "SCons.Utilities.sconsign:main"
+scons-configure-cache = "SCons.Utilities.ConfigureCache:main"
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+license-files = ["LICENSE"]
+
+[tool.setuptools.packages.find]
+exclude = ["template"]
+namespaces = false
+
+[tool.setuptools.package-data]
+"*" = ["*.txt", "*.rst", "*.1"]
+"scons.tool.docbook" = ["*.*"]
+
+[tool.distutils.sdist]
+dist-dir = "build/dist"
+
+[tool.distutils.bdist_wheel]
+dist-dir = "build/dist"
+
 # for black and mypy, set the lowest Python version supported
 [tool.black]
 quiet = true
 target-version = ['py36']
 skip-string-normalization = true
 
-[mypy]
-python_version = 3.6
-
+[tool.mypy]
+python_version = "3.6"
