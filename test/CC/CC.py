@@ -36,13 +36,12 @@ test.dir_fixture('CC-fixture')
 test.file_fixture('mylink.py')
 
 test.write('SConstruct', """
-cc = Environment().Dictionary('CC')
+DefaultEnvironment(tools=[])
 env = Environment(
+    tools=['link','cc'],
     LINK=r'%(_python_)s mylink.py',
     LINKFLAGS=[],
     CC=r'%(_python_)s mycc.py',
-    CXX=cc,
-    CXXFLAGS=[],
 )
 env.Program(target='test1', source='test1.c')
 """ % locals())
@@ -54,11 +53,12 @@ test.must_match('test1' + _exe, "This is a .c file.\n", mode='r')
 if os.path.normcase('.c') == os.path.normcase('.C'):
 
     test.write('SConstruct', """
-cc = Environment().Dictionary('CC')
+DefaultEnvironment(tools=[])
+
 env = Environment(
+    tools=['link','cc'],
     LINK=r'%(_python_)s mylink.py',
     CC=r'%(_python_)s mycc.py',
-    CXX=cc,
 )
 env.Program(target='test2', source='test2.C')
 """ % locals())
@@ -69,9 +69,11 @@ env.Program(target='test2', source='test2.C')
 test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
+
 foo = Environment()
-cc = foo.Dictionary('CC')
-bar = Environment(CC=r'%(_python_)s wrapper.py ' + cc)
+bar = Environment()
+bar['CC'] = r'%(_python_)s wrapper.py ' + foo['CC']
 foo.Program(target='foo', source='foo.c')
 bar.Program(target='bar', source='bar.c')
 """ % locals())
