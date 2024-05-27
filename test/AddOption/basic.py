@@ -33,7 +33,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-    DefaultEnvironment(tools=[])
+DefaultEnvironment(tools=[])
 env = Environment(tools=[])
 AddOption('--force',
           action="store_true",
