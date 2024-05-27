@@ -234,7 +234,17 @@ class Data:
         HAVE_MSVC = False
         DEFAULT_VERSION_DEF = None
 
+    INSTALLED_VCS = MSCommon.vc.get_installed_vcs()
     INSTALLED_VCS_COMPONENTS = MSCommon.vc.get_installed_vcs_components()
+
+    @classmethod
+    def query_version_list(cls, vcver):
+        # VS 2022 (14.3) can have either/both toolset versions 14.3X and 14.4X
+        if vcver == '14.3' or (vcver is None and cls.DEFAULT_VERSION == '14.3'):
+            vcver_list = ['14.4', '14.3']
+        else:
+            vcver_list = [vcver]
+        return vcver_list
 
     @classmethod
     def _msvc_toolset_notfound_list(cls, toolset_seen, toolset_list):
@@ -454,15 +464,26 @@ class MsvcQueryVersionToolsetTests(unittest.TestCase):
 
     def run_valid_default_msvc(self, have_msvc) -> None:
         for prefer_newest in (True, False):
-            msvc_version, msvc_toolset_version = MSCommon.vc.msvc_query_version_toolset(
-                version=None, prefer_newest=prefer_newest
-            )
-            expect = (have_msvc and msvc_version) or (not have_msvc and not msvc_version)
-            self.assertTrue(expect, "unexpected msvc_version {} for for msvc version {}".format(
+            if not have_msvc:
+                with self.assertRaises(MSCommon.vc.MSVCToolsetVersionNotFound):
+                    msvc_version, msvc_toolset_version = MSCommon.vc.msvc_query_version_toolset(
+                        version=None, prefer_newest=prefer_newest
+                    )
+                continue
+            msvc_version = msvc_toolset_version = None
+            for vcver in Data.query_version_list(None):
+                try:
+                    msvc_version, msvc_toolset_version = MSCommon.vc.msvc_query_version_toolset(
+                        version=vcver, prefer_newest=prefer_newest
+                    )
+                    break
+                except MSCommon.vc.MSVCToolsetVersionNotFound:
+                    pass
+            self.assertTrue(msvc_version, "unexpected msvc_version {} for for msvc version {}".format(
                 repr(msvc_version), repr(None)
             ))
             version_def = MSCommon.msvc_version_components(msvc_version)
-            if have_msvc and version_def.msvc_vernum > 14.0:
+            if version_def.msvc_vernum > 14.0:
                 # VS2017 and later for toolset version
                 self.assertTrue(msvc_toolset_version, "msvc_toolset_version is undefined for msvc version {}".format(
                     repr(None)
@@ -477,11 +498,24 @@ class MsvcQueryVersionToolsetTests(unittest.TestCase):
 
     def test_valid_vcver(self) -> None:
         for symbol in MSCommon.vc._VCVER:
+            have_msvc = bool(symbol in Data.INSTALLED_VCS)
             version_def = MSCommon.msvc_version_components(symbol)
             for prefer_newest in (True, False):
-                msvc_version, msvc_toolset_version = MSCommon.vc.msvc_query_version_toolset(
-                    version=symbol, prefer_newest=prefer_newest
-                )
+                if not have_msvc:
+                    with self.assertRaises(MSCommon.vc.MSVCToolsetVersionNotFound):
+                        msvc_version, msvc_toolset_version = MSCommon.vc.msvc_query_version_toolset(
+                            version=symbol, prefer_newest=prefer_newest
+                        )
+                    continue
+                msvc_version = msvc_toolset_version = None
+                for vcver in Data.query_version_list(symbol):
+                    try:
+                        msvc_version, msvc_toolset_version = MSCommon.vc.msvc_query_version_toolset(
+                            version=vcver, prefer_newest=prefer_newest
+                        )
+                        break
+                    except:
+                        pass
                 self.assertTrue(msvc_version, "msvc_version is undefined for msvc version {}".format(repr(symbol)))
                 if version_def.msvc_vernum > 14.0:
                     # VS2017 and later for toolset version

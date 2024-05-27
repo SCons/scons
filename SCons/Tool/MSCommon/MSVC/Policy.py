@@ -38,6 +38,10 @@ from collections import (
     namedtuple,
 )
 
+from contextlib import (
+    contextmanager,
+)
+
 import SCons.Warnings
 
 from ..common import (
@@ -215,6 +219,18 @@ def msvc_notfound_handler(env, msg):
     else:
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
 
+@contextmanager
+def msvc_notfound_policy_contextmanager(MSVC_NOTFOUND_POLICY=None):
+    """ Temporarily change the MSVC not found policy within a context.
+
+    Args:
+        MSVC_NOTFOUND_POLICY:
+           string representing the policy behavior
+           when MSVC is not found or None
+    """
+    prev_policy = msvc_set_notfound_policy(MSVC_NOTFOUND_POLICY)
+    yield
+    msvc_set_notfound_policy(prev_policy)
 
 def _msvc_scripterror_policy_lookup(symbol):
 
@@ -298,4 +314,17 @@ def msvc_scripterror_handler(env, msg):
         raise MSVCScriptExecutionError(msg)
     else:
         SCons.Warnings.warn(MSVCScriptExecutionWarning, msg)
+
+@contextmanager
+def msvc_scripterror_policy_contextmanager(MSVC_SCRIPTERROR_POLICY=None):
+    """ Temporarily change the msvc batch execution errors policy within a context.
+
+    Args:
+        MSVC_SCRIPTERROR_POLICY:
+           string representing the policy behavior
+           when msvc batch file execution errors are detected or None
+    """
+    prev_policy = msvc_set_scripterror_policy(MSVC_SCRIPTERROR_POLICY)
+    yield
+    msvc_set_scripterror_policy(prev_policy)
 

@@ -63,6 +63,8 @@ from .MSVC.Policy import (  # noqa: F401
     msvc_get_notfound_policy,
     msvc_set_scripterror_policy,
     msvc_get_scripterror_policy,
+    msvc_notfound_policy_contextmanager,
+    msvc_scripterror_policy_contextmanager,
 )
 
 from .MSVC.Exceptions import (  # noqa: F401

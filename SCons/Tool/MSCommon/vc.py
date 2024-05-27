@@ -2572,28 +2572,24 @@ def msvc_toolset_versions_spectre(msvc_version=None, vswhere_exe=None):
 
 def msvc_query_version_toolset(version=None, prefer_newest: bool=True, vswhere_exe=None):
     """
-    Returns an msvc version and a toolset version given a version
+    Return an msvc version and a toolset version given a version
     specification.
 
     This is an EXPERIMENTAL proxy for using a toolset version to perform
     msvc instance selection.  This function will be removed when
     toolset version is taken into account during msvc instance selection.
 
-    Search for an installed Visual Studio instance that supports the
-    specified version.
+    This function searches for an installed Visual Studio instance that
+    contains the requested version. A component suffix (e.g., Exp) is not
+    supported for toolset version specifications (e.g., 14.39).
 
-    When the specified version contains a component suffix (e.g., Exp),
-    the msvc version is returned and the toolset version is None. No
-    search if performed.
+    An MSVCArgumentError is raised when argument validation fails. An
+    MSVCToolsetVersionNotFound exception is raised when the requested
+    version is not found.
 
-    When the specified version does not contain a component suffix, the
-    version is treated as a toolset version specification. A search is
-    performed for the first msvc instance that contains the toolset
-    version.
-
-    Only Visual Studio 2017 and later support toolset arguments.  For
-    Visual Studio 2015 and earlier, the msvc version is returned and
-    the toolset version is None.
+    For Visual Studio 2015 and earlier, the msvc version is returned and
+    the toolset version is None.  For Visual Studio 2017 and later, the
+    selected toolset version is returned.
 
     Args:
 
@@ -2623,106 +2619,132 @@ def msvc_query_version_toolset(version=None, prefer_newest: bool=True, vswhere_e
     msvc_version = None
     msvc_toolset_version = None
 
-    if not version:
-        version = msvc_default_version()
+    with MSVC.Policy.msvc_notfound_policy_contextmanager('suppress'):
 
-    if not version:
-        debug('no msvc versions detected')
-        return msvc_version, msvc_toolset_version
+        _VSWhereExecutable.vswhere_freeze_executable(vswhere_exe)
 
-    version_def = MSVC.Util.msvc_extended_version_components(version)
+        vcs = get_installed_vcs()
 
-    if not version_def:
-        msg = f'Unsupported msvc version {version!r}'
-        raise MSVCArgumentError(msg)
+        if not version:
+            version = msvc_default_version()
 
-    if version_def.msvc_suffix:
-        if version_def.msvc_verstr != version_def.msvc_toolset_version:
-            # toolset version with component suffix
-            msg = f'Unsupported toolset version {version!r}'
+        if not version:
+            msg = f'No versions of the MSVC compiler were found'
+            debug(f'MSVCToolsetVersionNotFound: {msg}')
+            raise MSVCToolsetVersionNotFound(msg)
+
+        version_def = MSVC.Util.msvc_extended_version_components(version)
+
+        if not version_def:
+            msg = f'Unsupported MSVC version {version!r}'
+            debug(f'MSVCArgumentError: {msg}')
             raise MSVCArgumentError(msg)
 
-    if version_def.msvc_vernum > 14.0:
-        # VS2017 and later
-        force_toolset_msvc_version = False
-    else:
-        # VS2015 and earlier
-        force_toolset_msvc_version = True
-        extended_version = version_def.msvc_verstr + '0.00000'
-        if not extended_version.startswith(version_def.msvc_toolset_version):
-            # toolset not equivalent to msvc version
-            msg = 'Unsupported toolset version {} (expected {})'.format(
-                repr(version), repr(extended_version)
-            )
-            raise MSVCArgumentError(msg)
+        msvc_version = version_def.msvc_version
 
-    msvc_version = version_def.msvc_version
+        if version_def.msvc_suffix:
 
-    if msvc_version not in MSVC.Config.MSVC_VERSION_TOOLSET_SEARCH_MAP:
-        # VS2013 and earlier
-        debug(
-            'ignore: msvc_version=%s, msvc_toolset_version=%s',
-            repr(msvc_version), repr(msvc_toolset_version)
-        )
-        return msvc_version, msvc_toolset_version
+            if version_def.msvc_verstr != version_def.msvc_toolset_version:
+                # toolset version with component suffix
+                msg = f'Unsupported MSVC toolset version {version!r}'
+                debug(f'MSVCArgumentError: {msg}')
+                raise MSVCArgumentError(msg)
 
-    if force_toolset_msvc_version:
-        query_msvc_toolset_version = version_def.msvc_verstr
-    else:
-        query_msvc_toolset_version = version_def.msvc_toolset_version
+            if msvc_version not in vcs:
+                msg = f'MSVC version {msvc_version!r} not found'
+                debug(f'MSVCToolsetVersionNotFound: {msg}')
+                raise MSVCToolsetVersionNotFound(msg)
 
-    if prefer_newest:
-        query_version_list = MSVC.Config.MSVC_VERSION_TOOLSET_SEARCH_MAP[msvc_version]
-    else:
-        query_version_list = MSVC.Config.MSVC_VERSION_TOOLSET_DEFAULTS_MAP[msvc_version] + \
-                             MSVC.Config.MSVC_VERSION_TOOLSET_SEARCH_MAP[msvc_version]
+            if msvc_version not in MSVC.Config.MSVC_VERSION_TOOLSET_SEARCH_MAP:
+                debug(
+                    'suffix: msvc_version=%s, msvc_toolset_version=%s',
+                    repr(msvc_version), repr(msvc_toolset_version)
+                )
+                return msvc_version, msvc_toolset_version
 
-    seen_msvc_version = set()
-    for query_msvc_version in query_version_list:
+        if version_def.msvc_vernum > 14.0:
+            # VS2017 and later
+            force_toolset_msvc_version = False
+        else:
+            # VS2015 and earlier
+            force_toolset_msvc_version = True
+            extended_version = version_def.msvc_verstr + '0.00000'
+            if not extended_version.startswith(version_def.msvc_toolset_version):
+                # toolset not equivalent to msvc version
+                msg = 'Unsupported MSVC toolset version {} (expected {})'.format(
+                    repr(version), repr(extended_version)
+                )
+                debug(f'MSVCArgumentError: {msg}')
+                raise MSVCArgumentError(msg)
 
-        if query_msvc_version in seen_msvc_version:
-            continue
-        seen_msvc_version.add(query_msvc_version)
+        if msvc_version not in MSVC.Config.MSVC_VERSION_TOOLSET_SEARCH_MAP:
 
-        vc_dir = _find_vc_pdir(query_msvc_version, vswhere_exe)
-        if not vc_dir:
-            continue
+            # VS2013 and earlier
 
-        if query_msvc_version.startswith('14.0'):
-            # VS2015 does not support toolset version argument
-            msvc_toolset_version = None
+            if msvc_version not in vcs:
+                msg = f'MSVC version {version!r} not found'
+                debug(f'MSVCToolsetVersionNotFound: {msg}')
+                raise MSVCToolsetVersionNotFound(msg)
+
             debug(
-                'found: msvc_version=%s, msvc_toolset_version=%s',
-                repr(query_msvc_version), repr(msvc_toolset_version)
+                'earlier: msvc_version=%s, msvc_toolset_version=%s',
+                repr(msvc_version), repr(msvc_toolset_version)
             )
-            return query_msvc_version, msvc_toolset_version
+            return msvc_version, msvc_toolset_version
 
-        try:
-            toolset_vcvars = MSVC.ScriptArguments._msvc_toolset_internal(query_msvc_version, query_msvc_toolset_version, vc_dir)
-            if toolset_vcvars:
-                msvc_toolset_version = toolset_vcvars
+        if force_toolset_msvc_version:
+            query_msvc_toolset_version = version_def.msvc_verstr
+        else:
+            query_msvc_toolset_version = version_def.msvc_toolset_version
+
+        if prefer_newest:
+            query_version_list = MSVC.Config.MSVC_VERSION_TOOLSET_SEARCH_MAP[msvc_version]
+        else:
+            query_version_list = MSVC.Config.MSVC_VERSION_TOOLSET_DEFAULTS_MAP[msvc_version] + \
+                                 MSVC.Config.MSVC_VERSION_TOOLSET_SEARCH_MAP[msvc_version]
+
+        seen_msvc_version = set()
+        for query_msvc_version in query_version_list:
+
+            if query_msvc_version in seen_msvc_version:
+                continue
+            seen_msvc_version.add(query_msvc_version)
+
+            vc_dir = _find_vc_pdir(query_msvc_version, vswhere_exe)
+            if not vc_dir:
+                continue
+
+            if query_msvc_version.startswith('14.0'):
+                # VS2015 does not support toolset version argument
+                msvc_toolset_version = None
                 debug(
                     'found: msvc_version=%s, msvc_toolset_version=%s',
                     repr(query_msvc_version), repr(msvc_toolset_version)
                 )
                 return query_msvc_version, msvc_toolset_version
 
-        except MSVCToolsetVersionNotFound:
-            pass
+            try:
+                toolset_vcvars = MSVC.ScriptArguments._msvc_toolset_internal(query_msvc_version, query_msvc_toolset_version, vc_dir)
+                if toolset_vcvars:
+                    msvc_toolset_version = toolset_vcvars
+                    debug(
+                        'found: msvc_version=%s, msvc_toolset_version=%s',
+                        repr(query_msvc_version), repr(msvc_toolset_version)
+                    )
+                    return query_msvc_version, msvc_toolset_version
 
-    msvc_toolset_version = query_msvc_toolset_version
+            except MSVCToolsetVersionNotFound:
+                pass
+
+        msvc_toolset_version = query_msvc_toolset_version
 
     debug(
         'not found: msvc_version=%s, msvc_toolset_version=%s',
         repr(msvc_version), repr(msvc_toolset_version)
     )
 
-    if version_def.msvc_verstr == msvc_toolset_version:
-        msg = f'MSVC version {version!r} was not found'
-        MSVC.Policy.msvc_notfound_handler(None, msg)
-        return msvc_version, msvc_toolset_version
-
     msg = f'MSVC toolset version {version!r} not found'
+    debug(f'MSVCToolsetVersionNotFound: {msg}')
     raise MSVCToolsetVersionNotFound(msg)
 
 
