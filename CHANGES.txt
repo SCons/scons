@@ -12,6 +12,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Thaddeus Crews:
     - GetSConsVersion() to grab the latest SCons version without needing to
       access SCons internals.
+    - Migrate setup.cfg logic to pyproject.toml; remove setup.cfg.
 
   From Raymond Li:
     - Fix issue #3935: OSErrors are now no longer hidden during execution of
