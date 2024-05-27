@@ -36,7 +36,8 @@ test = TestSCons.TestSCons()
 test.write(
     'SConstruct',
     """\
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 AddOption('--extras',
           nargs=2,
           dest='extras',
@@ -71,7 +72,8 @@ test.run('-Q -q . -- --extras A B', status=1, stdout="()\n")
 test.write(
     'SConstruct',
     """\
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 AddOption(
     '--prefix',
     nargs=1,
