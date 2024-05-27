@@ -90,6 +90,8 @@ FIXES
   For example, when no vswhere executable is found for the initial detection
   and then later an environment is constructed with a user specified vswhere
   executable that detects new msvc installations.
+- MSVC: Visual Studio 2022 v143 BuildTools now supports msvc toolset versions from
+  14.30 to 14.4X.  Fixes Issue #4543.
 
 IMPROVEMENTS
 ------------

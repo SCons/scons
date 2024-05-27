@@ -317,8 +317,13 @@ class ScriptArgumentsTests(unittest.TestCase):
 
                 toolset_def = toolset_versions[0] if toolset_versions else Util.msvc_extended_version_components(version_def.msvc_verstr)
 
-                earlier_toolset_versions = [toolset_def for toolset_def in toolset_versions if toolset_def.msvc_vernum != version_def.msvc_vernum]
+                earlier_toolset_versions = [earlier_toolset_def for earlier_toolset_def in toolset_versions if earlier_toolset_def.msvc_vernum != version_def.msvc_vernum]
                 earlier_toolset_def = earlier_toolset_versions[0] if earlier_toolset_versions else None
+
+                vc_buildtools_def = Config.MSVC_BUILDTOOLS_EXTERNAL[toolset_def.msvc_buildtools]
+                vc_buildseries_def = vc_buildtools_def.vc_buildseries_list[0]
+
+                latest_buildseries_major, latest_buildseries_minor = [int(comp) for comp in vc_buildseries_def.vc_version.split('.')]
 
                 # should not raise exception (argument not validated)
                 env = Environment(MSVC_SCRIPT_ARGS='undefinedsymbol')
@@ -372,7 +377,7 @@ class ScriptArgumentsTests(unittest.TestCase):
                                 (expect, {
                                     'MSVC_SDK_VERSION': sdk_def.sdk_version,
                                     'MSVC_UWP_APP': msvc_uwp_app,
-                                    'MSVC_TOOLSET_VERSION': version_def.msvc_verstr
+                                    'MSVC_TOOLSET_VERSION': toolset_def.msvc_toolset_version
                                 }),
                             ] + more_tests:
                                 env = Environment(**kwargs)
@@ -392,8 +397,8 @@ class ScriptArgumentsTests(unittest.TestCase):
                                 _ = func(env, version_def.msvc_version, vc_dir)
 
                 for kwargs in [
-                    {'MSVC_SCRIPT_ARGS': '-vcvars_ver={}'.format(version_def.msvc_verstr)},
-                    {'MSVC_TOOLSET_VERSION': version_def.msvc_verstr},
+                    {'MSVC_SCRIPT_ARGS': '-vcvars_ver={}'.format(toolset_def.msvc_toolset_version)},
+                    {'MSVC_TOOLSET_VERSION': toolset_def.msvc_toolset_version},
                 ]:
                     env = Environment(**kwargs)
                     _ = func(env, version_def.msvc_version, vc_dir)
@@ -453,14 +458,14 @@ class ScriptArgumentsTests(unittest.TestCase):
                       }, (MSVCArgumentError, ),
                      ),
                     # multiple definitions
-                    ({'MSVC_TOOLSET_VERSION': version_def.msvc_verstr,
-                      'MSVC_SCRIPT_ARGS': "-vcvars_ver={}".format(version_def.msvc_verstr)
+                    ({'MSVC_TOOLSET_VERSION': toolset_def.msvc_toolset_version,
+                      'MSVC_SCRIPT_ARGS': "-vcvars_ver={}".format(toolset_def.msvc_toolset_version)
                       },
                      (MSVCArgumentError, ),
                      ),
                     # multiple definitions (args)
-                    ({'MSVC_TOOLSET_VERSION': version_def.msvc_verstr,
-                      'MSVC_SCRIPT_ARGS': "-vcvars_ver={0} undefined -vcvars_ver={0}".format(version_def.msvc_verstr)
+                    ({'MSVC_TOOLSET_VERSION': toolset_def.msvc_toolset_version,
+                      'MSVC_SCRIPT_ARGS': "-vcvars_ver={0} undefined -vcvars_ver={0}".format(toolset_def.msvc_toolset_version)
                       },
                      (MSVCArgumentError, ),
                      ),
@@ -494,7 +499,7 @@ class ScriptArgumentsTests(unittest.TestCase):
                      (MSVCArgumentError, ),
                      ),
                     # toolset > msvc_version
-                    ({'MSVC_TOOLSET_VERSION': '{}.{}'.format(version_def.msvc_major, version_def.msvc_minor+1),
+                    ({'MSVC_TOOLSET_VERSION': '{}.{}'.format(latest_buildseries_major, latest_buildseries_minor+1),
                       },
                      (MSVCArgumentError, ),
                      ),
@@ -600,7 +605,7 @@ class ScriptArgumentsTests(unittest.TestCase):
                         for msvc_uwp_app in (True, False):
                             env = Environment(MSVC_UWP_APP=msvc_uwp_app)
                             _ = func(env, version_def.msvc_version, vc_dir)
-                        
+
                     else:
                         # VS2015: MSVC_UWP_APP error
 

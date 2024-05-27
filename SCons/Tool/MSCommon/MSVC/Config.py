@@ -118,15 +118,67 @@ for vc_runtime, vc_runtime_numeric, vc_runtime_alias_list in [
     for vc_runtime_alias in vc_runtime_alias_list:
         MSVC_RUNTIME_EXTERNAL[vc_runtime_alias] = vc_runtime_def
 
-MSVC_BUILDTOOLS_DEFINITION = namedtuple('MSVCBuildtools', [
-    'vc_buildtools',
-    'vc_buildtools_numeric',
+MSVC_BUILDSERIES_DEFINITION = namedtuple('MSVCBuildSeries', [
+    'vc_buildseries',
+    'vc_buildseries_numeric',
     'vc_version',
     'vc_version_numeric',
     'cl_version',
     'cl_version_numeric',
+])
+
+MSVC_BUILDSERIES_DEFINITION_LIST = []
+
+MSVC_BUILDSERIES_INTERNAL = {}
+MSVC_BUILDSERIES_EXTERNAL = {}
+
+VC_BUILDTOOLS_MAP = {}
+
+VC_VERSION_MAP = {}
+CL_VERSION_MAP = {}
+
+for (vc_buildseries, vc_version, cl_version) in [
+    ('144', '14.4', '19.4'),
+    ('143', '14.3', '19.3'),
+    ('142', '14.2', '19.2'),
+    ('141', '14.1', '19.1'),
+    ('140', '14.0', '19.0'),
+    ('120', '12.0', '18.0'),
+    ('110', '11.0', '17.0'),
+    ('100', '10.0', '16.0'),
+    ('90', '9.0', '15.0'),
+    ('80', '8.0', '14.0'),
+    ('71', '7.1', '13.1'),
+    ('70', '7.0', '13.0'),
+    ('60', '6.0', '12.0'),
+]:
+
+    vc_buildseries_def = MSVC_BUILDSERIES_DEFINITION(
+        vc_buildseries=vc_buildseries,
+        vc_buildseries_numeric=int(vc_buildseries),
+        vc_version=vc_version,
+        vc_version_numeric=float(vc_version),
+        cl_version=cl_version,
+        cl_version_numeric=float(cl_version),
+    )
+
+    MSVC_BUILDSERIES_DEFINITION_LIST.append(vc_buildseries_def)
+
+    MSVC_BUILDSERIES_INTERNAL[vc_buildseries] = vc_buildseries_def
+    MSVC_BUILDSERIES_EXTERNAL[vc_buildseries] = vc_buildseries_def
+    MSVC_BUILDSERIES_EXTERNAL[vc_version] = vc_buildseries_def
+
+    VC_VERSION_MAP[vc_version] = vc_buildseries_def
+    CL_VERSION_MAP[cl_version] = vc_buildseries_def
+
+MSVC_BUILDTOOLS_DEFINITION = namedtuple('MSVCBuildtools', [
+    'vc_buildtools',
+    'vc_buildtools_numeric',
+    'vc_buildseries_list',
     'vc_runtime_def',
     'vc_istoolset',
+    'msvc_version',
+    'msvc_version_numeric',
 ])
 
 MSVC_BUILDTOOLS_DEFINITION_LIST = []
@@ -134,34 +186,44 @@ MSVC_BUILDTOOLS_DEFINITION_LIST = []
 MSVC_BUILDTOOLS_INTERNAL = {}
 MSVC_BUILDTOOLS_EXTERNAL = {}
 
-VC_VERSION_MAP = {}
+MSVC_VERSION_NEWEST = None
+MSVC_VERSION_NEWEST_NUMERIC = 0.0
 
-for vc_buildtools, vc_version, cl_version, vc_runtime, vc_istoolset in [
-    ('v143', '14.3', '19.3', '140', True),
-    ('v142', '14.2', '19.2', '140', True),
-    ('v141', '14.1', '19.1', '140', True),
-    ('v140', '14.0', '19.0', '140', True),
-    ('v120', '12.0', '18.0', '120', False),
-    ('v110', '11.0', '17.0', '110', False),
-    ('v100', '10.0', '16.0', '100', False),
-    ('v90',   '9.0', '15.0',  '90', False),
-    ('v80',   '8.0', '14.0',  '80', False),
-    ('v71',   '7.1', '13.1',  '71', False),
-    ('v70',   '7.0', '13.0',  '70', False),
-    ('v60',   '6.0', '12.0',  '60', False),
+for vc_buildtools, vc_buildseries_list, vc_runtime, vc_istoolset in [
+    ('v143', ['144', '143'], '140', True),
+    ('v142', ['142'], '140', True),
+    ('v141', ['141'], '140', True),
+    ('v140', ['140'], '140', True),
+    ('v120', ['120'], '120', False),
+    ('v110', ['110'], '110', False),
+    ('v100', ['100'], '100', False),
+    ('v90', ['90'], '90', False),
+    ('v80', ['80'], '80', False),
+    ('v71', ['71'], '71', False),
+    ('v70', ['70'], '70', False),
+    ('v60', ['60'], '60', False),
 ]:
 
     vc_runtime_def = MSVC_RUNTIME_INTERNAL[vc_runtime]
 
+    vc_buildseries_list = tuple(
+        MSVC_BUILDSERIES_INTERNAL[vc_buildseries]
+        for vc_buildseries in vc_buildseries_list
+    )
+
+    vc_buildtools_numstr = vc_buildtools[1:]
+
+    msvc_version = vc_buildtools_numstr[:-1] + '.' + vc_buildtools_numstr[-1]
+    msvc_version_numeric = float(msvc_version)
+
     vc_buildtools_def = MSVC_BUILDTOOLS_DEFINITION(
         vc_buildtools = vc_buildtools,
         vc_buildtools_numeric = int(vc_buildtools[1:]),
-        vc_version = vc_version,
-        vc_version_numeric = float(vc_version),
-        cl_version = cl_version,
-        cl_version_numeric = float(cl_version),
+        vc_buildseries_list = vc_buildseries_list,
         vc_runtime_def = vc_runtime_def,
         vc_istoolset = vc_istoolset,
+        msvc_version = msvc_version,
+        msvc_version_numeric = msvc_version_numeric,
     )
 
     MSVC_BUILDTOOLS_DEFINITION_LIST.append(vc_buildtools_def)
@@ -170,7 +232,12 @@ for vc_buildtools, vc_version, cl_version, vc_runtime, vc_istoolset in [
     MSVC_BUILDTOOLS_EXTERNAL[vc_buildtools] = vc_buildtools_def
     MSVC_BUILDTOOLS_EXTERNAL[vc_version] = vc_buildtools_def
 
-    VC_VERSION_MAP[vc_version] = vc_buildtools_def
+    for vc_buildseries_def in vc_buildseries_list:
+        VC_BUILDTOOLS_MAP[vc_buildseries_def.vc_buildseries] = vc_buildtools_def
+
+    if vc_buildtools_def.msvc_version_numeric > MSVC_VERSION_NEWEST_NUMERIC:
+        MSVC_VERSION_NEWEST_NUMERIC = vc_buildtools_def.msvc_version_numeric
+        MSVC_VERSION_NEWEST = vc_buildtools_def.msvc_version
 
 MSVS_VERSION_INTERNAL = {}
 MSVS_VERSION_EXTERNAL = {}
@@ -180,8 +247,6 @@ MSVC_VERSION_EXTERNAL = {}
 MSVC_VERSION_SUFFIX = {}
 
 MSVS_VERSION_MAJOR_MAP = {}
-
-CL_VERSION_MAP = {}
 
 MSVC_SDK_VERSIONS = set()
 
@@ -247,15 +312,15 @@ for vs_product, vs_version, vs_envvar, vs_express, vs_lookup, vc_sdk, vc_ucrt, v
 
     vc_buildtools_def.vc_runtime_def.vc_runtime_vsdef_list.append(vs_def)
 
-    vc_version = vc_buildtools_def.vc_version
+    msvc_version = vc_buildtools_def.msvc_version
 
     MSVS_VERSION_INTERNAL[vs_product] = vs_def
     MSVS_VERSION_EXTERNAL[vs_product] = vs_def
     MSVS_VERSION_EXTERNAL[vs_version] = vs_def
 
-    MSVC_VERSION_INTERNAL[vc_version] = vs_def
+    MSVC_VERSION_INTERNAL[msvc_version] = vs_def
     MSVC_VERSION_EXTERNAL[vs_product] = vs_def
-    MSVC_VERSION_EXTERNAL[vc_version] = vs_def
+    MSVC_VERSION_EXTERNAL[msvc_version] = vs_def
     MSVC_VERSION_EXTERNAL[vc_buildtools_def.vc_buildtools] = vs_def
 
     if vs_product in VS_PRODUCT_ALIAS:
@@ -264,13 +329,11 @@ for vs_product, vs_version, vs_envvar, vs_express, vs_lookup, vc_sdk, vc_ucrt, v
             MSVS_VERSION_EXTERNAL[vs_product_alias] = vs_def
             MSVC_VERSION_EXTERNAL[vs_product_alias] = vs_def
 
-    MSVC_VERSION_SUFFIX[vc_version] = vs_def
+    MSVC_VERSION_SUFFIX[msvc_version] = vs_def
     if vs_express:
-        MSVC_VERSION_SUFFIX[vc_version + 'Exp'] = vs_def
+        MSVC_VERSION_SUFFIX[msvc_version + 'Exp'] = vs_def
 
     MSVS_VERSION_MAJOR_MAP[vs_version_major] = vs_def
-
-    CL_VERSION_MAP[vc_buildtools_def.cl_version] = vs_def
 
     if vc_sdk:
         MSVC_SDK_VERSIONS.update(vc_sdk)
@@ -292,7 +355,7 @@ MSVC_VERSION_TOOLSET_SEARCH_MAP = {}
 for vs_def in VISUALSTUDIO_DEFINITION_LIST:
     if not vs_def.vc_buildtools_def.vc_istoolset:
         continue
-    version_key = vs_def.vc_buildtools_def.vc_version
+    version_key = vs_def.vc_buildtools_def.msvc_version
     MSVC_VERSION_TOOLSET_DEFAULTS_MAP[version_key] = [version_key]
     MSVC_VERSION_TOOLSET_SEARCH_MAP[version_key] = []
     if vs_def.vs_express:
@@ -305,11 +368,11 @@ for vs_def in VISUALSTUDIO_DEFINITION_LIST:
 for vs_def in VISUALSTUDIO_DEFINITION_LIST:
     if not vs_def.vc_buildtools_def.vc_istoolset:
         continue
-    version_key = vs_def.vc_buildtools_def.vc_version
+    version_key = vs_def.vc_buildtools_def.msvc_version
     for vc_buildtools in vs_def.vc_buildtools_all:
         toolset_buildtools_def = MSVC_BUILDTOOLS_INTERNAL[vc_buildtools]
-        toolset_vs_def = MSVC_VERSION_INTERNAL[toolset_buildtools_def.vc_version]
-        buildtools_key = toolset_buildtools_def.vc_version
+        toolset_vs_def = MSVC_VERSION_INTERNAL[toolset_buildtools_def.msvc_version]
+        buildtools_key = toolset_buildtools_def.msvc_version
         MSVC_VERSION_TOOLSET_SEARCH_MAP[buildtools_key].extend(MSVC_VERSION_TOOLSET_DEFAULTS_MAP[version_key])
 
 # convert string version set to string version list ranked in descending order

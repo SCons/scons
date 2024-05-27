@@ -358,6 +358,8 @@ _MSVC_EXTENDED_VERSION_COMPONENTS_DEFINITION = namedtuple('MSVCExtendedVersionCo
     'msvc_major',   # msvc major version integer number (e.g., 14)
     'msvc_minor',   # msvc minor version integer number (e.g., 1)
     'msvc_comps',   # msvc version components tuple (e.g., ('14', '1'))
+    'msvc_buildtools',       # msvc build tools
+    'msvc_buildseries',      # msvc build series
     'msvc_toolset_version',  # msvc toolset version
     'msvc_toolset_comps',    # msvc toolset version components
     'version',               # msvc version or msvc toolset version
@@ -385,10 +387,17 @@ def msvc_extended_version_components(version):
     msvc_toolset_version = m.group('version')
     msvc_toolset_comps = tuple(msvc_toolset_version.split('.'))
 
-    msvc_verstr = get_msvc_version_prefix(msvc_toolset_version)
-    if not msvc_verstr:
+    vc_verstr = get_msvc_version_prefix(msvc_toolset_version)
+    if not vc_verstr:
         return None
 
+    vc_buildseries_def = Config.MSVC_BUILDSERIES_EXTERNAL.get(vc_verstr)
+    if not vc_buildseries_def:
+        return None
+
+    vc_buildtools_def = Config.VC_BUILDTOOLS_MAP[vc_buildseries_def.vc_buildseries]
+
+    msvc_verstr = vc_buildtools_def.msvc_version
     msvc_suffix = m.group('suffix') if m.group('suffix') else ''
     msvc_version = msvc_verstr + msvc_suffix
 
@@ -409,6 +418,8 @@ def msvc_extended_version_components(version):
         msvc_major = msvc_major,
         msvc_minor = msvc_minor,
         msvc_comps = msvc_comps,
+        msvc_buildtools = vc_buildtools_def.vc_buildtools,
+        msvc_buildseries = vc_buildseries_def.vc_version,
         msvc_toolset_version = msvc_toolset_version,
         msvc_toolset_comps = msvc_toolset_comps,
         version = version,

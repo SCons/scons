@@ -197,8 +197,8 @@ if GE_VS2015_supported_versions:
                         """.format(repr(supported.msvc_version), repr(toolset_version))
                     ))
                     test.run(arguments='-Q -s', status=2, stderr=None)
-                    expect = "MSVCArgumentError: MSVC_SDK_VERSION ('8.1') and platform type ('UWP') constraint violation: toolset version {} > '14.0' VS2015:".format(
-                        repr(toolset_version)
+                    expect = "MSVCArgumentError: MSVC_SDK_VERSION ('8.1') and platform type ('UWP') constraint violation: toolset {} MSVC_VERSION {} > '14.0' VS2015:".format(
+                        repr(toolset_version), repr(supported.msvc_version)
                     )
                     test.must_contain_all(test.stderr(), expect)
 

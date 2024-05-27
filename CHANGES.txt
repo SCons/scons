@@ -63,6 +63,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - The vswhere executable locations for the WinGet and Scoop package managers were
       added to the default vswhere executable search list after the Chocolatey
       installation location.
+    - Fix issue #4543: add support for msvc toolset versions 14.4X installed as the
+      latest msvc toolset versions for msvc buildtools v143.  The v143 msvc buildtools
+      may contain msvc toolset versions from 14.30 to 14.4X.
 
   From Thaddeus Crews:
     - GetSConsVersion() to grab the latest SCons version without needing to

@@ -2516,7 +2516,7 @@ def msvc_sdk_versions(version=None, msvc_uwp_app: bool=False):
         msg = f'Unsupported version {version!r}'
         raise MSVCArgumentError(msg)
 
-    rval = MSVC.WinSDK.get_msvc_sdk_version_list(version, msvc_uwp_app)
+    rval = MSVC.WinSDK.get_msvc_sdk_version_list(version_def.msvc_version, msvc_uwp_app)
     return rval
 
 def msvc_toolset_versions(msvc_version=None, full: bool=True, sxs: bool=False, vswhere_exe=None):

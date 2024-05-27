@@ -173,6 +173,12 @@ MSVC_VERSION_ARGS_DEFINITION = namedtuple('MSVCVersionArgsDefinition', [
     'vs_def',
 ])
 
+TOOLSET_VERSION_ARGS_DEFINITION = namedtuple('ToolsetVersionArgsDefinition', [
+    'version', # full version (e.g., '14.1Exp', '14.32.31326')
+    'vc_buildtools_def',
+    'is_user',
+])
+
 def _msvc_version(version):
 
     verstr = Util.get_msvc_version_prefix(version)
@@ -185,14 +191,17 @@ def _msvc_version(version):
 
     return version_args
 
-def _toolset_version(version):
+def _toolset_version(version, is_user=False):
 
-    verstr = Util.get_msvc_version_prefix(version)
-    vs_def = Config.MSVC_VERSION_INTERNAL[verstr]
+    vc_series = Util.get_msvc_version_prefix(version)
 
-    version_args = MSVC_VERSION_ARGS_DEFINITION(
+    vc_buildseries_def = Config.MSVC_BUILDSERIES_EXTERNAL[vc_series]
+    vc_buildtools_def = Config.VC_BUILDTOOLS_MAP[vc_buildseries_def.vc_buildseries]
+
+    version_args = TOOLSET_VERSION_ARGS_DEFINITION(
         version = version,
-        vs_def = vs_def,
+        vc_buildtools_def = vc_buildtools_def,
+        is_user = is_user,
     )
 
     return version_args
@@ -208,14 +217,14 @@ def _msvc_script_argument_uwp(env, msvc, arglist, target_arch):
     if uwp_app not in _ARGUMENT_BOOLEAN_TRUE_LEGACY:
         return None
 
-    if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2015.vc_buildtools_def.vc_version_numeric:
+    if msvc.vs_def.vc_buildtools_def.msvc_version_numeric < VS2015.vc_buildtools_def.msvc_version_numeric:
         debug(
             'invalid: msvc version constraint: %s < %s VS2015',
-            repr(msvc.vs_def.vc_buildtools_def.vc_version_numeric),
-            repr(VS2015.vc_buildtools_def.vc_version_numeric)
+            repr(msvc.vs_def.vc_buildtools_def.msvc_version_numeric),
+            repr(VS2015.vc_buildtools_def.msvc_version_numeric)
         )
         err_msg = "MSVC_UWP_APP ({}) constraint violation: MSVC_VERSION {} < {} VS2015".format(
-            repr(uwp_app), repr(msvc.version), repr(VS2015.vc_buildtools_def.vc_version)
+            repr(uwp_app), repr(msvc.version), repr(VS2015.vc_buildtools_def.msvc_version)
         )
         raise MSVCArgumentError(err_msg)
 
@@ -270,14 +279,14 @@ def _user_script_argument_uwp(env, uwp, user_argstr) -> bool:
 
 def _msvc_script_argument_sdk_constraints(msvc, sdk_version, env):
 
-    if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2015.vc_buildtools_def.vc_version_numeric:
+    if msvc.vs_def.vc_buildtools_def.msvc_version_numeric < VS2015.vc_buildtools_def.msvc_version_numeric:
         debug(
             'invalid: msvc_version constraint: %s < %s VS2015',
-            repr(msvc.vs_def.vc_buildtools_def.vc_version_numeric),
-            repr(VS2015.vc_buildtools_def.vc_version_numeric)
+            repr(msvc.vs_def.vc_buildtools_def.msvc_version_numeric),
+            repr(VS2015.vc_buildtools_def.msvc_version_numeric)
         )
         err_msg = "MSVC_SDK_VERSION ({}) constraint violation: MSVC_VERSION {} < {} VS2015".format(
-            repr(sdk_version), repr(msvc.version), repr(VS2015.vc_buildtools_def.vc_version)
+            repr(sdk_version), repr(msvc.version), repr(VS2015.vc_buildtools_def.msvc_version)
         )
         return err_msg
 
@@ -303,23 +312,23 @@ def _msvc_script_argument_sdk_platform_constraints(msvc, toolset, sdk_version, p
 
     if sdk_version == '8.1' and platform_def.is_uwp:
 
-        vs_def = toolset.vs_def if toolset else msvc.vs_def
+        vc_buildtools_def = toolset.vc_buildtools_def if toolset else msvc.vs_def.vc_buildtools_def
 
-        if vs_def.vc_buildtools_def.vc_version_numeric > VS2015.vc_buildtools_def.vc_version_numeric:
+        if vc_buildtools_def.msvc_version_numeric > VS2015.vc_buildtools_def.msvc_version_numeric:
             debug(
                 'invalid: uwp/store SDK 8.1 msvc_version constraint: %s > %s VS2015',
-                repr(vs_def.vc_buildtools_def.vc_version_numeric),
-                repr(VS2015.vc_buildtools_def.vc_version_numeric)
+                repr(vc_buildtools_def.msvc_version_numeric),
+                repr(VS2015.vc_buildtools_def.msvc_version_numeric)
             )
-            if toolset and toolset.vs_def != msvc.vs_def:
-                err_msg = "MSVC_SDK_VERSION ({}) and platform type ({}) constraint violation: toolset version {} > {} VS2015".format(
+            if toolset and toolset.is_user:
+                err_msg = "MSVC_SDK_VERSION ({}) and platform type ({}) constraint violation: toolset {} MSVC_VERSION {} > {} VS2015".format(
                     repr(sdk_version), repr(platform_def.vc_platform),
-                    repr(toolset.version), repr(VS2015.vc_buildtools_def.vc_version)
+                    repr(toolset.version), repr(msvc.version), repr(VS2015.vc_buildtools_def.msvc_version)
                 )
             else:
                 err_msg = "MSVC_SDK_VERSION ({}) and platform type ({}) constraint violation: MSVC_VERSION {} > {} VS2015".format(
                     repr(sdk_version), repr(platform_def.vc_platform),
-                    repr(msvc.version), repr(VS2015.vc_buildtools_def.vc_version)
+                    repr(msvc.version), repr(VS2015.vc_buildtools_def.msvc_version)
                 )
             return err_msg
 
@@ -359,7 +368,7 @@ def _msvc_script_argument_sdk(env, msvc, toolset, platform_def, arglist):
 
 def _msvc_script_default_sdk(env, msvc, platform_def, arglist, force_sdk: bool=False):
 
-    if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2015.vc_buildtools_def.vc_version_numeric:
+    if msvc.vs_def.vc_buildtools_def.msvc_version_numeric < VS2015.vc_buildtools_def.msvc_version_numeric:
         return None
 
     if not Kind.msvc_version_sdk_version_is_supported(msvc.version, env):
@@ -444,10 +453,11 @@ def _msvc_sxs_toolset_folder(msvc, sxs_folder):
     if Util.is_toolset_sxs(sxs_folder):
         return sxs_folder, sxs_folder
 
-    key = (msvc.vs_def.vc_buildtools_def.vc_version, sxs_folder)
-    if key in _msvc_sxs_bugfix_folder:
-        sxs_version = _msvc_sxs_bugfix_folder[key]
-        return sxs_folder, sxs_version
+    for vc_buildseries_def in msvc.vs_def.vc_buildtools_def.vc_buildseries_list:
+        key = (vc_buildseries_def.vc_version, sxs_folder)
+        sxs_version = _msvc_sxs_bugfix_folder.get(key)
+        if sxs_version:
+            return sxs_folder, sxs_version
 
     debug('sxs folder: ignore version=%s', repr(sxs_folder))
     return None, None
@@ -603,49 +613,60 @@ def _msvc_version_toolset_vcvars(msvc, vc_dir, toolset_version):
 
 def _msvc_script_argument_toolset_constraints(msvc, toolset_version):
 
-    if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2017.vc_buildtools_def.vc_version_numeric:
+    if msvc.vs_def.vc_buildtools_def.msvc_version_numeric < VS2017.vc_buildtools_def.msvc_version_numeric:
         debug(
             'invalid: msvc version constraint: %s < %s VS2017',
-            repr(msvc.vs_def.vc_buildtools_def.vc_version_numeric),
-            repr(VS2017.vc_buildtools_def.vc_version_numeric)
+            repr(msvc.vs_def.vc_buildtools_def.msvc_version_numeric),
+            repr(VS2017.vc_buildtools_def.msvc_version_numeric)
         )
         err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: MSVC_VERSION {} < {} VS2017".format(
-            repr(toolset_version), repr(msvc.version), repr(VS2017.vc_buildtools_def.vc_version)
+            repr(toolset_version), repr(msvc.version), repr(VS2017.vc_buildtools_def.msvc_version)
         )
         return err_msg
 
-    toolset_verstr = Util.get_msvc_version_prefix(toolset_version)
+    toolset_series = Util.get_msvc_version_prefix(toolset_version)
 
-    if not toolset_verstr:
+    if not toolset_series:
         debug('invalid: msvc version: toolset_version=%s', repr(toolset_version))
         err_msg = 'MSVC_TOOLSET_VERSION {} format is not supported'.format(
             repr(toolset_version)
         )
         return err_msg
 
-    toolset_vernum = float(toolset_verstr)
-
-    if toolset_vernum < VS2015.vc_buildtools_def.vc_version_numeric:
-        debug(
-            'invalid: toolset version constraint: %s < %s VS2015',
-            repr(toolset_vernum), repr(VS2015.vc_buildtools_def.vc_version_numeric)
-        )
-        err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: toolset version {} < {} VS2015".format(
-            repr(toolset_version), repr(toolset_verstr), repr(VS2015.vc_buildtools_def.vc_version)
+    toolset_buildseries_def = Config.MSVC_BUILDSERIES_EXTERNAL.get(toolset_series)
+    if not toolset_buildseries_def:
+        debug('invalid: msvc version: toolset_version=%s', repr(toolset_version))
+        err_msg = 'MSVC_TOOLSET_VERSION {} build series {} is not supported'.format(
+            repr(toolset_version), repr(toolset_series)
         )
         return err_msg
 
-    if toolset_vernum > msvc.vs_def.vc_buildtools_def.vc_version_numeric:
+    toolset_buildtools_def = Config.VC_BUILDTOOLS_MAP[toolset_buildseries_def.vc_buildseries]
+
+    toolset_verstr = toolset_buildtools_def.msvc_version
+    toolset_vernum = toolset_buildtools_def.msvc_version_numeric
+
+    if toolset_vernum < VS2015.vc_buildtools_def.msvc_version_numeric:
+        debug(
+            'invalid: toolset version constraint: %s < %s VS2015',
+            repr(toolset_vernum), repr(VS2015.vc_buildtools_def.msvc_version_numeric)
+        )
+        err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: toolset msvc version {} < {} VS2015".format(
+            repr(toolset_version), repr(toolset_verstr), repr(VS2015.vc_buildtools_def.msvc_version)
+        )
+        return err_msg
+
+    if toolset_vernum > msvc.vs_def.vc_buildtools_def.msvc_version_numeric:
         debug(
             'invalid: toolset version constraint: toolset %s > %s msvc',
-            repr(toolset_vernum), repr(msvc.vs_def.vc_buildtools_def.vc_version_numeric)
+            repr(toolset_vernum), repr(msvc.vs_def.vc_buildtools_def.msvc_version_numeric)
         )
-        err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: toolset version {} > {} MSVC_VERSION".format(
+        err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: toolset msvc version {} > {} MSVC_VERSION".format(
             repr(toolset_version), repr(toolset_verstr), repr(msvc.version)
         )
         return err_msg
 
-    if toolset_vernum == VS2015.vc_buildtools_def.vc_version_numeric:
+    if toolset_vernum == VS2015.vc_buildtools_def.msvc_version_numeric:
         # tooset = 14.0
         if Util.is_toolset_full(toolset_version):
             if not Util.is_toolset_140(toolset_version):
@@ -653,7 +674,7 @@ def _msvc_script_argument_toolset_constraints(msvc, toolset_version):
                     'invalid: toolset version 14.0 constraint: %s != 14.0',
                     repr(toolset_version)
                 )
-                err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: toolset version {} != '14.0'".format(
+                err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: toolset msvc version {} != '14.0'".format(
                     repr(toolset_version), repr(toolset_version)
                 )
                 return err_msg
@@ -717,7 +738,7 @@ def _msvc_script_argument_toolset(env, msvc, vc_dir, arglist):
 
 def _msvc_script_default_toolset(env, msvc, vc_dir, arglist, force_toolset: bool=False):
 
-    if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2017.vc_buildtools_def.vc_version_numeric:
+    if msvc.vs_def.vc_buildtools_def.msvc_version_numeric < VS2017.vc_buildtools_def.msvc_version_numeric:
         return None
 
     toolset_default = _msvc_default_toolset(msvc, vc_dir)
@@ -758,26 +779,26 @@ def _user_script_argument_toolset(env, toolset_version, user_argstr):
 
 def _msvc_script_argument_spectre_constraints(msvc, toolset, spectre_libs, platform_def):
 
-    if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2017.vc_buildtools_def.vc_version_numeric:
+    if msvc.vs_def.vc_buildtools_def.msvc_version_numeric < VS2017.vc_buildtools_def.msvc_version_numeric:
         debug(
             'invalid: msvc version constraint: %s < %s VS2017',
-            repr(msvc.vs_def.vc_buildtools_def.vc_version_numeric),
-            repr(VS2017.vc_buildtools_def.vc_version_numeric)
+            repr(msvc.vs_def.vc_buildtools_def.msvc_version_numeric),
+            repr(VS2017.vc_buildtools_def.msvc_version_numeric)
         )
         err_msg = "MSVC_SPECTRE_LIBS ({}) constraint violation: MSVC_VERSION {} < {} VS2017".format(
-            repr(spectre_libs), repr(msvc.version), repr(VS2017.vc_buildtools_def.vc_version)
+            repr(spectre_libs), repr(msvc.version), repr(VS2017.vc_buildtools_def.msvc_version)
         )
         return err_msg
 
     if toolset:
-        if toolset.vs_def.vc_buildtools_def.vc_version_numeric < VS2017.vc_buildtools_def.vc_version_numeric:
+        if toolset.vc_buildtools_def.msvc_version_numeric < VS2017.vc_buildtools_def.msvc_version_numeric:
             debug(
                 'invalid: toolset version constraint: %s < %s VS2017',
-                repr(toolset.vs_def.vc_buildtools_def.vc_version_numeric),
-                repr(VS2017.vc_buildtools_def.vc_version_numeric)
+                repr(toolset.vc_buildtools_def.msvc_version_numeric),
+                repr(VS2017.vc_buildtools_def.msvc_version_numeric)
             )
             err_msg = "MSVC_SPECTRE_LIBS ({}) constraint violation: toolset version {} < {} VS2017".format(
-                repr(spectre_libs), repr(toolset.version), repr(VS2017.vc_buildtools_def.vc_version)
+                repr(spectre_libs), repr(toolset.version), repr(VS2017.vc_buildtools_def.msvc_version)
             )
             return err_msg
 
@@ -865,14 +886,14 @@ def _msvc_script_argument_user(env, msvc, arglist):
     if not script_args:
         return None
 
-    if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2015.vc_buildtools_def.vc_version_numeric:
+    if msvc.vs_def.vc_buildtools_def.msvc_version_numeric < VS2015.vc_buildtools_def.msvc_version_numeric:
         debug(
             'invalid: msvc version constraint: %s < %s VS2015',
-            repr(msvc.vs_def.vc_buildtools_def.vc_version_numeric),
-            repr(VS2015.vc_buildtools_def.vc_version_numeric)
+            repr(msvc.vs_def.vc_buildtools_def.msvc_version_numeric),
+            repr(VS2015.vc_buildtools_def.msvc_version_numeric)
         )
         err_msg = "MSVC_SCRIPT_ARGS ({}) constraint violation: MSVC_VERSION {} < {} VS2015".format(
-            repr(script_args), repr(msvc.version), repr(VS2015.vc_buildtools_def.vc_version)
+            repr(script_args), repr(msvc.version), repr(VS2015.vc_buildtools_def.msvc_version)
         )
         raise MSVCArgumentError(err_msg)
 
@@ -968,7 +989,7 @@ def msvc_script_arguments(env, version, vc_dir, arg=None):
         if user_toolset:
             toolset = None
         elif toolset_version:
-            toolset = _toolset_version(toolset_version)
+            toolset = _toolset_version(toolset_version, is_user=True)
         elif default_toolset:
             toolset = _toolset_version(default_toolset)
         else:
@@ -1000,7 +1021,7 @@ def msvc_script_arguments(env, version, vc_dir, arg=None):
         if user_argstr:
             _user_script_argument_spectre(env, spectre, user_argstr)
 
-        if msvc.vs_def.vc_buildtools_def.vc_version == '14.0':
+        if msvc.vs_def.vc_buildtools_def.msvc_version == '14.0':
             if user_uwp and sdk_version and len(arglist) == 2:
                 # VS2015 toolset argument order issue: SDK store => store SDK
                 arglist_reverse = True
