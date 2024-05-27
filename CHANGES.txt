@@ -71,6 +71,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       tweaked the Util package doc build so it's structured more like the
       other packages (a missed part of the transition when it was split).
     - Updated manpage description of Command "builder" and function.
+    - Framework for scons-time tests adjusted so a path with a long username
+      Windows has squashed doesn't get re-expanded. Fixes a problem seen
+      on GitHub Windows runner which uses a name "runneradmin".
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
