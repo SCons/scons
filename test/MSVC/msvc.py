@@ -116,7 +116,7 @@ slow = time.perf_counter() - start
 
 # TODO: Reevaluate if having this part of the test makes sense any longer
 # using precompiled headers should be faster
-limit = slow
+limit = slow*1.00
 if fast >= limit:
     print("Using precompiled headers was not fast enough:")
     print("slow.obj:  %.3fs" % slow)
