@@ -41,7 +41,7 @@ test = TestSCons.TestSCons()
 test.dir_fixture('append-fixture')
 
 test.write('SConstruct', """
-
+DefaultEnvironment(tools=[])
 env=Environment()
 
 def before(env, target, source):

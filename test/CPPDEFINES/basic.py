@@ -32,6 +32,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 test_list = [
     'xyz',
     ['x', 'y', 'z'],
@@ -47,7 +48,7 @@ def generator(target, source, env, for_signature):
     return 'TARGET_AND_SOURCE_ARE_MISSING'
 
 for i in test_list:
-    env = Environment(
+    env = Environment(tools=['cc'],
         CPPDEFPREFIX='-D',
         CPPDEFSUFFIX='',
         INTEGER=0,
@@ -65,7 +66,7 @@ for i in test_list:
     )
 
 for i in test_list:
-    env = Environment(
+    env = Environment(tools=['cc'],
         CPPDEFPREFIX='|',
         CPPDEFSUFFIX='|',
         INTEGER=1,

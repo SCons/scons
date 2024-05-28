@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test the ability to configure the $ARCOM construction variable.
@@ -38,6 +37,7 @@ test.file_fixture('mycompile.py')
 test.file_fixture('myrewrite.py')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(tools=['default', 'ar'],
                   ARCOM = r'%(_python_)s mycompile.py ar $TARGET $SOURCES',
                   RANLIB = True,
