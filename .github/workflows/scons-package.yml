@@ -23,7 +23,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --progress-bar off --upgrade pip
+        python -m pip install --progress-bar off --upgrade pip setuptools wheel
         #python -m pip install flake8 pytest
         if [ -f requirements-pkg.txt ]; then pip install --progress-bar off -r requirements-pkg.txt; elif [ -f requirements.txt ]; then pip install --progress-bar off -r requirements.txt; fi
         sudo apt-get update

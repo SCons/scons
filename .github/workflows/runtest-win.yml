@@ -34,7 +34,7 @@ jobs:
 
       - name: Install Chocolatey packages
         run: |
-          choco install dmd winflexbison3
+          choco install --yes --no-progress dmd winflexbison3
 
       - name: runtest
         run: |
