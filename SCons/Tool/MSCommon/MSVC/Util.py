@@ -351,17 +351,21 @@ def msvc_version_components(vcver):
     return msvc_version_components_def
 
 _MSVC_EXTENDED_VERSION_COMPONENTS_DEFINITION = namedtuple('MSVCExtendedVersionComponentsDefinition', [
-    'msvc_version', # msvc version (e.g., '14.1Exp')
-    'msvc_verstr',  # msvc version numeric string (e.g., '14.1')
-    'msvc_suffix',  # msvc version component type (e.g., 'Exp')
-    'msvc_vernum',  # msvc version floating point number (e.g, 14.1)
-    'msvc_major',   # msvc major version integer number (e.g., 14)
-    'msvc_minor',   # msvc minor version integer number (e.g., 1)
-    'msvc_comps',   # msvc version components tuple (e.g., ('14', '1'))
+    'msvc_version',      # msvc version (e.g., '14.1Exp')
+    'msvc_verstr',       # msvc version numeric string (e.g., '14.1')
+    'msvc_suffix',       # msvc version component type (e.g., 'Exp')
+    'msvc_suffix_rank',  # msvc version component rank (0, 1)
+    'msvc_vernum',       # msvc version floating point number (e.g, 14.1)
+    'msvc_major',        # msvc major version integer number (e.g., 14)
+    'msvc_minor',        # msvc minor version integer number (e.g., 1)
+    'msvc_comps',        # msvc version components tuple (e.g., ('14', '1'))
     'msvc_buildtools',       # msvc build tools
+    'msvc_buildtools_num',   # msvc build tools integer number
     'msvc_buildseries',      # msvc build series
+    'msvc_buildseries_num',  # msvc build series floating point number
     'msvc_toolset_version',  # msvc toolset version
     'msvc_toolset_comps',    # msvc toolset version components
+    'msvc_toolset_is_sxs',   # msvc toolset version is sxs
     'version',               # msvc version or msvc toolset version
 ])
 
@@ -386,6 +390,7 @@ def msvc_extended_version_components(version):
 
     msvc_toolset_version = m.group('version')
     msvc_toolset_comps = tuple(msvc_toolset_version.split('.'))
+    msvc_toolset_is_sxs = is_toolset_sxs(msvc_toolset_version)
 
     vc_verstr = get_msvc_version_prefix(msvc_toolset_version)
     if not vc_verstr:
@@ -414,14 +419,18 @@ def msvc_extended_version_components(version):
         msvc_version = msvc_version,
         msvc_verstr = msvc_verstr,
         msvc_suffix = msvc_suffix,
+        msvc_suffix_rank = 0 if not msvc_suffix else 1,
         msvc_vernum = msvc_vernum,
         msvc_major = msvc_major,
         msvc_minor = msvc_minor,
         msvc_comps = msvc_comps,
-        msvc_buildtools = vc_buildtools_def.vc_buildtools,
+        msvc_buildtools = vc_buildtools_def.msvc_version,
+        msvc_buildtools_num = vc_buildtools_def.msvc_version_numeric,
         msvc_buildseries = vc_buildseries_def.vc_version,
+        msvc_buildseries_num = vc_buildseries_def.vc_version_numeric,
         msvc_toolset_version = msvc_toolset_version,
         msvc_toolset_comps = msvc_toolset_comps,
+        msvc_toolset_is_sxs = msvc_toolset_is_sxs,
         version = version,
     )
 

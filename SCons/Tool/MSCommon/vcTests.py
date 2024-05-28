@@ -236,12 +236,7 @@ class Data:
 
     INSTALLED_VCS = MSCommon.vc.get_installed_vcs()
     INSTALLED_VCS_COMPONENTS = MSCommon.vc.get_installed_vcs_components()
-
     INSTALLED_VCS_TOOLSETS_COMPONENTS = MSCommon.vc.get_installed_vcs_toolsets_components()
-    INSTALLED_VCS_TOOLSETS = set()
-    for msvc_version_def, toolset_version_def in INSTALLED_VCS_TOOLSETS_COMPONENTS:
-        INSTALLED_VCS_TOOLSETS.add(msvc_version_def.msvc_version)
-        INSTALLED_VCS_TOOLSETS.add(toolset_version_def.msvc_version)
 
     @classmethod
     def query_version_list(cls, vcver):
@@ -504,7 +499,7 @@ class MsvcQueryVersionToolsetTests(unittest.TestCase):
 
     def test_valid_vcver(self) -> None:
         for symbol in MSCommon.vc._VCVER:
-            have_msvc = bool(symbol in Data.INSTALLED_VCS_TOOLSETS)
+            have_msvc = bool(symbol in Data.INSTALLED_VCS_TOOLSETS_COMPONENTS.toolset_vcs)
             version_def = MSCommon.msvc_version_components(symbol)
             for prefer_newest in (True, False):
                 if not have_msvc:

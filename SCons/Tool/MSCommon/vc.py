@@ -1229,7 +1229,10 @@ class _VSWhereExecutable(MSVC.Util.AutoInitialize):
 # external use
 
 def vswhere_register_executable(vswhere_exe, priority=None, freeze=False):
-    debug('register vswhere_exe=%s, priority=%s, freeze=%s', repr(vswhere_exe), repr(priority), repr(freeze))
+    debug(
+        'register vswhere_exe=%s, priority=%s, freeze=%s',
+        repr(vswhere_exe), repr(priority), repr(freeze)
+    )
     _VSWhereExecutable.register_vswhere_executable(vswhere_exe, priority=priority)
     if freeze:
         _VSWhereExecutable.freeze_vswhere_executable()
@@ -2525,6 +2528,8 @@ def msvc_toolset_versions(msvc_version=None, full: bool=True, sxs: bool=False, v
         repr(msvc_version), repr(full), repr(sxs), repr(vswhere_exe)
     )
 
+    _VSWhereExecutable.vswhere_freeze_executable(vswhere_exe)
+
     rval = []
 
     if not msvc_version:
@@ -2549,6 +2554,8 @@ def msvc_toolset_versions(msvc_version=None, full: bool=True, sxs: bool=False, v
 def msvc_toolset_versions_spectre(msvc_version=None, vswhere_exe=None):
     debug('msvc_version=%s, vswhere_exe=%s', repr(msvc_version), repr(vswhere_exe))
 
+    _VSWhereExecutable.vswhere_freeze_executable(vswhere_exe)
+
     rval = []
 
     if not msvc_version:
@@ -2570,33 +2577,70 @@ def msvc_toolset_versions_spectre(msvc_version=None, vswhere_exe=None):
     rval = MSVC.ScriptArguments._msvc_toolset_versions_spectre_internal(msvc_version, vc_dir)
     return rval
 
-def get_installed_vcs_toolsets_components(env=None):
+_InstalledVersionToolset = namedtuple('_InstalledVersionToolset', [
+    'msvc_version_def',
+    'toolset_version_def',
+])
 
-    vcs = get_installed_vcs(env)
+_InstalledVCSToolsetsComponents = namedtuple('_InstalledVCSToolsetComponents', [
+    'sxs_map',
+    'toolset_vcs',
+    'msvc_toolset_component_defs',
+])
 
+def get_installed_vcs_toolsets_components(vswhere_exe=None):
+    debug('vswhere_exe=%s', repr(vswhere_exe))
+
+    _VSWhereExecutable.vswhere_freeze_executable(vswhere_exe)
+
+    sxs_map = {}
+    toolset_vcs = set()
     msvc_toolset_component_defs = []
 
+    vcs = get_installed_vcs()
     for msvc_version in vcs:
+
+        vc_dir = _find_vc_pdir(msvc_version, vswhere_exe)
+        if not vc_dir:
+            continue
+
         msvc_version_def = MSVC.Util.msvc_version_components(msvc_version)
+        toolset_vcs.add(msvc_version_def.msvc_version)
+
         if msvc_version_def.msvc_vernum > 14.0:
-            # VS2017 and later
-            toolset_all_list = msvc_toolset_versions(msvc_version=msvc_version, full=True, sxs=True)
-            for toolset_version in toolset_all_list:
-                debug('msvc_version=%s, toolset_version=%s', repr(msvc_version), repr(toolset_version))
-                toolset_version_def = MSVC.Util.msvc_extended_version_components(toolset_version)
-                if not toolset_version_def:
-                    continue
-                rval = (msvc_version_def, toolset_version_def)
-                msvc_toolset_component_defs.append(rval)
+
+            toolsets_sxs, toolsets_full = MSVC.ScriptArguments._msvc_version_toolsets_internal(
+                msvc_version, vc_dir
+            )
+
+            debug('msvc_version=%s, toolset_sxs=%s', repr(msvc_version), repr(toolsets_sxs))
+            sxs_map.update(toolsets_sxs)
+
         else:
-            # VS2015 and earlier
-            toolset_version = msvc_version_def.msvc_verstr
+
+            toolsets_full = [msvc_version_def.msvc_verstr]
+
+        for toolset_version in toolsets_full:
             debug('msvc_version=%s, toolset_version=%s', repr(msvc_version), repr(toolset_version))
+
             toolset_version_def = MSVC.Util.msvc_extended_version_components(toolset_version)
-            rval = (msvc_version_def, toolset_version_def)
+            if not toolset_version_def:
+                continue
+            toolset_vcs.add(toolset_version_def.msvc_version)
+
+            rval = _InstalledVersionToolset(
+                msvc_version_def=msvc_version_def,
+                toolset_version_def=toolset_version_def,
+            )
             msvc_toolset_component_defs.append(rval)
 
-    return msvc_toolset_component_defs
+    installed_vcs_toolsets_components = _InstalledVCSToolsetsComponents(
+        sxs_map=sxs_map,
+        toolset_vcs=toolset_vcs,
+        msvc_toolset_component_defs=msvc_toolset_component_defs,
+    )
+
+    return installed_vcs_toolsets_components
 
 def msvc_query_version_toolset(version=None, prefer_newest: bool=True, vswhere_exe=None):
     """
@@ -2642,7 +2686,10 @@ def msvc_query_version_toolset(version=None, prefer_newest: bool=True, vswhere_e
         MSVCToolsetVersionNotFound: when the specified version is not found.
         MSVCArgumentError: when argument validation fails.
     """
-    debug('version=%s, prefer_newest=%s', repr(version), repr(prefer_newest))
+    debug(
+        'version=%s, prefer_newest=%s, vswhere_exe=%s',
+        repr(version), repr(prefer_newest), repr(vswhere_exe)
+    )
 
     _VSWhereExecutable.vswhere_freeze_executable(vswhere_exe)
 

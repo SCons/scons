@@ -230,7 +230,7 @@ for vc_buildtools, vc_buildseries_list, vc_runtime, vc_istoolset in [
 
     MSVC_BUILDTOOLS_INTERNAL[vc_buildtools] = vc_buildtools_def
     MSVC_BUILDTOOLS_EXTERNAL[vc_buildtools] = vc_buildtools_def
-    MSVC_BUILDTOOLS_EXTERNAL[vc_version] = vc_buildtools_def
+    MSVC_BUILDTOOLS_EXTERNAL[msvc_version] = vc_buildtools_def
 
     for vc_buildseries_def in vc_buildseries_list:
         VC_BUILDTOOLS_MAP[vc_buildseries_def.vc_buildseries] = vc_buildtools_def

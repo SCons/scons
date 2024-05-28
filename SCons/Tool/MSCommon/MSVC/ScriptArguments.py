@@ -1066,6 +1066,14 @@ def _msvc_toolset_versions_internal(msvc_version, vc_dir, full: bool=True, sxs: 
 
     return toolset_versions
 
+def _msvc_version_toolsets_internal(msvc_version, vc_dir):
+
+    msvc = _msvc_version(msvc_version)
+
+    toolsets_sxs, toolsets_full = _msvc_version_toolsets(msvc, vc_dir)
+
+    return toolsets_sxs, toolsets_full
+
 def _msvc_toolset_versions_spectre_internal(msvc_version, vc_dir):
 
     msvc = _msvc_version(msvc_version)
