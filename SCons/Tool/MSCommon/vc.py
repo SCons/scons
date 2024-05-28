@@ -2570,6 +2570,34 @@ def msvc_toolset_versions_spectre(msvc_version=None, vswhere_exe=None):
     rval = MSVC.ScriptArguments._msvc_toolset_versions_spectre_internal(msvc_version, vc_dir)
     return rval
 
+def get_installed_vcs_toolsets_components(env=None):
+
+    vcs = get_installed_vcs(env)
+
+    msvc_toolset_component_defs = []
+
+    for msvc_version in vcs:
+        msvc_version_def = MSVC.Util.msvc_version_components(msvc_version)
+        if msvc_version_def.msvc_vernum > 14.0:
+            # VS2017 and later
+            toolset_all_list = msvc_toolset_versions(msvc_version=msvc_version, full=True, sxs=True)
+            for toolset_version in toolset_all_list:
+                debug('msvc_version=%s, toolset_version=%s', repr(msvc_version), repr(toolset_version))
+                toolset_version_def = MSVC.Util.msvc_extended_version_components(toolset_version)
+                if not toolset_version_def:
+                    continue
+                rval = (msvc_version_def, toolset_version_def)
+                msvc_toolset_component_defs.append(rval)
+        else:
+            # VS2015 and earlier
+            toolset_version = msvc_version_def.msvc_verstr
+            debug('msvc_version=%s, toolset_version=%s', repr(msvc_version), repr(toolset_version))
+            toolset_version_def = MSVC.Util.msvc_extended_version_components(toolset_version)
+            rval = (msvc_version_def, toolset_version_def)
+            msvc_toolset_component_defs.append(rval)
+
+    return msvc_toolset_component_defs
+
 def msvc_query_version_toolset(version=None, prefer_newest: bool=True, vswhere_exe=None):
     """
     Return an msvc version and a toolset version given a version
@@ -2616,12 +2644,12 @@ def msvc_query_version_toolset(version=None, prefer_newest: bool=True, vswhere_e
     """
     debug('version=%s, prefer_newest=%s', repr(version), repr(prefer_newest))
 
+    _VSWhereExecutable.vswhere_freeze_executable(vswhere_exe)
+
     msvc_version = None
     msvc_toolset_version = None
 
     with MSVC.Policy.msvc_notfound_policy_contextmanager('suppress'):
-
-        _VSWhereExecutable.vswhere_freeze_executable(vswhere_exe)
 
         vcs = get_installed_vcs()
 
