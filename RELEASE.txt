@@ -69,7 +69,7 @@ FIXES
 - MSVC: For Visual Studio 2005 (8.0) to Visual Studio 2015 (14.0), detection of
   installed files was expanded to include the primary msvc batch file, dependent
   msvc batch file, and compiler executable. In certain installations, the
-  dependent msvc batch file may not exist while the compiler executable does exists
+  dependent msvc batch file may not exist while the compiler executable does exist
   resulting in a build failure.
 - MSVC: Visual Studio 2008 (9.0) Visual C++ For Python was not detected when
   installed using the ALLUSERS command-line option:
