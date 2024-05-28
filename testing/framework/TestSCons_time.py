@@ -40,6 +40,7 @@ import sys
 
 from TestCommon import *
 from TestCommon import __all__
+from TestCmd import IS_WINDOWS
 # some of the scons_time tests may need regex-based matching:
 from TestSCons import search_re, search_re_in_list
 
@@ -236,7 +237,11 @@ class TestSCons_time(TestCommon):
         except AttributeError:
             pass
         else:
-            tempdir = realpath(tempdir)
+            # Don't realpath on Windows, tempdir could contain 8+3 path
+            # E.g. username on GitHub runner is "runneradmin" -> "RUNNER~1"
+            # We don't want to convert that back!
+            if not IS_WINDOWS:
+                tempdir = realpath(tempdir)
 
         args = (tempdir, 'scons-time-',) + args
         x = os.path.join(*args)

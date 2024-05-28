@@ -70,6 +70,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Thaddeus Crews:
     - GetSConsVersion() to grab the latest SCons version without needing to
       access SCons internals.
+    - Migrate setup.cfg logic to pyproject.toml; remove setup.cfg.
 
   From Raymond Li:
     - Fix issue #3935: OSErrors are now no longer hidden during execution of
@@ -129,6 +130,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       tweaked the Util package doc build so it's structured more like the
       other packages (a missed part of the transition when it was split).
     - Updated manpage description of Command "builder" and function.
+    - Framework for scons-time tests adjusted so a path with a long username
+      Windows has squashed doesn't get re-expanded. Fixes a problem seen
+      on GitHub Windows runner which uses a name "runneradmin".
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700

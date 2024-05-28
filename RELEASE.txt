@@ -114,7 +114,8 @@ IMPROVEMENTS
 PACKAGING
 ---------
 
-- List changes in the way SCons is packaged and/or released
+- setup.cfg logic now handled via pyproject.toml; consequently, setup.cfg
+  was removed.
 
 
 DOCUMENTATION

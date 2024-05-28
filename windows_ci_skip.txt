@@ -33,8 +33,6 @@ test/packaging/msi/package.py
 test/packaging/tar/xz_packaging.py
 test/scons-time/run/config/python.py
 test/scons-time/run/option/python.py
-test/scons-time/run/option/quiet.py
-test/scons-time/run/option/verbose.py
 test/sconsign/script/no-SConsignFile.py
 test/sconsign/script/SConsignFile.py
 test/sconsign/script/Signatures.py
