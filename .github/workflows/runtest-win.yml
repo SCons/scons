@@ -13,6 +13,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+    SCONS_CACHE_MSVC_CONFIG: 1
+
 jobs:
   runtest-win32:
     runs-on: windows-latest
