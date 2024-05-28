@@ -40,8 +40,8 @@ jobs:
 
       - name: Install dependencies including ninja ${{ matrix.os }}
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install -r requirements-dev.txt
+          python -m pip install --progress-bar off --upgrade pip
+          python -m pip install --progress-bar off -r requirements-dev.txt
           # sudo apt-get update
 
       - name: runtest ${{ matrix.os }}

@@ -27,10 +27,14 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install dependencies including ninja
+      - name: Install Python dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements-dev.txt
+          python -m pip install --progress-bar --upgrade off pip
+          python -m pip install --progress-bar off -r requirements-dev.txt
+
+      - name: Install Chocolatey packages
+        run: |
+          choco install dmd winflexbison3
 
       - name: runtest
         run: |
