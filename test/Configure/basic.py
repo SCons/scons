@@ -39,6 +39,7 @@ NCF = test.NCF  # non-cached build failure
 CF  = test.CF   # cached build failure
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment()
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])
