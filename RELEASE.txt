@@ -88,6 +88,10 @@ DEVELOPMENT
   by adding SKIP_PDF=1. This should help with distro packaging of SCons,
   which now does not need "fop" and other tools to be set up in order to
   build pdf versions which are then ignored.
+- .gitattributes has been setup to mirror .editorconfig's eol settings.
+  The repo-wide line-ending is now `lf`, with the exception of a few
+  Windows-only files using `crlf` instead. Any files not already fitting
+  this format have been explicitly converted.
 
 
 Thanks to the following contributors listed below for their contributions to this release.
