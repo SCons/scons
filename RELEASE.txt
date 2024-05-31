@@ -92,6 +92,9 @@ DEVELOPMENT
   The repo-wide line-ending is now `lf`, with the exception of a few
   Windows-only files using `crlf` instead. Any files not already fitting
   this format have been explicitly converted.
+- Repository linter/formatter changed from flake8/black to ruff, as the
+  latter grants an insane speed boost without compromising functionality.
+  Existing settings were migrated 1-to-1 where possible.
 
 
 Thanks to the following contributors listed below for their contributions to this release.
