@@ -1,7 +1,10 @@
+* text=auto eol=lf
+*.bat eol=crlf
+*.cmd eol=crlf
+*.ps1 eol=crlf
+
 doc/* linguist-documentation
 SCons/Tool/docbook/docbook-xsl-1.76.1 linguist-vendored
 *.xml linguist-documentation
 *.xsl linguist-documentation
 *.gen linguist-documentation
-
-*.in eol=lf
