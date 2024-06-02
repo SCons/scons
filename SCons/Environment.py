@@ -512,9 +512,9 @@ class BuilderDict(UserDict):
 
 _is_valid_var = re.compile(r'[_a-zA-Z]\w*$')
 
-def is_valid_construction_var(varstr) -> bool:
+def is_valid_construction_var(varstr: str) -> bool:
     """Return True if *varstr* is a legitimate construction variable."""
-    return _is_valid_var.match(varstr)
+    return bool(_is_valid_var.match(varstr))
 
 
 class SubstitutionEnvironment:
