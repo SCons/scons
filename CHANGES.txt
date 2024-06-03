@@ -85,6 +85,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Now matches the annotation and docstring (which were prematurely
       updated in 4.6). All SCons usage except unit test was already fully
       consistent with a bool.
+    - When a variable is added to a Variables object, it can now be flagged
+      as "don't perform substitution". This allows variables to contain
+      characters which would otherwise cause expansion. Fixes #4241.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700

@@ -49,7 +49,7 @@ __all__ = [
 class Variable:
     """A Build Variable."""
 
-    __slots__ = ('key', 'aliases', 'help', 'default', 'validator', 'converter')
+    __slots__ = ('key', 'aliases', 'help', 'default', 'validator', 'converter', 'do_subst')
 
     def __lt__(self, other):
         """Comparison fuction so Variable instances sort."""
@@ -87,9 +87,9 @@ class Variables:
     ) -> None:
         self.options: List[Variable] = []
         self.args = args if args is not None else {}
-        if not SCons.Util.is_List(files):
+        if not SCons.Util.is_Sequence(files):
             files = [files] if files else []
-        self.files = files
+        self.files: Sequence[str] = files
         self.unknown: Dict[str, str] = {}
 
     def __str__(self) -> str:
@@ -132,6 +132,7 @@ class Variables:
         option.default = default
         option.validator = validator
         option.converter = converter
+        option.do_subst = kwargs.get("subst", True)
 
         self.options.append(option)
 
@@ -171,8 +172,11 @@ class Variables:
             value before putting it in the environment. (default: ``None``)
         """
         if SCons.Util.is_Sequence(key):
-            if not (len(args) or len(kwargs)):
-                return self._do_add(*key)
+            # If no other positional args (and no fundamental kwargs),
+            # unpack key, and pass the kwargs on:
+            known_kw = {'help', 'default', 'validator', 'converter'}
+            if not args and not known_kw.intersection(kwargs.keys()):
+                return self._do_add(*key, **kwargs)
 
         return self._do_add(key, *args, **kwargs)
 
@@ -247,7 +251,10 @@ class Variables:
         # apply converters
         for option in self.options:
             if option.converter and option.key in values:
-                value = env.subst(f'${option.key}')
+                if option.do_subst:
+                    value = env.subst(f'${option.key}')
+                else:
+                    value = env[option.key]
                 try:
                     try:
                         env[option.key] = option.converter(value)
@@ -262,7 +269,11 @@ class Variables:
         # apply validators
         for option in self.options:
             if option.validator and option.key in values:
-                option.validator(option.key, env.subst(f'${option.key}'), env)
+                if option.do_subst:
+                    value = env.subst('${%s}'%option.key)
+                else:
+                    value = env[option.key]
+                option.validator(option.key, value, env)
 
     def UnknownVariables(self) -> dict:
         """Return dict of unknown variables.
@@ -340,7 +351,6 @@ class Variables:
         #   removed so now we have to convert to a key.
         if callable(sort):
             options = sorted(self.options, key=cmp_to_key(lambda x, y: sort(x.key, y.key)))
-
         elif sort is True:
             options = sorted(self.options)
         else:
