@@ -113,7 +113,8 @@ class Variables:
     ) -> None:
         """Create a Variable and add it to the list.
 
-        Internal routine, not public API.
+        This is the internal implementation for :meth:`Add` and
+        :meth:`AddVariables`. Not part of the public API.
 
         .. versionadded:: 4.8.0
               *subst* keyword argument is now recognized.
@@ -157,15 +158,16 @@ class Variables:
         """Add a Build Variable.
 
         Arguments:
-          key: the name of the variable, or a 5-tuple (or list).
-            If *key* is a tuple, and there are no additional positional
-            arguments, it is unpacked into the variable name plus the
-            *help*, *default*, *validator* and *converter keyword args.
-            If *key* is a tuple and there are additional positional arguments,
-            the first word of the tuple is taken as the variable name,
-            and the remainder as aliases.
+          key: the name of the variable, or a 5-tuple (or other sequence).
+            If *key* is a tuple, and there are no additional arguments
+            except the *help*, *default*, *validator* and *converter*
+            keyword arguments, *key* is unpacked into the variable name
+            plus the *help*, *default*, *validator* and *converter*
+            arguments; if there are additional arguments, the first
+            elements of *key* is taken as the variable name, and the
+            remainder as aliases.
           args: optional positional arguments, corresponding to the
-            *help*, *default*, *validator* and *converter keyword args.
+            *help*, *default*, *validator* and *converter* keyword args.
           kwargs: arbitrary keyword arguments used by the variable itself.
 
         Keyword Args:
@@ -174,7 +176,7 @@ class Variables:
           validator: function called to validate the value (default: ``None``)
           converter: function to be called to convert the variable's
             value before putting it in the environment. (default: ``None``)
-          subst: if true perform substitution on the value before the converter
+          subst: perform substitution on the value before the converter
             and validator functions (if any) are called (default: ``True``)
 
         .. versionadded:: 4.8.0
