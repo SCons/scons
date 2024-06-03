@@ -135,7 +135,8 @@ class Variables:
         option.default = default
         option.validator = validator
         option.converter = converter
-        option.do_subst = kwargs.get("subst", True)
+        option.do_subst = kwargs.pop("subst", True)
+        # TODO should any remaining kwargs be saved in the Variable?
 
         self.options.append(option)
 
@@ -158,21 +159,26 @@ class Variables:
         Arguments:
           key: the name of the variable, or a 5-tuple (or list).
             If *key* is a tuple, and there are no additional positional
-            arguments, it is unpacked into the variable name plus the four
-            listed keyword arguments from below.
+            arguments, it is unpacked into the variable name plus the
+            *help*, *default*, *validator* and *converter keyword args.
             If *key* is a tuple and there are additional positional arguments,
             the first word of the tuple is taken as the variable name,
             and the remainder as aliases.
-          args: optional positional arguments, corresponding to the four
-            listed keyword arguments.
+          args: optional positional arguments, corresponding to the
+            *help*, *default*, *validator* and *converter keyword args.
           kwargs: arbitrary keyword arguments used by the variable itself.
 
         Keyword Args:
-          help: help text for the variable (default: ``""``)
+          help: help text for the variable (default: empty string)
           default: default value for variable (default: ``None``)
           validator: function called to validate the value (default: ``None``)
           converter: function to be called to convert the variable's
             value before putting it in the environment. (default: ``None``)
+          subst: if true perform substitution on the value before the converter
+            and validator functions (if any) are called (default: ``True``)
+
+        .. versionadded:: 4.8.0
+              The *subst* keyword argument is now specially recognized.
         """
         if SCons.Util.is_Sequence(key):
             # If no other positional args (and no fundamental kwargs),
