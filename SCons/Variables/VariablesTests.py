@@ -151,26 +151,46 @@ class VariablesTestCase(unittest.TestCase):
         assert env['ANSWER'] == 54
 
         # Test that the value is not substituted if 'subst' is False
-        def check_subst(key, value, env) -> None:
+        # and that it is if 'subst' is True.
+        def check_no_subst(key, value, env) -> None:
             """Check that variable was not substituted before we get called."""
             assert value == "$ORIGIN", \
                 f"Validator: '$ORIGIN' was substituted to {value!r}"
 
-        def conv_subst(value) -> None:
+        def conv_no_subst(value) -> None:
             """Check that variable was not substituted before we get called."""
             assert value == "$ORIGIN", \
                 f"Converter: '$ORIGIN' was substituted to {value!r}"
             return value
 
+        def check_subst(key, value, env) -> None:
+            """Check that variable was substituted before we get called."""
+            assert value == "Value", \
+                f"Validator: '$SUB' was not substituted {value!r} instead of 'Value'"
+
+        def conv_subst(value) -> None:
+            """Check that variable was not substituted before we get called."""
+            assert value == "Value", \
+                f"Converter: '$SUB' was substituted to {value!r} instead of 'Value'"
+            return value
+
         opts.Add('NOSUB',
                  help='Variable whose value will not be substituted',
                  default='$ORIGIN',
+                 validator=check_no_subst,
+                 converter=conv_no_subst,
+                 subst=False)
+        opts.Add('SUB',
+                 help='Variable whose value will be substituted',
+                 default='$VAR',
                  validator=check_subst,
                  converter=conv_subst,
-                 subst=False)
+                 subst=True)
         env = Environment()
+        env['VAR'] = "Value"
         opts.Update(env)
-        assert env['NOSUB'] == "$ORIGIN"
+        assert env['NOSUB'] == "$ORIGIN", env['NOSUB']
+        assert env['SUB'] == env['VAR'], env['SUB']
 
         # Test that a bad value from the file is used and
         # validation fails correctly.
