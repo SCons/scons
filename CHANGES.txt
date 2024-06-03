@@ -4,8 +4,11 @@
 
                             Change Log
 
-NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
-NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer supported
+NOTE: The 4.0.0 release of SCons dropped Python 2.7 support. Use 3.1.2 if
+  Python 2.7 support is required (but note old SCons releases are unsupported).
+NOTE: Since SCons 4.3.0, Python 3.6.0 or above is required.
+NOTE: Python 3.6 support is deprecated and will be dropped in a future reease.
+  python.org no longer supports 3.6 or 3.7, and will drop 3.8 in Oct. 2024.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
@@ -76,6 +79,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Framework for scons-time tests adjusted so a path with a long username
       Windows has squashed doesn't get re-expanded. Fixes a problem seen
       on GitHub Windows runner which uses a name "runneradmin".
+    - SCons.Environment.is_valid_construction_var() now returns a boolean to
+      match the convention that functions beginning with "is" have yes/no
+      answers (previously returned either None or an re.match object).
+      Now matches the annotation and docstring (which were prematurely
+      updated in 4.6). All SCons usage except unit test was already fully
+      consistent with a bool.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
