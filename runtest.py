@@ -417,7 +417,7 @@ class SystemExecutor(RuntestBase):
     def execute(self, env):
         self.stderr, self.stdout, s = spawn_it(self.command_args, env)
         self.status = s
-        if s < 0 or s > 2:
+        if s < 0 or s > 2 and s != 5:
             sys.stdout.write("Unexpected exit status %d\n" % s)
 
 

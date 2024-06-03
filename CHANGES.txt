@@ -85,6 +85,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Now matches the annotation and docstring (which were prematurely
       updated in 4.6). All SCons usage except unit test was already fully
       consistent with a bool.
+    - The test runner now recognizes the unittest module's return code of 5,
+      which means no tests were run. SCons/Script/MainTests.py currently
+      has no tests, so this particular error code is expected - should not
+      cause runtest to give up with an "unknown error code".
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
