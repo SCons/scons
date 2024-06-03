@@ -150,6 +150,28 @@ class VariablesTestCase(unittest.TestCase):
         opts.Update(env, {})
         assert env['ANSWER'] == 54
 
+        # Test that the value is not substituted if 'subst' is False
+        def check_subst(key, value, env) -> None:
+            """Check that variable was not substituted before we get called."""
+            assert value == "$ORIGIN", \
+                f"Validator: '$ORIGIN' was substituted to {value!r}"
+
+        def conv_subst(value) -> None:
+            """Check that variable was not substituted before we get called."""
+            assert value == "$ORIGIN", \
+                f"Converter: '$ORIGIN' was substituted to {value!r}"
+            return value
+
+        opts.Add('NOSUB',
+                 help='Variable whose value will not be substituted',
+                 default='$ORIGIN',
+                 validator=check_subst,
+                 converter=conv_subst,
+                 subst=False)
+        env = Environment()
+        opts.Update(env)
+        assert env['NOSUB'] == "$ORIGIN"
+
         # Test that a bad value from the file is used and
         # validation fails correctly.
         test = TestSCons.TestSCons()

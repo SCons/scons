@@ -4835,7 +4835,7 @@ not to any stored-values files.
 
 <variablelist>
   <varlistentry id="v-Add">
-  <term><replaceable>vars</replaceable>.<function>Add</function>(<parameter>key, [help, default, validator, converter, do_subst]</parameter>)</term>
+  <term><replaceable>vars</replaceable>.<function>Add</function>(<parameter>key, [help, default, validator, converter, subst]</parameter>)</term>
   <listitem>
 <para>Add a customizable &consvar; to the &Variables; object.
 <parameter>key</parameter>
@@ -4889,12 +4889,12 @@ it can raise a <exceptionname>ValueError</exceptionname>.
 
 <para>
 Substitution will be performed on the variable value
-as it is added, before the converter and validator are called,
-unless the optional <parameter>do_subst</parameter> parameter
+before the converter and validator are called,
+unless the optional <parameter>subst</parameter> parameter
 is false (default <literal>True</literal>).
 Suppressing substitution may be useful if the variable value
-looks like a &consvar; reference (<literal>$VAR</literal>)
-to be expanded later.
+looks like a &consvar; reference (e.g. <literal>$VAR</literal>)
+and the validator and/or converter should see it unexpanded.
 </para>
 
 <para>
@@ -4932,7 +4932,7 @@ vars.Add('COLOR', validator=valid_color)
 
 <para>
 <emphasis>Changed in version 4.8.0:</emphasis>
-added the <parameter>do_subst</parameter> parameter.
+added the <parameter>subst</parameter> parameter.
 </para>
   </listitem>
   </varlistentry>

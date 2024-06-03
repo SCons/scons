@@ -114,6 +114,9 @@ class Variables:
         """Create a Variable and add it to the list.
 
         Internal routine, not public API.
+
+        .. versionadded:: 4.8.0
+              *subst* keyword argument is now recognized.
         """
         option = Variable()
 
@@ -252,7 +255,7 @@ class Variables:
         for option in self.options:
             if option.converter and option.key in values:
                 if option.do_subst:
-                    value = env.subst(f'${option.key}')
+                    value = env.subst('${%s}' % option.key)
                 else:
                     value = env[option.key]
                 try:
@@ -270,7 +273,7 @@ class Variables:
         for option in self.options:
             if option.validator and option.key in values:
                 if option.do_subst:
-                    value = env.subst('${%s}'%option.key)
+                    value = env.subst('${%s}' % option.key)
                 else:
                     value = env[option.key]
                 option.validator(option.key, value, env)
