@@ -79,8 +79,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Framework for scons-time tests adjusted so a path with a long username
       Windows has squashed doesn't get re-expanded. Fixes a problem seen
       on GitHub Windows runner which uses a name "runneradmin".
-    - SCons.Environment.is_valid_construction_var now returns a boolean to
-      match the convention that functions beginnig with "is" have yes/no
+    - SCons.Environment.is_valid_construction_var() now returns a boolean to
+      match the convention that functions beginning with "is" have yes/no
       answers (previously returned either None or an re.match object).
       Now matches the annotation and docstring (which were prematurely
       updated in 4.6). All SCons usage except unit test was already fully

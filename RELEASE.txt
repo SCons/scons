@@ -44,6 +44,12 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   of CCFLAGS; the latter variable could cause a compiler warning.
 - The implementation of Variables was slightly refactored, there should
   not be user-visible changes.
+- SCons.Environment.is_valid_construction_var() now returns a boolean to
+  match the convention that functions beginning with "is" have yes/no
+  answers (previously returned either None or an re.match object).
+  Now matches the annotation and docstring (which were prematurely
+  updated in 4.6). All SCons usage except unit test was already fully
+  consistent with a bool.
 
 FIXES
 -----
