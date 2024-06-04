@@ -85,6 +85,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Now matches the annotation and docstring (which were prematurely
       updated in 4.6). All SCons usage except unit test was already fully
       consistent with a bool.
+    - Updated the notes about reproducible builds with SCons and the example.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
