@@ -38,7 +38,6 @@ from SCons.Environment import (
     NoSubstitutionProxy,
     OverrideEnvironment,
     SubstitutionEnvironment,
-    is_valid_construction_var,
 )
 from SCons.Util import CLVar
 from SCons.SConsign import current_sconsign_filename
@@ -4141,40 +4140,6 @@ class NoSubstitutionProxyTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert x == 'x ttt sss y', x
         x = proxy.subst_target_source(*args, **kw)
         assert x == ' ttt sss ', x
-
-class EnvironmentVariableTestCase(unittest.TestCase):
-
-    def test_is_valid_construction_var(self) -> None:
-        """Testing is_valid_construction_var()"""
-        r = is_valid_construction_var("_a")
-        assert r, r
-        r = is_valid_construction_var("z_")
-        assert r, r
-        r = is_valid_construction_var("X_")
-        assert r, r
-        r = is_valid_construction_var("2a")
-        assert not r, r
-        r = is_valid_construction_var("a2_")
-        assert r, r
-        r = is_valid_construction_var("/")
-        assert not r, r
-        r = is_valid_construction_var("_/")
-        assert not r, r
-        r = is_valid_construction_var("a/")
-        assert not r, r
-        r = is_valid_construction_var(".b")
-        assert not r, r
-        r = is_valid_construction_var("_.b")
-        assert not r, r
-        r = is_valid_construction_var("b1._")
-        assert not r, r
-        r = is_valid_construction_var("-b")
-        assert not r, r
-        r = is_valid_construction_var("_-b")
-        assert not r, r
-        r = is_valid_construction_var("b1-_")
-        assert not r, r
-
 
 
 if __name__ == "__main__":

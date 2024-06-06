@@ -28,7 +28,6 @@ import sys
 from functools import cmp_to_key
 from typing import Callable, Dict, List, Optional, Sequence, Union
 
-import SCons.Environment
 import SCons.Errors
 import SCons.Util
 import SCons.Warnings
@@ -70,13 +69,15 @@ class Variables:
       files: string or list of strings naming variable config scripts
          (default ``None``)
       args: dictionary to override values set from *files*.  (default ``None``)
-      is_global: if true, return a global singleton Variables object instead
-          of a fresh instance. Currently inoperable (default ``False``)
+      is_global: if true, return a global singleton :class:`Variables` object
+         instead of a fresh instance. Currently inoperable (default ``False``)
 
     .. versionchanged:: 4.8.0
-         The default for *is_global* changed to ``False`` (previously
-         ``True`` but it had no effect due to an implementation error).
-         *is_global* is deprecated.
+       The default for *is_global* changed to ``False`` (previously
+       ``True`` but it had no effect due to an implementation error).
+
+    .. deprecated:: 4.8.0
+       *is_global* is deprecated.
     """
 
     def __init__(
@@ -130,7 +131,7 @@ class Variables:
             option.key = key
             # TODO: normalize to not include key in aliases. Currently breaks tests.
             option.aliases = [key,]
-        if not SCons.Environment.is_valid_construction_var(option.key):
+        if not SCons.Util.is_valid_construction_var(option.key):
             raise SCons.Errors.UserError(f"Illegal Variables key {option.key!r}")
         option.help = help
         option.default = default

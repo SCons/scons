@@ -9,6 +9,7 @@ Routines for working with environments and construction variables
 that don't need the specifics of the Environment class.
 """
 
+import re
 import os
 from types import MethodType, FunctionType
 from typing import Union, Callable, Optional, Any
@@ -328,6 +329,12 @@ def AddMethod(obj, function: Callable, name: Optional[str] = None) -> None:
 
     setattr(obj, name, method)
 
+
+_is_valid_var_re = re.compile(r'[_a-zA-Z]\w*$')
+
+def is_valid_construction_var(varstr: str) -> bool:
+    """Return True if *varstr* is a legitimate construction variable."""
+    return bool(_is_valid_var_re.match(varstr))
 
 # Local Variables:
 # tab-width:4
