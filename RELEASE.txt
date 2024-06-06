@@ -98,6 +98,10 @@ DEVELOPMENT
   The repo-wide line-ending is now `lf`, with the exception of a few
   Windows-only files using `crlf` instead. Any files not already fitting
   this format have been explicitly converted.
+- The test runner now recognizes the unittest module's return code of 5,
+  which means no tests were run. SCons/Script/MainTests.py currently
+  has no tests, so this particular error code is expected - should not
+  cause runtest to give up with an "unknown error code".
 
 
 Thanks to the following contributors listed below for their contributions to this release.
