@@ -4835,7 +4835,7 @@ not to any stored-values files.
 
 <variablelist>
   <varlistentry id="v-Add">
-  <term><replaceable>vars</replaceable>.<function>Add</function>(<parameter>key, [help, default, validator, converter]</parameter>)</term>
+  <term><replaceable>vars</replaceable>.<function>Add</function>(<parameter>key, [help, default, validator, converter, subst]</parameter>)</term>
   <listitem>
 <para>Add a customizable &consvar; to the &Variables; object.
 <parameter>key</parameter>
@@ -4888,6 +4888,16 @@ it can raise a <exceptionname>ValueError</exceptionname>.
 </para>
 
 <para>
+Substitution will be performed on the variable value
+before the converter and validator are called,
+unless the optional <parameter>subst</parameter> parameter
+is false (default <literal>True</literal>).
+Suppressing substitution may be useful if the variable value
+looks like a &consvar; reference (e.g. <literal>$VAR</literal>)
+and the validator and/or converter should see it unexpanded.
+</para>
+
+<para>
 As a special case, if <parameter>key</parameter>
 is a sequence and is the <emphasis>only</emphasis>
 argument to &Add;, it is unpacked into the five parameters
@@ -4919,6 +4929,11 @@ def valid_color(key, val, env):
 
 vars.Add('COLOR', validator=valid_color)
 </programlisting>
+
+<para>
+<emphasis>Changed in version 4.8.0:</emphasis>
+added the <parameter>subst</parameter> parameter.
+</para>
   </listitem>
   </varlistentry>
 

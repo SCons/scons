@@ -85,6 +85,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Now matches the annotation and docstring (which were prematurely
       updated in 4.6). All SCons usage except unit test was already fully
       consistent with a bool.
+    - When a variable is added to a Variables object, it can now be flagged
+      as "don't perform substitution" by setting the argument subst. 
+      This allows variables to contain characters which would otherwise 
+      cause expansion. Fixes #4241.
     - The test runner now recognizes the unittest module's return code of 5,
       which means no tests were run. SCons/Script/MainTests.py currently
       has no tests, so this particular error code is expected - should not
