@@ -61,6 +61,7 @@ FIXES
 - Improved the conversion of a "foreign" exception from an action
   into BuildError by making sure our defaults get applied even in
   corner cases. Fixes Issue #4530
+- The Clone() method now respects the variables argument (fixes #3590)
 
 IMPROVEMENTS
 ------------
@@ -85,6 +86,7 @@ DOCUMENTATION
 - Restructured API Docs build so main package contents are listed
   before contents of package submodules.
 - Updated manpage description of Command "builder" and function.
+- Updated the notes about reproducible builds with SCons and the example.
 
 
 
@@ -101,6 +103,10 @@ DEVELOPMENT
   The repo-wide line-ending is now `lf`, with the exception of a few
   Windows-only files using `crlf` instead. Any files not already fitting
   this format have been explicitly converted.
+- The test runner now recognizes the unittest module's return code of 5,
+  which means no tests were run. SCons/Script/MainTests.py currently
+  has no tests, so this particular error code is expected - should not
+  cause runtest to give up with an "unknown error code".
 
 
 Thanks to the following contributors listed below for their contributions to this release.

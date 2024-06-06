@@ -1568,16 +1568,28 @@ class Base(SubstitutionEnvironment):
                     self._dict[key] = dk + val
         self.scanner_map_delete(kw)
 
-    def Clone(self, tools=[], toolpath=None, parse_flags = None, **kw):
+    def Clone(self, tools=[], toolpath=None, variables=None, parse_flags=None, **kw):
         """Return a copy of a construction Environment.
 
-        The copy is like a Python "deep copy"--that is, independent
-        copies are made recursively of each objects--except that
-        a reference is copied when an object is not deep-copyable
-        (like a function).  There are no references to any mutable
-        objects in the original Environment.
-        """
+        The copy is like a Python "deep copy": independent copies are made
+        recursively of each object, except that a reference is copied when
+        an object is not deep-copyable (like a function).  There are no
+        references to any mutable objects in the original environment.
 
+        Unrecognized keyword arguments are taken as construction variable
+        assignments.
+
+        Arguments:
+           tools: list of tools to initialize.
+           toolpath: list of paths to search for tools.
+           variables: a :class:`~SCons.Variables.Variables` object to
+              use to populate construction variables from command-line
+              variables.
+           parse_flags: option strings to parse into construction variables.
+
+        .. versionadded:: 4.8.0
+              The optional *variables* parameter was added.
+        """
         builders = self._dict.get('BUILDERS', {})
 
         clone = copy.copy(self)
@@ -1603,6 +1615,8 @@ class Base(SubstitutionEnvironment):
         for key, value in kw.items():
             new[key] = SCons.Subst.scons_subst_once(value, self, key)
         clone.Replace(**new)
+        if variables:
+            variables.Update(clone)
 
         apply_tools(clone, tools, toolpath)
 
