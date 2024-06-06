@@ -89,6 +89,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       which means no tests were run. SCons/Script/MainTests.py currently
       has no tests, so this particular error code is expected - should not
       cause runtest to give up with an "unknown error code".
+    - Updated the notes about reproducible builds with SCons and the example.
+    - The Clone() method now respects the variables argument (fixes #3590)
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700

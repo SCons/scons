@@ -58,6 +58,7 @@ FIXES
 - Improved the conversion of a "foreign" exception from an action
   into BuildError by making sure our defaults get applied even in
   corner cases. Fixes Issue #4530
+- The Clone() method now respects the variables argument (fixes #3590)
 
 IMPROVEMENTS
 ------------
@@ -82,6 +83,7 @@ DOCUMENTATION
 - Restructured API Docs build so main package contents are listed
   before contents of package submodules.
 - Updated manpage description of Command "builder" and function.
+- Updated the notes about reproducible builds with SCons and the example.
 
 
 

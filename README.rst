@@ -249,6 +249,19 @@ notifications and other GitHub events (``#github-update``),
 if those are of interest. See the website for more contact information:
 https://scons.org/contact.html.
 
+Reproducible Builds
+===================
+SCons itself is set up to do "reproducible builds"
+(see (https://reproducible-builds.org/specs/source-date-epoch/)
+if environment variables ``SOURCE_DATE_EPOCH`` is set - that is,
+fields in the package which could change each time the package is
+constructed are forced to constant values.
+
+To support other projects which wish to do the same, a sample script
+is provided which can be placed in a site directory, which imports
+``SOURCE_DATE_EPOCH`` and sets it in the execution environment of
+every created construction envirionment. There's also an installer
+script (POSIX shell only). See packaging/etc/README.txt for more details.
 
 Donations
 =========
@@ -257,15 +270,6 @@ If you find SCons helpful, please consider making a donation (of cash,
 software, or hardware) to support continued work on the project.  Information
 is available at https://www.scons.org/donate.html
 or the GitHub Sponsors button on https://github.com/scons/scons.
-
-Reproducible Builds
-===================
-In order to suppor those users who which to produce reproducible builds
-(https://reproducible-builds.org/specs/source-date-epoch/) we're now including
-logic to force SCons to propagate SOURCE_DATE_EPOCH from your shell environment for
-all SCons builds to support reproducible builds we're now providing an example
-site_init.py and a script to install it in your ~/.scons. See packaging/etc/README.txt
-for more info
 
 For More Information
 ====================
