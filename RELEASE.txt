@@ -107,7 +107,10 @@ DEVELOPMENT
   which means no tests were run. SCons/Script/MainTests.py currently
   has no tests, so this particular error code is expected - should not
   cause runtest to give up with an "unknown error code".
-
+- is_valid_construction_var() (not part of the public API) moved from
+  SCons.Environment to SCons.Util to avoid the chance of import loops. Variables
+  and Environment both use the routine and Environment() uses a Variables()
+  object so better to move to a safer location.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

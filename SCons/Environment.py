@@ -76,6 +76,7 @@ from SCons.Util import (
     to_String_for_subst,
     uniquer_hashables,
 )
+from SCons.Util.envs import is_valid_construction_var
 from SCons.Util.sctyping import ExecutorType
 
 class _Null:
@@ -510,13 +511,6 @@ class BuilderDict(UserDict):
             self.__setitem__(i, v)
 
 
-_is_valid_var = re.compile(r'[_a-zA-Z]\w*$')
-
-def is_valid_construction_var(varstr: str) -> bool:
-    """Return True if *varstr* is a legitimate construction variable."""
-    return bool(_is_valid_var.match(varstr))
-
-
 class SubstitutionEnvironment:
     """Base class for different flavors of construction environments.
 
@@ -605,7 +599,7 @@ class SubstitutionEnvironment:
             # key and we don't need to check.  If we do check, using a
             # global, pre-compiled regular expression directly is more
             # efficient than calling another function or a method.
-            if key not in self._dict and not _is_valid_var.match(key):
+            if key not in self._dict and not is_valid_construction_var(key):
                 raise UserError("Illegal construction variable `%s'" % key)
             self._dict[key] = value
 

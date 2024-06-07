@@ -107,6 +107,7 @@ from .envs import (
     AppendPath,
     AddPathIfNotExists,
     AddMethod,
+    is_valid_construction_var,
 )
 from .filelock import FileLock, SConsLockFailure
 
