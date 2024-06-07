@@ -38,7 +38,6 @@ from SCons.Environment import (
     NoSubstitutionProxy,
     OverrideEnvironment,
     SubstitutionEnvironment,
-    is_valid_construction_var,
 )
 from SCons.Util import CLVar
 from SCons.SConsign import current_sconsign_filename
@@ -2306,7 +2305,7 @@ f5: \
 
         exc_caught = None
         try:
-            env.ParseDepends(test.workpath('does_not_exist'), must_exist=1)
+            env.ParseDepends(test.workpath('does_not_exist'), must_exist=True)
         except IOError:
             exc_caught = 1
         assert exc_caught, "did not catch expected IOError"
@@ -2314,7 +2313,7 @@ f5: \
         del tlist[:]
         del dlist[:]
 
-        env.ParseDepends('$SINGLE', only_one=1)
+        env.ParseDepends('$SINGLE', only_one=True)
         t = list(map(str, tlist))
         d = list(map(str, dlist))
         assert t == ['f0'], t
@@ -2331,7 +2330,7 @@ f5: \
 
         exc_caught = None
         try:
-            env.ParseDepends(test.workpath('multiple'), only_one=1)
+            env.ParseDepends(test.workpath('multiple'), only_one=True)
         except SCons.Errors.UserError:
             exc_caught = 1
         assert exc_caught, "did not catch expected UserError"
@@ -4141,40 +4140,6 @@ class NoSubstitutionProxyTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert x == 'x ttt sss y', x
         x = proxy.subst_target_source(*args, **kw)
         assert x == ' ttt sss ', x
-
-class EnvironmentVariableTestCase(unittest.TestCase):
-
-    def test_is_valid_construction_var(self) -> None:
-        """Testing is_valid_construction_var()"""
-        r = is_valid_construction_var("_a")
-        assert r is not None, r
-        r = is_valid_construction_var("z_")
-        assert r is not None, r
-        r = is_valid_construction_var("X_")
-        assert r is not None, r
-        r = is_valid_construction_var("2a")
-        assert r is None, r
-        r = is_valid_construction_var("a2_")
-        assert r is not None, r
-        r = is_valid_construction_var("/")
-        assert r is None, r
-        r = is_valid_construction_var("_/")
-        assert r is None, r
-        r = is_valid_construction_var("a/")
-        assert r is None, r
-        r = is_valid_construction_var(".b")
-        assert r is None, r
-        r = is_valid_construction_var("_.b")
-        assert r is None, r
-        r = is_valid_construction_var("b1._")
-        assert r is None, r
-        r = is_valid_construction_var("-b")
-        assert r is None, r
-        r = is_valid_construction_var("_-b")
-        assert r is None, r
-        r = is_valid_construction_var("b1-_")
-        assert r is None, r
-
 
 
 if __name__ == "__main__":

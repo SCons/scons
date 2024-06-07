@@ -13,6 +13,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+    # for use by the Windows runner (ignored by the others):
+    SCONS_CACHE_MSVC_CONFIG: 1
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -50,8 +54,8 @@ jobs:
 
       - name: Install dependencies including ninja ${{ matrix.os }}
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install ninja psutil
+          python -m pip install --progress-bar off --upgrade pip
+          python -m pip install --progress-bar off ninja psutil
           # sudo apt-get update
 
       - name: Test experimental packages ${{ matrix.os }}

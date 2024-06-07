@@ -44,7 +44,7 @@ sys.exit(0)
 test.write('SConstruct', """
 B = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES')
 DefaultEnvironment(tools=[])  # test speedup
-env = Environment()
+env = Environment(tools=[])
 env['BUILDERS']['B'] = B
 env.B(target = 'f1.out', source = 'f1.in')
 env.B(target = 'f2.out', source = 'f2.in')

@@ -52,7 +52,7 @@ def bar(target, source, env):
         f.write(bytearray("bar(%s, %s)\\n" % (target, source),'utf-8'))
 
 DefaultEnvironment(tools=[])  # test speedup
-env = Environment(BUILDERS = {'Cat':Builder(action=cat)})
+env = Environment(tools=[], BUILDERS = {'Cat':Builder(action=cat)})
 env.Alias(target = ['build-f1'], source = 'f1.out', action = foo)
 f1 = env.Cat('f1.out', 'f1.in')
 f2 = env.Cat('f2.out', 'f2.in')

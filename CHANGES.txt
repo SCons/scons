@@ -4,8 +4,11 @@
 
                             Change Log
 
-NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
-NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer supported
+NOTE: The 4.0.0 release of SCons dropped Python 2.7 support. Use 3.1.2 if
+  Python 2.7 support is required (but note old SCons releases are unsupported).
+NOTE: Since SCons 4.3.0, Python 3.6.0 or above is required.
+NOTE: Python 3.6 support is deprecated and will be dropped in a future reease.
+  python.org no longer supports 3.6 or 3.7, and will drop 3.8 in Oct. 2024.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
@@ -71,6 +74,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - GetSConsVersion() to grab the latest SCons version without needing to
       access SCons internals.
     - Migrate setup.cfg logic to pyproject.toml; remove setup.cfg.
+    - Update .gitattributes to match .editorconfig; enforce eol settings.
 
   From Raymond Li:
     - Fix issue #3935: OSErrors are now no longer hidden during execution of
@@ -133,6 +137,26 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Framework for scons-time tests adjusted so a path with a long username
       Windows has squashed doesn't get re-expanded. Fixes a problem seen
       on GitHub Windows runner which uses a name "runneradmin".
+    - SCons.Environment.is_valid_construction_var() now returns a boolean to
+      match the convention that functions beginning with "is" have yes/no
+      answers (previously returned either None or an re.match object).
+      Now matches the annotation and docstring (which were prematurely
+      updated in 4.6). All SCons usage except unit test was already fully
+      consistent with a bool.
+    - When a variable is added to a Variables object, it can now be flagged
+      as "don't perform substitution" by setting the argument subst.
+      This allows variables to contain characters which would otherwise
+      cause expansion. Fixes #4241.
+    - The test runner now recognizes the unittest module's return code of 5,
+      which means no tests were run. SCons/Script/MainTests.py currently
+      has no tests, so this particular error code is expected - should not
+      cause runtest to give up with an "unknown error code".
+    - Updated the notes about reproducible builds with SCons and the example.
+    - The Clone() method now respects the variables argument (fixes #3590)
+    - is_valid_construction_var() (not part of the public API) moved from
+      SCons.Environment to SCons.Util to avoid the chance of import loops. Variables
+      and Environment both use the routine and Environment() uses a Variables()
+      object so better to move to a safer location.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700

@@ -20,7 +20,7 @@ scanner = Scanner(function=scan, node_class=SCons.Node.Node)
 builder = Builder(action=b, source_scanner=scanner)
 
 DefaultEnvironment(tools=[])
-env = Environment()
+env = Environment(tools=[])
 env.Append(BUILDERS={'B': builder})
 
 # Create a node and a directory that each depend on an instance of

@@ -53,6 +53,15 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - The vswhere executable locations for the WinGet and Scoop package managers were
   added to the default vswhere executable search list after the Chocolatey
   installation location.
+- SCons.Environment.is_valid_construction_var() now returns a boolean to
+  match the convention that functions beginning with "is" have yes/no
+  answers (previously returned either None or an re.match object).
+  Now matches the annotation and docstring (which were prematurely
+  updated in 4.6). All SCons usage except unit test was already fully
+  consistent with a bool.
+- The Variables object Add method now accepts a subst keyword argument
+  (defaults to True) which can be set to inhibit substitution prior to
+  calling the variable's converter and validator.
 
 FIXES
 -----
@@ -92,6 +101,7 @@ FIXES
   executable that detects new msvc installations.
 - MSVC: Visual Studio 2022 v143 BuildTools now supports msvc toolset versions from
   14.30 to 14.4X.  Fixes Issue #4543.
+- The Clone() method now respects the variables argument (fixes #3590)
 
 IMPROVEMENTS
 ------------
@@ -127,6 +137,7 @@ DOCUMENTATION
 - Restructured API Docs build so main package contents are listed
   before contents of package submodules.
 - Updated manpage description of Command "builder" and function.
+- Updated the notes about reproducible builds with SCons and the example.
 
 
 
@@ -139,7 +150,18 @@ DEVELOPMENT
   by adding SKIP_PDF=1. This should help with distro packaging of SCons,
   which now does not need "fop" and other tools to be set up in order to
   build pdf versions which are then ignored.
-
+- .gitattributes has been setup to mirror .editorconfig's eol settings.
+  The repo-wide line-ending is now `lf`, with the exception of a few
+  Windows-only files using `crlf` instead. Any files not already fitting
+  this format have been explicitly converted.
+- The test runner now recognizes the unittest module's return code of 5,
+  which means no tests were run. SCons/Script/MainTests.py currently
+  has no tests, so this particular error code is expected - should not
+  cause runtest to give up with an "unknown error code".
+- is_valid_construction_var() (not part of the public API) moved from
+  SCons.Environment to SCons.Util to avoid the chance of import loops. Variables
+  and Environment both use the routine and Environment() uses a Variables()
+  object so better to move to a safer location.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

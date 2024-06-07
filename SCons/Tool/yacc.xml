@@ -236,7 +236,7 @@ The value is used only if &cv-YACC_GRAPH_FILE_SUFFIX; is not set.
 The default value is <filename>.gv</filename>.
 </para>
 <para>
-<emphasis>Changed in version 4.X.Y</emphasis>: deprecated. The default value
+<emphasis>Changed in version 4.6.0</emphasis>: deprecated. The default value
 changed from <filename>.vcg</filename> (&bison; stopped generating
 <filename>.vcg</filename> output with version 2.4, in 2006).
 </para>
@@ -261,7 +261,7 @@ Various yacc tools have emitted various formats
 at different times.
 Set this to match what your parser generator produces.
 </para>
-<para><emphasis>New in version 4.X.Y</emphasis>. </para>
+<para><emphasis>New in version 4.6.0</emphasis>. </para>
 </summary>
 </cvar>
 

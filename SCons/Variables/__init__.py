@@ -28,7 +28,6 @@ import sys
 from functools import cmp_to_key
 from typing import Callable, Dict, List, Optional, Sequence, Union
 
-import SCons.Environment
 import SCons.Errors
 import SCons.Util
 import SCons.Warnings
@@ -49,7 +48,7 @@ __all__ = [
 class Variable:
     """A Build Variable."""
 
-    __slots__ = ('key', 'aliases', 'help', 'default', 'validator', 'converter')
+    __slots__ = ('key', 'aliases', 'help', 'default', 'validator', 'converter', 'do_subst')
 
     def __lt__(self, other):
         """Comparison fuction so Variable instances sort."""
@@ -70,13 +69,15 @@ class Variables:
       files: string or list of strings naming variable config scripts
          (default ``None``)
       args: dictionary to override values set from *files*.  (default ``None``)
-      is_global: if true, return a global singleton Variables object instead
-          of a fresh instance. Currently inoperable (default ``False``)
+      is_global: if true, return a global singleton :class:`Variables` object
+         instead of a fresh instance. Currently inoperable (default ``False``)
 
     .. versionchanged:: 4.8.0
-         The default for *is_global* changed to ``False`` (previously
-         ``True`` but it had no effect due to an implementation error).
-         *is_global* is deprecated.
+       The default for *is_global* changed to ``False`` (previously
+       ``True`` but it had no effect due to an implementation error).
+
+    .. deprecated:: 4.8.0
+       *is_global* is deprecated.
     """
 
     def __init__(
@@ -87,9 +88,9 @@ class Variables:
     ) -> None:
         self.options: List[Variable] = []
         self.args = args if args is not None else {}
-        if not SCons.Util.is_List(files):
+        if not SCons.Util.is_Sequence(files):
             files = [files] if files else []
-        self.files = files
+        self.files: Sequence[str] = files
         self.unknown: Dict[str, str] = {}
 
     def __str__(self) -> str:
@@ -113,7 +114,11 @@ class Variables:
     ) -> None:
         """Create a Variable and add it to the list.
 
-        Internal routine, not public API.
+        This is the internal implementation for :meth:`Add` and
+        :meth:`AddVariables`. Not part of the public API.
+
+        .. versionadded:: 4.8.0
+              *subst* keyword argument is now recognized.
         """
         option = Variable()
 
@@ -126,12 +131,14 @@ class Variables:
             option.key = key
             # TODO: normalize to not include key in aliases. Currently breaks tests.
             option.aliases = [key,]
-        if not SCons.Environment.is_valid_construction_var(option.key):
+        if not SCons.Util.is_valid_construction_var(option.key):
             raise SCons.Errors.UserError(f"Illegal Variables key {option.key!r}")
         option.help = help
         option.default = default
         option.validator = validator
         option.converter = converter
+        option.do_subst = kwargs.pop("subst", True)
+        # TODO should any remaining kwargs be saved in the Variable?
 
         self.options.append(option)
 
@@ -152,27 +159,36 @@ class Variables:
         """Add a Build Variable.
 
         Arguments:
-          key: the name of the variable, or a 5-tuple (or list).
-            If *key* is a tuple, and there are no additional positional
-            arguments, it is unpacked into the variable name plus the four
-            listed keyword arguments from below.
-            If *key* is a tuple and there are additional positional arguments,
-            the first word of the tuple is taken as the variable name,
-            and the remainder as aliases.
-          args: optional positional arguments, corresponding to the four
-            listed keyword arguments.
+          key: the name of the variable, or a 5-tuple (or other sequence).
+            If *key* is a tuple, and there are no additional arguments
+            except the *help*, *default*, *validator* and *converter*
+            keyword arguments, *key* is unpacked into the variable name
+            plus the *help*, *default*, *validator* and *converter*
+            arguments; if there are additional arguments, the first
+            elements of *key* is taken as the variable name, and the
+            remainder as aliases.
+          args: optional positional arguments, corresponding to the
+            *help*, *default*, *validator* and *converter* keyword args.
           kwargs: arbitrary keyword arguments used by the variable itself.
 
         Keyword Args:
-          help: help text for the variable (default: ``""``)
+          help: help text for the variable (default: empty string)
           default: default value for variable (default: ``None``)
           validator: function called to validate the value (default: ``None``)
           converter: function to be called to convert the variable's
             value before putting it in the environment. (default: ``None``)
+          subst: perform substitution on the value before the converter
+            and validator functions (if any) are called (default: ``True``)
+
+        .. versionadded:: 4.8.0
+              The *subst* keyword argument is now specially recognized.
         """
         if SCons.Util.is_Sequence(key):
-            if not (len(args) or len(kwargs)):
-                return self._do_add(*key)
+            # If no other positional args (and no fundamental kwargs),
+            # unpack key, and pass the kwargs on:
+            known_kw = {'help', 'default', 'validator', 'converter'}
+            if not args and not known_kw.intersection(kwargs.keys()):
+                return self._do_add(*key, **kwargs)
 
         return self._do_add(key, *args, **kwargs)
 
@@ -247,7 +263,10 @@ class Variables:
         # apply converters
         for option in self.options:
             if option.converter and option.key in values:
-                value = env.subst(f'${option.key}')
+                if option.do_subst:
+                    value = env.subst('${%s}' % option.key)
+                else:
+                    value = env[option.key]
                 try:
                     try:
                         env[option.key] = option.converter(value)
@@ -262,7 +281,11 @@ class Variables:
         # apply validators
         for option in self.options:
             if option.validator and option.key in values:
-                option.validator(option.key, env.subst(f'${option.key}'), env)
+                if option.do_subst:
+                    value = env.subst('${%s}' % option.key)
+                else:
+                    value = env[option.key]
+                option.validator(option.key, value, env)
 
     def UnknownVariables(self) -> dict:
         """Return dict of unknown variables.
@@ -340,7 +363,6 @@ class Variables:
         #   removed so now we have to convert to a key.
         if callable(sort):
             options = sorted(self.options, key=cmp_to_key(lambda x, y: sort(x.key, y.key)))
-
         elif sort is True:
             options = sorted(self.options)
         else:

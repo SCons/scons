@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,8 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
@@ -39,9 +39,10 @@ if os.name == 'posix':
 if sys.platform.find('irix') > -1:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
-test.write('SConstruct', """
-foo = Environment(SHCFLAGS = '%s', WINDOWS_INSERT_DEF=1)
-bar = Environment(SHCFLAGS = '%s', WINDOWS_INSERT_DEF=1)
+test.write('SConstruct', f"""
+DefaultEnvironment(tools=[])
+foo = Environment(SHCFLAGS = '{fooflags}', WINDOWS_INSERT_DEF=1)
+bar = Environment(SHCFLAGS = '{barflags}', WINDOWS_INSERT_DEF=1)
 
 foo_obj = foo.SharedObject(target = 'foo', source = 'prog.c')
 foo.SharedLibrary(target = 'foo', source = foo_obj)
@@ -56,7 +57,7 @@ fooMain.Program(target='fooprog', source=foomain_obj)
 barMain = bar.Clone(LIBS='bar', LIBPATH='.')
 barmain_obj = barMain.Object(target='barmain', source='main.c')
 barMain.Program(target='barprog', source=barmain_obj)
-""" % (fooflags, barflags))
+""")
 
 test.write('foo.def', r"""
 LIBRARY        "foo"
@@ -106,8 +107,9 @@ test.run(arguments = '.')
 test.run(program = test.workpath('fooprog'), stdout = "prog.c:  FOO\n")
 test.run(program = test.workpath('barprog'), stdout = "prog.c:  BAR\n")
 
-test.write('SConstruct', """
-bar = Environment(SHCFLAGS = '%s', WINDOWS_INSERT_DEF=1)
+test.write('SConstruct', f"""
+DefaultEnvironment(tools=[])
+bar = Environment(SHCFLAGS = '{barflags}', WINDOWS_INSERT_DEF=1)
 
 foo_obj = bar.SharedObject(target = 'foo', source = 'prog.c')
 bar.SharedLibrary(target = 'foo', source = foo_obj)
@@ -120,7 +122,7 @@ foomain_obj = barMain.Object(target='foomain', source='main.c')
 barmain_obj = barMain.Object(target='barmain', source='main.c')
 barMain.Program(target='barprog', source=foomain_obj)
 barMain.Program(target='fooprog', source=barmain_obj)
-""" % barflags)
+""")
 
 test.run(arguments = '.')
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,10 +21,7 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 
 """
 Test that the configure context log file name can be specified by
@@ -36,11 +35,12 @@ test = TestSCons.TestSCons()
 SConstruct_path = test.workpath('SConstruct')
 
 test.write(SConstruct_path, """\
+DefaultEnvironment(tools=[])
 def CustomTest(context):
   context.Message('Executing Custom Test ...')
   context.Result(1)
 
-env = Environment(CONFIGURELOG = 'custom.logfile')
+env = Environment(tools=[], CONFIGURELOG = 'custom.logfile')
 conf = Configure(env, custom_tests = {'CustomTest' : CustomTest})
 conf.CustomTest();
 env = conf.Finish()
@@ -49,7 +49,7 @@ env = conf.Finish()
 test.run()
 
 expect = """\
-file %(SConstruct_path)s,line 6:
+file %(SConstruct_path)s,line 7:
 \tConfigure(confdir = .sconf_temp)
 scons: Configure: Executing Custom Test ...
 scons: Configure: (cached) yes
