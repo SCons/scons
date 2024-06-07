@@ -95,10 +95,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       cause runtest to give up with an "unknown error code".
     - Updated the notes about reproducible builds with SCons and the example.
     - The Clone() method now respects the variables argument (fixes #3590)
-    - is_valid_construction_var (not past of the public API) moved from
-      Environment.py to Util to avoid the chance of import loops. Variables
+    - is_valid_construction_var() (not part of the public API) moved from
+      SCons.Environment to SCons.Util to avoid the chance of import loops. Variables
       and Environment both use the routine and Environment() uses a Variables()
-      object so better to move to a safter location.
+      object so better to move to a safer location.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
