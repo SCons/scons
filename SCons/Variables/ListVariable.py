@@ -23,10 +23,11 @@
 
 """Variable type for List Variables.
 
-A list variable may given as 'all', 'none' or a list of names
-separated by comma. After the variable has been processed, the variable
-value holds either the named list elements, all list elements or no
-list elements at all.
+A list variable allows selecting one or more from a supplied set of
+allowable values, as well as from an optional mapping of alternate names
+(such as aliases and abbreviations) and the special names ``'all'`` and
+``'none'``.  Specified values are converted during processing into values
+only from the allowable values set.
 
 Usage example::
 
@@ -63,12 +64,18 @@ __all__ = ['ListVariable',]
 class _ListVariable(collections.UserList):
     """Internal class holding the data for a List Variable.
 
-    The initializer accepts two arguments, the list of actual values
-    given, and the list of allowable values. Not normally instantiated
-    by hand, but rather by the ListVariable converter function.
+    This is normally not directly instantiated, rather the ListVariable
+    converter callback "converts" string input (or the default value
+    if none) into an instance and stores it.
+
+    Args:
+       initlist: the list of actual values given.
+       allowedElems: the list of allowable values.
     """
 
-    def __init__(self, initlist=None, allowedElems=None) -> None:
+    def __init__(
+        self, initlist: Optional[list] = None, allowedElems: Optional[list] = None
+    ) -> None:
         if initlist is None:
             initlist = []
         if allowedElems is None:
@@ -106,7 +113,12 @@ class _ListVariable(collections.UserList):
         return str(self)
 
 def _converter(val, allowedElems, mapdict) -> _ListVariable:
-    """Convert list variables."""
+    """Callback to convert list variables into a suitable form.
+
+    The arguments *allowedElems* and *mapdict* are non-standard
+    for a :class:`Variables` converter: the lambda in the
+    :func:`ListVariable` function arranges for us to be called correctly.
+    """
     if val == 'none':
         val = []
     elif val == 'all':
@@ -114,18 +126,47 @@ def _converter(val, allowedElems, mapdict) -> _ListVariable:
     else:
         val = [_f for _f in val.split(',') if _f]
         val = [mapdict.get(v, v) for v in val]
-        notAllowed = [v for v in val if v not in allowedElems]
-        if notAllowed:
-            raise ValueError(
-                f"Invalid value(s) for option: {','.join(notAllowed)}"
-            )
     return _ListVariable(val, allowedElems)
 
 
-# def _validator(key, val, env) -> None:
-#     """ """
-#     # TODO: write validator for list variable
-#     pass
+def _validator(key, val, env) -> None:
+    """Callback to validate supplied value(s) for a ListVariable.
+
+    Validation means "is *val* in the allowed list"? *val* has
+    been subject to substitution before the validator is called. The
+    converter created a :class:`_ListVariable` container which is stored
+    in *env* after it runs; this includes the allowable elements list.
+    Substitution makes a string made out of the values (only),
+    so we need to fish the allowed elements list out of the environment
+    to complete the validation.
+
+    Note that since 18b45e456, whether or not ``subst`` has been
+    called is conditional on the value of the *subst* argument to
+    :meth:`~SCons.Variables.Variables.Add`, so we have to account for
+    possible different types of *val*.
+
+    Raises:
+       UserError: if validation failed.
+
+    .. versionadded:: 4.8.0
+       ``_validator`` split off from :func:`_converter` with an additional
+       check  for whether *val* has been substituted before the call.
+    """
+    allowedElems = env[key].allowedElems
+    if isinstance(val, _ListVariable):  # not substituted, use .data
+        notAllowed = [v for v in val.data if v not in allowedElems]
+    else:  # val will be a string
+        notAllowed = [v for v in val.split() if v not in allowedElems]
+    if notAllowed:
+        # Converter only synthesized 'all' and 'none', they are never
+        # in the allowed list, so we need to add those to the error message
+        # (as is done for the help msg).
+        valid = ','.join(allowedElems + ['all', 'none'])
+        msg = (
+            f"Invalid value(s) for variable {key!r}: {','.join(notAllowed)!r}. "
+            f"Valid values are: {valid}"
+        )
+        raise SCons.Errors.UserError(msg) from None
 
 
 # lint: W0622: Redefining built-in 'help' (redefined-builtin)
@@ -136,6 +177,7 @@ def ListVariable(
     default: Union[str, List[str]],
     names: List[str],
     map: Optional[dict] = None,
+    validator: Optional[Callable] = None,
 ) -> Tuple[str, str, str, None, Callable]:
     """Return a tuple describing a list variable.
 
@@ -149,25 +191,35 @@ def ListVariable(
           the allowable values (not including any extra names from *map*).
        default: the default value(s) for the list variable. Can be
           given as string (possibly comma-separated), or as a list of strings.
-          ``all`` or ``none`` are allowed as *default*.
+          ``all`` or ``none`` are allowed as *default*. You can also simulate
+          a must-specify ListVariable by giving a *default* that is not part
+          of *names*, it will fail validation if not supplied.
        names: the allowable values. Must be a list of strings.
        map: optional dictionary to map alternative names to the ones in
           *names*, providing a form of alias. The converter will make
           the replacement, names from *map* are not stored and will
           not appear in the help message.
+       validator: optional callback to validate supplied values.
+          The default validator is used if not specified.
 
     Returns:
        A tuple including the correct converter and validator.  The
        result is usable as input to :meth:`~SCons.Variables.Variables.Add`.
+
+    .. versionchanged:: 4.8.0
+       The validation step was split from the converter to allow for
+       custom validators.  The *validator* keyword argument was added.
     """
     if map is None:
         map = {}
+    if validator is None:
+        validator = _validator
     names_str = f"allowed names: {' '.join(names)}"
     if SCons.Util.is_List(default):
         default = ','.join(default)
     help = '\n    '.join(
         (help, '(all|none|comma-separated list of names)', names_str))
-    return key, help, default, None, lambda val: _converter(val, names, map)
+    return key, help, default, validator, lambda val: _converter(val, names, map)
 
 # Local Variables:
 # tab-width:4
