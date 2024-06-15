@@ -330,10 +330,13 @@ def AddMethod(obj, function: Callable, name: Optional[str] = None) -> None:
     setattr(obj, name, method)
 
 
+# This routine is used to validate that a construction var name can be used
+# as a Python identifier, which we require. However, Python 3 introduced an
+# isidentifier() string method so there's really not any need for it now.
 _is_valid_var_re = re.compile(r'[_a-zA-Z]\w*$')
 
 def is_valid_construction_var(varstr: str) -> bool:
-    """Return True if *varstr* is a legitimate construction variable."""
+    """Return True if *varstr* is a legitimate name of a construction variable."""
     return bool(_is_valid_var_re.match(varstr))
 
 # Local Variables:

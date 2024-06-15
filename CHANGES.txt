@@ -99,6 +99,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       SCons.Environment to SCons.Util to avoid the chance of import loops. Variables
       and Environment both use the routine and Environment() uses a Variables()
       object so better to move to a safer location.
+    - Performance tweak: the __setitem__ method of an Environment, used for
+      setting construction variables, now uses the string method isidentifier
+      to validate the name (updated from microbenchmark results).
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
