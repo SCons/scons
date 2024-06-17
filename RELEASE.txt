@@ -53,6 +53,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - The Variables object Add method now accepts a subst keyword argument
   (defaults to True) which can be set to inhibit substitution prior to
   calling the variable's converter and validator.
+- AddOption and the internal add_local_option which AddOption calls now
+  recognize a "settable" keyword argument to indicate a project-added
+  option can also be modified using SetOption.
 
 FIXES
 -----
