@@ -6,9 +6,9 @@
 
 image:
   # linux builds done in Travis CI for now
-  # - Visual Studio 2017
+  - Visual Studio 2017
   - Visual Studio 2019
-  - Visual Studio 2022
+  #- Visual Studio 2022  XXX Temporary disable while failing on .10 versions
 
 cache:
   - downloads -> appveyor.yml

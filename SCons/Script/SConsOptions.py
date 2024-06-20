@@ -68,15 +68,11 @@ def diskcheck_convert(value):
 class SConsValues(optparse.Values):
     """Holder class for uniform access to SCons options.
 
-    Usable whether or not of whether they can be set on the command line
-    or in the SConscript files (using the :func:`~SComs.Main.SetOption`
-    function).
-
     A SCons option value can originate three different ways:
 
-    1) set on the command line;
-    2) set in an SConscript file;
-    3) the default setting (from the the ``op.add_option``
+    1. set on the command line.
+    2. set in an SConscript file via :func:`~SCons.Script.Main.SetOption`.
+    3. the default setting (from the the ``op.add_option()``
        calls in the :func:`Parser` function, below).
 
     The command line always overrides a value set in a SConscript file,
@@ -88,11 +84,10 @@ class SConsValues(optparse.Values):
 
     The solution implemented in this class is to keep these different sets
     of settings separate (command line, SConscript file, and default)
-    and to override the :meth:`__getattr__` method to check them in turn
-    (a little similar in concept to a ChainMap).
-    This should allow the rest of the code to just fetch values as
-    attributes of an instance of this class, without having to worry
-    about where they came from.
+    and to override the :meth:`__getattr__` method to check them in turn.
+    This allows the rest of the code to just fetch values as attributes of
+    an instance of this class, without having to worry about where they
+    came from (the scheme is similar to a ``ChainMap``).
 
     Note that not all command line options are settable from SConscript
     files, and the ones that are must be explicitly added to the
@@ -107,27 +102,22 @@ class SConsValues(optparse.Values):
     def __getattr__(self, attr):
         """Fetch an options value, respecting priority rules.
 
-        Check first for explicit settings from the command line
-        (which are direct attributes), then the SConscript file settings,
-        then the default values.
+        This is a little tricky: since we're answering questions
+        about outselves, we have avoid lookups that would send us into
+        into infinite recursion, thus the ``__dict__`` stuff.
         """
         try:
-            return self.__dict__[attr]
+           return self.__dict__[attr]
         except KeyError:
             try:
                 return self.__dict__['__SConscript_settings__'][attr]
             except KeyError:
                 try:
                     return getattr(self.__dict__['__defaults__'], attr)
-                except KeyError:
-                    # Added because with py3 this is a new class,
-                    # not a classic class, and due to the way
-                    # In that case it will create an object without
-                    # __defaults__, and then query for __setstate__
-                    # which will throw an exception of KeyError
-                    # deepcopy() is expecting AttributeError if __setstate__
-                    # is not available.
-                    raise AttributeError(attr)
+                except KeyError as exc:
+                    # Need to respond with AttributeError because
+                    # deepcopy expects that if __setstate__ is not available.
+                    raise AttributeError(attr) from exc
 
     # keep this list in sync with the SetOption doc in SCons/Script/Main.xml
     # search for UPDATE_SETOPTION_DOCS there.
@@ -153,15 +143,17 @@ class SConsValues(optparse.Values):
         'warn',
     ]
 
-    def set_option(self, name, value):
+    def set_option(self, name: str, value) -> None:
         """Sets an option *name* from an SConscript file.
 
-        Any necessary validation steps are in-line here. Validation should
-        be along the same lines as for options processed from the command
-        line - it's kind of a pain to have to duplicate. On the other
-        hand, we can hope that the build maintainer will be more careful
-        about correct SetOption values and it's not as big a deal to
-        have validation for everything.
+        Vvalidation steps for known (that is, defined in SCons itself)
+        options are in-line here. Validation should be along the same
+        lines as for options processed from the command line -
+        it's kind of a pain to have to duplicate. Project-defined options
+        can specify callbacks for the command-line version, but will have
+        no inbuilt validation here. It's up to the build system maintainer
+        to make sure :func:`~SCons.Script.Main.SetOption` is being used
+        correctly, we can't really do any better here.
 
         Raises:
             UserError: the option is not settable.
@@ -313,9 +305,7 @@ class SConsOptionParser(optparse.OptionParser):
     raise_exception_on_error = False
 
     def error(self, msg):
-        """
-        overridden OptionValueError exception handler
-        """
+        """Overridden OptionValueError exception handler."""
         if self.raise_exception_on_error:
             raise SConsBadOptionError(msg, self)
         else:
@@ -399,7 +389,7 @@ class SConsOptionParser(optparse.OptionParser):
     def reparse_local_options(self) -> None:
         """Re-parse the leftover command-line options.
 
-        Parse options are stored in ``self.largs``, so that any value
+        Leftover options are stored in ``self.largs``, so that any value
         overridden on the command line is immediately available
         if the user turns around and does a :func:`~SCons.Script.Main.GetOption`
         right away.
