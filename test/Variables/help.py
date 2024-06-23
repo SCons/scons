@@ -92,7 +92,8 @@ opts.AddVariables(
     PathVariable('qt_libraries', 'where the Qt library is installed', r'%(libdirvar)s'),
 )
 
-env = Environment(variables=opts)
+_ = DefaultEnvironment(tools=[])
+env = Environment(variables=opts, tools=[])
 Help(opts.GenerateHelpText(env))
 
 print(env['warnings'])

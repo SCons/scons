@@ -5203,7 +5203,7 @@ converted to lower case.</para>
   </varlistentry>
 
   <varlistentry id="v-ListVariable">
-  <term><function>ListVariable</function>(<parameter>key, help, default, names, [map]</parameter>)</term>
+  <term><function>ListVariable</function>(<parameter>key, help, default, names, [map, validator]</parameter>)</term>
   <listitem>
 <para>
 Set up a variable
@@ -5225,6 +5225,8 @@ separated by commas.
 <parameter>default</parameter> may be specified
 either as a string of comma-separated value,
 or as a list of values.
+</para>
+<para>
 The optional
 <parameter>map</parameter>
 argument is a dictionary
@@ -5236,6 +5238,14 @@ list.
 (Note that the additional values accepted through
 the use of a <parameter>map</parameter> are not
 reflected in the generated help message).  </para>
+<para>
+The optional <parameter>validator</parameter> argument
+can be used to specify a custom validator callback function,
+as described for <link linkend='v-Add'><function>Add</function></link>.
+The default is to use an internal validator routine.
+</para>
+<para><emphasis>New in 4.8.0: <parameter>validator</parameter>.
+</emphasis></para>
   </listitem>
   </varlistentry>
 
