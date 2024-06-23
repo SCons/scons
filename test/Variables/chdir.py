@@ -43,7 +43,8 @@ SConscript('subdir/SConscript')
 
 SConscript_contents = """\
 Import("opts")
-env = Environment()
+_ = DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 opts.Update(env)
 print("VARIABLE = "+repr(env['VARIABLE']))
 """

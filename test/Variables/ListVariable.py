@@ -43,9 +43,7 @@ def check(expect):
 
 
 test.write(SConstruct_path, """\
-from SCons.Variables.ListVariable import ListVariable
-LV = ListVariable
-
+from SCons.Variables.ListVariable import ListVariable as LV
 from SCons.Variables import ListVariable
 
 list_of_libs = Split('x11 gl qt ical')
@@ -59,10 +57,10 @@ opts.AddVariables(
                names = list_of_libs,
                map = {'GL':'gl', 'QT':'qt'}),
     LV('listvariable', 'listvariable help', 'all', names=['l1', 'l2', 'l3'])
-    )
+)
 
-DefaultEnvironment(tools=[])  # test speedup
-env = Environment(variables=opts)
+_ = DefaultEnvironment(tools=[])  # test speedup
+env = Environment(variables=opts, tools=[])
 opts.Save(optsfile, env)
 Help(opts.GenerateHelpText(env))
 
@@ -113,39 +111,34 @@ check(['gl,qt', '0', 'gl qt', 'gl qt', "['gl qt']"])
 
 
 expect_stderr = """
-scons: *** Error converting option: 'shared'
-Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 20)
+scons: *** Invalid value(s) for variable 'shared': 'foo'. Valid values are: gl,ical,qt,x11,all,none
+""" + test.python_file_line(SConstruct_path, 18)
 
 test.run(arguments='shared=foo', stderr=expect_stderr, status=2)
 
 # be paranoid in testing some more combinations
 
 expect_stderr = """
-scons: *** Error converting option: 'shared'
-Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 20)
+scons: *** Invalid value(s) for variable 'shared': 'foo'. Valid values are: gl,ical,qt,x11,all,none
+""" + test.python_file_line(SConstruct_path, 18)
 
 test.run(arguments='shared=foo,ical', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Error converting option: 'shared'
-Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 20)
+scons: *** Invalid value(s) for variable 'shared': 'foo'. Valid values are: gl,ical,qt,x11,all,none
+""" + test.python_file_line(SConstruct_path, 18)
 
 test.run(arguments='shared=ical,foo', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Error converting option: 'shared'
-Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 20)
+scons: *** Invalid value(s) for variable 'shared': 'foo'. Valid values are: gl,ical,qt,x11,all,none
+""" + test.python_file_line(SConstruct_path, 18)
 
 test.run(arguments='shared=ical,foo,x11', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Error converting option: 'shared'
-Invalid value(s) for option: foo,bar
-""" + test.python_file_line(SConstruct_path, 20)
+scons: *** Invalid value(s) for variable 'shared': 'foo,bar'. Valid values are: gl,ical,qt,x11,all,none
+""" + test.python_file_line(SConstruct_path, 18)
 
 test.run(arguments='shared=foo,x11,,,bar', stderr=expect_stderr, status=2)
 

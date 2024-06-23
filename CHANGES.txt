@@ -102,6 +102,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - AddOption and the internal add_local_option which AddOption calls now
       recognize a "settable" keyword argument to indicate a project-added
       option can also be modified using SetOption. Fixes #3983.
+      SCons.Environment to SCons.Util to avoid the chance of import loops.
+      Variables and Environment both use the routine and Environment() uses
+      a Variables() object so better to move to a safer location.
+    - ListVariable now has a separate validator, with the functionality
+      that was previously part of the converter. The main effect is to
+      allow a developer to supply a custom validator, which previously
+      could be inhibited by the converter failing before the validator
+      is reached.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
