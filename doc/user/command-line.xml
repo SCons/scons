@@ -417,8 +417,10 @@ foo.in
 
       <para>
 
-      &SetOption; is not currently supported for
-      options added with &AddOption;.
+      &SetOption; works for options added with &AddOption;,
+      but only if they were created with
+      <parameter>settable=True</parameter> in the call to &AddOption;
+      (only available in SCons 4.8.0 and later).
 
       </para>
 
@@ -660,14 +662,12 @@ foo.in
       </para>
 
       <para>
-      &SetOption; is not currently supported for
-      options added with &AddOption;.
-      <!--
-      (The value can also be set using &SetOption;,
-      although that's not very useful in practice
-      because a default value can be specified in
-      directly in the &AddOption; call.)
-      -->
+
+      &f-link-SetOption; works for options added with &AddOption;,
+      but only if they were created with
+      <parameter>settable=True</parameter> in the call to &AddOption;
+      (only available in SCons 4.8.0 and later).
+
       </para>
 
       <para>

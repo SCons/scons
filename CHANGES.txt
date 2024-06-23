@@ -96,9 +96,16 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Updated the notes about reproducible builds with SCons and the example.
     - The Clone() method now respects the variables argument (fixes #3590)
     - is_valid_construction_var() (not part of the public API) moved from
-      SCons.Environment to SCons.Util to avoid the chance of import loops.
-      Variables and Environment both use the routine and Environment() uses
-      a Variables() object so better to move to a safer location.
+      SCons.Environment to SCons.Util to avoid the chance of import loops. Variables
+      and Environment both use the routine and Environment() uses a Variables()
+      object so better to move to a safer location.
+    - AddOption and the internal add_local_option which AddOption calls now
+      recognize a "settable" keyword argument to indicate a project-added
+      option can also be modified using SetOption. Fixes #3983.
+      NOTE: If you were using ninja and using SetOption() for ninja options
+      in your SConscripts prior to loading the ninja tool, you will now
+      see an error. The fix is to move the SetOption() to after you've loaded
+      the ninja tool.
     - ListVariable now has a separate validator, with the functionality
       that was previously part of the converter. The main effect is to
       allow a developer to supply a custom validator, which previously
