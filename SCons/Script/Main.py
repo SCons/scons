@@ -41,7 +41,7 @@ import time
 import traceback
 import platform
 import threading
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 
 import SCons.CacheDir
 import SCons.Debug
@@ -59,6 +59,8 @@ import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
 import SCons.Script.Interactive
+if TYPE_CHECKING:
+    from SCons.Script import SConsOption
 from SCons.Util.stats import count_stats, memory_stats, time_stats, ENABLE_JSON, write_scons_stats_file, JSON_OUTPUT_FILE
 
 from SCons import __version__ as SConsVersion
@@ -174,6 +176,7 @@ class Progressor:
 ProgressObject = SCons.Util.Null()
 
 def Progress(*args, **kw) -> None:
+    """Show progress during building - Public API."""
     global ProgressObject
     ProgressObject = Progressor(*args, **kw)
 
@@ -501,29 +504,47 @@ class FakeOptionParser:
     # TODO: to quiet checkers, FakeOptionParser should also define
     #   raise_exception_on_error, preserve_unknown_options, largs and parse_args
 
-    def add_local_option(self, *args, **kw) -> None:
+    def add_local_option(self, *args, **kw) -> "SConsOption":
         pass
 
 
 OptionsParser = FakeOptionParser()
 
-def AddOption(*args, **kw):
+def AddOption(*args, settable: bool = False, **kw) -> "SConsOption":
+    """Add a local option to the option parser - Public API.
+
+    If the *settable* parameter is true, the option will be included in the
+    list of settable options; all other keyword arguments are passed on to
+    :meth:`~SCons.Script.SConsOptions.SConsOptionParser.add_local_option`.
+
+    .. versionchanged:: 4.8.0
+       The *settable* parameter added to allow including the new option
+       to the table of options eligible to use :func:`SetOption`.
+
+    """
     if 'default' not in kw:
         kw['default'] = None
+    kw['settable'] = settable
     result = OptionsParser.add_local_option(*args, **kw)
     return result
 
-def GetOption(name):
+def GetOption(name: str):
+    """Get the value from an option - Public API."""
     return getattr(OptionsParser.values, name)
 
-def SetOption(name, value):
+def SetOption(name: str, value):
+    """Set the value of an option - Public API."""
     return OptionsParser.values.set_option(name, value)
 
-def DebugOptions(json=None):
-    """
-    API to allow specifying options to SCons debug logic
-    Currently only json is supported which changes the
-    json file written by --debug=json from the default
+def DebugOptions(json: Optional[str] = None) -> None:
+    """Specify options to SCons debug logic - Public API.
+
+    Currently only *json* is supported, which changes the JSON file
+    written to if the ``--debug=json`` command-line option is specified
+    to the value supplied.
+
+    .. versionadded:: 4.6.0
+
     """
     if json is not None:
         json_node = SCons.Defaults.DefaultEnvironment().arg2nodes(json)
@@ -540,7 +561,7 @@ def DebugOptions(json=None):
             raise SCons.Errors.UserError(f"Unable to create directory for JSON debug output file: {SCons.Util.stats.JSON_OUTPUT_FILE}")
 
 
-def ValidateOptions(throw_exception: bool=False) -> None:
+def ValidateOptions(throw_exception: bool = False) -> None:
     """Validate options passed to SCons on the command line.
 
     Checks that all options given on the command line are known to this

@@ -53,6 +53,18 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - The Variables object Add method now accepts a subst keyword argument
   (defaults to True) which can be set to inhibit substitution prior to
   calling the variable's converter and validator.
+- AddOption and the internal add_local_option which AddOption calls now
+  recognize a "settable" keyword argument to indicate a project-added
+  option can also be modified using SetOption.
+  NOTE: If you were using ninja and using SetOption() for ninja options
+  in your SConscripts prior to loading the ninja tool, you will now
+  see an error. The fix is to move the SetOption() to after you've loaded
+  the ninja tool.
+- ListVariable now has a separate validator, with the functionality
+  that was previously part of the converter. The main effect is to
+  allow a developer to supply a custom validator, which previously
+  could be inhibited by the converter failing before the validator
+  is reached.
 
 FIXES
 -----

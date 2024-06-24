@@ -23,6 +23,11 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+Verify the help text when the AddOption() function is used (and when
+it's not).
+"""
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -30,16 +35,20 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 env = Environment(tools=[])
-AddOption('--force',
-          action="store_true",
-          help='force installation (overwrite existing files)')
-AddOption('--prefix',
-          nargs=1,
-          dest='prefix',
-          action='store',
-          type='string',
-          metavar='DIR',
-          help='installation prefix')
+AddOption(
+    '--force',
+    action="store_true",
+    help='force installation (overwrite existing files)',
+)
+AddOption(
+    '--prefix',
+    nargs=1,
+    dest='prefix',
+    action='store',
+    type='string',
+    metavar='DIR',
+    help='installation prefix',
+)
 """)
 
 expected_lines = [
