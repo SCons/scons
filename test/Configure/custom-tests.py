@@ -55,7 +55,7 @@ sys.exit(int(sys.argv[1]))
 """)
 
 test.write('SConstruct', """\
-DefaultEnvironment(tools=[])    
+DefaultEnvironment(tools=[])
 def CheckCustom(test):
     test.Message( 'Executing MyTest ... ' )
     retCompileOK                = test.TryCompile( '%(compileOK)s', '.c' )
@@ -164,7 +164,7 @@ conf.CheckEmptyStr()
 conf.CheckDict()
 conf.CheckEmptyDict()
 env = conf.Finish()
-""" % locals())
+""")
 
 test.run()
 

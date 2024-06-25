@@ -762,7 +762,7 @@ class must_contain_exactly_lines_TestCase(TestCommonTestCase):
             'www'
             'zzz'
         Extra output ===================================================================
-        """ % globals())
+        """)
 
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
@@ -848,7 +848,7 @@ class must_contain_exactly_lines_TestCase(TestCommonTestCase):
             'www'
             'zzz'
         Extra STDOUT ===================================================================
-        """ % globals())
+        """)
 
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
@@ -2234,10 +2234,14 @@ TypeError: forced TypeError
         self.run_execution_test(script, "", "")
 
     def test_signal_handling(self) -> None:
-        """Test run():  signal handling"""
+        """Test run(): signal handling.
 
+        Only strange platforms unlikely to support SCons like the
+        webassembly ones don't support kill(), but keep the test
+        in place anyway.
+        """
         try:
-            os.kill
+            _ = os.kill
         except AttributeError:
             sys.stderr.write('can not test, no os.kill ... ')
             return

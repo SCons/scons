@@ -278,6 +278,7 @@ class SConsTimer:
     name = 'scons-time'
     name_spaces = ' ' * len(name)
 
+    @staticmethod
     def makedict(**kw):
         return kw
 

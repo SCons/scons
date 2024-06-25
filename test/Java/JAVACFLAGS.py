@@ -37,7 +37,7 @@ test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 env = Environment(tools=['javac'], JAVACFLAGS='-O')
 env.Java(target='classes', source='src')
-""" % locals())
+""")
 
 test.write(['src', 'Example1.java'], """\
 package src;

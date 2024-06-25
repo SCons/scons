@@ -38,7 +38,7 @@ test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 env_64 = Environment(tools=['default', 'msvc'], TARGET_ARCH='amd64')
 env_32 = Environment(tools=['default', 'msvc'], TARGET_ARCH='x86')
-""" % locals())
+""")
 
 test.run(arguments=".")
 
@@ -47,7 +47,7 @@ test.run(arguments=".")
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 env_xx = Environment(tools=['default', 'msvc'], TARGET_ARCH='nosucharch')
-""" % locals())
+""")
 
 test.run(arguments=".", status=2, stderr=None)
 test.must_contain_any_line(test.stderr(), "Unrecognized target architecture")
@@ -58,7 +58,7 @@ DefaultEnvironment(tools=[])
 env = Environment(tools=['default', 'msvc'], TARGET_ARCH='arm', MSVC_VERSION='11.0')
 if env.Detect('cl'):
     env.Command('checkarm', [], 'cl')
-""" % locals())
+""")
 test.run(arguments=".", stderr=None)
 if test.stderr().strip() != "" and "ARM" not in test.stderr():
     test.fail_test()
@@ -68,7 +68,7 @@ DefaultEnvironment(tools=[])
 env = Environment(tools=['default', 'msvc'], TARGET_ARCH='arm64', MSVC_VERSION='11.0')
 if env.Detect('cl'):
     env.Command('checkarm64', [], 'cl')
-""" % locals())
+""")
 test.run(arguments=".", stderr=None)
 if test.stderr().strip() != "" and "ARM64" not in test.stderr():
     test.fail_test()

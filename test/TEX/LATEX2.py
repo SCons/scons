@@ -47,10 +47,12 @@ if latex:
 
     test.write('SConstruct', """
 import os
+
+_ = DefaultEnvironment(tools=[])
 foo = Environment()
 foo['TEXINPUTS'] = ['subdir',os.environ.get('TEXINPUTS', '')]
 foo.PDF(source = ['foo.ltx','bar.latex','makeindex.tex','latexi.tex'])
-""" % locals())
+""")
 
     latex = r"""
 \documentclass{letter}

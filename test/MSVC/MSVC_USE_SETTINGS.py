@@ -35,6 +35,7 @@ test = TestSCons.TestSCons()
 test.skip_if_not_msvc()
 
 test.write('SConstruct', """
+_ = DefaultEnvironment(tools=[])
 e1 = Environment()
 cl1 = e1.WhereIs('cl.exe')
 
@@ -46,21 +47,21 @@ cl3 = e3.WhereIs('cl.exe')
 
 if cl1 == cl3:
     print("CL.EXE PATHS MATCH")
-""" % locals())
+""")
 
 test.run(arguments=".", status=0, stderr=None)
 test.must_contain_all(test.stdout(), "CL.EXE PATHS MATCH")
 
 test.write('SConstruct', """
 env = Environment(MSVC_USE_SETTINGS={})
-""" % locals())
+""")
 
 test.run(arguments="--warn=visual-c-missing .", status=0, stderr=None)
 test.must_contain_all(test.stderr(), "Could not find requested MSVC compiler 'cl'")
 
 test.write('SConstruct', """
 env = Environment(MSVC_USE_SETTINGS='dict or None')
-""" % locals())
+""")
 
 test.run(arguments=".", status=2, stderr=None)
 test.must_contain_all(test.stderr(), "MSVCUseSettingsError: MSVC_USE_SETTINGS type error")

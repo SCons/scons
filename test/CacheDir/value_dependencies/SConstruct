@@ -7,8 +7,8 @@ import SCons.Node
 CacheDir('cache')
 
 def b(target, source, env):
-	with open(target[0].abspath, 'w') as f:
-		pass
+    with open(target[0].abspath, 'w') as f:
+        pass
 
 def scan(node, env, path):
     """Have the node depend on a directory, which depends on a Value node."""

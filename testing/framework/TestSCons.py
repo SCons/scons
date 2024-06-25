@@ -426,12 +426,12 @@ class TestSCons(TestCommon):
         Makes a complete message to match against.
 
         Args:
-            read_str: the message for the execution part of the output.
+            build_str: the message for the execution part of the output.
                 If non-empty, needs to be newline-terminated.
             read_str: the message for the reading-sconscript part of
                 the output. If non-empty, needs to be newline-terminated.
             error: if true, expect a fail message rather than a done message.
-            cleaning (int): index into type messages, if 0 selects
+            cleaning: index into type messages, if 0 selects
                 build messages, if 1 selects clean messages.
         """
         cap, lc = [('Build', 'build'),

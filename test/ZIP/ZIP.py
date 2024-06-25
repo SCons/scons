@@ -35,12 +35,13 @@ test = TestSCons.TestSCons()
 test.subdir('sub1')
 
 test.write('SConstruct', """
+_ = DefaultEnvironment(tools=[])
 env = Environment(tools = ['zip'])
 env.Zip(target = 'aaa.zip', source = ['file1', 'file2'])
 env.Zip(target = 'aaa.zip', source = 'file3')
 env.Zip(target = 'bbb', source = 'sub1')
 env.Zip(target = 'bbb', source = 'file4')
-""" % locals())
+""")
 
 test.write('file1', "file1\n")
 test.write('file2', "file2\n")

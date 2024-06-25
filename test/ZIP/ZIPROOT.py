@@ -37,10 +37,11 @@ test.subdir('sub1')
 test.subdir(['sub1', 'sub2'])
 
 test.write('SConstruct', """
+_ = DefaultEnvironment(tools=[])
 env = Environment(tools = ['zip'])
 env.Zip(target = 'aaa.zip', source = ['sub1/file1'], ZIPROOT='sub1')
 env.Zip(target = 'bbb.zip', source = ['sub1/file2', 'sub1/sub2/file2'], ZIPROOT='sub1')
-""" % locals())
+""")
 
 test.write(['sub1', 'file1'], "file1\n")
 test.write(['sub1', 'file2'], "file2a\n")

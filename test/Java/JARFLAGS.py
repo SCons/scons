@@ -39,7 +39,7 @@ env = Environment(tools=['javac', 'jar'], JARFLAGS='cvf')
 env['JARFLAGS'] = 'cvf'
 class_files = env.Java(target='classes', source='src')
 env.Jar(target='test.jar', source=class_files)
-""" % locals())
+""")
 
 test.write(['src', 'Example1.java'], """\
 package src;
@@ -60,7 +60,7 @@ javac -d classes -sourcepath src src.Example1\\.java
 jar cvf test.jar -C classes src.Example1\\.class
 .*
 adding: src.Example1\\.class.*
-""" % locals())
+""")
 
 
 test.run(arguments = '.',
