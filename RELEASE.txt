@@ -99,6 +99,7 @@ DOCUMENTATION
   before contents of package submodules.
 - Updated manpage description of Command "builder" and function.
 - Updated the notes about reproducible builds with SCons and the example.
+- Regularized header (copyright, licens) at top of documentation files using SPDX.
 
 
 

@@ -1,39 +1,21 @@
 <!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
-  MIT License
+This file is processed by the bin/SConsDoc.py module.
+-->
 
-  Copyright The SCons Foundation
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
+<!--
   An SCons-specific DTD module, for use with SCons DocBook
   documentation, that contains names, phrases, acronyms, etc. used
   throughout the SCons documentation. These are not just abbreviations -
   defining these entities means there's a single place to control the
   markup for those entities, rather than having to change something
   many places in multiple documentation files.
-
 -->
 
-<!-- Us, and our command names
+<!-- Our own names
 
   Convention: use &SCons; to refer to the project as a concept,
   use &scons; to refer to a command as you would invoke it.
@@ -96,6 +78,7 @@
 <!-- Concepts: these are key SCons things, which may *also* be classes, etc.
      but are marked here for inclusion in a glossary
 -->
+
 <!ENTITY Action "<glossterm linkend='gls-action' xmlns='http://www.scons.org/dbxsd/v1.0'>Action</glossterm>">
 <!ENTITY Builder "<glossterm linkend='gls-builder' xmlns='http://www.scons.org/dbxsd/v1.0'>Builder</glossterm>">
 <!ENTITY Builders "<glossterm linkend='gls-builder' xmlns='http://www.scons.org/dbxsd/v1.0'>Builders</glossterm>">
@@ -171,9 +154,11 @@
 
 <!-- Methods and functions.
 
-  This includes functions from both
-  the Build Engine and the Native Python Interface.
-
+     Many of these also have generated entities (plain, and with link)
+     from the SCons XML, thus there's &Clone; plus &f-Clone; and &f-env-Clone;
+     as well as link versions &f-link-Clone; and &f-link-env-Clone;.
+     Use the ones from here if the "geenerated files" aren't in use,
+     but they nearly always are. Otherwise - your choice.
 -->
 
 <!ENTITY Add "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Add</function>">
