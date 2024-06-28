@@ -53,7 +53,7 @@ def cache_type_e_is_Dict(e):
 
 def cache_type_e_is_List(e):
     t = type(e)
-    return t is list or isinstance(e, UserList or isinstance(e, deque))
+    return t is list or isinstance(e, (UserList, deque))
 
 def cache_type_e_is_String(e):
     t = type(e)
