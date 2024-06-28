@@ -92,4 +92,4 @@ quote-style = "preserve" # Equivalent to black's "skip-string-normalization"
 ]
 
 [tool.mypy]
-python_version = "3.6" # Lowest python version supported (v0.971 and below)
+python_version = "3.8"

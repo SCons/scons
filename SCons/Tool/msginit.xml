@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -82,7 +83,7 @@ Initialize <filename>en.po</filename> and <filename>pl.po</filename> from
 </para>
 <example_commands>
   # ...
-  env.POInit(['en', 'pl']) # messages.pot --&gt; [en.po, pl.po] 
+  env.POInit(['en', 'pl']) # messages.pot --&gt; [en.po, pl.po]
 </example_commands>
 
 <para>
@@ -92,7 +93,7 @@ Initialize <filename>en.po</filename> and <filename>pl.po</filename> from
 </para>
 <example_commands>
   # ...
-  env.POInit(['en', 'pl'], ['foo']) # foo.pot --&gt; [en.po, pl.po] 
+  env.POInit(['en', 'pl'], ['foo']) # foo.pot --&gt; [en.po, pl.po]
 </example_commands>
 
 <para>
@@ -103,7 +104,7 @@ variable:
 </para>
 <example_commands>
   # ...
-  env.POInit(['en', 'pl'], POTDOMAIN='foo') # foo.pot --&gt; [en.po, pl.po] 
+  env.POInit(['en', 'pl'], POTDOMAIN='foo') # foo.pot --&gt; [en.po, pl.po]
 </example_commands>
 
 <para>
@@ -193,7 +194,7 @@ See &t-link-msginit; tool and &b-link-POInit; builder.
 <cvar name="MSGINITCOMSTR">
 <summary>
 <para>
-String to display when <command>msginit(1)</command> is invoked 
+String to display when <command>msginit(1)</command> is invoked
 (default: <literal>''</literal>, which means ``print &cv-link-MSGINITCOM;'').
 See &t-link-msginit; tool and &b-link-POInit; builder.
 </para>

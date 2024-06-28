@@ -73,6 +73,7 @@ from SCons.Util import (
     to_bytes,
     to_str,
 )
+from SCons.Util.envs import is_valid_construction_var
 from SCons.Util.hashes import (
     _attempt_init_of_python_3_9_hash_object,
     _attempt_get_hash_function,
@@ -1204,6 +1205,41 @@ class get_os_env_boolTestCase(unittest.TestCase):
             assert var is True, 'var should be True, not %s' % repr(var)
             var = get_os_env_bool('FOO', False)
             assert var is False, 'var should be False, not %s' % repr(var)
+
+
+class EnvironmentVariableTestCase(unittest.TestCase):
+
+    def test_is_valid_construction_var(self) -> None:
+        """Testing is_valid_construction_var()"""
+        r = is_valid_construction_var("_a")
+        assert r, r
+        r = is_valid_construction_var("z_")
+        assert r, r
+        r = is_valid_construction_var("X_")
+        assert r, r
+        r = is_valid_construction_var("2a")
+        assert not r, r
+        r = is_valid_construction_var("a2_")
+        assert r, r
+        r = is_valid_construction_var("/")
+        assert not r, r
+        r = is_valid_construction_var("_/")
+        assert not r, r
+        r = is_valid_construction_var("a/")
+        assert not r, r
+        r = is_valid_construction_var(".b")
+        assert not r, r
+        r = is_valid_construction_var("_.b")
+        assert not r, r
+        r = is_valid_construction_var("b1._")
+        assert not r, r
+        r = is_valid_construction_var("-b")
+        assert not r, r
+        r = is_valid_construction_var("_-b")
+        assert not r, r
+        r = is_valid_construction_var("b1-_")
+        assert not r, r
+
 
 
 if __name__ == "__main__":

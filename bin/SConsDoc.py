@@ -1,34 +1,16 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2010 The SCons Foundation
-#
-# Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
-#
-# The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-#
-# Module for handling SCons documentation processing.
-#
+# SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+# SPDX-License-Identifier: MIT
 
-__doc__ = r"""
-This module parses home-brew XML files that document various things
-in SCons.  Right now, it handles Builders, functions, construction
-variables, and Tools, but we expect it to get extended in the future.
+"""Module for handling SCons documentation processing.
+
+This module parses home-brew XML files that document important SCons
+components.  Currently it handles Builders, Environment functions/methods,
+Construction Variables, and Tools (further expansion is possible). These
+documentation snippets are turned into files with content and reference
+tags that can be included into the manpage and/or user guide, which
+prevents a lot of duplication.
 
 In general, you can use any DocBook tag in the input, and this module
 just adds processing various home-brew tags to try to make life a
@@ -156,12 +138,13 @@ dbxid = "dbx"
 # Namespace for schema instances
 xsi = "http://www.w3.org/2001/XMLSchema-instance"
 
-# Header comment with copyright
+# Header comment with copyright (unused at present)
 copyright_comment = """
-__COPYRIGHT__
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its docstring for a discussion of the format.
 """
 
 def isSConsXml(fpath):
@@ -292,7 +275,7 @@ class TreeFactory:
     @staticmethod
     def getText(root):
         return root.text
-    
+
     @staticmethod
     def appendCvLink(root, key, lntail):
         linknode = etree.Entity('cv-link-' + key)
@@ -328,9 +311,9 @@ class TreeFactory:
     def prettyPrintFile(fpath):
         with open(fpath,'rb') as fin:
             tree = etree.parse(fin)
-            pretty_content = etree.tostring(tree, encoding="utf-8", 
+            pretty_content = etree.tostring(tree, encoding="utf-8",
                                             pretty_print=True)
-    
+
         with open(fpath,'wb') as fout:
             fout.write(pretty_content)
 

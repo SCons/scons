@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 SPDX-License-Identifier: MIT
-SPDX-FileCopyrightText: Copyright The SCons Foundation
 SPDX-FileType: DOCUMENTATION
 
-This file is processed by the bin/SConsDoc.py module
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE sconsdoc [

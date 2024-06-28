@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-Copyright The SCons Foundation
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -1079,11 +1080,12 @@ Clean(docdir, os.path.join(docdir, projectname))
 </arguments>
 <summary>
 <para>
-Returns a separate copy of a construction environment.
-If there are any keyword arguments specified,
-they are added to the returned copy,
+Returns an independent copy of a &consenv;.
+If there are any unrecognized keyword arguments specified,
+they are added as &consvars; in the copy,
 overwriting any existing values
-for the keywords.
+for those keywords.
+See the manpage section "Construction Environments" for more details.
 </para>
 
 <para>
@@ -1096,8 +1098,9 @@ env3 = env.Clone(CCFLAGS='-g')
 </example_commands>
 
 <para>
-Additionally, a list of tools and a toolpath may be specified, as in
-the &f-link-Environment; constructor:
+A list of <parameter>tools</parameter>
+and a <parameter>toolpath</parameter> may be specified,
+as in the &f-link-Environment; constructor:
 </para>
 
 <example_commands>
@@ -1110,7 +1113,7 @@ env4 = env.Clone(tools=['msvc', MyTool])
 <para>
 The
 <parameter>parse_flags</parameter>
-keyword argument is also recognized to allow merging command-line
+keyword argument is also recognized, to allow merging command-line
 style arguments into the appropriate construction
 variables (see &f-link-env-MergeFlags;).
 </para>
@@ -1119,6 +1122,17 @@ variables (see &f-link-env-MergeFlags;).
 # create an environment for compiling programs that use wxWidgets
 wx_env = env.Clone(parse_flags='!wx-config --cflags --cxxflags')
 </example_commands>
+
+<para>
+The <parameter>variables</parameter>
+keyword argument is also recognized, to allow (re)initializing
+&consvars; from a <literal>Variables</literal> object.
+</para>
+
+<para>
+<emphasis>Changed in version 4.8.0:</emphasis>
+the <parameter>variables</parameter> parameter was added.
+</para>
 </summary>
 </scons_function>
 
@@ -1760,7 +1774,7 @@ will print:
 </arguments>
 <summary>
 <para>
-Return a new construction environment
+Return a new &consenv;
 initialized with the specified
 <parameter>key</parameter>=<replaceable>value</replaceable>
 pairs.
@@ -1770,7 +1784,8 @@ The keyword arguments
 <parameter>toolpath</parameter>,
 <parameter>tools</parameter>
 and <parameter>variables</parameter>
-are also specially recognized.
+are specially recognized and do not lead to
+&consvar; creation.
 See the manpage section "Construction Environments" for more details.
 </para>
 </summary>

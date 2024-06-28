@@ -44,6 +44,27 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   of CCFLAGS; the latter variable could cause a compiler warning.
 - The implementation of Variables was slightly refactored, there should
   not be user-visible changes.
+- SCons.Environment.is_valid_construction_var() now returns a boolean to
+  match the convention that functions beginning with "is" have yes/no
+  answers (previously returned either None or an re.match object).
+  Now matches the annotation and docstring (which were prematurely
+  updated in 4.6). All SCons usage except unit test was already fully
+  consistent with a bool.
+- The Variables object Add method now accepts a subst keyword argument
+  (defaults to True) which can be set to inhibit substitution prior to
+  calling the variable's converter and validator.
+- AddOption and the internal add_local_option which AddOption calls now
+  recognize a "settable" keyword argument to indicate a project-added
+  option can also be modified using SetOption.
+  NOTE: If you were using ninja and using SetOption() for ninja options
+  in your SConscripts prior to loading the ninja tool, you will now
+  see an error. The fix is to move the SetOption() to after you've loaded
+  the ninja tool.
+- ListVariable now has a separate validator, with the functionality
+  that was previously part of the converter. The main effect is to
+  allow a developer to supply a custom validator, which previously
+  could be inhibited by the converter failing before the validator
+  is reached.
 
 FIXES
 -----
@@ -52,6 +73,7 @@ FIXES
 - Improved the conversion of a "foreign" exception from an action
   into BuildError by making sure our defaults get applied even in
   corner cases. Fixes Issue #4530
+- The Clone() method now respects the variables argument (fixes #3590)
 
 IMPROVEMENTS
 ------------
@@ -76,6 +98,8 @@ DOCUMENTATION
 - Restructured API Docs build so main package contents are listed
   before contents of package submodules.
 - Updated manpage description of Command "builder" and function.
+- Updated the notes about reproducible builds with SCons and the example.
+- Regularized header (copyright, licens) at top of documentation files using SPDX.
 
 
 
@@ -95,7 +119,14 @@ DEVELOPMENT
 - Repository linter/formatter changed from flake8/black to ruff, as the
   latter grants an insane speed boost without compromising functionality.
   Existing settings were migrated 1-to-1 where possible.
-
+- The test runner now recognizes the unittest module's return code of 5,
+  which means no tests were run. SCons/Script/MainTests.py currently
+  has no tests, so this particular error code is expected - should not
+  cause runtest to give up with an "unknown error code".
+- is_valid_construction_var() (not part of the public API) moved from
+  SCons.Environment to SCons.Util to avoid the chance of import loops. Variables
+  and Environment both use the routine and Environment() uses a Variables()
+  object so better to move to a safer location.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

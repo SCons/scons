@@ -23,58 +23,36 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""
-Test the PackageVariable canned Variable type.
-"""
 
+"""
+Verify that Clone() respects the variables kwarg.
+
+"""
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-SConstruct_path = test.workpath('SConstruct')
-
-def check(expect):
-    result = test.stdout().split('\n')
-    assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
-
-test.write(SConstruct_path, """\
-from SCons.Variables.PackageVariable import PackageVariable as PV
-from SCons.Variables import PackageVariable
-
-opts = Variables(args=ARGUMENTS)
-opts.AddVariables(
-    PackageVariable('x11',
-                  'use X11 installed here (yes = search some places',
-                  'yes'),
-    PV('package', 'help for package', 'yes'),
-    )
+test.write('SConstruct', """\
+vars = Variables()
+vars.Add(BoolVariable('MYTEST', 'help', default=False))
 
 _ = DefaultEnvironment(tools=[])
-env = Environment(variables=opts, tools=[])
-Help(opts.GenerateHelpText(env))
-
-print(env['x11'])
-Default(env.Alias('dummy', None))
+env = Environment(variables=vars, tools=[])
+print(f"MYTEST={env.Dictionary('MYTEST')}")
+env.Replace(MYTEST=True)
+print(f"MYTEST={env.Dictionary('MYTEST')}")
+env1 = env.Clone(variables=vars)
+print(f"MYTEST={env1.Dictionary('MYTEST')}")
 """)
 
-test.run()
-check([str(True)])
+expect = """\
+MYTEST=False
+MYTEST=True
+MYTEST=False
+"""
 
-test.run(arguments='x11=no')
-check([str(False)])
-
-test.run(arguments='x11=0')
-check([str(False)])
-
-test.run(arguments=['x11=%s' % test.workpath()])
-check([test.workpath()])
-
-expect_stderr = """
-scons: *** Path does not exist for variable 'x11': '/non/existing/path/'
-""" + test.python_file_line(SConstruct_path, 13)
-
-test.run(arguments='x11=/non/existing/path/', stderr=expect_stderr, status=2)
+test.run(arguments = '-q -Q', stdout=expect)
 
 test.pass_test()
 

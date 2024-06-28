@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 <!--
 SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-FileType: DOCUMENTATION
 
-Copyright The SCons Foundation
-
-This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
+This file is processed by the bin/SConsDoc.py module
 -->
 
 <!DOCTYPE sconsdoc [
@@ -27,7 +26,7 @@ See its __doc__ string for a discussion of the format.
 
 <tool name="docbook">
 <summary>
-<para>This tool tries to make working with Docbook in SCons a little easier.
+<para>This tool tries to make working with Docbook in &SCons; a little easier.
 It provides several toolchains for creating different output formats,
 like HTML or PDF. Contained in the package is
 a distribution of the Docbook XSL stylesheets as of version 1.76.1.
