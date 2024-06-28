@@ -57,14 +57,14 @@ except AttributeError:
 script_dir = os.path.split(filename)[0]
 if script_dir:
     script_dir = script_dir + '/'
-sys.path = [os.path.abspath(script_dir + '../src/engine')] + sys.path
+sys.path = [os.path.abspath(script_dir + '..')] + sys.path
 
 import SCons.Errors
 import SCons.Environment
 import SCons.Util
 
 is_valid_construction_var = SCons.Util.is_valid_construction_var
-global_valid_var = re.compile(r'[_a-zA-Z]\w*$')
+global_valid_var = SCons.Util.envs._is_valid_var_re
 
 # The classes with different __setitem__() implementations that we're
 # going to horse-race.
@@ -105,7 +105,7 @@ class Environment:
         'SOURCES'  : None,
     }
     _special_set_keys = list(_special_set.keys())
-    _valid_var = re.compile(r'[_a-zA-Z]\w*$')
+    _valid_var = global_valid_var
     def __init__(self, **kw):
         self._dict = kw
 
@@ -247,8 +247,8 @@ class env_Best_attribute(Environment):
                     raise SCons.Errors.UserError("Illegal construction variable `%s'" % key)
             self._dict[key] = value
 
-class env_Best_has_key(Environment):
-    """Best __setitem__(), with has_key"""
+class env_Best_has_key_global_regex(Environment):
+    """Best __setitem__(), with membership test and global regex"""
     def __setitem__(self, key, value):
         if key in self._special_set:
             self._special_set[key](self, key, value)
@@ -257,6 +257,18 @@ class env_Best_has_key(Environment):
                and not global_valid_var.match(key):
                     raise SCons.Errors.UserError("Illegal construction variable `%s'" % key)
             self._dict[key] = value
+
+class env_Best_has_key_function(Environment):
+    """Best __setitem__(), with membership_test and validator function"""
+    def __setitem__(self, key, value):
+        if key in self._special_set:
+            self._special_set[key](self, key, value)
+        else:
+            if key not in self._dict \
+               and not is_valid_construction_var(key):
+                    raise SCons.Errors.UserError("Illegal construction variable `%s'" % key)
+            self._dict[key] = value
+
 
 class env_Best_list(Environment):
     """Best __setitem__(), with a list"""
@@ -283,6 +295,16 @@ else:
                 if not key.isalnum() and not global_valid_var.match(key):
                     raise SCons.Errors.UserError("Illegal construction variable `%s'" % key)
                 self._dict[key] = value
+
+class env_Best_isidentifier(Environment):
+    """Best __setitem__(), with membership test and isidentifier"""
+    def __setitem__(self, key, value):
+        if key in self._special_set:
+            self._special_set[key](self, key, value)
+        else:
+            if key not in self._dict and not key.isidentifier():
+                raise SCons.Errors.UserError("Illegal construction variable `%s'" % key)
+            self._dict[key] = value
 
 # We'll use the names of all the env_* classes we find later to build
 # the dictionary of statements to be timed, and the import statement

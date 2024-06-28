@@ -81,6 +81,9 @@ IMPROVEMENTS
 - Make the testing framework a little more resilient: the temporary
   directory for tests now includes a component named "scons" which can
   be given to antivirus software to exclude.
+- Performance tweak: the __setitem__ method of an Environment, used for
+  setting construction variables, now uses the string method isidentifier
+  to validate the name (updated from microbenchmark results).
 
 PACKAGING
 ---------

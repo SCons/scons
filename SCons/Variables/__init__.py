@@ -131,7 +131,7 @@ class Variables:
             option.key = key
             # TODO: normalize to not include key in aliases. Currently breaks tests.
             option.aliases = [key,]
-        if not SCons.Util.is_valid_construction_var(option.key):
+        if not option.key.isidentifier():
             raise SCons.Errors.UserError(f"Illegal Variables key {option.key!r}")
         option.help = help
         option.default = default
