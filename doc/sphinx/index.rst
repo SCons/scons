@@ -21,8 +21,9 @@ SCons API Documentation
    that are inherited, sometimes with no information at all, sometimes
    with a signature/description that seems mangled: Python upstream has
    similar limitations as to the quality of dosctrings vs the current
-   standards Sphinx expects.  Inherited interfaces can be identified by the
-   lack of a ```[source]``` button to the right of the method signature.
+   standards Sphinx expects.  Inherited interfaces from outside SCons
+   code can be identified by the lack of a ``[source]`` button to the
+   right of the method signature.
 
    If you are looking for the Public API - the interfaces that have
    long-term consistency guarantees, which you can reliably use when
