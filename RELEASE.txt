@@ -116,6 +116,9 @@ DEVELOPMENT
   The repo-wide line-ending is now `lf`, with the exception of a few
   Windows-only files using `crlf` instead. Any files not already fitting
   this format have been explicitly converted.
+- Repository linter/formatter changed from flake8/black to ruff, as the
+  latter grants an insane speed boost without compromising functionality.
+  Existing settings were migrated 1-to-1 where possible.
 - The test runner now recognizes the unittest module's return code of 5,
   which means no tests were run. SCons/Script/MainTests.py currently
   has no tests, so this particular error code is expected - should not
