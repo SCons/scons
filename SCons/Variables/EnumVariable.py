@@ -91,11 +91,6 @@ def EnumVariable(
        map: optional dictionary which may be used for converting the
           input value into canonical values (e.g. for aliases).
        ignorecase: defines the behavior of the validator and converter.
-       validator: callback function to test whether the value is in the
-          list of allowed values.
-       converter: callback function to convert input values according to
-          the given *map*-dictionary. Unmapped input values are returned
-          unchanged.
 
     Returns:
        A tuple including an appropriate converter and validator.

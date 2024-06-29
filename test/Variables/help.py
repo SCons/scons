@@ -37,7 +37,7 @@ str_False = str(False)
 test = TestSCons.TestSCons()
 
 workpath = test.workpath()
-qtpath  = os.path.join(workpath, 'qt')
+qtpath = os.path.join(workpath, 'qt')
 libpath = os.path.join(qtpath, 'lib')
 libdirvar = os.path.join('$qtdir', 'lib')
 

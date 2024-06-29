@@ -206,7 +206,6 @@ class VariablesTestCase(unittest.TestCase):
                  lambda x: int(x) + 12)
 
         env = Environment()
-        exc_caught = None
         with self.assertRaises(AssertionError):
             opts.Update(env)
 
@@ -375,8 +374,10 @@ class VariablesTestCase(unittest.TestCase):
         opts = SCons.Variables.Variables()
 
         def bool_converter(val):
-            if val in [1, 'y']: val = 1
-            if val in [0, 'n']: val = 0
+            if val in [1, 'y']:
+                val = 1
+            if val in [0, 'n']:
+                val = 0
             return val
 
         # test saving out empty file

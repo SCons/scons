@@ -40,11 +40,9 @@ def check(expect):
     result = test.stdout().split('\n')
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
-#### test PathVariable ####
 
-test.subdir('lib', 'qt', ['qt', 'lib'], 'nolib' )
+test.subdir('lib', 'qt', ['qt', 'lib'], 'nolib')
 workpath = test.workpath()
-libpath = os.path.join(workpath, 'lib')
 
 test.write(SConstruct_path, """\
 from SCons.Variables.PathVariable import PathVariable as PV
@@ -67,7 +65,7 @@ print(env['qt_libraries'])
 print(env.subst('$qt_libraries'))
 
 Default(env.Alias('dummy', None))
-""" % (workpath, os.path.join('$qtdir', 'lib') ))
+""" % (workpath, os.path.join('$qtdir', 'lib')))
 
 qtpath = workpath
 libpath = os.path.join(qtpath, 'lib')

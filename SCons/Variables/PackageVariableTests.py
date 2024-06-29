@@ -101,7 +101,7 @@ class PackageVariableTestCase(unittest.TestCase):
         o.validator('T', '/path', env)
         o.validator('X', exists, env)
 
-        with self.assertRaises(SCons.Errors.UserError) as cm:
+        with self.assertRaises(SCons.Errors.UserError):
             o.validator('X', does_not_exist, env)
 
 

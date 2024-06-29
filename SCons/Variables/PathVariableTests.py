@@ -196,7 +196,7 @@ class PathVariableTestCase(unittest.TestCase):
             pass
 
         def my_validator(key, val, env):
-            raise ValidatorError(f"my_validator() got called for {key!r}, {val}!")
+            raise ValidatorError(f"my_validator() got called for {key!r}, {val!r}!")
 
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PathVariable('test2',
@@ -207,7 +207,7 @@ class PathVariableTestCase(unittest.TestCase):
         with self.assertRaises(ValidatorError) as cm:
             o.validator('Y', 'value', {})
         e = cm.exception
-        self.assertEqual(str(e), f"my_validator() got called for 'Y', value!")
+        self.assertEqual(str(e), "my_validator() got called for 'Y', 'value'!")
 
 
 if __name__ == "__main__":

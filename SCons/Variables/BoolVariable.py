@@ -38,7 +38,7 @@ import SCons.Errors
 
 __all__ = ['BoolVariable',]
 
-TRUE_STRINGS = ('y', 'yes', 'true', 't', '1', 'on' , 'all')
+TRUE_STRINGS = ('y', 'yes', 'true', 't', '1', 'on', 'all')
 FALSE_STRINGS = ('n', 'no', 'false', 'f', '0', 'off', 'none')
 
 
@@ -66,7 +66,7 @@ def _text2bool(val: str) -> bool:
 def _validator(key, val, env) -> None:
     """Validate that the value of *key* in *env* is a boolean.
 
-    Parmaeter *val* is not used in the check.
+    Parameter *val* is not used in the check.
 
     Usable as a validator function for SCons Variables.
 

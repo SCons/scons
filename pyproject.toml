@@ -88,7 +88,10 @@ quote-style = "preserve" # Equivalent to black's "skip-string-normalization"
 
 [tool.ruff.lint.per-file-ignores]
 "SCons/Util/__init__.py" = [
-    "F401", # Module imported but unused
+    "F401",  # Module imported but unused
+]
+"SCons/Variables/__init__.py" = [
+    "F401",  # Symbol imported but unused
 ]
 
 [tool.mypy]

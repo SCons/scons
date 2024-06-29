@@ -34,11 +34,11 @@ import SCons.Warnings
 
 # Note: imports are for the benefit of SCons.Main (and tests); since they
 #   are not used here, the "as Foo" form is for checkers.
-from .BoolVariable import BoolVariable as BoolVariable
-from .EnumVariable import EnumVariable as EnumVariable
-from .ListVariable import ListVariable as ListVariable
-from .PackageVariable import PackageVariable as PackageVariable
-from .PathVariable import PathVariable as PathVariable
+from .BoolVariable import BoolVariable
+from .EnumVariable import EnumVariable
+from .ListVariable import ListVariable
+from .PackageVariable import PackageVariable
+from .PathVariable import PathVariable
 
 __all__ = [
     "Variable",
