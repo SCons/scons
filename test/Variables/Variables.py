@@ -23,12 +23,21 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+Test general behavior of Variables including save files.
+
+Note this test is coded to expect a compiler tool to have run
+so that CC and CCFLAGS are set. The first test "run" collects
+those values and uses them as a baseline for the actual tests.
+We should be able to mock that in some way.
+"""
+
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-DefaultEnvironment(tools=[])  # test speedup
+_ = DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
 print(env['CC'])
 print(" ".join(env['CCFLAGS']))
@@ -277,7 +286,7 @@ opts.Add('LISTOPTION_TEST',
          names = ['a','b','c',])
 
 DefaultEnvironment(tools=[])  # test speedup
-env = Environment(variables=opts)
+env = Environment(variables=opts, tools=[])
 
 print(env['RELEASE_BUILD'])
 print(env['DEBUG_BUILD'])

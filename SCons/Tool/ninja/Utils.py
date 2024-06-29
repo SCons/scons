@@ -45,6 +45,7 @@ def ninja_add_command_line_options() -> None:
               metavar='BOOL',
               action="store_true",
               default=False,
+              settable=True,
               help='Disable automatically running ninja after scons')
 
     AddOption('--disable-ninja',
@@ -52,6 +53,7 @@ def ninja_add_command_line_options() -> None:
               metavar='BOOL',
               action="store_true",
               default=False,
+              settable=True,
               help='Disable ninja generation and build with scons even if tool is loaded. '+
                    'Also used by ninja to build targets which only scons can build.')
 
@@ -60,6 +62,7 @@ def ninja_add_command_line_options() -> None:
               metavar='BOOL',
               action="store_true",
               default=False,
+              settable=True,
               help='Allow scons to skip regeneration of the ninja file and restarting of the daemon. ' +
                     'Care should be taken in cases where Glob is in use or SCons generated files are used in ' +
                     'command lines.')

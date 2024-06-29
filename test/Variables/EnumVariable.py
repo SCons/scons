@@ -38,9 +38,7 @@ def check(expect):
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
 test.write(SConstruct_path, """\
-from SCons.Variables.EnumVariable import EnumVariable
-EV = EnumVariable
-
+from SCons.Variables.EnumVariable import EnumVariable as EV
 from SCons.Variables import EnumVariable
 
 list_of_libs = Split('x11 gl qt ical')
@@ -58,7 +56,8 @@ opts.AddVariables(
        map={}, ignorecase=2), # make lowercase
     )
 
-env = Environment(variables=opts)
+_ = DefaultEnvironment(tools=[])
+env = Environment(variables=opts, tools=[])
 Help(opts.GenerateHelpText(env))
 
 print(env['debug'])
@@ -78,19 +77,19 @@ check(['full', 'KdE', 'eins'])
 
 expect_stderr = """
 scons: *** Invalid value for enum variable 'debug': 'FULL'. Valid values are: ('yes', 'no', 'full')
-""" + test.python_file_line(SConstruct_path, 21)
+""" + test.python_file_line(SConstruct_path, 20)
 
 test.run(arguments='debug=FULL', stderr=expect_stderr, status=2)
 
 expect_stderr = """
 scons: *** Invalid value for enum variable 'guilib': 'irgendwas'. Valid values are: ('motif', 'gtk', 'kde')
-""" + test.python_file_line(SConstruct_path, 21)
+""" + test.python_file_line(SConstruct_path, 20)
 
 test.run(arguments='guilib=IrGeNdwas', stderr=expect_stderr, status=2)
 
 expect_stderr = """
 scons: *** Invalid value for enum variable 'some': 'irgendwas'. Valid values are: ('xaver', 'eins')
-""" + test.python_file_line(SConstruct_path, 21)
+""" + test.python_file_line(SConstruct_path, 20)
 
 test.run(arguments='some=IrGeNdwas', stderr=expect_stderr, status=2)
 

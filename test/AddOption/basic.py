@@ -24,8 +24,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Verify the help text when the AddOption() function is used (and when
-it's not).
+Verify added options give the expected default/command line values
+when fetched with GetOption.
 """
 
 import TestSCons
@@ -35,35 +35,44 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 env = Environment(tools=[])
-AddOption('--force',
-          action="store_true",
-          help='force installation (overwrite any existing files)')
-AddOption('--prefix',
-          nargs=1,
-          dest='prefix',
-          action='store',
-          type='string',
-          metavar='DIR',
-          help='installation prefix')
+AddOption(
+    '--force',
+    action="store_true",
+    help='force installation (overwrite any existing files)',
+)
+AddOption(
+    '--prefix',
+    nargs=1,
+    dest='prefix',
+    action='store',
+    type='string',
+    metavar='DIR',
+    settable=True,
+    help='installation prefix',
+)
+AddOption(
+    '--set',
+    action="store_true",
+    help="try SetOption of 'prefix' to '/opt/share'"
+)
 f = GetOption('force')
 if f:
     f = "True"
 print(f)
 print(GetOption('prefix'))
+if GetOption('set'):
+    SetOption('prefix', '/opt/share')
+    print(GetOption('prefix'))
 """)
 
-test.run('-Q -q .',
-         stdout="None\nNone\n")
-
-test.run('-Q -q . --force',
-         stdout="True\nNone\n")
-
-test.run('-Q -q . --prefix=/home/foo',
-         stdout="None\n/home/foo\n")
-
-test.run('-Q -q . -- --prefix=/home/foo --force',
-         status=1,
-         stdout="None\nNone\n")
+test.run('-Q -q .', stdout="None\nNone\n")
+test.run('-Q -q . --force', stdout="True\nNone\n")
+test.run('-Q -q . --prefix=/home/foo', stdout="None\n/home/foo\n")
+test.run('-Q -q . -- --prefix=/home/foo --force', status=1, stdout="None\nNone\n")
+# check that SetOption works on prefix...
+test.run('-Q -q . --set', stdout="None\nNone\n/opt/share\n")
+# but the "command line wins" rule is not violated
+test.run('-Q -q . --set --prefix=/home/foo', stdout="None\n/home/foo\n/home/foo\n")
 
 test.pass_test()
 

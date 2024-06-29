@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -84,7 +85,7 @@ languages defined in <filename>LINGUAS</filename> file:
 
 <para>
 <emphasis>Example 4</emphasis>.
-Compile files for languages defined in <filename>LINGUAS</filename> file 
+Compile files for languages defined in <filename>LINGUAS</filename> file
 (another version):
 </para>
 <example_commands>
@@ -126,7 +127,7 @@ See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
 <cvar name="MSGFMTCOMSTR">
 <summary>
 <para>
-String to display when <command>msgfmt(1)</command> is invoked 
+String to display when <command>msgfmt(1)</command> is invoked
 (default: <literal>''</literal>, which means ``print &cv-link-MSGFMTCOM;'').
 See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
 </para>

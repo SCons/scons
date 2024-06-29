@@ -76,7 +76,6 @@ from SCons.Util import (
     to_String_for_subst,
     uniquer_hashables,
 )
-from SCons.Util.envs import is_valid_construction_var
 from SCons.Util.sctyping import ExecutorType
 
 class _Null:
@@ -581,26 +580,20 @@ class SubstitutionEnvironment:
         return self._dict[key]
 
     def __setitem__(self, key, value):
-        # This is heavily used.  This implementation is the best we have
-        # according to the timings in bench/env.__setitem__.py.
-        #
-        # The "key in self._special_set_keys" test here seems to perform
-        # pretty well for the number of keys we have.  A hard-coded
-        # list worked a little better in Python 2.5, but that has the
-        # disadvantage of maybe getting out of sync if we ever add more
-        # variable names.
-        # So right now it seems like a good trade-off, but feel free to
-        # revisit this with bench/env.__setitem__.py as needed (and
-        # as newer versions of Python come out).
         if key in self._special_set_keys:
             self._special_set[key](self, key, value)
         else:
-            # If we already have the entry, then it's obviously a valid
-            # key and we don't need to check.  If we do check, using a
-            # global, pre-compiled regular expression directly is more
-            # efficient than calling another function or a method.
-            if key not in self._dict and not is_valid_construction_var(key):
-                raise UserError("Illegal construction variable `%s'" % key)
+            # Performance: since this is heavily used, try to avoid checking
+            # if the variable is valid unless necessary. bench/__setitem__.py
+            # times a bunch of different approaches. Based the most recent
+            # run, against Python 3.6-3.13(beta), the best we can do across
+            # different combinations of actions is to use a membership test
+            # to see if we already have the variable, if so it must already
+            # have been checked, so skip; if we do check, "isidentifier()"
+            # (new in Python 3 so wasn't in benchmark until recently)
+            # on the key is the best.
+            if key not in self._dict and not key.isidentifier():
+                raise UserError(f"Illegal construction variable {key!r}")
             self._dict[key] = value
 
     def get(self, key, default=None):
@@ -2579,8 +2572,12 @@ class OverrideEnvironment(Base):
             return self.__dict__['__subject'].__getitem__(key)
 
     def __setitem__(self, key, value):
-        if not is_valid_construction_var(key):
-            raise UserError("Illegal construction variable `%s'" % key)
+        # This doesn't have the same performance equation as a "real"
+        # environment: in an override you're basically just writing
+        # new stuff; it's not a common case to be changing values already
+        # set in the override dict, so don't spend time checking for existance.
+        if not key.isidentifier():
+            raise UserError(f"Illegal construction variable {key!r}")
         self.__dict__['overrides'][key] = value
 
     def __delitem__(self, key):

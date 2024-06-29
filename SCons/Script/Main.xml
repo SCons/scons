@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-Copyright The SCons Foundation
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -93,21 +94,25 @@ the option value may be accessed using
 &f-link-GetOption;
 or
 &f-link-env-GetOption;.
-&f-link-SetOption; is not currently supported for
-options added with &f-AddOption;.
-<!-- was:
-The value may also be set using
-&f-SetOption;
+If the <parameter>settable=True</parameter> argument
+was supplied in the &AddOption; call,
+the value may also be set later using
+&f-link-SetOption;
 or
-&f-env.SetOption;,
-if conditions in a
-&SConscript;
+&f-link-env-SetOption;,
+if conditions in an
+&SConscript; file
 require overriding any default value.
 Note however that a
 value specified on the command line will
 <emphasis>always</emphasis>
-override a value set by any SConscript file.
--->
+override a value set in an SConscript file.
+</para>
+
+<para>
+<emphasis>Changed in 4.8.0</emphasis>: added the
+<parameter>settable</parameter> keyword argument
+to enable an added option to be settable via &SetOption;.
 </para>
 
 <para>
@@ -196,6 +201,7 @@ Allows setting options for SCons debug options. Currently the only supported val
   <example_commands>
 DebugOptions(json='#/build/output/scons_stats.json')
 </example_commands>
+<para><emphasis>New in version 4.6.0.</emphasis></para>
 </summary>
 </scons_function>
 
@@ -334,9 +340,10 @@ atexit.register(print_build_failures)
 <summary>
 <para>
 Query the value of settable options which may have been set
-on the command line, or by using the &f-link-SetOption; function.
+on the command line, via option defaults,
+or by using the &f-link-SetOption; function.
 The value of the option is returned in a type matching how the
-option was declared - see the documentation for the
+option was declared - see the documentation of the
 corresponding command line option for information about each specific
 option.
 </para>
@@ -799,6 +806,16 @@ which evaluates to true (e.g. <constant>True</constant>,
 Options which affect the reading and processing of SConscript files
 are not settable using &f-SetOption; since those files must
 be read in order to find the &f-SetOption; call in the first place.
+</para>
+
+<para>
+For project-specific options (sometimes called
+<firstterm>local options</firstterm>)
+added via an &f-link-AddOption; call,
+&f-SetOption; is available only after the
+&f-AddOption; call has completed successfully,
+and only if that call included the
+<parameter>settable=True</parameter> argument.
 </para>
 
 <para>

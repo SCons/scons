@@ -66,11 +66,30 @@ dist-dir = "build/dist"
 [tool.distutils.bdist_wheel]
 dist-dir = "build/dist"
 
-# for black and mypy, set the lowest Python version supported
-[tool.black]
-quiet = true
-target-version = ['py36']
-skip-string-normalization = true
+[tool.ruff]
+target-version = "py37" # Lowest python version supported
+extend-include = ["SConstruct", "SConscript"]
+extend-exclude = [
+    "bench",
+    "bin",
+    "doc",
+    "src",
+    "template",
+    "test",
+    "testing",
+    "timings",
+    "SCons/Tool/docbook/docbook-xsl-1.76.1",
+    "bootstrap.py",
+    "runtest.py",
+]
+
+[tool.ruff.format]
+quote-style = "preserve" # Equivalent to black's "skip-string-normalization"
+
+[tool.ruff.lint.per-file-ignores]
+"SCons/Util/__init__.py" = [
+    "F401", # Module imported but unused
+]
 
 [tool.mypy]
-python_version = "3.6"
+python_version = "3.8"

@@ -1,29 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
-MIT License
-
-Copyright The SCons Foundation
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE reference [
@@ -5203,7 +5184,7 @@ converted to lower case.</para>
   </varlistentry>
 
   <varlistentry id="v-ListVariable">
-  <term><function>ListVariable</function>(<parameter>key, help, default, names, [map]</parameter>)</term>
+  <term><function>ListVariable</function>(<parameter>key, help, default, names, [map, validator]</parameter>)</term>
   <listitem>
 <para>
 Set up a variable
@@ -5225,6 +5206,8 @@ separated by commas.
 <parameter>default</parameter> may be specified
 either as a string of comma-separated value,
 or as a list of values.
+</para>
+<para>
 The optional
 <parameter>map</parameter>
 argument is a dictionary
@@ -5236,6 +5219,14 @@ list.
 (Note that the additional values accepted through
 the use of a <parameter>map</parameter> are not
 reflected in the generated help message).  </para>
+<para>
+The optional <parameter>validator</parameter> argument
+can be used to specify a custom validator callback function,
+as described for <link linkend='v-Add'><function>Add</function></link>.
+The default is to use an internal validator routine.
+</para>
+<para><emphasis>New in 4.8.0: <parameter>validator</parameter>.
+</emphasis></para>
   </listitem>
   </varlistentry>
 

@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -28,7 +29,7 @@ See its __doc__ string for a discussion of the format.
 <para>
 This scons tool is a part of scons &t-link-gettext; toolset. It provides
 scons interface to <command>msgmerge(1)</command> command, which merges two
-Uniform style <filename>.po</filename> files together. 
+Uniform style <filename>.po</filename> files together.
 </para>
 </summary>
 <sets>
@@ -62,9 +63,9 @@ does.
 <para>
 Target nodes defined through &b-POUpdate; are not built by default
 (they're <literal>Ignore</literal>d from <literal>'.'</literal> node). Instead,
-they are added automatically to special <literal>Alias</literal> 
+they are added automatically to special <literal>Alias</literal>
 (<literal>'po-update'</literal> by default). The alias name may be changed
-through the &cv-link-POUPDATE_ALIAS; construction variable.  You can easily 
+through the &cv-link-POUPDATE_ALIAS; construction variable.  You can easily
 update <literal>PO</literal> files in your project by <command>scons
 po-update</command>.
 </para>
@@ -128,7 +129,7 @@ from <filename>messages.pot</filename> template:
 </para>
 <example_commands>
   # produce 'en.po', 'pl.po' + files defined in 'LINGUAS':
-  env.POUpdate(['en', 'pl' ], LINGUAS_FILE = 1) 
+  env.POUpdate(['en', 'pl' ], LINGUAS_FILE = 1)
 </example_commands>
 
 <para>

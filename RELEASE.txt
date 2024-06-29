@@ -62,6 +62,18 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - The Variables object Add method now accepts a subst keyword argument
   (defaults to True) which can be set to inhibit substitution prior to
   calling the variable's converter and validator.
+- AddOption and the internal add_local_option which AddOption calls now
+  recognize a "settable" keyword argument to indicate a project-added
+  option can also be modified using SetOption.
+  NOTE: If you were using ninja and using SetOption() for ninja options
+  in your SConscripts prior to loading the ninja tool, you will now
+  see an error. The fix is to move the SetOption() to after you've loaded
+  the ninja tool.
+- ListVariable now has a separate validator, with the functionality
+  that was previously part of the converter. The main effect is to
+  allow a developer to supply a custom validator, which previously
+  could be inhibited by the converter failing before the validator
+  is reached.
 
 FIXES
 -----
@@ -109,6 +121,9 @@ IMPROVEMENTS
 - Make the testing framework a little more resilient: the temporary
   directory for tests now includes a component named "scons" which can
   be given to antivirus software to exclude.
+- Performance tweak: the __setitem__ method of an Environment, used for
+  setting construction variables, now uses the string method isidentifier
+  to validate the name (updated from microbenchmark results).
 - MSVC: Visual Studio 2015 Express (14.0Exp) does not support the sdk version
   argument. Visual Studio 2015 Express does not support the store argument for
   target architectures other than x86.  Script argument validation now takes into
@@ -138,6 +153,7 @@ DOCUMENTATION
   before contents of package submodules.
 - Updated manpage description of Command "builder" and function.
 - Updated the notes about reproducible builds with SCons and the example.
+- Regularized header (copyright, licens) at top of documentation files using SPDX.
 
 
 
@@ -154,6 +170,9 @@ DEVELOPMENT
   The repo-wide line-ending is now `lf`, with the exception of a few
   Windows-only files using `crlf` instead. Any files not already fitting
   this format have been explicitly converted.
+- Repository linter/formatter changed from flake8/black to ruff, as the
+  latter grants an insane speed boost without compromising functionality.
+  Existing settings were migrated 1-to-1 where possible.
 - The test runner now recognizes the unittest module's return code of 5,
   which means no tests were run. SCons/Script/MainTests.py currently
   has no tests, so this particular error code is expected - should not

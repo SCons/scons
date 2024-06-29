@@ -38,7 +38,7 @@ class ListVariableTestCase(unittest.TestCase):
         assert o.key == 'test', o.key
         assert o.help == 'test option help\n    (all|none|comma-separated list of names)\n    allowed names: one two three', repr(o.help)
         assert o.default == 'all', o.default
-        assert o.validator is None, o.validator
+        assert o.validator is not None, o.validator
         assert o.converter is not None, o.converter
 
         opts = SCons.Variables.Variables()
@@ -52,9 +52,15 @@ class ListVariableTestCase(unittest.TestCase):
     def test_converter(self) -> None:
         """Test the ListVariable converter"""
         opts = SCons.Variables.Variables()
-        opts.Add(SCons.Variables.ListVariable('test', 'test option help', 'all',
-                                          ['one', 'two', 'three'],
-                                          {'ONE':'one', 'TWO':'two'}))
+        opts.Add(
+            SCons.Variables.ListVariable(
+                'test',
+                'test option help',
+                'all',
+                ['one', 'two', 'three'],
+                {'ONE': 'one', 'TWO': 'two'},
+            )
+        )
 
         o = opts.options[0]
 
@@ -101,8 +107,12 @@ class ListVariableTestCase(unittest.TestCase):
         x = o.converter('three,ONE,TWO')
         assert str(x) == 'all', x
 
-        with self.assertRaises(ValueError):
-            x = o.converter('no_match')
+        # invalid value should convert (no change) without error
+        x = o.converter('no_match')
+        assert str(x) == 'no_match', x
+        # ... and fail to validate
+        with self.assertRaises(SCons.Errors.UserError):
+            z = o.validator('test', 'no_match', {"test": x})
 
     def test_copy(self) -> None:
         """Test copying a ListVariable like an Environment would"""
