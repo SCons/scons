@@ -161,7 +161,7 @@ class _PathVariableClass:
             helpmsg = f'{help} ( /path/to/{key[0]} )'
         else:
             helpmsg = f'{help} ( /path/to/{key} )'
-        return (key, helpmsg, default, validator, None)
+        return key, helpmsg, default, validator, None
 
 
 PathVariable = _PathVariableClass()

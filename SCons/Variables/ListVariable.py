@@ -140,7 +140,7 @@ def _validator(key, val, env) -> None:
     so we need to fish the allowed elements list out of the environment
     to complete the validation.
 
-    Note that since 18b45e456, whether or not ``subst`` has been
+    Note that since 18b45e456, whether ``subst`` has been
     called is conditional on the value of the *subst* argument to
     :meth:`~SCons.Variables.Variables.Add`, so we have to account for
     possible different types of *val*.

@@ -67,7 +67,8 @@ print(env['some'])
 Default(env.Alias('dummy', None))
 """)
 
-test.run(); check(['no', 'gtk', 'xaver'])
+test.run()
+check(['no', 'gtk', 'xaver'])
 
 test.run(arguments='debug=yes guilib=Motif some=xAVER')
 check(['yes', 'Motif', 'xaver'])

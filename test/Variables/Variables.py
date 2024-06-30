@@ -165,7 +165,7 @@ check(['1', '0', cc, (ccflags + ' -O').strip(), 'v', 'v'])
 test.run(arguments='DEBUG_BUILD=1')
 check(['1', '1', cc, (ccflags + ' -O -g').strip(), 'v', 'v'])
 
-test.run(arguments='-h', stdout = """\
+test.run(arguments='-h', stdout="""\
 scons: Reading SConscript files ...
 1
 0
@@ -241,7 +241,7 @@ def checkSave(file, expected):
     gdict = {}
     ldict = {}
     with open(file, 'r') as f:
-       contents = f.read()
+        contents = f.read()
     exec(contents, gdict, ldict)
     assert expected == ldict, "%s\n...not equal to...\n%s" % (expected, ldict)
 
@@ -297,18 +297,18 @@ opts.Save('variables.saved', env)
 
 # First check for empty output file when nothing is passed on command line
 test.run()
-check(['0','1'])
+check(['0', '1'])
 checkSave('variables.saved', {})
 
 # Now specify one option the same as default and make sure it doesn't write out
 test.run(arguments='DEBUG_BUILD=1')
-check(['0','1'])
+check(['0', '1'])
 checkSave('variables.saved', {})
 
 # Now specify same option non-default and make sure only it is written out
 test.run(arguments='DEBUG_BUILD=0 LISTOPTION_TEST=a,b')
-check(['0','0'])
-checkSave('variables.saved',{'DEBUG_BUILD':0, 'LISTOPTION_TEST':'a,b'})
+check(['0', '0'])
+checkSave('variables.saved', {'DEBUG_BUILD': 0, 'LISTOPTION_TEST': 'a,b'})
 
 test.write('SConstruct', """
 opts = Variables('custom.py')
@@ -342,7 +342,7 @@ Help(
 )
 """)
 
-test.run(arguments='-h', stdout = """\
+test.run(arguments='-h', stdout="""\
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
 Variables settable in custom.py or on the command line:
@@ -364,7 +364,7 @@ UNSPECIFIED: An option with no value
     actual: None
 
 Use scons -H for help about SCons built-in command-line options.
-"""%cc)
+""" % cc)
 
 test.write('SConstruct', """
 import SCons.Variables

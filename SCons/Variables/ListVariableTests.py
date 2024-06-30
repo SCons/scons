@@ -112,7 +112,7 @@ class ListVariableTestCase(unittest.TestCase):
         assert str(x) == 'no_match', x
         # ... and fail to validate
         with self.assertRaises(SCons.Errors.UserError):
-            z = o.validator('test', 'no_match', {"test": x})
+            o.validator('test', 'no_match', {"test": x})
 
     def test_copy(self) -> None:
         """Test copying a ListVariable like an Environment would"""
@@ -121,9 +121,8 @@ class ListVariableTestCase(unittest.TestCase):
                                           ['one', 'two', 'three']))
 
         o = opts.options[0]
-
-        l = o.converter('all')
-        n = l.__class__(copy.copy(l))
+        res = o.converter('all')
+        _ = res.__class__(copy.copy(res))
 
 if __name__ == "__main__":
     unittest.main()

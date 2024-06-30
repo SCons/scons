@@ -97,9 +97,9 @@ class EnumVariableTestCase(unittest.TestCase):
                                            'c' : 'three'},
                                           ignorecase=2))
 
-        o0 = opts.options[0]
-        o1 = opts.options[1]
-        o2 = opts.options[2]
+        opt0 = opts.options[0]
+        opt1 = opts.options[1]
+        opt2 = opts.options[2]
 
         table = {
             'one'   : ['one',   'one',   'one'],
@@ -119,13 +119,13 @@ class EnumVariableTestCase(unittest.TestCase):
             'C'     : ['C',     'three', 'three'],
         }
 
-        for k, l in table.items():
-            x = o0.converter(k)
-            assert x == l[0], f"o0 got {x}, expected {l[0]}"
-            x = o1.converter(k)
-            assert x == l[1], f"o1 got {x}, expected {l[1]}"
-            x = o2.converter(k)
-            assert x == l[2], f"o2 got {x}, expected {l[2]}"
+        for k, expected in table.items():
+            x = opt0.converter(k)
+            assert x == expected[0], f"opt0 got {x}, expected {expected[0]}"
+            x = opt1.converter(k)
+            assert x == expected[1], f"opt1 got {x}, expected {expected[1]}"
+            x = opt2.converter(k)
+            assert x == expected[2], f"opt2 got {x}, expected {expected[2]}"
 
     def test_validator(self) -> None:
         """Test the EnumVariable validator"""
@@ -149,9 +149,9 @@ class EnumVariableTestCase(unittest.TestCase):
                                            'c' : 'three'},
                                           ignorecase=2))
 
-        o0 = opts.options[0]
-        o1 = opts.options[1]
-        o2 = opts.options[2]
+        opt0 = opts.options[0]
+        opt1 = opts.options[1]
+        opt2 = opts.options[2]
 
         def valid(o, v) -> None:
             o.validator('X', v, {})
@@ -181,10 +181,10 @@ class EnumVariableTestCase(unittest.TestCase):
             'no_v'  : [invalid, invalid, invalid],
         }
 
-        for v, l in table.items():
-            l[0](o0, v)
-            l[1](o1, v)
-            l[2](o2, v)
+        for v, expected in table.items():
+            expected[0](opt0, v)
+            expected[1](opt1, v)
+            expected[2](opt2, v)
 
 
 if __name__ == "__main__":
