@@ -61,7 +61,6 @@ def generate(env) -> None:
     env["NINJA_DEPFILE_PARSE_FORMAT"] = 'gcc'
 
 
-
 def exists(env):
     # is executable, and is a GNU compiler (or accepts '--version' at least)
     return detect_version(env, env.Detect(env.get('CC', compilers)))
