@@ -45,6 +45,9 @@ from SCons.Tool.MSCommon.vc import (  # noqa: F401
     msvc_toolset_versions,
     msvc_toolset_versions_spectre,
     msvc_query_version_toolset,
+    vswhere_register_executable,
+    vswhere_get_executable,
+    vswhere_freeze_executable,
 )
 
 from SCons.Tool.MSCommon.vs import (  # noqa: F401
@@ -60,6 +63,8 @@ from .MSVC.Policy import (  # noqa: F401
     msvc_get_notfound_policy,
     msvc_set_scripterror_policy,
     msvc_get_scripterror_policy,
+    msvc_notfound_policy_contextmanager,
+    msvc_scripterror_policy_contextmanager,
 )
 
 from .MSVC.Exceptions import (  # noqa: F401
@@ -78,7 +83,9 @@ from .vc import (  # noqa: F401
     MSVCUnsupportedHostArch,
     MSVCUnsupportedTargetArch,
     MSVCScriptNotFound,
+    MSVCUseScriptError,
     MSVCUseSettingsError,
+    VSWhereUserError,
 )
 
 from .MSVC.Util import (  # noqa: F401

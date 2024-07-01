@@ -12,6 +12,64 @@ NOTE: Python 3.6 support is deprecated and will be dropped in a future reease.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Joseph Brill:
+    - For msvc version specifications without an 'Exp' suffix, an express installation
+      is used when no other edition is detected for the msvc version.  Similarly, an
+      express installation of the IDE binary is used when no other IDE edition is
+      detected.
+    - VS2015 Express (14.0Exp) does not support the sdk version argument.  VS2015 Express
+      does not support the store argument for target architectures other than x86.
+      Script argument validation now takes into account these restrictions.
+    - VS2015 BuildTools (14.0) does not support the sdk version argument and does not
+      support the store argument.  Script argument validation now takes into account
+      these restrictions.
+    - The Windows SDK for Windows 7 and .NET Framework 4" (SDK 7.1) populates the
+      registry keys in a manner in which the msvc detection would report that VS2010
+      (10.0) is installed when only the SDK was installed.  The installed files are
+      intended to be used via the sdk batch file setenv.cmd. The installed msvc
+      batch files will fail. The msvc detection logic now ignores SDK-only VS2010
+      installations.  Similar protection is implemented for the sdk-only installs that
+      populate the installation folder and registry keys for VS2008 (9.0), if necessary.
+    - For VS2005 (8.0) to VS2015 (14.0), vsvarsall.bat is employed to dispatch to a
+      dependent batch file when configuring the msvc environment.  Previously, only the
+      existence of the compiler executable was verified. In certain installations, the
+      dependent batch file (e.g., vcvars64.bat) may not exist while the compiler
+      executable does exist resulting in build failures.  The existence of vcvarsall.bat,
+      the dependent batch file, and the compiler executable are now validated.
+    - MSVC configuration data specific to versions VS2005 (8.0) to VS2008 (9.0) was added
+      as the dependent batch files have different names than the batch file names used
+      for VS2010 (10.0) and later.  The VS2008 (9.0) Visual C++ For Python installation
+      is handled as a special case as the dependent batch files are: (a) not used and (b)
+      in different locations.
+    - When VS2008 (9.0) Visual C++ For Python is installed using the ALLUSERS=1 option
+      (i.e., msiexec /i VCForPython27.msi ALLUSERS=1), the registry keys are written to
+      HKEY_LOCAL_MACHINE rather than HKEY_CURRENT_USER.  An entry was added to query the
+      Visual C++ For Python keys in HKLM following the HKCU query, if necessary.
+    - For VS2008, a full development edition (e.g., Professional) is now selected before
+      a Visual C++ For Python edition.  Prior to this change, Visual C++ For Python was
+      selected before a full development edition when both editions are installed.
+    - The registry detection of VS2015 (14.0), and earlier, is now cached at runtime and
+      is only evaluated once for each msvc version.
+    - The vswhere executable is frozen upon initial detection.  Specifying a different
+      vswhere executable via the construction variable VSWHERE after the initial
+      detection now results in an exception.  Multiple bugs in the implementation of
+      specifying a vswhere executable via the construction variable VSWHERE have been
+      fixed.  Previously, when a user specified vswhere executable detects new msvc
+      installations after the initial detection, the internal msvc installation cache
+      and the default msvc version based on the initial detection are no longer valid.
+      For example, when no vswhere executable is found for the initial detection
+      and then later an environment is constructed with a user specified vswhere
+      executable that detects new msvc installations.
+    - The vswhere detection of VS2017 (14.1), and later, is now cached at runtime and is
+      only evaluated once using a single vswhere invocation for all msvc versions.
+      Previously, the vswhere executable was invoked for each supported msvc version.
+    - The vswhere executable locations for the WinGet and Scoop package managers were
+      added to the default vswhere executable search list after the Chocolatey
+      installation location.
+    - Fix issue #4543: add support for msvc toolset versions 14.4X installed as the
+      latest msvc toolset versions for msvc buildtools v143.  The v143 msvc buildtools
+      may contain msvc toolset versions from 14.30 to 14.4X.
+
   From Thaddeus Crews:
     - GetSConsVersion() to grab the latest SCons version without needing to
       access SCons internals.
@@ -1490,7 +1548,7 @@ RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
       in the case where a child process is spawned while a Python action has a
       file open. Original author: Ryan Beasley.
     - Added memoization support for calls to Environment.Value() in order to
-	  improve performance of repeated calls.
+      improve performance of repeated calls.
 
 
   From Jason Kenny

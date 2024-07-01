@@ -5,12 +5,16 @@
 import os
 import os.path
 
-from SCons.Tool.MSCommon.vc import VSWHERE_PATHS
+import SCons.Tool.MSCommon as mscommon
+import SCons.Tool.MSCommon.vc as vc
 
 # Dump out expected paths
-for vw_path in VSWHERE_PATHS:
-    print("VSWHERE_PATH=%s" % vw_path)
-
+for exegroup in (
+    vc._VSWHERE_EXEGROUP_MSVS,
+    vc._VSWHERE_EXEGROUP_PKGMGR
+):
+    for vw_path in exegroup:
+        print("VSWHERE_PATH=%s" % vw_path)
 
 # Allow normal detection logic to find vswhere.exe
 DefaultEnvironment(tools=[])
@@ -21,6 +25,19 @@ print("VSWHERE-detect=%s" % env1['VSWHERE'])
 v_local = os.path.join(os.getcwd(), 'vswhere.exe')
 Execute(Copy(os.path.join(os.getcwd(), 'vswhere.exe'), env1['VSWHERE']))
 
+# Reset vswhere executable manager
+# A vswhere.exe not equal to the vswhere.exe for initial detection is an error
+vc._VSWhereExecutable.reset()
+
 # With VSWHERE set to copied vswhere.exe (see above), find vswhere.exe
 env = Environment(VSWHERE=v_local)
 print("VSWHERE-env=%s" % env['VSWHERE'])
+
+# Reset vswhere executable manager
+# A vswhere.exe not equal to the vswhere.exe for initial detection is an error
+vc._VSWhereExecutable.reset()
+
+# With VSWHERE set to copied vswhere.exe (see above), find vswhere.exe
+mscommon.vswhere_register_executable(v_local, priority='high')
+env = Environment()
+print("VSWHERE-util=%s" % env['VSWHERE'])

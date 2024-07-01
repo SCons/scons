@@ -31,6 +31,10 @@ import textwrap
 from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 from SCons.Tool.MSCommon import msvc_sdk_versions
 from SCons.Tool.MSCommon import msvc_toolset_versions
+from SCons.Tool.MSCommon.MSVC.Kind import (
+    msvc_version_is_express,
+    msvc_version_is_btdispatch,
+)
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -38,12 +42,28 @@ test.skip_if_not_msvc()
 
 installed_versions = get_installed_vcs_components()
 default_version = installed_versions[0]
-GE_VS2015_versions = [v for v in installed_versions if v.msvc_vernum >= 14.0]
-LT_VS2015_versions = [v for v in installed_versions if v.msvc_vernum < 14.0]
+
+GE_VS2015_supported_versions = []
+GE_VS2015_unsupported_versions = []
+LT_VS2015_unsupported_versions = []
+
+for v in installed_versions:
+    if v.msvc_vernum > 14.0:
+        GE_VS2015_supported_versions.append(v)
+    elif v.msvc_verstr == '14.0':
+        if msvc_version_is_express(v.msvc_version):
+            GE_VS2015_unsupported_versions.append((v, 'Express'))
+        elif msvc_version_is_btdispatch(v.msvc_version):
+            GE_VS2015_unsupported_versions.append((v, 'BTDispatch'))
+        else:
+            GE_VS2015_supported_versions.append(v)
+    else:
+        LT_VS2015_unsupported_versions.append(v)
+
 default_sdk_versions_uwp = msvc_sdk_versions(version=None, msvc_uwp_app=True)
 default_sdk_versions_def = msvc_sdk_versions(version=None, msvc_uwp_app=False)
 
-have_140 = any(v.msvc_verstr == '14.0' for v in GE_VS2015_versions)
+have_140 = any(v.msvc_verstr == '14.0' for v in installed_versions)
 
 def version_major(version):
     components = version.split('.')
@@ -64,9 +84,10 @@ def version_major_list(version_list):
         seen_major.add(major)
     return versions
 
-if GE_VS2015_versions:
+if GE_VS2015_supported_versions:
 
-    for supported in GE_VS2015_versions:
+    for supported in GE_VS2015_supported_versions:
+        # VS2017+ and VS2015 ('14.0')
 
         sdk_versions_uwp = msvc_sdk_versions(version=supported.msvc_version, msvc_uwp_app=True)
         sdk_versions_def = msvc_sdk_versions(version=supported.msvc_version, msvc_uwp_app=False)
@@ -176,8 +197,8 @@ if GE_VS2015_versions:
                         """.format(repr(supported.msvc_version), repr(toolset_version))
                     ))
                     test.run(arguments='-Q -s', status=2, stderr=None)
-                    expect = "MSVCArgumentError: MSVC_SDK_VERSION ('8.1') and platform type ('UWP') constraint violation: toolset version {} > '14.0' VS2015:".format(
-                        repr(toolset_version)
+                    expect = "MSVCArgumentError: MSVC_SDK_VERSION ('8.1') and platform type ('UWP') constraint violation: toolset {} MSVC_VERSION {} > '14.0' VS2015:".format(
+                        repr(toolset_version), repr(supported.msvc_version)
                     )
                     test.must_contain_all(test.stderr(), expect)
 
@@ -203,9 +224,37 @@ if GE_VS2015_versions:
                 ))
                 test.run(arguments='-Q -s', stdout='')
 
-if LT_VS2015_versions:
+if GE_VS2015_unsupported_versions:
 
-    for unsupported in LT_VS2015_versions:
+    for unsupported, kind_str in GE_VS2015_unsupported_versions:
+        # VS2015 Express
+
+        sdk_version = default_sdk_versions_def[0] if default_sdk_versions_def else '8.1'
+
+        test.write('SConstruct', textwrap.dedent(
+            """
+            DefaultEnvironment(tools=[])
+            env = Environment(MSVC_VERSION={}, MSVC_SDK_VERSION={}, tools=['msvc'])
+            """.format(repr(unsupported.msvc_version), repr(sdk_version))
+        ))
+        test.run(arguments='-Q -s', status=2, stderr=None)
+        expect = "MSVCArgumentError: MSVC_SDK_VERSION ({}) is not supported for MSVC_VERSION {} ({}):".format(
+            repr(sdk_version), repr(unsupported.msvc_version), repr(kind_str)
+        )
+        test.must_contain_all(test.stderr(), expect)
+
+        # MSVC_SCRIPT_ARGS sdk_version is not validated
+        test.write('SConstruct', textwrap.dedent(
+            """
+            DefaultEnvironment(tools=[])
+            env = Environment(MSVC_VERSION={}, MSVC_SCRIPT_ARGS={}, tools=['msvc'])
+            """.format(repr(unsupported.msvc_version), repr(sdk_version))
+        ))
+        test.run(arguments='-Q -s', stdout='')
+
+if LT_VS2015_unsupported_versions:
+
+    for unsupported in LT_VS2015_unsupported_versions:
         # must be VS2015 or later
 
         sdk_version = default_sdk_versions_def[0] if default_sdk_versions_def else '8.1'

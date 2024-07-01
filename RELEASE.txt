@@ -44,6 +44,15 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   of CCFLAGS; the latter variable could cause a compiler warning.
 - The implementation of Variables was slightly refactored, there should
   not be user-visible changes.
+- MSVC: For msvc version specifications without an 'Exp' suffix, an express
+  installation is used when no other edition is detected for the msvc version.
+  This was the behavior for Visual Studio 2008 (9.0) through Visual Studio 2015
+  (14.0).  This behavior was extended to Visual Studio 2017 (14.1) and Visual
+  Studio 2008 (8.0).  An express installation of the IDE binary is used when no
+  other IDE edition is detected.
+- The vswhere executable locations for the WinGet and Scoop package managers were
+  added to the default vswhere executable search list after the Chocolatey
+  installation location.
 - SCons.Environment.is_valid_construction_var() now returns a boolean to
   match the convention that functions beginning with "is" have yes/no
   answers (previously returned either None or an re.match object).
@@ -73,6 +82,37 @@ FIXES
 - Improved the conversion of a "foreign" exception from an action
   into BuildError by making sure our defaults get applied even in
   corner cases. Fixes Issue #4530
+- MSVC: Visual Studio 2010 (10.0) could be inadvertently detected due to an
+  sdk-only install of Windows SDK 7.1.  An sdk-only install of Visual Studio
+  2010 is ignored as the msvc batch files will fail. The installed files are
+  intended to be used in conjunction with the SDK batch file.  Similar protection
+  was added for Visual Studio 2008 (9.0).
+- MSVC: For Visual Studio 2005 (8.0) to Visual Studio 2015 (14.0), detection of
+  installed files was expanded to include the primary msvc batch file, dependent
+  msvc batch file, and compiler executable. In certain installations, the
+  dependent msvc batch file may not exist while the compiler executable does exist
+  resulting in a build failure.
+- MSVC: Visual Studio 2008 (9.0) Visual C++ For Python was not detected when
+  installed using the ALLUSERS command-line option:
+      msiexec /i VCForPython27.msi ALLUSERS=1
+  When installed for all users, Visual Studio 2008 (9.0) Visual C++ For Python is
+  now correctly detected.
+- MSVC: For Visual Studio 2008 (9.0), a full development edition (e.g., Professional)
+  is now selected before a Visual C++ For Python edition. Prior to this change,
+  Visual C++ For Python was selected before a full development edition when both
+  editions are installed.
+- The vswhere executable is frozen upon initial detection.  Specifying a different
+  vswhere executable via the construction variable VSWHERE after the initial
+  detection now results in an exception.  Multiple bugs in the implementation of
+  specifying a vswhere executable via the construction variable VSWHERE have been
+  fixed.  Previously, when a user specified vswhere executable detects new msvc
+  installations after the initial detection, the internal msvc installation cache
+  and the default msvc version based on the initial detection are no longer valid.
+  For example, when no vswhere executable is found for the initial detection
+  and then later an environment is constructed with a user specified vswhere
+  executable that detects new msvc installations.
+- MSVC: Visual Studio 2022 v143 BuildTools now supports msvc toolset versions from
+  14.30 to 14.4X.  Fixes Issue #4543.
 - The Clone() method now respects the variables argument (fixes #3590)
 
 IMPROVEMENTS
@@ -84,6 +124,17 @@ IMPROVEMENTS
 - Performance tweak: the __setitem__ method of an Environment, used for
   setting construction variables, now uses the string method isidentifier
   to validate the name (updated from microbenchmark results).
+- MSVC: Visual Studio 2015 Express (14.0Exp) does not support the sdk version
+  argument. Visual Studio 2015 Express does not support the store argument for
+  target architectures other than x86.  Script argument validation now takes into
+  account these restrictions.
+- MSVC: Visual Studio 2015 BuildTools (14.0) does not support the sdk version
+  argument and does not support the store argument.  Script argument validation now
+  takes into account these restrictions.
+- MSVC: The registry detection of VS2015 (14.0), and earlier, is now cached at runtime
+  and is only evaluated once for each msvc version.
+- MSVC: The vswhere detection of VS2017 (14.1), and later, is now cached at runtime and
+  is only evaluated once using a single vswhere invocation for all msvc versions.
 
 PACKAGING
 ---------
