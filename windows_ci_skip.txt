@@ -26,7 +26,6 @@ test/Interactive/shell.py
 test/Interactive/tree.py
 test/Interactive/unknown-command.py
 test/Interactive/variant_dir.py
-test/MSVC/msvc.py
 test/packaging/msi/explicit-target.py
 test/packaging/msi/file-placement.py
 test/packaging/msi/package.py
