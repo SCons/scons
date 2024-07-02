@@ -868,12 +868,9 @@ Specify the location of <command>vswhere.exe</command>.
     Microsoft Visual Studio and Build Tools since the 2017 edition,
     but is also available as a standalone installation.
     It allows queries to obtain detailed information about
-    installations of 2017 and later editions;
-    with the <option>-legacy</option> argument,
-    it can return limited information for
-    installations of the 2010 through 2015 editions.
-    &SCons; makes use of this information to help determine
-    the state of compiler support.
+    installations of 2017 and later editions.
+    &SCons; makes use of this information to determine
+    the state of compiler support for those editions.
 </para>
 <para>
     You can set the &cv-VSWHERE; variable to the path to a specific
