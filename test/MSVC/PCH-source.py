@@ -40,7 +40,7 @@ DefaultEnvironment(tools=[])
 env = Environment(tools=['msvc', 'mslink'])
 env['PCH'] = env.PCH('Source1.cpp')[0]
 env['PCHSTOP'] = 'Header1.hpp'
-env.Program('foo', ['foo.cpp', 'Source2.cpp', 'Source1.cpp'])
+env.Program('foo', ['Source2.cpp', 'Source1.cpp', 'foo.cpp'])
 """ % locals())
 
 test.write('Header1.hpp', r"""
