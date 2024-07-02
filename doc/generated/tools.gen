@@ -237,7 +237,7 @@ Sets construction variables for D language compiler DMD.
   </varlistentry>
   <varlistentry id="t-docbook">
     <term>docbook</term>
-    <listitem><para>This tool tries to make working with Docbook in SCons a little easier.
+    <listitem><para>This tool tries to make working with Docbook in &SCons; a little easier.
 It provides several toolchains for creating different output formats,
 like HTML or PDF. Contained in the package is
 a distribution of the Docbook XSL stylesheets as of version 1.76.1.
@@ -473,7 +473,7 @@ following tools:
 <para>
 <itemizedlist mark="opencircle">
   <listitem><para>
-    &t-link-xgettext; - to extract internationalized messages from source code to 
+    &t-link-xgettext; - to extract internationalized messages from source code to
     <literal>POT</literal> file(s),
   </para></listitem>
   <listitem><para>
@@ -498,7 +498,7 @@ so you're encouraged to see their individual documentation.
 <para>
 Each of the above tools provides its own builder(s) which may be used to
 perform particular activities related to software internationalization. You
-may be however interested in <emphasis>top-level</emphasis> 
+may be however interested in <emphasis>top-level</emphasis>
 &b-link-Translate; builder.
 </para>
 
@@ -740,7 +740,7 @@ user's environment (or options).
     <listitem><para>
 This scons tool is a part of scons &t-link-gettext; toolset. It provides
 scons interface to <command>msgmerge(1)</command> command, which merges two
-Uniform style <filename>.po</filename> files together. 
+Uniform style <filename>.po</filename> files together.
 </para>
 <para>Sets: &cv-link-MSGMERGE;, &cv-link-MSGMERGECOM;, &cv-link-MSGMERGECOMSTR;, &cv-link-MSGMERGEFLAGS;, &cv-link-POSUFFIX;, &cv-link-POTSUFFIX;, &cv-link-POUPDATE_ALIAS;.</para><para>Uses: &cv-link-LINGUAS_FILE;, &cv-link-POAUTOINIT;, &cv-link-POTDOMAIN;.</para></listitem>
   </varlistentry>
@@ -1097,7 +1097,7 @@ This scons tool is a part of scons &t-link-gettext; toolset. It provides
 scons interface to <command>xgettext(1)</command>
 program, which extracts internationalized messages from source code. The tool
 provides &b-POTUpdate; builder to make  <literal>PO</literal>
-<emphasis>Template</emphasis> files. 
+<emphasis>Template</emphasis> files.
 </para>
 <para>Sets: &cv-link-POTSUFFIX;, &cv-link-POTUPDATE_ALIAS;, &cv-link-XGETTEXTCOM;, &cv-link-XGETTEXTCOMSTR;, &cv-link-XGETTEXTFLAGS;, &cv-link-XGETTEXTFROM;, &cv-link-XGETTEXTFROMPREFIX;, &cv-link-XGETTEXTFROMSUFFIX;, &cv-link-XGETTEXTPATH;, &cv-link-XGETTEXTPATHPREFIX;, &cv-link-XGETTEXTPATHSUFFIX;, &cv-link-_XGETTEXTDOMAIN;, &cv-link-_XGETTEXTFROMFLAGS;, &cv-link-_XGETTEXTPATHFLAGS;.</para><para>Uses: &cv-link-POTDOMAIN;.</para></listitem>
   </varlistentry>

@@ -149,21 +149,25 @@ the option value may be accessed using
 &f-link-GetOption;
 or
 &f-link-env-GetOption;.
-&f-link-SetOption; is not currently supported for
-options added with &f-AddOption;.
-<!-- was:
-The value may also be set using
-&f-SetOption;
+If the <parameter>settable=True</parameter> argument
+was supplied in the &AddOption; call,
+the value may also be set later using
+&f-link-SetOption;
 or
-&f-env.SetOption;,
-if conditions in a
-&SConscript;
+&f-link-env-SetOption;,
+if conditions in an
+&SConscript; file
 require overriding any default value.
 Note however that a
 value specified on the command line will
 <emphasis>always</emphasis>
-override a value set by any SConscript file.
--->
+override a value set in an SConscript file.
+</para>
+
+<para>
+<emphasis>Changed in 4.8.0</emphasis>: added the
+<parameter>settable</parameter> keyword argument
+to enable an added option to be settable via &SetOption;.
 </para>
 
 <para>
@@ -981,11 +985,12 @@ Clean(docdir, os.path.join(docdir, projectname))
   <varlistentry id="f-Clone">
     <term><replaceable>env</replaceable>.<methodname>Clone</methodname>(<parameter>[key=val, ...]</parameter>)</term>
     <listitem><para>
-Returns a separate copy of a construction environment.
-If there are any keyword arguments specified,
-they are added to the returned copy,
+Returns an independent copy of a &consenv;.
+If there are any unrecognized keyword arguments specified,
+they are added as &consvars; in the copy,
 overwriting any existing values
-for the keywords.
+for those keywords.
+See the manpage section "Construction Environments" for more details.
 </para>
 
 <para>
@@ -998,8 +1003,9 @@ env3 = env.Clone(CCFLAGS='-g')
 </example_commands>
 
 <para>
-Additionally, a list of tools and a toolpath may be specified, as in
-the &f-link-Environment; constructor:
+A list of <parameter>tools</parameter>
+and a <parameter>toolpath</parameter> may be specified,
+as in the &f-link-Environment; constructor:
 </para>
 
 <example_commands>
@@ -1012,7 +1018,7 @@ env4 = env.Clone(tools=['msvc', MyTool])
 <para>
 The
 <parameter>parse_flags</parameter>
-keyword argument is also recognized to allow merging command-line
+keyword argument is also recognized, to allow merging command-line
 style arguments into the appropriate construction
 variables (see &f-link-env-MergeFlags;).
 </para>
@@ -1021,6 +1027,17 @@ variables (see &f-link-env-MergeFlags;).
 # create an environment for compiling programs that use wxWidgets
 wx_env = env.Clone(parse_flags='!wx-config --cflags --cxxflags')
 </example_commands>
+
+<para>
+The <parameter>variables</parameter>
+keyword argument is also recognized, to allow (re)initializing
+&consvars; from a <literal>Variables</literal> object.
+</para>
+
+<para>
+<emphasis>Changed in version 4.8.0:</emphasis>
+the <parameter>variables</parameter> parameter was added.
+</para>
 </listitem>
   </varlistentry>
   <varlistentry id="f-Command">
@@ -1190,6 +1207,7 @@ Allows setting options for SCons debug options. Currently the only supported val
   <example_commands>
 DebugOptions(json='#/build/output/scons_stats.json')
 </example_commands>
+<para><emphasis>New in version 4.6.0.</emphasis></para>
 </listitem>
   </varlistentry>
   <varlistentry id="f-Decider">
@@ -1762,7 +1780,7 @@ EnsureSConsVersion(0,96,90)
     <term><function>Environment</function>(<parameter>[key=value, ...]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Environment</methodname>(<parameter>[key=value, ...]</parameter>)</term>
     <listitem><para>
-Return a new construction environment
+Return a new &consenv;
 initialized with the specified
 <parameter>key</parameter>=<replaceable>value</replaceable>
 pairs.
@@ -1772,7 +1790,8 @@ The keyword arguments
 <parameter>toolpath</parameter>,
 <parameter>tools</parameter>
 and <parameter>variables</parameter>
-are also specially recognized.
+are specially recognized and do not lead to
+&consvar; creation.
 See the manpage section "Construction Environments" for more details.
 </para>
 </listitem>
@@ -2324,9 +2343,10 @@ file is found.
     <term><replaceable>env</replaceable>.<methodname>GetOption</methodname>(<parameter>name</parameter>)</term>
     <listitem><para>
 Query the value of settable options which may have been set
-on the command line, or by using the &f-link-SetOption; function.
+on the command line, via option defaults,
+or by using the &f-link-SetOption; function.
 The value of the option is returned in a type matching how the
-option was declared - see the documentation for the
+option was declared - see the documentation of the
 corresponding command line option for information about each specific
 option.
 </para>
@@ -4189,6 +4209,16 @@ which evaluates to true (e.g. <constant>True</constant>,
 Options which affect the reading and processing of SConscript files
 are not settable using &f-SetOption; since those files must
 be read in order to find the &f-SetOption; call in the first place.
+</para>
+
+<para>
+For project-specific options (sometimes called
+<firstterm>local options</firstterm>)
+added via an &f-link-AddOption; call,
+&f-SetOption; is available only after the
+&f-AddOption; call has completed successfully,
+and only if that call included the
+<parameter>settable=True</parameter> argument.
 </para>
 
 <para>
