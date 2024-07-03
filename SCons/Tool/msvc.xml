@@ -885,22 +885,23 @@ Specify the location of <command>vswhere.exe</command>.
     the state of compiler support for those editions.
 </para>
 <para>
-    Satting the &cv-VSWHERE; variable to the path to a specific
-    <command>vswhere.exe</command> binary,
+    Setting the &cv-VSWHERE; variable to the path to a specific
+    <command>vswhere.exe</command> binary
     causes &SCons; to use that binary.
-    If not set (the default), &SCons; will search for one,
+    If not set, &SCons; will search for one,
     looking in the following locations in order,
-    using the first found, and updating &cv-VSWHERE; with the location.
+    using the first found
+    (&cv-VSWHERE; is updated with the location):
 </para>
 
-<itemizedlist>
-<listitem><para><literal>%ProgramFiles(x86)%\Microsoft Visual Studio\Installer</literal></para></listitem>
-<listitem><para><literal>%ProgramFiles%\Microsoft Visual Studio\Installer</literal></para></listitem>
-<listitem><para><literal>%ChocolateyInstall%\bin</literal></para></listitem>
-<listitem><para><literal>%LOCALAPPDATA%\Microsoft\WinGet\Links</literal></para></listitem>
-<listitem><para><literal>~\scoop\shims</literal></para></listitem>
-<listitem><para><literal>%SCOOP%\shims</literal></para></listitem>
-</itemizedlist>
+<simplelist type="vert">
+<member><literal>%ProgramFiles(x86)%\Microsoft Visual Studio\Installer</literal></member>
+<member><literal>%ProgramFiles%\Microsoft Visual Studio\Installer</literal></member>
+<member><literal>%ChocolateyInstall%\bin</literal></member>
+<member><literal>%LOCALAPPDATA%\Microsoft\WinGet\Links</literal></member>
+<member><literal>%USERPROFILE%\scoop\shims</literal></member>
+<member><literal>%SCOOP%\shims</literal></member>
+</simplelist>
 
 
 <note>
