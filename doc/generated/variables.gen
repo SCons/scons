@@ -5979,8 +5979,37 @@ If the specified version is unavailable and/or unknown to &SCons;,
 a warning is issued showing the versions actually discovered,
 and the build will eventually fail indicating a missing compiler binary.
 If &cv-MSVC_VERSION; is not set, &SCons; will (by default) select the
-latest version of &MSVC; installed on your system.
+latest version of &MSVC; installed on your system
+(excluding any preview versions).
 </para>
+
+<note>
+  <para>
+    In order to take effect, &cv-MSVC_VERSION; must be set before
+    the initial &MSVC; compiler discovery takes place.
+    Discovery happens, at the latest, during the first call to the
+    &f-link-Environment; function, unless a <parameter>tools</parameter>
+    list is specified which excludes the entire &MSVC; toolchain -
+    that is, omits <literal>"defaults"</literal>
+    and any specific tool module that refers to parts of the toolchain
+    (&t-link-msvc;, &t-link-mslink;, &t-link-masm;, &t-link-midl;
+    and &t-link-msvs;). In this case, detection is deferred until
+    any one of those tool modules is invoked manually.
+    The following two examples illustrate this:
+  </para>
+
+  <programlisting>
+# MSVC_VERSION set as Environment is created
+env = Environment(MSVC_VERSION='14.2')
+
+# Initialization deferred with empty tools, triggered manually
+env = Environment(tools=[])
+env['MSVC_VERSION'] = '14.2
+env.Tool('msvc')
+env.Tool('mslink')
+env.Tool('msvs')
+  </programlisting>
+</note>
 
 <para>
 The valid values for &cv-MSVC_VERSION; represent major versions
@@ -5988,23 +6017,6 @@ of the compiler, except that versions ending in <literal>Exp</literal>
 refer to "Express" or "Express for Desktop" Visual Studio editions.
 Values that do not look like a valid compiler version
 <emphasis>string</emphasis> are not supported.
-</para>
-
-<para>
-To have the desired effect, &cv-MSVC_VERSION; must be set before an msvc &f-link-Tool;
-(e.g., &t-link-msvc;) or an msvc-dependent &f-link-Tool; (e.g., &t-link-midl;) is loaded
-into the &consenv;.
-</para>
-
-<para>
-If the default tools list or an explicit tools list is used that includes an
-msvc &f-link-Tool; (e.g., &t-link-msvc;) or an msvc-dependent &f-link-Tool; (e.g., &t-link-midl;);
-the &cv-MSVC_VERSION; is resolved when the &consenv; is created.
-In this case, passing &cv-MSVC_VERSION; as an argument in the &f-link-Environment; call
-is the effective solution.
-Otherwise, &cv-MSVC_VERSION; must be set before the first msvc &f-link-Tool; or
-msvc-dependent &f-link-Tool; is loaded into the environment.
-See the manpage section "Construction Environments" for an example.
 </para>
 
 <para>
@@ -9895,18 +9907,15 @@ Specify the location of <command>vswhere.exe</command>.
     Microsoft Visual Studio and Build Tools since the 2017 edition,
     but is also available as a standalone installation.
     It allows queries to obtain detailed information about
-    installations of 2017 and later editions;
-    with the <option>-legacy</option> argument,
-    it can return limited information for
-    installations of the 2010 through 2015 editions.
-    &SCons; makes use of this information to help determine
-    the state of compiler support.
+    installations of 2017 and later editions.
+    &SCons; makes use of this information to determine
+    the state of compiler support for those editions.
 </para>
 <para>
-    You can set the &cv-VSWHERE; variable to the path to a specific
+    Satting the &cv-VSWHERE; variable to the path to a specific
     <command>vswhere.exe</command> binary,
-    and &SCons; will use that.
-    If undefined (the default), &SCons; will search for one,
+    causes &SCons; to use that binary.
+    If not set (the default), &SCons; will search for one,
     looking in the following locations in order,
     using the first found, and updating &cv-VSWHERE; with the location.
 </para>
@@ -9927,10 +9936,12 @@ Specify the location of <command>vswhere.exe</command>.
     the initial &MSVC; compiler discovery takes place.
     Discovery happens, at the latest, during the first call to the
     &f-link-Environment; function, unless a <parameter>tools</parameter>
-    list is specified which excludes the entire MSVC toolchain
-    (that is, does not include <literal>"defaults"</literal>
-    or any of the specific tools),
-    in which case it happens when one of the tools is invoked manually.
+    list is specified which excludes the entire &MSVC; toolchain -
+    that is, omits <literal>"defaults"</literal>
+    and any specific tool module that refers to parts of the toolchain
+    (&t-link-msvc;, &t-link-mslink;, &t-link-masm;, &t-link-midl;
+    and &t-link-msvs;). In this case, detection is deferred until
+    any one of those tool modules is invoked manually.
     The following two examples illustrate this:
   </para>
 
@@ -9945,12 +9956,6 @@ env.Tool('msvc')
 env.Tool('mslink')
 env.Tool('msvs')
   </programlisting>
-
-  <para>
-    The tool modules that trigger detection are
-    &t-link-msvc;, &t-link-mslink;, &t-link-masm;, &t-link-midl;
-    and &t-link-msvs;.
-  </para>
 </note>
 
 </listitem>
