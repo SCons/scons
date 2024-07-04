@@ -122,7 +122,7 @@ need be specified in a call to a builder.
 For example if you specify a shared library target named "foo",
 &SCons; keeps track of the actual operating system dependent filename
 (such as <filename>libfoo.so</filename> on a GNU/Linux system
-and <filename>foo.dll</filename> on Windows)),
+and <filename>foo.dll</filename> on Windows),
 and gives you a handle to refer to that target in other steps,
 so you don't have to use system-specific strings yourself.
 &SCons; can also scan automatically for dependency information,
@@ -166,22 +166,23 @@ See the &f-link-VariantDir; description for more details.
 
 <para>
 When invoked, &scons;
-looks for a file named
-&SConstruct;
-(other names are also accepted,
-see <xref linkend="sconscript_files"/>)
-in the current directory and reads the
-build configuration from that file;
-that directory is considered the project top directory.
+looks for a file describing the build configuration
+in the current directory and reads that in.
+The file is by default named &SConstruct;,
+although some variants of that,
+or a developer-chosen name, are also accepted
+(see <xref linkend="sconscript_files"/>).
+If found, the currrent directory
+is set as the project top directory.
 Certain command-line options specify alternate
-places to look for the &SConstruct;
+places to look for &SConstruct;
 (see
 <link linkend="opt-directory"><option>-C</option></link>,
 <link linkend="opt-D"><option>-D</option></link>,
 <link linkend="opt-up"><option>-u</option></link> and
 <link linkend="opt-U"><option>-U</option></link>),
-which will set the project top directory to the place found.
-A path to the main build configuration file can also be
+which will set the project top directory to the path found.
+A path to the build configuration can also be
 specified with the
 <link linkend="opt-f"><option>-f</option></link> option,
 which leaves the current directory as the project top directory.
@@ -208,13 +209,13 @@ regardless of the actual file names or number of such files.
 A hierarchical build is not recursive - all of
 the SConscript files are processed in a single pass
 so that &scons; has a picture of the complete
-dependency tree at all times.
+dependency tree when it begins considering what needs building.
 Each SConscript file is processed in a separate context
 so settings made in one script do not leak into another;
 information can however be shared explicitly between scripts.
 </para>
 
-<para>Before reading the &SConscript; files,
+<para>Before reading the SConscript files,
 &scons;
 looks for a <firstterm>site directory</firstterm> -
 a directory named <filename>site_scons</filename>
@@ -288,7 +289,7 @@ in effect at the time &scons; was called.
 This helps avoid problems like picking up accidental
 or malicious settings,
 temporary debug values that are no longer needed,
-or one developer having different settings than another
+or a developer having different settings than another
 (or than the CI pipeline).
 Environment variables needed for the proper
 operation of such commands must be set in the
