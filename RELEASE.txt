@@ -74,6 +74,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   allow a developer to supply a custom validator, which previously
   could be inhibited by the converter failing before the validator
   is reached.
+- When debugging (--debug=pdb), the filename SCsub is now recognized when
+  manipulating breakpoints.
 
 FIXES
 -----

@@ -86,7 +86,11 @@ KNOWN_SCONSCRIPTS = [
     "Sconstruct",
     "sconstruct",
     "SConscript",
+    "Sconscript",
     "sconscript",
+    "SCsub",  # Uncommon alternative to SConscript
+    "Scsub",
+    "scsub",
 ]
 
 # Global variables

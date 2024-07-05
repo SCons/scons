@@ -1023,6 +1023,11 @@ The names &SConstruct; and &SConscript; are now
 recognized without requiring
 <filename>.py</filename> suffix.
 </para>
+<para>
+<emphasis>Changed in version 4.7.1</emphasis>:
+The name <filename>SCsub</filename> is now recognized
+without requiring <filename>.py</filename> suffix.
+</para>
 </note>
   </listitem>
   </varlistentry>
