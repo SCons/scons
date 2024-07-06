@@ -394,8 +394,37 @@ If the specified version is unavailable and/or unknown to &SCons;,
 a warning is issued showing the versions actually discovered,
 and the build will eventually fail indicating a missing compiler binary.
 If &cv-MSVC_VERSION; is not set, &SCons; will (by default) select the
-latest version of &MSVC; installed on your system.
+latest version of &MSVC; installed on your system
+(excluding any preview versions).
 </para>
+
+<note>
+  <para>
+    In order to take effect, &cv-MSVC_VERSION; must be set before
+    the initial &MSVC; compiler discovery takes place.
+    Discovery happens, at the latest, during the first call to the
+    &f-link-Environment; function, unless a <parameter>tools</parameter>
+    list is specified which excludes the entire &MSVC; toolchain -
+    that is, omits <literal>"defaults"</literal>
+    and any specific tool module that refers to parts of the toolchain
+    (&t-link-msvc;, &t-link-mslink;, &t-link-masm;, &t-link-midl;
+    and &t-link-msvs;). In this case, detection is deferred until
+    any one of those tool modules is invoked manually.
+    The following two examples illustrate this:
+  </para>
+
+  <programlisting>
+# MSVC_VERSION set as Environment is created
+env = Environment(MSVC_VERSION='14.2')
+
+# Initialization deferred with empty tools, triggered manually
+env = Environment(tools=[])
+env['MSVC_VERSION'] = '14.2
+env.Tool('msvc')
+env.Tool('mslink')
+env.Tool('msvs')
+  </programlisting>
+</note>
 
 <para>
 The valid values for &cv-MSVC_VERSION; represent major versions
@@ -403,23 +432,6 @@ of the compiler, except that versions ending in <literal>Exp</literal>
 refer to "Express" or "Express for Desktop" Visual Studio editions.
 Values that do not look like a valid compiler version
 <emphasis>string</emphasis> are not supported.
-</para>
-
-<para>
-To have the desired effect, &cv-MSVC_VERSION; must be set before an msvc &f-link-Tool;
-(e.g., &t-link-msvc;) or an msvc-dependent &f-link-Tool; (e.g., &t-link-midl;) is loaded
-into the &consenv;.
-</para>
-
-<para>
-If the default tools list or an explicit tools list is used that includes an
-msvc &f-link-Tool; (e.g., &t-link-msvc;) or an msvc-dependent &f-link-Tool; (e.g., &t-link-midl;);
-the &cv-MSVC_VERSION; is resolved when the &consenv; is created.
-In this case, passing &cv-MSVC_VERSION; as an argument in the &f-link-Environment; call
-is the effective solution.
-Otherwise, &cv-MSVC_VERSION; must be set before the first msvc &f-link-Tool; or 
-msvc-dependent &f-link-Tool; is loaded into the environment.
-See the manpage section "Construction Environments" for an example.
 </para>
 
 <para>
@@ -607,7 +619,7 @@ Visual Studio </literallayout></entry>
     "Express" or "Express for Desktop" Visual Studio editions,
     which had feature limitations compared to the full editions.
     It is only necessary to specify the <literal>Exp</literal>
-    suffix to select the express edition when both express and 
+    suffix to select the express edition when both express and
     non-express editions of the same product are installed
     simulaneously. The <literal>Exp</literal> suffix is unnecessary,
     but accepted, when only the express edition is installed.
@@ -860,56 +872,65 @@ The burden is on the user to ensure the requisite UWP libraries are installed.
 <cvar name="VSWHERE">
 <summary>
 <para>
-Specify the location of <filename>vswhere.exe</filename>.
+Specify the location of <command>vswhere.exe</command>.
 </para>
 
 <para>
-    The <filename>vswhere.exe</filename> executable is distributed with Microsoft Visual Studio and Build
-    Tools since the 2017 edition, but is also available as a standalone installation.
-    It provides full information about installations of 2017 and later editions.
-    With the <option>-legacy</option> argument, <filename>vswhere.exe</filename> can detect installations of the 2010 through 2015
-    editions with limited data returned.
+    The <command>vswhere.exe</command> executable is distributed with
+    Microsoft Visual Studio and Build Tools since the 2017 edition,
+    but is also available as a standalone installation.
+    It allows queries to obtain detailed information about
+    installations of 2017 and later editions.
+    &SCons; makes use of this information to determine
+    the state of compiler support for those editions.
 </para>
 <para>
-    If &cv-VSWHERE; is set to a <filename>vswhere.exe</filename> location, &SCons; will use that location.
-    When &cv-VSWHERE; is undefined, &SCons; will look in the following locations and set &cv-VSWHERE; to the path
-    of the first <filename>vswhere.exe</filename> located:
+    Setting the &cv-VSWHERE; variable to the path to a specific
+    <command>vswhere.exe</command> binary
+    causes &SCons; to use that binary.
+    If not set, &SCons; will search for one,
+    looking in the following locations in order,
+    using the first found
+    (&cv-VSWHERE; is updated with the location):
 </para>
 
-<itemizedlist>
-<listitem><para><literal>%ProgramFiles(x86)%\Microsoft Visual Studio\Installer</literal></para></listitem>
-<listitem><para><literal>%ProgramFiles%\Microsoft Visual Studio\Installer</literal></para></listitem>
-<listitem><para><literal>%ChocolateyInstall%\bin</literal></para></listitem>
-<listitem><para><literal>%LOCALAPPDATA%\Microsoft\WinGet\Links</literal></para></listitem>
-<listitem><para><literal>~\scoop\shims</literal></para></listitem>
-<listitem><para><literal>%SCOOP%\shims</literal></para></listitem>
-</itemizedlist>
+<simplelist type="vert">
+<member><literal>%ProgramFiles(x86)%\Microsoft Visual Studio\Installer</literal></member>
+<member><literal>%ProgramFiles%\Microsoft Visual Studio\Installer</literal></member>
+<member><literal>%ChocolateyInstall%\bin</literal></member>
+<member><literal>%LOCALAPPDATA%\Microsoft\WinGet\Links</literal></member>
+<member><literal>%USERPROFILE%\scoop\shims</literal></member>
+<member><literal>%SCOOP%\shims</literal></member>
+</simplelist>
 
-<para>
-  Note that &cv-VSWHERE; must be set prior to the initial &MSVC; compiler discovery.
-  For example, &cv-VSWHERE; must be set at the same time or before the first msvc &f-link-Tool;
-  (e.g., &t-link-msvc;) or msvc-dependent &f-link-Tool; (e.g., &t-link-midl;) is initialized.
-</para>
 
-<para>
-  Either set it as follows:
-<programlisting>
+<note>
+  <para>
+    In order to take effect, &cv-VSWHERE; must be set before
+    the initial &MSVC; compiler discovery takes place.
+    Discovery happens, at the latest, during the first call to the
+    &f-link-Environment; function, unless a <parameter>tools</parameter>
+    list is specified which excludes the entire &MSVC; toolchain -
+    that is, omits <literal>"defaults"</literal>
+    and any specific tool module that refers to parts of the toolchain
+    (&t-link-msvc;, &t-link-mslink;, &t-link-masm;, &t-link-midl;
+    and &t-link-msvs;). In this case, detection is deferred until
+    any one of those tool modules is invoked manually.
+    The following two examples illustrate this:
+  </para>
+
+  <programlisting>
+# VSWHERE set as Environment is created
 env = Environment(VSWHERE='c:/my/path/to/vswhere')
-</programlisting>
 
-Or, if your &consenv; is created specifying: (a) an empty tools list, or (b)
-a list of tools which omits all of default, msvc (e.g., &t-link-msvc;), and
-msvc-dependent tools (e.g., &t-link-midl;); and before &f-link-env-Tool;
-is called to initialize any of those tools:
-
-<programlisting>
-    env = Environment(tools=[])
-    env['VSWHERE'] = r'c:/my/vswhere/install/location/vswhere.exe'
-    env.Tool('msvc')
-    env.Tool('mslink')
-    env.Tool('msvs')
-    </programlisting>
-</para>
+# Initialization deferred with empty tools, triggered manually
+env = Environment(tools=[])
+env['VSWHERE'] = r'c:/my/vswhere/install/location/vswhere.exe'
+env.Tool('msvc')
+env.Tool('mslink')
+env.Tool('msvs')
+  </programlisting>
+</note>
 
 </summary>
 </cvar>

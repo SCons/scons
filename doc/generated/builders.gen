@@ -823,7 +823,7 @@ languages defined in <filename>LINGUAS</filename> file:
 
 <para>
 <emphasis>Example 4</emphasis>.
-Compile files for languages defined in <filename>LINGUAS</filename> file 
+Compile files for languages defined in <filename>LINGUAS</filename> file
 (another version):
 </para>
 <example_commands>
@@ -1650,7 +1650,7 @@ Initialize <filename>en.po</filename> and <filename>pl.po</filename> from
 </para>
 <example_commands>
   # ...
-  env.POInit(['en', 'pl']) # messages.pot --&gt; [en.po, pl.po] 
+  env.POInit(['en', 'pl']) # messages.pot --&gt; [en.po, pl.po]
 </example_commands>
 
 <para>
@@ -1660,7 +1660,7 @@ Initialize <filename>en.po</filename> and <filename>pl.po</filename> from
 </para>
 <example_commands>
   # ...
-  env.POInit(['en', 'pl'], ['foo']) # foo.pot --&gt; [en.po, pl.po] 
+  env.POInit(['en', 'pl'], ['foo']) # foo.pot --&gt; [en.po, pl.po]
 </example_commands>
 
 <para>
@@ -1671,7 +1671,7 @@ variable:
 </para>
 <example_commands>
   # ...
-  env.POInit(['en', 'pl'], POTDOMAIN='foo') # foo.pot --&gt; [en.po, pl.po] 
+  env.POInit(['en', 'pl'], POTDOMAIN='foo') # foo.pot --&gt; [en.po, pl.po]
 </example_commands>
 
 <para>
@@ -1756,7 +1756,7 @@ special alias (<literal>pot-update</literal> by default, see
 &cv-link-POTUPDATE_ALIAS;) so you can update/create them easily with
 <command>scons pot-update</command>. The file is not written until there is no
 real change in internationalized messages (or in comments that enter
-<literal>POT</literal> file). 
+<literal>POT</literal> file).
 </para>
 
 <para>
@@ -1779,7 +1779,7 @@ Let's create <filename>po/</filename> directory and place following
   env = Environment( tools = ['default', 'xgettext'] )
   env.POTUpdate(['foo'], ['../a.cpp', '../b.cpp'])
   env.POTUpdate(['bar'], ['../c.cpp', '../d.cpp'])
-</example_commands>      
+</example_commands>
 <para>
 Then invoke scons few times:
 </para>
@@ -1800,7 +1800,7 @@ case default target <filename>messages.pot</filename> will be used. The
 default target may also be overridden by setting &cv-link-POTDOMAIN; construction
 variable or providing it as an override to &b-POTUpdate; builder:
 </para>
-<example_commands>    
+<example_commands>
   # SConstruct script
   env = Environment( tools = ['default', 'xgettext'] )
   env['POTDOMAIN'] = "foo"
@@ -1813,21 +1813,21 @@ variable or providing it as an override to &b-POTUpdate; builder:
 The sources may be specified within separate file, for example
 <filename>POTFILES.in</filename>:
 </para>
-<example_commands>      
+<example_commands>
   # POTFILES.in in 'po/' subdirectory
   ../a.cpp
   ../b.cpp
   # end of file
-</example_commands>    
+</example_commands>
 <para>
 The name of the file (<filename>POTFILES.in</filename>) containing the list of
 sources is provided via &cv-link-XGETTEXTFROM;:
 </para>
-<example_commands>      
+<example_commands>
   # SConstruct file in 'po/' subdirectory
   env = Environment( tools = ['default', 'xgettext'] )
   env.POTUpdate(XGETTEXTFROM = 'POTFILES.in')
-</example_commands>    
+</example_commands>
 
 <para>
 <emphasis>Example 4.</emphasis>
@@ -1898,10 +1898,10 @@ message <literal>"Hello from ../a.cpp"</literal>. When you reverse order in
   # SConstruct file in '0/1/po/' subdirectory
   env = Environment( tools = ['default', 'xgettext'] )
   env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH=['../../', '../'])
-</example_commands> 
+</example_commands>
 <para>
 then the <filename>messages.pot</filename> will contain
-<literal>msgid "Hello from ../../a.cpp"</literal> line and not 
+<literal>msgid "Hello from ../../a.cpp"</literal> line and not
 <literal>msgid "Hello from ../a.cpp"</literal>.
 </para>
 
@@ -1923,9 +1923,9 @@ does.
 <para>
 Target nodes defined through &b-POUpdate; are not built by default
 (they're <literal>Ignore</literal>d from <literal>'.'</literal> node). Instead,
-they are added automatically to special <literal>Alias</literal> 
+they are added automatically to special <literal>Alias</literal>
 (<literal>'po-update'</literal> by default). The alias name may be changed
-through the &cv-link-POUPDATE_ALIAS; construction variable.  You can easily 
+through the &cv-link-POUPDATE_ALIAS; construction variable.  You can easily
 update <literal>PO</literal> files in your project by <command>scons
 po-update</command>.
 </para>
@@ -1989,7 +1989,7 @@ from <filename>messages.pot</filename> template:
 </para>
 <example_commands>
   # produce 'en.po', 'pl.po' + files defined in 'LINGUAS':
-  env.POUpdate(['en', 'pl' ], LINGUAS_FILE = 1) 
+  env.POUpdate(['en', 'pl' ], LINGUAS_FILE = 1)
 </example_commands>
 
 <para>
@@ -2724,7 +2724,7 @@ a SCons script when invoking &b-Translate;
 # SConscript in 'po/' directory
 env = Environment( tools = ["default", "gettext"] )
 env['POAUTOINIT'] = 1
-env.Translate(['en','pl'], ['../a.cpp','../b.cpp']) 
+env.Translate(['en','pl'], ['../a.cpp','../b.cpp'])
 </example_commands>
 
 <para>
@@ -2735,7 +2735,7 @@ If you wish, you may also stick to conventional style known from
 </para>
 <example_commands>
 # LINGUAS
-en pl 
+en pl
 #end
 </example_commands>
 
@@ -2751,7 +2751,7 @@ b.cpp
 env = Environment( tools = ["default", "gettext"] )
 env['POAUTOINIT'] = 1
 env['XGETTEXTPATH'] = ['../']
-env.Translate(LINGUAS_FILE = 1, XGETTEXTFROM = 'POTFILES.in') 
+env.Translate(LINGUAS_FILE = 1, XGETTEXTFROM = 'POTFILES.in')
 </example_commands>
 
 <para>
@@ -2778,7 +2778,7 @@ Let's prepare a development tree as below
 <example_commands>
  project/
   + SConstruct
-  + build/        
+  + build/
   + src/
       + po/
           + SConscript
