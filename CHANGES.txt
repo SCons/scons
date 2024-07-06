@@ -76,6 +76,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Migrate setup.cfg logic to pyproject.toml; remove setup.cfg.
     - Update .gitattributes to match .editorconfig; enforce eol settings.
     - Replace black/flake8 with ruff for more efficient formatting & linting.
+    - When debugging (--debug=pdb), the filename SCsub is now recognized when
+      manipulating breakpoints.
 
   From Raymond Li:
     - Fix issue #3935: OSErrors are now no longer hidden during execution of
