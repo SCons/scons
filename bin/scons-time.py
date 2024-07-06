@@ -260,6 +260,8 @@ def redirect_to_file(command, log):
 def tee_to_file(command, log):
     return '%s 2>&1 | tee %s' % (command, log)
 
+def makedict(**kw):
+    return kw
 
 class SConsTimer:
     """
@@ -277,10 +279,6 @@ class SConsTimer:
 
     name = 'scons-time'
     name_spaces = ' ' * len(name)
-
-    @staticmethod
-    def makedict(**kw):
-        return kw
 
     default_settings = makedict(
         chdir=None,

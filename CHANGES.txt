@@ -178,6 +178,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Regularized header (copyright, licens) at top of documentation files
       using SPDX.
     - Updated introductory section of manual page.
+    - Minor cleanups in tests - drop unused "% locals()" stanzas.
 
 
 RELEASE 4.7.0 -  Sun, 17 Mar 2024 17:22:20 -0700
