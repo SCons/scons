@@ -1049,7 +1049,7 @@ recognized without requiring
 <filename>.py</filename> suffix.
 </para>
 <para>
-<emphasis>Changed in version 4.7.1</emphasis>:
+<emphasis>Changed in version 4.8.0</emphasis>:
 The name <filename>SCsub</filename> is now recognized
 without requiring <filename>.py</filename> suffix.
 </para>

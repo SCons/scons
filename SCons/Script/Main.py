@@ -1423,6 +1423,10 @@ def _exec_main(parser, values) -> None:
                 sconscript files that don't have the suffix.
 
                 .. versionadded:: 4.6.0
+
+                .. versionchanged:: 4.8.0
+                   The additional name ``SCsub`` (with spelling variants)
+                   is also recognized - Godot uses this name.
                 """
                 if os.path.isabs(filename) and os.path.exists(filename):
                     return filename
