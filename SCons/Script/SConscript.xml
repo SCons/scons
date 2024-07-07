@@ -145,7 +145,7 @@ EnsureSConsVersion(0,96,90)
 <para>
 Returns the current SCons version in the form of a Tuple[int, int, int],
 representing the major, minor, and revision values respectively.
-<emphasis>Added in 4.7.1</emphasis>.
+<emphasis>Added in 4.8.0</emphasis>.
 </para>
 </summary>
 </scons_function>
