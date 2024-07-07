@@ -10,7 +10,7 @@ NOTE: Since SCons 4.3.0, Python 3.6.0 or above is required.
 NOTE: Python 3.6 support is deprecated and will be dropped in a future reease.
   python.org no longer supports 3.6 or 3.7, and will drop 3.8 in Oct. 2024.
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 4.8.0 -  Sun, 07 Jul 2024 17:22:20 -0700
 
   From Joseph Brill:
     - For msvc version specifications without an 'Exp' suffix, an express installation
