@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,13 +22,10 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 """
 Verify that a failed build action with -k works as expected.
 """
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
@@ -85,7 +84,7 @@ scons: Building targets ...
 scons: done building targets (errors occurred during build).
 f4 failed:  Error 1
 f5 failed:  Error 1
-""" % locals()
+"""
 
 expect_stderr = """\
 scons: *** [f4] Error 1
@@ -99,7 +98,7 @@ test.must_contain_exactly_lines(test.stderr(), expect_stderr, title='stderr')
 test.must_match(test.workpath('f3'), 'f3.in\n')
 test.must_not_exist(test.workpath('f4'))
 test.must_not_exist(test.workpath('f5'))
-test.must_match(test.workpath('f6'), 'f6.in\n') 
+test.must_match(test.workpath('f6'), 'f6.in\n')
 
 
 test.pass_test()

@@ -59,7 +59,7 @@ env = Environment(tools=['javac', 'javah'])
 j1 = env.Java(target='class1', source='com.1/Example1.java')
 j2 = env.Java(target='class2', source='com.2/Example2.java')
 env.JavaH(target='outdir', source=[j1, j2], JAVACLASSPATH='class2')
-""" % locals())
+""")
 
 test.subdir('com.1', 'com.2')
 

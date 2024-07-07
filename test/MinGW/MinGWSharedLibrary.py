@@ -63,7 +63,7 @@ env.SharedLibrary('foobar', foobar_obj)
 
 # Now verify versioned shared library doesn't fail
 env.SharedLibrary('foobar_ver', foobar_obj, SHLIBVERSION='2.4')
-""" % locals())
+""")
 
 test.run(arguments = ".")
 

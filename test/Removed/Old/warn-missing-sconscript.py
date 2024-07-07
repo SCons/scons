@@ -59,7 +59,7 @@ Missing SConscript 'no_such_file'
 # this is the old message:
 #expect = r"""
 #scons: warning: Ignoring missing SConscript 'no_such_file'
-"" + TestSCons.file_expr
+#"""" + TestSCons.file_expr
 
 test.run(arguments='--warn=missing-sconscript .', stderr=expect)
 test.run(arguments='--warn=no-missing-sconscript .', stderr="")

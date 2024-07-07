@@ -37,6 +37,7 @@ workpath = test.workpath('')
 test.subdir('bin', 'subdir')
 
 test.write('SConstruct', """\
+_ = DefaultEnvironment(tools=[])
 opts = Variables('../bin/opts.cfg', ARGUMENTS)
 opts.Add('VARIABLE')
 Export("opts")
@@ -45,7 +46,6 @@ SConscript('subdir/SConscript')
 
 SConscript_contents = """\
 Import("opts")
-_ = DefaultEnvironment(tools=[])
 env = Environment(tools=[])
 opts.Update(env)
 print("VARIABLE = %s"%env.get('VARIABLE'))
@@ -53,7 +53,7 @@ print("VARIABLE = %s"%env.get('VARIABLE'))
 
 test.write(['bin', 'opts.cfg'], """\
 from local_options import VARIABLE
-""" % locals())
+""")
 
 test.write(['bin', 'local_options.py'], """\
 VARIABLE = 'bin/local_options.py'

@@ -39,14 +39,15 @@ def zipfile_get_file_datetime(zipfilename, fname):
         for info in zf.infolist():
             if info.filename == fname:
                 return info.date_time
-    
+
     raise Exception("Unable to find %s" % fname)
 
 
 test.write('SConstruct', """
+_ = DefaultEnvironment(tools=[])
 env = Environment(tools = ['zip'])
 env.Zip(target = 'aaa.zip', source = ['file1'], ZIP_OVERRIDE_TIMESTAMP=(1983,3,11,1,2,2))
-""" % locals())
+""")
 
 test.write(['file1'], "file1\n")
 
