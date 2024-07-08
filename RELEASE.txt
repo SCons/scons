@@ -1,189 +1,65 @@
-A new SCons release, 4.8.0, is now available on the SCons download page:
+If you are reading this in the git repository, the contents
+refer to *unreleased* changes since the last SCons release.
+Past official release announcements appear at:
+
+    https://scons.org/tag/releases.html
+
+==================================================================
+
+A new SCons release, 4.8.1, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
 
-Here is a summary of the changes since 4.7.0:
+Here is a summary of the changes since 4.8.0:
 
 NEW FUNCTIONALITY
 -----------------
 
-- GetSConsVersion() added to retrieve the SCons version.
+- List new features (presumably why a checkpoint is being released)
 
 DEPRECATED FUNCTIONALITY
 ------------------------
 
-- Mark Python 3.6 support as deprecated. Use --warn=no-python-version
-  to quiet the warning.
+- List anything that's been deprecated since the last release
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- Dump() with json format selected now recognizes additional compound types
-  (UserDict and UserList), which improves the detail of the display.
-  json output is also sorted, to match the default display.
-- Python 3.13 changes the behavior of isabs() on Windows. Adjust SCons
-  usage of this in NodeInfo classes to avoid test problems.
-- Drop duplicated __getstate__ and __setstate__ methods in AliasNodeInfo,
-  FileNodeInfo and ValueNodeInfo classes, as they are identical to the
-  ones in parent NodeInfoBase and can just be inherited.
-- All exceptions during the execution of an Action are now returned by value
-  rather than by raising an exception, for more consistent behavior.
-  NOTE: With this change, user created Actions should now catch and handle
-  expected exceptions (whereas previously many of these were silently caught
-  and suppressed by the SCons Action exection code).
-- ParseFlags now sorts a --stdlib=libname argument into CXXFLAGS instead
-  of CCFLAGS; the latter variable could cause a compiler warning.
-- The implementation of Variables was slightly refactored, there should
-  not be user-visible changes.
-- MSVC: For msvc version specifications without an 'Exp' suffix, an express
-  installation is used when no other edition is detected for the msvc version.
-  This was the behavior for Visual Studio 2008 (9.0) through Visual Studio 2015
-  (14.0).  This behavior was extended to Visual Studio 2017 (14.1) and Visual
-  Studio 2008 (8.0).  An express installation of the IDE binary is used when no
-  other IDE edition is detected.
-- The vswhere executable locations for the WinGet and Scoop package managers were
-  added to the default vswhere executable search list after the Chocolatey
-  installation location.
-- SCons.Environment.is_valid_construction_var() now returns a boolean to
-  match the convention that functions beginning with "is" have yes/no
-  answers (previously returned either None or an re.match object).
-  Now matches the annotation and docstring (which were prematurely
-  updated in 4.6). All SCons usage except unit test was already fully
-  consistent with a bool.
-- The Variables object Add method now accepts a subst keyword argument
-  (defaults to True) which can be set to inhibit substitution prior to
-  calling the variable's converter and validator.
-- AddOption and the internal add_local_option which AddOption calls now
-  recognize a "settable" keyword argument to indicate a project-added
-  option can also be modified using SetOption.
-  NOTE: If you were using ninja and using SetOption() for ninja options
-  in your SConscripts prior to loading the ninja tool, you will now
-  see an error. The fix is to move the SetOption() to after you've loaded
-  the ninja tool.
-- ListVariable now has a separate validator, with the functionality
-  that was previously part of the converter. The main effect is to
-  allow a developer to supply a custom validator, which previously
-  could be inhibited by the converter failing before the validator
-  is reached.
-- When debugging (--debug=pdb), the filename SCsub is now recognized when
-  manipulating breakpoints.
+- List modifications to existing features, where the previous behavior
+  wouldn't actually be considered a bug
 
 FIXES
 -----
 
-- OSErrors are now no longer hidden during the execution of Actions.
-- Improved the conversion of a "foreign" exception from an action
-  into BuildError by making sure our defaults get applied even in
-  corner cases. Fixes Issue #4530
-- MSVC: Visual Studio 2010 (10.0) could be inadvertently detected due to an
-  sdk-only install of Windows SDK 7.1.  An sdk-only install of Visual Studio
-  2010 is ignored as the msvc batch files will fail. The installed files are
-  intended to be used in conjunction with the SDK batch file.  Similar protection
-  was added for Visual Studio 2008 (9.0).
-- MSVC: For Visual Studio 2005 (8.0) to Visual Studio 2015 (14.0), detection of
-  installed files was expanded to include the primary msvc batch file, dependent
-  msvc batch file, and compiler executable. In certain installations, the
-  dependent msvc batch file may not exist while the compiler executable does exist
-  resulting in a build failure.
-- MSVC: Visual Studio 2008 (9.0) Visual C++ For Python was not detected when
-  installed using the ALLUSERS command-line option:
-      msiexec /i VCForPython27.msi ALLUSERS=1
-  When installed for all users, Visual Studio 2008 (9.0) Visual C++ For Python is
-  now correctly detected.
-- MSVC: For Visual Studio 2008 (9.0), a full development edition (e.g., Professional)
-  is now selected before a Visual C++ For Python edition. Prior to this change,
-  Visual C++ For Python was selected before a full development edition when both
-  editions are installed.
-- The vswhere executable is frozen upon initial detection.  Specifying a different
-  vswhere executable via the construction variable VSWHERE after the initial
-  detection now results in an exception.  Multiple bugs in the implementation of
-  specifying a vswhere executable via the construction variable VSWHERE have been
-  fixed.  Previously, when a user specified vswhere executable detects new msvc
-  installations after the initial detection, the internal msvc installation cache
-  and the default msvc version based on the initial detection are no longer valid.
-  For example, when no vswhere executable is found for the initial detection
-  and then later an environment is constructed with a user specified vswhere
-  executable that detects new msvc installations.
-- MSVC: Visual Studio 2022 v143 BuildTools now supports msvc toolset versions from
-  14.30 to 14.4X.  Fixes Issue #4543.
-- The Clone() method now respects the variables argument (fixes #3590)
+- List fixes of outright bugs
 
 IMPROVEMENTS
 ------------
 
-- Make the testing framework a little more resilient: the temporary
-  directory for tests now includes a component named "scons" which can
-  be given to antivirus software to exclude.
-- Performance tweak: the __setitem__ method of an Environment, used for
-  setting construction variables, now uses the string method isidentifier
-  to validate the name (updated from microbenchmark results).
-- MSVC: Visual Studio 2015 Express (14.0Exp) does not support the sdk version
-  argument. Visual Studio 2015 Express does not support the store argument for
-  target architectures other than x86.  Script argument validation now takes into
-  account these restrictions.
-- MSVC: Visual Studio 2015 BuildTools (14.0) does not support the sdk version
-  argument and does not support the store argument.  Script argument validation now
-  takes into account these restrictions.
-- MSVC: The registry detection of VS2015 (14.0), and earlier, is now cached at runtime
-  and is only evaluated once for each msvc version.
-- MSVC: The vswhere detection of VS2017 (14.1), and later, is now cached at runtime and
-  is only evaluated once using a single vswhere invocation for all msvc versions.
+- List improvements that wouldn't be visible to the user in the
+  documentation:  performance improvements (describe the circumstances
+  under which they would be observed), or major code cleanups
 
 PACKAGING
 ---------
 
-- setup.cfg logic now handled via pyproject.toml; consequently, setup.cfg
-  was removed.
-
+- List changes in the way SCons is packaged and/or released
 
 DOCUMENTATION
 -------------
 
-- Updated Value Node docs.
-- Update manpage for Tools, and for the TOOL variable.
-- Update manpage and user guide for Variables usage.
-- Restructured API Docs build so main package contents are listed
-  before contents of package submodules.
-- Updated manpage description of Command "builder" and function.
-- Updated the notes about reproducible builds with SCons and the example.
-- Regularized header (copyright, licens) at top of documentation files using SPDX.
-- Updated introductory section of manual page.
-
-
+- List any significant changes to the documentation (not individual
+  typo fixes, even if they're mentioned in src/CHANGES.txt to give
+  the contributor credit)
 
 DEVELOPMENT
 -----------
 
-- Documentation build now properly passes through skipping the PDF
-  (and EPUB) builds of manpage and user guide; this can also be done
-  manually if directly calling doc/man/SConstruct and doc/user/SConstruct
-  by adding SKIP_PDF=1. This should help with distro packaging of SCons,
-  which now does not need "fop" and other tools to be set up in order to
-  build pdf versions which are then ignored.
-- .gitattributes has been setup to mirror .editorconfig's eol settings.
-  The repo-wide line-ending is now `lf`, with the exception of a few
-  Windows-only files using `crlf` instead. Any files not already fitting
-  this format have been explicitly converted.
-- Repository linter/formatter changed from flake8/black to ruff, as the
-  latter grants an insane speed boost without compromising functionality.
-  Existing settings were migrated 1-to-1 where possible.
-- The test runner now recognizes the unittest module's return code of 5,
-  which means no tests were run. SCons/Script/MainTests.py currently
-  has no tests, so this particular error code is expected - should not
-  cause runtest to give up with an "unknown error code".
-- is_valid_construction_var() (not part of the public API) moved from
-  SCons.Environment to SCons.Util to avoid the chance of import loops. Variables
-  and Environment both use the routine and Environment() uses a Variables()
-  object so better to move to a safer location.
+- List visible changes in the way SCons is developed
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.7.0..HEAD
-        70  Mats Wichmann
-        35  Joseph Brill
-        26  William Deegan
-         7  Raymond Li
-         7  Thaddeus Crews
+    git shortlog --no-merges -ns 4.0.1..HEAD
