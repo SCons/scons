@@ -1,12 +1,4 @@
-If you are reading this in the git repository, the contents
-refer to *unreleased* changes since the last SCons release.
-Past official release announcements appear at:
-
-    https://scons.org/tag/releases.html
-
-==================================================================
-
-A new SCons release, 4.7.1, is now available on the SCons download page:
+A new SCons release, 4.8.0, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
@@ -189,4 +181,9 @@ Thanks to the following contributors listed below for their contributions to thi
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.0.1..HEAD
+    git shortlog --no-merges -ns 4.7.0..HEAD
+        70  Mats Wichmann
+        35  Joseph Brill
+        26  William Deegan
+         7  Raymond Li
+         7  Thaddeus Crews

@@ -106,8 +106,7 @@ scons: Reading SConscript files ...
   'TEMPFILEARGESCFUNC': &lt;function quote_spaces at 0x700000&gt;,
   'TEMPFILEARGJOIN': '\n',
   'TEMPFILEPREFIX': '@',
-  'TOOLS': ['msvc', 'install', 'install'],
-  'VSWHERE': None,
+  'TOOLS': ['msvc', 'install'],
   '_CCCOMCOM': '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $CCPCHFLAGS $CCPDBFLAGS',
   '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__, '
                   'TARGET, SOURCE)}',

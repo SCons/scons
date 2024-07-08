@@ -69,7 +69,7 @@ from SCons import __version__ as SConsVersion
 minimum_python_version = (3, 6, 0)
 deprecated_python_version = (3, 7, 0)  # the first non-deprecated version
 
-# ordered list of SConsctruct names to look for if there is no -f flag
+# ordered list of SConstruct names to look for if there is no -f flag
 KNOWN_SCONSTRUCT_NAMES = [
     'SConstruct',
     'Sconstruct',
