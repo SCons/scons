@@ -1694,28 +1694,37 @@ class Base(SubstitutionEnvironment):
         return dlist
 
 
-    def Dump(self, key: Optional[str] = None, format: str = 'pretty') -> str:
-        """ Returns a dump of serialized construction variables.
+    def Dump(self, *key: str, format: str = 'pretty') -> str:
+        """Return string of serialized construction variables.
 
-        The display formats are intended for humaan readers when
-        debugging - none of the supported formats produce a result that
-        SCons itself can directly make use of. Objects that cannot
-        directly be represented get a placeholder like
-        ``<function foo at 0x123456>`` or ``<<non-serializable: function>>``.
+        Produces a "pretty" output of a dictionary of selected
+        construction variables, or all of them. The display *format* is
+        selectable. The result is intended for human consumption (e.g,
+        to print), mainly when debugging.  Objects that cannot directly be
+        represented get a placeholder like ``<function foo at 0x123456>``
+        (pretty-print) or ``<<non-serializable: function>>`` (JSON).
 
         Args:
-           key: if ``None``, format the whole dict of variables,
-              else format just the value of *key*.
+           key: if omitted, format the whole dict of variables,
+              else format *key*(s) with the corresponding values.
            format: specify the format to serialize to. ``"pretty"`` generates
              a pretty-printed string, ``"json"`` a JSON-formatted string.
 
         Raises:
            ValueError: *format* is not a recognized serialization format.
+
+        .. versionchanged:: NEXT_VERSION
+           *key* is no longer limited to a single construction variable name.
+           If *key* is supplied, a formatted dictionary is generated like the
+           no-arg case - previously a single *key* displayed just the value.
         """
-        if key:
-            cvars = self.Dictionary(key)
-        else:
+        if not key:
             cvars = self.Dictionary()
+        elif len(key) == 1:
+            dkey = key[0]
+            cvars = {dkey: self[dkey]}
+        else:
+            cvars = dict(zip(key, self.Dictionary(*key)))
 
         fmt = format.lower()
 
@@ -1735,14 +1744,15 @@ class Base(SubstitutionEnvironment):
 
             class DumpEncoder(json.JSONEncoder):
                 """SCons special json Dump formatter."""
+
                 def default(self, obj):
                     if isinstance(obj, (UserList, UserDict)):
                         return obj.data
                     return f'<<non-serializable: {type(obj).__qualname__}>>'
 
             return json.dumps(cvars, indent=4, cls=DumpEncoder, sort_keys=True)
-        else:
-            raise ValueError("Unsupported serialization format: %s." % fmt)
+
+        raise ValueError("Unsupported serialization format: %s." % fmt)
 
 
     def FindIxes(self, paths: Sequence[str], prefix: str, suffix: str) -> Optional[str]:

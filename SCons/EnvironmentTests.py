@@ -3176,24 +3176,42 @@ def generate(env):
 
     def test_Dump(self) -> None:
         """Test the Dump() method"""
-
         env = self.TestEnvironment(FOO='foo', FOOFLAGS=CLVar('--bar --baz'))
-        assert env.Dump('FOO') == "'foo'", env.Dump('FOO')
-        assert len(env.Dump()) > 200, env.Dump()    # no args version
 
-        assert env.Dump('FOO', 'json') == '"foo"'    # JSON key version
-        expect = """[\n    "--bar",\n    "--baz"\n]"""
-        self.assertEqual(env.Dump('FOOFLAGS', 'json'), expect)
-        import json
-        env_dict = json.loads(env.Dump(format = 'json'))
-        assert env_dict['FOO'] == 'foo'    # full JSON version
+        # changed in NEXT_VERSION: single arg now displays as a dict,
+        #   not a bare value; more than one arg is allowed.
+        with self.subTest():  # one-arg version
+            self.assertEqual(env.Dump('FOO'), "{'FOO': 'foo'}")
 
-        try:
-            env.Dump(format = 'markdown')
-        except ValueError as e:
-            assert str(e) == "Unsupported serialization format: markdown."
-        else:
-            self.fail("Did not catch expected ValueError.")
+        with self.subTest():  # multi-arg version
+            expect = "{'FOO': 'foo', 'FOOFLAGS': ['--bar', '--baz']}"
+            self.assertEqual(env.Dump('FOO', 'FOOFLAGS'), expect)
+
+        with self.subTest():  # no-arg version
+            self.assertGreater(len(env.Dump()), 200)
+
+        with self.subTest():  # one-arg JSON version, simple value
+            expect = '{\n    "FOO": "foo"\n}'
+            self.assertEqual(env.Dump('FOO', format='json'), expect)
+
+        with self.subTest():  # one-arg JSON version, list value
+            expect = '{\n    "FOOFLAGS": [\n        "--bar",\n        "--baz"\n    ]\n}'
+            self.assertEqual(env.Dump('FOOFLAGS', format='json'), expect)
+
+        with self.subTest():  # multi--arg JSON version, list value
+            expect = '{\n    "FOO": "foo",\n    "FOOFLAGS": [\n        "--bar",\n        "--baz"\n    ]\n}'
+            self.assertEqual(env.Dump('FOO', 'FOOFLAGS', format='json'), expect)
+
+        with self.subTest():  # full JSON version
+            import json
+            env_dict = json.loads(env.Dump(format='json'))
+            self.assertEqual(env_dict['FOO'], 'foo')
+
+        with self.subTest():  # unsupported format type
+            with self.assertRaises(ValueError) as cm:
+                env.Dump(format='markdown')
+            self.assertEqual(str(cm.exception), "Unsupported serialization format: markdown.")
+
 
     def test_Environment(self) -> None:
         """Test the Environment() method"""

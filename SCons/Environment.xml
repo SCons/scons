@@ -1692,21 +1692,24 @@ for more information.
 
 <scons_function name="Dump">
 <arguments signature="env">
-([key], [format])
+([key, ...], [format=])
 </arguments>
 <summary>
 <para>
-Serializes &consvars; to a string.
+Serializes &consvars; from the current &consenv;
+to a string.
 The method supports the following formats specified by
-<parameter>format</parameter>:
+<parameter>format</parameter>,
+which must be used a a keyword argument:
+</para>
 <variablelist>
 <varlistentry>
 <term><literal>pretty</literal></term>
 <listitem>
 <para>
-Returns a pretty printed representation of the environment (if
-<parameter>format</parameter>
-is not specified, this is the default).
+Returns a pretty-printed representation of the variables
+(this is the default).
+The variables will be presented in &Python; dict form.
 </para>
 </listitem>
 </varlistentry>
@@ -1714,17 +1717,27 @@ is not specified, this is the default).
 <term><literal>json</literal></term>
 <listitem>
 <para>
-Returns a JSON-formatted string representation of the environment.
+Returns a JSON-formatted string representation of the variables.
+The variables will be presented as a JSON object literal,
+the JSON equivalent of a &Python; dict.
 </para>
 </listitem>
 </varlistentry>
 </variablelist>
 
-If <varname>key</varname> is
-<constant>None</constant> (the default) the entire
-dictionary of &consvars; is serialized.
-If supplied, it is taken as the name of a &consvar;
-whose value is serialized.
+<para>
+If no <varname>key</varname> is supplied,
+all the &consvars; are serialized.
+If one or more keys are supplied,
+only those keys and their values are serialized.
+</para>
+
+<para>
+<emphasis>Changed in NEXT_VERSION</emphasis>:
+More than one <parameter>key</parameter> can be specified.
+The returned string always looks like a dict (or JSON equivalent);
+previously a single key serialized only the value,
+not the key with the value.
 </para>
 
 <para>
@@ -1732,16 +1745,21 @@ This SConstruct:
 </para>
 
 <example_commands>
-env=Environment()
+env = Environment()
 print(env.Dump('CCCOM'))
+print(env.Dump('CC', 'CCFLAGS', format='json'))
 </example_commands>
 
 <para>
-will print:
+will print something like:
 </para>
 
 <example_commands>
-'$CC -c -o $TARGET $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $SOURCES'
+{'CCCOM': '$CC -o $TARGET -c $CFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'}
+{
+    "CC": "gcc",
+    "CCFLAGS": []
+}
 </example_commands>
 
 <para>
@@ -1754,7 +1772,7 @@ print(env.Dump())
 </example_commands>
 
 <para>
-will print:
+will print something like:
 </para>
 <example_commands>
 { 'AR': 'ar',
@@ -1765,6 +1783,7 @@ will print:
   'ASFLAGS': [],
   ...
 </example_commands>
+
 </summary>
 </scons_function>
 
