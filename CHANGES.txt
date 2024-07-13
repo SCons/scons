@@ -18,6 +18,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       will benefit from `TypeGuard`/`TypeIs`, to produce intellisense similar
       to using `isinstance` directly.
 
+  From Mats Wichmann:
+    - env.Dump() now considers the "key" positional argument to be a varargs
+      type (zero, one or many). However called, it returns a serialized
+      result that looks like a dict. Previously, only one "key" was
+      accepted. and unlike the zero-args case, it was be serialized
+      to a string containing the value without the key. For example, if
+      "print(repr(env.Dump('CC'))" previously returned "'gcc'", it will now
+      return "{'CC': 'gcc'}".
+
 
 RELEASE 4.8.0 -  Sun, 07 Jul 2024 17:22:20 -0700
 
