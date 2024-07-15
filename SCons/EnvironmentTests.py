@@ -180,16 +180,19 @@ class SubstitutionTestCase(unittest.TestCase):
         env3 = SubstitutionEnvironment(XXX = 'xxx')
         env4 = SubstitutionEnvironment(XXX = 'x', YYY = 'x')
 
-        assert env1 == env2
-        assert env1 != env3
-        assert env1 != env4
+        with self.subTest():
+            self.assertEqual(env1, env2)
+        with self.subTest():
+            self.assertNotEqual(env1, env3)
+        with self.subTest():
+            self.assertNotEqual(env1, env4)
 
     def test___delitem__(self) -> None:
         """Test deleting a variable from a SubstitutionEnvironment."""
         env1 = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
         env2 = SubstitutionEnvironment(XXX = 'x')
         del env1['YYY']
-        assert env1 == env2
+        self.assertEqual(env1, env2)
 
     def test___getitem__(self) -> None:
         """Test fetching a variable from a SubstitutionEnvironment."""
@@ -201,7 +204,7 @@ class SubstitutionTestCase(unittest.TestCase):
         env1 = SubstitutionEnvironment(XXX = 'x')
         env2 = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
         env1['YYY'] = 'y'
-        assert env1 == env2
+        self.assertEqual(env1, env2)
 
     def test_get(self) -> None:
         """Test the SubstitutionEnvironment get() method."""

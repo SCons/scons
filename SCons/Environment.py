@@ -534,6 +534,12 @@ class SubstitutionEnvironment:
     Environment.Base to create their own flavors of construction
     environment, we'll save that for a future refactoring when this
     class actually becomes useful.)
+
+    Special note: methods here and in actual child classes might be
+    called via proxy from an :class:`OverrideEnvironment`, which doesn't
+    have a :attr:`_dict` attribute. Thus, methods should avoid poking that
+    directly unless they know ``OverrideEnvironment`` is going to provide
+    its own implementation of the method that behaves correctly for that case.
     """
 
     def __init__(self, **kw) -> None:
@@ -567,6 +573,20 @@ class SubstitutionEnvironment:
         self._special_set_keys = list(self._special_set.keys())
 
     def __eq__(self, other):
+        """Compare two environments.
+
+        This is used by checks in Builder to determine if duplicate
+        targets have environments that would cause the same result.
+        The more reliable way (respecting the admonition to avoid poking
+        at :attr:`_dict` directly) would be to use ``Dictionary`` so this
+        is sure to work even if one or both are are instances of
+        :class:`OverrideEnvironment`. However an actual
+        ``SubstitutionEnvironment`` doesn't have a ``Dictionary`` method
+        That causes problems for unit tests written to excercise
+        ``SubsitutionEnvironment`` directly, although nobody else seems
+        to ever instantiate one. We count on :class:`OverrideEnvironment`
+        to fake the :attr:`_dict` to make things work.
+        """
         return self._dict == other._dict
 
     def __delitem__(self, key) -> None:
@@ -1428,7 +1448,6 @@ class Base(SubstitutionEnvironment):
 
         The variable is created if it is not already present.
         """
-
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
             if key == 'CPPDEFINES':
@@ -1436,10 +1455,10 @@ class Base(SubstitutionEnvironment):
                 continue
 
             try:
-                orig = self._dict[key]
+                orig = self[key]
             except KeyError:
                 # No existing var in the environment, so set to the new value.
-                self._dict[key] = val
+                self[key] = val
                 continue
 
             try:
@@ -1450,7 +1469,7 @@ class Base(SubstitutionEnvironment):
                     # Just try to add them together.  This will work
                     # in most cases, when the original and new values
                     # are compatible types.
-                    self._dict[key] = orig + val
+                    self[key] = orig + val
                 except (KeyError, TypeError):
                     try:
                         # Check if the original is a list: has .append?
@@ -1463,7 +1482,7 @@ class Base(SubstitutionEnvironment):
                         # the variable with it.
                         if orig:
                             val.insert(0, orig)
-                        self._dict[key] = val
+                        self[key] = val
                     else:
                         # The original is a list, so append the new
                         # value to it (if there's a value to append).
@@ -1516,15 +1535,15 @@ class Base(SubstitutionEnvironment):
         """
 
         orig = ''
-        if envname in self._dict and name in self._dict[envname]:
-            orig = self._dict[envname][name]
+        if envname in self.keys() and name in self[envname]:
+            orig = self[envname][name]
 
         nv = AppendPath(orig, newpath, sep, delete_existing, canonicalize=self._canonicalize)
 
-        if envname not in self._dict:
-            self._dict[envname] = {}
+        if envname not in self.keys():
+            self[envname] = {}
 
-        self._dict[envname][name] = nv
+        self[envname][name] = nv
 
     def AppendUnique(self, delete_existing: bool=False, **kw) -> None:
         """Append values to existing construction variables
@@ -1539,34 +1558,34 @@ class Base(SubstitutionEnvironment):
                 continue
             if is_List(val):
                 val = _delete_duplicates(val, delete_existing)
-            if key not in self._dict or self._dict[key] in ('', None):
-                self._dict[key] = val
-            elif is_Dict(self._dict[key]) and is_Dict(val):
-                self._dict[key].update(val)
+            if key not in self.keys() or self[key] in ('', None):
+                self[key] = val
+            elif is_Dict(self[key]) and is_Dict(val):
+                self[key].update(val)
             elif is_List(val):
-                dk = self._dict[key]
+                dk = self[key]
                 if not is_List(dk):
                     dk = [dk]
                 if delete_existing:
                     dk = [x for x in dk if x not in val]
                 else:
                     val = [x for x in val if x not in dk]
-                self._dict[key] = dk + val
+                self[key] = dk + val
             else:
-                dk = self._dict[key]
+                dk = self[key]
                 if is_List(dk):
                     # By elimination, val is not a list.  Since dk is a
                     # list, wrap val in a list first.
                     if delete_existing:
                         dk = list(filter(lambda x, val=val: x not in val, dk))
-                        self._dict[key] = dk + [val]
+                        self[key] = dk + [val]
                     else:
                         if val not in dk:
-                            self._dict[key] = dk + [val]
+                            self[key] = dk + [val]
                 else:
                     if delete_existing:
                         dk = [x for x in dk if x not in val]
-                    self._dict[key] = dk + val
+                    self[key] = dk + val
         self.scanner_map_delete(kw)
 
     def Clone(self, tools=[], toolpath=None, variables=None, parse_flags=None, **kw):
@@ -1686,25 +1705,24 @@ class Base(SubstitutionEnvironment):
 
 
     def Dictionary(self, *args):
-        r"""Return construction variables from an environment.
+        """Return construction variables from an environment.
 
         Args:
-          \*args (optional): variable names to look up
+          args (optional): variable names to look up
 
         Returns:
-          If `args` omitted, the dictionary of all construction variables.
+          If *args* omitted, the dictionary of all construction variables.
           If one arg, the corresponding value is returned.
           If more than one arg, a list of values is returned.
 
         Raises:
-          KeyError: if any of `args` is not in the construction environment.
-
+          KeyError: if any of *args* is not in the construction environment.
         """
         if not args:
             return self._dict
-        dlist = [self._dict[x] for x in args]
+        dlist = [self[x] for x in args]
         if len(dlist) == 1:
-            dlist = dlist[0]
+            return dlist[0]
         return dlist
 
 
@@ -1866,17 +1884,16 @@ class Base(SubstitutionEnvironment):
 
         The variable is created if it is not already present.
         """
-
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
             if key == 'CPPDEFINES':
                 _add_cppdefines(self._dict, val, prepend=True)
                 continue
             try:
-                orig = self._dict[key]
+                orig = self[key]
             except KeyError:
                 # No existing var in the environment so set to the new value.
-                self._dict[key] = val
+                self[key] = val
                 continue
 
             try:
@@ -1887,7 +1904,7 @@ class Base(SubstitutionEnvironment):
                     # Just try to add them together.  This will work
                     # in most cases, when the original and new values
                     # are compatible types.
-                    self._dict[key] = val + orig
+                    self[key] = val + orig
                 except (KeyError, TypeError):
                     try:
                         # Check if the added value is a list: has .append?
@@ -1905,7 +1922,7 @@ class Base(SubstitutionEnvironment):
                         # to append) and replace the original.
                         if orig:
                             add_to_val(orig)
-                        self._dict[key] = val
+                        self[key] = val
                 continue
 
             # The original looks like a dictionary, so update it
@@ -1942,16 +1959,16 @@ class Base(SubstitutionEnvironment):
         """
 
         orig = ''
-        if envname in self._dict and name in self._dict[envname]:
-            orig = self._dict[envname][name]
+        if envname in self.keys() and name in self[envname]:
+            orig = self[envname][name]
 
         nv = PrependPath(orig, newpath, sep, delete_existing,
                                     canonicalize=self._canonicalize)
 
-        if envname not in self._dict:
-            self._dict[envname] = {}
+        if envname not in self.keys():
+            self[envname] = {}
 
-        self._dict[envname][name] = nv
+        self[envname][name] = nv
 
     def PrependUnique(self, delete_existing: bool=False, **kw) -> None:
         """Prepend values to existing construction variables
@@ -1966,34 +1983,34 @@ class Base(SubstitutionEnvironment):
                 continue
             if is_List(val):
                 val = _delete_duplicates(val, not delete_existing)
-            if key not in self._dict or self._dict[key] in ('', None):
-                self._dict[key] = val
-            elif is_Dict(self._dict[key]) and is_Dict(val):
-                self._dict[key].update(val)
+            if key not in self.keys() or self[key] in ('', None):
+                self[key] = val
+            elif is_Dict(self[key]) and is_Dict(val):
+                self[key].update(val)
             elif is_List(val):
-                dk = self._dict[key]
+                dk = self[key]
                 if not is_List(dk):
                     dk = [dk]
                 if delete_existing:
                     dk = [x for x in dk if x not in val]
                 else:
                     val = [x for x in val if x not in dk]
-                self._dict[key] = val + dk
+                self[key] = val + dk
             else:
-                dk = self._dict[key]
+                dk = self[key]
                 if is_List(dk):
                     # By elimination, val is not a list.  Since dk is a
                     # list, wrap val in a list first.
                     if delete_existing:
                         dk = [x for x in dk if x not in val]
-                        self._dict[key] = [val] + dk
+                        self[key] = [val] + dk
                     else:
                         if val not in dk:
-                            self._dict[key] = [val] + dk
+                            self[key] = [val] + dk
                 else:
                     if delete_existing:
                         dk = [x for x in dk if x not in val]
-                    self._dict[key] = val + dk
+                    self[key] = val + dk
         self.scanner_map_delete(kw)
 
     def Replace(self, **kw) -> None:
@@ -2038,7 +2055,7 @@ class Base(SubstitutionEnvironment):
 
     def SetDefault(self, **kw) -> None:
         for k in list(kw.keys()):
-            if k in self._dict:
+            if k in self.keys():
                 del kw[k]
         self.Replace(**kw)
 
@@ -2564,7 +2581,7 @@ class OverrideEnvironment(Base):
     it should no longer appear to be in the env, but we also don't want to
     modify the subject environment.
 
-    :class:`OverrideEnvironment` can nest arbitratily, *__subject*
+    :class:`OverrideEnvironment` can nest arbitratily, *subject*
     can be an existing instance. Although instances can be
     instantiated directly, the expected use is to call the
     :meth:`~SubstitutionEnvironment.Override` method as a factory.
@@ -2572,14 +2589,14 @@ class OverrideEnvironment(Base):
     Note Python does not give us a way to assure the subject environment
     is not modified. Assigning to a variable creates a new entry in
     the override, but moditying a variable will first fetch the one
-    from the subject, and if it is mutable, it will just be modified
-    in place.  For example: ``over_env.Append(CPPDEFINES="-O")``, where
-    ``CPPDEFINES`` is an existing list or :class:`~SCons.Util.CLVar`,
-    will successfully append to ``CPPDEFINES`` in the subject env.
-    To avoid such leakage, clients such as Scanners, Emitters and Action
-    functions called by a Builder using override syntax must take care
-    if modifying an env (which is not advised anyway) in case they were
-    passed an ``OverrideEnvironment``.
+    from the subject, and if mutable, it will just be modified in place.
+    For example: ``over_env.Append(CPPDEFINES="-O")``, where ``CPPDEFINES``
+    is an existing list or :class:`~SCons.Util.CLVar`, will successfully
+    append to ``CPPDEFINES`` in the subject env.  To avoid such leakage,
+    clients such as Scanners, Emitters and Action functions called by a
+    Builder using override syntax must take care if modifying an env
+    (which is not advised anyway) in case they were passed an
+    ``OverrideEnvironment``.
     """
 
     def __init__(self, subject, overrides: Optional[dict] = None) -> None:
@@ -2665,6 +2682,7 @@ class OverrideEnvironment(Base):
             raise KeyError(key)
         self.__dict__['__deleted'].append(key)
 
+
     def get(self, key, default=None):
         """Emulates the get() method of dictionaries.
 
@@ -2711,7 +2729,7 @@ class OverrideEnvironment(Base):
             return d
         dlist = [d[x] for x in args]
         if len(dlist) == 1:
-            dlist = dlist[0]
+            return dlist[0]
         return dlist
 
     def items(self):
