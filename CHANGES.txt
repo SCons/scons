@@ -26,6 +26,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       to a string containing the value without the key. For example, if
       "print(repr(env.Dump('CC'))" previously returned "'gcc'", it will now
       return "{'CC': 'gcc'}".
+    - Add a timeout to test/ninja/default_targets.py - it's gotten stuck on
+      the GitHub Windows action and taken the run to the full six hour timeout.
+      Usually runs in a few second, so set the timeout to 3min (120).
 
 
 RELEASE 4.8.0 -  Sun, 07 Jul 2024 17:22:20 -0700
