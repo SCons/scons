@@ -39,7 +39,13 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- List fixes of outright bugs
+- SCons 4.8.0 added an `__all__`  specifier at the top of the Variables
+  module (`Variables/__init__.py`) to control what is made available in
+  a star import. However, there was existing usage of doing
+  `from SCons.Variables import *` which expected the variable *types*
+  to be avaiable. `BoolVariable`, `EnumVariable`, `ListVariable`,
+  `PackageVariable` and `PathVariable` are added to `__all__`,
+  so this form of import should now work again.
 
 IMPROVEMENTS
 ------------

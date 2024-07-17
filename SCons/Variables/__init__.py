@@ -43,6 +43,11 @@ from .PathVariable import PathVariable
 __all__ = [
     "Variable",
     "Variables",
+    "BoolVariable",
+    "EnumVariable",
+    "ListVariable",
+    "PackageVariable",
+    "PathVariable",
 ]
 
 class Variable:
