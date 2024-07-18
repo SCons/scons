@@ -14,24 +14,16 @@ def read(rel_path):
         return fp.read()
 
 
-def get_version(rel_path):
-    for line in read(rel_path).splitlines():
-        if line.startswith('__version__'):
-            delim = '"' if '"' in line else "'"
-            return line.split(delim)[1]
-    else:
-        raise RuntimeError("Unable to find version string.")
-
-
 exclude = ['*Tests']
 
 
 class build_py(build_py_orig):
 
     def find_package_modules(self, package, package_dir):
-        """
-        Custom module to find package modules.
-        It will strip out any modules which match the glob patters in exclude above
+        """Custom module to find package modules.
+
+        Will strip out any modules which match the glob patters in
+        *exclude* above
         """
         modules = super().find_package_modules(package, package_dir)
         return [(pkg, mod, file, ) for (pkg, mod, file, ) in modules
@@ -42,5 +34,4 @@ setup(
     cmdclass={
         'build_py': build_py,
     },
-    version=get_version('SCons/__init__.py'),
 )

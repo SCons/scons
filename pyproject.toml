@@ -52,6 +52,9 @@ zip-safe = false
 include-package-data = true
 license-files = ["LICENSE"]
 
+[tool.setuptools.dynamic]
+version = {attr = "SCons.__version__"}
+
 [tool.setuptools.packages.find]
 exclude = ["template"]
 namespaces = false
