@@ -1512,11 +1512,17 @@ class Base(SubstitutionEnvironment):
 
         self._dict[envname][name] = nv
 
-    def AppendUnique(self, delete_existing: bool=False, **kw) -> None:
-        """Append values to existing construction variables
-        in an Environment, if they're not already there.
-        If delete_existing is True, removes existing values first, so
-        values move to end.
+    def AppendUnique(self, delete_existing: bool = False, **kw) -> None:
+        """Append values uniquely to existing construction variables.
+
+        Similar to :meth:`Append`, but the result may not contain duplicates
+        of any values passed for each given key (construction variable),
+        so an existing list may need to be pruned first, however it may still
+        contain other duplicates.
+
+        If *delete_existing* is true, removes existing values first, so values
+        move to the end; otherwise (the default) values are skipped if
+        already present.
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
@@ -1539,12 +1545,11 @@ class Base(SubstitutionEnvironment):
                     val = [x for x in val if x not in dk]
                 self._dict[key] = dk + val
             else:
+                # val is not a list, so presumably a scalar (likely str).
                 dk = self._dict[key]
                 if is_List(dk):
-                    # By elimination, val is not a list.  Since dk is a
-                    # list, wrap val in a list first.
                     if delete_existing:
-                        dk = list(filter(lambda x, val=val: x not in val, dk))
+                        dk = [x for x in dk if x != val]
                         self._dict[key] = dk + [val]
                     else:
                         if val not in dk:
@@ -1939,11 +1944,17 @@ class Base(SubstitutionEnvironment):
 
         self._dict[envname][name] = nv
 
-    def PrependUnique(self, delete_existing: bool=False, **kw) -> None:
-        """Prepend values to existing construction variables
-        in an Environment, if they're not already there.
-        If delete_existing is True, removes existing values first, so
-        values move to front.
+    def PrependUnique(self, delete_existing: bool = False, **kw) -> None:
+        """Prepend values uniquely to existing construction variables.
+
+        Similar to :meth:`Prepend`, but the result may not contain duplicates
+        of any values passed for each given key (construction variable),
+        so an existing list may need to be pruned first, however it may still
+        contain other duplicates.
+
+        If *delete_existing* is true, removes existing values first, so values
+        move to the front; otherwise (the default) values are skipped if
+        already present.
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
@@ -1966,12 +1977,11 @@ class Base(SubstitutionEnvironment):
                     val = [x for x in val if x not in dk]
                 self._dict[key] = val + dk
             else:
+                # val is not a list, so presumably a scalar (likely str).
                 dk = self._dict[key]
                 if is_List(dk):
-                    # By elimination, val is not a list.  Since dk is a
-                    # list, wrap val in a list first.
                     if delete_existing:
-                        dk = [x for x in dk if x not in val]
+                        dk = [x for x in dk if x != val]
                         self._dict[key] = [val] + dk
                     else:
                         if val not in dk:
