@@ -1,0 +1,169 @@
+RELEASE 4.8.0 -  Sun, 07 Jul 2024 17:22:20 -0700
+
+  From Joseph Brill:
+    - For msvc version specifications without an 'Exp' suffix, an express installation
+      is used when no other edition is detected for the msvc version.  Similarly, an
+      express installation of the IDE binary is used when no other IDE edition is
+      detected.
+    - VS2015 Express (14.0Exp) does not support the sdk version argument.  VS2015 Express
+      does not support the store argument for target architectures other than x86.
+      Script argument validation now takes into account these restrictions.
+    - VS2015 BuildTools (14.0) does not support the sdk version argument and does not
+      support the store argument.  Script argument validation now takes into account
+      these restrictions.
+    - The Windows SDK for Windows 7 and .NET Framework 4" (SDK 7.1) populates the
+      registry keys in a manner in which the msvc detection would report that VS2010
+      (10.0) is installed when only the SDK was installed.  The installed files are
+      intended to be used via the sdk batch file setenv.cmd. The installed msvc
+      batch files will fail. The msvc detection logic now ignores SDK-only VS2010
+      installations.  Similar protection is implemented for the sdk-only installs that
+      populate the installation folder and registry keys for VS2008 (9.0), if necessary.
+    - For VS2005 (8.0) to VS2015 (14.0), vsvarsall.bat is employed to dispatch to a
+      dependent batch file when configuring the msvc environment.  Previously, only the
+      existence of the compiler executable was verified. In certain installations, the
+      dependent batch file (e.g., vcvars64.bat) may not exist while the compiler
+      executable does exist resulting in build failures.  The existence of vcvarsall.bat,
+      the dependent batch file, and the compiler executable are now validated.
+    - MSVC configuration data specific to versions VS2005 (8.0) to VS2008 (9.0) was added
+      as the dependent batch files have different names than the batch file names used
+      for VS2010 (10.0) and later.  The VS2008 (9.0) Visual C++ For Python installation
+      is handled as a special case as the dependent batch files are: (a) not used and (b)
+      in different locations.
+    - When VS2008 (9.0) Visual C++ For Python is installed using the ALLUSERS=1 option
+      (i.e., msiexec /i VCForPython27.msi ALLUSERS=1), the registry keys are written to
+      HKEY_LOCAL_MACHINE rather than HKEY_CURRENT_USER.  An entry was added to query the
+      Visual C++ For Python keys in HKLM following the HKCU query, if necessary.
+    - For VS2008, a full development edition (e.g., Professional) is now selected before
+      a Visual C++ For Python edition.  Prior to this change, Visual C++ For Python was
+      selected before a full development edition when both editions are installed.
+    - The registry detection of VS2015 (14.0), and earlier, is now cached at runtime and
+      is only evaluated once for each msvc version.
+    - The vswhere executable is frozen upon initial detection.  Specifying a different
+      vswhere executable via the construction variable VSWHERE after the initial
+      detection now results in an exception.  Multiple bugs in the implementation of
+      specifying a vswhere executable via the construction variable VSWHERE have been
+      fixed.  Previously, when a user specified vswhere executable detects new msvc
+      installations after the initial detection, the internal msvc installation cache
+      and the default msvc version based on the initial detection are no longer valid.
+      For example, when no vswhere executable is found for the initial detection
+      and then later an environment is constructed with a user specified vswhere
+      executable that detects new msvc installations.
+    - The vswhere detection of VS2017 (14.1), and later, is now cached at runtime and is
+      only evaluated once using a single vswhere invocation for all msvc versions.
+      Previously, the vswhere executable was invoked for each supported msvc version.
+    - The vswhere executable locations for the WinGet and Scoop package managers were
+      added to the default vswhere executable search list after the Chocolatey
+      installation location.
+    - Fix issue #4543: add support for msvc toolset versions 14.4X installed as the
+      latest msvc toolset versions for msvc buildtools v143.  The v143 msvc buildtools
+      may contain msvc toolset versions from 14.30 to 14.4X.
+
+  From Thaddeus Crews:
+    - GetSConsVersion() to grab the latest SCons version without needing to
+      access SCons internals.
+    - Migrate setup.cfg logic to pyproject.toml; remove setup.cfg.
+    - Update .gitattributes to match .editorconfig; enforce eol settings.
+    - Replace black/flake8 with ruff for more efficient formatting & linting.
+    - When debugging (--debug=pdb), the filename SCsub is now recognized when
+      manipulating breakpoints.
+
+  From Raymond Li:
+    - Fix issue #3935: OSErrors are now no longer hidden during execution of
+      Actions. All exceptions during the execution of an Action are now
+      returned by value rather than by raising an exception, for more
+      consistent behavior.
+      NOTE: With this change, user created Actions should now catch and handle
+      expected exceptions (whereas previously many of these were silently
+      caught and suppressed by the SCons Action exection code).
+
+  From Ryan Carsten Schmidt:
+    - Teach ParseFlags to put a --stdlib=libname argument into CXXFLAGS.
+      If placed in CCFLAGS (the default location), it could be fed to the
+      C compiler (gcc, clang) where it is not applicable and causes a
+      warning message.
+
+  From Mats Wichmann:
+    - Updated Value Node docs and tests.
+    - Python 3.13 compat: re.sub deprecated count, flags as positional args,
+      caused update-release-info test to fail.
+    - Dump() with json format selected now recognizes additional compound types
+      (UserDict and UserList), which improves the detail of the display.
+      json output is also sorted, to match the default display.
+    - Python 3.13 (alpha) changes the behavior of isabs() on Windows. Adjust
+      SCons usage of in NodeInfo classes to match.  Fixes #4502, #4504.
+    - Drop duplicated __getstate__ and __setstate__ methods in AliasNodeInfo,
+      FileNodeInfo and ValueNodeInfo classes, as they are identical to the
+      ones in parent NodeInfoBase and can just be inherited.
+    - Update manpage for Tools, and for TOOL, which also gets a minor
+      tweak for how it's handled (should be more accurate in a few situations).
+    - Test framework now uses a subdirectory named "scons" below the base
+      temporary directory. This gives something invariant to tell antivirus
+      to ignore without having to exclude tmpdir itself. Fixes #4509.
+    - MSVS "live" tests of project files adjusted to look for the generated
+      executable with an exe sufffix
+    - Documentation build now properly passes through skipping the PDF
+      (and EPUB) builds of manpage and user guide; this can also be done
+      manually if directly calling doc/man/SConstruct and doc/user/SConstruct
+      by adding SKIP_PDF=1.  This should help with distro packaging of SCons,
+      which now does not need "fop" and other tools to be set up in order to
+      build pdf versions which are then ignored.
+    - Add the ability to print a Variables object for debugging purposes
+      (provides a __str__ method in the class).
+    - Mark Python 3.6 support as deprecated.
+    - Clean up Variables: more consistently call them variables (finish the
+      old change from Options) in docstrings, etc.; some typing and other
+      tweaks.  Update manpage and user guide for Variables usage.
+    - Regularize internal usage of Python version strings and drop one
+      old Python 2-only code block in a test.
+    - scons-time tests now supply a "filter" argument to tarfile.extract
+      to quiet a warning which was added in Python 3.13 beta 1.
+    - Improved the conversion of a "foreign" exception from an action
+      into BuildError by making sure our defaults get applied even in
+      corner cases. Fixes #4530.
+    - Restructured API docs build (Sphinx) so main module contents appear
+      on a given page *before* the submodule docs, not after. Also
+      tweaked the Util package doc build so it's structured more like the
+      other packages (a missed part of the transition when it was split).
+    - Updated manpage description of Command "builder" and function.
+    - Framework for scons-time tests adjusted so a path with a long username
+      Windows has squashed doesn't get re-expanded. Fixes a problem seen
+      on GitHub Windows runner which uses a name "runneradmin".
+    - SCons.Environment.is_valid_construction_var() now returns a boolean to
+      match the convention that functions beginning with "is" have yes/no
+      answers (previously returned either None or an re.match object).
+      Now matches the annotation and docstring (which were prematurely
+      updated in 4.6). All SCons usage except unit test was already fully
+      consistent with a bool.
+    - When a variable is added to a Variables object, it can now be flagged
+      as "don't perform substitution" by setting the argument subst.
+      This allows variables to contain characters which would otherwise
+      cause expansion. Fixes #4241.
+    - The test runner now recognizes the unittest module's return code of 5,
+      which means no tests were run. SCons/Script/MainTests.py currently
+      has no tests, so this particular error code is expected - should not
+      cause runtest to give up with an "unknown error code".
+    - Updated the notes about reproducible builds with SCons and the example.
+    - The Clone() method now respects the variables argument (fixes #3590)
+    - is_valid_construction_var() (not part of the public API) moved from
+      SCons.Environment to SCons.Util to avoid the chance of import loops. Variables
+      and Environment both use the routine and Environment() uses a Variables()
+      object so better to move to a safer location.
+    - Performance tweak: the __setitem__ method of an Environment, used for
+      setting construction variables, now uses the string method isidentifier
+      to validate the name (updated from microbenchmark results).
+    - AddOption and the internal add_local_option which AddOption calls now
+      recognize a "settable" keyword argument to indicate a project-added
+      option can also be modified using SetOption. Fixes #3983.
+      NOTE: If you were using ninja and using SetOption() for ninja options
+      in your SConscripts prior to loading the ninja tool, you will now
+      see an error. The fix is to move the SetOption() to after you've loaded
+      the ninja tool.
+    - ListVariable now has a separate validator, with the functionality
+      that was previously part of the converter. The main effect is to
+      allow a developer to supply a custom validator, which previously
+      could be inhibited by the converter failing before the validator
+      is reached.
+    - Regularized header (copyright, licens) at top of documentation files
+      using SPDX.
+    - Updated introductory section of manual page.
+    - Minor cleanups in tests - drop unused "% locals()" stanzas.
