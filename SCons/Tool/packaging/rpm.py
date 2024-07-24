@@ -25,7 +25,6 @@
 
 import SCons.Builder
 import SCons.Tool.rpmutils
-from SCons.Environment import OverrideEnvironment
 from SCons.Tool.packaging import stripinstallbuilder, src_targz
 from SCons.Errors import UserError
 
@@ -67,7 +66,7 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION,
         kw['SOURCE_URL']=(str(target[0])+".tar.gz").replace('.rpm', '')
 
     # mangle the source and target list for the rpmbuild
-    env = OverrideEnvironment(env, kw)
+    env = env.Override(kw)
     target, source = stripinstallbuilder(target, source, env)
     target, source = addspecfile(target, source, env)
     target, source = collectintargz(target, source, env)

@@ -35,6 +35,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   including the key.  For example, from "'gcc'" to "{'CC': 'gcc'}".
   This should not have any impact as the result of calling Dump is
   intended for diagnostic output, not for use by other interfaces.
+- Override envirionments, created when giving construction environment
+  keyword arguments to Builder calls (or manually, through the
+  undocumented Override method), were modified not to "leak" on item deletion.
+  The item will now not be deleted from the base environment.
 
 FIXES
 -----
