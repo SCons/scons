@@ -29,6 +29,7 @@ import SCons.Variables
 import SCons.Subst
 import SCons.Warnings
 from SCons.Util import cmp
+from SCons.Variables import *
 
 
 class Environment:
@@ -722,6 +723,27 @@ class UnknownVariablesTestCase(unittest.TestCase):
         r = opts.UnknownVariables()
         assert len(r) == 0, r
         assert env['ADDEDLATER'] == 'added', env['ADDEDLATER']
+
+    def test_VariableTypesImportVisibility(self) -> None:
+        """Test that 'from SCons.Variables import *' will import all types of SCons defined Variables
+            """
+
+        try:
+            x = BoolVariable('test', 'test option help', False)
+            y = EnumVariable('test', 'test option help', 0,
+                                          ['one', 'two', 'three'],
+                                          {})
+            z = ListVariable('test', 'test option help', 'all',
+                                          ['one', 'two', 'three'])
+            o = PackageVariable('test', 'test build variable help', '/default/path')
+            p = PathVariable('test',
+                                          'test build variable help',
+                                          '/default/path')
+        except Exception as e:
+            self.fail(f"Could not import all known Variable types: {e}")
+
+
+
 
 
 if __name__ == "__main__":
