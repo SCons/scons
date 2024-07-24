@@ -35,6 +35,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       `from SCons.Variables import *` which expected the variable *types*
       to be avaiable. While we never advertised this usage, there's no
       real reason it shouldn't keep working - add to `__all__`.
+    - Switch SCons build to use setuptools' supported version fetcher from
+      the old homegrown one.
 
 
 RELEASE 4.8.0 -  Sun, 07 Jul 2024 17:22:20 -0700
