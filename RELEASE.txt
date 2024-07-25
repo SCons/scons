@@ -62,9 +62,7 @@ PACKAGING
 DOCUMENTATION
 -------------
 
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
+- Improve wording of manpage "Functions and Environment Methods" section.
 
 DEVELOPMENT
 -----------
