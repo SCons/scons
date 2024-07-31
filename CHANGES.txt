@@ -179,6 +179,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       support batch mode (currently: Windows).  Change the way the changed
       and unchanged target and source lists are accounted for to resolve.
       Fixes #3029.
+    - Improve the Builder Methods intro section in manpage, making sure
+      all prose appears before the listing of methods.
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
@@ -194,7 +196,6 @@ RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
   From Mats Wichmann:
     - Fix typos in CCFLAGS test. Didn't affect the test itself, but
       didn't correctly apply the DefaultEnvironment speedup.
-
     - New CacheDir initialization code failed on Python 3.7 for unknown
       reason (worked on 3.8+). Adjusted the approach a bit.  Fixes #4694.
     - Try to fix Windows fails on Docbook tests in case xsltproc is found.
