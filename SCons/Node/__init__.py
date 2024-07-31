@@ -215,7 +215,7 @@ def get_contents_dir(node):
         contents.append('%s %s\n' % (n.get_csig(), n.name))
     return ''.join(contents)
 
-def get_contents_file(node):
+def get_contents_file(node) -> bytes:
     if not node.rexists():
         return b''
     fname = node.rfile().get_abspath()

@@ -714,8 +714,8 @@ class BuilderTestCase(unittest.TestCase):
             infiles.append(test.workpath('%d.in' % i))
             outfiles.append(test.workpath('%d.out' % i))
             test.write(infiles[-1], "\n")
-        builder = SCons.Builder.Builder(action=SCons.Action.Action(func,None),
-                                        single_source = 1, suffix='.out')
+        builder = SCons.Builder.Builder(action=SCons.Action.Action(func, None),
+                                        single_source=True, suffix='.out')
         env['CNT'] = [0]
         tgt = builder(env, target=outfiles[0], source=infiles[0])[0]
         s = str(tgt)
