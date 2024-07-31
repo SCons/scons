@@ -3489,7 +3489,7 @@ source_nodes = env.subst('$EXPAND_TO_NODELIST', conv=lambda x: x)
 
 <scons_function name="Tool">
 <arguments>
-(name, [toolpath, **kwargs])
+(name, [toolpath, key=value, ...])
 </arguments>
 <summary>
 

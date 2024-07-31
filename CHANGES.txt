@@ -38,6 +38,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Switch SCons build to use setuptools' supported version fetcher from
       the old homegrown one.
     - Improve wording of manpage "Functions and Environment Methods" section.
+      Make doc function signature style more consistent - tweaks to AddOption,
+      DefaultEnvironment and Tool,.
 
 
 RELEASE 4.8.0 -  Sun, 07 Jul 2024 17:22:20 -0700

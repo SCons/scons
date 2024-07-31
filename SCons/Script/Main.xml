@@ -27,18 +27,25 @@ This file is processed by the bin/SConsDoc.py module.
 
 <scons_function name="AddOption">
 <arguments signature="global">
-(arguments)
+(opt_str, ..., attr=value, ...)
 </arguments>
 <summary>
 <para>
 Adds a local (project-specific) command-line option.
-<parameter>arguments</parameter>
-are the same as those supported by the <function>add_option</function>
-method in the standard Python library module <systemitem>optparse</systemitem>,
-with a few additional capabilities noted below.
-See the documentation for
-<systemitem>optparse</systemitem>
+One or more <parameter>opt_str</parameter> values are
+the strings representing how the option can be called,
+while the keyword arguments define attributes of the option.
+For the most part these are the same as for the
+<function>OptionParser.add_option</function>
+method in the standard Python library module
+<systemitem>optparse</systemitem>,
+but with a few additional capabilities noted below.
+See the
+<ulink url="https://docs.python.org/3/library/optparse.html">
+optparse documentation</ulink>
 for a thorough discussion of its option-processing capabities.
+All options added through &f-AddOption; are placed
+in a special "Local Options" option group.
 </para>
 
 <para>
@@ -49,10 +56,9 @@ method, &f-AddOption;
 allows setting the
 <parameter>nargs</parameter>
 keyword value to
-a string consisting of a question mark
-(<literal>'?'</literal>)
+a string <literal>'?'</literal> (question mark)
 to indicate that the option argument for
-that option string is optional.
+that option string may be omitted.
 If the option string is present on the
 command line but has no matching option
 argument, the value of the
