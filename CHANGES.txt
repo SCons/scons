@@ -37,6 +37,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       real reason it shouldn't keep working - add to `__all__`.
     - Switch SCons build to use setuptools' supported version fetcher from
       the old homegrown one.
+    - Improve wording of manpage "Functions and Environment Methods" section.
 
 
 RELEASE 4.8.0 -  Sun, 07 Jul 2024 17:22:20 -0700

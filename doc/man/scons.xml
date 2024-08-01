@@ -2519,7 +2519,7 @@ that can be used in &SConscript; files.  Quick links:
   <member><link linkend='construction_environments'>Construction Environments</link></member>
   <member><link linkend='tools'>Tools</link></member>
   <member><link linkend='builder_methods'>Builder Methods</link></member>
-  <member><link linkend='methods_and_functions_to_do_things'>Methods and Functions to do Things</link></member>
+  <member><link linkend='env_methods'>Functions and Environment Methods</link></member>
   <member><link linkend='sconscript_variables'>SConscript Variables</link></member>
   <member><link linkend='construction_variables'>Construction Variables</link></member>
   <member><link linkend='configure_contexts'>Configure Contexts</link></member>
@@ -3384,89 +3384,98 @@ object.</para>
 
 </refsect2>
 
-<refsect2 id='methods_and_functions_to_do_things'>
-<title>Methods and Functions To Do Things</title>
+<refsect2 id='env_methods'>
+<title>&SCons; Functions and Environment Methods</title>
 
-<para>In addition to Builder methods,
-&scons;
-provides a number of other &consenv; methods
-and global functions to
-manipulate the build configuration.
-Usually, a &consenv; method
-and global function with the same name both exist
-for convenience.
-In the following list, the global function
-is documented in this style:</para>
-
-<programlisting language="python">
-<function>Function</function>(<parameter>arguments, [optional arguments]</parameter>)
-</programlisting>
-
-<para>and the &consenv; method looks like:</para>
+<para>
+&SCons; provides a variety of  &consenv; methods
+and global functions to manipulate the build configuration.
+Often, a &consenv; method and a global function with
+the same name exist for convenience.
+In this section, both forms are shown if the function can be called
+in either way.
+The documentation style for these is as follows:
+</para>
 
 <programlisting language="python">
-<replaceable>env</replaceable>.<methodname>Function</methodname>(<parameter>arguments, [optional arguments]</parameter>)
+<function>Function</function>(<parameter>arguments, [optional arguments, ...]</parameter>)  # Global function
+<replaceable>env</replaceable>.<methodname>Function</methodname>(<parameter>arguments, [optional arguments, ...]</parameter>)  # Environment method
 </programlisting>
 
-<para>If the function can be called both ways,
-then both forms are listed.</para>
-
-<para>The global function and same-named
-&consenv; method
-provide almost identical functionality, with a couple of exceptions.
-First, many of the &consenv; methods affect only that
-&consenv;, while the global function has a
-global effect (or, alternatively, takes an additional
-positional argument to specify the affected &consenv;).
-Second, where appropriate,
-calling the functionality through a &consenv; will
-substitute &consvars; into
-any supplied string arguments, while the global function,
-unless it takes a &consenv; parameter,
-does not have the context of a &consenv; to pick variables from,
-and thus cannot perform substitutions.
-For example:</para>
-
-<programlisting language="python">
-Default('$FOO')
-
-env = Environment(FOO='foo')
-env.Default('$FOO')
-</programlisting>
-
-<para>In the above example,
-the call to the global &f-Default;
-function will add a target named
-<emphasis role="bold">$FOO</emphasis>
-to the list of default targets,
-while the call to the
-&f-env-Default; &consenv; method
-will expand the value
-and add a target named
-<emphasis role="bold">foo</emphasis>
-to the list of default targets.
-For more on &consvar; expansion,
-see the
-<link linkend="construction_variables">&Consvars;</link>
-section below.
+<para>
+In these function signatures,
+arguments in brackets (<literal>[]</literal>) are optional,
+and ellipses (<literal>...</literal>) indicate possible repetition.
+Positional vs. keyword arguments are usually detailed
+in the following text, not in the signature itself.
+The &Python; positional-only (<literal>/</literal>)
+and keyword-only (<literal>*</literal>) markers are not used.
 </para>
 
 <para>
-Global functions are automatically in scope inside
-&SConscript; files.
-If you have custom &Python; code that you import into an &SConscript; file,
-such code will need to bring them into their own scope.
-You can do that by adding the following import
-to the &Python; module:</para>
+When the &Python; <literal>keyword=value</literal> style is shown,
+it can have two meanings.
+If the keyword argument is known to the function,
+the value is the default for that argument if it is omitted.
+If the keyword is unknown to the function,
+some methods treat it as a &consvar; assignment;
+otherwise an exception is raised for an unknown argument.
+</para>
 
-<programlisting language="python">
-from SCons.Script import *
-</programlisting>
+<para>
+A global function and a same-named &consenv; method
+have the same base functionality,
+with two key differences:
+</para>
 
-<para>&Consenv; methods
-and global functions provided by
-&scons;
-include:</para>
+<orderedlist>
+<listitem>
+<para>
+&Consenv; methods that change the environment
+act on the environment instance from which they are called,
+while the corresponding global function acts on
+a special “hidden” &consenv; called the Default Environment.
+In some cases, the global function may take
+an initial argument giving the object to operate on.
+</para>
+</listitem>
+<listitem>
+<para>
+String-valued arguments
+(including strings in list-valued arguments)
+are subject to construction variable expansion
+by the environment method form;
+variable expansion is not immediately performed in the global function.
+For example, <userinput>Default('$MYTARGET')</userinput>
+adds <computeroutput>'$MYTARGET'</computeroutput> to the
+list of default targets,
+while if the value in <parameter>env</parameter> of
+<literal>MYTARGET</literal> is <literal>'mine'</literal>,
+<userinput>env.Default('$MYTARGET'</userinput> adds
+<computeroutput>'mine'</computeroutput>
+to the default targets.
+For more details on &consvar; expansion, see the
+<link linkend="construction_variables">&Consvars;</link> section.
+</para>
+</listitem>
+</orderedlist>
+
+<para>
+Global functions are automatically in scope inside &SConscript; files.
+If your project adds &Python; modules that you include
+via the &Python; <literal>import</literal> statement
+from an &SConscript; file,
+such code will need to add the functions
+to that module’s global scope explicitly.
+You can do that by adding the following import to the &Python; module:
+<userinput>from SCons.Script import *</userinput>.
+</para>
+
+<para>
+&SCons; provides the following &consenv; methods and global functions.
+The list can be augmented on a project basis using &f-link-AddMethod;
+</para>
+
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 <!-- '\" BEGIN GENERATED FUNCTION DESCRIPTIONS -->
