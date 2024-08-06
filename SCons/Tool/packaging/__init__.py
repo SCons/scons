@@ -101,8 +101,6 @@ def Package(env, target=None, source=None, **kw):
     if kw['PACKAGETYPE'] is None:
         kw['PACKAGETYPE'] = GetOption('package_type')
     if kw['PACKAGETYPE'] is None:
-        kw['PACKAGETYPE'] = GetOption('package_type')
-    if kw['PACKAGETYPE'] is None:
         if 'Tar' in env['BUILDERS']:
             kw['PACKAGETYPE'] = 'targz'
         elif 'Zip' in env['BUILDERS']:
