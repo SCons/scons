@@ -63,6 +63,9 @@ DOCUMENTATION
 -------------
 
 - Improve wording of manpage "Functions and Environment Methods" section.
+- Make doc function signature style more consistent - tweaks to AddOption,
+  DefaultEnvironment and Tool,.
+
 
 DEVELOPMENT
 -----------

@@ -758,7 +758,7 @@ either existing or newly constructed.
 </para>
 
 <para>
-It is not necessary to explcitly call &f-DefaultEnvironment;.
+It is not necessary to explicitly call &f-DefaultEnvironment;.
 &SCons; instantiates the &defenv; automatically when the
 build phase begins, if has not already been done.
 However, calling it explicitly provides the opportunity to
