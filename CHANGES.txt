@@ -41,6 +41,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Make doc function signature style more consistent - tweaks to AddOption,
       DefaultEnvironment and Tool,.
 
+  From Anthony Siegrist;
+    - On win32 platform, handle piped process output more robustly. Output encoding
+      fallback to UTF8 if it is defined at None by the output stream object.
+
 
 RELEASE 4.8.0 -  Sun, 07 Jul 2024 17:22:20 -0700
 
