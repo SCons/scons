@@ -1178,7 +1178,10 @@ class TestCmd:
                 cmd.extend([f"{k}={v}" for k, v in arguments.items()])
                 return cmd
             if isinstance(arguments, str):
-                arguments = arguments.split()
+                # Split into a list for passing to SCons - don't lose
+                # quotes, and don't break apart quoted substring with space.
+                # str split() fails on the spaces, shlex.split() on the quotes.
+                arguments = re.findall(r"(?:\".*?\"|\S)+", arguments)
             cmd.extend(arguments)
         return cmd
 

@@ -43,7 +43,6 @@ class BoolVariableTestCase(unittest.TestCase):
         """Test the BoolVariable converter"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.BoolVariable('test', 'test option help', False))
-
         o = opts.options[0]
 
         true_values = [
@@ -75,6 +74,17 @@ class BoolVariableTestCase(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             o.converter('x')
+
+        # Synthesize the case where the variable is created with subst=False:
+        # Variables code won't subst before calling the converter,
+        # and we might have pulled a bool from the option default.
+        with self.subTest():
+            x = o.converter(True)
+            assert x, f"converter returned False for {t!r}"
+        with self.subTest():
+            x = o.converter(False)
+            assert not x, f"converter returned False for {t!r}"
+
 
     def test_validator(self) -> None:
         """Test the BoolVariable validator"""

@@ -82,6 +82,16 @@ class PackageVariableTestCase(unittest.TestCase):
         x = o.converter(str(False))
         assert not x, "converter returned a string when given str(False)"
 
+        # Synthesize the case where the variable is created with subst=False:
+        # Variables code won't subst before calling the converter,
+        # and we might have pulled a bool from the option default.
+        with self.subTest():
+            x = o.converter(True)
+            assert x, f"converter returned False for {t!r}"
+        with self.subTest():
+            x = o.converter(False)
+            assert not x, f"converter returned False for {t!r}"
+
     def test_validator(self) -> None:
         """Test the PackageVariable validator"""
         opts = SCons.Variables.Variables()

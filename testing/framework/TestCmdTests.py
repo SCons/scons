@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-"""
-Unit tests for the TestCmd.py module.
-"""
-
+#
 # Copyright 2000-2010 Steven Knight
 # This module is free software, and you may redistribute it and/or modify
 # it under the same terms as Python itself, so long as this copyright message
@@ -19,6 +16,9 @@ Unit tests for the TestCmd.py module.
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
+"""
+Unit tests for the TestCmd.py module.
+"""
 
 import os
 import shutil
@@ -2225,59 +2225,67 @@ class command_args_TestCase(TestCmdTestCase):
 
         r = test.command_args('prog')
         expect = [run_env.workpath('prog')]
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args(test.workpath('new_prog'))
         expect = [test.workpath('new_prog')]
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args('prog', 'python')
         expect = ['python', run_env.workpath('prog')]
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args('prog', 'python', 'arg1 arg2')
         expect = ['python', run_env.workpath('prog'), 'arg1', 'arg2']
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
+
+        r = test.command_args('prog', 'python', 'arg1 arg2="quoted"')
+        expect = ['python', run_env.workpath('prog'), 'arg1', 'arg2="quoted"']
+        with self.subTest():
+            self.assertEqual(expect, r)
+
+        r = test.command_args('prog', 'python', 'arg1 arg2="quoted with space"')
+        expect = ['python', run_env.workpath('prog'), 'arg1', 'arg2="quoted with space"']
+        with self.subTest():
+            self.assertEqual(expect, r)
 
         test.program_set('default_prog')
         default_prog = run_env.workpath('default_prog')
 
         r = test.command_args()
         expect = [default_prog]
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args(interpreter='PYTHON')
         expect = ['PYTHON', default_prog]
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args(interpreter='PYTHON', arguments='arg3 arg4')
         expect = ['PYTHON', default_prog, 'arg3', 'arg4']
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         # Test arguments = dict
         r = test.command_args(interpreter='PYTHON', arguments={'VAR1':'1'})
         expect = ['PYTHON', default_prog, 'VAR1=1']
-        assert r == expect, (expect, r)
-
+        self.assertEqual(expect, r)
 
         test.interpreter_set('default_python')
 
         r = test.command_args()
         expect = ['default_python', default_prog]
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args(arguments='arg5 arg6')
         expect = ['default_python', default_prog, 'arg5', 'arg6']
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args('new_prog_1')
         expect = [run_env.workpath('new_prog_1')]
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args(program='new_prog_2')
         expect = [run_env.workpath('new_prog_2')]
-        assert r == expect, (expect, r)
-
+        self.assertEqual(expect, r)
 
 
 class start_TestCase(TestCmdTestCase):
