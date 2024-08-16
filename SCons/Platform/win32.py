@@ -149,10 +149,12 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
         args.append("2>" + tmpFileStderrName)
 
     # Sanitize encoding. None is not a valid encoding.
+    # Since we're handling a redirected shell command use
+    # the shells default encoding.
     if stdout.encoding is None:
-        stdout.encoding = 'utf-8'
+        stdout.encoding = 'oem'
     if stderr.encoding is None:
-        stderr.encoding = 'utf-8'
+        stderr.encoding = 'oem'
 
     # actually do the spawn
     try:
