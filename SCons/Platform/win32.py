@@ -148,6 +148,12 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
     if not stderrRedirected:
         args.append("2>" + tmpFileStderrName)
 
+    # Sanitize encoding. None is not a valid encoding.
+    if stdout.encoding is None:
+        stdout.encoding = 'utf-8'
+    if stderr.encoding is None:
+        stderr.encoding = 'utf-8'
+
     # actually do the spawn
     try:
         args = [sh, '/C', escape(' '.join(args))]
@@ -167,7 +173,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
         try:
             with open(tmpFileStdoutName, "rb") as tmpFileStdout:
                 output = tmpFileStdout.read()
-                stdout.write(output.decode(stdout.encoding if stdout.encoding is not None else 'utf-8', "replace"))
+                stdout.write(output.decode(stdout.encoding, "replace"))
             os.remove(tmpFileStdoutName)
         except OSError:
             pass
@@ -176,7 +182,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
         try:
             with open(tmpFileStderrName, "rb") as tmpFileStderr:
                 errors = tmpFileStderr.read()
-                stderr.write(errors.decode(stderr.encoding if stderr.encoding is not None else 'utf-8', "replace"))
+                stderr.write(errors.decode(stderr.encoding, "replace"))
             os.remove(tmpFileStderrName)
         except OSError:
             pass

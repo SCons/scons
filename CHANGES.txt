@@ -18,6 +18,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       will benefit from `TypeGuard`/`TypeIs`, to produce intellisense similar
       to using `isinstance` directly.
 
+  From Anthony Siegrist;
+    - On win32 platform, handle piped process output more robustly. Output encoding
+      fallback to UTF8 if it is defined at None by the output stream object.
+
   From Mats Wichmann:
     - env.Dump() now considers the "key" positional argument to be a varargs
       type (zero, one or many). However called, it returns a serialized
@@ -41,9 +45,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Make doc function signature style more consistent - tweaks to AddOption,
       DefaultEnvironment and Tool,.
 
-  From Anthony Siegrist;
-    - On win32 platform, handle piped process output more robustly. Output encoding
-      fallback to UTF8 if it is defined at None by the output stream object.
+
 
 
 RELEASE 4.8.0 -  Sun, 07 Jul 2024 17:22:20 -0700
