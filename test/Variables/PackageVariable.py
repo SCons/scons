@@ -70,6 +70,11 @@ check([str(False)])
 test.run(arguments=['x11=%s' % test.workpath()])
 check([test.workpath()])
 
+space_subdir = test.workpath('space subdir')
+test.subdir(space_subdir)
+test.run(arguments=[f'x11={space_subdir}'])
+check([space_subdir])
+
 expect_stderr = """
 scons: *** Path does not exist for variable 'x11': '/non/existing/path/'
 """ + test.python_file_line(SConstruct_path, 13)

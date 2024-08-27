@@ -123,8 +123,6 @@ def _converter(val, allowedElems, mapdict) -> _ListVariable:
     Incoming values ``all`` and ``none`` are recognized and converted
     into their expanded form.
     """
-    val = val.replace('"', '')  # trim any wrapping quotes
-    val = val.replace("'", '')
     if val == 'none':
         val = []
     elif val == 'all':

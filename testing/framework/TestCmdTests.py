@@ -2239,13 +2239,13 @@ class command_args_TestCase(TestCmdTestCase):
         expect = ['python', run_env.workpath('prog'), 'arg1', 'arg2']
         self.assertEqual(expect, r)
 
-        r = test.command_args('prog', 'python', 'arg1 arg2="quoted"')
-        expect = ['python', run_env.workpath('prog'), 'arg1', 'arg2="quoted"']
+        r = test.command_args('prog', 'python', 'arg1 arg2=value')
+        expect = ['python', run_env.workpath('prog'), 'arg1', 'arg2=value']
         with self.subTest():
             self.assertEqual(expect, r)
 
-        r = test.command_args('prog', 'python', 'arg1 arg2="quoted with space"')
-        expect = ['python', run_env.workpath('prog'), 'arg1', 'arg2="quoted with space"']
+        r = test.command_args('prog', 'python', ['arg1', 'arg2=with space'])
+        expect = ['python', run_env.workpath('prog'), 'arg1', 'arg2=with space']
         with self.subTest():
             self.assertEqual(expect, r)
 

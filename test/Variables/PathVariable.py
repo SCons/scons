@@ -106,11 +106,18 @@ test.run(arguments=['qt_libraries=%s' % qtpath], stderr=expect_stderr, status=2)
 
 default_file = test.workpath('default_file')
 default_subdir = test.workpath('default_subdir')
+
 existing_subdir = test.workpath('existing_subdir')
 test.subdir(existing_subdir)
 
 existing_file = test.workpath('existing_file')
 test.write(existing_file, "existing_file\n")
+
+space_subdir = test.workpath('space subdir')
+test.subdir(space_subdir)
+
+space_file = test.workpath('space file')
+test.write(space_file, "space_file\n")
 
 non_existing_subdir = test.workpath('non_existing_subdir')
 non_existing_file = test.workpath('non_existing_file')
@@ -135,17 +142,22 @@ check([default_subdir])
 test.run(arguments=['X=%s' % existing_file])
 check([existing_file])
 
-test.run(arguments=['X=%s' % non_existing_file])
-check([non_existing_file])
-
 test.run(arguments=['X=%s' % existing_subdir])
 check([existing_subdir])
 
+test.run(arguments=['X=%s' % space_file])
+check([space_file])
+
+test.run(arguments=['X=%s' % space_subdir])
+check([space_subdir])
+
 test.run(arguments=['X=%s' % non_existing_subdir])
 check([non_existing_subdir])
-
-test.must_not_exist(non_existing_file)
 test.must_not_exist(non_existing_subdir)
+
+test.run(arguments=['X=%s' % non_existing_file])
+check([non_existing_file])
+test.must_not_exist(non_existing_file)
 
 test.write(SConstruct_path, """\
 opts = Variables(args=ARGUMENTS)
