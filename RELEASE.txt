@@ -46,6 +46,8 @@ FIXES
   to be avaiable. `BoolVariable`, `EnumVariable`, `ListVariable`,
   `PackageVariable` and `PathVariable` are added to `__all__`,
   so this form of import should now work again.
+- Fix handling of ListVariable when supplying a quoted choice containing
+  a space character (issue #4585).
 
 IMPROVEMENTS
 ------------

@@ -52,8 +52,8 @@ opts.AddVariables(
                allowed_values=('motif', 'gtk', 'kde'),
                map={}, ignorecase=1), # case insensitive
     EV('some', 'some option', 'xaver',
-       allowed_values=('xaver', 'eins'),
-       map={}, ignorecase=2), # make lowercase
+       allowed_values=('xaver', 'eins', 'zwei wörter'),
+       map={}, ignorecase=2), # case lowering
     )
 
 _ = DefaultEnvironment(tools=[])
@@ -89,10 +89,13 @@ scons: *** Invalid value for enum variable 'guilib': 'irgendwas'. Valid values a
 test.run(arguments='guilib=IrGeNdwas', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Invalid value for enum variable 'some': 'irgendwas'. Valid values are: ('xaver', 'eins')
+scons: *** Invalid value for enum variable 'some': 'irgendwas'. Valid values are: ('xaver', 'eins', 'zwei wörter')
 """ + test.python_file_line(SConstruct_path, 20)
 
 test.run(arguments='some=IrGeNdwas', stderr=expect_stderr, status=2)
+
+test.run(arguments=['some=zwei Wörter'])
+check(['no', 'gtk', 'zwei wörter'])  # case-lowering converter
 
 test.pass_test()
 

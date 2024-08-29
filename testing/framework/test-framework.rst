@@ -621,6 +621,18 @@ or::
 
    test.must_match(..., match=TestSCons.match_re, ...)
 
+Often you want to supply arguments to SCons when it is invoked
+to run a test, which you can do using an *arguments* parameter::
+
+   test.run(arguments="-O -v FOO=BAR")
+
+One caveat here: the way the parameter is processed is unavoidably
+different from typing on the command line - if you need it not to
+be split on spaces, pre-split it yourself, and pass the list, like::
+
+   test.run(arguments=["-f", "SConstruct2", "FOO=Two Words"])
+
+
 Avoiding tests based on tool existence
 ======================================
 
