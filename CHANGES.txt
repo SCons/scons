@@ -40,6 +40,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Improve wording of manpage "Functions and Environment Methods" section.
       Make doc function signature style more consistent - tweaks to AddOption,
       DefaultEnvironment and Tool,.
+    - Fix a problem with AppendUnique and PrependUnique where a value could
+      be erroneously removed due to a substring match.
     - Fix handling of ListVariable when supplying a quoted choice containing
       a space character (issue #4585).
 

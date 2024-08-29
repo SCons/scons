@@ -1193,18 +1193,6 @@ env4.builder1.env, env3)
 
     def test_ReservedVariables(self) -> None:
         """Test warning generation when reserved variable names are set"""
-
-        reserved_variables = [
-            'CHANGED_SOURCES',
-            'CHANGED_TARGETS',
-            'SOURCE',
-            'SOURCES',
-            'TARGET',
-            'TARGETS',
-            'UNCHANGED_SOURCES',
-            'UNCHANGED_TARGETS',
-        ]
-
         warning = SCons.Warnings.ReservedVariableWarning
         SCons.Warnings.enableWarningClass(warning)
         old = SCons.Warnings.warningAsException(1)
@@ -1759,19 +1747,26 @@ def exists(env):
             ENV={'PATH': r'C:\dir\num\one;C:\dir\num\two'},
             MYENV={'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'},
         )
+
         # have to include the pathsep here so that the test will work on UNIX too.
         env1.AppendENVPath('PATH', r'C:\dir\num\two', sep=';')
         env1.AppendENVPath('PATH', r'C:\dir\num\three', sep=';')
-        env1.AppendENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
         assert (
             env1['ENV']['PATH'] == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three'
         ), env1['ENV']['PATH']
 
+        # add nonexisting - at end
         env1.AppendENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
+        assert (
+            env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\two;C:\mydir\num\three'
+        ), env1['MYENV']['MYPATH']
+
+        # add existing with delete_existing true - moves to the end
         env1.AppendENVPath(
-            'MYPATH', r'C:\mydir\num\one', 'MYENV', sep=';', delete_existing=1
+            'MYPATH', r'C:\mydir\num\one', 'MYENV', sep=';', delete_existing=True
         )
-        # this should do nothing since delete_existing is 0
+        # this should do nothing since delete_existing is false (the default)
+        env1.AppendENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
         assert (
             env1['MYENV']['MYPATH'] == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one'
         ), env1['MYENV']['MYPATH']
@@ -1782,6 +1777,7 @@ def exists(env):
         env1.AppendENVPath('PATH', '#sub1', sep=';')
         env1.AppendENVPath('PATH', env1.fs.Dir('sub2'), sep=';')
         assert env1['ENV']['PATH'] == p + ';sub1;sub2', env1['ENV']['PATH']
+
 
     def test_AppendUnique(self) -> None:
         """Test appending to unique values to construction variables
@@ -1832,33 +1828,45 @@ def exists(env):
         assert env['CCC1'] == 'c1', env['CCC1']
         assert env['CCC2'] == ['c2'], env['CCC2']
         assert env['DDD1'] == ['a', 'b', 'c'], env['DDD1']
-        assert env['LL1']  == [env.Literal('a literal'), env.Literal('b literal')], env['LL1']
-        assert env['LL2']  == [env.Literal('c literal'), env.Literal('b literal'), env.Literal('a literal')], [str(x) for x in env['LL2']]
+        assert env['LL1'] == [env.Literal('a literal'), \
+            env.Literal('b literal')], env['LL1']
+        assert env['LL2'] == [
+            env.Literal('c literal'),
+            env.Literal('b literal'),
+            env.Literal('a literal'),
+        ], [str(x) for x in env['LL2']]
 
-        env.AppendUnique(DDD1 = 'b', delete_existing=1)
-        assert env['DDD1'] == ['a', 'c', 'b'], env['DDD1'] # b moves to end
-        env.AppendUnique(DDD1 = ['a','b'], delete_existing=1)
-        assert env['DDD1'] == ['c', 'a', 'b'], env['DDD1'] # a & b move to end
-        env.AppendUnique(DDD1 = ['e','f', 'e'], delete_existing=1)
-        assert env['DDD1'] == ['c', 'a', 'b', 'f', 'e'], env['DDD1'] # add last
+        env.AppendUnique(DDD1='b', delete_existing=True)
+        assert env['DDD1'] == ['a', 'c', 'b'], env['DDD1']  # b moves to end
+
+        env.AppendUnique(DDD1=['a', 'b'], delete_existing=True)
+        assert env['DDD1'] == ['c', 'a', 'b'], env['DDD1']  # a & b move to end
+
+        env.AppendUnique(DDD1=['e', 'f', 'e'], delete_existing=True)
+        assert env['DDD1'] == ['c', 'a', 'b', 'f', 'e'], env['DDD1']  # add last
+
+        # issue regression: substrings should not be deleted
+        env.AppendUnique(BBB4='b4.newer', delete_existing=True)
+        assert env['BBB4'] == ['b4', 'b4.new', 'b4.newer'], env['BBB4']
 
         env['CLVar'] = CLVar([])
-        env.AppendUnique(CLVar = 'bar')
+        env.AppendUnique(CLVar='bar')
         result = env['CLVar']
         assert isinstance(result, CLVar), repr(result)
         assert result == ['bar'], result
 
         env['CLVar'] = CLVar(['abc'])
-        env.AppendUnique(CLVar = 'bar')
+        env.AppendUnique(CLVar='bar')
         result = env['CLVar']
         assert isinstance(result, CLVar), repr(result)
         assert result == ['abc', 'bar'], result
 
         env['CLVar'] = CLVar(['bar'])
-        env.AppendUnique(CLVar = 'bar')
+        env.AppendUnique(CLVar='bar')
         result = env['CLVar']
         assert isinstance(result, CLVar), repr(result)
         assert result == ['bar'], result
+
 
     def test_Clone(self) -> None:
         """Test construction environment cloning.
@@ -2501,6 +2509,7 @@ f5: \
             ENV={'PATH': r'C:\dir\num\one;C:\dir\num\two'},
             MYENV={'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'},
         )
+
         # have to include the pathsep here so that the test will work on UNIX too.
         env1.PrependENVPath('PATH', r'C:\dir\num\two', sep=';')
         env1.PrependENVPath('PATH', r'C:\dir\num\three', sep=';')
@@ -2508,11 +2517,18 @@ f5: \
             env1['ENV']['PATH'] == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one'
         ), env1['ENV']['PATH']
 
+
+        # add nonexisting - at front
         env1.PrependENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
+        assert (
+            env1['MYENV']['MYPATH'] == r'C:\mydir\num\three;C:\mydir\num\one;C:\mydir\num\two'
+        ), env1['MYENV']['MYPATH']
+
+        # add existing - moves to the front
         env1.PrependENVPath('MYPATH', r'C:\mydir\num\one', 'MYENV', sep=';')
-        # this should do nothing since delete_existing is 0
+        # this should do nothing since delete_existing is false
         env1.PrependENVPath(
-            'MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';', delete_existing=0
+            'MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';', delete_existing=False
         )
         assert (
             env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two'
@@ -2524,6 +2540,7 @@ f5: \
         env1.PrependENVPath('PATH', '#sub1', sep=';')
         env1.PrependENVPath('PATH', env1.fs.Dir('sub2'), sep=';')
         assert env1['ENV']['PATH'] == 'sub2;sub1;' + p, env1['ENV']['PATH']
+
 
     def test_PrependUnique(self) -> None:
         """Test prepending unique values to construction variables
@@ -2570,31 +2587,35 @@ f5: \
         assert env['CCC2'] == ['c2'], env['CCC2']
         assert env['DDD1'] == ['a', 'b', 'c'], env['DDD1']
 
-        env.PrependUnique(DDD1 = 'b', delete_existing=1)
-        assert env['DDD1'] == ['b', 'a', 'c'], env['DDD1'] # b moves to front
-        env.PrependUnique(DDD1 = ['a','c'], delete_existing=1)
-        assert env['DDD1'] == ['a', 'c', 'b'], env['DDD1'] # a & c move to front
-        env.PrependUnique(DDD1 = ['d','e','d'], delete_existing=1)
+        env.PrependUnique(DDD1='b', delete_existing=True)
+        assert env['DDD1'] == ['b', 'a', 'c'], env['DDD1']  # b moves to front
+        env.PrependUnique(DDD1=['a', 'c'], delete_existing=True)
+        assert env['DDD1'] == ['a', 'c', 'b'], env['DDD1']  # a & c move to front
+        env.PrependUnique(DDD1=['d', 'e', 'd'], delete_existing=True)
         assert env['DDD1'] == ['d', 'e', 'a', 'c', 'b'], env['DDD1']
 
+        # issue regression: substrings should not be deleted
+        env.PrependUnique(BBB4='b4.newer', delete_existing=True)
+        assert env['BBB4'] == ['b4.newer', 'b4.new', 'b4'], env['BBB4']
 
         env['CLVar'] = CLVar([])
-        env.PrependUnique(CLVar = 'bar')
+        env.PrependUnique(CLVar='bar')
         result = env['CLVar']
         assert isinstance(result, CLVar), repr(result)
         assert result == ['bar'], result
 
         env['CLVar'] = CLVar(['abc'])
-        env.PrependUnique(CLVar = 'bar')
+        env.PrependUnique(CLVar='bar')
         result = env['CLVar']
         assert isinstance(result, CLVar), repr(result)
         assert result == ['bar', 'abc'], result
 
         env['CLVar'] = CLVar(['bar'])
-        env.PrependUnique(CLVar = 'bar')
+        env.PrependUnique(CLVar='bar')
         result = env['CLVar']
         assert isinstance(result, CLVar), repr(result)
         assert result == ['bar'], result
+
 
     def test_Replace(self) -> None:
         """Test replacing construction variables in an Environment
