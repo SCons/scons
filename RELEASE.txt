@@ -48,6 +48,8 @@ FIXES
   so this form of import should now work again.
 - Fix a problem with AppendUnique and PrependUnique where a value could
   be erroneously removed due to a substring match.
+- Fix handling of ListVariable when supplying a quoted choice containing
+  a space character (issue #4585).
 
 IMPROVEMENTS
 ------------

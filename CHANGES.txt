@@ -21,9 +21,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Mats Wichmann:
     - env.Dump() now considers the "key" positional argument to be a varargs
       type (zero, one or many). However called, it returns a serialized
-      result that looks like a dict. Previously, only one "key" was
-      accepted. and unlike the zero-args case, it was be serialized
-      to a string containing the value without the key. For example, if
+      result that looks like a dict. Previously, only a single "key" was
+      accepted, and unlike the zero-args case, it was serialized to a
+      string containing just the value (without the key). For example, if
       "print(repr(env.Dump('CC'))" previously returned "'gcc'", it will now
       return "{'CC': 'gcc'}".
     - Add a timeout to test/ninja/default_targets.py - it's gotten stuck on
@@ -42,6 +42,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       DefaultEnvironment and Tool,.
     - Fix a problem with AppendUnique and PrependUnique where a value could
       be erroneously removed due to a substring match.
+    - Fix handling of ListVariable when supplying a quoted choice containing
+      a space character (issue #4585).
 
 
 RELEASE 4.8.0 -  Sun, 07 Jul 2024 17:22:20 -0700

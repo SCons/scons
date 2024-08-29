@@ -1023,7 +1023,7 @@ class TestCmd:
         interpreter=None,
         workdir=None,
         subdir=None,
-        verbose=None,
+        verbose: int = -1,
         match=None,
         match_stdout=None,
         match_stderr=None,
@@ -1039,7 +1039,7 @@ class TestCmd:
         self.description_set(description)
         self.program_set(program)
         self.interpreter_set(interpreter)
-        if verbose is None:
+        if verbose == -1:
             try:
                 verbose = max(0, int(os.environ.get('TESTCMD_VERBOSE', 0)))
             except ValueError:
@@ -1178,6 +1178,9 @@ class TestCmd:
                 cmd.extend([f"{k}={v}" for k, v in arguments.items()])
                 return cmd
             if isinstance(arguments, str):
+                # Split into a list for passing to SCons. This *will*
+                # break if the string has embedded spaces as part of a substing -
+                # use a # list to pass those to avoid the problem.
                 arguments = arguments.split()
             cmd.extend(arguments)
         return cmd

@@ -159,7 +159,7 @@ class EnumVariableTestCase(unittest.TestCase):
         def invalid(o, v) -> None:
             with self.assertRaises(
                 SCons.Errors.UserError,
-                msg=f"did not catch expected UserError for o = {o.key}, v = {v}",
+                msg=f"did not catch expected UserError for o = {o.key!r}, v = {v!r}",
             ):
                 o.validator('X', v, {})
         table = {
@@ -185,6 +185,22 @@ class EnumVariableTestCase(unittest.TestCase):
             expected[0](opt0, v)
             expected[1](opt1, v)
             expected[2](opt2, v)
+
+        # make sure there are no problems with space-containing entries
+        opts = SCons.Variables.Variables()
+        opts.Add(
+            SCons.Variables.EnumVariable(
+                'test0',
+                help='test option help',
+                default='nospace',
+                allowed_values=['nospace', 'with space'],
+                map={},
+                ignorecase=0,
+            )
+        )
+        opt = opts.options[0]
+        valid(opt, 'nospace')
+        valid(opt, 'with space')
 
 
 if __name__ == "__main__":
