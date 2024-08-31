@@ -12,9 +12,11 @@ NOTE: Python 3.6 support is deprecated and will be dropped in a future release.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
-
-        - Whatever John Doe did.
+  From Mats Wichmann:
+    - PackageVariable now does what the documentation always said it does
+      if the variable is used on the command line with one of the enabling
+      string as the value: the variable's default value is produced (previously
+      it always produced True in this case).
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
