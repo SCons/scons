@@ -95,7 +95,7 @@ vars.Add(
     PackageVariable(
         'tinycbor',
         help="use 'tinycbor' at <path>",
-        default='{tinycbor_path}'
+        default=r'{tinycbor_path}'
     )
 )
 
