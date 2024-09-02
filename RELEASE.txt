@@ -51,9 +51,10 @@ FIXES
   of the output encoding of piped processes. Instead of using the default
   encoding, it relied on the encoding attribute of the output stream.
   If the encoding attribute of the output stream was set to None,
-  it was triggering an invalid argument exeption. This was the case with
+  it was triggering an invalid argument exception. This was the case with
   streams of type io.StringIO for example.
-  From now, if the encoding is set to None, UTF8 is used.
+  This has been changed to always use the `oem` encoding which should be the
+  encoding in the shell where the command was spawned.
 
 IMPROVEMENTS
 ------------

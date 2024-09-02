@@ -148,14 +148,6 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
     if not stderrRedirected:
         args.append("2>" + tmpFileStderrName)
 
-    # Sanitize encoding. None is not a valid encoding.
-    # Since we're handling a redirected shell command use
-    # the shells default encoding.
-    if stdout.encoding is None:
-        stdout.encoding = 'oem'
-    if stderr.encoding is None:
-        stderr.encoding = 'oem'
-
     # actually do the spawn
     try:
         args = [sh, '/C', escape(' '.join(args))]
@@ -175,7 +167,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
         try:
             with open(tmpFileStdoutName, "rb") as tmpFileStdout:
                 output = tmpFileStdout.read()
-                stdout.write(output.decode(stdout.encoding, "replace").replace("\r\n", "\n"))
+                stdout.write(output.decode('oem', "replace").replace("\r\n", "\n"))
             os.remove(tmpFileStdoutName)
         except OSError:
             pass
@@ -184,7 +176,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
         try:
             with open(tmpFileStderrName, "rb") as tmpFileStderr:
                 errors = tmpFileStderr.read()
-                stderr.write(errors.decode(stderr.encoding, "replace").replace("\r\n", "\n"))
+                stderr.write(errors.decode('oem', "replace").replace("\r\n", "\n"))
             os.remove(tmpFileStderrName)
         except OSError:
             pass

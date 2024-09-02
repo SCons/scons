@@ -20,7 +20,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Anthony Siegrist;
     - On win32 platform, handle piped process output more robustly. Output encoding
-      fallback to UTF8 if it is defined at None by the output stream object.
+      now uses 'oem' which should be the systems default encoding for the shell where
+      the process is being spawned.
 
   From Mats Wichmann:
     - env.Dump() now considers the "key" positional argument to be a varargs
