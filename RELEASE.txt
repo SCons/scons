@@ -1,75 +1,65 @@
+If you are reading this in the git repository, the contents
+refer to *unreleased* changes since the last SCons release.
+Past official release announcements appear at:
 
-A new SCons release, 4.8.1, is now available on the SCons download page:
+    https://scons.org/tag/releases.html
+
+==================================================================
+
+A new SCons release, 4.4.1, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
 
-Here is a summary of the changes since 4.8.0:
+Here is a summary of the changes since 4.4.0:
 
+NEW FUNCTIONALITY
+-----------------
+
+- List new features (presumably why a checkpoint is being released)
+
+DEPRECATED FUNCTIONALITY
+------------------------
+
+- List anything that's been deprecated since the last release
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- env.Dump() previously accepted a single optional "key" argument.
-  It now accepts any number of optional "key" arguments; any supplied
-  keys will be serialized with their values in a Python dict style.
-  As a result there is a small change in behavior: if a *single* key
-  argument is given, where it previously would return a string containing
-  just the value, now it will return a string that looks like a dictionary
-  including the key.  For example, from "'gcc'" to "{'CC': 'gcc'}".
-  This should not have any impact as the result of calling Dump is
-  intended for diagnostic output, not for use by other interfaces.
+- List modifications to existing features, where the previous behavior
+  wouldn't actually be considered a bug
 
 FIXES
 -----
 
-- SCons 4.8.0 added an `__all__`  specifier at the top of the Variables
-  module (`Variables/__init__.py`) to control what is made available in
-  a star import. However, there was existing usage of doing
-  `from SCons.Variables import *` which expected the variable *types*
-  to be avaiable. `BoolVariable`, `EnumVariable`, `ListVariable`,
-  `PackageVariable` and `PathVariable` are added to `__all__`,
-  so this form of import should now work again.
-- Fix a problem with AppendUnique and PrependUnique where a value could
-  be erroneously removed due to a substring match.
-- Fix handling of ListVariable when supplying a quoted choice containing
-  a space character (issue #4585).
+- List fixes of outright bugs
 
-- On win32 platform, SCons 4.7.0 modified the determination
-  of the output encoding of piped processes. Instead of using the default
-  encoding, it relied on the encoding attribute of the output stream.
-  If the encoding attribute of the output stream was set to None,
-  it was triggering an invalid argument exception. This was the case with
-  streams of type io.StringIO for example.
-  This has been changed to always use the `oem` encoding which should be the
-  encoding in the shell where the command was spawned.
+IMPROVEMENTS
+------------
 
+- List improvements that wouldn't be visible to the user in the
+  documentation:  performance improvements (describe the circumstances
+  under which they would be observed), or major code cleanups
+
+PACKAGING
+---------
+
+- List changes in the way SCons is packaged and/or released
 
 DOCUMENTATION
 -------------
 
-- Improve wording of manpage "Functions and Environment Methods" section.
-- Make doc function signature style more consistent - tweaks to AddOption,
-  DefaultEnvironment and Tool,.
-
+- List any significant changes to the documentation (not individual
+  typo fixes, even if they're mentioned in src/CHANGES.txt to give
+  the contributor credit)
 
 DEVELOPMENT
 -----------
 
-- sctypes `is_*` functions given explicit return types. Python 3.13+ uses
-  `TypeIs` for a near-equivalent of `isinstance`. Python 3.10 through 3.12
-  uses `TypeGuard`, a less accurate implementation but still provides
-  usable type hinting. Python 3.9 and earlier simply returns `bool`, same
-  as before.
+- List visible changes in the way SCons is developed
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.8.0..HEAD
-
-     9  Mats Wichmann
-     8  William Deegan
-     1  SIEGRIST Anthony
-     1  Thaddeus Crews
-     1  siegria
+    git shortlog --no-merges -ns 4.0.1..HEAD
