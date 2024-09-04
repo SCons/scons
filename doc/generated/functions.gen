@@ -84,16 +84,23 @@ env.other_method_name('another arg')
 </listitem>
   </varlistentry>
   <varlistentry id="f-AddOption">
-    <term><function>AddOption</function>(<parameter>arguments</parameter>)</term>
+    <term><function>AddOption</function>(<parameter>opt_str, ..., attr=value, ...</parameter>)</term>
     <listitem><para>
 Adds a local (project-specific) command-line option.
-<parameter>arguments</parameter>
-are the same as those supported by the <function>add_option</function>
-method in the standard Python library module <systemitem>optparse</systemitem>,
-with a few additional capabilities noted below.
-See the documentation for
-<systemitem>optparse</systemitem>
+One or more <parameter>opt_str</parameter> values are
+the strings representing how the option can be called,
+while the keyword arguments define attributes of the option.
+For the most part these are the same as for the
+<function>OptionParser.add_option</function>
+method in the standard Python library module
+<systemitem>optparse</systemitem>,
+but with a few additional capabilities noted below.
+See the
+<ulink url="https://docs.python.org/3/library/optparse.html">
+optparse documentation</ulink>
 for a thorough discussion of its option-processing capabities.
+All options added through &f-AddOption; are placed
+in a special "Local Options" option group.
 </para>
 
 <para>
@@ -104,10 +111,9 @@ method, &f-AddOption;
 allows setting the
 <parameter>nargs</parameter>
 keyword value to
-a string consisting of a question mark
-(<literal>'?'</literal>)
+a string <literal>'?'</literal> (question mark)
 to indicate that the option argument for
-that option string is optional.
+that option string may be omitted.
 If the option string is present on the
 command line but has no matching option
 argument, the value of the
@@ -1498,41 +1504,51 @@ env.Default(hello)
 </listitem>
   </varlistentry>
   <varlistentry id="f-DefaultEnvironment">
-    <term><function>DefaultEnvironment</function>(<parameter>[**kwargs]</parameter>)</term>
+    <term><function>DefaultEnvironment</function>(<parameter>[key=value, ...]</parameter>)</term>
     <listitem><para>
 Instantiates and returns the global &consenv; object.
-This environment is used internally by SCons
-when it executes many of the global functions listed in this section
-(that is, those not called as methods of a specific &consenv;).
-The &defenv; is a singleton:
-the keyword arguments are used only on the first call;
-on subsequent calls the already-constructed object is returned
-and any keyword arguments are silently ignored.
-The &defenv; can still be modified after instantiation
-in the same way as any other &consenv;.
-The &defenv; is independent:
-modifying it has no effect on any other &consenv;
-constructed by an &f-link-Environment; or &f-link-Clone; call.
+The <firstterm>&DefEnv;</firstterm> is used internally by &SCons;
+when executing a global function
+or the global form of a Builder method
+that requires access to a &consenv;.
 </para>
 
 <para>
-It is not mandatory to call &f-DefaultEnvironment;:
-the &defenv; is instantiated automatically when the
-build phase begins if this function has not been called;
-however calling it explicitly gives the opportunity to
-affect and examine the contents of the &defenv;.
-Instantiation happens even if no build instructions
-appar to use it, as there are internal uses.
-If there are no uses in the project &SConscript; files,
-a small performance gain may be seen by calling
-&f-DefaultEnvironment; with an empty tools list,
-thus avoiding that part of the initialization cost.
-This is mainly of interest in testing when &scons; is
-launched repeatedly in a short time period:
+On the first call,
+arguments are interpreted as for the &f-link-Environment; function.
+The &DefEnv; is a singleton;
+subsequent calls to &f-DefaultEnvironment; return
+the already-constructed object,
+and any keyword arguments are silently ignored.
 </para>
-<example_commands>
-DefaultEnvironment(tools=[])
-</example_commands>
+
+<para>
+The &DefEnv; can be modified after instantiation,
+similar to other &consenvs;,
+although some &consenv; methods may be unavailable.
+Modifying the &DefEnv; has no effect on any other &consenv;,
+either existing or newly constructed.
+</para>
+
+<para>
+It is not necessary to explicitly call &f-DefaultEnvironment;.
+&SCons; instantiates the &defenv; automatically when the
+build phase begins, if has not already been done.
+However, calling it explicitly provides the opportunity to
+affect and examine its contents.
+Instantiation occurs even if nothing in the build system
+appars to use it, due to internal uses.
+</para>
+
+<para>
+If the project &SConscript; files do not use global functions or Builders,
+a small performance gain may be achieved by calling
+&f-DefaultEnvironment; with an empty tools list
+(<userinput>DefaultEnvironment(tools=[])</userinput>).
+This avoids the tool initialization cost for the &DefEnv;,
+which is mainly of interest in the test suite
+where &scons; is launched repeatedly in a short time period.
+</para>
 </listitem>
   </varlistentry>
   <varlistentry id="f-Depends">
@@ -1658,19 +1674,22 @@ for more information.
 </listitem>
   </varlistentry>
   <varlistentry id="f-Dump">
-    <term><replaceable>env</replaceable>.<methodname>Dump</methodname>(<parameter>[key], [format]</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>Dump</methodname>(<parameter>[key, ...], [format=]</parameter>)</term>
     <listitem><para>
-Serializes &consvars; to a string.
+Serializes &consvars; from the current &consenv;
+to a string.
 The method supports the following formats specified by
-<parameter>format</parameter>:
+<parameter>format</parameter>,
+which must be used a a keyword argument:
+</para>
 <variablelist>
 <varlistentry>
 <term><literal>pretty</literal></term>
 <listitem>
 <para>
-Returns a pretty printed representation of the environment (if
-<parameter>format</parameter>
-is not specified, this is the default).
+Returns a pretty-printed representation of the variables
+(this is the default).
+The variables will be presented in &Python; dict form.
 </para>
 </listitem>
 </varlistentry>
@@ -1678,17 +1697,27 @@ is not specified, this is the default).
 <term><literal>json</literal></term>
 <listitem>
 <para>
-Returns a JSON-formatted string representation of the environment.
+Returns a JSON-formatted string representation of the variables.
+The variables will be presented as a JSON object literal,
+the JSON equivalent of a &Python; dict.
 </para>
 </listitem>
 </varlistentry>
 </variablelist>
 
-If <varname>key</varname> is
-<constant>None</constant> (the default) the entire
-dictionary of &consvars; is serialized.
-If supplied, it is taken as the name of a &consvar;
-whose value is serialized.
+<para>
+If no <varname>key</varname> is supplied,
+all the &consvars; are serialized.
+If one or more keys are supplied,
+only those keys and their values are serialized.
+</para>
+
+<para>
+<emphasis>Changed in NEXT_VERSION</emphasis>:
+More than one <parameter>key</parameter> can be specified.
+The returned string always looks like a dict (or JSON equivalent);
+previously a single key serialized only the value,
+not the key with the value.
 </para>
 
 <para>
@@ -1696,16 +1725,21 @@ This SConstruct:
 </para>
 
 <example_commands>
-env=Environment()
+env = Environment()
 print(env.Dump('CCCOM'))
+print(env.Dump('CC', 'CCFLAGS', format='json'))
 </example_commands>
 
 <para>
-will print:
+will print something like:
 </para>
 
 <example_commands>
-'$CC -c -o $TARGET $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $SOURCES'
+{'CCCOM': '$CC -o $TARGET -c $CFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'}
+{
+    "CC": "gcc",
+    "CCFLAGS": []
+}
 </example_commands>
 
 <para>
@@ -1718,7 +1752,7 @@ print(env.Dump())
 </example_commands>
 
 <para>
-will print:
+will print something like:
 </para>
 <example_commands>
 { 'AR': 'ar',
@@ -1729,6 +1763,7 @@ will print:
   'ASFLAGS': [],
   ...
 </example_commands>
+
 </listitem>
   </varlistentry>
   <varlistentry id="f-EnsurePythonVersion">
@@ -4620,8 +4655,8 @@ Tag('file2.txt', DOC)
 </listitem>
   </varlistentry>
   <varlistentry id="f-Tool">
-    <term><function>Tool</function>(<parameter>name, [toolpath, **kwargs]</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>Tool</methodname>(<parameter>name, [toolpath, **kwargs]</parameter>)</term>
+    <term><function>Tool</function>(<parameter>name, [toolpath, key=value, ...]</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>Tool</methodname>(<parameter>name, [toolpath, key=value, ...]</parameter>)</term>
     <listitem><para>
 Locates the tool specification module <parameter>name</parameter>
 and returns a callable tool object for that tool.
