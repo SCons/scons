@@ -44,6 +44,11 @@ IMPROVEMENTS
   documentation:  performance improvements (describe the circumstances
   under which they would be observed), or major code cleanups
 
+- For consistency with the optparse "add_option" method, AddOption accepts
+  an SConsOption object as a single argument (this failed previouly).
+  Calling AddOption with the full set of arguments (option names and
+  attributes) to set up the option is still the recommended approach.
+
 PACKAGING
 ---------
 

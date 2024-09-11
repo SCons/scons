@@ -33,6 +33,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
+from SCons.Script.SConsOptions import SConsOption
+
 DefaultEnvironment(tools=[])
 env = Environment(tools=[])
 AddOption(
@@ -55,6 +57,9 @@ AddOption(
     action="store_true",
     help="try SetOption of 'prefix' to '/opt/share'"
 )
+z_opt = SConsOption("--zcount", type="int", nargs=1, settable=True)
+AddOption(z_opt)
+
 f = GetOption('force')
 if f:
     f = "True"
@@ -63,6 +68,8 @@ print(GetOption('prefix'))
 if GetOption('set'):
     SetOption('prefix', '/opt/share')
     print(GetOption('prefix'))
+if GetOption('zcount'):
+    print(GetOption('zcount'))
 """)
 
 test.run('-Q -q .', stdout="None\nNone\n")
@@ -73,6 +80,8 @@ test.run('-Q -q . -- --prefix=/home/foo --force', status=1, stdout="None\nNone\n
 test.run('-Q -q . --set', stdout="None\nNone\n/opt/share\n")
 # but the "command line wins" rule is not violated
 test.run('-Q -q . --set --prefix=/home/foo', stdout="None\n/home/foo\n/home/foo\n")
+# also try in case we pass a premade option object to AddOption
+test.run('-Q -q . --zcount=22', stdout="None\nNone\n22\n")
 
 test.pass_test()
 
