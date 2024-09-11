@@ -12,9 +12,13 @@ NOTE: Python 3.6 support is deprecated and will be dropped in a future release.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
-
-        - Whatever John Doe did.
+  From Mats Wichmann:
+    - Minor updates to test framework. The functional change is that
+      test.must_exist() and test.must_exist_one_of() now take an optional
+      'message' keyword argument which is passed on to fail_test() if
+      the test fails. The rest is cleanup and type annotations. Be more
+      careful that the returns from stderr() and stdout(), which *can*
+      return None, are not used without checking.
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
