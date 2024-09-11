@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #
 # Copyright 2000-2010 Steven Knight
+#
 # This module is free software, and you may redistribute it and/or modify
 # it under the same terms as Python itself, so long as this copyright message
 # and disclaimer are retained in their original form.
@@ -15,6 +16,8 @@
 # PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+#
+# Python License: https://docs.python.org/3/license.html#psf-license
 
 """
 Unit tests for the TestCmd.py module.
