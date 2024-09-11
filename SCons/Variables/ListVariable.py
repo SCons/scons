@@ -54,6 +54,7 @@ Usage example::
 # since elements can occur twice.
 
 import collections
+import functools
 from typing import Callable, List, Optional, Tuple, Union
 
 import SCons.Util
@@ -223,7 +224,8 @@ def ListVariable(
         default = ','.join(default)
     help = '\n    '.join(
         (help, '(all|none|comma-separated list of names)', names_str))
-    return key, help, default, validator, lambda val: _converter(val, names, map)
+    converter = functools.partial(_converter, allowedElems=names, mapdict=map)
+    return key, help, default, validator, converter
 
 # Local Variables:
 # tab-width:4

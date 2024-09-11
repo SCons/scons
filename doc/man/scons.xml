@@ -5135,22 +5135,21 @@ vars.FormatVariableHelpText = my_format
 
 
 <para>
-To make it more convenient to describe custom variables,
-&SCons; provides some pre-defined variable types,
+&SCons; provides five pre-defined variable types,
 acessible through factory functions that generate
-a tuple appropriate for directly passing to
-the &Add; or &AddVariables; method:</para>
+a tuple appropriate for directly passing to the
+<link linkend='v-Add'><function>Add</function></link>
+<link linkend='v-AddVariables'><function>AddVariables</function></link>
+methods.
+</para>
 
 <variablelist>
   <varlistentry id="v-BoolVariable">
   <term><function>BoolVariable</function>(<parameter>key, help, default</parameter>)</term>
   <listitem>
 <para>
-Set up a Boolean variable.
-The variable will use
-the specified name
-<parameter>key</parameter>,
-have a default value of
+Set up a Boolean variable named <parameter>key</parameter>.
+The variable will have a default value of
 <parameter>default</parameter>,
 and <parameter>help</parameter>
 will form the descriptive part of the help text.
@@ -5181,12 +5180,10 @@ as false.</para>
   <term><function>EnumVariable</function>(<parameter>key, help, default, allowed_values, [map, ignorecase]</parameter>)</term>
   <listitem>
 <para>
-Set up a variable
+Set up a variable named <parameter>key</parameter>
 whose value may only be from
 a specified list ("enumeration") of values.
-The variable will have the name
-<parameter>key</parameter>,
-have a default value of
+The variable will have a default value of
 <parameter>default</parameter>
 and <parameter>help</parameter>
 will form the descriptive part of the help text.
@@ -5226,12 +5223,10 @@ converted to lower case.</para>
   <term><function>ListVariable</function>(<parameter>key, help, default, names, [map, validator]</parameter>)</term>
   <listitem>
 <para>
-Set up a variable
+Set up a variable named <parameter>key</parameter>
 whose value may be one or more
 from a specified list of values.
-The variable will have the name
-<parameter>key</parameter>,
-have a default value of
+The variable will have a default value of
 <parameter>default</parameter>,
 and <parameter>help</parameter>
 will form the descriptive part of the help text.
@@ -5240,11 +5235,10 @@ Any value that is not in
 <userinput>all</userinput> or
 <userinput>none</userinput>
 will raise an error.
-More than one value may be specified,
-separated by commas.
+Use a comma separator to specify multiple values.
 <parameter>default</parameter> may be specified
-either as a string of comma-separated value,
-or as a list of values.
+either as a string of comma-separated values,
+or as a &Python; list of values.
 </para>
 <para>
 The optional
@@ -5273,24 +5267,21 @@ The default is to use an internal validator routine.
   <term><function>PackageVariable</function>(<parameter>key, help, default</parameter>)</term>
   <listitem>
 <para>
-Set up a variable for a <emphasis>package</emphasis>,
-where if the variable is specified,
-the &consvar; named by <parameter>key</parameter>
-will end with a value of <literal>True</literal>,
-<literal>False</literal>, or a user-specified value.
-For example,
-a package could be a third-party software component,
-the build could use the information to
-exclude the package, include the package in the standard way,
-or include the package using a specified
-directory path to find the package files.
+Set up a variable named <parameter>key</parameter>
+to help control a build component,
+such as a software package.
+The variable can be specified to disable, enable,
+or enable with a custom path.
+The resulting &consvar; will have a value of
+<literal>True</literal>, <literal>False</literal>, or a path string.
+Interpretation of this value is up to the consumer,
+but a path string must refer to an existing filesystem entry
+or the <function>PackageVariable</function> validator
+will raise an exception.
 </para>
+
 <para>
-The variable will have a default value
-<parameter>default</parameter>,
-and <parameter>help</parameter>
-will form the descriptive part of the help text.
-The variable supports (case-insensitive) truthy values
+Any of the (case-insensitive) strings
 <userinput>1</userinput>,
 <userinput>yes</userinput>,
 <userinput>true</userinput>,
@@ -5298,8 +5289,9 @@ The variable supports (case-insensitive) truthy values
 <userinput>enable</userinput>
 and
 <userinput>search</userinput>
+can be used
 to indicate the package is "enabled",
-and the (case-insensitive) falsy values
+and the (case-insensitive) strings
 <userinput>0</userinput>,
 <userinput>no</userinput>,
 <userinput>false</userinput>,
@@ -5308,14 +5300,17 @@ and
 <userinput>disable</userinput>
 to indicate the package is "disabled".
 </para>
+
 <para>
-The value
-of the variable may also be set to an
-arbitrary string,
-which is taken to be the path name to the package
-that is being enabled.
-The validator will raise an exception
-if this path does not exist in the filesystem.
+The <parameter>default</parameter> parameter
+can be either a path string or one of the enabling or disabling strings.
+<parameter>default</parameter> is produced if the variable is not specified,
+or if it is specified with one of the enabling strings,
+except that if <parameter>default</parameter> is one
+of the enabling strings, the boolean literal <literal>True</literal>
+is produced instead of the string.
+The <parameter>help</parameter> parameter
+specifies the descriptive part of the help text.
 </para>
   </listitem>
   </varlistentry>
@@ -5324,22 +5319,18 @@ if this path does not exist in the filesystem.
   <term><function>PathVariable</function>(<parameter>key, help, default, [validator]</parameter>)</term>
   <listitem>
 <para>
-Set up a variable
-whose value is expected to be a path name.
-The &consvar; named by <parameter>key</parameter>
-will have have a default value of
+Set up a variable named <parameter>key</parameter> to hold a path string.
+The variable will have have a default value of
 <parameter>default</parameter>,
-and <parameter>help</parameter>
-will form the descriptive part of the help text.
+and the <parameter>help</parameter> parameter
+will be used as the descriptive part of the help text.
 </para>
 
 <para>
-An optional
-<parameter>validator</parameter> argument
-may be specified.
-The validator will be called to
-verify that the specified path
-is acceptable.
+The optional
+<parameter>validator</parameter> parameter
+describes a callback function which will be called to
+verify that the specified path is acceptable.
 SCons supplies the
 following ready-made validators:</para>
 
@@ -5406,8 +5397,10 @@ if the specified value is not acceptable.</para>
 <para>These functions make it
 convenient to create a number
 of variables with consistent behavior
-in a single call to the &AddVariables;
-method:</para>
+in a single call to the
+<link linkend='v-AddVariables'><function>AddVariables</function></link>
+method:
+</para>
 
 <programlisting language="python">
 vars.AddVariables(
