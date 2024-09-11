@@ -17,6 +17,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       if the variable is used on the command line with one of the enabling
       string as the value: the variable's default value is produced (previously
       it always produced True in this case).
+    - Minor updates to test framework. The functional change is that
+      test.must_exist() and test.must_exist_one_of() now take an optional
+      'message' keyword argument which is passed on to fail_test() if
+      the test fails. The rest is cleanup and type annotations. Be more
+      careful that the returns from stderr() and stdout(), which *can*
+      return None, are not used without checking.
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700

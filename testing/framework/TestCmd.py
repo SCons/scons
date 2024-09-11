@@ -1,3 +1,22 @@
+# Copyright 2000-2024 Steven Knight
+#
+# This module is free software, and you may redistribute it and/or modify
+# it under the same terms as Python itself, so long as this copyright message
+# and disclaimer are retained in their original form.
+#
+# IN NO EVENT SHALL THE AUTHOR BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT,
+# SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF
+# THIS CODE, EVEN IF THE AUTHOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+# DAMAGE.
+#
+# THE AUTHOR SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+# PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
+# AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
+# SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+#
+# Python License: https://docs.python.org/3/license.html#psf-license
+
 """
 A testing framework for commands and scripts.
 
@@ -276,22 +295,6 @@ version.
     TestCmd.where_is('foo', 'PATH1;PATH2', '.suffix3;.suffix4')
 """
 
-# Copyright 2000-2010 Steven Knight
-# This module is free software, and you may redistribute it and/or modify
-# it under the same terms as Python itself, so long as this copyright message
-# and disclaimer are retained in their original form.
-#
-# IN NO EVENT SHALL THE AUTHOR BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT,
-# SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF
-# THIS CODE, EVEN IF THE AUTHOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
-# DAMAGE.
-#
-# THE AUTHOR SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-# PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
-# AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
-# SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmd.py 1.3.D001 2010/06/03 12:58:27 knight"
 __version__ = "1.3"
@@ -320,7 +323,7 @@ import traceback
 from collections import UserList, UserString
 from pathlib import Path
 from subprocess import PIPE, STDOUT
-from typing import Optional
+from typing import Callable, Dict, Optional, Union
 
 IS_WINDOWS = sys.platform == 'win32'
 IS_MACOS = sys.platform == 'darwin'
@@ -427,7 +430,13 @@ def clean_up_ninja_daemon(self, result_type) -> None:
                 shutil.rmtree(daemon_dir)
 
 
-def fail_test(self=None, condition: bool=True, function=None, skip: int=0, message=None) -> None:
+def fail_test(
+    self=None,
+    condition: bool = True,
+    function: Optional[Callable] = None,
+    skip: int = 0,
+    message: str = "",
+) -> None:
     """Causes a test to exit with a fail.
 
     Reports that the test FAILED and exits with a status of 1, unless
@@ -1047,7 +1056,7 @@ class TestCmd:
         self.verbose_set(verbose)
         self.combine = combine
         self.universal_newlines = universal_newlines
-        self.process = None
+        self.process: Optional[Popen] = None
         # Two layers of timeout: one at the test class instance level,
         # one set on an individual start() call (usually via a run() call)
         self.timeout = timeout
@@ -1055,29 +1064,25 @@ class TestCmd:
         self.set_match_function(match, match_stdout, match_stderr)
         self.set_diff_function(diff, diff_stdout, diff_stderr)
         self._dirlist = []
-        self._preserve = {'pass_test': 0, 'fail_test': 0, 'no_result': 0}
+        self._preserve: Dict[str, Union[str, bool]] = {
+            'pass_test': False,
+            'fail_test': False,
+            'no_result': False,
+        }
         preserve_value = os.environ.get('PRESERVE', False)
         if preserve_value not in [0, '0', 'False']:
             self._preserve['pass_test'] = os.environ['PRESERVE']
             self._preserve['fail_test'] = os.environ['PRESERVE']
             self._preserve['no_result'] = os.environ['PRESERVE']
         else:
-            try:
-                self._preserve['pass_test'] = os.environ['PRESERVE_PASS']
-            except KeyError:
-                pass
-            try:
-                self._preserve['fail_test'] = os.environ['PRESERVE_FAIL']
-            except KeyError:
-                pass
-            try:
-                self._preserve['no_result'] = os.environ['PRESERVE_NO_RESULT']
-            except KeyError:
-                pass
+            self._preserve['pass_test'] = os.environ.get('PRESERVE_PASS', False)
+            self._preserve['fail_test'] = os.environ.get('PRESERVE_FAIL', False)
+            self._preserve['no_result'] = os.environ.get('PRESERVE_NO_RESULT', False)
         self._stdout = []
         self._stderr = []
-        self.status = None
+        self.status: Optional[int] = None
         self.condition = 'no_result'
+        self.workdir: Optional[str]
         self.workdir_set(workdir)
         self.subdir(subdir)
 
@@ -1144,8 +1149,8 @@ class TestCmd:
             list = self._dirlist[:]
             list.reverse()
             for dir in list:
-                self.writable(dir, 1)
-                shutil.rmtree(dir, ignore_errors=1)
+                self.writable(dir, True)
+                shutil.rmtree(dir, ignore_errors=True)
             self._dirlist = []
 
             global _Cleanup
@@ -1242,16 +1247,24 @@ class TestCmd:
 
     unified_diff = staticmethod(difflib.unified_diff)
 
-    def fail_test(self, condition: bool=True, function=None, skip: int=0, message=None) -> None:
+    def fail_test(
+        self,
+        condition: bool = True,
+        function: Optional[Callable] = None,
+        skip: int = 0,
+        message: str = "",
+    )-> None:
         """Cause the test to fail."""
         if not condition:
             return
         self.condition = 'fail_test'
-        fail_test(self=self,
-                  condition=condition,
-                  function=function,
-                  skip=skip,
-                  message=message)
+        fail_test(
+            self=self,
+            condition=condition,
+            function=function,
+            skip=skip,
+            message=message
+        )
 
     def interpreter_set(self, interpreter) -> None:
         """Set the program to be used to interpret the program
@@ -1338,7 +1351,7 @@ class TestCmd:
         if not conditions:
             conditions = ('pass_test', 'fail_test', 'no_result')
         for cond in conditions:
-            self._preserve[cond] = 1
+            self._preserve[cond] = True
 
     def program_set(self, program) -> None:
         """Sets the executable program or script to be tested."""
@@ -1701,12 +1714,12 @@ class TestCmd:
         if self.verbose >= 2:
             write = sys.stdout.write
             write('============ STATUS: %d\n' % self.status)
-            out = self.stdout()
+            out = self.stdout() or ""
             if out or self.verbose >= 3:
                 write(f'============ BEGIN STDOUT (len={len(out)}):\n')
                 write(out)
                 write('============ END STDOUT\n')
-            err = self.stderr()
+            err = self.stderr() or ""
             if err or self.verbose >= 3:
                 write(f'============ BEGIN STDERR (len={len(err)})\n')
                 write(err)
@@ -1985,7 +1998,7 @@ class TestCmd:
             # in the tree bottom-up, lest disabling read permission from
             # the top down get in the way of being able to get at lower
             # parts of the tree.
-            for dirpath, dirnames, filenames in os.walk(top, topdown=0):
+            for dirpath, dirnames, filenames in os.walk(top, topdown=False):
                 for name in dirnames + filenames:
                     do_chmod(os.path.join(dirpath, name))
             do_chmod(top)
@@ -2036,7 +2049,7 @@ class TestCmd:
             do_chmod(top)
         else:
             do_chmod(top)
-            for dirpath, dirnames, filenames in os.walk(top, topdown=0):
+            for dirpath, dirnames, filenames in os.walk(top, topdown=False):
                 for name in dirnames + filenames:
                     do_chmod(os.path.join(dirpath, name))
 
@@ -2090,7 +2103,7 @@ class TestCmd:
             # in the tree bottom-up, lest disabling execute permission from
             # the top down get in the way of being able to get at lower
             # parts of the tree.
-            for dirpath, dirnames, filenames in os.walk(top, topdown=0):
+            for dirpath, dirnames, filenames in os.walk(top, topdown=False):
                 for name in dirnames + filenames:
                     do_chmod(os.path.join(dirpath, name))
             do_chmod(top)
