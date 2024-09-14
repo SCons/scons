@@ -2619,12 +2619,12 @@ class OverrideEnvironment(Base):
     # Methods that make this class act like a proxy.
 
     def __getattr__(self, name):
-        # Proxied environment methods don't know they could be called with
-        # us as 'self' and may access the _data consvar dict directly.
-        # And they shouldn't *have* to know, so we need to pretend to have one,
-        # and not serve up the one from the subject, or it will miss the
-        # overridden values (and possibly modify the base). Use ourselves
-        # and hope the dict-like methods below are sufficient.
+        # Proxied environment methods don't know (nor should they have to) that
+        # they could be called with an OverrideEnvironment as 'self' and may
+        # access the _dict construction variable dict directly, so we need to
+        # pretend to have one, and not serve up the one from the subject, or it
+        # will miss the overridden values (and possibly modify the base). Use
+        # ourselves and hope the dict-like methods below are sufficient.
         if name == '_dict':
             return self
 
