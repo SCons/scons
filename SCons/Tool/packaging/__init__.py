@@ -86,8 +86,7 @@ def Tag(env, target, source, *more_tags, **kw_tags):
             t.Tag(k, v)
 
 def Package(env, target=None, source=None, **kw):
-    """ Entry point for the package tool.
-    """
+    """Entry point for the package tool."""
     # check if we need to find the source files ourselves
     if not source:
         source = env.FindInstalledFiles()
@@ -96,17 +95,11 @@ def Package(env, target=None, source=None, **kw):
         raise UserError("No source for Package() given")
 
     # decide which types of packages shall be built. Can be defined through
-    # four mechanisms: command line argument, keyword argument,
-    # environment argument and default selection (zip or tar.gz) in that
-    # order.
-    try:
-        kw['PACKAGETYPE'] = env['PACKAGETYPE']
-    except KeyError:
-        pass
-
-    if not kw.get('PACKAGETYPE'):
+    # four mechanisms: command line argument, keyword argument, environment
+    # argument and default selection (zip or tar.gz) in that order.
+    kw.setdefault('PACKAGETYPE', env.get('PACKAGETYPE'))
+    if kw['PACKAGETYPE'] is None:
         kw['PACKAGETYPE'] = GetOption('package_type')
-
     if kw['PACKAGETYPE'] is None:
         if 'Tar' in env['BUILDERS']:
             kw['PACKAGETYPE'] = 'targz'

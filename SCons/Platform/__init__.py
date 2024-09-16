@@ -42,6 +42,7 @@ their own platform definition.
 
 import SCons.compat
 
+import atexit
 import importlib
 import os
 import sys
@@ -150,7 +151,7 @@ class TempFileMunge:
     the length of command lines. Example::
 
         env["TEMPFILE"] = TempFileMunge
-        env["LINKCOM"] = "${TEMPFILE('$LINK $TARGET $SOURCES','$LINKCOMSTR')}"
+        env["LINKCOM"] = "${TEMPFILE('$LINK $TARGET $SOURCES', '$LINKCOMSTR')}"
 
     By default, the name of the temporary file used begins with a
     prefix of '@'.  This may be configured for other tool chains by
@@ -258,31 +259,27 @@ class TempFileMunge:
         fd, tmp = tempfile.mkstemp(suffix, dir=tempfile_dir, text=True)
         native_tmp = SCons.Util.get_native_path(tmp)
 
+        # arrange for cleanup on exit:
+
+        def tmpfile_cleanup(file) -> None:
+            os.remove(file)
+
+        atexit.register(tmpfile_cleanup, tmp)
+
         if env.get('SHELL', None) == 'sh':
             # The sh shell will try to escape the backslashes in the
             # path, so unescape them.
             native_tmp = native_tmp.replace('\\', r'\\\\')
-            # In Cygwin, we want to use rm to delete the temporary
-            # file, because del does not exist in the sh shell.
-            rm = env.Detect('rm') or 'del'
-        else:
-            # Don't use 'rm' if the shell is not sh, because rm won't
-            # work with the Windows shells (cmd.exe or command.com) or
-            # Windows path names.
-            rm = 'del'
 
         if 'TEMPFILEPREFIX' in env:
             prefix = env.subst('$TEMPFILEPREFIX')
         else:
-            prefix = '@'
+            prefix = "@"
 
         tempfile_esc_func = env.get('TEMPFILEARGESCFUNC', SCons.Subst.quote_spaces)
-        args = [
-            tempfile_esc_func(arg)
-            for arg in cmd[1:]
-        ]
+        args = [tempfile_esc_func(arg) for arg in cmd[1:]]
         join_char = env.get('TEMPFILEARGJOIN', ' ')
-        os.write(fd, bytearray(join_char.join(args) + "\n", 'utf-8'))
+        os.write(fd, bytearray(join_char.join(args) + "\n", encoding="utf-8"))
         os.close(fd)
 
         # XXX Using the SCons.Action.print_actions value directly
@@ -301,15 +298,20 @@ class TempFileMunge:
         # purity get in the way of just being helpful, so we'll
         # reach into SCons.Action directly.
         if SCons.Action.print_actions:
-            cmdstr = env.subst(self.cmdstr, SCons.Subst.SUBST_RAW, target,
-                               source) if self.cmdstr is not None else ''
+            cmdstr = (
+                env.subst(self.cmdstr, SCons.Subst.SUBST_RAW, target, source)
+                if self.cmdstr is not None
+                else ''
+            )
             # Print our message only if XXXCOMSTR returns an empty string
-            if len(cmdstr) == 0 :
-                cmdstr = ("Using tempfile "+native_tmp+" for command line:\n"+
-                    str(cmd[0]) + " " + " ".join(args))
+            if not cmdstr:
+                cmdstr = (
+                    f"Using tempfile {native_tmp} for command line:\n"
+                    f'{cmd[0]} {" ".join(args)}'
+                )
                 self._print_cmd_str(target, source, env, cmdstr)
 
-        cmdlist = [cmd[0], prefix + native_tmp + '\n' + rm, native_tmp]
+        cmdlist = [cmd[0], prefix + native_tmp]
 
         # Store the temporary file command list into the target Node.attributes
         # to avoid creating two temporary files one for print and one for execute.

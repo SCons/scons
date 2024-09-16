@@ -180,16 +180,19 @@ class SubstitutionTestCase(unittest.TestCase):
         env3 = SubstitutionEnvironment(XXX = 'xxx')
         env4 = SubstitutionEnvironment(XXX = 'x', YYY = 'x')
 
-        assert env1 == env2
-        assert env1 != env3
-        assert env1 != env4
+        with self.subTest():
+            self.assertEqual(env1, env2)
+        with self.subTest():
+            self.assertNotEqual(env1, env3)
+        with self.subTest():
+            self.assertNotEqual(env1, env4)
 
     def test___delitem__(self) -> None:
         """Test deleting a variable from a SubstitutionEnvironment."""
         env1 = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
         env2 = SubstitutionEnvironment(XXX = 'x')
         del env1['YYY']
-        assert env1 == env2
+        self.assertEqual(env1, env2)
 
     def test___getitem__(self) -> None:
         """Test fetching a variable from a SubstitutionEnvironment."""
@@ -201,7 +204,7 @@ class SubstitutionTestCase(unittest.TestCase):
         env1 = SubstitutionEnvironment(XXX = 'x')
         env2 = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
         env1['YYY'] = 'y'
-        assert env1 == env2
+        self.assertEqual(env1, env2)
 
     def test_get(self) -> None:
         """Test the SubstitutionEnvironment get() method."""
@@ -3786,13 +3789,17 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     def setUp(self) -> None:
         env = Environment()
         env._dict = {'XXX' : 'x', 'YYY' : 'y'}
+
         def verify_value(env, key, value, *args, **kwargs) -> None:
             """Verifies that key is value on the env this is called with."""
-            assert env[key] == value
+            self.assertEqual(env[key], value)
+
         env.AddMethod(verify_value)
+        # env2 does not overrride 'YYY' to test passthrough
         env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
+        # env3 overrides both, plus sets a new var 'ZZZ'
         env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'})
-        self.envs = [ env, env2, env3 ]
+        self.envs = [env, env2, env3]
 
     def checkpath(self, node, expect):
         return str(node) == os.path.normpath(expect)
@@ -3800,31 +3807,79 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     def test___init__(self) -> None:
         """Test OverrideEnvironment initialization"""
         env, env2, env3 = self.envs
-        assert env['XXX'] == 'x', env['XXX']
-        assert env2['XXX'] == 'x2', env2['XXX']
-        assert env3['XXX'] == 'x3', env3['XXX']
-        assert env['YYY'] == 'y', env['YYY']
-        assert env2['YYY'] == 'y', env2['YYY']
-        assert env3['YYY'] == 'y3', env3['YYY']
+
+        with self.subTest():
+            self.assertEqual(env['XXX'], 'x')
+        with self.subTest():
+            self.assertEqual(env2['XXX'], 'x2')
+        with self.subTest():
+            self.assertEqual(env3['XXX'], 'x3')
+        with self.subTest():
+            self.assertEqual(env['YYY'], 'y')
+        with self.subTest():
+            self.assertEqual(env2['YYY'], 'y')
+        with self.subTest():
+            self.assertEqual(env3['YYY'], 'y3')
+        with self.subTest():
+            self.assertNotIn('ZZZ', env)
+        with self.subTest():
+            self.assertNotIn('ZZZ', env2)
+        with self.subTest():
+            self.assertEqual(env3['ZZZ'], 'z3')
+
+    def test___setitem__(self) -> None:
+        """Test setting a variable does not leak through."""
+        env, env2, env3 = self.envs
+        env3['QQQ'] = 'q'
+        with self.subTest():
+            self.assertEqual(env3['QQQ'], 'q')
+        with self.subTest():
+            self.assertNotIn('QQQ', env2)
+        with self.subTest():
+            self.assertNotIn('QQQ', env)
 
     def test___delitem__(self) -> None:
         """Test deleting variables from an OverrideEnvironment"""
         env, env2, env3 = self.envs
 
+        # changed in NEXT_VERSION: delete does not cascade to underlying envs
+        # XXX is in all three, del from env3 should affect only it
         del env3['XXX']
-        assert 'XXX' not in env, "env has XXX?"
-        assert 'XXX' not in env2, "env2 has XXX?"
-        assert 'XXX' not in env3, "env3 has XXX?"
+        with self.subTest():
+            self.assertIn('XXX', env)
+        with self.subTest():
+            self.assertIn('XXX', env2)
+        with self.subTest():
+            self.assertNotIn('XXX', env3)
 
+        # YYY unique in env and env3, shadowed in env2: env2 should still work.
         del env3['YYY']
-        assert 'YYY' not in env, "env has YYY?"
-        assert 'YYY' not in env2, "env2 has YYY?"
-        assert 'YYY' not in env3, "env3 has YYY?"
+        with self.subTest():
+            self.assertIn('YYY', env)
+        with self.subTest():
+            self.assertEqual(env2['YYY'], 'y')
+        with self.subTest():
+            self.assertIn('YYY', env2)
+        with self.subTest():
+            self.assertNotIn('YYY', env3)
 
+        # ZZZ is only in env3, none should have it
         del env3['ZZZ']
-        assert 'ZZZ' not in env, "env has ZZZ?"
-        assert 'ZZZ' not in env2, "env2 has ZZZ?"
-        assert 'ZZZ' not in env3, "env3 has ZZZ?"
+        with self.subTest():
+            self.assertNotIn('ZZZ', env)
+        with self.subTest():
+            self.assertNotIn('ZZZ', env2)
+        with self.subTest():
+            self.assertNotIn('ZZZ', env3)
+
+        # make sure we can write back after deletion
+        env3['XXX'] = 'x4'
+        with self.subTest():
+            self.assertEqual(env3['XXX'], 'x4')
+        with self.subTest():
+            self.assertEqual(env2['XXX'], 'x2')
+        with self.subTest():
+            self.assertEqual(env['XXX'], 'x')
 
     def test_get(self) -> None:
         """Test the OverrideEnvironment get() method"""
@@ -3858,21 +3913,28 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         # nothing overrriden
         items = env.Dictionary()
         assert items == {'XXX' : 'x', 'YYY' : 'y'}, items
+
         # env2 overrides XXX, YYY unchanged
         items = env2.Dictionary()
         assert items == {'XXX' : 'x2', 'YYY' : 'y'}, items
+
         # env3 overrides XXX, YYY, adds ZZZ
         items = env3.Dictionary()
         assert items == {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'}, items
+
         # test one-arg and multi-arg Dictionary
         assert env3.Dictionary('XXX') == 'x3', env3.Dictionary('XXX')
         xxx, yyy = env2.Dictionary('XXX', 'YYY')
         assert xxx == 'x2', xxx
         assert yyy == 'y', yyy
+
+        # test deletion in top override
         del env3['XXX']
-        assert 'XXX' not in env3.Dictionary()
-        assert 'XXX' not in env2.Dictionary()
-        assert 'XXX' not in env.Dictionary()
+        self.assertRaises(KeyError, env3.Dictionary, 'XXX')
+        # changed in NEXT_VERSION: *not* deleted from underlying envs
+        assert 'XXX' in env2.Dictionary()
+        assert 'XXX' in env.Dictionary()
+
 
     def test_items(self) -> None:
         """Test the OverrideEnvironment items() method"""
@@ -3937,15 +3999,9 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     def test_Replace(self) -> None:
         """Test the OverrideEnvironment Replace() method"""
         env, env2, env3 = self.envs
-        assert env['XXX'] == 'x', env['XXX']
-        assert env2['XXX'] == 'x2', env2['XXX']
-        assert env3['XXX'] == 'x3', env3['XXX']
-        assert env['YYY'] == 'y', env['YYY']
-        assert env2['YYY'] == 'y', env2['YYY']
-        assert env3['YYY'] == 'y3', env3['YYY']
+        # initial state already proven by test___init__
 
-        env.Replace(YYY = 'y4')
-
+        env.Replace(YYY='y4')
         assert env['XXX'] == 'x', env['XXX']
         assert env2['XXX'] == 'x2', env2['XXX']
         assert env3['XXX'] == 'x3', env3['XXX']
@@ -3953,8 +4009,68 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert env2['YYY'] == 'y4', env2['YYY']
         assert env3['YYY'] == 'y3', env3['YYY']
 
+
+    def test_Override_Leakage(self) -> None:
+        """Test OverrideEnvironment modifying a variable for leakage."""
+        env, env2, env3 = self.envs
+        # initial state already proven by test___init__
+
+        # string appending should be additive - only in the override
+        env.Append(WWW='w')
+        self.assertEqual(env2['WWW'], 'w')
+        with self.subTest():
+            env2.Append(WWW='w2')
+            self.assertEqual(env2['WWW'], 'ww2')
+            # did it leak?
+            self.assertEqual(env['WWW'], 'w', "leak error")
+
+        # append to a string already in the override
+        self.assertEqual(env['XXX'], 'x')
+        self.assertEqual(env2['XXX'], 'x2')
+        with self.subTest():
+            env2.Append(XXX='x4')
+            self.assertEqual(env2['XXX'], 'x2x4')
+            # did it leak?
+            self.assertEqual(env['XXX'], 'x', "leak error")
+
+        # add a new mutable key to base env, but copy it before modifying
+        # This isn't a terribly interesting test, just shows that if you
+        # "behave carefully", things don't leak.
+        env.Append(QQQ=deque(['q1', 'q2', 'q3']))
+        self.assertEqual(env2['QQQ'], deque(['q1', 'q2', 'q3']))
+        with self.subTest():
+            env2['QQQ'] = env2['QQQ'].copy()
+            env2.Append(QQQ='q4')
+            self.assertEqual(env2['QQQ'], deque(['q1', 'q2', 'q3', 'q4']))
+            # did it leak?
+            self.assertNotIn('q4', env['QQQ'], "leak error")
+
+
+    @unittest.expectedFailure
+    def test_Override_Mutable_Leakage(self) -> None:
+        """Test OverrideEnvironment modifying a mutable variable for leakage.
+
+        This is factored out from test_Override_Leakage as currently
+        there is no way to prevent the leakage when updating a mutable
+        element such as a list - thus it's marked as an xfail. This
+        gives us something to come back to if we ever invent some sort
+        of isolation via object copying, etc.
+        """
+        env, env2, env3 = self.envs
+        # initial state already proven by test___init__
+
+        # add a new key to base env, with a mutable value
+        env.Append(QQQ=deque(['q1', 'q2', 'q3']))
+        self.assertEqual(env2['QQQ'], deque(['q1', 'q2', 'q3']))
+        with self.subTest():
+            env2.Append(QQQ='q4')
+            self.assertEqual(env2['QQQ'], deque(['q1', 'q2', 'q3', 'q4']))
+            # did it leak?
+            self.assertNotIn('q4', env['QQQ'], "leak error")
+
+
     # Tests a number of Base methods through an OverrideEnvironment to
-    # make sure they handle overridden constructionv variables properly.
+    # make sure they handle overridden construction variables properly.
     #
     # The following Base methods also call self.subst(), and so could
     # theoretically be subject to problems with evaluating overridden

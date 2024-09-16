@@ -1647,6 +1647,19 @@ Example:
 cvars = env.Dictionary()
 cc_values = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 </example_commands>
+
+<note><para>
+The object returned by &f-link-env-Dictionary; should be treated
+as a read-only view into the &consvars;.
+Some &consvars; have special internal handling,
+and making changes through the &f-env-Dictionary; object can bypass
+that handling and cause data inconsistencies.
+The primary use of &f-env-Dictionary; is for diagnostic purposes -
+it is used widely by test cases specifically because
+it bypasses the special handling so that behavior
+can be verified.
+</para></note>
+
 </summary>
 </scons_function>
 
