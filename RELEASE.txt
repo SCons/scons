@@ -43,6 +43,8 @@ FIXES
   it always produced True in this case).
 - Temporary files created by TempFileMunge() are now cleaned up on
   scons exit, instead of at the time they're used.  Fixes #4595.
+- Fix a problem with compilation_db component initialization - the
+  entries for assembler files were not being set up correctly.
 
 IMPROVEMENTS
 ------------
