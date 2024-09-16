@@ -25,6 +25,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       return None, are not used without checking.
     - Temporary files created by TempFileMunge() are now cleaned up on
       scons exit, instead of at the time they're used.  Fixes #4595.
+    - Override envirionments, created when giving construction environment
+      keyword arguments to Builder calls (or manually, through the undocumented
+      Override method), were modified not to "leak" on item deletion.  The item
+      will now not be deleted from the base environment. Override Environments
+      now also pretend to have a _dict attribute so that regular environment
+      methods don't have a problem if passed an OE instance.
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
