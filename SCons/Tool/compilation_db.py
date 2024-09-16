@@ -43,6 +43,8 @@ from .cxx import CXXSuffixes
 from .cc import CSuffixes
 from .asm import ASSuffixes, ASPPSuffixes
 
+DEFAULT_DB_NAME = 'compile_commands.json'
+
 # TODO: Is there a better way to do this than this global? Right now this exists so that the
 # emitter we add can record all of the things it emits, so that the scanner for the top level
 # compilation database can access the complete list, and also so that the writer has easy
@@ -189,9 +191,8 @@ def compilation_db_emitter(target, source, env):
     if not target and len(source) == 1:
         target = source
 
-    # Default target name is compilation_db.json
     if not target:
-        target = ['compile_commands.json', ]
+        target = [DEFAULT_DB_NAME]
 
     # No source should have been passed. Drop it.
     if source:
@@ -224,13 +225,17 @@ def generate(env, **kwargs) -> None:
         ),
         itertools.product(
             ASSuffixes,
-            [(static_obj, SCons.Defaults.StaticObjectEmitter, "$ASCOM")],
-            [(shared_obj, SCons.Defaults.SharedObjectEmitter, "$ASCOM")],
+            [
+                (static_obj, SCons.Defaults.StaticObjectEmitter, "$ASCOM"),
+                (shared_obj, SCons.Defaults.SharedObjectEmitter, "$ASCOM")
+            ],
         ),
         itertools.product(
             ASPPSuffixes,
-            [(static_obj, SCons.Defaults.StaticObjectEmitter, "$ASPPCOM")],
-            [(shared_obj, SCons.Defaults.SharedObjectEmitter, "$ASPPCOM")],
+            [
+                (static_obj, SCons.Defaults.StaticObjectEmitter, "$ASPPCOM"),
+                (shared_obj, SCons.Defaults.SharedObjectEmitter, "$ASPPCOM")
+            ],
         ),
     )
 
