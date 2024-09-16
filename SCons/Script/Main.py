@@ -34,6 +34,7 @@ it goes here.
 import SCons.compat
 
 import importlib.util
+import optparse
 import os
 import re
 import sys
@@ -59,8 +60,7 @@ import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
 import SCons.Script.Interactive
-if TYPE_CHECKING:
-    from SCons.Script import SConsOption
+from .SConsOptions import SConsOption
 from SCons.Util.stats import count_stats, memory_stats, time_stats, ENABLE_JSON, write_scons_stats_file, JSON_OUTPUT_FILE
 
 from SCons import __version__ as SConsVersion
@@ -508,29 +508,41 @@ class FakeOptionParser:
     # TODO: to quiet checkers, FakeOptionParser should also define
     #   raise_exception_on_error, preserve_unknown_options, largs and parse_args
 
-    def add_local_option(self, *args, **kw) -> "SConsOption":
+    def add_local_option(self, *args, **kw) -> SConsOption:
         pass
 
 
 OptionsParser = FakeOptionParser()
 
-def AddOption(*args, settable: bool = False, **kw) -> "SConsOption":
+def AddOption(*args, **kw) -> SConsOption:
     """Add a local option to the option parser - Public API.
 
-    If the *settable* parameter is true, the option will be included in the
-    list of settable options; all other keyword arguments are passed on to
-    :meth:`~SCons.Script.SConsOptions.SConsOptionParser.add_local_option`.
+    If the SCons-specific *settable* kwarg is true (default ``False``),
+    the option will allow calling :func:``SetOption`.
 
     .. versionchanged:: 4.8.0
        The *settable* parameter added to allow including the new option
-       to the table of options eligible to use :func:`SetOption`.
-
+       in the table of options eligible to use :func:`SetOption`.
     """
+    settable = kw.get('settable', False)
+    if len(args) == 1 and isinstance(args[0], SConsOption):
+        # If they passed an SConsOption object, ignore kw - the underlying
+        # add_option method relies on seeing zero kwargs to recognize this.
+        # Since we don't support an omitted default, overrwrite optparse's
+        # marker to get the same effect as setting it in kw otherwise.
+        optobj = args[0]
+        if optobj.default is optparse.NO_DEFAULT:
+            optobj.default = None
+        # make sure settable attribute exists; positive setting wins
+        attr_settable = getattr(optobj, "settable")
+        if attr_settable is None or settable > attr_settable:
+            optobj.settable = settable
+        return OptionsParser.add_local_option(*args)
+
     if 'default' not in kw:
         kw['default'] = None
-    kw['settable'] = settable
-    result = OptionsParser.add_local_option(*args, **kw)
-    return result
+    kw['settable'] = settable  # just to make sure it gets set
+    return OptionsParser.add_local_option(*args, **kw)
 
 def GetOption(name: str):
     """Get the value from an option - Public API."""

@@ -23,6 +23,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       the test fails. The rest is cleanup and type annotations. Be more
       careful that the returns from stderr() and stdout(), which *can*
       return None, are not used without checking.
+    - The optparse add_option method supports an additional calling style
+      that is not directly described in SCons docs, but is included
+      by reference ("see the optparse documentation for details"):
+      a single arg consisting of a premade option object. Because optparse
+      detects that case based on seeing zero kwargs and we always
+      added at least one (default=) that would fail for AddOption. Fix
+      for consistency, but don't advertise it further - not addewd to
+      manpage synoposis/description.
     - Temporary files created by TempFileMunge() are now cleaned up on
       scons exit, instead of at the time they're used.  Fixes #4595.
     - Override envirionments, created when giving construction environment

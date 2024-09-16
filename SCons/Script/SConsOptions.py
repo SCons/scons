@@ -240,6 +240,11 @@ class SConsOption(optparse.Option):
     New function :meth:`_check_nargs_optional` implements the ``nargs=?``
     syntax from :mod:`argparse`, and is added to the ``CHECK_METHODS`` list.
     Overridden :meth:`convert_value` supports this usage.
+
+    .. versionchanged:: NEXT_RELEASE
+       The *settable* attribute is added to ``ATTRS``, allowing it to be
+       set in the option. A parameter to mark the option settable was added
+       in 4.8.0, but was not initially made part of the option object itself.
     """
     # can uncomment to have a place to trap SConsOption creation for debugging:
     # def __init__(self, *args, **kwargs):
@@ -274,10 +279,11 @@ class SConsOption(optparse.Option):
             fmt = "option %s: nargs='?' is incompatible with short options"
             raise SCons.Errors.UserError(fmt % self._short_opts[0])
 
+    ATTRS = optparse.Option.ATTRS + ['settable']  # added for SCons
     CHECK_METHODS = optparse.Option.CHECK_METHODS
     if CHECK_METHODS is None:
         CHECK_METHODS = []
-    CHECK_METHODS = CHECK_METHODS + [_check_nargs_optional]  # added for SCons
+    CHECK_METHODS += [_check_nargs_optional]  # added for SCons
     CONST_ACTIONS = optparse.Option.CONST_ACTIONS + optparse.Option.TYPED_ACTIONS
 
 
@@ -481,19 +487,19 @@ class SConsOptionParser(optparse.OptionParser):
         by default "local" (project-added) options are not eligible for
         :func:`~SCons.Script.Main.SetOption` calls.
 
-        .. versionchanged:: 4.8.0
-           Added special handling of *settable*.
-
+        .. versionchanged:: NEXT_VERSION
+           If the option's *settable* attribute is true, it is added to
+           the :attr:`SConsValues.settable` list. *settable* handling was
+           added in 4.8.0, but was not made an option attribute at the time.
         """
         group: SConsOptionGroup
         try:
             group = self.local_option_group
         except AttributeError:
             group = SConsOptionGroup(self, 'Local Options')
-            group = self.add_option_group(group)
+            self.add_option_group(group)
             self.local_option_group = group
 
-        settable = kw.pop('settable')
         # this gives us an SConsOption due to the setting of self.option_class
         result = group.add_option(*args, **kw)
         if result:
@@ -508,7 +514,7 @@ class SConsOptionParser(optparse.OptionParser):
             # TODO: what if dest is None?
             setattr(self.values.__defaults__, result.dest, result.default)
             self.reparse_local_options()
-            if settable:
+            if result.settable:
                 SConsValues.settable.append(result.dest)
 
         return result
