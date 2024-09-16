@@ -342,12 +342,13 @@ class SConsOptionParser(optparse.OptionParser):
     def _process_long_opt(self, rargs, values) -> None:
         """SCons-specific processing of long options.
 
-        This is copied directly from the normal
-        ``optparse._process_long_opt()`` method, except that, if configured
-        to do so, we catch the exception thrown when an unknown option
-        is encountered and just stick it back on the "leftover" arguments
-        for later (re-)processing. This is because we may see the option
-        definition later, while processing SConscript files.
+        This is copied directly from the normal Optparse
+        :meth:`~optparse.OptionParser._process_long_opt` method, except
+        that, if configured to do so, we catch the exception thrown
+        when an unknown option is encountered and just stick it back
+        on the "leftover" arguments for later (re-)processing. This is
+        because we may see the option definition later, while processing
+        SConscript files.
         """
         arg = rargs.pop(0)
 
@@ -413,6 +414,66 @@ class SConsOptionParser(optparse.OptionParser):
             value = None
 
         option.process(opt, value, values, self)
+
+
+    def _process_short_opts(self, rargs, values) -> None:
+        """SCons-specific processing of short options.
+
+        This is copied directly from the normal Optparse
+        :meth:`~optparse.OptionParser._process_short_opts` method, except
+        that, if configured to do so, we catch the exception thrown
+        when an unknown option is encountered and just stick it back
+        on the "leftover" arguments for later (re-)processing. This is
+        because we may see the option definition later, while processing
+        SConscript files.
+        """
+        arg = rargs.pop(0)
+        stop = False
+        i = 1
+        for ch in arg[1:]:
+            opt = "-" + ch
+            option = self._short_opt.get(opt)
+            i += 1                      # we have consumed a character
+
+            try:
+                if not option:
+                    raise optparse.BadOptionError(opt)
+            except optparse.BadOptionError:
+                # SCons addition:  if requested, add unknown options to
+                # the "leftover arguments" list for later processing.
+                if self.preserve_unknown_options:
+                    self.largs.append(arg)
+                    return
+                raise
+
+            if option.takes_value():
+                # Any characters left in arg?  Pretend they're the
+                # next arg, and stop consuming characters of arg.
+                if i < len(arg):
+                    rargs.insert(0, arg[i:])
+                    stop = True
+
+                nargs = option.nargs
+                if len(rargs) < nargs:
+                    if nargs == 1:
+                        self.error(_("%s option requires an argument") % opt)
+                    else:
+                        self.error(_("%s option requires %d arguments")
+                                   % (opt, nargs))
+                elif nargs == 1:
+                    value = rargs.pop(0)
+                else:
+                    value = tuple(rargs[0:nargs])
+                    del rargs[0:nargs]
+
+            else:                       # option doesn't take a value
+                value = None
+
+            option.process(opt, value, values, self)
+
+            if stop:
+                break
+
 
     def reparse_local_options(self) -> None:
         """Re-parse the leftover command-line options.

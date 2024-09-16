@@ -43,6 +43,11 @@ FIXES
   it always produced True in this case).
 - Temporary files created by TempFileMunge() are now cleaned up on
   scons exit, instead of at the time they're used.  Fixes #4595.
+- AddOption now correctly adds short (single-character) options.
+  Previously an added short option would always report as unknown,
+  while long option names for the same option worked. Short options
+  that take a value require the user to specify the value immediately
+  following the option, with no spaces (e.g. -j5 and not -j 5).
 
 IMPROVEMENTS
 ------------

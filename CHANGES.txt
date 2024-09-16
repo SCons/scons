@@ -12,6 +12,9 @@ NOTE: Python 3.6 support is deprecated and will be dropped in a future release.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Dillan Mills:
+    - Fix support for short options (`-x`).
+
   From Mats Wichmann:
     - PackageVariable now does what the documentation always said it does
       if the variable is used on the command line with one of the enabling
