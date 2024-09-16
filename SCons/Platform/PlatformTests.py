@@ -207,9 +207,7 @@ class TempFileMungeTestCase(unittest.TestCase):
         assert cmd != defined_cmd, cmd
 
     def test_TEMPFILEARGJOINBYTE(self) -> None:
-        """
-        Test argument join byte TEMPFILEARGJOINBYTE
-        """
+        """Test argument join byte TEMPFILEARGJOINBYTE."""
 
         # Init class with cmd, such that the fully expanded
         # string reads "a test command line".
@@ -232,19 +230,24 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = 0
         env['MAXLINELENGTH'] = len(expanded_cmd)-1
         cmd = t(None, None, env, 0)
-        # print("CMD is:%s"%cmd)
+        # print(f"[CMD is: {cmd}]")
 
-        with open(cmd[-1],'rb') as f:
+        if cmd[-1].startswith('@'):
+            tempfile = cmd[-1][1:]
+        else:
+            tempfile = cmd[-1]
+        with open(tempfile, 'rb') as f:
             file_content = f.read()
-        # print("Content is:[%s]"%file_content)
+        # print(f"[Content of {tempfile} is:{file_content}]")
         # ...and restoring its setting.
         SCons.Action.print_actions = old_actions
-        assert file_content != env['TEMPFILEARGJOINBYTE'].join(['test','command','line'])
+        assert file_content != bytearray(
+            env['TEMPFILEARGJOINBYTE'].join(['test', 'command', 'line']),
+            encoding='utf-8',
+        )
 
     def test_TEMPFILEARGESCFUNC(self) -> None:
-        """
-        Test a custom TEMPFILEARGESCFUNC
-        """
+        """Test a custom TEMPFILEARGESCFUNC."""
 
         def _tempfile_arg_esc_func(arg):
             return str(arg).replace("line", "newarg")
@@ -262,12 +265,16 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = 0
         env['TEMPFILEARGESCFUNC'] = _tempfile_arg_esc_func
         cmd = t(None, None, env, 0)
-        # print("CMD is: %s"%cmd)
+        # print(f"[CMD is: {cmd}]")
 
-        with open(cmd[-1], 'rb') as f:
+        if cmd[-1].startswith('@'):
+            tempfile = cmd[-1][1:]
+        else:
+            tempfile = cmd[-1]
+        with open(tempfile, 'rb') as f:
             file_content = f.read()
-        # print("Content is:[%s]"%file_content)
-        # # ...and restoring its setting.
+        # print(f"[Content of {tempfile} is:{file_content}]")
+        # ...and restoring its setting.
         SCons.Action.print_actions = old_actions
         assert b"newarg" in file_content
 

@@ -23,6 +23,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       the test fails. The rest is cleanup and type annotations. Be more
       careful that the returns from stderr() and stdout(), which *can*
       return None, are not used without checking.
+    - Temporary files created by TempFileMunge() are now cleaned up on
+      scons exit, instead of at the time they're used.  Fixes #4595.
     - Override envirionments, created when giving construction environment
       keyword arguments to Builder calls (or manually, through the undocumented
       Override method), were modified not to "leak" on item deletion.  The item
