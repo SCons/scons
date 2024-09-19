@@ -451,6 +451,8 @@ searches in order for the
 &MSVC; tools,
 the MinGW tool chain,
 the Intel compiler tools,
+the GCC tools,
+the LLVM/clang tools,
 and the PharLap ETS compiler.
 On Windows system which identify as <emphasis>cygwin</emphasis>
 (that is, if &scons; is invoked from a cygwin shell),
@@ -472,6 +474,7 @@ including POSIX (Linux and UNIX) and macOS platforms,
 &scons;
 searches in order
 for the GCC tool chain,
+the LLVM/clang tools,
 and the Intel compiler tools.
 The defaul tool selection can be pre-empted
 through the use of the <parameter>tools</parameter>

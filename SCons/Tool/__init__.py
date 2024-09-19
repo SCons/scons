@@ -691,8 +691,8 @@ def tool_list(platform, env):
     if str(platform) == 'win32':
         "prefer Microsoft tools on Windows"
         linkers = ['mslink', 'gnulink', 'ilink', 'linkloc', 'ilink32']
-        c_compilers = ['msvc', 'mingw', 'gcc', 'intelc', 'icl', 'icc', 'cc', 'bcc32']
-        cxx_compilers = ['msvc', 'intelc', 'icc', 'g++', 'cxx', 'bcc32']
+        c_compilers = ['msvc', 'mingw', 'gcc', 'clang', 'intelc', 'icl', 'icc', 'cc', 'bcc32']
+        cxx_compilers = ['msvc', 'intelc', 'icc', 'g++', 'clang++', 'cxx', 'bcc32']
         assemblers = ['masm', 'nasm', 'gas', '386asm']
         fortran_compilers = ['gfortran', 'g77', 'ifl', 'cvf', 'f95', 'f90', 'fortran']
         ars = ['mslib', 'ar', 'tlib']
@@ -757,8 +757,8 @@ def tool_list(platform, env):
     else:
         "prefer GNU tools on all other platforms"
         linkers = ['gnulink', 'ilink']
-        c_compilers = ['gcc', 'intelc', 'icc', 'cc']
-        cxx_compilers = ['g++', 'intelc', 'icc', 'cxx']
+        c_compilers = ['gcc', 'clang', 'intelc', 'icc', 'cc']
+        cxx_compilers = ['g++', 'clang++', 'intelc', 'icc', 'cxx']
         assemblers = ['gas', 'nasm', 'masm']
         fortran_compilers = ['gfortran', 'g77', 'ifort', 'ifl', 'f95', 'f90', 'f77']
         ars = ['ar', ]
