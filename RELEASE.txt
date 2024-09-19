@@ -58,6 +58,13 @@ IMPROVEMENTS
   Calling AddOption with the full set of arguments (option names and
   attributes) to set up the option is still the recommended approach.
 
+- Add clang and clang++ to the default tool search orders for POSIX
+  and Windows platforms. These will be searched for after gcc and g++,
+  respectively. Does not affect expliclity requested tool lists.  Note:
+  on Windows, SCons currently only has builtin support for clang, not
+  for clang-cl, the version of the frontend that uses cl.exe-compatible
+  command line switches.
+
 PACKAGING
 ---------
 
