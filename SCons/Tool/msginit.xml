@@ -27,10 +27,12 @@ This file is processed by the bin/SConsDoc.py module.
 <tool name="msginit">
 <summary>
 <para>
-This scons tool is a part of scons &t-link-gettext; toolset. It provides
-scons interface to <command>msginit(1)</command> program, which creates new
+This tool is a part of scons &t-link-gettext; toolset. It provides
+&SCons; an interface to the <command>msginit(1)</command> program,
+by setting up the &b-link-POInit; builder,
+which creates a new
 <literal>PO</literal> file, initializing the meta information with values from
-user's environment (or options).
+the &consenv; (or options).
 </para>
 </summary>
 <sets>
@@ -54,26 +56,31 @@ user's environment (or options).
 <builder name="POInit">
 <summary>
 <para>
-This builder belongs to &t-link-msginit; tool. The builder initializes missing
-<literal>PO</literal> file(s) if &cv-link-POAUTOINIT; is set.  If
-&cv-link-POAUTOINIT; is not set (default), &b-POInit; prints instruction for
-user (that is supposed to be a translator), telling how the
-<literal>PO</literal> file should be initialized. In normal projects
+This builder is set up by the &t-link-msginit; tool.
+The builder initializes missing
+<literal>PO</literal> file(s) if &cv-link-POAUTOINIT; is set.
+If &cv-link-POAUTOINIT; is not set (the default),
+&b-POInit; prints instruction for the user (such as a translator),
+telling how the <literal>PO</literal> file should be initialized.
+In normal projects
 <emphasis>you should not use &b-POInit; and use &b-link-POUpdate;
 instead</emphasis>. &b-link-POUpdate; chooses intelligently between
 <command>msgmerge(1)</command> and <command>msginit(1)</command>. &b-POInit;
 always uses <command>msginit(1)</command> and should be regarded as builder for
 special purposes or for temporary use (e.g. for quick, one time initialization
 of a bunch of <literal>PO</literal> files) or for tests.
+&b-POInit; is a single-source builder.
+The <parameter>source</parameter> parameter
+can also be omitted if &cv-link-LINGUAS_FILE; is set.
 </para>
 
 <para>
 Target nodes defined through &b-POInit; are not built by default (they're
 <literal>Ignore</literal>d from <literal>'.'</literal> node) but are added to
-special <literal>Alias</literal> (<literal>'po-create'</literal> by default).
+special &f-link-Alias; (<literal>'po-create'</literal> by default).
 The alias name may be changed through the &cv-link-POCREATE_ALIAS;
-construction variable. All <literal>PO</literal> files defined through
-&b-POInit; may be easily initialized by <command>scons po-create</command>.
+&consvar;. All <literal>PO</literal> files defined through
+&b-POInit; may be easily initialized by <userinput>scons po-create</userinput>.
 </para>
 
 <para>
@@ -81,31 +88,27 @@ construction variable. All <literal>PO</literal> files defined through
 Initialize <filename>en.po</filename> and <filename>pl.po</filename> from
 <filename>messages.pot</filename>:
 </para>
-<example_commands>
-  # ...
-  env.POInit(['en', 'pl']) # messages.pot --&gt; [en.po, pl.po]
-</example_commands>
+<programlisting language="python">
+env.POInit(['en', 'pl']) # messages.pot --&gt; [en.po, pl.po]
+</programlisting>
 
 <para>
 <emphasis>Example 2</emphasis>.
 Initialize <filename>en.po</filename> and <filename>pl.po</filename> from
 <filename>foo.pot</filename>:
 </para>
-<example_commands>
-  # ...
-  env.POInit(['en', 'pl'], ['foo']) # foo.pot --&gt; [en.po, pl.po]
-</example_commands>
+<programlisting language="python">
+env.POInit(['en', 'pl'], ['foo']) # foo.pot --&gt; [en.po, pl.po]
+</programlisting>
 
 <para>
 <emphasis>Example 3</emphasis>.
 Initialize <filename>en.po</filename> and <filename>pl.po</filename> from
-<filename>foo.pot</filename> but using &cv-link-POTDOMAIN; construction
-variable:
+<filename>foo.pot</filename> but using the &cv-link-POTDOMAIN; &consvar;:
 </para>
-<example_commands>
-  # ...
-  env.POInit(['en', 'pl'], POTDOMAIN='foo') # foo.pot --&gt; [en.po, pl.po]
-</example_commands>
+<programlisting language="python">
+env.POInit(['en', 'pl'], POTDOMAIN='foo') # foo.pot --&gt; [en.po, pl.po]
+</programlisting>
 
 <para>
 <emphasis>Example 4</emphasis>.
@@ -113,10 +116,9 @@ Initialize <literal>PO</literal> files for languages defined in
 <filename>LINGUAS</filename> file. The files will be initialized from template
 <filename>messages.pot</filename>:
 </para>
-<example_commands>
-  # ...
-  env.POInit(LINGUAS_FILE = 1) # needs 'LINGUAS' file
-</example_commands>
+<programlisting language="python">
+env.POInit(LINGUAS_FILE=True)  # needs 'LINGUAS' file
+</programlisting>
 
 <para>
 <emphasis>Example 5</emphasis>.
@@ -125,34 +127,30 @@ Initialize <filename>en.po</filename> and <filename>pl.pl</filename>
 <filename>LINGUAS</filename> file. The files will be initialized from template
 <filename>messages.pot</filename>:
 </para>
-<example_commands>
-  # ...
-  env.POInit(['en', 'pl'], LINGUAS_FILE = 1)
-</example_commands>
+<programlisting language="python">
+env.POInit(['en', 'pl'], LINGUAS_FILE=True)
+</programlisting>
 
 <para>
 <emphasis>Example 6</emphasis>.
 You may preconfigure your environment first, and then initialize
 <literal>PO</literal> files:
 </para>
-<example_commands>
-  # ...
-  env['POAUTOINIT'] = 1
-  env['LINGUAS_FILE'] = 1
-  env['POTDOMAIN'] = 'foo'
-  env.POInit()
-</example_commands>
+<programlisting language="python">
+env['POAUTOINIT'] = True
+env['LINGUAS_FILE'] = True
+env['POTDOMAIN'] = 'foo'
+env.POInit()
+</programlisting>
 <para>
 which has same efect as:
 </para>
-<example_commands>
-  # ...
-  env.POInit(POAUTOINIT = 1, LINGUAS_FILE = 1, POTDOMAIN = 'foo')
-</example_commands>
+<programlisting language="python">
+env.POInit(POAUTOINIT=True, LINGUAS_FILE=True, POTDOMAIN='foo')
+</programlisting>
 </summary>
 </builder>
 
-<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
 <cvar name="POCREATE_ALIAS">
 <summary>
 <para>
@@ -162,7 +160,7 @@ See &t-link-msginit; tool and &b-link-POInit; builder.
 </para>
 </summary>
 </cvar>
-<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+
 <cvar name="POSUFFIX">
 <summary>
 <para>
@@ -171,17 +169,17 @@ See &t-link-msginit; tool and &b-link-POInit; builder.
 </para>
 </summary>
 </cvar>
-<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+
 <cvar name="MSGINIT">
 <summary>
 <para>
 Path to <command>msginit(1)</command> program (found via
-<literal>Detect()</literal>).
+&f-link-Detect;).
 See &t-link-msginit; tool and &b-link-POInit; builder.
 </para>
 </summary>
 </cvar>
-<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+
 <cvar name="MSGINITCOM">
 <summary>
 <para>
@@ -190,17 +188,18 @@ See &t-link-msginit; tool and &b-link-POInit; builder.
 </para>
 </summary>
 </cvar>
-<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+
 <cvar name="MSGINITCOMSTR">
 <summary>
 <para>
-String to display when <command>msginit(1)</command> is invoked
-(default: <literal>''</literal>, which means ``print &cv-link-MSGINITCOM;'').
+String to display when <command>msginit(1)</command> is invoked.
+The default is an empty string,
+which will print the command line (&cv-link-MSGINITCOM;).
 See &t-link-msginit; tool and &b-link-POInit; builder.
 </para>
 </summary>
 </cvar>
-<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+
 <cvar name="MSGINITFLAGS">
 <summary>
 <para>
@@ -210,7 +209,7 @@ See &t-link-msginit; tool and &b-link-POInit; builder.
 </para>
 </summary>
 </cvar>
-<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+
 <cvar name="_MSGINITLOCALE">
 <summary>
 <para>

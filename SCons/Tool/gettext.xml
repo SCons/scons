@@ -27,27 +27,27 @@ This file is processed by the bin/SConsDoc.py module.
 <tool name="gettext">
 <summary>
 <para>
-This is actually a toolset, which supports internationalization and
-localization of software being constructed with SCons. The toolset loads
-following tools:
+A toolset supporting internationalization and
+localization of software being constructed with &SCons;.
+The toolset loads the following tools:
 </para>
 
 <para>
 <itemizedlist mark='opencircle'>
   <listitem><para>
-    &t-link-xgettext; - to extract internationalized messages from source code to
-    <literal>POT</literal> file(s),
+    &t-link-xgettext; - extract internationalized messages from source code to
+    <literal>POT</literal> file(s).
   </para></listitem>
   <listitem><para>
-    &t-link-msginit; - may be optionally used to initialize <literal>PO</literal>
-    files,
+    &t-link-msginit; - initialize <literal>PO</literal>
+    files during initial tranlation of a project.
   </para></listitem>
   <listitem><para>
-    &t-link-msgmerge; - to update <literal>PO</literal> files, that already contain
+    &t-link-msgmerge; - update <literal>PO</literal> files that already contain
     translated messages,</para></listitem>
   <listitem><para>
-    &t-link-msgfmt; - to compile textual <literal>PO</literal> file to binary
-    installable <literal>MO</literal> file.
+    &t-link-msgfmt; - compile textual <literal>PO</literal> files to binary
+    installable <literal>MO</literal> files.
   </para></listitem>
 </itemizedlist>
 </para>
@@ -65,12 +65,12 @@ may be however interested in <emphasis>top-level</emphasis>
 </para>
 
 <para>
-To use &t-gettext; tools add <literal>'gettext'</literal> tool to your
-environment:
+To use the &t-gettext; tools, add the <literal>'gettext'</literal> tool to your
+&consenv;:
 </para>
-<example_commands>
-  env = Environment( tools = ['default', 'gettext'] )
-</example_commands>
+<programlisting language="python">
+env = Environment(tools=['default', 'gettext'])
+</programlisting>
 </summary>
 <sets>
 </sets>
@@ -82,10 +82,11 @@ environment:
 <builder name="Translate">
 <summary>
 <para>
-This pseudo-builder belongs to &t-link-gettext; toolset. The builder extracts
-internationalized messages from source files, updates <literal>POT</literal>
-template (if necessary) and then updates <literal>PO</literal> translations (if
-necessary). If &cv-link-POAUTOINIT; is set, missing <literal>PO</literal> files
+This pseudo-Builder is part of the &t-link-gettext; toolset.
+The builder extracts internationalized messages from source files,
+updates the <literal>POT</literal> template (if necessary)
+and then updates <literal>PO</literal> translations (if necessary).
+If &cv-link-POAUTOINIT; is set, missing <literal>PO</literal> files
 will be automatically created (i.e. without translator person intervention).
 The variables &cv-link-LINGUAS_FILE; and &cv-link-POTDOMAIN; are taken into
 acount too. All other construction variables used by &b-link-POTUpdate;, and
@@ -95,41 +96,42 @@ acount too. All other construction variables used by &b-link-POTUpdate;, and
 <para>
 <emphasis>Example 1</emphasis>.
 The simplest way is to specify input files and output languages inline in
-a SCons script when invoking &b-Translate;
+a SCons script when invoking &b-Translate;:
 </para>
-<example_commands>
+<programlisting language="python">
 # SConscript in 'po/' directory
-env = Environment( tools = ["default", "gettext"] )
-env['POAUTOINIT'] = 1
-env.Translate(['en','pl'], ['../a.cpp','../b.cpp'])
-</example_commands>
+env = Environment(tools=["default", "gettext"])
+env['POAUTOINIT'] = True
+env.Translate(['en', 'pl'], ['../a.cpp', '../b.cpp'])
+</programlisting>
 
 <para>
 <emphasis>Example 2</emphasis>.
-If you wish, you may also stick to conventional style known from
+If you wish, you may also stick to the conventional style known from
 <productname>autotools</productname>, i.e. using
 <filename>POTFILES.in</filename> and <filename>LINGUAS</filename> files
+to specify the targets and sources:
 </para>
-<example_commands>
+<programlisting language="python">
 # LINGUAS
 en pl
-#end
-</example_commands>
+# end
+</programlisting>
 
-<example_commands>
+<programlisting>
 # POTFILES.in
 a.cpp
 b.cpp
 # end
-</example_commands>
+</programlisting>
 
-<example_commands>
+<programlisting language="python">
 # SConscript
-env = Environment( tools = ["default", "gettext"] )
-env['POAUTOINIT'] = 1
+env = Environment(tools=["default", "gettext"])
+env['POAUTOINIT'] = True
 env['XGETTEXTPATH'] = ['../']
-env.Translate(LINGUAS_FILE = 1, XGETTEXTFROM = 'POTFILES.in')
-</example_commands>
+env.Translate(LINGUAS_FILE=True, XGETTEXTFROM='POTFILES.in')
+</programlisting>
 
 <para>
 The last approach is perhaps the recommended one. It allows easily split
@@ -152,7 +154,7 @@ project in their usual way.
 <emphasis>Example 3</emphasis>.
 Let's prepare a development tree as below
 </para>
-<example_commands>
+<programlisting>
  project/
   + SConstruct
   + build/
@@ -162,52 +164,55 @@ Let's prepare a development tree as below
           + SConscript.i18n
           + POTFILES.in
           + LINGUAS
-</example_commands>
+</programlisting>
 <para>
-with <filename>build</filename> being variant directory. Write the top-level
+with <filename>build</filename> being the variant directory.
+Write the top-level
 <filename>SConstruct</filename> script as follows
 </para>
-<example_commands>
-  # SConstruct
-  env = Environment( tools = ["default", "gettext"] )
-  VariantDir('build', 'src', duplicate = 0)
-  env['POAUTOINIT'] = 1
-  SConscript('src/po/SConscript.i18n', exports = 'env')
-  SConscript('build/po/SConscript', exports = 'env')
-</example_commands>
+<programlisting language="python">
+# SConstruct
+env = Environment(tools=["default", "gettext"])
+VariantDir('build', 'src', duplicate=False)
+env['POAUTOINIT'] = True
+SConscript('src/po/SConscript.i18n', exports='env')
+SConscript('build/po/SConscript', exports='env')
+</programlisting>
 <para>
 the <filename>src/po/SConscript.i18n</filename> as
 </para>
-<example_commands>
-  # src/po/SConscript.i18n
-  Import('env')
-  env.Translate(LINGUAS_FILE=1, XGETTEXTFROM='POTFILES.in', XGETTEXTPATH=['../'])
-</example_commands>
+<programlisting language="python">
+# src/po/SConscript.i18n
+Import('env')
+env.Translate(LINGUAS_FILE=True, XGETTEXTFROM='POTFILES.in', XGETTEXTPATH=['../'])
+</programlisting>
 <para>
 and the <filename>src/po/SConscript</filename>
 </para>
-<example_commands>
-  # src/po/SConscript
-  Import('env')
-  env.MOFiles(LINGUAS_FILE = 1)
-</example_commands>
+<programlisting language="python">
+# src/po/SConscript
+Import('env')
+env.MOFiles(LINGUAS_FILE=True)
+</programlisting>
 <para>
-Such setup produces <literal>POT</literal> and <literal>PO</literal> files
-under source tree in <filename>src/po/</filename> and binary
-<literal>MO</literal> files under variant tree in
+Such a setup produces <literal>POT</literal> and <literal>PO</literal> files
+under the source tree in <filename>src/po/</filename> and binary
+<literal>MO</literal> files under the variant tree in
 <filename>build/po/</filename>. This way the <literal>POT</literal> and
 <literal>PO</literal> files are separated from other output files, which must
 not be committed back to source repositories (e.g. <literal>MO</literal>
 files).
 </para>
 
-<para>
-<note><para>In above example, the <literal>PO</literal> files are not updated,
-nor created automatically when you issue <command>scons '.'</command> command.
-The files must be updated (created) by hand via <command>scons
-po-update</command> and then <literal>MO</literal> files can be compiled by
-running <command>scons '.'</command>.</para></note>
-</para>
+<note><para>In the above example,
+the <literal>PO</literal> files are not updated,
+nor created automatically when you issue the command
+<userinput>scons .</userinput>.
+The files must be updated (created) by hand via
+<userinput>scons po-update</userinput>
+and then <literal>MO</literal> files can be compiled by
+running <userinput>scons .</userinput>.
+</para></note>
 
 </summary>
 </builder>
@@ -245,10 +250,10 @@ them).
 The &cv-LINGUAS_FILE; defines file(s) containing list of additional linguas
 to be processed by &b-link-POInit;, &b-link-POUpdate; or &b-link-MOFiles;
 builders. It also affects &b-link-Translate; builder. If the variable contains
-a string, it defines name of the list file. The &cv-LINGUAS_FILE; may be a
+a string, it defines the name of the list file. The &cv-LINGUAS_FILE; may be a
 list of file names as well. If &cv-LINGUAS_FILE; is set to
-<literal>True</literal> (or non-zero numeric value), the list will be read from
-default file named
+a non-string truthy value, the list will be read from
+the file named
 <filename>LINGUAS</filename>.
 </para>
 
