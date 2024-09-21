@@ -405,16 +405,16 @@ env.Alias('update', ['file1', 'file2'], "update_database $SOURCES")
   <varlistentry id="f-AllowSubstExceptions">
     <term><function>AllowSubstExceptions</function>(<parameter>[exception, ...]</parameter>)</term>
     <listitem><para>
-Specifies the exceptions that will be allowed
-when expanding construction variables.
+Specifies the exceptions that will be ignored
+when expanding &consvars;.
 By default,
-any construction variable expansions that generate a
-<literal>NameError</literal>
+any &consvar; expansions that generate a
+&NameError;
 or
-<literal>IndexError</literal>
+&IndexError;
 exception will expand to a
 <literal>''</literal>
-(an empty string) and not cause scons to fail.
+(an empty string) and not cause &scons; to fail.
 All exceptions not in the specified list
 will generate an error message
 and terminate processing.
@@ -425,7 +425,8 @@ If
 &f-AllowSubstExceptions;
 is called multiple times,
 each call completely overwrites the previous list
-of allowed exceptions.
+of ignored exceptions.
+Calling it with no arguments means no exceptions will be ignored.
 </para>
 
 <para>
@@ -1634,6 +1635,19 @@ Example:
 cvars = env.Dictionary()
 cc_values = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 </example_commands>
+
+<note><para>
+The object returned by &f-link-env-Dictionary; should be treated
+as a read-only view into the &consvars;.
+Some &consvars; have special internal handling,
+and making changes through the &f-env-Dictionary; object can bypass
+that handling and cause data inconsistencies.
+The primary use of &f-env-Dictionary; is for diagnostic purposes -
+it is used widely by test cases specifically because
+it bypasses the special handling so that behavior
+can be verified.
+</para></note>
+
 </listitem>
   </varlistentry>
   <varlistentry id="f-Dir">
