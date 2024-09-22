@@ -102,7 +102,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   -->
 
-  <section>
+  <section id="sect-principles">
   <title>&SCons; Principles</title>
 
     <para>
@@ -193,7 +193,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   -->
 
-  <section>
+  <section id="sect-using-guide">
   <title>How to Use this Guide</title>
 
     <para>
@@ -223,19 +223,23 @@ This file is processed by the bin/SConsDoc.py module.
 
     <para>
 
-    It is often useful to keep &SCons; man page open in a separate
+    If you are viewing an html version of this Guide, there are many
+    hyperlinks present that you can follow to get more details
+    if you want them, as the User Guide intentionally does not attempt
+    to provide every detail, to allow smoother study of the basics.
+    It may also be useful to keep the &SCons; man page open in a separate
     browser tab or window to refer to as a complement to this Guide,
-    as the User Guide does not attempt to provide every detail.
-    While this Guide's Appendices A-D do duplicate information that appears
-    in the man page (this is to allow intra-document links to
-    definitions of &consvars;, builders, tools and environment methods
-    to work), the rest of the man page is unique content.
+    which can avoid some jumping back and forth.
+    The four important manpage sections describiing the
+    of &consvars;, builders, tools and environment methods
+    are actually duplicated as appendices in the User Guide,
+    to avoid inter-document links.
 
     </para>
 
   </section>
 
-  <section>
+  <section id="sect-completeness">
   <title>A Caveat About This Guide's Completeness</title>
 
   <para>
@@ -272,7 +276,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   </section>
 
-  <section>
+  <section id="sect-acknowledgements">
   <title>Acknowledgements</title>
 
     <para>
@@ -395,7 +399,7 @@ This file is processed by the bin/SConsDoc.py module.
     <para>
 
     And last, thanks to Guido van Rossum
-    for his elegant scripting language,
+    for his elegant scripting language &Python;,
     which is the basis not only for the &SCons; implementation,
     but for the interface itself.
 
@@ -403,7 +407,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   </section>
 
-  <section>
+  <section id="sect-contact">
   <title>Contact</title>
 
     <para>
