@@ -54,15 +54,17 @@ or
 The suffix specified by the &cv-link-PSSUFFIX; construction variable
 (<filename>.ps</filename> by default)
 is added automatically to the target
-if it is not already present.  Example:
+if it is not already present.
+&b-PostScript; is a single-source builder.
+Example:
 </para>
 
-<example_commands>
+<programlisting language="python">
 # builds from aaa.tex
 env.PostScript(target = 'aaa.ps', source = 'aaa.tex')
 # builds bbb.ps from bbb.dvi
 env.PostScript(target = 'bbb', source = 'bbb.dvi')
-</example_commands>
+</programlisting>
 </summary>
 </builder>
 
