@@ -1037,7 +1037,8 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
     # underlying method it tests (Environment.BuilderWrapper.execute())
     # is necessary, but we're leaving the code here for now in case
     # that's mistaken.
-    def _DO_NOT_test_Builder_execs(self) -> None:
+    @unittest.skip("BuilderWrapper.execute method not needed")
+    def test_Builder_execs(self) -> None:
         """Test Builder execution through different environments
 
         One environment is initialized with a single
@@ -1291,10 +1292,14 @@ env4.builder1.env, env3)
         ]
         assert flags == expect, flags
 
-        env.Replace(F77PATH = [ 'foo', '$FOO/bar', blat ],
-                    INCPREFIX = 'foo ',
-                    INCSUFFIX = 'bar',
-                    FOO = 'baz')
+        # do a Replace using the dict form
+        newvalues = {
+            "F77PATH": ['foo', '$FOO/bar', blat],
+            "INCPREFIX": 'foo ',
+            "INCSUFFIX": 'bar',
+            "FOO": 'baz',
+        }
+        env.Replace(**newvalues)
         flags = env.subst_list('$_F77INCFLAGS', 1)[0]
         expect = [ '$(',
                    normalize_path('foo'),

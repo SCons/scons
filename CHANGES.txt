@@ -42,6 +42,16 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       will now not be deleted from the base environment. Override Environments
       now also pretend to have a _dict attribute so that regular environment
       methods don't have a problem if passed an OE instance.
+    - Fix a problem with compilation_db component initialization - the
+      entries for assembler files were not being set up correctly.
+    - Add clang and clang++ to the default tool search orders for POSIX
+      and Windows platforms. These will be searched for after gcc and g++,
+      respectively. Does not affect expliclity requested tool lists.
+      Note: on Windows, SCons currently only has builtin support for
+      clang, not for clang-cl, the version of the frontend that uses
+      cl.exe-compatible command line switches.
+    - Some manpage cleanup for the gettext and pdf/ps builders.
+    - Some clarifications in the User Guide "Environments" chapter.
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700

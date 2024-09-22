@@ -27,10 +27,13 @@ This file is processed by the bin/SConsDoc.py module.
 <tool name="msgfmt">
 <summary>
 <para>
-This scons tool is a part of scons &t-link-gettext; toolset. It provides scons
-interface to <command>msgfmt(1)</command> command, which generates binary
-message catalog (<literal>MO</literal>) from a textual translation description
-(<literal>PO</literal>).
+This tool is a part of the &t-link-gettext; toolset.
+It provides &SCons;
+an interface to the <command>msgfmt(1)</command> command
+by setting up the &b-link-MOFiles; builder,
+which generates binary message catalog (<literal>MO</literal>) files
+from a textual translation description
+(<literal>PO</literal> files).
 </para>
 </summary>
 <sets>
@@ -49,8 +52,12 @@ message catalog (<literal>MO</literal>) from a textual translation description
 <builder name="MOFiles">
 <summary>
 <para>
-This builder belongs to &t-link-msgfmt; tool. The builder compiles
+This builder is set up by the &t-link-msgfmt; tool.
+The builder compiles
 <literal>PO</literal> files to <literal>MO</literal> files.
+&b-MOFiles; is a single-source builder.
+The <parameter>source</parameter> parameter
+can also be omitted if &cv-link-LINGUAS_FILE; is set.
 </para>
 
 <para>
@@ -58,19 +65,17 @@ This builder belongs to &t-link-msgfmt; tool. The builder compiles
 Create <filename>pl.mo</filename> and <filename>en.mo</filename> by compiling
 <filename>pl.po</filename> and <filename>en.po</filename>:
 </para>
-<example_commands>
-  # ...
-  env.MOFiles(['pl', 'en'])
-</example_commands>
+<programlisting language="python">
+env.MOFiles(['pl', 'en'])
+</programlisting>
 
 <para>
 <emphasis>Example 2</emphasis>.
 Compile files for languages defined in <filename>LINGUAS</filename> file:
 </para>
-<example_commands>
-  # ...
-  env.MOFiles(LINGUAS_FILE = 1)
-</example_commands>
+<programlisting language="python">
+env.MOFiles(LINGUAS_FILE=True)
+</programlisting>
 
 <para>
 <emphasis>Example 3</emphasis>.
@@ -78,24 +83,22 @@ Create <filename>pl.mo</filename> and <filename>en.mo</filename> by compiling
 <filename>pl.po</filename> and <filename>en.po</filename> plus files for
 languages defined in <filename>LINGUAS</filename> file:
 </para>
-<example_commands>
-  # ...
-  env.MOFiles(['pl', 'en'], LINGUAS_FILE = 1)
-</example_commands>
+<programlisting language="python">
+env.MOFiles(['pl', 'en'], LINGUAS_FILE=True)
+</programlisting>
 
 <para>
 <emphasis>Example 4</emphasis>.
 Compile files for languages defined in <filename>LINGUAS</filename> file
 (another version):
 </para>
-<example_commands>
-  # ...
-  env['LINGUAS_FILE'] = 1
-  env.MOFiles()
-</example_commands>
+<programlisting language="python">
+env['LINGUAS_FILE'] = True
+env.MOFiles()
+</programlisting>
 </summary>
 </builder>
-<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+
 <cvar name="MOSUFFIX">
 <summary>
 <para>
@@ -104,7 +107,7 @@ See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
 </para>
 </summary>
 </cvar>
-<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+
 <cvar name="MSGFMT">
 <summary>
 <para>
@@ -114,7 +117,7 @@ See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
 </para>
 </summary>
 </cvar>
-<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+
 <cvar name="MSGFMTCOM">
 <summary>
 <para>
@@ -123,7 +126,7 @@ See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
 </para>
 </summary>
 </cvar>
-<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+
 <cvar name="MSGFMTCOMSTR">
 <summary>
 <para>
@@ -133,7 +136,7 @@ See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
 </para>
 </summary>
 </cvar>
-<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+
 <cvar name="MSGFMTFLAGS">
 <summary>
 <para>

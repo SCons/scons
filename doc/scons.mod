@@ -308,8 +308,10 @@ This file is processed by the bin/SConsDoc.py module.
 
 <!-- Python functions and classes -->
 
-<!ENTITY IndexError "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>IndexError</classname>">
-<!ENTITY NameError "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>NameError</classname>">
+<!ENTITY AttributeError "<exceptionname xmlns='http://www.scons.org/dbxsd/v1.0'>AttributeError</exceptionname>">
+<!ENTITY IndexError "<exceptionname xmlns='http://www.scons.org/dbxsd/v1.0'>IndexError</exceptionname>">
+<!ENTITY KeyError "<exceptionname xmlns='http://www.scons.org/dbxsd/v1.0'>KeyError</exceptionname>">
+<!ENTITY NameError "<exceptionname xmlns='http://www.scons.org/dbxsd/v1.0'>NameError</exceptionname>">
 <!ENTITY str "<function xmlns='http://www.scons.org/dbxsd/v1.0'>str</function>">
 <!ENTITY zipfile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>zipfile</function>">
 
