@@ -40,7 +40,7 @@ The toolset loads the following tools:
   </para></listitem>
   <listitem><para>
     &t-link-msginit; - initialize <literal>PO</literal>
-    files during initial tranlation of a project.
+    files during initial translation of a project.
   </para></listitem>
   <listitem><para>
     &t-link-msgmerge; - update <literal>PO</literal> files that already contain
@@ -53,7 +53,7 @@ The toolset loads the following tools:
 </para>
 
 <para>
-When you enable &t-gettext;, it internally loads all abovementioned tools,
+When you enable &t-gettext;, it internally loads all the above-mentioned tools,
 so you're encouraged to see their individual documentation.
 </para>
 
@@ -89,7 +89,7 @@ and then updates <literal>PO</literal> translations (if necessary).
 If &cv-link-POAUTOINIT; is set, missing <literal>PO</literal> files
 will be automatically created (i.e. without translator person intervention).
 The variables &cv-link-LINGUAS_FILE; and &cv-link-POTDOMAIN; are taken into
-acount too. All other construction variables used by &b-link-POTUpdate;, and
+account too. All other construction variables used by &b-link-POTUpdate;, and
 &b-link-POUpdate; work here too.
 </para>
 
@@ -144,7 +144,7 @@ factor" synchronizing these two scripts is then the content of
 <filename>LINGUAS</filename> file.  Note, that the updated
 <literal>POT</literal> and <literal>PO</literal> files are usually going to be
 committed back to the repository, so they must be updated within the source
-directory (and not in variant directories). Additionaly, the file listing of
+directory (and not in variant directories). Additionally, the file listing of
 <filename>po/</filename> directory contains <filename>LINGUAS</filename> file,
 so the source tree looks familiar to translators, and they may work with the
 project in their usual way.
