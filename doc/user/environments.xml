@@ -593,7 +593,7 @@ void main() { }
       &consvars;, each with a name and a value, just like a dictionary.
       (A &consenv; also has an attached
       set of &Builder; methods,
-      which you'll learn more abour later.)
+      which you'll learn more about later.)
 
     </para>
 
