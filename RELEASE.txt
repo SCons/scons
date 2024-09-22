@@ -46,6 +46,10 @@ FIXES
 - Fix a problem with compilation_db component initialization - the
   entries for assembler files were not being set up correctly.
 
+- On Darwin, PermissionErrors are now handled while trying to access
+  /etc/paths.d. This may occur if SCons is invoked in a sandboxed environment
+  (such as Nix).
+
 IMPROVEMENTS
 ------------
 
