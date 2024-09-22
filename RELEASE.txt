@@ -29,7 +29,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - List modifications to existing features, where the previous behavior
   wouldn't actually be considered a bug
 
-- Override envirionments, created when giving construction environment
+- Override environments, created when giving construction environment
   keyword arguments to Builder calls (or manually, through the
   undocumented Override method), were modified not to "leak" on item deletion.
   The item will now not be deleted from the base environment.
@@ -77,7 +77,7 @@ DOCUMENTATION
   typo fixes, even if they're mentioned in src/CHANGES.txt to give
   the contributor credit)
 
-- Some manpage cleanup for the gettext and pdf/ps builders.
+- Some clarifications in the User Guide "Environments" chapter.
 
 DEVELOPMENT
 -----------
