@@ -48,6 +48,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       clang, not for clang-cl, the version of the frontend that uses
       cl.exe-compatible command line switches.
     - Some manpage cleanup for the gettext and pdf/ps builders.
+    - Some clarifications in the User Guide "Environments" chapter.
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700

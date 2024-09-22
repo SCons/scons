@@ -874,7 +874,7 @@ prog.c
           <methodname>get</methodname> method,
           so you can supply a default value if the variable is
           not given on the command line. Otherwise, the build
-          will fail with a <exceptionname>KeyError</exceptionname>
+          will fail with a &KeyError;
           if the variable is not set.
         </para>
       </listitem>

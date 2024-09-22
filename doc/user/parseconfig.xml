@@ -55,7 +55,7 @@ This file is processed by the bin/SConsDoc.py module.
 
  <para>
 
- &SCons; &consvars; have a &f-link-ParseConfig;
+ &SCons; &consenvs; have a &f-link-ParseConfig;
  method that asks the host system to execute a command
  and then configures the appropriate &consvars; based on
  the output of that command.
@@ -102,7 +102,7 @@ scons: `.' is up to date.
 
  In the example above, &SCons; has added the include directory to
  &cv-link-CPPPATH;
- (Depending upon what other flags are emitted by the
+ (depending on what other flags are emitted by the
  <filename>pkg-config</filename> command,
  other variables may have been extended as well.)
 

@@ -31,16 +31,16 @@ This file is processed by the bin/SConsDoc.py module.
 </arguments>
 <summary>
 <para>
-Specifies the exceptions that will be allowed
-when expanding construction variables.
+Specifies the exceptions that will be ignored
+when expanding &consvars;.
 By default,
-any construction variable expansions that generate a
-<literal>NameError</literal>
+any &consvar; expansions that generate a
+&NameError;
 or
-<literal>IndexError</literal>
+&IndexError;
 exception will expand to a
 <literal>''</literal>
-(an empty string) and not cause scons to fail.
+(an empty string) and not cause &scons; to fail.
 All exceptions not in the specified list
 will generate an error message
 and terminate processing.
@@ -51,7 +51,8 @@ If
 &f-AllowSubstExceptions;
 is called multiple times,
 each call completely overwrites the previous list
-of allowed exceptions.
+of ignored exceptions.
+Calling it with no arguments means no exceptions will be ignored.
 </para>
 
 <para>
