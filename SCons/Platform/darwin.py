@@ -46,7 +46,7 @@ def generate(env) -> None:
     # make sure this works on Macs with Tiger or earlier
     try:
         dirlist = os.listdir('/etc/paths.d')
-    except FileNotFoundError:
+    except (FileNotFoundError, PermissionError):
         dirlist = []
 
     for file in dirlist:

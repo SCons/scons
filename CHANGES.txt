@@ -50,6 +50,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Some manpage cleanup for the gettext and pdf/ps builders.
     - Some clarifications in the User Guide "Environments" chapter.
 
+  From Alex James:
+    - On Darwin, PermissionErrors are now handled while trying to access
+      /etc/paths.d. This may occur if SCons is invoked in a sandboxed
+      environment (such as Nix).
+
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
 
