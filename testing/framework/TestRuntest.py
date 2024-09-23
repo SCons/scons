@@ -43,13 +43,7 @@ import sys
 from TestCommon import *
 from TestCommon import __all__
 
-__all__.extend(
-    [
-        'TestRuntest',
-        'pythonstring',
-        'pythonflags',
-    ]
-)
+__all__.extend(['TestRuntest', 'pythonstring', 'pythonflags'])
 
 pythonstring = python
 pythonflags = ''
@@ -91,6 +85,7 @@ __date__ = 'Dec 31 1999'
 __developer__ = 'John Doe'
 """
 
+
 class TestRuntest(TestCommon):
     """Class for testing the runtest.py script.
 
@@ -122,7 +117,9 @@ class TestRuntest(TestCommon):
         if 'program' not in kw:
             kw['program'] = 'runtest.py'
         if 'interpreter' not in kw:
-            kw['interpreter'] = [python,]
+            kw['interpreter'] = [
+                python,
+            ]
         if 'match' not in kw:
             kw['match'] = match_exact
         if 'workdir' not in kw:
@@ -175,6 +172,7 @@ class TestRuntest(TestCommon):
 
     def write_passing_test(self, name) -> None:
         self.write(name, passing_test_template)
+
 
 # Local Variables:
 # tab-width:4

@@ -15,6 +15,7 @@ __version__ = "0.3"
 
 
 from unittest import TextTestRunner
+
 try:
     from unittest import TextTestResult
 except ImportError:
@@ -23,19 +24,18 @@ except ImportError:
 
 
 class TAPTestResult(TextTestResult):
-
-    def _process(self, test, msg, failtype = None, directive = None) -> None:
-        """ increase the counter, format and output TAP info """
+    def _process(self, test, msg, failtype=None, directive=None) -> None:
+        """increase the counter, format and output TAP info"""
         # counterhack: increase test counter
         test.suite.tap_counter += 1
         msg = "%s %d" % (msg, test.suite.tap_counter)
         if "not" not in msg:
             msg += "    "  # justify
-        self.stream.write("%s - " % msg)
+        self.stream.write(f"{msg} - ")
         if failtype:
-            self.stream.write("%s - " % failtype)
-        self.stream.write("%s" % test.__class__.__name__)
-        self.stream.write(".%s" % test._testMethodName)
+            self.stream.write(f"{failtype} - ")
+        self.stream.write(f"{test.__class__.__name__}")
+        self.stream.write(f".{test._testMethodName}")
         if directive:
             self.stream.write(directive)
         self.stream.write("\n")
@@ -58,7 +58,7 @@ class TAPTestResult(TextTestResult):
 
     def addSkip(self, test, reason) -> None:
         super().addSkip(test, reason)
-        self._process(test, "ok", directive=("  # SKIP  %s" % reason))
+        self._process(test, "ok", directive=f"  # SKIP  {reason}")
 
     def addExpectedFailure(self, test, err) -> None:
         super().addExpectedFailure(test, err)
@@ -82,7 +82,7 @@ class TAPTestRunner(TextTestRunner):
         # [ ] add commented block with test suite __doc__
         # [ ] check call with a single test
         # if isinstance(test, suite.TestSuite):
-        self.stream.write("1..%s\n" % len(list(test)))
+        self.stream.write(f"1..{len(list(test))}\n")
 
         # counterhack: inject test counter into test suite
         test.tap_counter = 0
@@ -98,33 +98,40 @@ if __name__ == "__main__":
     import unittest
 
     class Test(unittest.TestCase):
-       def test_ok(self) -> None:
-           pass
-       def test_fail(self) -> None:
-           self.assertTrue(False)
-       def test_error(self) -> None:
-           bad_symbol
-       @unittest.skip("skipin'")
-       def test_skip(self) -> None:
-           pass
-       @unittest.expectedFailure
-       def test_not_ready(self) -> None:
-           self.fail()
-       @unittest.expectedFailure
-       def test_invalid_fail_mark(self) -> None:
-           pass
-       def test_another_ok(self) -> None:
-           pass
+        def test_ok(self) -> None:
+            pass
 
+        def test_fail(self) -> None:
+            self.assertTrue(False)
 
-    suite = unittest.TestSuite([
-       Test('test_ok'),
-       Test('test_fail'),
-       Test('test_error'),
-       Test('test_skip'),
-       Test('test_not_ready'),
-       Test('test_invalid_fail_mark'),
-       Test('test_another_ok')
-    ])
+        def test_error(self) -> None:
+            bad_symbol
+
+        @unittest.skip("skipin'")
+        def test_skip(self) -> None:
+            pass
+
+        @unittest.expectedFailure
+        def test_not_ready(self) -> None:
+            self.fail()
+
+        @unittest.expectedFailure
+        def test_invalid_fail_mark(self) -> None:
+            pass
+
+        def test_another_ok(self) -> None:
+            pass
+
+    suite = unittest.TestSuite(
+        [
+            Test('test_ok'),
+            Test('test_fail'),
+            Test('test_error'),
+            Test('test_skip'),
+            Test('test_not_ready'),
+            Test('test_invalid_fail_mark'),
+            Test('test_another_ok'),
+        ]
+    )
     if not TAPTestRunner().run(suite).wasSuccessful():
-       sys.exit(1)
+        sys.exit(1)
