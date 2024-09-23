@@ -196,6 +196,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Update the User Guide Command() example which now shows a target name
       being created from '${SOURCE.base}.out' to use a valid special
       attribute and to explain what's being done in the example.
+    - Test framework reformatted using settings from pyproject.toml.
+      Includes code embedded in docstrings.
 
     From Adam Scott:
     - Changed Ninja's TEMPLATE rule pool to use `install_pool` instead of
