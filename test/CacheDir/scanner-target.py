@@ -35,8 +35,6 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('cache')
-
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 import SCons

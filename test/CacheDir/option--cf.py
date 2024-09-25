@@ -34,7 +34,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('cache', 'src')
+test.subdir('src')
 
 test.write(['src', 'SConstruct'], """
 DefaultEnvironment(tools=[])
@@ -88,7 +88,6 @@ test.up_to_date(chdir = 'src', arguments = '.')
 # Blow away and recreate the CacheDir, then verify that --cache-force
 # repopulates the cache with the local built targets.  DO NOT CLEAN UP.
 shutil.rmtree(test.workpath('cache'))
-test.subdir('cache')
 
 test.run(chdir = 'src', arguments = '--cache-force .')
 
@@ -106,7 +105,6 @@ test.fail_test(os.path.exists(test.workpath('src', 'cat.out')))
 # Blow away and recreate the CacheDir, then verify that --cache-populate
 # repopulates the cache with the local built targets.  DO NOT CLEAN UP.
 shutil.rmtree(test.workpath('cache'))
-test.subdir('cache')
 
 test.run(chdir = 'src', arguments = '--cache-populate .')
 

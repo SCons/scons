@@ -32,8 +32,6 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('cache')
-
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 def touch(env, source, target):
