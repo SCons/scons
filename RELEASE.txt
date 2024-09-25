@@ -33,7 +33,12 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   keyword arguments to Builder calls (or manually, through the
   undocumented Override method), were modified not to "leak" on item deletion.
   The item will now not be deleted from the base environment.
+
 - Added support for tracking beamer themes in the LaTeX scanner.
+
+- Add a tag to each CacheDir to let systems ignore backing it up
+  (per https://bford.info/cachedir/). Update the way a CacheDir
+  is created, since it now has to create two files.
 
 FIXES
 -----
