@@ -149,7 +149,7 @@ if LOGFILE:
             log_handler = logging.FileHandler(filename=LOGFILE)
         except (OSError, FileNotFoundError) as e:
             err_msg = (
-                f"Could not create logfile, check SCONS_MSCOMMON_DEBUG\n"
+                "Could not create logfile, check SCONS_MSCOMMON_DEBUG\n"
                 f"  SCONS_MSCOMMON_DEBUG={LOGFILE}\n"
                 f"  {e.__class__.__name__}: {str(e)}"
             )
