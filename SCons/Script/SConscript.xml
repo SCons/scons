@@ -272,7 +272,7 @@ file is found.
 
 <scons_function name="Help">
 <arguments>
-(text, append=False, local_only=False)
+(text, append=False, keep_local=False)
 </arguments>
 <summary>
 <para>
@@ -292,7 +292,7 @@ This is the help printed if &f-Help; has never been called.
 If <parameter>append</parameter> is <constant>True</constant>,
 <parameter>text</parameter> is appended to
 the existing help text.
-If <parameter>local_only</parameter> is also <constant>True</constant>
+If <parameter>keep_local</parameter> is also <constant>True</constant>
 (the default is <constant>False</constant>),
 the project-local help from &f-AddOption; calls is preserved
 in the help message but the &scons; command help is not.
@@ -301,11 +301,11 @@ in the help message but the &scons; command help is not.
 Subsequent calls to
 &f-Help; ignore the keyword arguments
 <parameter>append</parameter> and
-<parameter>local_only</parameter>
+<parameter>keep_local</parameter>
 and always append to the existing help text.
 </para>
 <para>
-<emphasis>Changed in 4.6.0</emphasis>: added <parameter>local_only</parameter>.
+<emphasis>Changed in 4.6.0</emphasis>: added <parameter>keep_local</parameter>.
 </para>
 
 </summary>

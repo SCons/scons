@@ -263,7 +263,7 @@ def HelpFunction(text, append: bool = False, keep_local: bool = False) -> None:
     if help_text is None:
         if append:
             with StringIO() as s:
-                PrintHelp(s, local_only=keep_local)
+                PrintHelp(s, keep_local=keep_local)
                 help_text = s.getvalue()
         else:
             help_text = ""

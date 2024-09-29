@@ -49,6 +49,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       cl.exe-compatible command line switches.
     - Some manpage cleanup for the gettext and pdf/ps builders.
     - Some clarifications in the User Guide "Environments" chapter.
+    - Fixed wrong naming in the documentation of "keep_local" parameter for 
+      the Help() method.
 
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access
