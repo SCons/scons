@@ -38,7 +38,7 @@ from SCons.Script.SConsOptions import SConsOption
 DefaultEnvironment(tools=[])
 env = Environment(tools=[])
 AddOption(
-    '--force',
+    '-F', '--force',
     action="store_true",
     help='force installation (overwrite any existing files)',
 )
@@ -74,6 +74,7 @@ if GetOption('zcount'):
 
 test.run('-Q -q .', stdout="None\nNone\n")
 test.run('-Q -q . --force', stdout="True\nNone\n")
+test.run('-Q -q . -F', stdout="True\nNone\n")
 test.run('-Q -q . --prefix=/home/foo', stdout="None\n/home/foo\n")
 test.run('-Q -q . -- --prefix=/home/foo --force', status=1, stdout="None\nNone\n")
 # check that SetOption works on prefix...
