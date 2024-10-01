@@ -45,15 +45,12 @@ class MSCommonLogFileWarning(SCons.Warnings.WarningOnByDefault):
     pass
 
 def _check_logfile(logfile):
-    if logfile and len(logfile) >= 2:
-        if logfile[0] == '"' and logfile[-1] == '"':
-            logfile = logfile[1:-1]
-            warn_msg = (
-                "SCONS_MSCOMMON_DEBUG value enclosed in double quotes, doubles quotes removed\n"
-                f'  original value="{logfile}"\n'
-                f"  modified value={logfile}"
-            )
-            SCons.Warnings.warn(MSCommonLogFileWarning, warn_msg)
+    if logfile and '"' in logfile:
+        err_msg = (
+            "SCONS_MSCOMMON_DEBUG value contains double quote character(s)\n"
+            f"  SCONS_MSCOMMON_DEBUG={logfile}"
+        )
+        raise SCons.Errors.UserError(err_msg)
     return logfile
 
 # SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
