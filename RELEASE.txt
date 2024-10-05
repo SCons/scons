@@ -55,6 +55,8 @@ FIXES
   /etc/paths.d. This may occur if SCons is invoked in a sandboxed environment
   (such as Nix).
 
+- Fix nasm test for missing include file, cleanup.
+
 IMPROVEMENTS
 ------------
 
