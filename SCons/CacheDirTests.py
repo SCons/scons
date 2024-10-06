@@ -34,6 +34,13 @@ import SCons.CacheDir
 
 built_it = None
 
+IS_WINDOWS = sys.platform == 'win32'
+try:
+    IS_ROOT = os.geteuid() == 0
+except AttributeError:
+    IS_ROOT = False
+
+
 class Action:
     def __call__(self, targets, sources, env, **kw) -> int:
         global built_it
@@ -85,7 +92,6 @@ class BaseTestCase(unittest.TestCase):
     def tearDown(self) -> None:
         os.remove(os.path.join(self._CacheDir.path, 'config'))
         os.rmdir(self._CacheDir.path)
-        # Should that be shutil.rmtree?
 
 class CacheDirTestCase(BaseTestCase):
     """
@@ -124,20 +130,29 @@ class ExceptionTestCase(unittest.TestCase):
     def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)
 
-    @unittest.skipIf(sys.platform.startswith("win"), "This fixture will not trigger an OSError on Windows")
+    @unittest.skipIf(
+        IS_WINDOWS,
+        "Skip privileged CacheDir test on Windows, cannot change directory rights",
+    )
+    @unittest.skipIf(
+        IS_ROOT,
+        "Skip privileged CacheDir test if running as root.",
+    )
     def test_throws_correct_on_OSError(self) -> None:
-        """Test that the correct error is thrown when cache directory cannot be created."""
+        """Test for correct error when cache directory cannot be created."""
+        test = TestCmd()
         privileged_dir = os.path.join(self.tmpdir, "privileged")
-        try:
-            os.mkdir(privileged_dir)
-            os.chmod(privileged_dir, stat.S_IREAD)
-            cd = SCons.CacheDir.CacheDir(os.path.join(privileged_dir, "cache"))
-            assert False, "Should have raised exception and did not"
-        except SCons.Errors.SConsEnvironmentError as e:
-            assert str(e) == "Failed to create cache directory {}".format(os.path.join(privileged_dir, "cache"))
-        finally:
-            os.chmod(privileged_dir, stat.S_IWRITE | stat.S_IEXEC | stat.S_IREAD)
-            shutil.rmtree(privileged_dir)
+        cachedir_path = os.path.join(privileged_dir, "cache")
+        os.makedirs(privileged_dir, exist_ok=True)
+        test.writable(privileged_dir, False)
+        with self.assertRaises(SCons.Errors.SConsEnvironmentError) as cm:
+            cd = SCons.CacheDir.CacheDir(cachedir_path)
+        self.assertEqual(
+            str(cm.exception),
+            "Failed to create cache directory " + cachedir_path
+        )
+        test.writable(privileged_dir, True)
+        shutil.rmtree(privileged_dir)
 
 
     def test_throws_correct_when_failed_to_write_configfile(self) -> None:

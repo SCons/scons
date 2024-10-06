@@ -2003,11 +2003,15 @@ class TestCmd:
                     do_chmod(os.path.join(dirpath, name))
             do_chmod(top)
 
-    def writable(self, top, write: bool=True) -> None:
+    def writable(self, top, write: bool = True) -> None:
         """Make the specified directory tree writable or unwritable.
 
         Tree is made writable if `write` evaluates True (the default),
         else it is made not writable.
+
+        Note on Windows the only thing we can do is and/remove the
+        "readable" setting without resorting to PyWin32 - and that,
+        only as Administrator, so this is kind of pointless there.
         """
 
         if sys.platform == 'win32':
@@ -2034,7 +2038,7 @@ class TestCmd:
                     except OSError:
                         pass
                     else:
-                        os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE] | 0o200))
+                        os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE] | stat.S_IWRITE))
             else:
                 def do_chmod(fname) -> None:
                     try:
@@ -2043,7 +2047,7 @@ class TestCmd:
                         pass
                     else:
                         os.chmod(fname, stat.S_IMODE(
-                            st[stat.ST_MODE] & ~0o200))
+                            st[stat.ST_MODE] & ~stat.S_IWRITE))
 
         if os.path.isfile(top):
             do_chmod(top)

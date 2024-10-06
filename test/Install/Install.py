@@ -131,16 +131,21 @@ test.must_match(['work', 'f2.out'], "f2.in\n", mode='r')
 # if a target can not be unlinked before building it:
 test.write(['work', 'f1.in'], "f1.in again again\n")
 
-os.chmod(test.workpath('work', 'export'), 0o555)
-with open(f1_out, 'rb'):
-    expect = [
-        "Permission denied",
-        "The process cannot access the file because it is being used by another process",
-        "Der Prozess kann nicht auf die Datei zugreifen, da sie von einem anderen Prozess verwendet wird",
-    ]
+# This test is not designed to work if running as root
+try:
+    IS_ROOT = os.geteuid() == 0
+except AttributeError:
+    IS_ROOT = False
+if not IS_ROOT:
+    os.chmod(test.workpath('work', 'export'), 0o555)
+    with open(f1_out, 'rb'):
+        expect = [
+            "Permission denied",
+            "The process cannot access the file because it is being used by another process",
+            "Der Prozess kann nicht auf die Datei zugreifen, da sie von einem anderen Prozess verwendet wird",
+        ]
 
     test.run(chdir='work', arguments=f1_out, stderr=None, status=2)
-
     test.must_contain_any_line(test.stderr(), expect)
 
 test.pass_test()

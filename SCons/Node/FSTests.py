@@ -44,6 +44,11 @@ built_it = None
 
 scanner_count = 0
 
+try:
+    IS_ROOT = os.geteuid() == 0
+except AttributeError:
+    IS_ROOT = False
+
 
 class Scanner:
     def __init__(self, node=None) -> None:
@@ -958,6 +963,8 @@ class FSTestCase(_tempdirTestCase):
         This test case handles all of the file system node
         tests in one environment, so we don't have to set up a
         complicated directory structure for each test individually.
+        This isn't ideal: normally you want to separate tests a bit
+        more to make it easier to debug and not fail too fast.
         """
         test = self.test
 
@@ -1550,26 +1557,29 @@ class FSTestCase(_tempdirTestCase):
             assert r, r
             assert not os.path.islink(symlink), "symlink was not removed"
 
-        test.write('can_not_remove', "can_not_remove\n")
-        test.writable(test.workpath('.'), 0)
-        fp = open(test.workpath('can_not_remove'))
-
-        f = fs.File('can_not_remove')
-        exc_caught = 0
-        try:
-            r = f.remove()
-        except OSError:
-            exc_caught = 1
-
-        fp.close()
-
-        assert exc_caught, "Should have caught an OSError, r = " + str(r)
-
         f = fs.Entry('foo/bar/baz')
         assert f.for_signature() == 'baz', f.for_signature()
         assert f.get_string(0) == os.path.normpath('foo/bar/baz'), \
             f.get_string(0)
         assert f.get_string(1) == 'baz', f.get_string(1)
+
+
+    @unittest.skipIf(IS_ROOT, "Skip file removal in protected dir if running as root.")
+    def test_remove_fail(self) -> None:
+        """Test failure when removing a file where permissions don't allow.
+
+        Split from :math:`test_runTest` to be able to skip on root.
+        We want to be able to skip only this one testcase and run the rest.
+        """
+        test = self.test
+        fs = SCons.Node.FS.FS()
+        test.write('can_not_remove', "can_not_remove\n")
+        test.writable(test.workpath('.'), False)
+        with open(test.workpath('can_not_remove')):
+            f = fs.File('can_not_remove')
+            with self.assertRaises(OSError, msg="Should have caught an OSError"):
+                r = f.remove()
+
 
     def test_drive_letters(self) -> None:
         """Test drive-letter look-ups"""
