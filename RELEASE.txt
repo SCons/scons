@@ -37,17 +37,22 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
+- List fixes of outright bugs
+
 - PackageVariable now does what the documentation always said it does
   if the variable is used on the command line with one of the enabling
   string as the value: the variable's default value is produced (previously
   it always produced True in this case).
+
 - Temporary files created by TempFileMunge() are now cleaned up on
   scons exit, instead of at the time they're used.  Fixes #4595.
+
 - AddOption now correctly adds short (single-character) options.
   Previously an added short option would always report as unknown,
   while long option names for the same option worked. Short options
   that take a value require the user to specify the value immediately
   following the option, with no spaces (e.g. -j5 and not -j 5).
+
 - Fix a problem with compilation_db component initialization - the
   entries for assembler files were not being set up correctly.
 - On Darwin, PermissionErrors are now handled while trying to access
@@ -57,6 +62,9 @@ FIXES
   SCONS_MSCOMMON_DEBUG
 
 - Fix nasm test for missing include file, cleanup.
+
+- Skip running a few validation tests if the user is root and the test is
+  not designed to work for the root user.
 
 IMPROVEMENTS
 ------------

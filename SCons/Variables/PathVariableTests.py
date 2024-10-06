@@ -30,6 +30,12 @@ import SCons.Variables
 import TestCmd
 from TestCmd import IS_WINDOWS
 
+try:
+    IS_ROOT = os.geteuid() == 0
+except AttributeError:
+    IS_ROOT = False
+
+
 class PathVariableTestCase(unittest.TestCase):
     def test_PathVariable(self) -> None:
         """Test PathVariable creation"""
@@ -93,7 +99,7 @@ class PathVariableTestCase(unittest.TestCase):
         self.assertEqual(str(e), f"Directory path for variable 'X' does not exist: {dne}")
 
     def test_PathIsDirCreate(self):
-        """Test the PathIsDirCreate validator"""
+        """Test the PathIsDirCreate validator."""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PathVariable('test',
                                           'test build variable help',
@@ -115,6 +121,27 @@ class PathVariableTestCase(unittest.TestCase):
         e = cm.exception
         self.assertEqual(str(e), f"Path for variable 'X' is a file, not a directory: {f}")
 
+
+    @unittest.skipIf(IS_ROOT, "Skip creating bad directory if running as root.")
+    def test_PathIsDirCreate_bad_dir(self):
+        """Test the PathIsDirCreate validator with an uncreatable dir.
+
+        Split from :meth:`test_PathIsDirCreate` to be able to skip on root.
+        We want to be able to skip only this one testcase and run the rest.
+        """
+        opts = SCons.Variables.Variables()
+        opts.Add(
+            SCons.Variables.PathVariable(
+                'test',
+                'test build variable help',
+                '/default/path',
+                SCons.Variables.PathVariable.PathIsDirCreate,
+            )
+        )
+
+        test = TestCmd.TestCmd(workdir='')
+        o = opts.options[0]
+
         # pick a directory path that can't be mkdir'd
         if IS_WINDOWS:
             f = r'\\noserver\noshare\yyy\zzz'
@@ -125,8 +152,9 @@ class PathVariableTestCase(unittest.TestCase):
         e = cm.exception
         self.assertEqual(str(e), f"Path for variable 'X' could not be created: {f}")
 
+
     def test_PathIsFile(self):
-        """Test the PathIsFile validator"""
+        """Test the PathIsFile validator."""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PathVariable('test',
                                           'test build variable help',
