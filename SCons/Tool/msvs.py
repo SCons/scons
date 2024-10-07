@@ -1554,6 +1554,7 @@ class _GenerateV7DSW(_DSWGenerator):
                           if not (p.platform in seen or seen.add(p.platform))]
 
         def GenerateProjectFilesInfo(self) -> None:
+            project_guid = self.env.get('MSVS_PROJECT_GUID', '')
             for dspfile in self.dspfiles:
                 dsp_folder_path, name = os.path.split(dspfile)
                 dsp_folder_path = os.path.abspath(dsp_folder_path)
@@ -1565,8 +1566,12 @@ class _GenerateV7DSW(_DSWGenerator):
                     dsp_relative_file_path = name
                 else:
                     dsp_relative_file_path = os.path.join(dsp_relative_folder_path, name)
+                if not project_guid:
+                    guid = _generateGUID(dspfile, '')
+                else:
+                    guid = project_guid
                 dspfile_info = {'NAME': name,
-                                'GUID': _generateGUID(dspfile, ''),
+                                'GUID': guid,
                                 'FOLDER_PATH': dsp_folder_path,
                                 'FILE_PATH': dspfile,
                                 'SLN_RELATIVE_FOLDER_PATH': dsp_relative_folder_path,
@@ -1615,7 +1620,7 @@ class _GenerateV7DSW(_DSWGenerator):
         elif self.version_num >= 14.2:
             # Visual Studio 2019 is considered to be version 16.
             self.file.write('# Visual Studio 16\n')
-        elif self.version_num > 14.0:
+        elif self.version_num >= 14.0:
             # Visual Studio 2015 and 2017 are both considered to be version 15.
             self.file.write('# Visual Studio 15\n')
         elif self.version_num >= 12.0:
@@ -1632,7 +1637,7 @@ class _GenerateV7DSW(_DSWGenerator):
         for dspinfo in self.dspfiles_info:
             name = dspinfo['NAME']
             base, suffix = SCons.Util.splitext(name)
-            if suffix == '.vcproj':
+            if suffix in ('.vcxproj', '.vcproj'):
                 name = base
             self.file.write('Project("%s") = "%s", "%s", "%s"\n'
                             % (external_makefile_guid, name, dspinfo['SLN_RELATIVE_FILE_PATH'], dspinfo['GUID']))

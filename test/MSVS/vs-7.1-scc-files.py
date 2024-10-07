@@ -37,12 +37,11 @@ test = TestSConsMSVS.TestSConsMSVS()
 # Make the test infrastructure think we have this version of MSVS installed.
 test._msvs_versions = ['7.1']
 
-
-
 expected_slnfile = TestSConsMSVS.expected_slnfile_7_1
 expected_vcprojfile = TestSConsMSVS.expected_vcprojfile_7_1
 SConscript_contents = """\
 env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='7.1',
+                MSVS_PROJECT_GUID='%(MSVS_PROJECT_GUID)s',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 MSVS_SCC_CONNECTION_ROOT='.',
@@ -65,7 +64,7 @@ env.MSVSProject(target = 'Test.vcproj',
                 misc = testmisc,
                 buildtarget = 'Test.exe',
                 variant = 'Release')
-"""
+""" % {'MSVS_PROJECT_GUID': TestSConsMSVS.MSVS_PROJECT_GUID}
 
 expected_sln_sccinfo = """\
 \tGlobalSection(SourceCodeControl) = preSolution
@@ -89,7 +88,6 @@ expected_vcproj_sccinfo = """\
 \tSccProvider="MSSCCI:Perforce SCM"
 """
 
-
 test.write('SConstruct', SConscript_contents)
 
 test.run(arguments="Test.vcproj")
@@ -107,7 +105,6 @@ expect = test.msvs_substitute(expected_slnfile, '7.1', None, 'SConstruct',
                               sln_sccinfo=expected_sln_sccinfo)
 # don't compare the pickled data
 assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
-
 
 test.pass_test()
 

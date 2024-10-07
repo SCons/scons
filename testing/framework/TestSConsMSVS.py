@@ -50,6 +50,8 @@ from TestSCons import *
 from TestSCons import __all__
 
 
+MSVS_PROJECT_GUID = "{00000000-0000-0000-0000-000000000000}"
+
 expected_dspfile_6_0 = '''\
 # Microsoft Developer Studio Project File - Name="Test" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
@@ -311,7 +313,9 @@ expected_vcprojfile_7_0 = """\
 
 SConscript_contents_7_0 = """\
 env=Environment(platform='win32', tools=['msvs'],
-                MSVS_VERSION='7.0',HOST_ARCH='%(HOST_ARCH)s')
+                MSVS_VERSION='7.0',
+                MSVS_PROJECT_GUID='%(MSVS_PROJECT_GUID)s',
+                HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -437,7 +441,9 @@ expected_vcprojfile_7_1 = """\
 
 SConscript_contents_7_1 = """\
 env=Environment(platform='win32', tools=['msvs'],
-                MSVS_VERSION='7.1',HOST_ARCH='%(HOST_ARCH)s')
+                MSVS_VERSION='7.1',
+                MSVS_PROJECT_GUID='%(MSVS_PROJECT_GUID)s',
+                HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -575,7 +581,7 @@ expected_vcxprojfile_fmt = """\
 \t\t</ProjectConfiguration>
 \t</ItemGroup>
 \t<PropertyGroup Label="Globals">
-\t\t<ProjectGuid>{39A97E1F-1A52-8954-A0B1-A10A8487545E}</ProjectGuid>
+\t\t<ProjectGuid>%(MSVS_PROJECT_GUID)s</ProjectGuid>
 <SCC_VCPROJ_INFO>
 \t\t<RootNamespace>Test</RootNamespace>
 \t\t<Keyword>MakeFileProj</Keyword>
@@ -585,7 +591,7 @@ expected_vcxprojfile_fmt = """\
 \t<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 \t\t<ConfigurationType>Makefile</ConfigurationType>
 \t\t<UseOfMfc>false</UseOfMfc>
-\t\t<PlatformToolset>v100</PlatformToolset>
+\t\t<PlatformToolset>%(PLATFORM_TOOLSET)s</PlatformToolset>
 \t</PropertyGroup>
 \t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" />
 \t<ImportGroup Label="ExtensionSettings">
@@ -605,6 +611,7 @@ expected_vcxprojfile_fmt = """\
 \t\t<NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
 \t\t<NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
 \t\t<NMakeForcedUsingAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeForcedUsingAssemblies)</NMakeForcedUsingAssemblies>
+\t\t<AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"></AdditionalOptions>
 \t</PropertyGroup>
 \t<ItemGroup>
 \t\t<ClInclude Include="sdk_dir\\sdk.h" />
@@ -633,6 +640,7 @@ expected_vcxprojfile_fmt = """\
 
 SConscript_contents_fmt = """\
 env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='%(MSVS_VERSION)s',
+                MSVS_PROJECT_GUID='%(MSVS_PROJECT_GUID)s',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 HOST_ARCH='%(HOST_ARCH)s')
@@ -720,7 +728,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
             python = sys.executable
 
         if project_guid is None:
-            project_guid = "{B0CC4EE9-0174-51CD-A06A-41D0713E928A}"
+            project_guid = MSVS_PROJECT_GUID
 
         if 'SCONS_LIB_DIR' in os.environ:
             exec_script_main = f"from os.path import join; import sys; sys.path = [ r'{os.environ['SCONS_LIB_DIR']}' ] + sys.path; import SCons.Script; SCons.Script.main()"
@@ -868,6 +876,8 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
             return '15'
         elif major == 14 and minor == 2:
             return '16'
+        elif major == 14 and minor == 3:
+            return '17'
         else:
             raise SCons.Errors.UserError(f'Received unexpected VC version {vc_version}')
 
@@ -902,6 +912,15 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         else:
             raise SCons.Errors.UserError(f'Received unexpected VC version {vc_version}')
 
+    def _get_vcxproj_file_platform_toolset(self, vc_version) -> str:
+        """
+        Returns the version entry expected in the project file.
+        For .vcxproj files, this goes is PlatformToolset.
+        For .vcproj files, not applicable.
+        """
+        major, minor = self.parse_vc_version(vc_version)
+        return f"v{major}{minor}"
+
     def _get_vcxproj_file_cpp_path(self, dirs):
         """Returns the include paths expected in the .vcxproj file"""
         return ';'.join([self.workpath(dir) for dir in dirs])
@@ -926,14 +945,17 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         else:
             fmt = expected_vcprojfile_fmt
         return fmt % {
+            'MSVS_PROJECT_GUID': MSVS_PROJECT_GUID,
             'TOOLS_VERSION': self._get_vcxproj_file_tools_version(vc_version),
             'INCLUDE_DIRS': self._get_vcxproj_file_cpp_path(dirs),
+            'PLATFORM_TOOLSET': self._get_vcxproj_file_platform_toolset(vc_version),
         }
 
     def get_expected_sconscript_file_contents(self, vc_version, project_file):
         return SConscript_contents_fmt % {
             'HOST_ARCH': self.get_vs_host_arch(),
             'MSVS_VERSION': vc_version,
+            'MSVS_PROJECT_GUID': MSVS_PROJECT_GUID,
             'PROJECT_FILE': project_file,
         }
 

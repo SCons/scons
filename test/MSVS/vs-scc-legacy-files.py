@@ -31,6 +31,8 @@ solution (.sln) files that contain SCC information and look correct.
 
 import TestSConsMSVS
 
+test = None
+
 for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
     test = TestSConsMSVS.TestSConsMSVS()
 
@@ -47,6 +49,7 @@ for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
 
     SConscript_contents = """\
 env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='{vc_version}',
+                MSVS_PROJECT_GUID='{project_guid}',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 MSVS_SCC_LOCAL_PATH=r'C:\\MyMsVsProjects',
@@ -66,7 +69,7 @@ env.MSVSProject(target = '{project_file}',
                 misc = testmisc,
                 buildtarget = 'Test.exe',
                 variant = 'Release')
-""".format(vc_version=vc_version, project_file=project_file)
+""".format(vc_version=vc_version, project_file=project_file, project_guid=TestSConsMSVS.MSVS_PROJECT_GUID)
 
     if major < 10:
         # VC8 and VC9 used key-value pair format.
@@ -98,7 +101,7 @@ env.MSVSProject(target = '{project_file}',
     # don't compare the pickled data
     assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 
-
+if test:
     test.pass_test()
 
 # Local Variables:
