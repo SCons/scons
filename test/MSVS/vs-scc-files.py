@@ -35,6 +35,7 @@ test = None
 
 for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
     test = TestSConsMSVS.TestSConsMSVS()
+    host_arch = test.get_vs_host_arch()
 
     # Make the test infrastructure think we have this version of MSVS installed.
     test._msvs_versions = [vc_version]
@@ -53,7 +54,8 @@ env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='{vc_version}',
                 CPPPATH=['inc1', 'inc2'],
                 MSVS_SCC_CONNECTION_ROOT='.',
                 MSVS_SCC_PROVIDER='MSSCCI:Perforce SCM',
-                MSVS_SCC_PROJECT_NAME='Perforce Project')
+                MSVS_SCC_PROJECT_NAME='Perforce Project',
+                HOST_ARCH='{host_arch}')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = [r'sdk_dir\\sdk.h']
@@ -69,7 +71,10 @@ env.MSVSProject(target = '{project_file}',
                 misc = testmisc,
                 buildtarget = 'Test.exe',
                 variant = 'Release')
-""".format(vc_version=vc_version, project_file=project_file, project_guid=TestSConsMSVS.MSVS_PROJECT_GUID)
+""".format(
+    vc_version=vc_version, project_file=project_file,
+    host_arch=host_arch, project_guid=TestSConsMSVS.MSVS_PROJECT_GUID,
+)
 
     expected_sln_sccinfo = """\
 \tGlobalSection(SourceCodeControl) = preSolution

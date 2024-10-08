@@ -33,6 +33,7 @@ solution (.sln) files that contain SCC information and look correct.
 import TestSConsMSVS
 
 test = TestSConsMSVS.TestSConsMSVS()
+host_arch = test.get_vs_host_arch()
 
 # Make the test infrastructure think we have this version of MSVS installed.
 test._msvs_versions = ['7.1']
@@ -45,7 +46,8 @@ env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='7.1',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 MSVS_SCC_LOCAL_PATH=r'C:\\MyMsVsProjects',
-                MSVS_SCC_PROJECT_NAME='Perforce Project')
+                MSVS_SCC_PROJECT_NAME='Perforce Project',
+                HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -62,7 +64,7 @@ env.MSVSProject(target = 'Test.vcproj',
                 misc = testmisc,
                 buildtarget = 'Test.exe',
                 variant = 'Release')
-""" % {'MSVS_PROJECT_GUID': TestSConsMSVS.MSVS_PROJECT_GUID}
+""" % {'HOST_ARCH':host_arch, 'MSVS_PROJECT_GUID': TestSConsMSVS.MSVS_PROJECT_GUID}
 
 expected_vcproj_sccinfo = """\
 \tSccProjectName="Perforce Project"
