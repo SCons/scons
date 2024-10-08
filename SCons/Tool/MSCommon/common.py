@@ -41,9 +41,6 @@ import SCons.Warnings
 class MSVCCacheInvalidWarning(SCons.Warnings.WarningOnByDefault):
     pass
 
-class MSCommonLogFileWarning(SCons.Warnings.WarningOnByDefault):
-    pass
-
 def _check_logfile(logfile):
     if logfile and '"' in logfile:
         err_msg = (
