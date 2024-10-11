@@ -33,7 +33,7 @@ import TestSConsMSVS
 
 test = TestSConsMSVS.TestSConsMSVS()
 host_arch = test.get_vs_host_arch()
-sconscript_dict = {'HOST_ARCH': host_arch, 'MSVS_PROJECT_GUID': TestSConsMSVS.MSVS_PROJECT_GUID}
+sconscript_dict = {'HOST_ARCH': host_arch, 'PROJECT_GUID': TestSConsMSVS.PROJECT_GUID}
 
 # Make the test infrastructure think we have this version of MSVS installed.
 test._msvs_versions = ['7.1']

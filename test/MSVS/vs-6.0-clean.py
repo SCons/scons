@@ -34,17 +34,11 @@ import TestSConsMSVS
 test = TestSConsMSVS.TestSConsMSVS()
 host_arch = test.get_vs_host_arch()
 
-
-
 # Make the test infrastructure think we have this version of MSVS installed.
 test._msvs_versions = ['6.0']
 
-
-
 expected_dspfile = TestSConsMSVS.expected_dspfile_6_0
 expected_dswfile = TestSConsMSVS.expected_dswfile_6_0
-
-
 
 test.write('SConstruct', """\
 env=Environment(platform='win32', tools=['msvs'],
@@ -95,16 +89,14 @@ test.run(arguments='.')
 test.must_exist(test.workpath('Test.dsp'))
 test.must_exist(test.workpath('Test.dsw'))
 
-test.run(arguments='-c Test.dsw')
-
-test.must_exist(test.workpath('Test.dsp'))
-test.must_not_exist(test.workpath('Test.dsw'))
-
 test.run(arguments='-c Test.dsp')
 
 test.must_not_exist(test.workpath('Test.dsp'))
+test.must_exist(test.workpath('Test.dsw'))
 
+test.run(arguments='-c Test.dsw')
 
+test.must_not_exist(test.workpath('Test.dsw'))
 
 test.pass_test()
 

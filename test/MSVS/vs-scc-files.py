@@ -49,7 +49,6 @@ for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
     expected_vcprojfile = test.get_expected_proj_file_contents(vc_version, dirs, project_file)
     SConscript_contents = """\
 env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='{vc_version}',
-                MSVS_PROJECT_GUID='{project_guid}',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 MSVS_SCC_CONNECTION_ROOT='.',
@@ -64,6 +63,7 @@ testresources = ['test.rc']
 testmisc = ['readme.txt']
 
 env.MSVSProject(target = '{project_file}',
+                projectguid='{project_guid}',
                 srcs = testsrc,
                 incs = testincs,
                 localincs = testlocalincs,
@@ -73,7 +73,7 @@ env.MSVSProject(target = '{project_file}',
                 variant = 'Release')
 """.format(
     vc_version=vc_version, project_file=project_file,
-    host_arch=host_arch, project_guid=TestSConsMSVS.MSVS_PROJECT_GUID,
+    host_arch=host_arch, project_guid=TestSConsMSVS.PROJECT_GUID,
 )
 
     expected_sln_sccinfo = """\

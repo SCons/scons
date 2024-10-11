@@ -38,7 +38,7 @@ if sys.platform != 'win32':
     msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
-sconscript_dict = {'MSVS_PROJECT_GUID': TestSConsMSVS.MSVS_PROJECT_GUID}
+sconscript_dict = {'PROJECT_GUID': TestSConsMSVS.PROJECT_GUID}
 
 expected_vcprojfile = """\
 <?xml version="1.0" encoding="Windows-1252"?>
@@ -93,11 +93,10 @@ expected_vcprojfile = """\
 """
 
 SConscript_contents = """\
-env=Environment(tools=['msvs'],
-                MSVS_VERSION = '8.0',
-                MSVS_PROJECT_GUID = '%(MSVS_PROJECT_GUID)s')
+env=Environment(tools=['msvs'], MSVS_VERSION = '8.0')
 
 env.MSVSProject(target = 'Test.vcproj',
+                projectguid = '%(PROJECT_GUID)s',
                 slnguid = '{SLNGUID}',
                 srcs = ['test.cpp'],
                 buildtarget = 'Test.exe',

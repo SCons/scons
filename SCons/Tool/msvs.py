@@ -124,6 +124,24 @@ def _generateGUID(slnfile, name, namespace=external_makefile_guid):
     return '{' + str(solution).upper() + '}'
 
 
+def _projectGUID(env, dspfile):
+    """Generates a GUID for the project file to use.
+
+    In order of preference:
+    * MSVSProject projectguid argument
+    * MSVS_PROJECT_GUID in environment
+    * Generated from the project file name (dspfile)
+
+    Returns (str)
+    """
+    project_guid = env.get('projectguid')
+    if not project_guid:
+        project_guid = env.get('MSVS_PROJECT_GUID')
+    if not project_guid:
+        project_guid = _generateGUID(dspfile, '')
+    return project_guid
+
+
 version_re = re.compile(r'(\d+\.\d+)(.*)')
 
 
@@ -428,6 +446,9 @@ class _DSPGenerator:
         'misc']
 
     def __init__(self, dspfile, source, env) -> None:
+        dspnode = env.File(dspfile)
+        self.project_guid = _projectGUID(env, dspfile)
+        dspnode.Tag('project_guid', self.project_guid)
         self.dspfile = str(dspfile)
         try:
             get_abspath = dspfile.get_abspath
@@ -912,8 +933,9 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
 
     def PrintHeader(self) -> None:
         env = self.env
-        versionstr = self.versionstr
         name = self.name
+        versionstr = self.versionstr
+        project_guid = self.project_guid
         encoding = self.env.subst('$MSVSENCODING')
         scc_provider = env.get('MSVS_SCC_PROVIDER', '')
         scc_project_name = env.get('MSVS_SCC_PROJECT_NAME', '')
@@ -923,9 +945,6 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
         scc_local_path_legacy = env.get('MSVS_SCC_LOCAL_PATH', '')
         scc_connection_root = env.get('MSVS_SCC_CONNECTION_ROOT', os.curdir)
         scc_local_path = os.path.relpath(scc_connection_root, os.path.dirname(self.dspabs))
-        project_guid = env.get('MSVS_PROJECT_GUID', '')
-        if not project_guid:
-            project_guid = _generateGUID(self.dspfile, '')
         if scc_provider != '':
             scc_attrs = '\tSccProjectName="%s"\n' % scc_project_name
             if scc_aux_path != '':
@@ -1209,8 +1228,8 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
         env = self.env
         name = self.name
         versionstr = self.versionstr
+        project_guid = self.project_guid
         encoding = env.subst('$MSVSENCODING')
-        project_guid = env.get('MSVS_PROJECT_GUID', '')
         scc_provider = env.get('MSVS_SCC_PROVIDER', '')
         scc_project_name = env.get('MSVS_SCC_PROJECT_NAME', '')
         scc_aux_path = env.get('MSVS_SCC_AUX_PATH', '')
@@ -1219,8 +1238,6 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
         scc_local_path_legacy = env.get('MSVS_SCC_LOCAL_PATH', '')
         scc_connection_root = env.get('MSVS_SCC_CONNECTION_ROOT', os.curdir)
         scc_local_path = os.path.relpath(scc_connection_root, os.path.dirname(self.dspabs))
-        if not project_guid:
-            project_guid = _generateGUID(self.dspfile, '')
         if scc_provider != '':
             scc_attrs = '\t\t<SccProjectName>%s</SccProjectName>\n' % scc_project_name
             if scc_aux_path != '':
@@ -1465,6 +1482,26 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
 
         _GenerateV10User.Build(self)
 
+def _projectDSPNodes(env):
+    if 'projects' not in env:
+        raise SCons.Errors.UserError("You must specify a 'projects' argument to create an MSVSSolution.")
+    projects = env['projects']
+    if not SCons.Util.is_List(projects):
+        raise SCons.Errors.InternalError("The 'projects' argument must be a list of nodes.")
+    projects = SCons.Util.flatten(projects)
+    if len(projects) < 1:
+        raise SCons.Errors.UserError("You must specify at least one project to create an MSVSSolution.")
+    sln_suffix = env.subst('$MSVSSOLUTIONSUFFIX')
+    dspnodes = []
+    for p in projects:
+        node = env.File(p)
+        if str(node).endswith(sln_suffix):
+            continue
+        dspnodes.append(node)
+    if len(dspnodes) < 1:
+        raise SCons.Errors.UserError("You must specify at least one project node to create an MSVSSolution.")
+    return dspnodes
+
 class _DSWGenerator:
     """ Base class for DSW generators """
     def __init__(self, dswfile, source, env) -> None:
@@ -1472,15 +1509,8 @@ class _DSWGenerator:
         self.dsw_folder_path = os.path.dirname(os.path.abspath(self.dswfile))
         self.env = env
 
-        if 'projects' not in env:
-            raise SCons.Errors.UserError("You must specify a 'projects' argument to create an MSVSSolution.")
-        projects = env['projects']
-        if not SCons.Util.is_List(projects):
-            raise SCons.Errors.InternalError("The 'projects' argument must be a list of nodes.")
-        projects = SCons.Util.flatten(projects)
-        if len(projects) < 1:
-            raise SCons.Errors.UserError("You must specify at least one project to create an MSVSSolution.")
-        self.dspfiles = list(map(str, projects))
+        dspnodes = _projectDSPNodes(env)
+        self.dsp_srcnodes = [dspnode.srcnode() for dspnode in dspnodes]
 
         if 'name' in self.env:
             self.name = self.env['name']
@@ -1554,8 +1584,9 @@ class _GenerateV7DSW(_DSWGenerator):
                           if not (p.platform in seen or seen.add(p.platform))]
 
         def GenerateProjectFilesInfo(self) -> None:
-            project_guid = self.env.get('MSVS_PROJECT_GUID', '')
-            for dspfile in self.dspfiles:
+            for dspnode in self.dsp_srcnodes:
+                project_guid = dspnode.GetTag('project_guid')
+                dspfile = str(dspnode)
                 dsp_folder_path, name = os.path.split(dspfile)
                 dsp_folder_path = os.path.abspath(dsp_folder_path)
                 if SCons.Util.splitext(name)[1] == '.filters':
@@ -1567,11 +1598,9 @@ class _GenerateV7DSW(_DSWGenerator):
                 else:
                     dsp_relative_file_path = os.path.join(dsp_relative_folder_path, name)
                 if not project_guid:
-                    guid = _generateGUID(dspfile, '')
-                else:
-                    guid = project_guid
+                    project_guid = _generateGUID(dspfile, '')
                 dspfile_info = {'NAME': name,
-                                'GUID': guid,
+                                'GUID': project_guid,
                                 'FOLDER_PATH': dsp_folder_path,
                                 'FILE_PATH': dspfile,
                                 'SLN_RELATIVE_FOLDER_PATH': dsp_relative_folder_path,
@@ -1650,7 +1679,7 @@ class _GenerateV7DSW(_DSWGenerator):
 
         env = self.env
         if 'MSVS_SCC_PROVIDER' in env:
-            scc_number_of_projects = len(self.dspfiles) + 1
+            scc_number_of_projects = len(self.dsp_srcnodes) + 1
             slnguid = self.slnguid
             scc_provider = env.get('MSVS_SCC_PROVIDER', '').replace(' ', r'\u0020')
             scc_project_name = env.get('MSVS_SCC_PROJECT_NAME', '').replace(' ', r'\u0020')
@@ -1782,7 +1811,7 @@ class _GenerateV6DSW(_DSWGenerator):
     def PrintWorkspace(self) -> None:
         """ writes a DSW file """
         name = self.name
-        dspfile = os.path.relpath(self.dspfiles[0], self.dsw_folder_path)
+        dspfile = os.path.relpath(str(self.dsp_srcnodes[0]), self.dsw_folder_path)
         self.file.write(V6DSWHeader % locals())
 
     def Build(self):
@@ -1872,7 +1901,22 @@ def GenerateProject(target, source, env):
         GenerateDSW(dswfile, source, env)
 
 def GenerateSolution(target, source, env) -> None:
-    GenerateDSW(target[0], source, env)
+
+    builddswfile = target[0]
+    dswfile = builddswfile.srcnode()
+
+    if dswfile is not builddswfile:
+
+        try:
+            bdsw = open(str(builddswfile), "w+")
+        except OSError as detail:
+            print('Unable to open "' + str(dspfile) + '" for writing:',detail,'\n')
+            raise
+
+        bdsw.write("This is just a placeholder file.\nThe real workspace file is here:\n%s\n" % dswfile.get_abspath())
+        bdsw.close()
+
+    GenerateDSW(dswfile, source, env)
 
 def projectEmitter(target, source, env):
     """Sets up the DSP dependencies."""
@@ -1966,7 +2010,7 @@ def projectEmitter(target, source, env):
     sourcelist = source
 
     if env.get('auto_build_solution', 1):
-        env['projects'] = [env.File(t).srcnode() for t in targetlist]
+        env['projects'] = [env.File(t) for t in targetlist]
         t, s = solutionEmitter(target, target, env)
         targetlist = targetlist + t
 
@@ -2032,6 +2076,9 @@ def solutionEmitter(target, source, env):
 
         source = source + ' "%s"' % str(target[0])
         source = [SCons.Node.Python.Value(source)]
+
+    dsp_nodes = _projectDSPNodes(env)
+    source.extend(dsp_nodes)
 
     return ([target[0]], source)
 

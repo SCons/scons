@@ -42,7 +42,6 @@ expected_slnfile = TestSConsMSVS.expected_slnfile_7_0
 expected_vcprojfile = TestSConsMSVS.expected_vcprojfile_7_0
 SConscript_contents = """\
 env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='7.0',
-                MSVS_PROJECT_GUID='%(MSVS_PROJECT_GUID)s',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 MSVS_SCC_LOCAL_PATH=r'C:\\MyMsVsProjects',
@@ -56,6 +55,7 @@ testresources = ['test.rc']
 testmisc = ['readme.txt']
 
 env.MSVSProject(target = 'Test.vcproj',
+                projectguid='%(PROJECT_GUID)s',
                 slnguid = '{SLNGUID}',
                 srcs = testsrc,
                 incs = testincs,
@@ -64,7 +64,7 @@ env.MSVSProject(target = 'Test.vcproj',
                 misc = testmisc,
                 buildtarget = 'Test.exe',
                 variant = 'Release')
-""" % {'HOST_ARCH':host_arch, 'MSVS_PROJECT_GUID': TestSConsMSVS.MSVS_PROJECT_GUID}
+""" % {'HOST_ARCH':host_arch, 'PROJECT_GUID': TestSConsMSVS.PROJECT_GUID}
 
 expected_vcproj_sccinfo = """\
 \tSccProjectName="Perforce Project"
