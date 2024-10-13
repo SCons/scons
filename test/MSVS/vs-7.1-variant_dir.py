@@ -33,18 +33,14 @@ import TestSConsMSVS
 
 test = TestSConsMSVS.TestSConsMSVS()
 host_arch = test.get_vs_host_arch()
-
+sconscript_dict = {'HOST_ARCH': host_arch, 'PROJECT_GUID': TestSConsMSVS.PROJECT_GUID}
 
 # Make the test infrastructure think we have this version of MSVS installed.
 test._msvs_versions = ['7.1']
 
-
-
 expected_slnfile = TestSConsMSVS.expected_slnfile_7_1
 expected_vcprojfile = TestSConsMSVS.expected_vcprojfile_7_1
 SConscript_contents = TestSConsMSVS.SConscript_contents_7_1
-
-
 
 test.subdir('src')
 
@@ -52,21 +48,18 @@ test.write('SConstruct', """\
 SConscript('src/SConscript', variant_dir='build')
 """)
 
-test.write(['src', 'SConscript'], SConscript_contents%{'HOST_ARCH': host_arch})
+test.write(['src', 'SConscript'], SConscript_contents % sconscript_dict)
 
 test.run(arguments=".")
 
-project_guid = "{CB4637F1-2205-50B7-B115-DCFA0DA68FB1}"
 vcproj = test.read(['src', 'Test.vcproj'], 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '7.0', None, 'SConstruct',
-                              project_guid=project_guid)
+expect = test.msvs_substitute(expected_vcprojfile, '7.0', None, 'SConstruct')
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
 test.must_exist(test.workpath('src', 'Test.sln'))
 sln = test.read(['src', 'Test.sln'], 'r')
-expect = test.msvs_substitute(expected_slnfile, '7.0', 'src',
-                              project_guid=project_guid)
+expect = test.msvs_substitute(expected_slnfile, '7.0', 'src')
 # don't compare the pickled data
 assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 
@@ -83,8 +76,6 @@ The real workspace file is here:
 %s
 """ % test.workpath('src', 'Test.sln'),
                 mode='r')
-
-
 
 test.pass_test()
 

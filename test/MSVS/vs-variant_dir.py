@@ -31,6 +31,8 @@ solution (.sln) files that look correct when using a variant_dir.
 
 import TestSConsMSVS
 
+test = None
+
 for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
     test = TestSConsMSVS.TestSConsMSVS()
     host_arch = test.get_vs_host_arch()
@@ -58,21 +60,18 @@ SConscript('src/SConscript', variant_dir='build')
 
     test.run(arguments=".")
 
-    project_guid = "{CB4637F1-2205-50B7-B115-DCFA0DA68FB1}"
     vcproj = test.read(['src', project_file], 'r')
-    expect = test.msvs_substitute(expected_vcprojfile, vc_version, None, 'SConstruct',
-                                  project_guid=project_guid)
+    expect = test.msvs_substitute(expected_vcprojfile, vc_version, None, 'SConstruct')
     # don't compare the pickled data
     assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
     test.must_exist(test.workpath('src', 'Test.sln'))
     sln = test.read(['src', 'Test.sln'], 'r')
-    expect = test.msvs_substitute(expected_slnfile, '8.0', 'src',
-                                  project_guid=project_guid)
+    expect = test.msvs_substitute(expected_slnfile, '8.0', 'src')
     # don't compare the pickled data
     assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 
-    test.must_match(['build', 'Test.vcproj'], """\
+    test.must_match(['build', project_file], """\
 This is just a placeholder file.
 The real project file is here:
 %s
@@ -84,6 +83,7 @@ The real workspace file is here:
 %s
 """ % test.workpath('src', 'Test.sln'), mode='r')
 
+if test:
     test.pass_test()
 
 # Local Variables:
