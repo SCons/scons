@@ -52,7 +52,7 @@ testresources = ['test.rc']
 testmisc = ['readme.txt']
 
 p = env.MSVSProject(target = 'Test.vcproj',
-                    projectguid='%(PROJECT_GUID)s',
+                    MSVS_PROJECT_GUID='%(PROJECT_GUID)s',
                     srcs = testsrc,
                     incs = testincs,
                     localincs = testlocalincs,

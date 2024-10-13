@@ -91,7 +91,7 @@ env=Environment(tools=['msvs'], MSVS_VERSION = '8.0')
 testsrc = %(testsrc)s
 
 env.MSVSProject(target = 'Test.vcproj',
-                projectguid = '%(project_guid)s',
+                MSVS_PROJECT_GUID = '%(project_guid)s',
                 slnguid = '{SLNGUID}',
                 srcs = testsrc,
                 buildtarget = 'Test.exe',

@@ -325,7 +325,7 @@ testresources = ['test.rc']
 testmisc = ['readme.txt']
 
 env.MSVSProject(target = 'Test.vcproj',
-                projectguid = '%(PROJECT_GUID)s',
+                MSVS_PROJECT_GUID = '%(PROJECT_GUID)s',
                 slnguid = '{SLNGUID}',
                 srcs = testsrc,
                 incs = testincs,
@@ -453,7 +453,7 @@ testresources = ['test.rc']
 testmisc = ['readme.txt']
 
 env.MSVSProject(target = 'Test.vcproj',
-                projectguid = '%(PROJECT_GUID)s',
+                MSVS_PROJECT_GUID = '%(PROJECT_GUID)s',
                 slnguid = '{SLNGUID}',
                 srcs = testsrc,
                 incs = testincs,
@@ -653,7 +653,7 @@ testresources = ['test.rc']
 testmisc = ['readme.txt']
 
 env.MSVSProject(target = '%(PROJECT_FILE)s',
-                projectguid = '%(PROJECT_GUID)s',
+                MSVS_PROJECT_GUID = '%(PROJECT_GUID)s',
                 slnguid = '{SLNGUID}',
                 srcs = testsrc,
                 incs = testincs,
@@ -706,7 +706,7 @@ testmisc = ['readme.txt']
 
 p1 = env.MSVSProject(
     target = '%(PROJECT_FILE_1)s',
-    projectguid = '%(PROJECT_GUID_1)s',
+    MSVS_PROJECT_GUID = '%(PROJECT_GUID_1)s',
     slnguid = '{SLNGUID}',
     srcs = testsrc,
     incs = testincs,
@@ -720,7 +720,7 @@ p1 = env.MSVSProject(
 
 p2 = env.MSVSProject(
     target = '%(PROJECT_FILE_2)s',
-    projectguid = '%(PROJECT_GUID_2)s',
+    MSVS_PROJECT_GUID = '%(PROJECT_GUID_2)s',
     slnguid = '{SLNGUID}',
     srcs = testsrc,
     incs = testincs,

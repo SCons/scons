@@ -96,7 +96,7 @@ SConscript_contents = """\
 env=Environment(tools=['msvs'], MSVS_VERSION = '8.0')
 
 env.MSVSProject(target = 'Test.vcproj',
-                projectguid = '%(PROJECT_GUID)s',
+                MSVS_PROJECT_GUID = '%(PROJECT_GUID)s',
                 slnguid = '{SLNGUID}',
                 srcs = ['test.cpp'],
                 buildtarget = 'Test.exe',

@@ -128,15 +128,12 @@ def _projectGUID(env, dspfile):
     """Generates a GUID for the project file to use.
 
     In order of preference:
-    * MSVSProject projectguid argument
     * MSVS_PROJECT_GUID in environment
     * Generated from the project file name (dspfile)
 
     Returns (str)
     """
-    project_guid = env.get('projectguid')
-    if not project_guid:
-        project_guid = env.get('MSVS_PROJECT_GUID')
+    project_guid = env.get('MSVS_PROJECT_GUID')
     if not project_guid:
         project_guid = _generateGUID(dspfile, '')
     return project_guid
