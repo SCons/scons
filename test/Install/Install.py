@@ -144,9 +144,8 @@ if not IS_ROOT:
             "The process cannot access the file because it is being used by another process",
             "Der Prozess kann nicht auf die Datei zugreifen, da sie von einem anderen Prozess verwendet wird",
         ]
-
-    test.run(chdir='work', arguments=f1_out, stderr=None, status=2)
-    test.must_contain_any_line(test.stderr(), expect)
+        test.run(chdir='work', arguments=f1_out, stderr=None, status=2)
+        test.must_contain_any_line(test.stderr(), expect)
 
 test.pass_test()
 
