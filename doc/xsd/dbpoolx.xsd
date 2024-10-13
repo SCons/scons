@@ -2176,11 +2176,6 @@
   <!-- doc:An SConstruct example file. -->
   <xs:element name="sconstruct" substitutionGroup="linespecific.class">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:sequence>
         <xs:group ref="para.char.mix"/>
       </xs:sequence>
@@ -2200,11 +2195,6 @@
   <!-- doc:An SCons example. -->
   <xs:element name="scons_example" substitutionGroup="formal.class">
     <xs:complexType>
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element ref="file"/>
         <xs:element ref="directory"/>
@@ -2227,11 +2217,6 @@
   <!-- doc:An SCons example file. -->
   <xs:element name="file">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:group ref="para.char.mix"/>
       <xs:attributeGroup ref="file.attlist"/>
     </xs:complexType>
@@ -2253,11 +2238,6 @@
   <!-- doc:An SCons example directory. -->
   <xs:element name="directory">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:sequence/>
       <xs:attributeGroup ref="directory.attlist"/>
     </xs:complexType>
@@ -2276,11 +2256,6 @@
   <!-- doc:A SCons example file. -->
   <xs:element name="scons_example_file" substitutionGroup="linespecific.class">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:sequence/>
       <xs:attributeGroup ref="scons_example_file.attlist"/>
     </xs:complexType>
@@ -2300,11 +2275,6 @@
   <!-- doc:The output of a SCons command/example. -->
   <xs:element name="scons_output" substitutionGroup="linespecific.class">
     <xs:complexType>
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element ref="scons_output_command"/>
       </xs:choice>
@@ -2328,11 +2298,6 @@
   <!-- doc:A SCons example file. -->
   <xs:element name="scons_output_command">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:group ref="para.char.mix"/>
       <xs:attributeGroup ref="scons_output_command.attlist"/>
     </xs:complexType>
@@ -2353,11 +2318,6 @@
   <!-- doc:A sconsdoc. -->
   <xs:element name="sconsdoc" substitutionGroup="para.class">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element ref="tool"/>
         <xs:element ref="builder"/>
@@ -2380,11 +2340,6 @@
   <!-- doc:Text that a user sees or might see on a computer screen. -->
   <xs:element name="example_commands">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:group ref="para.char.mix"/>
       <xs:attributeGroup ref="example_commands.attlist"/>
     </xs:complexType>
@@ -2404,11 +2359,6 @@
   <!-- doc:A summary. -->
   <xs:element name="summary">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:group ref="component.mix"/>
       </xs:choice>
@@ -2429,11 +2379,6 @@
   <!-- doc:A item. -->
   <xs:element name="item">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:group minOccurs="0" maxOccurs="unbounded" ref="para.char.mix"/>
       <xs:attributeGroup ref="item.attlist"/>
     </xs:complexType>
@@ -2451,11 +2396,6 @@
   <!-- doc:A list in which each entry is marked with a bullet or other dingbat. -->
   <xs:element name="sets">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:sequence>
         <xs:element minOccurs="0" ref="blockinfo"/>
         <xs:group minOccurs="0" ref="formalobject.title.content"/>
@@ -2495,11 +2435,6 @@
   <!-- doc:A list in which each entry is marked with a bullet or other dingbat. -->
   <xs:element name="uses">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:sequence>
         <xs:element minOccurs="0" ref="blockinfo"/>
         <xs:group minOccurs="0" ref="formalobject.title.content"/>
@@ -2539,11 +2474,6 @@
   <!-- doc:A paragraph. -->
   <xs:element name="tool">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:group ref="para.mix"/>
         <xs:group ref="tool.mix"/>
@@ -2565,11 +2495,6 @@
   <!-- doc:A paragraph. -->
   <xs:element name="builder">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:group ref="para.mix"/>
         <xs:group ref="tool.mix"/>
@@ -2592,11 +2517,6 @@
   <!-- doc:A paragraph. -->
   <xs:element name="cvar">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:group ref="para.mix"/>
         <xs:element ref="summary"/>
@@ -2618,11 +2538,6 @@
   <!-- doc:A general-purpose element for representing the syntax of commands or functions. -->
   <xs:element name="arguments" substitutionGroup="synop.class">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:group ref="para.char.mix"/>
       <xs:attributeGroup ref="arguments.attlist"/>
     </xs:complexType>
@@ -2644,11 +2559,6 @@
   <!-- doc:A paragraph. -->
   <xs:element name="scons_function">
     <xs:complexType mixed="true">
-      <xs:annotation>
-        <xs:documentation xml:lang="en">
-          TODO
-        </xs:documentation>
-      </xs:annotation>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:group ref="para.mix"/>
         <xs:group ref="scons_function.mix"/>
