@@ -837,10 +837,10 @@ and &cv-link-MSVC_SCRIPT_ARGS; are not allowed.
 
 <para>
 Example - A Visual Studio 2022 build for the Universal Windows Platform:
+</para>
 <example_commands>
 env = Environment(MSVC_VERSION='14.3', MSVC_UWP_APP=True)
 </example_commands>
-</para>
 
 <para>
 Important usage details:
@@ -1107,33 +1107,34 @@ Note: in addition to the camel case values shown above, lower case and upper cas
 
 <para>
 Example 1 - A Visual Studio 2022 build with user-defined script arguments:
+</para>
 <example_commands>
 env = environment(MSVC_VERSION='14.3', MSVC_SCRIPT_ARGS=['8.1', 'store', '-vcvars_ver=14.1'])
 env.Program('hello', ['hello.c'], CCFLAGS='/MD', LIBS=['kernel32', 'user32', 'runtimeobject'])
 </example_commands>
-</para>
 
 <para>
 Example 1 - Output fragment:
+</para>
 <example_commands>
 ...
 link /nologo /OUT:_build001\hello.exe kernel32.lib user32.lib runtimeobject.lib _build001\hello.obj
 LINK : fatal error LNK1104: cannot open file 'MSVCRT.lib'
 ...
 </example_commands>
-</para>
 
 <para>
 Example 2 - A Visual Studio 2022 build with user-defined script arguments and the script error policy set
 to issue a warning when msvc batch file errors are detected:
+</para>
 <example_commands>
 env = environment(MSVC_VERSION='14.3', MSVC_SCRIPT_ARGS=['8.1', 'store', '-vcvars_ver=14.1'], MSVC_SCRIPTERROR_POLICY='warn')
 env.Program('hello', ['hello.c'], CCFLAGS='/MD', LIBS=['kernel32', 'user32', 'runtimeobject'])
 </example_commands>
-</para>
 
 <para>
 Example 2 - Output fragment:
+</para>
 <example_commands>
 ...
 scons: warning: vc script errors detected:
@@ -1144,7 +1145,6 @@ scons: warning: vc script errors detected:
 link /nologo /OUT:_build001\hello.exe kernel32.lib user32.lib runtimeobject.lib _build001\hello.obj
 LINK : fatal error LNK1104: cannot open file 'MSVCRT.lib'
 </example_commands>
-</para>
 
 <para>
 Important usage details:
@@ -1265,18 +1265,18 @@ via &cv-link-MSVC_UWP_APP; and &cv-MSVC_SCRIPT_ARGS; are not allowed.
 <para>
 Example 1 - A Visual Studio 2022 build with an SDK version and a toolset version
 specified with a string argument:
+</para>
 <example_commands>
 env = Environment(MSVC_VERSION='14.3', MSVC_SCRIPT_ARGS='10.0.20348.0 -vcvars_ver=14.29.30133')
 </example_commands>
-</para>
 
 <para>
 Example 2 - A Visual Studio 2022 build with an SDK version and a toolset version
 specified with a list argument:
+</para>
 <example_commands>
 env = Environment(MSVC_VERSION='14.3', MSVC_SCRIPT_ARGS=['10.0.20348.0', '-vcvars_ver=14.29.30133'])
 </example_commands>
-</para>
 
 <para>
 Important usage details:
@@ -1378,17 +1378,17 @@ must be '14.0').
 
 <para>
 Example 1 - A Visual Studio 2022 build with a specific Windows SDK version:
+</para>
 <example_commands>
 env = Environment(MSVC_VERSION='14.3', MSVC_SDK_VERSION='10.0.20348.0')
 </example_commands>
-</para>
 
 <para>
 Example 2 - A Visual Studio 2022 build with a specific SDK version for the Universal Windows Platform:
+</para>
 <example_commands>
 env = Environment(MSVC_VERSION='14.3', MSVC_SDK_VERSION='10.0.20348.0', MSVC_UWP_APP=True)
 </example_commands>
-</para>
 
 <para>
 Important usage details:
@@ -1550,31 +1550,31 @@ toolset with the largest version number.
 
 <para>
 Example 1 - A default Visual Studio build with a partial toolset version specified:
+</para>
 <example_commands>
 env = Environment(MSVC_TOOLSET_VERSION='14.2')
 </example_commands>
-</para>
 
 <para>
 Example 2 - A default Visual Studio build with a partial toolset version specified:
+</para>
 <example_commands>
 env = Environment(MSVC_TOOLSET_VERSION='14.29')
 </example_commands>
-</para>
 
 <para>
 Example 3 - A Visual Studio 2022 build with a full toolset version specified:
+</para>
 <example_commands>
 env = Environment(MSVC_VERSION='14.3', MSVC_TOOLSET_VERSION='14.29.30133')
 </example_commands>
-</para>
 
 <para>
 Example 4 - A Visual Studio 2022 build with an SxS toolset version specified:
+</para>
 <example_commands>
 env = Environment(MSVC_VERSION='14.3', MSVC_TOOLSET_VERSION='14.29.16.11')
 </example_commands>
-</para>
 
 <para>
 Important usage details:
@@ -1647,10 +1647,10 @@ components.
 
 <para>
 Example - A Visual Studio 2022 build with spectre mitigated &MSVC; libraries:
+</para>
 <example_commands>
 env = Environment(MSVC_VERSION='14.3', MSVC_SPECTRE_LIBS=True)
 </example_commands>
-</para>
 
 <para>
 Important usage details:

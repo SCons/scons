@@ -12,6 +12,10 @@ NOTE: Python 3.6 support is deprecated and will be dropped in a future release.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Dirk Baechle:
+    - Fixed the grammar of the SCons DocBook XSD, which was reported as being
+      "not deterministic" by some XML scanners/validators.
+
   From Joseph Brill:
     - Added error handling when creating MS VC detection debug log file specified by
       SCONS_MSCOMMON_DEBUG

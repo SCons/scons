@@ -400,9 +400,11 @@ See also &cv-link-LINKFLAGS;  for linking static objects.
 <summary>
 <para>
 Variable used to hard-code SONAME for versioned shared library/loadable module.
+</para>
 <example_commands>
 env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SONAME='libtest.so.2')
 </example_commands>
+<para>
 The variable is used, for example, by &t-link-gnulink; linker tool.
 </para>
 </summary>
@@ -414,9 +416,11 @@ The variable is used, for example, by &t-link-gnulink; linker tool.
 This will construct the <varname>SONAME</varname> using on the base library name
 (<parameter>test</parameter> in the example below) and use specified <varname>SOVERSION</varname>
 to create <varname>SONAME</varname>.
+</para>
 <example_commands>
 env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SOVERSION='2')
 </example_commands>
+<para>
 The variable is used, for example, by &t-link-gnulink; linker tool.
 </para>
 <para>

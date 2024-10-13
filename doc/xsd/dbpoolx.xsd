@@ -283,6 +283,7 @@
       <xs:element ref="ndxterm.class"/>
       <xs:element ref="beginpage"/>
       <xs:element ref="procedure"/>
+      <xs:element ref="scons_example"/>
     </xs:choice>
   </xs:group>
   <xs:group name="highlights.mix">
