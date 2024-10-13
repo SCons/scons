@@ -218,6 +218,7 @@
       <xs:group ref="descobj.class"/>
       <xs:element ref="ndxterm.class"/>
       <xs:element ref="beginpage"/>
+      <xs:element ref="example_commands"/>
     </xs:choice>
   </xs:group>
   <xs:group name="sidebar.mix">
@@ -303,11 +304,6 @@
       <xs:element ref="linespecific.class"/>
       <xs:element ref="informal.class"/>
       <xs:element ref="formal.class"/>
-    </xs:choice>
-  </xs:group>
-  <xs:group name="summary.mix">
-    <xs:choice>
-      <xs:element ref="example_commands"/>
     </xs:choice>
   </xs:group>
   <xs:group name="tool.mix">
@@ -2354,6 +2350,30 @@
   <xs:attributeGroup name="sconsdoc.role.attrib">
     <xs:attributeGroup ref="role.attrib"/>
   </xs:attributeGroup>
+  <!-- doc:A sconsdoc. -->
+  <xs:element name="sconsdoc" substitutionGroup="para.class">
+    <xs:complexType mixed="true">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          TODO
+        </xs:documentation>
+      </xs:annotation>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element ref="tool"/>
+        <xs:element ref="builder"/>
+        <xs:element ref="scons_function"/>
+        <xs:element ref="cvar"/>
+      </xs:choice>
+      <xs:attributeGroup ref="sconsdoc.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of sconsdoc.element -->
+  <xs:attributeGroup name="sconsdoc.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="sconsdoc.role.attrib"/>
+  </xs:attributeGroup>
+  <!-- end of sconsdoc.attlist -->
+  <!-- end of sconsdoc.module -->
   <xs:attributeGroup name="example_commands.role.attrib">
     <xs:attributeGroup ref="role.attrib"/>
   </xs:attributeGroup>
@@ -2382,7 +2402,7 @@
     <xs:attributeGroup ref="role.attrib"/>
   </xs:attributeGroup>
   <!-- doc:A summary. -->
-  <xs:element name="summary" substitutionGroup="para.class">
+  <xs:element name="summary">
     <xs:complexType mixed="true">
       <xs:annotation>
         <xs:documentation xml:lang="en">
@@ -2391,7 +2411,6 @@
       </xs:annotation>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:group ref="component.mix"/>
-        <xs:group ref="summary.mix"/>
       </xs:choice>
       <xs:attributeGroup ref="summary.attlist"/>
     </xs:complexType>
@@ -2430,7 +2449,7 @@
     <xs:attributeGroup ref="role.attrib"/>
   </xs:attributeGroup>
   <!-- doc:A list in which each entry is marked with a bullet or other dingbat. -->
-  <xs:element name="sets" substitutionGroup="list.class">
+  <xs:element name="sets">
     <xs:complexType mixed="true">
       <xs:annotation>
         <xs:documentation xml:lang="en">
@@ -2474,7 +2493,7 @@
     <xs:attributeGroup ref="role.attrib"/>
   </xs:attributeGroup>
   <!-- doc:A list in which each entry is marked with a bullet or other dingbat. -->
-  <xs:element name="uses" substitutionGroup="list.class">
+  <xs:element name="uses">
     <xs:complexType mixed="true">
       <xs:annotation>
         <xs:documentation xml:lang="en">
@@ -2514,6 +2533,85 @@
   </xs:attributeGroup>
   <!-- end of uses.attlist -->
   <!-- end of uses.module -->
+  <xs:attributeGroup name="tool.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A paragraph. -->
+  <xs:element name="tool">
+    <xs:complexType mixed="true">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          TODO
+        </xs:documentation>
+      </xs:annotation>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="para.mix"/>
+        <xs:group ref="tool.mix"/>
+      </xs:choice>
+      <xs:attributeGroup ref="tool.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of tool.element -->
+  <xs:attributeGroup name="tool.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="tool.role.attrib"/>
+    <xs:attribute name="name" type="xs:string" use="required" />
+  </xs:attributeGroup>
+  <!-- end of tool.attlist -->
+  <!-- end of tool.module -->
+  <xs:attributeGroup name="builder.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A paragraph. -->
+  <xs:element name="builder">
+    <xs:complexType mixed="true">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          TODO
+        </xs:documentation>
+      </xs:annotation>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="para.mix"/>
+        <xs:group ref="tool.mix"/>
+      </xs:choice>
+      <xs:attributeGroup ref="builder.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of builder.element -->
+  <xs:attributeGroup name="builder.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="builder.role.attrib"/>
+    <xs:attribute name="name" type="xs:string" use="required" />
+  </xs:attributeGroup>
+  <!-- end of builder.attlist -->
+  <!-- end of builder.module -->
+
+  <xs:attributeGroup name="cvar.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A paragraph. -->
+  <xs:element name="cvar">
+    <xs:complexType mixed="true">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          TODO
+        </xs:documentation>
+      </xs:annotation>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="para.mix"/>
+        <xs:element ref="summary"/>
+      </xs:choice>
+      <xs:attributeGroup ref="cvar.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of cvar.element -->
+  <xs:attributeGroup name="cvar.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="cvar.role.attrib"/>
+    <xs:attribute name="name" type="xs:string" use="required" />
+  </xs:attributeGroup>
+  <!-- end of cvar.attlist -->
+  <!-- end of cvar.module -->
   <xs:attributeGroup name="arguments.role.attrib">
     <xs:attributeGroup ref="role.attrib"/>
   </xs:attributeGroup>
@@ -2540,7 +2638,32 @@
   </xs:attributeGroup>
   <!-- end of arguments.attlist -->
   <!-- end of arguments.module -->
-
+  <xs:attributeGroup name="scons_function.role.attrib">
+    <xs:attributeGroup ref="role.attrib"/>
+  </xs:attributeGroup>
+  <!-- doc:A paragraph. -->
+  <xs:element name="scons_function">
+    <xs:complexType mixed="true">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          TODO
+        </xs:documentation>
+      </xs:annotation>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="para.mix"/>
+        <xs:group ref="scons_function.mix"/>
+      </xs:choice>
+      <xs:attributeGroup ref="scons_function.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- end of scons_function.element -->
+  <xs:attributeGroup name="scons_function.attlist">
+    <xs:attributeGroup ref="common.attrib"/>
+    <xs:attributeGroup ref="scons_function.role.attrib"/>
+    <xs:attribute name="name" type="xs:string" use="required" />
+  </xs:attributeGroup>
+  <!-- end of scons_function.attlist -->
+  <!-- end of scons_function.module -->
   <xs:attributeGroup name="admon.role.attrib">
     <xs:attributeGroup ref="role.attrib"/>
   </xs:attributeGroup>
