@@ -28,13 +28,12 @@ import unittest
 import tempfile
 import stat
 
-from TestCmd import TestCmd
+from TestCmd import TestCmd, IS_WINDOWS
 
 import SCons.CacheDir
 
 built_it = None
 
-IS_WINDOWS = sys.platform == 'win32'
 try:
     IS_ROOT = os.geteuid() == 0
 except AttributeError:
