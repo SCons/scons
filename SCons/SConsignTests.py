@@ -300,13 +300,15 @@ class SConsignFileTestCase(SConsignTestCase):
             assert SCons.SConsign.DB_Name == ".sconsign", SCons.SConsign.DB_Name
         else:
             assert SCons.SConsign.DB_Name == ".sconsign_{}".format(get_current_hash_algorithm_used()), SCons.SConsign.DB_Name
-        assert SCons.SConsign.DB_Module is SCons.dblite, SCons.SConsign.DB_Module
+        #assert SCons.SConsign.DB_Module is SCons.dblite, SCons.SConsign.DB_Module
+        assert SCons.SConsign.DB_Module is SCons.sdiskcache, SCons.SConsign.DB_Module
 
         SCons.SConsign.File(file)
 
         assert SCons.SConsign.DataBase == {}, SCons.SConsign.DataBase
         assert SCons.SConsign.DB_Name is file, SCons.SConsign.DB_Name
-        assert SCons.SConsign.DB_Module is SCons.dblite, SCons.SConsign.DB_Module
+        #assert SCons.SConsign.DB_Module is SCons.dblite, SCons.SConsign.DB_Module
+        assert SCons.SConsign.DB_Module is SCons.sdiskcache, SCons.SConsign.DB_Module
 
         SCons.SConsign.File(None)
 
