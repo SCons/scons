@@ -31,7 +31,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('cache', 'work')
+test.subdir('work')
 
 cache = test.workpath('cache')
 

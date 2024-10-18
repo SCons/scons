@@ -33,7 +33,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('cache', 'src')
+test.subdir('src')
 
 test.write(['src', 'SConstruct'], """
 DefaultEnvironment(tools=[])
