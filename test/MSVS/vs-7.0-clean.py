@@ -41,7 +41,7 @@ expected_slnfile = TestSConsMSVS.expected_slnfile_7_0
 expected_vcprojfile = TestSConsMSVS.expected_vcprojfile_7_0
 
 test.write('SConstruct', """\
-env=Environment(platform='win32', tools=['msvs'],
+env=Environment(tools=['msvs'],
                 MSVS_VERSION='7.0',
                 HOST_ARCH='%(HOST_ARCH)s')
 

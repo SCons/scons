@@ -41,8 +41,9 @@ expected_dspfile = TestSConsMSVS.expected_dspfile_6_0
 expected_dswfile = TestSConsMSVS.expected_dswfile_6_0
 
 test.write('SConstruct', """\
-env=Environment(platform='win32', tools=['msvs'],
-                MSVS_VERSION='6.0',HOST_ARCH='%(HOST_ARCH)s')
+env=Environment(tools=['msvs'],
+                MSVS_VERSION='6.0',
+                HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test.c']
 testincs = ['sdk.h']

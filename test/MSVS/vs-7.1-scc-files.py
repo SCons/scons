@@ -41,7 +41,8 @@ test._msvs_versions = ['7.1']
 expected_slnfile = TestSConsMSVS.expected_slnfile_7_1
 expected_vcprojfile = TestSConsMSVS.expected_vcprojfile_7_1
 SConscript_contents = """\
-env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='7.1',
+env=Environment(tools=['msvs'],
+                MSVS_VERSION='7.1',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 MSVS_SCC_CONNECTION_ROOT='.',

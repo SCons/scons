@@ -193,8 +193,9 @@ Package=<3>
 '''
 
 SConscript_contents_6_0 = """\
-env=Environment(platform='win32', tools=['msvs'],
-                MSVS_VERSION='6.0',HOST_ARCH='%(HOST_ARCH)s')
+env=Environment(tools=['msvs'],
+                MSVS_VERSION='6.0',
+                HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test.c']
 testincs = ['sdk.h']
@@ -314,7 +315,7 @@ expected_vcprojfile_7_0 = """\
 """
 
 SConscript_contents_7_0 = """\
-env=Environment(platform='win32', tools=['msvs'],
+env=Environment(tools=['msvs'],
                 MSVS_VERSION='7.0',
                 HOST_ARCH='%(HOST_ARCH)s')
 
@@ -442,7 +443,7 @@ expected_vcprojfile_7_1 = """\
 """
 
 SConscript_contents_7_1 = """\
-env=Environment(platform='win32', tools=['msvs'],
+env=Environment(tools=['msvs'],
                 MSVS_VERSION='7.1',
                 HOST_ARCH='%(HOST_ARCH)s')
 
@@ -641,7 +642,8 @@ expected_vcxprojfile_fmt = """\
 """
 
 SConscript_contents_fmt = """\
-env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='%(MSVS_VERSION)s',
+env=Environment(tools=['msvs'],
+                MSVS_VERSION='%(MSVS_VERSION)s',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 HOST_ARCH='%(HOST_ARCH)s')
@@ -690,7 +692,6 @@ EndGlobal
 
 SConscript_projects_contents_fmt = """\
 env=Environment(
-    platform='win32',
     tools=['msvs'],
     MSVS_VERSION='%(MSVS_VERSION)s',
     CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
@@ -741,7 +742,6 @@ env.MSVSSolution(
 
 SConscript_projects_defaultguids_contents_fmt = """\
 env=Environment(
-    platform='win32',
     tools=['msvs'],
     MSVS_VERSION='%(MSVS_VERSION)s',
     CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],

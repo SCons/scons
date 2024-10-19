@@ -41,7 +41,8 @@ test._msvs_versions = ['7.0']
 expected_slnfile = TestSConsMSVS.expected_slnfile_7_0
 expected_vcprojfile = TestSConsMSVS.expected_vcprojfile_7_0
 SConscript_contents = """\
-env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='7.0',
+env=Environment(tools=['msvs'],
+                MSVS_VERSION='7.0',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 MSVS_SCC_LOCAL_PATH=r'C:\\MyMsVsProjects',

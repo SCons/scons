@@ -49,7 +49,8 @@ for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
     expected_vcprojfile = test.get_expected_proj_file_contents(vc_version, dirs, project_file)
 
     SConscript_contents = """\
-env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='{vc_version}',
+env=Environment(tools=['msvs'],
+                MSVS_VERSION='{vc_version}',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 MSVS_SCC_LOCAL_PATH=r'C:\\MyMsVsProjects',

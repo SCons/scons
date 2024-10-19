@@ -41,14 +41,15 @@ test._msvs_versions = ['7.0']
 expected_slnfile = TestSConsMSVS.expected_slnfile_7_0
 expected_vcprojfile = TestSConsMSVS.expected_vcprojfile_7_0
 SConscript_contents = \
-r"""env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='7.0',
-                CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
-                CPPPATH=['inc1', 'inc2'],
-                MSVS_SCC_CONNECTION_ROOT='.',
-                MSVS_SCC_PROVIDER='MSSCCI:Perforce SCM',
-                MSVS_SCC_PROJECT_NAME='Perforce Project',
-                MSVS_SCC_AUX_PATH='AUX',
-                HOST_ARCH='%(HOST_ARCH)s')
+r"""env=Environment(tools=['msvs'],
+                    MSVS_VERSION='7.0',
+                    CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
+                    CPPPATH=['inc1', 'inc2'],
+                    MSVS_SCC_CONNECTION_ROOT='.',
+                    MSVS_SCC_PROVIDER='MSSCCI:Perforce SCM',
+                    MSVS_SCC_PROJECT_NAME='Perforce Project',
+                    MSVS_SCC_AUX_PATH='AUX',
+                    HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
