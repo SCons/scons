@@ -66,6 +66,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       /etc/paths.d. This may occur if SCons is invoked in a sandboxed
       environment (such as Nix).
 
+  From Keith F Prussing:
+    - Added support for tracking beamer themes in the LaTeX scanner.
+
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
 
