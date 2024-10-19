@@ -28,17 +28,11 @@ import unittest
 import tempfile
 import stat
 
-from TestCmd import TestCmd, IS_WINDOWS
+from TestCmd import TestCmd, IS_WINDOWS, IS_ROOT
 
 import SCons.CacheDir
 
 built_it = None
-
-try:
-    IS_ROOT = os.geteuid() == 0
-except AttributeError:
-    IS_ROOT = False
-
 
 class Action:
     def __call__(self, targets, sources, env, **kw) -> int:

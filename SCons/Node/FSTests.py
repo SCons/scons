@@ -31,7 +31,7 @@ import shutil
 import stat
 from typing import Optional
 
-from TestCmd import TestCmd, IS_WINDOWS
+from TestCmd import TestCmd, IS_WINDOWS, IS_ROOT
 
 import SCons.Errors
 import SCons.Node.FS
@@ -43,12 +43,6 @@ from SCons.Util.sctyping import ExecutorType
 built_it = None
 
 scanner_count = 0
-
-try:
-    IS_ROOT = os.geteuid() == 0
-except AttributeError:
-    IS_ROOT = False
-
 
 class Scanner:
     def __init__(self, node=None) -> None:

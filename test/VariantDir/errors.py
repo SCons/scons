@@ -33,13 +33,10 @@ import os
 import stat
 import sys
 import TestSCons
+from TestCmd import IS_ROOT
 
 test = TestSCons.TestSCons()
 
-try:
-    IS_ROOT = os.geteuid() == 0
-except AttributeError:
-    IS_ROOT = False
 if IS_ROOT:
     test.skip_test('SConscript permissions meaningless when running as root; skipping test.\n')
 

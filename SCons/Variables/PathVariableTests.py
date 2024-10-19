@@ -28,13 +28,7 @@ import SCons.Errors
 import SCons.Variables
 
 import TestCmd
-from TestCmd import IS_WINDOWS
-
-try:
-    IS_ROOT = os.geteuid() == 0
-except AttributeError:
-    IS_ROOT = False
-
+from TestCmd import IS_WINDOWS, IS_ROOT
 
 class PathVariableTestCase(unittest.TestCase):
     def test_PathVariable(self) -> None:
