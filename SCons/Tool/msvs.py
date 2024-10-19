@@ -590,7 +590,7 @@ class _DSPGenerator:
         self.configs = {}
 
         self.nokeep = 0
-        if 'nokeep' in env and env['variant'] != 0:
+        if 'nokeep' in env and env['nokeep'] != 0:
             self.nokeep = 1
 
         if self.nokeep == 0 and os.path.exists(self.dspabs):
@@ -1547,7 +1547,7 @@ class _GenerateV7DSW(_DSWGenerator):
         self.configs = {}
 
         self.nokeep = 0
-        if 'nokeep' in env and env['variant'] != 0:
+        if 'nokeep' in env and env['nokeep'] != 0:
             self.nokeep = 1
 
         if self.nokeep == 0 and os.path.exists(self.dswfile):
