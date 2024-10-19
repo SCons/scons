@@ -443,9 +443,6 @@ class _DSPGenerator:
         'misc']
 
     def __init__(self, dspfile, source, env) -> None:
-        dspnode = env.File(dspfile)
-        self.project_guid = _projectGUID(env, dspfile)
-        dspnode.Tag('project_guid', self.project_guid)
         self.dspfile = str(dspfile)
         try:
             get_abspath = dspfile.get_abspath
@@ -453,6 +450,10 @@ class _DSPGenerator:
             self.dspabs = os.path.abspath(dspfile)
         else:
             self.dspabs = get_abspath()
+
+        self.project_guid = _projectGUID(env, self.dspfile)
+        dspnode = env.File(self.dspfile)
+        dspnode.Tag('project_guid', self.project_guid)
 
         if 'variant' not in env:
             raise SCons.Errors.InternalError("You must specify a 'variant' argument (i.e. 'Debug' or " +\
