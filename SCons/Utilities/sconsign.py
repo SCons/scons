@@ -39,10 +39,19 @@ import pickle
 import SCons.compat
 import SCons.SConsign
 
+DEBUG = False
 
-def my_whichdb(filename):
-    if filename[-7:] == ".dblite":
+
+def my_whichdb(filename: str) -> str:
+    """Try to detect sconsign db flavor, and return the type.
+
+    We have a couple of quick local heuristics, else fall back
+    to dbm.whichdb, which can only recognize Python stdlib types.
+    """
+    if filename.endswith('.dblite'):
         return "SCons.dblite"
+    elif filename.endswith('.sqlite') or os.path.isdir(filename + ".sqlite"):
+        return "SCons.sdiskcache"
     try:
         with open(filename + ".dblite", "rb"):
             return "SCons.dblite"
@@ -52,11 +61,11 @@ def my_whichdb(filename):
 
 
 class Flagger:
-    default_value = 1
+    default_value = True
 
     def __setitem__(self, item, value) -> None:
         self.__dict__[item] = value
-        self.default_value = 0
+        self.default_value = False
 
     def __getitem__(self, item):
         return self.__dict__.get(item, self.default_value)
@@ -66,21 +75,18 @@ Do_Call = None
 Print_Directories = []
 Print_Entries = []
 Print_Flags = Flagger()
-Verbose = 0
-Readable = 0
+Verbose = False
+Readable = False
 Warns = 0
+Convert_To_Diskcache = False
 
 
-def default_mapper(entry, name):
-    """
-    Stringify an entry that doesn't have an explicit mapping.
+def default_mapper(entry, name) -> str:
+    """Stringify an entry that doesn't have an explicit mapping.
 
     Args:
         entry:  entry
         name: field name
-
-    Returns: str
-
     """
     try:
         val = eval("entry." + name)
@@ -89,16 +95,12 @@ def default_mapper(entry, name):
     return str(val)
 
 
-def map_action(entry, _):
-    """
-    Stringify an action entry and signature.
+def map_action(entry, _) -> str:
+    """Stringify an action entry and signature.
 
     Args:
         entry: action entry
         second argument is not used
-
-    Returns: str
-
     """
     try:
         bact = entry.bact
@@ -108,16 +110,12 @@ def map_action(entry, _):
     return '%s [%s]' % (bactsig, bact)
 
 
-def map_timestamp(entry, _):
-    """
-    Stringify a timestamp entry.
+def map_timestamp(entry, _) -> str:
+    """Stringify a timestamp entry.
 
     Args:
         entry: timestamp entry
         second argument is not used
-
-    Returns: str
-
     """
     try:
         timestamp = entry.timestamp
@@ -129,16 +127,12 @@ def map_timestamp(entry, _):
         return str(timestamp)
 
 
-def map_bkids(entry, _):
-    """
-    Stringify an implicit entry.
+def map_bkids(entry, _) -> str:
+    """Stringify an implicit entry.
 
     Args:
         entry:
         second argument is not used
-
-    Returns: str
-
     """
     try:
         bkids = entry.bsources + entry.bdepends + entry.bimplicit
@@ -252,6 +246,7 @@ def printentries(entries, location) -> None:
                     print(nodeinfo_string(name, entry.ninfo))
                 printfield(name, entry.binfo)
     else:
+        #print(f"{__file__}/printentries: {entries=}")
         for name in sorted(entries.keys()):
             entry = entries[name]
             try:
@@ -264,14 +259,20 @@ def printentries(entries, location) -> None:
 
 
 class Do_SConsignDB:
-    def __init__(self, dbm_name, dbm) -> None:
+    def __init__(self, dbm_name, dbm_type, dbm) -> None:
         self.dbm_name = dbm_name
+        self.dbm_type = dbm_type
+        if DEBUG:
+            print(f"DEBUG: Do_SConsignDB.__init__({dbm_name}, {dbm_type}, dbm)")
         self.dbm = dbm
 
     def __call__(self, fname):
         # The *dbm modules stick their own file suffixes on the names
-        # that are passed in.  This causes us to jump through some
-        # hoops here.
+        # that are passed in, but the diskcache scheme does not
+        # (although by convention it uses a directory suffixed .d)
+        # This causes us to jump through some # hoops here.
+        if DEBUG:
+            print(f"DEBUG: Do_SConsignDB.__call__({fname}), type is {self.dbm_type}")
         try:
             # Try opening the specified file name.  Example:
             #   SPECIFIED                  OPENED BY self.dbm.open()
@@ -314,6 +315,19 @@ class Do_SConsignDB:
                 sys.stderr.write("unrecognized pickle protocol.\n")
             return
 
+        if Convert_To_Diskcache and self.dbm_type != 'SCons.sdiskcache':
+            import SCons.sdiskcache
+            if fname.endswith('.dblite'):
+                dirname = fname[:-len('.dblite')]
+            else:
+                dirname = fname
+            dirname = dirname + '.sqlite'
+            newdb = SCons.sdiskcache.open(dirname, flags='n')
+            for d in sorted(db.keys()):
+                newdb[d] = pickle.loads(db[d])
+            print(f"Converted {self.dbm_name} '{fname}' to diskcache in '{dirname}'")
+            return
+
         if Print_Directories:
             for dir in Print_Directories:
                 try:
@@ -327,13 +341,15 @@ class Do_SConsignDB:
             for dir in sorted(db.keys()):
                 self.printentries(dir, db[dir])
 
-    @staticmethod
-    def printentries(dir, val) -> None:
+    def printentries(self, dir, val) -> None:
         try:
             print('=== ' + dir + ':')
         except TypeError:
             print('=== ' + dir.decode() + ':')
-        printentries(pickle.loads(val), dir)
+        try:
+            printentries(pickle.loads(val), dir)
+        except TypeError:
+            printentries(val, dir)
 
 
 def Do_SConsignDir(name):
@@ -364,6 +380,7 @@ def main() -> None:
     global args
     global Verbose
     global Readable
+    global Convert_To_Diskcache
 
     helpstr = """\
 Usage: sconsign [OPTIONS] [FILE ...]
@@ -371,6 +388,7 @@ Usage: sconsign [OPTIONS] [FILE ...]
 Options:
   -a, --act, --action         Print build action information.
   -c, --csig                  Print content signature information.
+  --convert                   Create diskcache version of database.
   -d DIR, --dir=DIR           Print only info about DIR.
   -e ENTRY, --entry=ENTRY     Print only info about ENTRY.
   -f FORMAT, --format=FORMAT  FILE is in the specified FORMAT.
@@ -382,7 +400,6 @@ Options:
   -t, --timestamp             Print timestamp information.
   -v, --verbose               Verbose, describe each field.
 """
-
     try:
         opts, args = getopt.getopt(
             sys.argv[1:],
@@ -390,6 +407,7 @@ Options:
             [
                 'act',
                 'action',
+                'convert',
                 'csig',
                 'dir=',
                 'entry=',
@@ -410,9 +428,11 @@ Options:
 
     for o, a in opts:
         if o in ('-a', '--act', '--action'):
-            Print_Flags['action'] = 1
+            Print_Flags['action'] = True
         elif o in ('-c', '--csig'):
-            Print_Flags['csig'] = 1
+            Print_Flags['csig'] = True
+        elif o in ('--convert'):
+            Convert_To_Diskcache = True
         elif o in ('-d', '--dir'):
             Print_Directories.append(a)
         elif o in ('-e', '--entry'):
@@ -420,60 +440,74 @@ Options:
         elif o in ('-f', '--format'):
             # Try to map the given DB format to a known module
             # name, that we can then try to import...
-            Module_Map = {'dblite': 'SCons.dblite', 'sconsign': None}
-            dbm_name = Module_Map.get(a, a)
-            if dbm_name:
+            Module_Map = {
+                'dblite': 'SCons.dblite',
+                'diskcache': 'SCons.sdiskcache',
+                'sconsign': None,
+            }
+            dbm_type = Module_Map.get(a, a)
+            if dbm_type:
+                if DEBUG:
+                    print(f"DEBUG: asked for {a}, which is {dbm_type}")
                 try:
-                    if dbm_name != "SCons.dblite":
-                        dbm = importlib.import_module(dbm_name)
-                    else:
-                        import SCons.dblite
-
-                        dbm = SCons.dblite
-                        # Ensure that we don't ignore corrupt DB files,
+                    if dbm_type == "SCons.dblite":
+                        import SCons.dblite as dbm
+                        # Ensure that we don't ignore corrupt DB files
                         SCons.dblite.IGNORE_CORRUPT_DBFILES = False
+                    elif dbm_type == "SCons.sdiskcache":
+                        import SCons.sdiskcache as dbm
+                    else:
+                        dbm = importlib.import_module(dbm_name)
                 except ImportError:
                     sys.stderr.write("sconsign: illegal file format `%s'\n" % a)
                     print(helpstr)
                     sys.exit(2)
-                Do_Call = Do_SConsignDB(a, dbm)
+                Do_Call = Do_SConsignDB(a, dbm_type, dbm)
             else:
+                if DEBUG:
+                    print(f"DEBUG: asked for {dbm_type}")
                 Do_Call = Do_SConsignDir
         elif o in ('-h', '--help'):
             print(helpstr)
             sys.exit(0)
         elif o in ('-i', '--implicit'):
-            Print_Flags['implicit'] = 1
+            Print_Flags['implicit'] = True
         elif o in ('--raw',):
             nodeinfo_string = nodeinfo_raw
         elif o in ('-r', '--readable'):
-            Readable = 1
+            Readable = True
         elif o in ('-s', '--size'):
-            Print_Flags['size'] = 1
+            Print_Flags['size'] = True
         elif o in ('-t', '--timestamp'):
-            Print_Flags['timestamp'] = 1
+            Print_Flags['timestamp'] = True
         elif o in ('-v', '--verbose'):
-            Verbose = 1
+            Verbose = True
 
     if Do_Call:
         for a in args:
             Do_Call(a)
     else:
         if not args:
-            args = [".sconsign.dblite"]
+            #args = [".sconsign.dblite"]
+            args = [".sconsign"]
         for a in args:
-            dbm_name = my_whichdb(a)
-            if dbm_name:
-                Map_Module = {'SCons.dblite': 'dblite'}
-                if dbm_name != "SCons.dblite":
-                    dbm = importlib.import_module(dbm_name)
-                else:
-                    import SCons.dblite
-
-                    dbm = SCons.dblite
+            dbm_type = my_whichdb(a)
+            if DEBUG:
+                print(f"DEBUG: back from my_whichdb, dbm is {dbm_type}")
+            if dbm_type:
+                Map_Module = {
+                    'SCons.dblite': 'dblite',
+                    'SCons.sdiskcache': 'diskcache'
+                }
+                if dbm_type == "SCons.dblite":
+                    import SCons.dblite as dbm
                     # Ensure that we don't ignore corrupt DB files,
                     SCons.dblite.IGNORE_CORRUPT_DBFILES = False
-                Do_SConsignDB(Map_Module.get(dbm_name, dbm_name), dbm)(a)
+                elif dbm_type == "SCons.sdiskcache":
+                    import SCons.sdiskcache as dbm
+                else:
+                    dbm = importlib.import_module(dbm_name)
+                Do_SConsignDB(Map_Module.get(dbm_type, dbm_type), dbm_type, dbm)(a)
             else:
                 Do_SConsignDir(a)
 
