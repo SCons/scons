@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify correct use of the live 'nasm' assembler.
@@ -39,7 +38,6 @@ _exe   = TestSCons._exe
 test = TestSCons.TestSCons()
 
 nasm = test.where_is('nasm')
-
 if not nasm:
     test.skip_test('nasm not found; skipping test\n')
 
@@ -77,25 +75,26 @@ for k, v in format_map.items():
 
 test.file_fixture('wrapper.py')
 
-test.write('SConstruct', """
-eee = Environment(tools = ['gcc', 'gnulink', 'nasm'],
-                  CFLAGS = ['-m32'],
-                  LINKFLAGS = '-m32',
-                  ASFLAGS = '-f %(nasm_format)s')
-fff = eee.Clone(AS = r'%(_python_)s wrapper.py ' + WhereIs('nasm'))
-eee.Program(target = 'eee', source = ['eee.asm', 'eee_main.c'])
-fff.Program(target = 'fff', source = ['fff.asm', 'fff_main.c'])
-""" % locals())
+test.write('SConstruct', f"""\
+_ = DefaultEnvironment(tools=[])
+eee = Environment(
+    tools=['gcc', 'gnulink', 'nasm'],
+    CFLAGS=['-m32'],
+    LINKFLAGS='-m32',
+    ASFLAGS='-f {nasm_format}',
+)
+fff = eee.Clone(AS=r'{_python_} wrapper.py ' + WhereIs('nasm'))
+eee.Program(target='eee', source=['eee.asm', 'eee_main.c'])
+fff.Program(target='fff', source=['fff.asm', 'fff_main.c'])
+""")
 
-test.write('eee.asm', 
-"""
+test.write('eee.asm', """\
 global name
 name:
         db 'eee.asm',0
 """)
 
-test.write('fff.asm', 
-"""        
+test.write('fff.asm', """\
 global name
 name:
         db 'fff.asm',0
@@ -103,6 +102,8 @@ name:
 
 test.write('eee_main.c', r"""
 #include <stdio.h>
+#include <stdlib.h>
+
 extern char name[];
 
 int
@@ -129,19 +130,15 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = 'eee' + _exe, stderr = None)
+test.run(arguments='eee' + _exe, stderr=None)
 
-test.run(program = test.workpath('eee'), stdout =  "eee_main.c eee.asm\n")
-
+test.run(program=test.workpath('eee'), stdout="eee_main.c eee.asm\n")
 test.must_not_exist('wrapper.out')
 
-test.run(arguments = 'fff' + _exe)
+test.run(arguments='fff' + _exe)
 
-test.run(program = test.workpath('fff'), stdout =  "fff_main.c fff.asm\n")
-
+test.run(program=test.workpath('fff'), stdout="fff_main.c fff.asm\n")
 test.must_match('wrapper.out', "wrapper.py\n")
-
-
 
 test.pass_test()
 

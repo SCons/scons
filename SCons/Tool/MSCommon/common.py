@@ -34,15 +34,25 @@ from contextlib import suppress
 from subprocess import DEVNULL, PIPE
 from pathlib import Path
 
+import SCons.Errors
 import SCons.Util
 import SCons.Warnings
 
 class MSVCCacheInvalidWarning(SCons.Warnings.WarningOnByDefault):
     pass
 
+def _check_logfile(logfile):
+    if logfile and '"' in logfile:
+        err_msg = (
+            "SCONS_MSCOMMON_DEBUG value contains double quote character(s)\n"
+            f"  SCONS_MSCOMMON_DEBUG={logfile}"
+        )
+        raise SCons.Errors.UserError(err_msg)
+    return logfile
+
 # SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
 # set to '-' to print to console, else set to filename to log to
-LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
+LOGFILE = _check_logfile(os.environ.get('SCONS_MSCOMMON_DEBUG'))
 if LOGFILE:
     import logging
 
@@ -129,7 +139,15 @@ if LOGFILE:
         log_handler = logging.StreamHandler(sys.stdout)
     else:
         log_prefix = ''
-        log_handler = logging.FileHandler(filename=LOGFILE)
+        try:
+            log_handler = logging.FileHandler(filename=LOGFILE)
+        except (OSError, FileNotFoundError) as e:
+            err_msg = (
+                "Could not create logfile, check SCONS_MSCOMMON_DEBUG\n"
+                f"  SCONS_MSCOMMON_DEBUG={LOGFILE}\n"
+                f"  {e.__class__.__name__}: {str(e)}"
+            )
+            raise SCons.Errors.UserError(err_msg)
     log_formatter = _CustomFormatter(log_prefix)
     log_handler.setFormatter(log_formatter)
     logger = logging.getLogger(name=__name__)
