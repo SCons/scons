@@ -1489,11 +1489,11 @@ def _projectDSPNodes(env):
     projects = SCons.Util.flatten(projects)
     if len(projects) < 1:
         raise SCons.Errors.UserError("You must specify at least one project to create an MSVSSolution.")
-    sln_suffix = env.subst('$MSVSSOLUTIONSUFFIX')
+    sln_suffix = os.path.normcase(env.subst('$MSVSSOLUTIONSUFFIX'))
     dspnodes = []
     for p in projects:
         node = env.File(p)
-        if str(node).endswith(sln_suffix):
+        if os.path.normcase(str(node)).endswith(sln_suffix):
             continue
         dspnodes.append(node)
     if len(dspnodes) < 1:
