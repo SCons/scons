@@ -12,6 +12,10 @@ NOTE: Python 3.6 support is deprecated and will be dropped in a future release.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Joseph Brill:
+    - Added error handling when creating MS VC detection debug log file specified by
+      SCONS_MSCOMMON_DEBUG
+
   From Dillan Mills:
     - Fix support for short options (`-x`).
 
@@ -52,6 +56,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       cl.exe-compatible command line switches.
     - Some manpage cleanup for the gettext and pdf/ps builders.
     - Some clarifications in the User Guide "Environments" chapter.
+    - Fix nasm test for missing include file, cleanup.
+    - Change long-standing irritant in Environment tests - instead of using
+      a while loop to pull test info from a list of tests and then delete
+      the test, structure the test data as a list of tuples and iterate it.
 
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access
