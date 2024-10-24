@@ -2464,12 +2464,15 @@ These warnings are enabled by default.</para>
     <option>--srcdir=<replaceable>repository</replaceable></option>
   </term>
   <listitem>
-<para>Search the specified <replaceable>repository</replaceable>
+<para>
+Search <replaceable>repository</replaceable>
 for any input and target
-files not found in the local directory hierarchy.  Multiple
-<option>-Y</option>
-options may be specified, in which case the
-repositories are searched in the order specified.</para>
+files not found in the local directory hierarchy.
+Multiple <option>-Y</option>
+options may be specified,
+with repositories searched in the given order.
+See &f-link-Repository; for more information.
+</para>
   </listitem>
   </varlistentry>
 </variablelist>

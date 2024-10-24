@@ -155,7 +155,7 @@ for more information.
 <summary>
 <para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -166,7 +166,7 @@ for more information).
 <summary>
 <para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -177,7 +177,7 @@ for more information).
 <summary>
 <para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -188,7 +188,7 @@ for more information).
 <summary>
 <para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -199,7 +199,7 @@ for more information).
 <summary>
 <para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -210,7 +210,7 @@ for more information).
 <summary>
 <para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -221,7 +221,7 @@ for more information).
 <summary>
 <para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -232,7 +232,7 @@ for more information).
 <summary>
 <para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -279,13 +279,12 @@ for a complete explanation of the arguments and behavior.
 <para>
 Note that the &f-env-Action;
 form of the invocation will expand
-construction variables in any argument strings,
+&consvars; in any argument strings,
 including the
 <parameter>action</parameter>
 argument, at the time it is called
-using the construction variables in the
-<replaceable>env</replaceable>
-construction environment through which
+using the &consvars; in the
+&consenv; through which
 &f-env-Action; was called.
 The &f-Action; global function
 form delays all variable expansion
@@ -862,14 +861,14 @@ for a complete explanation of the arguments and behavior.
 Note that the
 <function>env.Builder</function>()
 form of the invocation will expand
-construction variables in any arguments strings,
+&consvars; in any arguments strings,
 including the
 <parameter>action</parameter>
 argument,
 at the time it is called
-using the construction variables in the
+using the &consvars; in the
 <varname>env</varname>
-construction environment through which
+&consenv; through which
 &f-env-Builder; was called.
 The
 &f-Builder;
@@ -903,12 +902,12 @@ disables derived file caching.
 Calling the environment method
 &f-link-env-CacheDir;
 limits the effect to targets built
-through the specified construction environment.
+through the specified &consenv;.
 Calling the global function
 &f-link-CacheDir;
 sets a global default
 that will be used by all targets built
-through construction environments
+through &consenvs;
 that do not set up environment-specific
 caching by calling &f-env-CacheDir;.
 </para>
@@ -1034,7 +1033,7 @@ either as separate arguments to the
 &f-Clean;
 method, or as a list.
 &f-Clean;
-will also accept the return value of any of the construction environment
+will also accept the return value of any of the &consenv;
 Builder methods.
 Examples:
 </para>
@@ -1327,13 +1326,11 @@ for a complete explanation of the arguments and behavior.
 <summary>
 <para>
 Specifies that all up-to-date decisions for
-targets built through this construction environment
-will be handled by the specified
-<parameter>function</parameter>.
+targets built through this &consenv;
+will be handled by <parameter>function</parameter>.
 <parameter>function</parameter> can be the name of
 a function or one of the following strings
-that specify the predefined decision function
-that will be applied:
+that specify a predefined decider function:
 </para>
 
 <para>
@@ -1440,7 +1437,7 @@ Examples:
 Decider('timestamp-match')
 
 # Use hash content signatures for any targets built
-# with the attached construction environment.
+# with the attached &consenv;.
 env.Decider('content')
 </example_commands>
 
@@ -1746,7 +1743,7 @@ only those keys and their values are serialized.
 </para>
 
 <para>
-<emphasis>Changed in NEXT_VERSION</emphasis>:
+<emphasis>Changed in NEXT_RELEASE</emphasis>:
 More than one <parameter>key</parameter> can be specified.
 The returned string always looks like a dict (or JSON equivalent);
 previously a single key serialized only the value,
@@ -2269,14 +2266,14 @@ is non-zero,
 adds the names of the default builders
 (Program, Library, etc.)
 to the global name space
-so they can be called without an explicit construction environment.
+so they can be called without an explicit &consenv;.
 (This is the default.)
 When
 <parameter>flag</parameter>
 is zero,
 the names of the default builders are removed
 from the global name space
-so that an explicit construction environment is required
+so that an explicit &consenv; is required
 to call all builders.
 </para>
 </summary>
@@ -2334,7 +2331,7 @@ env.Ignore('bar', 'bar/foobar.obj')
 The specified
 <parameter>string</parameter>
 will be preserved as-is
-and not have construction variables expanded.
+and not have &consvars; expanded.
 </para>
 </summary>
 </scons_function>
@@ -2493,7 +2490,7 @@ either as separate arguments to the
 &f-NoCache;
 method, or as a list.
 &f-NoCache;
-will also accept the return value of any of the construction environment
+will also accept the return value of any of the &consenv;
 Builder methods.
 </para>
 
@@ -2544,7 +2541,7 @@ either as separate arguments to the
 &f-NoClean;
 method, or as a list.
 &f-NoClean;
-will also accept the return value of any of the construction environment
+will also accept the return value of any of the &consenv;
 Builder methods.
 </para>
 
@@ -2589,7 +2586,7 @@ is omitted or <constant>None</constant>,
 &f-link-env-MergeFlags; is used.
 By default,
 duplicate values are not
-added to any construction variables;
+added to any &consvars;;
 you can specify
 <parameter>unique=False</parameter>
 to allow duplicate values to be added.
@@ -2613,7 +2610,7 @@ in order to distribute it to appropriate &consvars;.
 &f-env-MergeFlags; uses a separate function to
 do that processing -
 see &f-link-env-ParseFlags; for the details, including a
-a table of options and corresponding construction variables.
+a table of options and corresponding &consvars;.
 To provide alternative processing of the output of
 <parameter>command</parameter>,
 you can suppply a custom
@@ -2696,12 +2693,12 @@ function.
 Parses one or more strings containing
 typical command-line flags for GCC-style tool chains
 and returns a dictionary with the flag values
-separated into the appropriate SCons construction variables.
+separated into the appropriate SCons &consvars;.
 Intended as a companion to the
 &f-link-env-MergeFlags;
 method, but allows for the values in the returned dictionary
 to be modified, if necessary,
-before merging them into the construction environment.
+before merging them into the &consenv;.
 (Note that
 &f-env-MergeFlags;
 will call this method if its argument is not a dictionary,
@@ -2730,7 +2727,7 @@ See &f-link-ParseConfig; for more details.
 
 <para>
 Flag values are translated according to the prefix found,
-and added to the following construction variables:
+and added to the following &consvars;:
 </para>
 
 <example_commands>
@@ -2770,8 +2767,7 @@ and added to the following construction variables:
 Any other strings not associated with options
 are assumed to be the names of libraries
 and added to the
-&cv-LIBS;
-construction variable.
+&cv-LIBS; &consvar;.
 </para>
 
 <para>
@@ -2802,7 +2798,7 @@ selected by <parameter>plat</parameter>
 (defaults to the detected platform for the
 current system)
 that can be used to initialize
-a construction environment by passing it as the
+a &consenv; by passing it as the
 <parameter>platform</parameter> keyword argument to the
 &f-link-Environment; function.
 </para>
@@ -2999,7 +2995,7 @@ env = Environment(
 </arguments>
 <summary>
 <para>
-Replaces construction variables in the Environment
+Replaces &consvars; in the Environment
 with the specified keyword arguments.
 </para>
 
@@ -3019,50 +3015,43 @@ env.Replace(CCFLAGS='-g', FOO='foo.xxx')
 </arguments>
 <summary>
 <para>
-Specifies that
+Sets
 <parameter>directory</parameter>
-is a repository to be searched for files.
+as a repository to be searched for files contributing to the build.
 Multiple calls to
 &f-Repository;
-are legal,
-and each one adds to the list of
-repositories that will be searched.
+are allowed,
+with repositories searched in the given order.
+Repositories specified via command-line option
+have higher priority.
 </para>
 
 <para>
-To
+In
 &scons;,
-a repository is a copy of the source tree,
-from the top-level directory on down,
-which may contain
-both source files and derived files
+a repository is partial or complete copy of the source tree,
+from the top-level directory down,
+containing source files
 that can be used to build targets in
-the local source tree.
-The canonical example would be an
-official source tree maintained by an integrator.
-If the repository contains derived files,
-then the derived files should have been built using
-&scons;,
-so that the repository contains the necessary
-signature information to allow
-&scons;
-to figure out when it is appropriate to
-use the repository copy of a derived file,
-instead of building one locally.
+the current worktree.
+Repositories can also contain derived files.
+An example might be an official source tree maintained by an integrator.
+If a repository contains derived files,
+they should be the result of building with &SCons;,
+so a signature database (sconsign) is present
+in the repository,
+allowing better decisions on whether they are
+up-to-date or not.
 </para>
 
 <para>
 Note that if an up-to-date derived file
 already exists in a repository,
-&scons;
-will
+&scons; will
 <emphasis>not</emphasis>
 make a copy in the local directory tree.
-In order to guarantee that a local copy
-will be made,
-use the
-&f-link-Local;
-method.
+If you need a local copy to be made,
+use the &f-link-Local; method.
 </para>
 </summary>
 </scons_function>
@@ -3267,7 +3256,7 @@ SConsignFile(dbm_module=dbm.gnu)
 </arguments>
 <summary>
 <para>
-Sets construction variables to default values specified with the keyword
+Sets &consvars; to default values specified with the keyword
 arguments if (and only if) the variables are not already set.
 The following statements are equivalent:
 </para>
