@@ -111,13 +111,13 @@ This file is processed by the bin/SConsDoc.py module
                 </para>
 
 <!--            NOTE DO NOT INDENT example_commands CONTENTS AS IT WILL ALTER THE FORMATTING-->
-                <example_commands>
+                <screen>
 # On the command line
 --experimental=ninja
 
 # Or in your SConstruct
 SetOption('experimental', 'ninja')
-                </example_commands>
+                </screen>
 
                 <para>This functionality is subject to change and/or removal without deprecation cycle.</para>
 
@@ -127,10 +127,10 @@ SetOption('experimental', 'ninja')
                     <systemitem>import</systemitem> of the package
 <!--                    (although see &cv-link-__NINJA_NO;).-->
                     This can be done via:
-                    <example_commands>
-python -m pip install ninja
-                    </example_commands>
                 </para>
+                    <screen>
+python -m pip install ninja
+                    </screen>
 
             </note>
 

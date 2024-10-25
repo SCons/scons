@@ -465,33 +465,33 @@ Sets construction variables for the D language compiler GDC.
   <varlistentry id="t-gettext">
     <term>gettext</term>
     <listitem><para>
-This is actually a toolset, which supports internationalization and
-localization of software being constructed with SCons. The toolset loads
-following tools:
+A toolset supporting internationalization and
+localization of software being constructed with &SCons;.
+The toolset loads the following tools:
 </para>
 
 <para>
 <itemizedlist mark="opencircle">
   <listitem><para>
-    &t-link-xgettext; - to extract internationalized messages from source code to
-    <literal>POT</literal> file(s),
+    &t-link-xgettext; - extract internationalized messages from source code to
+    <literal>POT</literal> file(s).
   </para></listitem>
   <listitem><para>
-    &t-link-msginit; - may be optionally used to initialize <literal>PO</literal>
-    files,
+    &t-link-msginit; - initialize <literal>PO</literal>
+    files during initial translation of a project.
   </para></listitem>
   <listitem><para>
-    &t-link-msgmerge; - to update <literal>PO</literal> files, that already contain
+    &t-link-msgmerge; - update <literal>PO</literal> files that already contain
     translated messages,</para></listitem>
   <listitem><para>
-    &t-link-msgfmt; - to compile textual <literal>PO</literal> file to binary
-    installable <literal>MO</literal> file.
+    &t-link-msgfmt; - compile textual <literal>PO</literal> files to binary
+    installable <literal>MO</literal> files.
   </para></listitem>
 </itemizedlist>
 </para>
 
 <para>
-When you enable &t-gettext;, it internally loads all abovementioned tools,
+When you enable &t-gettext;, it internally loads all the above-mentioned tools,
 so you're encouraged to see their individual documentation.
 </para>
 
@@ -503,12 +503,12 @@ may be however interested in <emphasis>top-level</emphasis>
 </para>
 
 <para>
-To use &t-gettext; tools add <literal>'gettext'</literal> tool to your
-environment:
+To use the &t-gettext; tools, add the <literal>'gettext'</literal> tool to your
+&consenv;:
 </para>
-<example_commands>
-  env = Environment( tools = ['default', 'gettext'] )
-</example_commands>
+<programlisting language="python">
+env = Environment(tools=['default', 'gettext'])
+</programlisting>
 </listitem>
   </varlistentry>
   <varlistentry id="t-gfortran">
@@ -718,28 +718,35 @@ Sets construction variables for MinGW (Minimal Gnu on Windows).
   <varlistentry id="t-msgfmt">
     <term>msgfmt</term>
     <listitem><para>
-This scons tool is a part of scons &t-link-gettext; toolset. It provides scons
-interface to <command>msgfmt(1)</command> command, which generates binary
-message catalog (<literal>MO</literal>) from a textual translation description
-(<literal>PO</literal>).
+This tool is a part of the &t-link-gettext; toolset.
+It provides &SCons;
+an interface to the <command>msgfmt(1)</command> command
+by setting up the &b-link-MOFiles; builder,
+which generates binary message catalog (<literal>MO</literal>) files
+from a textual translation description
+(<literal>PO</literal> files).
 </para>
 <para>Sets: &cv-link-MOSUFFIX;, &cv-link-MSGFMT;, &cv-link-MSGFMTCOM;, &cv-link-MSGFMTCOMSTR;, &cv-link-MSGFMTFLAGS;, &cv-link-POSUFFIX;.</para><para>Uses: &cv-link-LINGUAS_FILE;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-msginit">
     <term>msginit</term>
     <listitem><para>
-This scons tool is a part of scons &t-link-gettext; toolset. It provides
-scons interface to <command>msginit(1)</command> program, which creates new
+This tool is a part of scons &t-link-gettext; toolset. It provides
+&SCons; an interface to the <command>msginit(1)</command> program,
+by setting up the &b-link-POInit; builder,
+which creates a new
 <literal>PO</literal> file, initializing the meta information with values from
-user's environment (or options).
+the &consenv; (or options).
 </para>
 <para>Sets: &cv-link-MSGINIT;, &cv-link-MSGINITCOM;, &cv-link-MSGINITCOMSTR;, &cv-link-MSGINITFLAGS;, &cv-link-POAUTOINIT;, &cv-link-POCREATE_ALIAS;, &cv-link-POSUFFIX;, &cv-link-POTSUFFIX;, &cv-link-_MSGINITLOCALE;.</para><para>Uses: &cv-link-LINGUAS_FILE;, &cv-link-POAUTOINIT;, &cv-link-POTDOMAIN;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-msgmerge">
     <term>msgmerge</term>
     <listitem><para>
-This scons tool is a part of scons &t-link-gettext; toolset. It provides
-scons interface to <command>msgmerge(1)</command> command, which merges two
+This tool is a part of scons &t-link-gettext; toolset. It provides
+&SCons; an interface to the <command>msgmerge(1)</command> command,
+by setting up the &b-link-POUpdate; builder,
+which merges two
 Uniform style <filename>.po</filename> files together.
 </para>
 <para>Sets: &cv-link-MSGMERGE;, &cv-link-MSGMERGECOM;, &cv-link-MSGMERGECOMSTR;, &cv-link-MSGMERGEFLAGS;, &cv-link-POSUFFIX;, &cv-link-POTSUFFIX;, &cv-link-POUPDATE_ALIAS;.</para><para>Uses: &cv-link-LINGUAS_FILE;, &cv-link-POAUTOINIT;, &cv-link-POTDOMAIN;.</para></listitem>
@@ -1093,10 +1100,10 @@ Sets construction variables for the Borlan
   <varlistentry id="t-xgettext">
     <term>xgettext</term>
     <listitem><para>
-This scons tool is a part of scons &t-link-gettext; toolset. It provides
-scons interface to <command>xgettext(1)</command>
-program, which extracts internationalized messages from source code. The tool
-provides &b-POTUpdate; builder to make  <literal>PO</literal>
+This tool is a part of the &t-link-gettext; toolset. It provides
+&SCons; an interface to the <command>xgettext(1)</command>
+program, which extracts internationalized messages from source code.
+The tool sets up the &b-POTUpdate; builder to make  <literal>PO</literal>
 <emphasis>Template</emphasis> files.
 </para>
 <para>Sets: &cv-link-POTSUFFIX;, &cv-link-POTUPDATE_ALIAS;, &cv-link-XGETTEXTCOM;, &cv-link-XGETTEXTCOMSTR;, &cv-link-XGETTEXTFLAGS;, &cv-link-XGETTEXTFROM;, &cv-link-XGETTEXTFROMPREFIX;, &cv-link-XGETTEXTFROMSUFFIX;, &cv-link-XGETTEXTPATH;, &cv-link-XGETTEXTPATHPREFIX;, &cv-link-XGETTEXTPATHSUFFIX;, &cv-link-_XGETTEXTDOMAIN;, &cv-link-_XGETTEXTFROMFLAGS;, &cv-link-_XGETTEXTPATHFLAGS;.</para><para>Uses: &cv-link-POTDOMAIN;.</para></listitem>
