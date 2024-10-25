@@ -420,6 +420,9 @@ class DummyEnv:
     def Dir(self, name):
         return self.fs.Dir(name)
 
+    def File(self, name):
+        return self.fs.File(name)
+
     def subst(self, key):
         if key[0] == '$':
             key = key[1:]
