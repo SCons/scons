@@ -13,8 +13,43 @@ NOTE: Python 3.6 support is deprecated and will be dropped in a future release.
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Joseph Brill:
-    - Added error handling when creating MS VC detection debug log file specified by
-      SCONS_MSCOMMON_DEBUG
+    - Added error handling when creating MSVC detection debug log file specified by
+      SCONS_MSCOMMON_DEBUG.
+    - MSVS: Added default HOST_ARCH values to sconstruct/sconscript environment for
+      select msvs test scripts to allow tests to run on platforms not recognized by
+      the msvs/msvc tool implementations.  Fixes #4608.
+    - MSVS: Fix early exit after the first msvc version loop execution in select msvs
+      test scripts.  Select msvs test scripts were being invoked for msvc version 8.0
+      only.  Fixes #4609.
+    - MSVS: Additional minor select msvs test script fixes as a result of the msvs
+      tests being invoked for all msvc versions: fix vs version number for vc version
+      14.3, fix expected platform toolset version, add and use a default known
+      project GUID for some select tests, add AdditionalOptions Condition to expected
+      vcx project file.
+    - MSVS: Additional minor changes to the msvs tool as a result of the msvs tests
+      being invoked for all msvc versions: use environment MSVS_PROJECT_GUID when
+      generating project files information, fix the visual studio string for VS2015,
+      add .vcxproj as an expected suffix for assigning the name to the file basename.
+    - MSVS: Add additional msvs tests for multi-project and solution builds.
+    - MSVS: Check for variant directory build of MSVSSolution and adjust the source
+      node similar to the handling for MSVSProject.  The solution was generated in
+      the build directory instead of the source directory.  The placeholder solution
+      file is not generated in the build directory and the solution file is generated
+      in the source directory similar to the handling for project files.
+      Fixes #4612.
+    - MSVS: Add project dsp nodes to the dsw source node list in the msvs tool.  This
+      appears to always cause the project files to be generated before the solution
+      files which is necessary to retrieve the project GUIDs for use in the solution
+      file.  This does change the behavior of clean for a project generated with
+      auto_build_solution disabled and explicit solution generation: when the
+      solution files are cleaned, the project files are also cleaned.  The tests for
+      vs 6.0-7.1 were changed accordingly.
+    - MSVS: Filter out solution nodes from the project list in the msvs tool.  When
+      auto_build_solution is enabled and the MSVSProject return value is used in the
+      MSVSSolution project specification, the auto-generated solution file is
+      generated as a Project record in the solution file.  Fixes #4613.
+    - MSVS: Remove the platform specification (i.e., platform = 'win32') from select
+      test script environments.  The platform specification appears superfluous.
 
   From Dillan Mills:
     - Fix support for short options (`-x`).
