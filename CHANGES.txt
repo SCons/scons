@@ -50,9 +50,17 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       generated as a Project record in the solution file.  Fixes #4613.
     - MSVS: Remove the platform specification (i.e., platform = 'win32') from select
       test script environments.  The platform specification appears superfluous.
+      
+  From Alex James:
+    - On Darwin, PermissionErrors are now handled while trying to access
+      /etc/paths.d. This may occur if SCons is invoked in a sandboxed
+      environment (such as Nix).
 
   From Dillan Mills:
     - Fix support for short options (`-x`).
+
+  From Keith F Prussing:
+    - Added support for tracking beamer themes in the LaTeX scanner.
 
   From Mats Wichmann:
     - PackageVariable now does what the documentation always said it does
@@ -95,11 +103,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Change long-standing irritant in Environment tests - instead of using
       a while loop to pull test info from a list of tests and then delete
       the test, structure the test data as a list of tuples and iterate it.
-
-  From Alex James:
-    - On Darwin, PermissionErrors are now handled while trying to access
-      /etc/paths.d. This may occur if SCons is invoked in a sandboxed
-      environment (such as Nix).
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
