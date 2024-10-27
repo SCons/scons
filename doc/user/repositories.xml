@@ -102,7 +102,7 @@ int main() { printf("Hello, world!\n"); }
 
   </section>
 
-  <section id="sec-repository-finding-sources">
+  <section id="sect-repository-finding-sources">
   <title>Finding source files in repositories</title>
 
     <para>
@@ -235,7 +235,7 @@ hello.c:1: hello.h: No such file or directory
 
     In order to inform the C compiler about the repositories,
     &SCons; will add appropriate source file inclusion
-    directived (<literal>-I</literal> or <literal>/I</literal> flags)
+    directives (<literal>-I</literal> or <literal>/I</literal> flags)
     to the compilation commands for each directory in the &cv-CPPPATH; list.
     So if you add the current directory to the
     &consenv; &cv-CPPPATH;:
