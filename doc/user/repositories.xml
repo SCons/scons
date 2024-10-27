@@ -616,7 +616,7 @@ scons: `hello' is up-to-date.
 
     There are, however, times when you want to ensure that a
     local copy of a file always exists.
-    For example, if you are pacakging the result of the build,
+    For example, if you are packaging the result of the build,
     all the files used in the package need to be present locally,
     and the packaging tool is unlikely to know anything about
     &SCons; repositories. Similarly, if you build a unit test
@@ -691,7 +691,7 @@ foo  foo.o
 
     <para>
 
-    It can become awakward to keep having to type
+    It can become awkward to keep having to type
     <literal>-Y path-to-repo</literal> repeatedly.
     If so, the option can be placed in &SCONSFLAGS;.
 
