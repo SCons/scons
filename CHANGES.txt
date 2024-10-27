@@ -15,9 +15,17 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Joseph Brill:
     - Added error handling when creating MS VC detection debug log file specified by
       SCONS_MSCOMMON_DEBUG
+      
+  From Alex James:
+    - On Darwin, PermissionErrors are now handled while trying to access
+      /etc/paths.d. This may occur if SCons is invoked in a sandboxed
+      environment (such as Nix).
 
   From Dillan Mills:
     - Fix support for short options (`-x`).
+
+  From Keith F Prussing:
+    - Added support for tracking beamer themes in the LaTeX scanner.
 
   From Mats Wichmann:
     - PackageVariable now does what the documentation always said it does
@@ -36,11 +44,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       a single arg consisting of a premade option object. Because optparse
       detects that case based on seeing zero kwargs and we always
       added at least one (default=) that would fail for AddOption. Fix
-      for consistency, but don't advertise it further - not addewd to
-      manpage synoposis/description.
+      for consistency, but don't advertise it further - not added to
+      manpage synopsis/description.
     - Temporary files created by TempFileMunge() are now cleaned up on
       scons exit, instead of at the time they're used.  Fixes #4595.
-    - Override envirionments, created when giving construction environment
+    - Override environments, created when giving construction environment
       keyword arguments to Builder calls (or manually, through the undocumented
       Override method), were modified not to "leak" on item deletion.  The item
       will now not be deleted from the base environment. Override Environments
@@ -50,7 +58,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       entries for assembler files were not being set up correctly.
     - Add clang and clang++ to the default tool search orders for POSIX
       and Windows platforms. These will be searched for after gcc and g++,
-      respectively. Does not affect expliclity requested tool lists.
+      respectively. Does not affect explicitly requested tool lists.
       Note: on Windows, SCons currently only has builtin support for
       clang, not for clang-cl, the version of the frontend that uses
       cl.exe-compatible command line switches.
@@ -62,11 +70,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       the test, structure the test data as a list of tuples and iterate it.
     - Skip running a few validation tests if the user is root and the test is
       not designed to work for the root user.
-
-  From Alex James:
-    - On Darwin, PermissionErrors are now handled while trying to access
-      /etc/paths.d. This may occur if SCons is invoked in a sandboxed
-      environment (such as Nix).
+    - Clarify documentation of Repository() in manpage and user guide.
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
@@ -97,7 +101,7 @@ RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
       module (`Variables/__init__.py`) to control what is made available in
       a star import. However, there was existing usage of doing
       `from SCons.Variables import *` which expected the variable *types*
-      to be avaiable. While we never advertised this usage, there's no
+      to be available. While we never advertised this usage, there's no
       real reason it shouldn't keep working - add to `__all__`.
     - Switch SCons build to use setuptools' supported version fetcher from
       the old homegrown one.
@@ -186,7 +190,7 @@ RELEASE 4.8.0 -  Sun, 07 Jul 2024 17:22:20 -0700
       consistent behavior.
       NOTE: With this change, user created Actions should now catch and handle
       expected exceptions (whereas previously many of these were silently
-      caught and suppressed by the SCons Action exection code).
+      caught and suppressed by the SCons Action execution code).
 
   From Ryan Carsten Schmidt:
     - Teach ParseFlags to put a --stdlib=libname argument into CXXFLAGS.

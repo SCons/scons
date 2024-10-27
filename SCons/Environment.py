@@ -1749,7 +1749,7 @@ class Base(SubstitutionEnvironment):
         Raises:
            ValueError: *format* is not a recognized serialization format.
 
-        .. versionchanged:: NEXT_VERSION
+        .. versionchanged:: NEXT_RELEASE
            *key* is no longer limited to a single construction variable name.
            If *key* is supplied, a formatted dictionary is generated like the
            no-arg case - previously a single *key* displayed just the value.
