@@ -68,6 +68,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Change long-standing irritant in Environment tests - instead of using
       a while loop to pull test info from a list of tests and then delete
       the test, structure the test data as a list of tuples and iterate it.
+    - Clarify documentation of Repository() in manpage and user guide.
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
