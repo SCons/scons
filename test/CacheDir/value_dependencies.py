@@ -37,7 +37,6 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.dir_fixture('value_dependencies')
-test.subdir('cache')
 
 # First build, populates the cache
 test.run(arguments='.')

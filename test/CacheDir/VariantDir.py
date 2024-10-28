@@ -33,7 +33,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('cache', 'src')
+test.subdir('src')
 
 cache = test.workpath('cache')
 cat_out = test.workpath('cat.out')

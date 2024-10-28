@@ -36,7 +36,7 @@ import TestSCons
 
 test = TestSCons.TestSCons(match=TestSCons.match_re)
 
-test.subdir('cache', 'src')
+test.subdir('src')
 
 cache = test.workpath('cache')
 debug_out = test.workpath('cache-debug.out')
