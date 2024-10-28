@@ -38,7 +38,7 @@ _obj = TestSCons._obj
 
 test = TestSCons.TestSCons()
 
-test.subdir('cache', 'src1', 'src2')
+test.subdir('src1', 'src2')
 
 test.write(['src1', 'build.py'], r"""
 import sys
@@ -63,7 +63,7 @@ def cat(env, source, target):
                 f.write(f2.read())
 
 DefaultEnvironment(tools=[])  # test speedup
-env = Environment(tools=[], 
+env = Environment(tools=[],
                   BUILDERS={'Internal':Builder(action=cat),
                             'External':Builder(action=r'%(_python_)s build.py $TARGET $SOURCES')})
 env.External('aaa.out', 'aaa.in')

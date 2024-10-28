@@ -38,7 +38,7 @@ test = TestSCons.TestSCons()
 
 cache = test.workpath('cache')
 
-test.subdir('cache', 'src')
+test.subdir('src')
 
 test.write(['src', 'SConstruct'], """\
 DefaultEnvironment(tools=[])

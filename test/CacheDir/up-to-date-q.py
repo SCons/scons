@@ -39,19 +39,19 @@ Thanks to dvitek for the test case.
 # 1. Set up two identical C project directories called 'alpha' and
 #    'beta', which use the same cache
 # 2. Invoke scons on 'alpha'
-# 3. Invoke scons on 'beta', which successfully draws output 
+# 3. Invoke scons on 'beta', which successfully draws output
 #    files from the cache
 # 4. Invoke scons again, asserting (with -q) that 'beta' is up to date
 #
 # Step 4 failed in 0.96.93.  In practice, this problem would lead to
-# lots of unecessary fetches from the cache during incremental 
+# lots of unecessary fetches from the cache during incremental
 # builds (because they behaved like non-incremental builds).
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('cache', 'alpha', 'beta')
+test.subdir('alpha', 'beta')
 
 foo_c = """
 int main(void){ return 0; }

@@ -33,6 +33,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   keyword arguments to Builder calls (or manually, through the
   undocumented Override method), were modified not to "leak" on item deletion.
   The item will now not be deleted from the base environment.
+
 - Added support for tracking beamer themes in the LaTeX scanner.
 - MSVS: msvs project files are always generated before the corresponding
   msvs solution files. This changes the behavior of clean for a project
@@ -53,20 +54,26 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   in the projects argument list rather than manually removing solution file
   names and nodes from the MSVSProject return values.
 
+- Add a tag to each CacheDir to let systems ignore backing it up
+  (per https://bford.info/cachedir/). Update the way a CacheDir
+  is created, since it now has to create two files.
+
 FIXES
 -----
-
 - PackageVariable now does what the documentation always said it does
   if the variable is used on the command line with one of the enabling
   string as the value: the variable's default value is produced (previously
   it always produced True in this case).
+
 - Temporary files created by TempFileMunge() are now cleaned up on
   scons exit, instead of at the time they're used.  Fixes #4595.
+
 - AddOption now correctly adds short (single-character) options.
   Previously an added short option would always report as unknown,
   while long option names for the same option worked. Short options
   that take a value require the user to specify the value immediately
   following the option, with no spaces (e.g. -j5 and not -j 5).
+
 - Fix a problem with compilation_db component initialization - the
   entries for assembler files were not being set up correctly.
 - On Darwin, PermissionErrors are now handled while trying to access
@@ -90,6 +97,9 @@ FIXES
   written to the solution file.
 - Fix nasm test for missing include file, cleanup.
 
+- Skip running a few validation tests if the user is root and the test is
+  not designed to work for the root user.
+
 IMPROVEMENTS
 ------------
 
@@ -98,13 +108,13 @@ IMPROVEMENTS
   under which they would be observed), or major code cleanups
 
 - For consistency with the optparse "add_option" method, AddOption accepts
-  an SConsOption object as a single argument (this failed previouly).
+  an SConsOption object as a single argument (this failed previously).
   Calling AddOption with the full set of arguments (option names and
   attributes) to set up the option is still the recommended approach.
 
 - Add clang and clang++ to the default tool search orders for POSIX
   and Windows platforms. These will be searched for after gcc and g++,
-  respectively. Does not affect expliclity requested tool lists.  Note:
+  respectively. Does not affect explicitly requested tool lists.  Note:
   on Windows, SCons currently only has builtin support for clang, not
   for clang-cl, the version of the frontend that uses cl.exe-compatible
   command line switches.
@@ -122,7 +132,10 @@ DOCUMENTATION
   the contributor credit)
 
 - Some manpage cleanup for the gettext and pdf/ps builders.
+
 - Some clarifications in the User Guide "Environments" chapter.
+
+- Clarify documentation of Repository() in manpage and user guide.
 
 DEVELOPMENT
 -----------

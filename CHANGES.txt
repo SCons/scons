@@ -59,7 +59,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and nodes from the MSVSProject return values.  Resolves #4613.
     - MSVS: Remove the platform specification (i.e., platform = 'win32') from select
       test script environments.  The platform specification appears superfluous.
-      
+
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access
       /etc/paths.d. This may occur if SCons is invoked in a sandboxed
@@ -112,6 +112,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Change long-standing irritant in Environment tests - instead of using
       a while loop to pull test info from a list of tests and then delete
       the test, structure the test data as a list of tuples and iterate it.
+    - Skip running a few validation tests if the user is root and the test is
+      not designed to work for the root user.
+    - Clarify documentation of Repository() in manpage and user guide.
+    - Add a tag to each CacheDir to let systems ignore backing it up
+      (per https://bford.info/cachedir/). Update the way a CacheDir
+      is created, since it now has to create two files.
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
