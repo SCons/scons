@@ -39,6 +39,19 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   generated with auto_build_solution disabled and explicit solution
   generation: when the solution files are cleaned, the project files are
   also cleaned.  The tests for vs 6.0-7.1 were updated accordingly.
+- MSVS: Add an optional keyword argument, auto_filter_projects, to
+  MSVSSolution. Accepted values for auto_filter_projects are:
+  - None [default]: raise an exception when solution file names or nodes
+    are detected in the projects argument list.
+  - True or evaluates True: automatically remove solution file names and
+    nodes from the project argument list.
+  - False or evaluates False: leave solution file names and nodes in the
+    project argument list.  An exception is not raised.
+  Solution file names and/or nodes in the project argument list cause
+  erroneous Project records to be produced in the generated solution file.
+  As a convenience, a user may elect to ignore solution file names and nodes
+  in the projects argument list rather than manually removing solution file
+  names and nodes from the MSVSProject return values.
 
 FIXES
 -----
@@ -68,8 +81,6 @@ FIXES
   scripts were being invoked for msvc version 8.0 only.  Additional msvs
   tool and test changes due to the msvs test scripts being run for all msvc
   versions (i.e., minor test and tool issues went undetected).
-- MSVS: msvs solution files are no longer included when generating the
-  project records for a solution file.
 - MSVS: for variant build configurations, msvs solution files are
   generated in the source directory and a placeholder file is generated in
   the variant build directory.  This mirrors the behavior of generated

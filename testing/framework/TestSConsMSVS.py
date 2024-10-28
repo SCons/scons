@@ -54,6 +54,9 @@ PROJECT_GUID   = "{00000000-0000-0000-0000-000000000000}"
 PROJECT_GUID_1 = "{11111111-1111-1111-1111-111111111111}"
 PROJECT_GUID_2 = "{22222222-2222-2222-2222-222222222222}"
 
+SOLUTION_GUID_1 = "{88888888-8888-8888-8888-888888888888}"
+SOLUTION_GUID_2 = "{99999999-9999-9999-9999-999999999999}"
+
 expected_dspfile_6_0 = '''\
 # Microsoft Developer Studio Project File - Name="Test" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
@@ -690,6 +693,38 @@ Global
 EndGlobal
 """
 
+expected_projects_slnfile_fmt_slnnodes = """\
+Microsoft Visual Studio Solution File, Format Version %(FORMAT_VERSION)s
+# Visual Studio %(VS_NUMBER)s
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%(PROJECT_NAME_1)s", "%(PROJECT_FILE_1)s", "<PROJECT_GUID_1>"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%(SOLUTION_FILE_1)s", "%(SOLUTION_FILE_1)s", "<SOLUTION_GUID_1>"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%(PROJECT_NAME_2)s", "%(PROJECT_FILE_2)s", "<PROJECT_GUID_2>"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%(SOLUTION_FILE_2)s", "%(SOLUTION_FILE_2)s", "<SOLUTION_GUID_2>"
+EndProject
+Global
+<SCC_SLN_INFO>
+\tGlobalSection(SolutionConfigurationPlatforms) = preSolution
+\t\tRelease|Win32 = Release|Win32
+\tEndGlobalSection
+\tGlobalSection(ProjectConfigurationPlatforms) = postSolution
+\t\t<PROJECT_GUID_1>.Release|Win32.ActiveCfg = Release|Win32
+\t\t<PROJECT_GUID_1>.Release|Win32.Build.0 = Release|Win32
+\t\t<SOLUTION_GUID_1>.Release|Win32.ActiveCfg = Release|Win32
+\t\t<SOLUTION_GUID_1>.Release|Win32.Build.0 = Release|Win32
+\t\t<PROJECT_GUID_2>.Release|Win32.ActiveCfg = Release|Win32
+\t\t<PROJECT_GUID_2>.Release|Win32.Build.0 = Release|Win32
+\t\t<SOLUTION_GUID_2>.Release|Win32.ActiveCfg = Release|Win32
+\t\t<SOLUTION_GUID_2>.Release|Win32.Build.0 = Release|Win32
+\tEndGlobalSection
+\tGlobalSection(SolutionProperties) = preSolution
+\t\tHideSolutionNode = FALSE
+\tEndGlobalSection
+EndGlobal
+"""
+
 SConscript_projects_contents_fmt = """\
 env=Environment(
     tools=['msvs'],
@@ -737,6 +772,7 @@ env.MSVSSolution(
     target = '%(SOLUTION_FILE)s',
     projects = [p1, p2],
     variant = 'Release',
+    auto_filter_projects = %(AUTOFILTER_PROJECTS)s,
 )
 """
 
@@ -785,6 +821,7 @@ env.MSVSSolution(
     target = '%(SOLUTION_FILE)s',
     projects = [p1, p2],
     variant = 'Release',
+    auto_filter_projects = %(AUTOFILTER_PROJECTS)s,
 )
 """
 
@@ -1094,6 +1131,8 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         python=None,
         project_guid_1=None,
         project_guid_2=None,
+        solution_guid_1=None,
+        solution_guid_2=None,
         vcproj_sccinfo: str='',
         sln_sccinfo: str=''
     ):
@@ -1117,6 +1156,12 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         if project_guid_2 is None:
             project_guid_2 = PROJECT_GUID_2
 
+        if solution_guid_1 is None:
+            solution_guid_1 = SOLUTION_GUID_1
+
+        if solution_guid_2 is None:
+            solution_guid_2 = SOLUTION_GUID_2
+
         if 'SCONS_LIB_DIR' in os.environ:
             exec_script_main = f"from os.path import join; import sys; sys.path = [ r'{os.environ['SCONS_LIB_DIR']}' ] + sys.path; import SCons.Script; SCons.Script.main()"
         else:
@@ -1130,6 +1175,8 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         result = result.replace(r'<SCONS_SCRIPT_MAIN_XML>', exec_script_main_xml)
         result = result.replace(r'<PROJECT_GUID_1>', project_guid_1)
         result = result.replace(r'<PROJECT_GUID_2>', project_guid_2)
+        result = result.replace(r'<SOLUTION_GUID_1>', solution_guid_1)
+        result = result.replace(r'<SOLUTION_GUID_2>', solution_guid_2)
         result = result.replace('<SCC_VCPROJ_INFO>\n', vcproj_sccinfo)
         result = result.replace('<SCC_SLN_INFO>\n', sln_sccinfo)
         return result
@@ -1153,20 +1200,36 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
     def get_expected_projects_sln_file_contents(
         self, vc_version,
         project_file_1, project_file_2, 
+        have_solution_project_nodes=False,
+        autofilter_solution_project_nodes=None,
     ):
-        return expected_projects_slnfile_fmt % {
-            'FORMAT_VERSION': self._get_solution_file_format_version(vc_version),
-            'VS_NUMBER': self._get_solution_file_vs_number(vc_version),
-            'PROJECT_NAME_1': project_file_1.split('.')[0],
-            'PROJECT_FILE_1': project_file_1,
-            'PROJECT_NAME_2': project_file_2.split('.')[0],
-            'PROJECT_FILE_2': project_file_2,
-        }
+        if not have_solution_project_nodes or autofilter_solution_project_nodes:
+            rval = expected_projects_slnfile_fmt % {
+                'FORMAT_VERSION': self._get_solution_file_format_version(vc_version),
+                'VS_NUMBER': self._get_solution_file_vs_number(vc_version),
+                'PROJECT_NAME_1': project_file_1.split('.')[0],
+                'PROJECT_FILE_1': project_file_1,
+                'PROJECT_NAME_2': project_file_2.split('.')[0],
+                'PROJECT_FILE_2': project_file_2,
+            }
+        else:
+            rval = expected_projects_slnfile_fmt_slnnodes % {
+                'FORMAT_VERSION': self._get_solution_file_format_version(vc_version),
+                'VS_NUMBER': self._get_solution_file_vs_number(vc_version),
+                'PROJECT_NAME_1': project_file_1.split('.')[0],
+                'PROJECT_FILE_1': project_file_1,
+                'PROJECT_NAME_2': project_file_2.split('.')[0],
+                'PROJECT_FILE_2': project_file_2,
+                'SOLUTION_FILE_1': project_file_1.split('.')[0] + ".sln",
+                'SOLUTION_FILE_2': project_file_2.split('.')[0] + ".sln",
+            }
+        return rval
 
     def get_expected_projects_sconscript_file_contents(
         self, vc_version,
         project_file_1, project_file_2, solution_file,
         autobuild_solution=0,
+        autofilter_projects=None,
         default_guids=False,
     ):
 
@@ -1177,6 +1240,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
             'PROJECT_FILE_2': project_file_2,
             'SOLUTION_FILE': solution_file,
             "AUTOBUILD_SOLUTION": autobuild_solution,
+            "AUTOFILTER_PROJECTS": autofilter_projects,
         }
 
         if default_guids:

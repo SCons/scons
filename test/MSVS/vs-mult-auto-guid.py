@@ -32,111 +32,129 @@ import TestSConsMSVS
 test = None
 
 for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
-    test = TestSConsMSVS.TestSConsMSVS()
 
-    # Make the test infrastructure think we have this version of MSVS installed.
-    test._msvs_versions = [vc_version]
+    for autofilter_projects in (None, False, True):
 
-    dirs = ['inc1', 'inc2']
-    major, minor = test.parse_vc_version(vc_version)
-    project_ext = '.vcproj' if major <= 9 else '.vcxproj'
+        test = TestSConsMSVS.TestSConsMSVS()
 
-    project_file_1 = 'Test_1' + project_ext
-    project_file_2 = 'Test_2' + project_ext
+        # Make the test infrastructure think we have this version of MSVS installed.
+        test._msvs_versions = [vc_version]
 
-    filters_file_1 = project_file_1 + '.filters'
-    filters_file_2 = project_file_2 + '.filters'
-    filters_file_expected = major >= 10
+        dirs = ['inc1', 'inc2']
+        major, minor = test.parse_vc_version(vc_version)
+        project_ext = '.vcproj' if major <= 9 else '.vcxproj'
 
-    solution_file = 'Test.sln'
-    solution_file_1 = 'Test_1.sln'
-    solution_file_2 = 'Test_2.sln'
+        project_file_1 = 'Test_1' + project_ext
+        project_file_2 = 'Test_2' + project_ext
 
-    if major >= 10:
-        project_guid_1 = "{F7D7CE55-37BF-51DE-8942-9377B2BE8387}"
-        project_guid_2 = "{8D17BC73-09FD-5B69-BBBF-1E40E0C63456}"
-    else:
-        project_guid_1 = "{53EE9FA7-6300-55B8-8A0E-A3DC40983390}"
-        project_guid_2 = "{57358E9B-126D-53F6-AD5A-559AB4A8EE62}"
+        filters_file_1 = project_file_1 + '.filters'
+        filters_file_2 = project_file_2 + '.filters'
+        filters_file_expected = major >= 10
 
-    expected_vcprojfile_1 = test.get_expected_projects_proj_file_contents(
-        vc_version, dirs, project_file_1, project_guid_1,
-    )
+        solution_file = 'Test.sln'
+        solution_file_1 = 'Test_1.sln'
+        solution_file_2 = 'Test_2.sln'
 
-    expected_vcprojfile_2 = test.get_expected_projects_proj_file_contents(
-        vc_version, dirs, project_file_2, project_guid_2,
-    )
+        if major >= 10:
+            project_guid_1 = "{F7D7CE55-37BF-51DE-8942-9377B2BE8387}"
+            project_guid_2 = "{8D17BC73-09FD-5B69-BBBF-1E40E0C63456}"
+        else:
+            project_guid_1 = "{53EE9FA7-6300-55B8-8A0E-A3DC40983390}"
+            project_guid_2 = "{57358E9B-126D-53F6-AD5A-559AB4A8EE62}"
 
-    expected_slnfile = test.get_expected_projects_sln_file_contents(
-        vc_version,
-        project_file_1,
-        project_file_2,
-    )
+        if major >= 10:
+            solution_guid_1 = "{73ABD7C4-0A64-5192-97C3-252B70C8D1B1}"
+            solution_guid_2 = "{142F0D4F-9896-5808-AAB4-A80F5661B1FE}"
+        else:
+            solution_guid_1 = "{73ABD7C4-0A64-5192-97C3-252B70C8D1B1}"
+            solution_guid_2 = "{142F0D4F-9896-5808-AAB4-A80F5661B1FE}"
 
-    expected_slnfile_1 = test.get_expected_sln_file_contents(
-        vc_version,
-        project_file_1,
-    )
+        expected_vcprojfile_1 = test.get_expected_projects_proj_file_contents(
+            vc_version, dirs, project_file_1, project_guid_1,
+        )
 
-    expected_slnfile_2 = test.get_expected_sln_file_contents(
-        vc_version,
-        project_file_2,
-    )
+        expected_vcprojfile_2 = test.get_expected_projects_proj_file_contents(
+            vc_version, dirs, project_file_2, project_guid_2,
+        )
 
-    SConstruct_contents = test.get_expected_projects_sconscript_file_contents(
-        vc_version=vc_version,
-        project_file_1=project_file_1,
-        project_file_2=project_file_2,
-        solution_file=solution_file,
-        autobuild_solution=1,
-        default_guids=True,
-    )
+        expected_slnfile = test.get_expected_projects_sln_file_contents(
+            vc_version,
+            project_file_1,
+            project_file_2,
+            have_solution_project_nodes=True,
+            autofilter_solution_project_nodes=autofilter_projects,
+        )
 
-    test.write('SConstruct', SConstruct_contents)
+        expected_slnfile_1 = test.get_expected_sln_file_contents(
+            vc_version,
+            project_file_1,
+        )
 
-    test.run(arguments=".")
+        expected_slnfile_2 = test.get_expected_sln_file_contents(
+            vc_version,
+            project_file_2,
+        )
 
-    test.must_exist(test.workpath(project_file_1))
-    vcproj = test.read(project_file_1, 'r')
-    expect = test.msvs_substitute(expected_vcprojfile_1, vc_version, None, 'SConstruct', project_guid=project_guid_1)
-    # don't compare the pickled data
-    assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+        SConstruct_contents = test.get_expected_projects_sconscript_file_contents(
+            vc_version=vc_version,
+            project_file_1=project_file_1,
+            project_file_2=project_file_2,
+            solution_file=solution_file,
+            autobuild_solution=1,
+            autofilter_projects=autofilter_projects,
+            default_guids=True,
+        )
 
-    test.must_exist(test.workpath(project_file_2))
-    vcproj = test.read(project_file_2, 'r')
-    expect = test.msvs_substitute(expected_vcprojfile_2, vc_version, None, 'SConstruct', project_guid=project_guid_2)
-    # don't compare the pickled data
-    assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+        test.write('SConstruct', SConstruct_contents)
 
-    test.must_exist(test.workpath(solution_file))
-    sln = test.read(solution_file, 'r')
-    expect = test.msvs_substitute_projects(
-        expected_slnfile, subdir='src',
-        project_guid_1=project_guid_1, project_guid_2=project_guid_2
-    )
-    # don't compare the pickled data
-    assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+        if autofilter_projects is None:
+            test.run(arguments=".", status=2, stderr=r"^.*scons: [*]{3} An msvs solution file was detected in the MSVSSolution 'projects' argument:.+", match=test.match_re_dotall)
+            continue
 
-    test.must_exist(test.workpath(solution_file_1))
-    sln = test.read(solution_file_1, 'r')
-    expect = test.msvs_substitute(expected_slnfile_1, vc_version, subdir='src', project_guid=project_guid_1)
-    # don't compare the pickled data
-    assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+        test.run(arguments=".")
 
-    test.must_exist(test.workpath(solution_file_2))
-    sln = test.read(solution_file_2, 'r')
-    expect = test.msvs_substitute(expected_slnfile_2, vc_version, subdir='src', project_guid=project_guid_2)
-    # don't compare the pickled data
-    assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+        test.must_exist(test.workpath(project_file_1))
+        vcproj = test.read(project_file_1, 'r')
+        expect = test.msvs_substitute(expected_vcprojfile_1, vc_version, None, 'SConstruct', project_guid=project_guid_1)
+        # don't compare the pickled data
+        assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
-    if filters_file_expected:
-        test.must_exist(test.workpath(filters_file_1))
-        test.must_exist(test.workpath(filters_file_2))
-    else:
-        test.must_not_exist(test.workpath(filters_file_1))
-        test.must_not_exist(test.workpath(filters_file_2))
+        test.must_exist(test.workpath(project_file_2))
+        vcproj = test.read(project_file_2, 'r')
+        expect = test.msvs_substitute(expected_vcprojfile_2, vc_version, None, 'SConstruct', project_guid=project_guid_2)
+        # don't compare the pickled data
+        assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
-    # TODO: clean tests
+        test.must_exist(test.workpath(solution_file))
+        sln = test.read(solution_file, 'r')
+        expect = test.msvs_substitute_projects(
+            expected_slnfile, subdir='src',
+            project_guid_1=project_guid_1, project_guid_2=project_guid_2,
+            solution_guid_1=solution_guid_1, solution_guid_2=solution_guid_2,
+        )
+        # don't compare the pickled data
+        assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+
+        test.must_exist(test.workpath(solution_file_1))
+        sln = test.read(solution_file_1, 'r')
+        expect = test.msvs_substitute(expected_slnfile_1, vc_version, subdir='src', project_guid=project_guid_1)
+        # don't compare the pickled data
+        assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+
+        test.must_exist(test.workpath(solution_file_2))
+        sln = test.read(solution_file_2, 'r')
+        expect = test.msvs_substitute(expected_slnfile_2, vc_version, subdir='src', project_guid=project_guid_2)
+        # don't compare the pickled data
+        assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+
+        if filters_file_expected:
+            test.must_exist(test.workpath(filters_file_1))
+            test.must_exist(test.workpath(filters_file_2))
+        else:
+            test.must_not_exist(test.workpath(filters_file_1))
+            test.must_not_exist(test.workpath(filters_file_2))
+
+        # TODO: clean tests
 
 if test:
     test.pass_test()

@@ -1481,6 +1481,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
         _GenerateV10User.Build(self)
 
 def _projectDSPNodes(env):
+    auto_filter_projects = env.get('auto_filter_projects', None)
     if 'projects' not in env:
         raise SCons.Errors.UserError("You must specify a 'projects' argument to create an MSVSSolution.")
     projects = env['projects']
@@ -1494,7 +1495,22 @@ def _projectDSPNodes(env):
     for p in projects:
         node = env.File(p)
         if os.path.normcase(str(node)).endswith(sln_suffix):
-            continue
+            # solution node detected (possible issues when opening generated solution file with VS IDE)
+            if auto_filter_projects is None:
+                nodestr = str(node)
+                errmsg = (
+                    f"An msvs solution file was detected in the MSVSSolution 'projects' argument: {nodestr!r}.\n"
+                    "  Add MSVSSolution argument 'auto_filter_projects=True' to suppress project solution nodes.\n"
+                    "  Add MSVSSolution argument 'auto_filter_projects=False' to keep project solution nodes.\n"
+                    "  Refer to the MSVSSolution documentation for more information."
+                )
+                raise SCons.Errors.UserError(errmsg)
+            elif auto_filter_projects:
+                # skip solution node
+                continue
+            else:
+                # keep solution node
+                pass
         dspnodes.append(node)
     if len(dspnodes) < 1:
         raise SCons.Errors.UserError("You must specify at least one project node to create an MSVSSolution.")
