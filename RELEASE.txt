@@ -35,11 +35,13 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   The item will now not be deleted from the base environment.
 
 - Added support for tracking beamer themes in the LaTeX scanner.
+
 - MSVS: msvs project files are always generated before the corresponding
   msvs solution files. This changes the behavior of clean for a project
   generated with auto_build_solution disabled and explicit solution
   generation: when the solution files are cleaned, the project files are
   also cleaned.  The tests for vs 6.0-7.1 were updated accordingly.
+
 - MSVS: Add an optional keyword argument, auto_filter_projects, to
   MSVSSolution. Accepted values for auto_filter_projects are:
   - None [default]: raise an exception when solution file names or nodes
@@ -76,25 +78,32 @@ FIXES
 
 - Fix a problem with compilation_db component initialization - the
   entries for assembler files were not being set up correctly.
+
 - On Darwin, PermissionErrors are now handled while trying to access
   /etc/paths.d. This may occur if SCons is invoked in a sandboxed environment
   (such as Nix).
-- Added error handling when creating MS VC detection debug log file specified by
-  SCONS_MSCOMMON_DEBUG
+
+- Added error handling when creating MSVC detection debug log file specified
+  by SCONS_MSCOMMON_DEBUG.
+
 - MSVS: Modify select msvs test scripts to run on platforms not supported by
   the msvs/msvc tool implementation via a default host architecture for
   unsupported platforms.
+
 - MSVS: Fixed early loop exit in select msvs test scripts.  Select msvs test
   scripts were being invoked for msvc version 8.0 only.  Additional msvs
   tool and test changes due to the msvs test scripts being run for all msvc
   versions (i.e., minor test and tool issues went undetected).
+
 - MSVS: for variant build configurations, msvs solution files are
   generated in the source directory and a placeholder file is generated in
   the variant build directory.  This mirrors the behavior of generated
   msvs project files.
+
 - MSVS: msvs project files are generated before the corresponding msvs
   solution file.  User-specified project GUIDs should now be correctly
   written to the solution file.
+
 - Fix nasm test for missing include file, cleanup.
 
 - Skip running a few validation tests if the user is root and the test is
