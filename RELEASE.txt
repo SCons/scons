@@ -69,6 +69,11 @@ FIXES
 - Skip running a few validation tests if the user is root and the test is
   not designed to work for the root user.
 
+
+- Fix SConsCPPConditionalScanner to properly handle ifdefs with non number prefixing numbers followed by UL or L.
+  Previously it was removing the L or UL when that should only have been done when a only numbers preceded them.
+  Fixes Issue #4623
+
 IMPROVEMENTS
 ------------
 

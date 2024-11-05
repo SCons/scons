@@ -152,7 +152,7 @@ CPP_to_Python_Eval_List = [
     [r'defined\s+(\w+)',                 '"\\1" in __dict__'],
     [r'defined\s*\((\w+)\)',             '"\\1" in __dict__'],
     [r'(0x[0-9A-Fa-f]+)(?:L|UL)?',  '\\1'],
-    [r'(\d+)(?:L|UL)?',  '\\1'],
+    [r'^(\d+)(?:L|UL)?',  '\\1'],
 ]
 
 # Replace the string representations of the regular expressions in the

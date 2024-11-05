@@ -241,6 +241,12 @@ expression_input = """
 #else
 #include <file301-no>
 #endif
+
+#if X1234UL || X1234L
+#include <file302-yes>
+#else
+#include <file302-no>
+#endif
 """
 
 
@@ -589,6 +595,8 @@ class PreProcessorTestCase(cppAllTestCase):
         ('include', '"', 'file29-yes'),
         ('include', '<', 'file30-yes'),
         ('include', '<', 'file301-yes'),
+        ('include', '<', 'file302-no'),
+
     ]
 
     undef_expect = [
@@ -719,6 +727,8 @@ class DumbPreProcessorTestCase(cppAllTestCase):
         ('include', '<', 'file30-no'),
         ('include', '<', 'file301-yes'),
         ('include', '<', 'file301-no'),
+        ('include', '<', 'file302-yes'),
+        ('include', '<', 'file302-no'),
     ]
 
     undef_expect = [

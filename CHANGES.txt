@@ -16,6 +16,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added error handling when creating MS VC detection debug log file specified by
       SCONS_MSCOMMON_DEBUG
 
+  From William Deegan:
+    - Fix SConsCPPConditionalScanner to properly handle #ifdefs with non number prefixing numbers followed by UL or L.
+      Previously it was removing the L or UL when that should only have been done when a only numbers preceded them.
+      Fixes Issue #4623
+
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access
       /etc/paths.d. This may occur if SCons is invoked in a sandboxed
