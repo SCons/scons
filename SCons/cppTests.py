@@ -236,17 +236,60 @@ expression_input = """
 #include <file30-no>
 #endif
 
-#if	123456789UL || 0x13L
-#include <file301-yes>
+#if	123456789UL
+#include <file301ul-yes>
 #else
-#include <file301-no>
+#include <file301ul-no>
 #endif
 
-#if X1234UL || X1234L
+#if 1234U
+#include <file301u-yes>
+#else
+#include <file301u-no>
+#endif
+
+#if 1234L
+#include <file301l-yes>
+#else
+#include <file301l-no>
+#endif
+
+#if 1234ULL
+#include <file301ull-yes>
+#else
+#include <file301ull-no>
+#endif
+
+#define X1234UL 1
+#if X1234UL
 #include <file302-yes>
 #else
 #include <file302-no>
 #endif
+
+#define X1234U 1
+#if X1234U
+#include <file303-yes>
+#else
+#include <file303-no>
+#endif
+
+#define X1234L 1
+#if X1234L
+#include <file304-yes>
+#else
+#include <file304-no>
+#endif
+
+#define X1234ULL 1
+#if X1234ULL
+#include <file305-yes>
+#else
+#include <file305-no>
+#endif
+
+
+
 """
 
 
@@ -486,7 +529,12 @@ class cppTestCase(unittest.TestCase):
         """Test #if with arithmetic expressions"""
         expect = self.expression_expect
         result = self.cpp.process_contents(expression_input)
-        assert expect == result, (expect, result)
+        if expect != result:
+            for e,r in zip(expect, result):
+                if e != r:
+                    print("XXXX->",end="")
+                print(f"{e}: {r}")
+        assert expect == result, f"\nexpect:{expect}\nresult:{result}"
 
     def test_undef(self) -> None:
         """Test #undef handling"""
@@ -594,8 +642,16 @@ class PreProcessorTestCase(cppAllTestCase):
         ('include', '<', 'file28-yes'),
         ('include', '"', 'file29-yes'),
         ('include', '<', 'file30-yes'),
-        ('include', '<', 'file301-yes'),
-        ('include', '<', 'file302-no'),
+
+        ('include', '<', 'file301ul-yes'),
+        ('include', '<', 'file301u-yes'),
+        ('include', '<', 'file301l-yes'),
+        ('include', '<', 'file301ull-yes'),
+
+        ('include', '<', 'file302-yes'),
+        ('include', '<', 'file303-yes'),
+        ('include', '<', 'file304-yes'),
+        ('include', '<', 'file305-yes'),
 
     ]
 
@@ -725,10 +781,24 @@ class DumbPreProcessorTestCase(cppAllTestCase):
         ('include', '"', 'file29-yes'),
         ('include', '<', 'file30-yes'),
         ('include', '<', 'file30-no'),
-        ('include', '<', 'file301-yes'),
-        ('include', '<', 'file301-no'),
+
+        ('include', '<', 'file301ul-yes'),
+        ('include', '<', 'file301ul-no'),
+        ('include', '<', 'file301u-yes'),
+        ('include', '<', 'file301u-no'),
+        ('include', '<', 'file301l-yes'),
+        ('include', '<', 'file301l-no'),
+        ('include', '<', 'file301ull-yes'),
+        ('include', '<', 'file301ull-no'),
+
         ('include', '<', 'file302-yes'),
         ('include', '<', 'file302-no'),
+        ('include', '<', 'file303-yes'),
+        ('include', '<', 'file303-no'),
+        ('include', '<', 'file304-yes'),
+        ('include', '<', 'file304-no'),
+        ('include', '<', 'file305-yes'),
+        ('include', '<', 'file305-no'),
     ]
 
     undef_expect = [

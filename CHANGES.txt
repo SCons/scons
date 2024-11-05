@@ -19,7 +19,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Deegan:
     - Fix SConsCPPConditionalScanner to properly handle #ifdefs with non number prefixing numbers followed by UL or L.
       Previously it was removing the L or UL when that should only have been done when a only numbers preceded them.
-      Fixes Issue #4623
 
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access
