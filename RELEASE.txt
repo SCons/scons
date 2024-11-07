@@ -150,6 +150,9 @@ FIXES
   python ninja package version 1.11.1.2 changed the location and previous
   logic no longer worked.
 
+- The C scanner now does (limited) macro replacement on the values in
+  CPPDEFINES, to improve results of conditional source file inclusion
+  (issue #4523).
 
 IMPROVEMENTS
 ------------
