@@ -28,6 +28,7 @@ CConditionalScanner, which must be explicitly selected by calling
 add_scanner() for each affected suffix.
 """
 
+from typing import Dict
 import SCons.Node.FS
 import SCons.cpp
 import SCons.Util
@@ -66,31 +67,69 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
             return ''
 
 def dictify_CPPDEFINES(env) -> dict:
-    """Returns CPPDEFINES converted to a dict.
+    """Return CPPDEFINES converted to a dict for preprocessor emulation.
 
-    This should be similar to :func:`~SCons.Defaults.processDefines`.
-    Unfortunately, we can't do the simple thing of calling that routine and
-    passing the result to the dict() constructor, because it turns the defines
-    into a list of "name=value" pairs, which the dict constructor won't
-    consume correctly.  Also cannot just call dict on CPPDEFINES itself - it's
-    fine if it's stored in the converted form (currently deque of tuples), but
-    CPPDEFINES could be in other formats too.
+    The concept is similar to :func:`~SCons.Defaults.processDefines`:
+    turn the values stored in an internal form in ``env['CPPDEFINES']``
+    into one usable in a specific context - in this case the cpp-like
+    work the C/C++ scanner will do. We can't reuse ``processDefines``
+    output as that's a list of strings for the command line. We also can't
+    pass the ``CPPDEFINES`` variable directly to the ``dict`` constructor,
+    as SCons allows it to be stored in several different ways - it's only
+    after ``Append`` and relatives has been called we know for sure it will
+    be a deque of tuples.
 
-    So we have to do all the work here - keep concepts in sync with
-    ``processDefines``.
+    Since the result here won't pass through a real preprocessor, simulate
+    some of the macro replacement that would take place if it did, or some
+    conditional inclusions might come out wrong. A bit of an edge case, but
+    does happen (GH #4623). See 6.10.5 in the C standard and 15.6 in the
+    C++ standard).
+
+    .. versionchanged:: NEXT_RELEASE
+       Simple macro replacement added.
     """
+    def _replace(mapping: Dict) -> Dict:
+        """Simplistic macro replacer for dictify_CPPDEFINES.
+
+        *mapping* is scanned for any value that is the same as a key in
+        the dict, and is replaced by the value of that key; the process
+        is repeated. This is a cheap approximation of the C preprocessor's
+        macro replacement rules with no smarts - it doesn't "look inside"
+        the values, so only triggers on object-like macros, not on
+        function-like macros, and will not work on complex values,
+        e.g. a value like ``(1UL << PR_MTE_TCF_SHIFT)`` would not have
+        ``PR_MTE_TCF_SHIFT`` replaced if it was also in ``CPPDEFINES``,
+        but rather left as-is for the scanner to do comparisons against.
+
+        Args:
+            mapping: a dictionary representing macro names and replacements.
+
+        Returns:
+            a dictionary with substitutions made.
+        """
+        old_ns = mapping
+        ns = {}
+        while True:
+            ns = {k: old_ns[v] if v in old_ns else v for k, v in old_ns.items()}
+            if old_ns == ns:
+                break
+            old_ns = ns
+        return ns
+
     cppdefines = env.get('CPPDEFINES', {})
     result = {}
     if cppdefines is None:
         return result
 
     if SCons.Util.is_Tuple(cppdefines):
+        # single macro defined in a tuple
         try:
             return {cppdefines[0]: cppdefines[1]}
         except IndexError:
             return {cppdefines[0]: None}
 
     if SCons.Util.is_Sequence(cppdefines):
+        # multiple (presumably) macro defines in a deque, list, etc.
         for c in cppdefines:
             if SCons.Util.is_Sequence(c):
                 try:
@@ -107,9 +146,10 @@ def dictify_CPPDEFINES(env) -> dict:
             else:
                 # don't really know what to do here
                 result[c] = None
-        return result
+        return _replace(result)
 
     if SCons.Util.is_String(cppdefines):
+        # single macro define in a string
         try:
             name, value = cppdefines.split('=')
             return {name: value}
@@ -117,7 +157,8 @@ def dictify_CPPDEFINES(env) -> dict:
             return {cppdefines: None}
 
     if SCons.Util.is_Dict(cppdefines):
-        return cppdefines
+        # already in the desired form
+        return _replace(result)
 
     return {cppdefines: None}
 

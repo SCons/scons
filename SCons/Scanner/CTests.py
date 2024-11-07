@@ -572,6 +572,18 @@ class dictify_CPPDEFINESTestCase(unittest.TestCase):
             expect = {"STRING": "VALUE", "UNVALUED": None}
             self.assertEqual(d, expect)
 
+        with self.subTest("CPPDEFINES with macro replacement"):
+            env = DummyEnvironment(
+                CPPDEFINES=[
+                    ("STRING", "VALUE"),
+                    ("REPLACEABLE", "RVALUE"),
+                    ("RVALUE", "AVALUE"),
+                ]
+            )
+            d = SCons.Scanner.C.dictify_CPPDEFINES(env)
+            expect = {"STRING": "VALUE", "REPLACEABLE": "AVALUE", "RVALUE": "AVALUE"}
+            self.assertEqual(d, expect)
+
 
 if __name__ == "__main__":
     unittest.main()
