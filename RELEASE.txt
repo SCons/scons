@@ -137,6 +137,9 @@ FIXES
 - Skip running a few validation tests if the user is root and the test is
   not designed to work for the root user.
 
+- Minor modernization: make use of stat object's st_mode, st_mtime
+  and other attributes rather than indexing into stat return.
+
 IMPROVEMENTS
 ------------
 

@@ -58,7 +58,7 @@ test.up_to_date(chdir='work',arguments='.')
 test.sleep()  # delay for timestamps
 test.write(['Repository','content1.in'], "content1.in 2\n")
 test.touch(['Repository','content2.in'])
-time_content = os.stat(os.path.join(repository,'content3.in'))[stat.ST_MTIME]
+time_content = os.stat(os.path.join(repository,'content3.in')).st_mtime
 test.write(['Repository','content3.in'], "content3.in 2\n")
 test.touch(['Repository','content3.in'], time_content)
 

@@ -224,8 +224,8 @@ import stat
 def equal_stats(x,y):
     x = os.stat(x)
     y = os.stat(y)
-    return (stat.S_IMODE(x[stat.ST_MODE]) == stat.S_IMODE(y[stat.ST_MODE]) and
-            x[stat.ST_MTIME] ==  y[stat.ST_MTIME])
+    return (stat.S_IMODE(x.st_mode) == stat.S_IMODE(y.st_mode) and
+            x.st_mtime ==  y.st_mtime)
 
 # Make sure we did duplicate the source files in build/var2,
 # and that their stats are the same:
@@ -233,7 +233,7 @@ test.must_exist(['work1', 'build', 'var2', 'f1.c'])
 test.must_exist(['work1', 'build', 'var2', 'f2.in'])
 test.fail_test(not equal_stats(test.workpath('work1', 'build', 'var2', 'f1.c'), test.workpath('work1', 'src', 'f1.c')))
 test.fail_test(not equal_stats(test.workpath('work1', 'build', 'var2', 'f2.in'), test.workpath('work1', 'src', 'f2.in')))
- 
+
 # Make sure we didn't duplicate the source files in build/var3.
 test.must_not_exist(['work1', 'build', 'var3', 'f1.c'])
 test.must_not_exist(['work1', 'build', 'var3', 'f2.in'])

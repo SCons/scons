@@ -150,6 +150,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       types depending on whether zero, one, or multiple construction
       variable names are given.
     - Update Clean and NoClean documentation.
+    - Minor modernization: make use of stat object's st_mode, st_mtime
+      and other attributes rather than indexing into stat return.
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700

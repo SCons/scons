@@ -71,7 +71,7 @@ def CacheRetrieveFunc(target, source, env) -> int:
             except OSError:
                 pass
         st = fs.stat(cachefile)
-        fs.chmod(t.get_internal_path(), stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+        fs.chmod(t.get_internal_path(), stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
     return 0
 
 def CacheRetrieveString(target, source, env) -> str:
