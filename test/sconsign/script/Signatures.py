@@ -169,26 +169,26 @@ database_name = test.get_sconsignname()
 
 test.run_sconsign(
     arguments=f"-e hello.exe -e hello.obj sub1/{database_name}",
-    stdout=r"""hello.exe: %(sig_re)s \d+ \d+
-        %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
-        fake_link\.py: None \d+ \d+
+    stdout=r"""hello.exe: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub1_hello_obj)s: %(sig_re)s \d+(\.\d*)? \d+
+        fake_link\.py: None \d+(\.\d*)? \d+
         %(sig_re)s \[.*\]
-hello.obj: %(sig_re)s \d+ \d+
-        %(sub1_hello_c)s: None \d+ \d+
-        fake_cc\.py: None \d+ \d+
+hello.obj: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub1_hello_c)s: None \d+(\.\d*)? \d+
+        fake_cc\.py: None \d+(\.\d*)? \d+
         %(sig_re)s \[.*\]
 """ % locals(),
 )
 
 test.run_sconsign(
     arguments=f"-e hello.exe -e hello.obj -r sub1/{database_name}",
-    stdout=r"""hello.exe: %(sig_re)s '%(date_re)s' \d+
-        %(sub1_hello_obj)s: %(sig_re)s '%(date_re)s' \d+
-        fake_link\.py: None '%(date_re)s' \d+
+    stdout=r"""hello.exe: %(sig_re)s '%(date_re)s' \d+(\.\d*)?
+        %(sub1_hello_obj)s: %(sig_re)s '%(date_re)s' \d+(\.\d*)?
+        fake_link\.py: None '%(date_re)s' \d+(\.\d*)?
         %(sig_re)s \[.*\]
-hello.obj: %(sig_re)s '%(date_re)s' \d+
-        %(sub1_hello_c)s: None '%(date_re)s' \d+
-        fake_cc\.py: None '%(date_re)s' \d+
+hello.obj: %(sig_re)s '%(date_re)s' \d+(\.\d*)?
+        %(sub1_hello_c)s: None '%(date_re)s' \d+(\.\d*)?
+        fake_cc\.py: None '%(date_re)s' \d+(\.\d*)?
         %(sig_re)s \[.*\]
 """ % locals(),
 )
