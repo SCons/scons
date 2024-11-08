@@ -176,7 +176,7 @@ def copyFunc(dest, source, env) -> int:
     else:
         copy2(source, dest)
         st = os.stat(source)
-        os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+        os.chmod(dest, stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
 
     return 0
 
@@ -204,7 +204,7 @@ def copyFuncVersionedLib(dest, source, env) -> int:
             pass
         copy2(source, dest)
         st = os.stat(source)
-        os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+        os.chmod(dest, stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
         installShlibLinks(dest, source, env)
 
     return 0

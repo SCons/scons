@@ -50,7 +50,7 @@ def before(env, target, source):
     a=str(target[0])
     with open(a, "wb") as f:
         f.write(b"Foo\\n")
-    os.chmod(a, os.stat(a)[stat.ST_MODE] | stat.S_IXUSR)
+    os.chmod(a, os.stat(a).st_mode | stat.S_IXUSR)
     with open("before.txt", "ab") as f:
         f.write((os.path.splitext(str(target[0]))[0] + "\\n").encode())
 
@@ -59,7 +59,7 @@ def after(env, target, source):
     a = "after_" + t
     with open(t, "rb") as fin, open(a, "wb") as fout:
         fout.write(fin.read())
-    os.chmod(a, os.stat(a)[stat.ST_MODE] | stat.S_IXUSR)
+    os.chmod(a, os.stat(a).st_mode | stat.S_IXUSR)
 
 foo = env.Program(source='foo.c', target='foo')
 AddPreAction(foo, before)

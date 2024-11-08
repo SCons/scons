@@ -47,15 +47,15 @@ from TestCmd import _python_
 
 def _is_readable(path):
     # XXX this doesn't take into account UID, it assumes it's our file
-    return os.stat(path)[stat.ST_MODE] & stat.S_IREAD
+    return os.stat(path).st_mode & stat.S_IREAD
 
 def _is_writable(path):
     # XXX this doesn't take into account UID, it assumes it's our file
-    return os.stat(path)[stat.ST_MODE] & stat.S_IWRITE
+    return os.stat(path).st_mode & stat.S_IWRITE
 
 def _is_executable(path):
     # XXX this doesn't take into account UID, it assumes it's our file
-    return os.stat(path)[stat.ST_MODE] & stat.S_IEXEC
+    return os.stat(path).st_mode & stat.S_IEXEC
 
 def _clear_dict(dict, *keys) -> None:
     for key in keys:
@@ -268,17 +268,17 @@ class chmod_TestCase(TestCmdTestCase):
             test.chmod(wdir_file1, stat.S_IREAD)
             test.chmod(['sub', 'file2'], stat.S_IWRITE)
 
-            file1_mode = stat.S_IMODE(os.stat(wdir_file1)[stat.ST_MODE])
+            file1_mode = stat.S_IMODE(os.stat(wdir_file1).st_mode)
             assert file1_mode == 0o444, f'0{file1_mode:o}'
-            file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2)[stat.ST_MODE])
+            file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2).st_mode)
             assert file2_mode == 0o666, f'0{file2_mode:o}'
 
             test.chmod('file1', stat.S_IWRITE)
             test.chmod(wdir_sub_file2, stat.S_IREAD)
 
-            file1_mode = stat.S_IMODE(os.stat(wdir_file1)[stat.ST_MODE])
+            file1_mode = stat.S_IMODE(os.stat(wdir_file1).st_mode)
             assert file1_mode == 0o666, f'0{file1_mode:o}'
-            file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2)[stat.ST_MODE])
+            file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2).st_mode)
             assert file2_mode == 0o444, f'0{file2_mode:o}'
 
         else:
@@ -286,17 +286,17 @@ class chmod_TestCase(TestCmdTestCase):
             test.chmod(wdir_file1, 0o700)
             test.chmod(['sub', 'file2'], 0o760)
 
-            file1_mode = stat.S_IMODE(os.stat(wdir_file1)[stat.ST_MODE])
+            file1_mode = stat.S_IMODE(os.stat(wdir_file1).st_mode)
             assert file1_mode == 0o700, f'0{file1_mode:o}'
-            file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2)[stat.ST_MODE])
+            file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2).st_mode)
             assert file2_mode == 0o760, f'0{file2_mode:o}'
 
             test.chmod('file1', 0o765)
             test.chmod(wdir_sub_file2, 0o567)
 
-            file1_mode = stat.S_IMODE(os.stat(wdir_file1)[stat.ST_MODE])
+            file1_mode = stat.S_IMODE(os.stat(wdir_file1).st_mode)
             assert file1_mode == 0o765, f'0{file1_mode:o}'
-            file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2)[stat.ST_MODE])
+            file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2).st_mode)
             assert file2_mode == 0o567, f'0{file2_mode:o}'
 
 
@@ -3315,11 +3315,11 @@ class executable_TestCase(TestCmdTestCase):
 
         def make_executable(fname) -> None:
             st = os.stat(fname)
-            os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]|0o100))
+            os.chmod(fname, stat.S_IMODE(st.st_mode|0o100))
 
         def make_non_executable(fname) -> None:
             st = os.stat(fname)
-            os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]&~0o100))
+            os.chmod(fname, stat.S_IMODE(st.st_mode&~0o100))
 
         test.executable(test.workdir, 0)
         # XXX skip these tests if euid == 0?

@@ -215,7 +215,7 @@ def is_Sequence(e):
             hasattr(e, "__iter__"))
 
 def is_writable(f):
-    mode = os.stat(f)[stat.ST_MODE]
+    mode = os.stat(f).st_mode
     return mode & stat.S_IWUSR
 
 def separate_files(flist):

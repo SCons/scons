@@ -762,7 +762,7 @@ class Base(SCons.Node.Node):
         st = self.stat()
 
         if st:
-            return st[stat.ST_MTIME]
+            return st.st_mtime
         else:
             return None
 
