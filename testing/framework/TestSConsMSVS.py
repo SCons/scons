@@ -50,6 +50,13 @@ from TestSCons import *
 from TestSCons import __all__
 
 
+PROJECT_GUID   = "{00000000-0000-0000-0000-000000000000}"
+PROJECT_GUID_1 = "{11111111-1111-1111-1111-111111111111}"
+PROJECT_GUID_2 = "{22222222-2222-2222-2222-222222222222}"
+
+SOLUTION_GUID_1 = "{88888888-8888-8888-8888-888888888888}"
+SOLUTION_GUID_2 = "{99999999-9999-9999-9999-999999999999}"
+
 expected_dspfile_6_0 = '''\
 # Microsoft Developer Studio Project File - Name="Test" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
@@ -189,8 +196,9 @@ Package=<3>
 '''
 
 SConscript_contents_6_0 = """\
-env=Environment(platform='win32', tools=['msvs'],
-                MSVS_VERSION='6.0',HOST_ARCH='%(HOST_ARCH)s')
+env=Environment(tools=['msvs'],
+                MSVS_VERSION='6.0',
+                HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test.c']
 testincs = ['sdk.h']
@@ -310,8 +318,9 @@ expected_vcprojfile_7_0 = """\
 """
 
 SConscript_contents_7_0 = """\
-env=Environment(platform='win32', tools=['msvs'],
-                MSVS_VERSION='7.0',HOST_ARCH='%(HOST_ARCH)s')
+env=Environment(tools=['msvs'],
+                MSVS_VERSION='7.0',
+                HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -320,6 +329,7 @@ testresources = ['test.rc']
 testmisc = ['readme.txt']
 
 env.MSVSProject(target = 'Test.vcproj',
+                MSVS_PROJECT_GUID = '%(PROJECT_GUID)s',
                 slnguid = '{SLNGUID}',
                 srcs = testsrc,
                 incs = testincs,
@@ -436,8 +446,9 @@ expected_vcprojfile_7_1 = """\
 """
 
 SConscript_contents_7_1 = """\
-env=Environment(platform='win32', tools=['msvs'],
-                MSVS_VERSION='7.1',HOST_ARCH='%(HOST_ARCH)s')
+env=Environment(tools=['msvs'],
+                MSVS_VERSION='7.1',
+                HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -446,6 +457,7 @@ testresources = ['test.rc']
 testmisc = ['readme.txt']
 
 env.MSVSProject(target = 'Test.vcproj',
+                MSVS_PROJECT_GUID = '%(PROJECT_GUID)s',
                 slnguid = '{SLNGUID}',
                 srcs = testsrc,
                 incs = testincs,
@@ -482,9 +494,9 @@ expected_vcprojfile_fmt = """\
 <VisualStudioProject
 \tProjectType="Visual C++"
 \tVersion="%(TOOLS_VERSION)s"
-\tName="Test"
+\tName="%(PROJECT_BASENAME)s"
 \tProjectGUID="<PROJECT_GUID>"
-\tRootNamespace="Test"
+\tRootNamespace="%(PROJECT_BASENAME)s"
 <SCC_VCPROJ_INFO>
 \tKeyword="MakeFileProj">
 \t<Platforms>
@@ -502,10 +514,10 @@ expected_vcprojfile_fmt = """\
 \t\t\t>
 \t\t\t<Tool
 \t\t\t\tName="VCNMakeTool"
-\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
-\t\t\t\tReBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
-\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;Test.exe&quot;"
-\t\t\t\tOutput="Test.exe"
+\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;%(PROJECT_BASENAME)s.exe&quot;"
+\t\t\t\tReBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;%(PROJECT_BASENAME)s.exe&quot;"
+\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;%(PROJECT_BASENAME)s.exe&quot;"
+\t\t\t\tOutput="%(PROJECT_BASENAME)s.exe"
 \t\t\t\tPreprocessorDefinitions="DEF1;DEF2;DEF3=1234"
 \t\t\t\tIncludeSearchPath="%(INCLUDE_DIRS)s"
 \t\t\t\tForcedIncludes=""
@@ -575,9 +587,9 @@ expected_vcxprojfile_fmt = """\
 \t\t</ProjectConfiguration>
 \t</ItemGroup>
 \t<PropertyGroup Label="Globals">
-\t\t<ProjectGuid>{39A97E1F-1A52-8954-A0B1-A10A8487545E}</ProjectGuid>
+\t\t<ProjectGuid>%(PROJECT_GUID)s</ProjectGuid>
 <SCC_VCPROJ_INFO>
-\t\t<RootNamespace>Test</RootNamespace>
+\t\t<RootNamespace>%(PROJECT_BASENAME)s</RootNamespace>
 \t\t<Keyword>MakeFileProj</Keyword>
 \t\t<VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
 \t</PropertyGroup>
@@ -585,7 +597,7 @@ expected_vcxprojfile_fmt = """\
 \t<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 \t\t<ConfigurationType>Makefile</ConfigurationType>
 \t\t<UseOfMfc>false</UseOfMfc>
-\t\t<PlatformToolset>v100</PlatformToolset>
+\t\t<PlatformToolset>%(PLATFORM_TOOLSET)s</PlatformToolset>
 \t</PropertyGroup>
 \t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" />
 \t<ImportGroup Label="ExtensionSettings">
@@ -596,15 +608,16 @@ expected_vcxprojfile_fmt = """\
 \t<PropertyGroup Label="UserMacros" />
 \t<PropertyGroup>
 \t<_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-\t\t<NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;</NMakeBuildCommandLine>
-\t\t<NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;</NMakeReBuildCommandLine>
-\t\t<NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;Test.exe&quot;</NMakeCleanCommandLine>
-\t\t<NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Test.exe</NMakeOutput>
+\t\t<NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;%(PROJECT_BASENAME)s.exe&quot;</NMakeBuildCommandLine>
+\t\t<NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;%(PROJECT_BASENAME)s.exe&quot;</NMakeReBuildCommandLine>
+\t\t<NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;%(PROJECT_BASENAME)s.exe&quot;</NMakeCleanCommandLine>
+\t\t<NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PROJECT_BASENAME)s.exe</NMakeOutput>
 \t\t<NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DEF1;DEF2;DEF3=1234</NMakePreprocessorDefinitions>
 \t\t<NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(INCLUDE_DIRS)s</NMakeIncludeSearchPath>
 \t\t<NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
 \t\t<NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
 \t\t<NMakeForcedUsingAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeForcedUsingAssemblies)</NMakeForcedUsingAssemblies>
+\t\t<AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"></AdditionalOptions>
 \t</PropertyGroup>
 \t<ItemGroup>
 \t\t<ClInclude Include="sdk_dir\\sdk.h" />
@@ -632,7 +645,8 @@ expected_vcxprojfile_fmt = """\
 """
 
 SConscript_contents_fmt = """\
-env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='%(MSVS_VERSION)s',
+env=Environment(tools=['msvs'],
+                MSVS_VERSION='%(MSVS_VERSION)s',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 HOST_ARCH='%(HOST_ARCH)s')
@@ -644,6 +658,7 @@ testresources = ['test.rc']
 testmisc = ['readme.txt']
 
 env.MSVSProject(target = '%(PROJECT_FILE)s',
+                MSVS_PROJECT_GUID = '%(PROJECT_GUID)s',
                 slnguid = '{SLNGUID}',
                 srcs = testsrc,
                 incs = testincs,
@@ -654,6 +669,161 @@ env.MSVSProject(target = '%(PROJECT_FILE)s',
                 variant = 'Release')
 """
 
+expected_projects_slnfile_fmt = """\
+Microsoft Visual Studio Solution File, Format Version %(FORMAT_VERSION)s
+# Visual Studio %(VS_NUMBER)s
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%(PROJECT_NAME_1)s", "%(PROJECT_FILE_1)s", "<PROJECT_GUID_1>"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%(PROJECT_NAME_2)s", "%(PROJECT_FILE_2)s", "<PROJECT_GUID_2>"
+EndProject
+Global
+<SCC_SLN_INFO>
+\tGlobalSection(SolutionConfigurationPlatforms) = preSolution
+\t\tRelease|Win32 = Release|Win32
+\tEndGlobalSection
+\tGlobalSection(ProjectConfigurationPlatforms) = postSolution
+\t\t<PROJECT_GUID_1>.Release|Win32.ActiveCfg = Release|Win32
+\t\t<PROJECT_GUID_1>.Release|Win32.Build.0 = Release|Win32
+\t\t<PROJECT_GUID_2>.Release|Win32.ActiveCfg = Release|Win32
+\t\t<PROJECT_GUID_2>.Release|Win32.Build.0 = Release|Win32
+\tEndGlobalSection
+\tGlobalSection(SolutionProperties) = preSolution
+\t\tHideSolutionNode = FALSE
+\tEndGlobalSection
+EndGlobal
+"""
+
+expected_projects_slnfile_fmt_slnnodes = """\
+Microsoft Visual Studio Solution File, Format Version %(FORMAT_VERSION)s
+# Visual Studio %(VS_NUMBER)s
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%(PROJECT_NAME_1)s", "%(PROJECT_FILE_1)s", "<PROJECT_GUID_1>"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%(SOLUTION_FILE_1)s", "%(SOLUTION_FILE_1)s", "<SOLUTION_GUID_1>"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%(PROJECT_NAME_2)s", "%(PROJECT_FILE_2)s", "<PROJECT_GUID_2>"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%(SOLUTION_FILE_2)s", "%(SOLUTION_FILE_2)s", "<SOLUTION_GUID_2>"
+EndProject
+Global
+<SCC_SLN_INFO>
+\tGlobalSection(SolutionConfigurationPlatforms) = preSolution
+\t\tRelease|Win32 = Release|Win32
+\tEndGlobalSection
+\tGlobalSection(ProjectConfigurationPlatforms) = postSolution
+\t\t<PROJECT_GUID_1>.Release|Win32.ActiveCfg = Release|Win32
+\t\t<PROJECT_GUID_1>.Release|Win32.Build.0 = Release|Win32
+\t\t<SOLUTION_GUID_1>.Release|Win32.ActiveCfg = Release|Win32
+\t\t<SOLUTION_GUID_1>.Release|Win32.Build.0 = Release|Win32
+\t\t<PROJECT_GUID_2>.Release|Win32.ActiveCfg = Release|Win32
+\t\t<PROJECT_GUID_2>.Release|Win32.Build.0 = Release|Win32
+\t\t<SOLUTION_GUID_2>.Release|Win32.ActiveCfg = Release|Win32
+\t\t<SOLUTION_GUID_2>.Release|Win32.Build.0 = Release|Win32
+\tEndGlobalSection
+\tGlobalSection(SolutionProperties) = preSolution
+\t\tHideSolutionNode = FALSE
+\tEndGlobalSection
+EndGlobal
+"""
+
+SConscript_projects_contents_fmt = """\
+env=Environment(
+    tools=['msvs'],
+    MSVS_VERSION='%(MSVS_VERSION)s',
+    CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
+    CPPPATH=['inc1', 'inc2'],
+    HOST_ARCH='%(HOST_ARCH)s',
+)
+
+testsrc = ['test1.cpp', 'test2.cpp']
+testincs = [r'sdk_dir\\sdk.h']
+testlocalincs = ['test.h']
+testresources = ['test.rc']
+testmisc = ['readme.txt']
+
+p1 = env.MSVSProject(
+    target = '%(PROJECT_FILE_1)s',
+    MSVS_PROJECT_GUID = '%(PROJECT_GUID_1)s',
+    slnguid = '{SLNGUID}',
+    srcs = testsrc,
+    incs = testincs,
+    localincs = testlocalincs,
+    resources = testresources,
+    misc = testmisc,
+    buildtarget = 'Test_1.exe',
+    variant = 'Release',
+    auto_build_solution = %(AUTOBUILD_SOLUTION)s,
+)
+
+p2 = env.MSVSProject(
+    target = '%(PROJECT_FILE_2)s',
+    MSVS_PROJECT_GUID = '%(PROJECT_GUID_2)s',
+    slnguid = '{SLNGUID}',
+    srcs = testsrc,
+    incs = testincs,
+    localincs = testlocalincs,
+    resources = testresources,
+    misc = testmisc,
+    buildtarget = 'Test_2.exe',
+    variant = 'Release',
+    auto_build_solution = %(AUTOBUILD_SOLUTION)s,
+)
+
+env.MSVSSolution(
+    target = '%(SOLUTION_FILE)s',
+    projects = [p1, p2],
+    variant = 'Release',
+    auto_filter_projects = %(AUTOFILTER_PROJECTS)s,
+)
+"""
+
+SConscript_projects_defaultguids_contents_fmt = """\
+env=Environment(
+    tools=['msvs'],
+    MSVS_VERSION='%(MSVS_VERSION)s',
+    CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
+    CPPPATH=['inc1', 'inc2'],
+    HOST_ARCH='%(HOST_ARCH)s',
+)
+
+testsrc = ['test1.cpp', 'test2.cpp']
+testincs = [r'sdk_dir\\sdk.h']
+testlocalincs = ['test.h']
+testresources = ['test.rc']
+testmisc = ['readme.txt']
+
+p1 = env.MSVSProject(
+    target = '%(PROJECT_FILE_1)s',
+    slnguid = '{SLNGUID}',
+    srcs = testsrc,
+    incs = testincs,
+    localincs = testlocalincs,
+    resources = testresources,
+    misc = testmisc,
+    buildtarget = 'Test_1.exe',
+    variant = 'Release',
+    auto_build_solution = %(AUTOBUILD_SOLUTION)s,
+)
+
+p2 = env.MSVSProject(
+    target = '%(PROJECT_FILE_2)s',
+    slnguid = '{SLNGUID}',
+    srcs = testsrc,
+    incs = testincs,
+    localincs = testlocalincs,
+    resources = testresources,
+    misc = testmisc,
+    buildtarget = 'Test_2.exe',
+    variant = 'Release',
+    auto_build_solution = %(AUTOBUILD_SOLUTION)s,
+)
+
+env.MSVSSolution(
+    target = '%(SOLUTION_FILE)s',
+    projects = [p1, p2],
+    variant = 'Release',
+    auto_filter_projects = %(AUTOFILTER_PROJECTS)s,
+)
+"""
 
 def get_tested_proj_file_vc_versions():
     """
@@ -720,7 +890,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
             python = sys.executable
 
         if project_guid is None:
-            project_guid = "{B0CC4EE9-0174-51CD-A06A-41D0713E928A}"
+            project_guid = PROJECT_GUID
 
         if 'SCONS_LIB_DIR' in os.environ:
             exec_script_main = f"from os.path import join; import sys; sys.path = [ r'{os.environ['SCONS_LIB_DIR']}' ] + sys.path; import SCons.Script; SCons.Script.main()"
@@ -868,6 +1038,8 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
             return '15'
         elif major == 14 and minor == 2:
             return '16'
+        elif major == 14 and minor == 3:
+            return '17'
         else:
             raise SCons.Errors.UserError(f'Received unexpected VC version {vc_version}')
 
@@ -902,6 +1074,15 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         else:
             raise SCons.Errors.UserError(f'Received unexpected VC version {vc_version}')
 
+    def _get_vcxproj_file_platform_toolset(self, vc_version) -> str:
+        """
+        Returns the version entry expected in the project file.
+        For .vcxproj files, this goes is PlatformToolset.
+        For .vcproj files, not applicable.
+        """
+        major, minor = self.parse_vc_version(vc_version)
+        return f"v{major}{minor}"
+
     def _get_vcxproj_file_cpp_path(self, dirs):
         """Returns the include paths expected in the .vcxproj file"""
         return ';'.join([self.workpath(dir) for dir in dirs])
@@ -925,17 +1106,153 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
             fmt = expected_vcxprojfile_fmt
         else:
             fmt = expected_vcprojfile_fmt
+        project_filename = os.path.split(project_file)[-1]
+        project_basename = os.path.splitext(project_filename)[0]
         return fmt % {
+            'PROJECT_BASENAME': project_basename,
+            'PROJECT_GUID': PROJECT_GUID,
             'TOOLS_VERSION': self._get_vcxproj_file_tools_version(vc_version),
             'INCLUDE_DIRS': self._get_vcxproj_file_cpp_path(dirs),
+            'PLATFORM_TOOLSET': self._get_vcxproj_file_platform_toolset(vc_version),
         }
 
     def get_expected_sconscript_file_contents(self, vc_version, project_file):
         return SConscript_contents_fmt % {
             'HOST_ARCH': self.get_vs_host_arch(),
             'MSVS_VERSION': vc_version,
+            'PROJECT_GUID': PROJECT_GUID,
             'PROJECT_FILE': project_file,
         }
+
+    def msvs_substitute_projects(
+        self, input, *,
+        subdir=None,
+        sconscript=None,
+        python=None,
+        project_guid_1=None,
+        project_guid_2=None,
+        solution_guid_1=None,
+        solution_guid_2=None,
+        vcproj_sccinfo: str='',
+        sln_sccinfo: str=''
+    ):
+        if not hasattr(self, '_msvs_versions'):
+            self.msvs_versions()
+
+        if subdir:
+            workpath = self.workpath(subdir)
+        else:
+            workpath = self.workpath()
+
+        if sconscript is None:
+            sconscript = self.workpath('SConstruct')
+
+        if python is None:
+            python = sys.executable
+
+        if project_guid_1 is None:
+            project_guid_1 = PROJECT_GUID_1
+
+        if project_guid_2 is None:
+            project_guid_2 = PROJECT_GUID_2
+
+        if solution_guid_1 is None:
+            solution_guid_1 = SOLUTION_GUID_1
+
+        if solution_guid_2 is None:
+            solution_guid_2 = SOLUTION_GUID_2
+
+        if 'SCONS_LIB_DIR' in os.environ:
+            exec_script_main = f"from os.path import join; import sys; sys.path = [ r'{os.environ['SCONS_LIB_DIR']}' ] + sys.path; import SCons.Script; SCons.Script.main()"
+        else:
+            exec_script_main = f"from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-{self.scons_version}'), join(sys.prefix, 'scons-{self.scons_version}'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()"
+        exec_script_main_xml = exec_script_main.replace("'", "&apos;")
+
+        result = input.replace(r'<WORKPATH>', workpath)
+        result = result.replace(r'<PYTHON>', python)
+        result = result.replace(r'<SCONSCRIPT>', sconscript)
+        result = result.replace(r'<SCONS_SCRIPT_MAIN>', exec_script_main)
+        result = result.replace(r'<SCONS_SCRIPT_MAIN_XML>', exec_script_main_xml)
+        result = result.replace(r'<PROJECT_GUID_1>', project_guid_1)
+        result = result.replace(r'<PROJECT_GUID_2>', project_guid_2)
+        result = result.replace(r'<SOLUTION_GUID_1>', solution_guid_1)
+        result = result.replace(r'<SOLUTION_GUID_2>', solution_guid_2)
+        result = result.replace('<SCC_VCPROJ_INFO>\n', vcproj_sccinfo)
+        result = result.replace('<SCC_SLN_INFO>\n', sln_sccinfo)
+        return result
+
+    def get_expected_projects_proj_file_contents(self, vc_version, dirs, project_file, project_guid):
+        """Returns the expected .vcxproj file contents"""
+        if project_file.endswith('.vcxproj'):
+            fmt = expected_vcxprojfile_fmt
+        else:
+            fmt = expected_vcprojfile_fmt
+        project_filename = os.path.split(project_file)[-1]
+        project_basename = os.path.splitext(project_filename)[0]
+        return fmt % {
+            'PROJECT_BASENAME': project_basename,
+            'PROJECT_GUID': project_guid,
+            'TOOLS_VERSION': self._get_vcxproj_file_tools_version(vc_version),
+            'INCLUDE_DIRS': self._get_vcxproj_file_cpp_path(dirs),
+            'PLATFORM_TOOLSET': self._get_vcxproj_file_platform_toolset(vc_version),
+        }
+
+    def get_expected_projects_sln_file_contents(
+        self, vc_version,
+        project_file_1, project_file_2, 
+        have_solution_project_nodes=False,
+        autofilter_solution_project_nodes=None,
+    ):
+        if not have_solution_project_nodes or autofilter_solution_project_nodes:
+            rval = expected_projects_slnfile_fmt % {
+                'FORMAT_VERSION': self._get_solution_file_format_version(vc_version),
+                'VS_NUMBER': self._get_solution_file_vs_number(vc_version),
+                'PROJECT_NAME_1': project_file_1.split('.')[0],
+                'PROJECT_FILE_1': project_file_1,
+                'PROJECT_NAME_2': project_file_2.split('.')[0],
+                'PROJECT_FILE_2': project_file_2,
+            }
+        else:
+            rval = expected_projects_slnfile_fmt_slnnodes % {
+                'FORMAT_VERSION': self._get_solution_file_format_version(vc_version),
+                'VS_NUMBER': self._get_solution_file_vs_number(vc_version),
+                'PROJECT_NAME_1': project_file_1.split('.')[0],
+                'PROJECT_FILE_1': project_file_1,
+                'PROJECT_NAME_2': project_file_2.split('.')[0],
+                'PROJECT_FILE_2': project_file_2,
+                'SOLUTION_FILE_1': project_file_1.split('.')[0] + ".sln",
+                'SOLUTION_FILE_2': project_file_2.split('.')[0] + ".sln",
+            }
+        return rval
+
+    def get_expected_projects_sconscript_file_contents(
+        self, vc_version,
+        project_file_1, project_file_2, solution_file,
+        autobuild_solution=0,
+        autofilter_projects=None,
+        default_guids=False,
+    ):
+
+        values = {
+            'HOST_ARCH': self.get_vs_host_arch(),
+            'MSVS_VERSION': vc_version,
+            'PROJECT_FILE_1': project_file_1,
+            'PROJECT_FILE_2': project_file_2,
+            'SOLUTION_FILE': solution_file,
+            "AUTOBUILD_SOLUTION": autobuild_solution,
+            "AUTOFILTER_PROJECTS": autofilter_projects,
+        }
+
+        if default_guids:
+            format = SConscript_projects_defaultguids_contents_fmt
+        else:
+            format = SConscript_projects_contents_fmt
+
+            values.update({
+                'PROJECT_GUID_1': PROJECT_GUID_1,
+                'PROJECT_GUID_2': PROJECT_GUID_2,
+            })
+        return format % values
 
 # Local Variables:
 # tab-width:4

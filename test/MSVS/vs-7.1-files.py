@@ -35,20 +35,16 @@ import TestSConsMSVS
 
 test = TestSConsMSVS.TestSConsMSVS()
 host_arch = test.get_vs_host_arch()
-
+sconscript_dict = {'HOST_ARCH': host_arch, 'PROJECT_GUID': TestSConsMSVS.PROJECT_GUID}
 
 # Make the test infrastructure think we have this version of MSVS installed.
 test._msvs_versions = ['7.1']
-
-
 
 expected_slnfile = TestSConsMSVS.expected_slnfile_7_1
 expected_vcprojfile = TestSConsMSVS.expected_vcprojfile_7_1
 SConscript_contents = TestSConsMSVS.SConscript_contents_7_1
 
-
-
-test.write('SConstruct', SConscript_contents%{'HOST_ARCH': host_arch})
+test.write('SConstruct', SConscript_contents % sconscript_dict)
 
 test.run(arguments="Test.vcproj")
 
@@ -79,8 +75,6 @@ test.run(arguments='-c Test.sln')
 test.must_not_exist(test.workpath('Test.vcproj'))
 test.must_not_exist(test.workpath('Test.sln'))
 
-
-
 # Test that running SCons with $PYTHON_ROOT in the environment
 # changes the .vcproj output as expected.
 os.environ['PYTHON_ROOT'] = 'xyzzy'
@@ -94,8 +88,6 @@ expect = test.msvs_substitute(expected_vcprojfile, '7.1', None, 'SConstruct',
                               python=python)
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
-
-
 
 test.pass_test()
 

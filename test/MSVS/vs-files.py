@@ -33,6 +33,8 @@ import os
 
 import TestSConsMSVS
 
+test = None
+
 for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
     test = TestSConsMSVS.TestSConsMSVS()
     host_arch = test.get_vs_host_arch()
@@ -103,6 +105,9 @@ for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
     # don't compare the pickled data
     assert vcxproj[:len(expect)] == expect, test.diff_substr(expect, vcxproj)
 
+    del os.environ['PYTHON_ROOT']
+
+if test:
     test.pass_test()
 
 # Local Variables:

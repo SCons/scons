@@ -31,8 +31,11 @@ solution (.sln) files that contain SCC information and look correct.
 
 import TestSConsMSVS
 
+test = None
+
 for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
     test = TestSConsMSVS.TestSConsMSVS()
+    host_arch = test.get_vs_host_arch()
 
     # Make the test infrastructure think we have this version of MSVS installed.
     test._msvs_versions = [vc_version]
@@ -46,11 +49,13 @@ for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
     expected_vcprojfile = test.get_expected_proj_file_contents(vc_version, dirs, project_file)
 
     SConscript_contents = """\
-env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='{vc_version}',
+env=Environment(tools=['msvs'],
+                MSVS_VERSION='{vc_version}',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 MSVS_SCC_LOCAL_PATH=r'C:\\MyMsVsProjects',
-                MSVS_SCC_PROJECT_NAME='Perforce Project')
+                MSVS_SCC_PROJECT_NAME='Perforce Project',
+                HOST_ARCH='{host_arch}')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = [r'sdk_dir\\sdk.h']
@@ -59,6 +64,7 @@ testresources = ['test.rc']
 testmisc = ['readme.txt']
 
 env.MSVSProject(target = '{project_file}',
+                MSVS_PROJECT_GUID='{project_guid}',
                 srcs = testsrc,
                 incs = testincs,
                 localincs = testlocalincs,
@@ -66,7 +72,10 @@ env.MSVSProject(target = '{project_file}',
                 misc = testmisc,
                 buildtarget = 'Test.exe',
                 variant = 'Release')
-""".format(vc_version=vc_version, project_file=project_file)
+""".format(
+    vc_version=vc_version, project_file=project_file,
+    host_arch=host_arch, project_guid=TestSConsMSVS.PROJECT_GUID,
+)
 
     if major < 10:
         # VC8 and VC9 used key-value pair format.
@@ -98,7 +107,7 @@ env.MSVSProject(target = '{project_file}',
     # don't compare the pickled data
     assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 
-
+if test:
     test.pass_test()
 
 # Local Variables:
