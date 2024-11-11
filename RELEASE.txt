@@ -56,12 +56,23 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   in the projects argument list rather than manually removing solution file
   names and nodes from the MSVSProject return values.
 
+- SCons C preprocessor:
+  - Update the optional integer suffixes to include the z|Z and wb|WB
+    suffixes.
+  - Add support for binary integer constants.
+  - Add support for octal integer constants.  Previously, octal integers
+    were evaluated as decimal integers.  A literal zero (0) is treated as an
+    octal number.
+  - Change the method for attempted conversion of a define expansion value
+    to an integer from a literal to a constant expression evaluation.
+
 - Add a tag to each CacheDir to let systems ignore backing it up
   (per https://bford.info/cachedir/). Update the way a CacheDir
   is created, since it now has to create two files.
 
 FIXES
 -----
+
 - PackageVariable now does what the documentation always said it does
   if the variable is used on the command line with one of the enabling
   string as the value: the variable's default value is produced (previously
@@ -103,6 +114,17 @@ FIXES
 - MSVS: msvs project files are generated before the corresponding msvs
   solution file.  User-specified project GUIDs should now be correctly
   written to the solution file.
+
+- SCons C preprocessor: Preserve literals that contain valid integer
+  substring specifications.  Previously, the integer suffix could be
+  stripped from a symbol that contained an integer and suffix substring.
+
+- SCons C preprocessor: Update the optional integer suffixes to include
+  support for the alternate orderings of unsigned with long or long long as
+  defined in the c/cpp grammar.
+
+- SCons C preprocessor: Update the optional integer suffixes for case
+  insensitive specifications as defined in the c/cpp grammar.
 
 - Fix nasm test for missing include file, cleanup.
 

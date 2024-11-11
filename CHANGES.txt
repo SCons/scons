@@ -59,6 +59,22 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and nodes from the MSVSProject return values.  Resolves #4613.
     - MSVS: Remove the platform specification (i.e., platform = 'win32') from select
       test script environments.  The platform specification appears superfluous.
+    - SCons C preprocessor changes:
+      - Preserve literals that contain valid integer substring specifications.
+        Previously, the integer suffix could be stripped from a symbol that contained
+        an integer and suffix substring.
+      - Update the optional integer suffixes to include the z|Z and wb|WB suffixes.
+      - Update the optional integer suffixes to include support for alternate
+        orderings of unsigned with long or long long as defined in the c/cpp
+        grammar.
+      - Update the optional integer suffixes for case insensitive specifications as
+        defined in the c/cpp grammar.
+      - Add support for binary integer constants.
+      - Add support for octal integer constants.  Previously, octal integers were
+        evaluated as decimal integers.  A literal zero (0) is treated as an octal
+        number.
+      - Change the attempted conversion of a define expansion from using int() to
+        a constant expression evaluation.
 
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access
