@@ -34,20 +34,16 @@ import TestSConsMSVS
 test = TestSConsMSVS.TestSConsMSVS()
 host_arch = test.get_vs_host_arch()
 
-
 # Make the test infrastructure think we have this version of MSVS installed.
 test._msvs_versions = ['7.1']
-
-
 
 expected_slnfile = TestSConsMSVS.expected_slnfile_7_1
 expected_vcprojfile = TestSConsMSVS.expected_vcprojfile_7_1
 
-
-
 test.write('SConstruct', """\
-env=Environment(platform='win32', tools=['msvs'],
-                MSVS_VERSION='7.1',HOST_ARCH='%(HOST_ARCH)s')
+env=Environment(tools=['msvs'],
+                MSVS_VERSION='7.1',
+                HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -56,6 +52,7 @@ testresources = ['test.rc']
 testmisc = ['readme.txt']
 
 p = env.MSVSProject(target = 'Test.vcproj',
+                    MSVS_PROJECT_GUID='%(PROJECT_GUID)s',
                     srcs = testsrc,
                     incs = testincs,
                     localincs = testlocalincs,
@@ -69,7 +66,7 @@ env.MSVSSolution(target = 'Test.sln',
                  slnguid = '{SLNGUID}',
                  projects = [p],
                  variant = 'Release')
-"""%{'HOST_ARCH':host_arch})
+""" % {'HOST_ARCH':host_arch, 'PROJECT_GUID': TestSConsMSVS.PROJECT_GUID})
 
 test.run(arguments=".")
 
@@ -95,16 +92,20 @@ test.run(arguments='.')
 test.must_exist(test.workpath('Test.vcproj'))
 test.must_exist(test.workpath('Test.sln'))
 
-test.run(arguments='-c Test.sln')
-
-test.must_exist(test.workpath('Test.vcproj'))
-test.must_not_exist(test.workpath('Test.sln'))
-
 test.run(arguments='-c Test.vcproj')
 
 test.must_not_exist(test.workpath('Test.vcproj'))
+test.must_exist(test.workpath('Test.sln'))
 
+test.run(arguments='.')
 
+test.must_exist(test.workpath('Test.vcproj'))
+test.must_exist(test.workpath('Test.sln'))
+
+test.run(arguments='-c Test.sln')
+
+test.must_not_exist(test.workpath('Test.vcproj'))
+test.must_not_exist(test.workpath('Test.sln'))
 
 test.pass_test()
 

@@ -540,6 +540,74 @@ env.MSVSProject(
           </listitem>
         </varlistentry>
       </variablelist>
+      <para>
+        In addition to the mandatory arguments above, the following optional
+        values may be specified as keyword arguments:
+      </para>
+      <variablelist>
+        <varlistentry>
+          <term><parameter>auto_filter_projects</parameter></term>
+          <listitem>
+            <para>
+              Under certain circumstances, solution file names or
+              solution file nodes may be present in the
+              <parameter>projects</parameter> argument list.
+              When solution file names or nodes are present in the 
+              <parameter>projects</parameter> argument list, the generated
+              solution file may contain erroneous Project records resulting
+              in VS IDE error messages when opening the generated solution
+              file.
+              By default, an exception is raised when a solution file
+              name or solution file node is detected in the
+              <parameter>projects</parameter> argument list.
+            </para>
+            <para>
+              The accepted values for <parameter>auto_filter_projects</parameter>
+              are:
+            </para>
+            <variablelist>
+              <varlistentry>
+                <term><parameter>None</parameter></term>
+                <listitem>
+                  <para>
+                    An exception is raised when a solution file name or solution
+                    file node is detected in the <parameter>projects</parameter>
+                    argument list.
+                  </para>
+                  <para>
+                    <parameter>None</parameter> is the default value.
+                  </para>
+                </listitem>
+              </varlistentry>
+              <varlistentry>
+                <term><parameter>True or evaluates True</parameter></term>
+                <listitem>
+                  <para>
+                    Automatically remove solution file names and solution file
+                    nodes from the <parameter>projects</parameter> argument list.
+                  </para>
+                </listitem>
+              </varlistentry>
+              <varlistentry>
+                <term><parameter>False or evaluates False</parameter></term>
+                <listitem>
+                  <para>
+                    Leave the solution file names and solution file nodes
+                    in the <parameter>projects</parameter> argument list.
+                    An exception is not raised.
+                  </para>
+                  <para>
+                    When opening the generated solution file with the VS IDE,
+                    the VS IDE will likely report that there are erroneous
+                    Project records that are not supported or that need to be
+                    modified.
+                  </para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
       <para>Example Usage:</para>
       <example_commands>
 env.MSVSSolution(
