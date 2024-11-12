@@ -537,7 +537,7 @@ class SubstitutionEnvironment:
 
     Special note: methods here and in actual child classes might be called
     via proxy from an :class:`OverrideEnvironment`, which isn't in the
-    Python inheritance chain. Take care that methods called with a *self*
+    class inheritance chain. Take care that methods called with a *self*
     that's really an ``OverrideEnvironment`` don't make bad assumptions.
     """
 
@@ -1708,23 +1708,33 @@ class Base(SubstitutionEnvironment):
         return None
 
 
-    def Dictionary(self, *args: str):
+    def Dictionary(self, *args: str, as_dict: bool = False):
         """Return construction variables from an environment.
 
         Args:
-          args (optional): variable names to look up
+          args (optional): construction variable names to select.
+            If omitted, all variables are selected and returned
+            as a dict.
+          as_dict: if true, and *args* is supplied, return the
+            variables and their values in a dict. If false
+            (the default), return a single value as a scalar,
+            or multiple values in a list.
 
         Returns:
-          If *args* omitted, the dictionary of all construction variables.
-          If one arg, the corresponding value is returned.
-          If more than one arg, a list of values is returned.
+          A dictionary of construction variables, or a single value
+          or list of values.
 
         Raises:
           KeyError: if any of *args* is not in the construction environment.
+
+        .. versionchanged:: NEXT_RELEASE
+           Added the *as_dict* keyword arg to specify always returning a dict.
         """
         if not args:
             return self._dict
-        dlist = [self._dict[x] for x in args]
+        if as_dict:
+            return {key: self._dict[key] for key in args}
+        dlist = [self._dict[key] for key in args]
         if len(dlist) == 1:
             return dlist[0]
         return dlist
@@ -1754,13 +1764,10 @@ class Base(SubstitutionEnvironment):
            If *key* is supplied, a formatted dictionary is generated like the
            no-arg case - previously a single *key* displayed just the value.
         """
-        if not key:
-            cvars = self.Dictionary()
-        elif len(key) == 1:
-            dkey = key[0]
-            cvars = {dkey: self[dkey]}
+        if len(key):
+            cvars = self.Dictionary(*key, as_dict=True)
         else:
-            cvars = dict(zip(key, self.Dictionary(*key)))
+            cvars = self.Dictionary()
 
         fmt = format.lower()
 
@@ -2716,28 +2723,29 @@ class OverrideEnvironment(Base):
             return False
         return key in self.__dict__['__subject']
 
-    def Dictionary(self, *args):
+    def Dictionary(self, *args, as_dict: bool = False):
         """Return construction variables from an environment.
 
-        Returns all the visible variables, or just those in *args* if
-        specified. Obtains a Dictionary view of the subject env, then layers
-        the overrrides on top, after which any any deleted items are removed.
-
-        Returns:
-           Like :meth:`Base.Dictionary`, returns a dict if *args* is
-           omitted; a single value if there is one arg; else a list of values.
+        Behavior is as described for :class:`SubstitutionEnvironment.Dictionary`
+        but understanda about the override.
 
         Raises:
-           KeyError: if any of *args* is not visible in the construction environment.
+          KeyError: if any of *args* is not in the construction environment.
+
+        .. versionchanged: NEXT_RELEASE
+           Added the *as_dict* keyword arg to always return a dict.
         """
-        d = self.__dict__['__subject'].Dictionary().copy()
+        d = {}
+        d.update(self.__dict__['__subject'])
         d.update(self.__dict__['overrides'])
         d = {k: v for k, v in d.items() if k not in self.__dict__['__deleted']}
         if not args:
             return d
-        dlist = [d[x] for x in args]
+        if as_dict:
+            return {key: d[key] for key in args}
+        dlist = [d[key] for key in args]
         if len(dlist) == 1:
-            dlist = dlist[0]
+            return dlist[0]
         return dlist
 
     def items(self):

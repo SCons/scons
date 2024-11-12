@@ -134,6 +134,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add a tag to each CacheDir to let systems ignore backing it up
       (per https://bford.info/cachedir/). Update the way a CacheDir
       is created, since it now has to create two files.
+    - The Dictionary method now has an as_dict flag. If true, Dictionary
+      always returns  a dict. The default remains to return different
+      types depending on whether zero, one, or multiple construction
+      variable names are given.
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700

@@ -1832,8 +1832,10 @@ def exists(env):
         assert env['CCC1'] == 'c1', env['CCC1']
         assert env['CCC2'] == ['c2'], env['CCC2']
         assert env['DDD1'] == ['a', 'b', 'c'], env['DDD1']
-        assert env['LL1'] == [env.Literal('a literal'), \
-            env.Literal('b literal')], env['LL1']
+        assert env['LL1'] == [
+            env.Literal('a literal'),
+            env.Literal('b literal'),
+        ], env['LL1']
         assert env['LL2'] == [
             env.Literal('c literal'),
             env.Literal('b literal'),
@@ -2135,6 +2137,13 @@ def generate(env):
         xxx, zzz = env.Dictionary('XXX', 'ZZZ')
         assert xxx == 'x'
         assert zzz == 'z'
+        # added in NEXT_RELEASE: as_dict flag
+        with self.subTest():
+            expect = {'XXX': 'x'}
+            self.assertEqual(env.Dictionary('XXX', as_dict=True), expect)
+        with self.subTest():
+            expect = {'XXX': 'x', 'YYY': 'y'}
+            self.assertEqual(env.Dictionary('XXX', 'YYY', as_dict=True), expect)
         assert 'BUILDERS' in env.Dictionary()
         assert 'CC' in env.Dictionary()
         assert 'CCFLAGS' in env.Dictionary()
@@ -3927,6 +3936,13 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         xxx, yyy = env2.Dictionary('XXX', 'YYY')
         assert xxx == 'x2', xxx
         assert yyy == 'y', yyy
+        # added in NEXT_VERSION: as_dict flag
+        with self.subTest():
+            expect = {'XXX': 'x3'}
+            self.assertEqual(env3.Dictionary('XXX', as_dict=True), expect)
+        with self.subTest():
+            expect = {'XXX': 'x2', 'YYY': 'y'}
+            self.assertEqual(env2.Dictionary('XXX', 'YYY', as_dict=True), expect)
 
         # test deletion in top override
         del env3['XXX']

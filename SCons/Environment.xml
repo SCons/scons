@@ -1624,16 +1624,22 @@ but will not include any such extension in the return value.
 
 <scons_function name="Dictionary">
 <arguments signature="env">
-([vars])
+([var, ...], [as_dict=])
 </arguments>
 <summary>
 <para>
-Returns a dictionary object
-containing the &consvars; in the &consenv;.
-If there are any arguments specified,
-the values of the specified &consvars;
-are returned as a string (if one
-argument) or as a list of strings.
+Return an object containing &consvars; from
+<parameter>env</parameter>.
+If <parameter>var</parameter> is omitted,
+all the &consvars; with their values
+are returned in a <type>dict</type>.
+If <parameter>var</parameter> is specified,
+and <parameter>as_dict</parameter> is true,
+the specified &consvars; are returned in a <type>dict</type>;
+otherwise (the default, for backwards compatibility),
+values only are returned,
+as a scalar if one <parameter>var</parameter> is given,
+or as a list if multiples.
 </para>
 
 <para>
@@ -1648,14 +1654,19 @@ cc_values = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 <note><para>
 The object returned by &f-link-env-Dictionary; should be treated
 as a read-only view into the &consvars;.
-Some &consvars; have special internal handling,
-and making changes through the &f-env-Dictionary; object can bypass
+Some &consvars; require special internal handling,
+and modifying them through the &f-env-Dictionary; object can bypass
 that handling and cause data inconsistencies.
 The primary use of &f-env-Dictionary; is for diagnostic purposes -
 it is used widely by test cases specifically because
 it bypasses the special handling so that behavior
 can be verified.
 </para></note>
+
+<para>
+<emphasis>Changed in NEXT_RELEASE</emphasis>:
+<parameter>as_dict</parameter> added.
+</para>
 
 </summary>
 </scons_function>
@@ -1702,24 +1713,30 @@ for more information.
 
 <scons_function name="Dump">
 <arguments signature="env">
-([key, ...], [format=])
+([var, ...], [format=TYPE])
 </arguments>
 <summary>
 <para>
-Serializes &consvars; from the current &consenv;
-to a string.
-The method supports the following formats specified by
-<parameter>format</parameter>,
-which must be used a a keyword argument:
+Serialize &consvars; from <parameter>env</parameter> to a string.
+If <varname>var</varname> is omitted,
+all the &consvars; are serialized.
+If one or more <varname>var</varname> values are supplied,
+only those variables and their values are serialized.
+</para>
+
+<para>
+The optional <parameter>format</parameter> string
+selects the serialization format:
 </para>
 <variablelist>
 <varlistentry>
 <term><literal>pretty</literal></term>
 <listitem>
 <para>
-Returns a pretty-printed representation of the variables
+Returns a pretty-printed representation
+of the &consvars; - the result will look like a
+&Python; <type>dict</type>
 (this is the default).
-The variables will be presented in &Python; dict form.
 </para>
 </listitem>
 </varlistentry>
@@ -1727,31 +1744,25 @@ The variables will be presented in &Python; dict form.
 <term><literal>json</literal></term>
 <listitem>
 <para>
-Returns a JSON-formatted string representation of the variables.
+Returns a JSON-formatted representation of the variables.
 The variables will be presented as a JSON object literal,
-the JSON equivalent of a &Python; dict.
+the JSON equivalent of a &Python; <type>dict</type>..
 </para>
 </listitem>
 </varlistentry>
 </variablelist>
 
 <para>
-If no <varname>key</varname> is supplied,
-all the &consvars; are serialized.
-If one or more keys are supplied,
-only those keys and their values are serialized.
-</para>
-
-<para>
 <emphasis>Changed in NEXT_RELEASE</emphasis>:
 More than one <parameter>key</parameter> can be specified.
-The returned string always looks like a dict (or JSON equivalent);
+The returned string always looks like a <type>dict</type>
+(or equivalent in other formats);
 previously a single key serialized only the value,
 not the key with the value.
 </para>
 
 <para>
-This SConstruct:
+Examples: this &SConstruct;
 </para>
 
 <example_commands>
@@ -1773,7 +1784,7 @@ will print something like:
 </example_commands>
 
 <para>
-While this SConstruct:
+While this &SConstruct;:
 </para>
 
 <example_commands>
@@ -2022,7 +2033,7 @@ FindSourceFiles('src')
 </example_commands>
 
 <para>
-As you can see build support files (SConstruct in the above example)
+As you can see build support files (&SConstruct; in the above example)
 will also be returned by this function.
 </para>
 </summary>
