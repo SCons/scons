@@ -557,6 +557,11 @@ foo.in
       </row>
 
       <row>
+      <entry><literal>no_progress</literal></entry>
+      <entry><option>-Q</option></entry>
+      </row>
+
+      <row>
       <entry><literal>no_site_dir</literal></entry>
       <entry><option>--no-site-dir</option></entry>
       </row>
