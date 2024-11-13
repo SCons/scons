@@ -73,17 +73,15 @@ dist-dir = "build/dist"
 target-version = "py37" # Lowest python version supported
 extend-include = ["SConstruct", "SConscript"]
 extend-exclude = [
-    "bench",
-    "bin",
-    "doc",
-    "src",
-    "template",
-    "test",
-    "testing",
-    "timings",
-    "SCons/Tool/docbook/docbook-xsl-1.76.1",
-    "bootstrap.py",
-    "runtest.py",
+    "bench/",
+    "bin/",
+    "doc/",
+    "src/",
+    "template/",
+    "test/",
+    "testing/",
+    "timings/",
+    "SCons/Tool/docbook/docbook-xsl-1.76.1/",
 ]
 
 [tool.ruff.format]
@@ -99,3 +97,14 @@ quote-style = "preserve" # Equivalent to black's "skip-string-normalization"
 
 [tool.mypy]
 python_version = "3.8"
+exclude = [
+    "^bench/",
+    "^bin/",
+    "^doc/",
+    "^src/",
+    "^template/",
+    "^test/",
+    "^testing/",
+    "^timings/",
+    "^SCons/Tool/docbook/docbook-xsl-1.76.1/",
+]
