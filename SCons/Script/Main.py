@@ -66,7 +66,7 @@ from SCons.Util.stats import count_stats, memory_stats, time_stats, ENABLE_JSON,
 from SCons import __version__ as SConsVersion
 
 # these define the range of versions SCons supports
-minimum_python_version = (3, 6, 0)
+minimum_python_version = (3, 7, 0)
 deprecated_python_version = (3, 7, 0)
 
 # ordered list of SConstruct names to look for if there is no -f flag
@@ -1355,12 +1355,6 @@ def _build_targets(fs, options, targets, target_top):
     # Let the BuildTask objects get at the options to respond to the
     # various print_* settings, tree_printer list, etc.
     BuildTask.options = options
-
-    is_pypy = platform.python_implementation() == 'PyPy'
-    # As of 3.7, python removed support for threadless platforms.
-    # See https://www.python.org/dev/peps/pep-0011/
-    is_37_or_later = sys.version_info >= (3, 7)
-    # python_has_threads = sysconfig.get_config_var('WITH_THREAD') or is_pypy or is_37_or_later
 
     # As of python 3.4 threading has a dummy_threading module for use when there is no threading
     # it's get_ident() will allways return -1, while real threading modules get_ident() will

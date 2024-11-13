@@ -891,15 +891,6 @@ def scons_subproc_run(scons_env, *args, **kwargs) -> subprocess.CompletedProcess
         del kwargs['error']
     kwargs['check'] = check
 
-    # TODO: Python version-compat stuff: remap/remove too-new args if needed
-    if 'text' in kwargs and sys.version_info < (3, 7):
-        kwargs['universal_newlines'] = kwargs.pop('text')
-
-    if 'capture_output' in kwargs and sys.version_info < (3, 7):
-        capture_output = kwargs.pop('capture_output')
-        if capture_output:
-            kwargs['stdout'] = kwargs['stderr'] = PIPE
-
     # Most SCons tools/tests expect not to fail on things like missing files.
     # check=True (or error="raise") means we're okay to take an exception;
     # else we catch the likely exception and construct a dummy
