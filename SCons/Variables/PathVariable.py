@@ -71,10 +71,11 @@ Usage example::
     )
 """
 
+from __future__ import annotations
 
 import os
 import os.path
-from typing import Callable, Optional, Tuple
+from typing import Callable
 
 import SCons.Errors
 import SCons.Util
@@ -141,8 +142,8 @@ class _PathVariableClass:
 
     # lint: W0622: Redefining built-in 'help' (redefined-builtin)
     def __call__(
-        self, key: str, help: str, default, validator: Optional[Callable] = None
-    ) -> Tuple[str, str, str, Callable, None]:
+        self, key: str, help: str, default, validator: Callable | None = None
+    ) -> tuple[str, str, str, Callable, None]:
         """Return a tuple describing a path list SCons Variable.
 
         The input parameters describe a 'path list' variable. Returns

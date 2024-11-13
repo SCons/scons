@@ -40,18 +40,19 @@ be able to depend on any other type of "thing."
 
 """
 
+from __future__ import annotations
+
 import collections
 import copy
 from itertools import chain, zip_longest
-from typing import Optional
 
 import SCons.Debug
 import SCons.Executor
 import SCons.Memoize
 from SCons.compat import NoSlotsPyPy
 from SCons.Debug import logInstanceCreation, Trace
+from SCons.Executor import Executor
 from SCons.Util import hash_signature, is_List, UniqueList, render_tree
-from SCons.Util.sctyping import ExecutorType
 
 print_duplicate = 0
 
@@ -636,11 +637,11 @@ class Node(metaclass=NoSlotsPyPy):
         """Fetch the appropriate scanner path for this node."""
         return self.get_executor().get_build_scanner_path(scanner)
 
-    def set_executor(self, executor: ExecutorType) -> None:
+    def set_executor(self, executor: Executor) -> None:
         """Set the action executor for this node."""
         self.executor = executor
 
-    def get_executor(self, create: int=1) -> ExecutorType:
+    def get_executor(self, create: int=1) -> Executor:
         """Fetch the action executor for this node.  Create one if
         there isn't already one, and requested to do so."""
         try:

@@ -15,6 +15,8 @@ This script adds SCons/ and testing/ directories to PYTHONPATH,
 performs test discovery and processes tests according to options.
 """
 
+from __future__ import annotations
+
 import argparse
 import itertools
 import os
@@ -27,11 +29,11 @@ from abc import ABC, abstractmethod
 from io import StringIO
 from pathlib import Path, PurePath, PureWindowsPath
 from queue import Queue
-from typing import List, TextIO, Optional
+from typing import TextIO
 
 cwd = os.getcwd()
-debug: Optional[str] = None
-scons: Optional[str] = None
+debug: str | None = None
+scons: str | None = None
 catch_output: bool = False
 suppress_output: bool = False
 script = PurePath(sys.argv[0]).name
@@ -43,7 +45,7 @@ Environment Variables:
 """
 
 # this is currently expected to be global, maybe refactor later?
-unittests: List[str]
+unittests: list[str]
 
 parser = argparse.ArgumentParser(
     usage=usagestr,

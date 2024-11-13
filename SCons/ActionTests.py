@@ -27,6 +27,8 @@
 # contents, so try to minimize changes by defining them here, before we
 # even import anything.
 
+from __future__ import annotations
+
 def GlobalFunc() -> None:
     pass
 
@@ -43,13 +45,15 @@ import types
 import unittest
 from unittest import mock
 from subprocess import PIPE
-from typing import Optional
+from typing import TYPE_CHECKING
 
 import SCons.Action
 import SCons.Environment
 import SCons.Errors
 from SCons.Action import scons_subproc_run
-from SCons.Util.sctyping import ExecutorType
+
+if TYPE_CHECKING:
+    from SCons.Executor import Executor
 
 import TestCmd
 
@@ -1701,11 +1705,11 @@ class FunctionActionTestCase(unittest.TestCase):
         c = test.read(outfile, 'r')
         assert c == "class1b\n", c
 
-        def build_it(target, source, env, executor: Optional[ExecutorType] = None, self=self) -> int:
+        def build_it(target, source, env, executor: Executor | None = None, self=self) -> int:
             self.build_it = 1
             return 0
 
-        def string_it(target, source, env, executor: Optional[ExecutorType] = None, self=self):
+        def string_it(target, source, env, executor: Executor | None = None, self=self):
             self.string_it = 1
             return None
 

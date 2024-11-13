@@ -179,6 +179,12 @@ DEVELOPMENT
 
 - Ruff/Mypy: Excluded items now synced.
 
+- Ruff: Linter includes new rules - `FA`, `UP006`, `UP007`, and `UP037` - to
+  detect and upgrade legacy type-hint syntax.
+
+- Removed "SCons.Util.sctyping.py", as the functionality can now be substituted
+  via top-level `from __future__ import annotations`.
+
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text

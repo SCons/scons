@@ -33,10 +33,11 @@ one needs to use or tie in to this subsystem in order to roll their own
 tool specifications.
 """
 
+from __future__ import annotations
+
 import sys
 import os
 import importlib.util
-from typing import Optional
 
 import SCons.Builder
 import SCons.Errors
@@ -824,7 +825,7 @@ def tool_list(platform, env):
     return [x for x in tools if x]
 
 
-def find_program_path(env, key_program, default_paths=None, add_path: bool=False) -> Optional[str]:
+def find_program_path(env, key_program, default_paths=None, add_path: bool=False) -> str | None:
     """
     Find the location of a tool using various means.
 

@@ -30,6 +30,8 @@ Keyword arguments supplied when the construction Environment is created
 are construction variables used to initialize the Environment.
 """
 
+from __future__ import annotations
+
 import copy
 import os
 import sys
@@ -37,7 +39,7 @@ import re
 import shlex
 from collections import UserDict, UserList, deque
 from subprocess import PIPE, DEVNULL
-from typing import Callable, Collection, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Callable, Collection, Sequence
 
 import SCons.Action
 import SCons.Builder
@@ -76,7 +78,9 @@ from SCons.Util import (
     to_String_for_subst,
     uniquer_hashables,
 )
-from SCons.Util.sctyping import ExecutorType
+
+if TYPE_CHECKING:
+    from SCons.Executor import Executor
 
 class _Null:
     pass
@@ -698,7 +702,7 @@ class SubstitutionEnvironment:
     def lvars(self):
         return {}
 
-    def subst(self, string, raw: int=0, target=None, source=None, conv=None, executor: Optional[ExecutorType] = None, overrides: Optional[dict] = None):
+    def subst(self, string, raw: int=0, target=None, source=None, conv=None, executor: Executor | None = None, overrides: dict | None = None):
         """Recursively interpolates construction variables from the
         Environment into the specified string, returning the expanded
         result.  Construction variables are specified by a $ prefix
@@ -724,7 +728,7 @@ class SubstitutionEnvironment:
             nkw[k] = v
         return nkw
 
-    def subst_list(self, string, raw: int=0, target=None, source=None, conv=None, executor: Optional[ExecutorType] = None, overrides: Optional[dict] = None):
+    def subst_list(self, string, raw: int=0, target=None, source=None, conv=None, executor: Executor | None = None, overrides: dict | None = None):
         """Calls through to SCons.Subst.scons_subst_list().
 
         See the documentation for that function.
@@ -901,7 +905,7 @@ class SubstitutionEnvironment:
             'RPATH'         : [],
         }
 
-        def do_parse(arg: Union[str, Sequence]) -> None:
+        def do_parse(arg: str | Sequence) -> None:
             if not arg:
                 return
 
@@ -1798,7 +1802,7 @@ class Base(SubstitutionEnvironment):
         raise ValueError("Unsupported serialization format: %s." % fmt)
 
 
-    def FindIxes(self, paths: Sequence[str], prefix: str, suffix: str) -> Optional[str]:
+    def FindIxes(self, paths: Sequence[str], prefix: str, suffix: str) -> str | None:
         """Search *paths* for a path that has *prefix* and *suffix*.
 
         Returns on first match.
@@ -2079,7 +2083,7 @@ class Base(SubstitutionEnvironment):
         return self.fs.Dir(self.subst(tp)).srcnode().get_abspath()
 
     def Tool(
-        self, tool: Union[str, Callable], toolpath: Optional[Collection[str]] = None, **kwargs
+        self, tool: str | Callable, toolpath: Collection[str] | None = None, **kwargs
     ) -> Callable:
         """Find and run tool module *tool*.
 
@@ -2615,7 +2619,7 @@ class OverrideEnvironment(Base):
     ``OverrideEnvironment``.
     """
 
-    def __init__(self, subject, overrides: Optional[dict] = None) -> None:
+    def __init__(self, subject, overrides: dict | None = None) -> None:
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.OverrideEnvironment')
         overrides = {} if overrides is None else overrides
         # set these directly via __dict__ to avoid trapping by __setattr__

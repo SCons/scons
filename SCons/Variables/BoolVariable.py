@@ -32,7 +32,9 @@ Usage example::
         ...
 """
 
-from typing import Callable, Tuple, Union
+from __future__ import annotations
+
+from typing import Callable
 
 import SCons.Errors
 
@@ -42,7 +44,7 @@ TRUE_STRINGS = ('y', 'yes', 'true', 't', '1', 'on', 'all')
 FALSE_STRINGS = ('n', 'no', 'false', 'f', '0', 'off', 'none')
 
 
-def _text2bool(val: Union[str, bool]) -> bool:
+def _text2bool(val: str | bool) -> bool:
     """Convert boolean-like string to boolean.
 
     If *val* looks like it expresses a bool-like value, based on
@@ -83,7 +85,7 @@ def _validator(key: str, val, env) -> None:
         raise SCons.Errors.UserError(msg) from None
 
 # lint: W0622: Redefining built-in 'help' (redefined-builtin)
-def BoolVariable(key, help: str, default) -> Tuple[str, str, str, Callable, Callable]:
+def BoolVariable(key, help: str, default) -> tuple[str, str, str, Callable, Callable]:
     """Return a tuple describing a boolean SCons Variable.
 
     The input parameters describe a boolean variable, using a string

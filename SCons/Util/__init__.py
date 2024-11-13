@@ -49,6 +49,8 @@ in multiple places, rather then being topical only to one module/package.
 #       )
 # (issue filed on this upstream, for now just be aware)
 
+from __future__ import annotations
+
 import copy
 import hashlib
 import logging
@@ -59,7 +61,7 @@ import time
 from collections import UserDict, UserList, deque
 from contextlib import suppress
 from types import MethodType, FunctionType
-from typing import Optional, Union, Any, List
+from typing import Any
 from logging import Formatter
 
 # Util split into a package. Make sure things that used to work
@@ -203,11 +205,11 @@ class NodeList(UserList):
     def __iter__(self):
         return iter(self.data)
 
-    def __call__(self, *args, **kwargs) -> 'NodeList':
+    def __call__(self, *args, **kwargs) -> NodeList:
         result = [x(*args, **kwargs) for x in self.data]
         return self.__class__(result)
 
-    def __getattr__(self, name) -> 'NodeList':
+    def __getattr__(self, name) -> NodeList:
         """Returns a NodeList of `name` from each member."""
         result = [getattr(x, name) for x in self.data]
         return self.__class__(result)
@@ -254,8 +256,8 @@ def render_tree(
     root,
     child_func,
     prune: bool = False,
-    margin: List[bool] = [False],
-    visited: Optional[dict] = None,
+    margin: list[bool] = [False],
+    visited: dict | None = None,
 ) -> str:
     """Render a tree of nodes into an ASCII tree view.
 
@@ -323,8 +325,8 @@ def print_tree(
     child_func,
     prune: bool = False,
     showtags: int = 0,
-    margin: List[bool] = [False],
-    visited: Optional[dict] = None,
+    margin: list[bool] = [False],
+    visited: dict | None = None,
     lastChild: bool = False,
     singleLineDraw: bool = False,
 ) -> None:
@@ -694,7 +696,7 @@ else:
 
 if sys.platform == 'win32':
 
-    def WhereIs(file, path=None, pathext=None, reject=None) -> Optional[str]:
+    def WhereIs(file, path=None, pathext=None, reject=None) -> str | None:
         if path is None:
             try:
                 path = os.environ['PATH']
@@ -731,7 +733,7 @@ if sys.platform == 'win32':
 
 elif os.name == 'os2':
 
-    def WhereIs(file, path=None, pathext=None, reject=None) -> Optional[str]:
+    def WhereIs(file, path=None, pathext=None, reject=None) -> str | None:
         if path is None:
             try:
                 path = os.environ['PATH']
@@ -763,7 +765,7 @@ elif os.name == 'os2':
 
 else:
 
-    def WhereIs(file, path=None, pathext=None, reject=None) -> Optional[str]:
+    def WhereIs(file, path=None, pathext=None, reject=None) -> str | None:
         import stat  # pylint: disable=import-outside-toplevel
 
         if path is None:

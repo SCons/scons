@@ -84,6 +84,15 @@ extend-exclude = [
     "SCons/Tool/docbook/docbook-xsl-1.76.1/",
 ]
 
+[tool.ruff.lint]
+extend-select = [
+    "FA", # Future annotations
+    "UP006", # Use {to} instead of {from} for type annotation
+    "UP007", # Use `X | Y` for type annotations
+    "UP037", # Remove quotes from type annotation
+]
+extend-safe-fixes = ["FA", "UP006", "UP007"]
+
 [tool.ruff.format]
 quote-style = "preserve" # Equivalent to black's "skip-string-normalization"
 

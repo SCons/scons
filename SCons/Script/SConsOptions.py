@@ -21,13 +21,14 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
+
 import gettext
 import optparse
 import re
 import shutil
 import sys
 import textwrap
-from typing import Optional
 
 import SCons.Node.FS
 import SCons.Platform.virtualenv
@@ -318,7 +319,7 @@ class SConsBadOptionError(optparse.BadOptionError):
     """
     # TODO why is 'parser' needed? Not called in current code base.
 
-    def __init__(self, opt_str: str, parser: Optional["SConsOptionParser"] = None) -> None:
+    def __init__(self, opt_str: str, parser: SConsOptionParser | None = None) -> None:
         self.opt_str = opt_str
         self.parser = parser
 

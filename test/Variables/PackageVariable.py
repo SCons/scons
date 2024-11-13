@@ -27,8 +27,9 @@
 Test the PackageVariable canned Variable type.
 """
 
+from __future__ import annotations
+
 import os
-from typing import List
 
 import TestSCons
 
@@ -36,7 +37,7 @@ test = TestSCons.TestSCons()
 
 SConstruct_path = test.workpath('SConstruct')
 
-def check(expect: List[str]) -> None:
+def check(expect: list[str]) -> None:
     result = test.stdout().split('\n')
     # skip first line and any lines beyond the length of expect
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)

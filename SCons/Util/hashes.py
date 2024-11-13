@@ -8,10 +8,11 @@ SCons hash utility routines.
 Routines for working with content and signature hashes.
 """
 
+from __future__ import annotations
+
 import functools
 import hashlib
 import sys
-from typing import Optional, Union
 
 from .sctypes import to_bytes
 
