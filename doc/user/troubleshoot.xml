@@ -893,7 +893,7 @@ prog.c
 
     <para>
 
-    When using the &Duplicate; option to create variant dirs,
+    When using the &Duplicate; option to create variant directories,
     sometimes you may find files not getting linked or copied to where you
     expect (or not at all), or files mysteriously disappearing.
     These are usually because of a misconfiguration of some kind in the
@@ -901,7 +901,7 @@ prog.c
     &debug-duplicate; option shows each time a variant file is
     unlinked and relinked from its source (or copied, depending on
     settings), and also shows a message for removing "stale"
-    variant-dir files that no longer have a corresponding source file.
+    variant-directory files that no longer have a corresponding source file.
     It also prints a line for each target that's removed just before
     building, since that can also be mistaken for the same thing.
 
