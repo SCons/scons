@@ -47,7 +47,7 @@ This file is processed by the bin/SConsDoc.py module.
  will also put data into <filename>log</filename>, which is used
  as a source for the command to generate <filename>file2</filename>,
  but <filename>log</filename> is unknown to &SCons; on a clean
- build: it neither exists, nor is it a target output by any builder.
+ build: it neither exists nor is it a target output by any builder.
  The <filename>SConscript</filename> uses
  &SideEffect; to inform &SCons; about the additional output file.
 

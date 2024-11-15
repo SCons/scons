@@ -370,7 +370,7 @@ x
     in one pass, interpreting each in its local context,
     building up a tree of information, before starting to
     execute the needed builds in a second pass.
-    This is quite different than some other build tools
+    This is quite different from some other build tools
     which implement a hierarchical build by recursing.
 
     </para>

@@ -298,7 +298,7 @@ $ <userinput>python <replaceable>/path/to/unpacked</replaceable>/scripts/scons.p
     of &Python; software). There is a <filename>setup.py</filename> file,
     but it is only tested and used for the automated procedure which
     prepares  an &SCons; bundle for making a release on PyPI,
-    and even that is not guaranteed to work in future.
+    and even that is not guaranteed to work in the future.
     </para>
 
   </section>

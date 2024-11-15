@@ -2368,7 +2368,7 @@ is run with the &Python;
 option or from optimized &Python; (<filename>.pyo</filename>) modules.</para>
 <para>
 Note the "no-" prefix is part of the name of this warning.
-Add an additional "-no" to disable.
+Add another "-no" to disable.
 </para>
   </listitem>
   </varlistentry>
@@ -2383,7 +2383,7 @@ option is used.
 These warnings are enabled by default.</para>
 <para>
 Note the "no-" prefix is part of the name of this warning.
-Add an additional "-no" to disable.
+Add another "-no" to disable.
 </para>
   </listitem>
   </varlistentry>
@@ -2667,7 +2667,7 @@ one of the pre-defined platforms
 <literal>posix</literal>,
 <literal>sunos</literal> or
 <literal>win32</literal>),
-or it may be a callable platform object
+or a callable platform object
 returned by a call to &f-link-Platform;
 selecting a pre-defined platform,
 or it may be a user-supplied callable,

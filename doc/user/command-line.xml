@@ -795,7 +795,7 @@ foo.in
     You may want to control various aspects
     of your build by allowing
     <varname>variable</varname>=<replaceable>value</replaceable>
-    values to be specified on the command line.
+    pairs to be specified on the command line.
     For example, suppose you want to be able to
     build a debug version of a program
     by running &SCons; as follows:

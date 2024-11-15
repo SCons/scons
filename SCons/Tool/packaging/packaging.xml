@@ -262,7 +262,7 @@ placed if applicable.  The default value is <quote>&cv-NAME;-&cv-VERSION;</quote
 <summary>
 <para>
 Selects the package type to build when using the &b-link-Package;
-builder. May be a string or list of strings. See the docuentation
+builder. It may be a string or list of strings. See the documentation
 for the builder for the currently supported types.
 </para>
 

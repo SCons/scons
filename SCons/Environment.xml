@@ -1033,7 +1033,7 @@ either as separate arguments to the
 &f-Clean;
 method, or as a list.
 &f-Clean;
-will also accept the return value of any of the &consenv;
+will also accept the return value of the &consenv;
 Builder methods.
 Examples:
 </para>
@@ -1065,7 +1065,7 @@ Clean(['foo', 'bar'], 'something_else_to_clean')
 In this example,
 installing the project creates a subdirectory for the documentation.
 This statement causes the subdirectory to be removed
-if the project is deinstalled.
+if the project is uninstalled.
 </para>
 <example_commands>
 Clean(docdir, os.path.join(docdir, projectname))

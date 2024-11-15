@@ -350,7 +350,7 @@ python -m pip install ninja
         <summary>
             <para>
                 Internal value used to specify the function to call with argument env to generate the list of files
-                which if changed would require the &ninja; build file to be regenerated.
+                which -- if changed -- would require the &ninja; build file to be regenerated.
             </para>
         </summary>
     </cvar>

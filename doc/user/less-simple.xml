@@ -301,7 +301,7 @@ Program('hello', ['hello.c'])
     Although &SCons; functions
     are forgiving about whether or not you
     use a string vs. a list for a single file name,
-    &Python; itself is more strict about
+    &Python; itself is stricter about
     treating lists and strings differently.
     So where &SCons; allows either
     a string or list:

@@ -110,7 +110,7 @@ env.Java(target='classes', source=['File1.java', 'File2.java'])
                 <literal>LANG</literal>
                 environment variable to tell the compiler what encoding is used.
                 For portability, it's best if the encoding is hard-coded,
-                so that the compile will work if it is done on a system
+                so that the compilation works when run on a system
                 with a different encoding.
             </para>
 

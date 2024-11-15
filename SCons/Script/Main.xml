@@ -201,7 +201,7 @@ Future versions of &SCons; will likely forbid such usage.
 <summary>
 <para>
 Allows setting options for SCons debug options. Currently, the only supported value is
-  <emphasis>json</emphasis> which sets the path to the json file created when
+  <emphasis>json</emphasis> which sets the path to the JSON file created when
   <literal>--debug=json</literal> is set.
 </para>
   <example_commands>
