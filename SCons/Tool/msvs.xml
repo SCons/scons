@@ -438,7 +438,7 @@ V10DebugSettings = {
 }
 
 #
-# 3. Select the dictionary you want depending on the version of visual Studio
+# 3. Select the dictionary you want depending on the version of Visual Studio
 # Files you want to generate.
 #
 if not env.GetOption('userfile'):

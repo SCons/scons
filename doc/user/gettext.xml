@@ -95,7 +95,7 @@ hello = Program(["hello.c"])
     http://ftp.gnu.org/gnu/gettext/</ulink>. For the purpose of this example,
     you should have following three locales installed on your system:
     <literal>en_US</literal>, <literal>de_DE</literal> and
-    <literal>pl_PL</literal>. On debian, for example, you may enable certain
+    <literal>pl_PL</literal>. On Debian, for example, you may enable certain
     locales through <command>dpkg-reconfigure locales</command>.
     </para>
 
@@ -231,7 +231,7 @@ scons: done building targets.
     these files under <filename>locale</filename> folder.
     </para>
     <para>
-    Your program should be now ready. You may try it as follows (linux):
+    Your program should be now ready. You may try it as follows (Linux):
     <screen>
 user@host:$ LANG=en_US.UTF-8 ./hello
 Welcome to beautiful world
