@@ -276,7 +276,7 @@ directory names in &cv-CPPPATH;
 will be looked-up relative to the directory of the SConscript file
 when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree, use
+to look up a directory relative to the root of the source tree, use
 the <literal>#</literal> prefix:
 </para>
 
@@ -654,7 +654,7 @@ as dependencies of the target being generated.
 </para>
 
 <para>
-The library list will be transformed to command line
+The library list will be transformed to command-line
 arguments through the automatically-generated
 &cv-link-_LIBFLAGS; &consvar;
 which is constructed by

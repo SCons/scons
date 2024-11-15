@@ -79,7 +79,7 @@ This file is processed by the bin/SConsDoc.py module.
   The key to making this separation work is the ability to
   do out-of-tree builds: building under a separate root
   than the sources being built.
-  You set up out of tree builds by establishing what &SCons;
+  You set up out-of-tree builds by establishing what &SCons;
   calls a <firstterm>variant directory</firstterm>,
   a place where you can build a single variant of your software
   (of course you can define more than one of these if you need to).
@@ -208,7 +208,7 @@ int main() { printf("Hello, world!\n"); }
     except for the extra &variant_dir; argument in the
     &f-link-SConscript; call.
     &SCons; handles all the path adjustments for the
-    out of tree &build; directory while it processes that SConscript file.
+    out-of-tree &build; directory while it processes that SConscript file.
 
     </para>
 
@@ -224,11 +224,11 @@ int main() { printf("Hello, world!\n"); }
     As noted in the previous chapter,
     all builds actually happen from the top level directory,
     but as an aid to understanding how &SCons; operates, think
-    of it as <emphasis>build in place in the variant directory</emphasis>,
-    not <emphasis>build in source but send build artifacts
+    of it as <emphasis>build in-place in the variant directory</emphasis>,
+    not <emphasis>build in-source but send build artifacts
     to the variant directory</emphasis>.
-    It turns out in place builds are easier to get right than out
-    of tree builds - so by default &SCons; simulates an in place build
+    It turns out in-place builds are easier to get right than out-of-tree
+    builds - so by default &SCons; simulates an in-place build
     by making the variant directory look just like the source directory.
     The most straightforward way to do that is by making copies
     of the files needed for the build.

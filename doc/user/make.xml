@@ -43,7 +43,7 @@ original make utility and its derivatives have contributed to this tendency
 in a number of ways. Make is not good at dealing with systems that are
 spread over multiple directories. Various work-arounds are used to overcome
 this difficulty; the usual choice is for make to invoke itself recursively
-for each sub-directory of a build. This leads to complicated code, in which
+for each subdirectory of a build. This leads to complicated code, in which
 it is often unclear how a variable is set, or what effect the setting of a
 variable will have on the build as a whole. The make scripting language has
 gradually been extended to provide more possibilities, but these have

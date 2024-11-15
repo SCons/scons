@@ -3273,7 +3273,7 @@ object_files.extend(Object('bar.c'))
 </programlisting>
 
 <para>The path name for a Node's file may be used
-by passing the Node to &Python;'s builtin
+by passing the Node to &Python;'s built-in
 <function>str</function>
 function:</para>
 
@@ -5421,7 +5421,7 @@ vars.AddVariables(
         default="no",
         allowed_values=("yes", "no", "full"),
         map={},
-        ignorecase=0,  # case sensitive
+        ignorecase=0,  # case-sensitive
     ),
     ListVariable(
         "shared",
@@ -7637,7 +7637,7 @@ expensive for limited benefit -
 consider for example the C standard header file
 <filename>string.h</filename>.
 The scanner function is not passed any special information
-to help make this choice, so the decision making encoded
+to help make this choice, so the decision-making encoded
 in the scanner function must be carefully considered.
 </para>
 

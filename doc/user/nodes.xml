@@ -301,7 +301,7 @@ int main() { printf("Hello, world!\n"); }
     is the name of the file.
     If you want to do something other than
     print the name of the file,
-    you can fetch it by using the builtin Python
+    you can fetch it by using the built-in Python
     &str; function.
     For example, if you want to use the Python
     <function>os.path.exists</function>

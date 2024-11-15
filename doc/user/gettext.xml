@@ -86,7 +86,7 @@ hello = Program(["hello.c"])
     </para>
 
     <para>
-    Now we'll convert the project to a multi-lingual one. If you don't
+    Now we'll convert the project to a multilingual one. If you don't
     already have <ulink
     url="http://www.gnu.org/software/gettext/manual/gettext.html">GNU gettext
     utilities</ulink> installed, install them from your preferred

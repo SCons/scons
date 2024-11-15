@@ -279,7 +279,7 @@ This file is processed by the bin/SConsDoc.py module.
         "build" from the Visual Studio interface) you lose the direct
         control of target selection and command-line options you would
         have if launching the build directly from &SCons;,
-        because these will be hardcoded in the project file to the
+        because these will be hard-coded in the project file to the
         values specified in the &b-MSVSProject; call.
         You can regain some of this control by defining multiple variants,
         using multiple &b-MSVSProject; calls to arrange different build

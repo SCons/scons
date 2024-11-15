@@ -580,7 +580,7 @@ Normally, when two strings are combined,
 the result is a new string containing their concatenation
 (and you are responsible for supplying any needed separation);
 however, the contents of &cv-link-CPPDEFINES;
-will be postprocessed by adding a prefix and/or suffix
+will be post-processed by adding a prefix and/or suffix
 to each entry when the command line is produced,
 so &SCons; keeps them separate -
 appending a string will result in a separate string entry,
