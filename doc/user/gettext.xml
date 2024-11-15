@@ -89,7 +89,7 @@ hello = Program(["hello.c"])
     Now we'll convert the project to a multi-lingual one. If you don't
     already have <ulink
     url="http://www.gnu.org/software/gettext/manual/gettext.html">GNU gettext
-    utilities</ulink> installed, install them from your preffered
+    utilities</ulink> installed, install them from your preferred
     package repository, or download from <ulink
     url="http://ftp.gnu.org/gnu/gettext/">
     http://ftp.gnu.org/gnu/gettext/</ulink>. For the purpose of this example,
@@ -163,7 +163,7 @@ InstallAs(["locale/de/LC_MESSAGES/hello.mo"], ["de.mo"])
     </para>
     <para>
     Generate the translation files with <command>scons po-update</command>.
-    You should see the output from SCons simillar to this:
+    You should see the output from SCons similar to this:
     <screen>
 user@host:$ scons po-update
 scons: Reading SConscript files ...
@@ -350,7 +350,7 @@ gcc -o hello.o -c hello.c
 gcc -o hello hello.o
 scons: done building targets.
     </screen>
-    As you see, the internationalized messages ditn't change, so the
+    As you see, the internationalized messages didn't change, so the
     <literal>POT</literal> and the rest of translation files have not
     even been touched.
     </para>

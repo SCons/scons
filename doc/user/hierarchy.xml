@@ -371,7 +371,7 @@ x
     building up a tree of information, before starting to
     execute the needed builds in a second pass.
     This is quite different than some other build tools
-    which implement a heirarcical build by recursing.
+    which implement a hierarchical build by recursing.
 
     </para>
 

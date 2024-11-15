@@ -355,7 +355,7 @@ form source and target (default: <literal>'${TARGET.filebase}'</literal>).
 <cvar name="_XGETTEXTFROMFLAGS">
 <summary>
 <para>
-Internal "macro". Genrates list of <literal>-D&lt;dir&gt;</literal> flags
+Internal "macro". Generates list of <literal>-D&lt;dir&gt;</literal> flags
 from the &cv-link-XGETTEXTPATH; list.
 </para>
 </summary>

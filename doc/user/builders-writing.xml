@@ -42,7 +42,7 @@ This file is processed by the bin/SConsDoc.py module.
   for any custom file types you want to build.
   (In fact, the &SCons; interfaces for creating
   &Builder; objects are flexible enough and easy enough to use
-  that all of the the &SCons; built-in &Builder; objects
+  that all of the &SCons; built-in &Builder; objects
   are created using the mechanisms described in this section.)
 
   </para>
@@ -819,7 +819,7 @@ cat
     to the file specified by the option's argument.
     If this option is just supplied to the build,
     &SCons; will not consider the link map file a tracked target,
-    which has various undesirable efffects.
+    which has various undesirable effects.
 
     </para>
 
@@ -927,7 +927,7 @@ main()
 
     The <filename>site_scons</filename> directories give you a place to
     put &Python; modules and packages that you can import into your
-    &SConscript; files (at the top level)
+    &SConscript; files (at the top level),
     add-on tools that can integrate into &SCons;
     (in a <filename>site_tools</filename> subdirectory),
     and a <filename>site_scons/site_init.py</filename> file that

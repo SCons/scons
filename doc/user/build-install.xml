@@ -121,7 +121,7 @@ Python 3.9.15
     stating something like <computeroutput>"command not found"</computeroutput>
     (on UNIX or Linux)
     or <computeroutput>"'python' is not recognized as an internal
-    or external command, operable progam or batch file"</computeroutput>
+    or external command, operable program or batch file"</computeroutput>
     (on Windows <command>cmd</command>).
     In that case, you need to either install &Python;
     or fix the search path

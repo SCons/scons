@@ -498,7 +498,7 @@ int main() { printf("Hello, world!\n"); }
     to the use of &f-link-SConscript; with the
     <parameter>variant_dir</parameter> argument
     from earlier in this chapter,
-    but did require callng the SConscript using the already established
+    but did require calling the SConscript using the already established
     variant directory path to trigger that behavior.
     If you call <userinput>SConscript('src/SConscript')</userinput>
     you would get a normal in-place build in &src;.

@@ -703,7 +703,7 @@ and processing the SConscript files.</para>
   <term>Full build</term>
   <listitem>
 <para>SCons is run to build everything specified in the configuration.
-Specific targets to be passed in on the command l ine
+Specific targets to be passed in on the command line
 may be specified by the
 <emphasis role="bold">targets</emphasis>
 keyword in a configuration file; see below for details.</para>
@@ -800,7 +800,7 @@ if the first argument is a directory,
 the default prefix is the name of the directory;
 if the first argument is an archive
 (tar or zip file),
-the default prefix is the the base name of the archive,
+the default prefix is the base name of the archive,
 that is, what remains after stripping the archive suffix
 (<markup>.tgz</markup>, <markup>.tar.gz</markup> or <markup>.zip</markup>).</para>
   </listitem>
@@ -984,7 +984,7 @@ value:
 <emphasis role="bold">SConscripts</emphasis>
 (total execution time for the SConscript files themselves),
 <emphasis role="bold">SCons</emphasis>
-(exectuion time in SCons code itself)
+(execution time in SCons code itself)
 or
 <emphasis role="bold">commands</emphasis>
 (execution time of the commands and other actions

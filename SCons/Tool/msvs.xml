@@ -803,7 +803,7 @@ env.MSVSSolution(
         and &cv-MSVC_VERSION; is not,
         &cv-MSVC_VERSION; will be initialized to the value
         of &cv-MSVS_VERSION;.
-        An error is raised if If both are set and have different values,
+        An error is raised if both are set and have different values.
       </para>
     </summary>
   </cvar>

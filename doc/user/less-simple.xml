@@ -376,7 +376,7 @@ Program('program', Split('main.c file1.c file2.c'))
     (If you're already familiar with &Python;,
     you'll have realized that this is similar to the
     <function>split()</function> method
-    of &Python; string objects..
+    of &Python; string objects.
     Unlike the <function>split()</function> method,
     however, the &Split; function
     does not require a string as input

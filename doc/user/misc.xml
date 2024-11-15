@@ -252,7 +252,7 @@ hello.c
     Note that the &Exit; function
     is equivalent to calling the Python
     <function>sys.exit</function> function
-    (which the it actually calls),
+    (which it actually calls),
     but because &Exit; is a &SCons; function,
     you don't have to import the Python
     <literal>sys</literal> module to use it.

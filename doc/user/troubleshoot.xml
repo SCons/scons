@@ -193,7 +193,7 @@ file3.c
     This becomes even more helpful
     in identifying when a file is rebuilt
     due to a change in an implicit dependency,
-    such as an incuded <filename>.h</filename> file.
+    such as an included <filename>.h</filename> file.
     If the <filename>file1.c</filename>
     and <filename>file3.c</filename> files
     in our example
@@ -321,7 +321,7 @@ print(env.Dump())
     interested in,
     the &Dump; method allows you to
     specify a specific &consvar;
-    that you want to disply.
+    that you want to display.
     For example,
     it's not unusual to want to verify
     the external environment used to execute build commands,
@@ -658,7 +658,7 @@ cc -o prog prog.o
     To get some insight into what library names
     &SCons; is searching for,
     and in which directories it is searching,
-    Use the &debug-findlibs; option.
+    use the &debug-findlibs; option.
     Given the following input &SConstruct; file:
 
     </para>

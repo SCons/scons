@@ -1609,7 +1609,7 @@ print("NEW_VARIABLE = %s" % env['NEW_VARIABLE'])
 
       <para>
 
-      Some times it's useful to add a new value
+      Sometimes it's useful to add a new value
       to the beginning of a &consvar;
       only if the existing value
       doesn't already contain the to-be-added value.
@@ -2149,7 +2149,7 @@ C:\Python35\Lib\site-packages\someinstalledpackage\SomeTool\__init__.py
 
       <para>
       In some cases you may want to use a tool
-      located within a installed external pip package.
+      located within an installed external pip package.
       This is possible by the use of
       <varname>sys.path</varname> with the toolpath.
       However in that situation you need to provide a prefix to the toolname

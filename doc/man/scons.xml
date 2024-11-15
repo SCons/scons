@@ -172,7 +172,7 @@ The file is by default named &SConstruct;,
 although some variants of that,
 or a developer-chosen name, are also accepted
 (see <xref linkend="sconscript_files"/>).
-If found, the currrent directory
+If found, the current directory
 is set as the project top directory.
 Certain command-line options specify alternate
 places to look for &SConstruct;
@@ -284,7 +284,7 @@ To assure reproducible builds,
 &SCons;
 uses a restricted <firstterm>execution environment</firstterm>
 for running external commands used to build targets,
-rather then propagating the full environment
+rather than propagating the full environment
 in effect at the time &scons; was called.
 This helps avoid problems like picking up accidental
 or malicious settings,
@@ -298,7 +298,7 @@ either by assigning the desired values,
 or by picking those values individually or collectively
 out of environment variables exposed by the &Python;
 <systemitem>os.environ</systemitem> dictionary
-(as external program inputs they should be validate
+(as external program inputs they should be validated
 before use).
 The execution environment for a given &consenv;
 is its &cv-link-ENV; value.
@@ -476,10 +476,10 @@ searches in order
 for the GCC tool chain,
 the LLVM/clang tools,
 and the Intel compiler tools.
-The defaul tool selection can be pre-empted
+The default tool selection can be pre-empted
 through the use of the <parameter>tools</parameter>
 argument to &consenv; creation methods,
-explcitly calling the &f-link-Tool; loader,
+explicitly calling the &f-link-Tool; loader,
 the through the setting of various setting of &consvars;.
 </para>
 
@@ -789,7 +789,7 @@ This saves time by not running the same configuration tests
 every time you invoke scons,
 but will overlook changes in system header files
 or external commands (such as compilers)
-if you don't specify those dependecies explicitly.
+if you don't specify those dependencies explicitly.
 This is the default behavior.</para>
   </listitem>
   </varlistentry>
@@ -1629,7 +1629,7 @@ scons&gt;&gt;&gt; exit
     <option>--jobs=<replaceable>N</replaceable></option>
   </term>
   <listitem>
-<para>Specifies the maximum number of comcurrent jobs (commands) to run.
+<para>Specifies the maximum number of concurrent jobs (commands) to run.
 If there is more than one
 <option>-j</option>
 option, the last one is effective.</para>
@@ -1779,7 +1779,7 @@ added to the module search path <varname>sys.path</varname>,
 searched for a <filename>site_init.py</filename> file,
 or have their <filename>site_tools</filename>
 directory included in the tool search path.
-Can be overridden by a subequent
+Can be overridden by a subsequent
 <option>--site-dir</option> option.
 </para>
   </listitem>
@@ -2512,7 +2512,7 @@ the build don't accidentally step on each other.
 You have to be explicit about sharing information,
 by using the &f-link-Export; function or the &exports; argument
 to the &f-link-SConscript; function, as well as the &f-link-Return; function
-in a called &SConscript; file, and comsume shared information by using the
+in a called &SConscript; file, and consume shared information by using the
 &f-link-Import; function.
 </para>
 
@@ -2562,8 +2562,8 @@ env['FOO'] = 'foo'
 
 <!--TODO: how can the user tell which settings are init-only? -->
 <para>Note that certain settings which affect tool detection are
-referenced only when the tools are initializided,
-so you either need either to supply them as part of the call to
+referenced only when the tools are initialized,
+so you need either to supply them as part of the call to
 &f-link-Environment;, or defer tool initialization.
 For example, initializing the &MSVC; version you wish to use:
 </para>
@@ -2667,7 +2667,7 @@ one of the pre-defined platforms
 <literal>posix</literal>,
 <literal>sunos</literal> or
 <literal>win32</literal>),
-or it may be be a callable platform object
+or it may be a callable platform object
 returned by a call to &f-link-Platform;
 selecting a pre-defined platform,
 or it may be a user-supplied callable,
@@ -2684,7 +2684,7 @@ env = Environment(platform=my_platform)
 
 <para>
 Note that supplying a non-default platform or custom
-fuction for initialization
+function for initialization
 may bypass settings that should happen for the host system
 and should be used with care.
 It is most useful in the case where the platform is an alternative for
@@ -2718,7 +2718,7 @@ See <xref linkend="commandline_construction_variables"/> for details.
 which are used to help initialize the &consenv; prior to building,
 and more can be written to suit a particular purpose,
 or added from external sources (a repository of
-constributed tools is available).
+contributed tools is available).
 More information on writing custom tools can be found in the
 <link linkend='extending_scons'>Extending SCons</link> section
 and specifically <link linkend='tool_modules'>Tool Modules</link>.
@@ -3601,7 +3601,7 @@ selects for building as a result of making the sure the
 specified targets are up to date, if those targets
 did not appear on the command line.
 The list is empty if neither
-command line targets or &Default; calls are present.
+command line targets nor &Default; calls are present.
 </para>
 <para>
 The elements of this list may be strings
@@ -3641,7 +3641,7 @@ If there are no targets specified on the command line,
 the list is empty. The elements of this list are strings.
 This can be used, for example,
 to take specific actions only
-when a certain targets is explicitly requested for building.</para>
+when a certain target is explicitly requested for building.</para>
 
 <para>Example:</para>
 
@@ -3679,7 +3679,7 @@ if 'foo' in [str(t) for t in DEFAULT_TARGETS]:
 
 <para>The contents of the
 &DEFAULT_TARGETS;
-list change on on each successive call to the
+list changes on each successive call to the
 &Default; function:</para>
 
 <programlisting language="python">
@@ -4234,7 +4234,7 @@ header files whose
 lines should precede the
 header line being checked for.
 A code fragment
-(must be a a valid expression, including a trailing semicolon)
+(must be a valid expression, including a trailing semicolon)
 to serve as the test can be supplied in
 <parameter>call</parameter>;
 if not supplied,
@@ -4558,7 +4558,7 @@ can make use of::</para>
   <listitem>
 
 <para>Displays <parameter>text</parameter>
-as an indicator of progess.
+as an indicator of progress.
 For example: <computeroutput>Checking for library X...</computeroutput>.
 Usually called before the check is started.
 </para>
@@ -4788,8 +4788,8 @@ The key-value pairs from <parameter>args</parameter>
 will be added to those obtained from
 <parameter>files</parameter>, if any.
 Keys from <parameter>args</parameter>
-take precendence over same-named keys from <parameter>files</parameter>.
-If omittted, the default is the
+take precedence over same-named keys from <parameter>files</parameter>.
+If omitted, the default is the
 <link linkend="v-ARGUMENTS">&ARGUMENTS;</link>
 dictionary that holds build variables
 specified on the command line.
@@ -5142,7 +5142,7 @@ vars.FormatVariableHelpText = my_format
 
 <para>
 &SCons; provides five pre-defined variable types,
-acessible through factory functions that generate
+accessible through factory functions that generate
 a tuple appropriate for directly passing to the
 <link linkend='v-Add'><function>Add</function></link>
 <link linkend='v-AddVariables'><function>AddVariables</function></link>
@@ -5326,7 +5326,7 @@ specifies the descriptive part of the help text.
   <listitem>
 <para>
 Set up a variable named <parameter>key</parameter> to hold a path string.
-The variable will have have a default value of
+The variable will have a default value of
 <parameter>default</parameter>,
 and the <parameter>help</parameter> parameter
 will be used as the descriptive part of the help text.
@@ -5608,7 +5608,7 @@ in the directory represented by
 
 <para>
 If the original Node is a File Node,
-these methods will place the the new Node in the same
+these methods will place the new Node in the same
 directory as the one the original Node represents:
 </para>
 
@@ -5697,7 +5697,7 @@ which is used for disambiguation.
 If an alias source has a string valued name,
 it will be resolved to a filesystem entry Node,
 unless it is found in the alias namespace,
-in which case it it resolved to the matching alias Node.
+in which case it is resolved to the matching alias Node.
 As a result, the order of &f-Alias; calls is significant.
 An alias can refer to another alias, but only if the
 other alias has previously been created.
@@ -7794,7 +7794,7 @@ Nodes for additional scanning.</para>
 </variablelist>
 
 <para>
-Once created, a Scanner can added to an environment
+Once created, a Scanner can be added to an environment
 by setting it in the &cv-link-SCANNERS; list,
 which automatically triggers &SCons; to also add it
 to the environment as a method.
@@ -7968,7 +7968,7 @@ env = Environment(tools=[my_tool])
 <para>An element of the <parameter>tools</parameter> list
 may also be a two-element list or tuple of the form
 <literal>(toolname, kw_dict)</literal>.
-SCons searches for the a tool specification module
+SCons searches for the tool specification module
 <parameter>toolname</parameter>
 as described above,
 and passes <parameter>kw_dict</parameter>,
@@ -8067,7 +8067,7 @@ dialect setup (expressed as a set of &consvars;)
 depending on the file suffix.
 By default, all of these setups start out the same,
 but individual &consvars; can be modified as needed to tune a given dialect.
-Each of these dialacts has a tool specification module
+Each of these dialects has a tool specification module
 whose documentation describes the &consvars; associated
 with that dialect: <filename>.f</filename>
 (as well as <filename>.for</filename> and <filename>.ftn</filename>)
@@ -8096,7 +8096,7 @@ code that was the only available option in FORTRAN 77 and earlier,
 and <filename>.f90</filename> refers to free-format source code
 which became available as of the Fortran 90 standard.
 Some compilers recognize suffixes which correspond to Fortran
-specifications later then F90 as equivalent to
+specifications later than F90 as equivalent to
 <filename>.f90</filename> for this purpose,
 while some do not - check the documentation for your compiler.
 An occasionally suggested policy suggestion is to use only
@@ -8146,7 +8146,7 @@ which shall first be run through
 the standard C preprocessor.
 The lower-cased versions of these suffixes do not
 trigger this behavior.
-On systems which do not distinguish between uppper
+On systems which do not distinguish between upper
 and lower case in filenames,
 this behavior is not available,
 but files suffixed with either
@@ -8226,8 +8226,8 @@ in particular the recommendation to use the msys2 version of
 <filename>scons.bat</filename> batch file,
 there are (at least) two ramifications.
 Note this is no longer the default - &scons; installed
-via &Python;''s <command>pip</command> installer
-will have an <command>scons.exe</command> which does
+via &Python;'s <command>pip</command> installer
+will have a <command>scons.exe</command> which does
 not have these limitations:
 </para>
 

@@ -148,7 +148,7 @@ void main() { return 0; }
 
  <para>
 
- If a string begins with a an exclamation mark (<literal>!</literal>),
+ If a string begins with an exclamation mark (<literal>!</literal>),
  the string is passed to the shell for execution.
  The output of the command is then parsed:
 

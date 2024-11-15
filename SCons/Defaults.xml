@@ -147,7 +147,7 @@ and the second is the macro definition.
 If the definition is not omitted or <literal>None</literal>,
 the name and definition are combined into a single
 <literal>name=definition</literal> item
-before the preending/appending.
+before the prepending/appending.
 </para>
 
 <example_commands>
@@ -618,7 +618,7 @@ If &cv-link-LIBLITERALPREFIX; is set to a non-empty string,
 then a string-valued &cv-LIBS; entry
 that starts with &cv-link-LIBLITERALPREFIX;
 will cause the rest of the entry
-to be searched for for unmodified,
+to be searched for unmodified,
 but respecting normal library search paths
 (this is an exception to the guideline above
 about leaving off the prefix/suffix from the library name).
@@ -649,12 +649,12 @@ env.Append(LIBS=File('/tmp/mylib.so'))
 <!-- is this actually true? -->
 For each &Builder; call that causes linking with libraries,
 &SCons; will add the libraries in the setting of &cv-LIBS;
-in effect at that moment to the dependecy graph
+in effect at that moment to the dependency graph
 as dependencies of the target being generated.
 </para>
 
 <para>
-The library list will transformed to command line
+The library list will be transformed to command line
 arguments through the automatically-generated
 &cv-link-_LIBFLAGS; &consvar;
 which is constructed by
@@ -764,7 +764,7 @@ build phase begins, if has not already been done.
 However, calling it explicitly provides the opportunity to
 affect and examine its contents.
 Instantiation occurs even if nothing in the build system
-appars to use it, due to internal uses.
+appears to use it, due to internal uses.
 </para>
 
 <para>

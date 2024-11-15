@@ -358,7 +358,7 @@ python -m pip install ninja
     <cvar name="NINJA_SCONS_DAEMON_KEEP_ALIVE">
         <summary>
             <para>
-                The number of seconds for the SCons deamon launched by ninja to stay alive.
+                The number of seconds for the SCons daemon launched by ninja to stay alive.
                 (Default: 180000)
             </para>
         </summary>

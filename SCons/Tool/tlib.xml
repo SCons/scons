@@ -27,7 +27,7 @@ This file is processed by the bin/SConsDoc.py module.
 <tool name="tlib">
 <summary>
 <para>
-Sets construction variables for the Borlan
+Sets construction variables for the Borland
 <application>tib</application> library archiver.
 </para>
 </summary>

@@ -124,7 +124,7 @@ CacheDir('/usr/local/build_cache')
       </para>
 
       <para>
-      The use of the &buildsig; provides protection from concflicts:
+      The use of the &buildsig; provides protection from conflicts:
       if two developers have different setups, so they would produce
       built objects that are not identical, then because the difference in
       tools will show up in the &buildsig;, which is used as the
@@ -337,7 +337,7 @@ Retrieved `hello' from cache
 
     <para>
 
-    In this case, you can use the
+    In this case, you can use
     the <option>--cache-force</option> option
     to tell &SCons; to put all derived files in the cache,
     even if the files already exist in your local tree

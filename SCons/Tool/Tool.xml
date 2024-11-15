@@ -482,7 +482,7 @@ and
 as C++ files,
 and files with
 <filename>.mm</filename>
-suffixes as Objective C++ files.
+suffixes as Objective-C++ files.
 On case-sensitive systems (Linux, UNIX, and other POSIX-alikes),
 SCons also treats
 <filename>.C</filename>

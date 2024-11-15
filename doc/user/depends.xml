@@ -437,7 +437,7 @@ cc -o hello hello.o
       will have been performed by simply looking at the
       modification time of the &hello_c; file,
       not by opening it and performing
-      a signature calcuation on its contents.
+      a signature calculation on its contents.
       This can significantly speed up many up-to-date builds.
 
       </para>
@@ -555,7 +555,7 @@ int main() { printf("Hello, world!\n"); }
         <listitem>
         <para>
         The &contentsig;:
-        a cryptgraphic hash, or checksum, of the file contents
+        a cryptographic hash, or checksum, of the file contents
         of the <varname>dependency</varname>
         file the last time the &target; was built.
         </para>
@@ -966,7 +966,7 @@ SetOption('implicit_cache', 1)
 
         When &implicit-cache; is used, &SCons; will ignore any changes that
         may have been made to search paths
-        (like &cv-CPPPATH; or &cv-LIBPATH;,).
+        (like &cv-CPPPATH; or &cv-LIBPATH;).
         This can lead to &SCons; not rebuilding a file if a change to
         &cv-CPPPATH; would normally cause a different, same-named file from
         a different directory to be used.
