@@ -2248,6 +2248,16 @@ class Base(SubstitutionEnvironment):
             self.get_CacheDir()
 
     def Clean(self, targets, files) -> None:
+        """Mark additional files for cleaning.
+
+        *files* will be removed if any of *targets* are selected
+        for cleaning - that is, the combination of target selection
+        and -c clean mode.
+
+        Args:
+            targets (files or nodes): targets to associate *files* with.
+            files (files or nodes): items to remove if *targets* are selected.
+        """
         global CleanTargets
         tlist = self.arg2nodes(targets, self.fs.Entry)
         flist = self.arg2nodes(files, self.fs.Entry)
@@ -2334,8 +2344,8 @@ class Base(SubstitutionEnvironment):
             return result
         return self.fs.PyPackageDir(s)
 
-    def NoClean(self, *targets):
-        """Tag target(s) so that it will not be cleaned by -c."""
+    def NoClean(self, *targets) -> list:
+        """Tag *targets* to not be removed in clean mode."""
         tlist = []
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))

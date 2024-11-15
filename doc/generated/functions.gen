@@ -927,44 +927,33 @@ to arrange for cache pruning, expiry, access control, etc. if needed.
 </listitem>
   </varlistentry>
   <varlistentry id="f-Clean">
-    <term><function>Clean</function>(<parameter>targets, files_or_dirs</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>Clean</methodname>(<parameter>targets, files_or_dirs</parameter>)</term>
+    <term><function>Clean</function>(<parameter>targets, files</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>Clean</methodname>(<parameter>targets, files</parameter>)</term>
     <listitem><para>
-This specifies a list of files or directories which should be removed
-whenever the targets are specified with the
-<option>-c</option>
-command line option.
-The specified targets may be a list
-or an individual target.
-Multiple calls to
-&f-Clean;
-are legal,
-and create new targets or add files and directories to the
-clean list for the specified targets.
-</para>
-
-<para>
-Multiple files or directories should be specified
-either as separate arguments to the
-&f-Clean;
-method, or as a list.
-&f-Clean;
-will also accept the return value of the &consenv;
-Builder methods.
-Examples:
+Set additional <parameter>files</parameter>
+for removal when any of
+<parameter>targets</parameter> are selected
+for cleaning
+(<link linkend="opt-clean"><option>-c</option></link>
+command line option).
+<parameter>targets</parameter> and
+<parameter>files</parameter>
+can each be a single filename or node,
+or a list of filenames or nodes.
+These can refer to files or directories.
+Calling this method repeatedly
+has an additive effect.
 </para>
 
 <para>
 The related
 &f-link-NoClean;
-function overrides calling
-&f-Clean;
-for the same target,
-and any targets passed to both functions will
-<emphasis>not</emphasis>
-be removed by the
-<option>-c</option>
-option.
+method has higher priority:
+any target specified to
+&f-NoClean;
+will not be cleaned even if also given as
+a <parameter>files</parameter>
+parameter to &f-Clean;.
 </para>
 
 <para>
@@ -978,9 +967,12 @@ Clean(['foo', 'bar'], 'something_else_to_clean')
 </example_commands>
 
 <para>
+&SCons; does not directly track directories as targets -
+they are created if needed and not normally removed
+in clean mode.
 In this example,
 installing the project creates a subdirectory for the documentation.
-This statement causes the subdirectory to be removed
+The &f-Clean; call ensures that the subdirectory is removed
 if the project is uninstalled.
 </para>
 <example_commands>
@@ -3056,34 +3048,20 @@ NoCache(env.Program('hello', 'hello.c'))
 </listitem>
   </varlistentry>
   <varlistentry id="f-NoClean">
-    <term><function>NoClean</function>(<parameter>target, ...</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>NoClean</methodname>(<parameter>target, ...</parameter>)</term>
+    <term><function>NoClean</function>(<parameter>targets, ...</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>NoClean</methodname>(<parameter>targets, ...</parameter>)</term>
     <listitem><para>
-Specifies a list of files or directories which should
-<emphasis>not</emphasis>
-be removed whenever the targets (or their dependencies)
-are specified with the
-<option>-c</option>
-command line option.
-The specified targets may be a list
-or an individual target.
-Multiple calls to
-&f-NoClean;
-are legal,
-and prevent each specified target
-from being removed by calls to the
-<option>-c</option>
-option.
-</para>
-
-<para>
-Multiple files or directories should be specified
-either as separate arguments to the
-&f-NoClean;
-method, or as a list.
-&f-NoClean;
-will also accept the return value of any of the &consenv;
-Builder methods.
+Specifies files or directories which should not
+be removed whenever a specified
+<parameter>target</parameter> (or its dependencies)
+is selected and clean mode is active
+(<link linkend="opt-clean"><option>-c</option></link>
+command line option).
+<parameter>targets</parameter>
+may be one or more file or directory names
+or nodes,
+and/or lists of names or nodes.
+&f-NoClean; can be called multiple times.
 </para>
 
 <para>
@@ -3092,11 +3070,9 @@ Calling
 for a target overrides calling
 &f-link-Clean;
 for the same target,
-and any targets passed to both functions will
+so any targets passed to both functions will
 <emphasis>not</emphasis>
-be removed by the
-<option>-c</option>
-option.
+be removed in clean mode.
 </para>
 
 <para>

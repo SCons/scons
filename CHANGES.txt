@@ -149,6 +149,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       always returns  a dict. The default remains to return different
       types depending on whether zero, one, or multiple construction
       variable names are given.
+    - Update Clean and NoClean documentation.
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
