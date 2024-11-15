@@ -513,7 +513,7 @@ env.Alias('update', ['file1', 'file2'], "update_database $SOURCES")
 <para>
 Marks each given
 <parameter>target</parameter>
-so that it is always assumed to be out of date,
+so that it is always assumed to be out-of-date,
 and will always be rebuilt if needed.
 Note, however, that
 &f-AlwaysBuild;
@@ -1339,7 +1339,7 @@ that specify a predefined decider function:
 <term><literal>"content"</literal></term>
 <listitem>
 <para>
-Specifies that a target shall be considered out of date and rebuilt
+Specifies that a target shall be considered out-of-date and rebuilt
 if the dependency's content has changed since the last time
 the target was built,
 as determined by performing a checksum
@@ -1361,7 +1361,7 @@ can still be used as a synonym, but is deprecated.
 <term><literal>"content-timestamp"</literal></term>
 <listitem>
 <para>
-Specifies that a target shall be considered out of date and rebuilt
+Specifies that a target shall be considered out-of-date and rebuilt
 if the dependency's content has changed since the last time
 the target was built,
 except that dependencies with a timestamp that matches
@@ -1398,7 +1398,7 @@ can still be used as a synonym, but is deprecated.
 <term><literal>"timestamp-newer"</literal></term>
 <listitem>
 <para>
-Specifies that a target shall be considered out of date and rebuilt
+Specifies that a target shall be considered out-of-date and rebuilt
 if the dependency's timestamp is newer than the target file's timestamp.
 This is the behavior of the classic Make utility,
 and
@@ -1412,7 +1412,7 @@ can be used a synonym for
 <term><literal>"timestamp-match"</literal></term>
 <listitem>
 <para>
-Specifies that a target shall be considered out of date and rebuilt
+Specifies that a target shall be considered out-of-date and rebuilt
 if the dependency's timestamp is different than the
 timestamp recorded the last time the target was built.
 This provides behavior very similar to the classic Make utility
@@ -3602,7 +3602,7 @@ Returns a Node object representing the specified &Python;
 Value Nodes can be used as dependencies of targets.
 If the string representation of the Value Node
 changes between &SCons; runs, it is considered
-out of date and any targets depending on it will be rebuilt.
+out-of-date and any targets depending on it will be rebuilt.
 Since Value Nodes have no filesystem representation,
 timestamps are not used; the timestamp deciders
 perform the same content-based up to date check.

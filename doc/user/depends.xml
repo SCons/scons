@@ -1001,7 +1001,7 @@ SetOption('implicit_cache', 1)
       external code that you use for compilation,
       the external header files will have changed
       and the previously-cached implicit dependencies
-      will be out of date.
+      will be out-of-date.
       You can update them by
       running &SCons; with the &implicit-deps-changed; option:
 

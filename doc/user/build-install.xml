@@ -155,7 +155,7 @@ Python 3.9.15
 
     <para>
     Recent versions of the Mac no longer come with &Python;
-    pre-installed; older versions came with a rather out of date
+    pre-installed; older versions came with a rather out-of-date
     version (based on &Python; 2.7) which is insufficient to run
     current &SCons;.
     The python.org installer can be used on the Mac, but there are

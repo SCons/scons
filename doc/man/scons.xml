@@ -800,7 +800,7 @@ This is the default behavior.</para>
 <para>If this mode is specified,
 all configuration tests will be re-run
 regardless of whether the
-cached results are out of date.
+cached results are out-of-date.
 This can be used to explicitly
 force the configuration tests to be updated
 in response to an otherwise unconfigured change
@@ -1067,7 +1067,7 @@ without requiring <filename>.py</filename> suffix.
 is prepared for building.
 &scons;
 prints this for each target it considers, even if that
-target is up to date (see also <option>--debug=explain</option>).
+target is up-to-date (see also <option>--debug=explain</option>).
 This can help debug problems with targets that aren't being
 built; it shows whether
 &scons;
@@ -1752,7 +1752,7 @@ if not GetOption("no_exec"):
 determine what would be built.  For example, if a file generated
 by a builder action is also used as a source in the build,
 that file is not available to scan for dependencies at all
-in an unbuilt tree, and may contain out of date information in a
+in an unbuilt tree, and may contain out-of-date information in a
 previously built tree.
 </para>
 <para>
@@ -1760,7 +1760,7 @@ previously built tree.
 as they would make changes to the filesystem
 (see &cv-link-CONFIGUREDIR; and &cv-link-CONFIGURELOG;).
 It can use stored information from a previous build,
-if it is not out of date,
+if it is not out-of-date,
 so a "priming" build may make subsequent no-exec runs
 more useful.
 </para>
@@ -1845,8 +1845,8 @@ The results may be analyzed using the &Python;
     <option>--question</option></term>
   <listitem>
 <para>Do not run any commands, or print anything.  Just return an exit
-status that is zero if the specified targets are already up to
-date, non-zero otherwise.</para>
+status that is zero if the specified targets are already up-to-date,
+non-zero otherwise.</para>
   </listitem>
   </varlistentry>
 
@@ -2827,7 +2827,7 @@ specified relationship into its internal dependency node graph,
 and only later makes the decision on whether anything is actually built,
 since this depends on command-line options,
 target selection rules, and whether the target(s) are
-out of date with respect to the sources.
+out-of-date with respect to the sources.
 </para>
 
 <para>
@@ -5685,7 +5685,7 @@ Aliases are virtual objects - they will not themselves result
 in physical objects being constructed, but are entered into
 the dependency graph related to their sources.
 An alias is checked for up to date by checking if
-its sources are up to date.
+its sources are up-to-date.
 An alias is built by making sure its sources have been built,
 and if any building took place,
 applying any Actions that are defined as part of the alias.
@@ -5707,7 +5707,7 @@ other alias has previously been created.
 The &f-link-Value; method returns a Value Node.
 Value nodes are often used for generated data that
 will not have any corresponding filesystem entry,
-but will be used to determine whether a build target is out of date,
+but will be used to determine whether a build target is out-of-date,
 or to include as part of a build Action.
 Common examples are timestamp strings,
 revision control version strings
