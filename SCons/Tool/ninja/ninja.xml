@@ -339,7 +339,7 @@ python -m pip install ninja
     <cvar name="NINJA_FORCE_SCONS_BUILD">
         <summary>
             <para>
-                If true, causes the build nodes to callback to scons instead of using
+                If true, causes the build nodes to call back to scons instead of using
                 &ninja; to build them. This is intended to be passed to the environment on the builder invocation.
                 It is useful if you have a build node which does something which is not easily translated into &ninja;.
             </para>
