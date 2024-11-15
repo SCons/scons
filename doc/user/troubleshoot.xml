@@ -426,7 +426,7 @@ inc.h
 
     <para>
 
-    By default &SCons; uses "ASCII art" to draw the tree. It is
+    By default, &SCons; uses "ASCII art" to draw the tree. It is
     possible to use line-drawing characters (Unicode calls these
     Box Drawing) to make a nicer display. To do this, add the
     <option>linedraw</option> qualifier:
@@ -877,7 +877,7 @@ prog.c
 
     <para>
 
-    Sometimes SCons doesn't build the target you want
+    Sometimes SCons doesn't build the target you want,
     and it's difficult to figure out why.  You can use
     the &debug-prepare; option
     to see all the targets &SCons; is considering, and whether

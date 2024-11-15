@@ -1026,7 +1026,7 @@ SetOption('implicit_cache', 1)
 
       <para>
 
-      By default when caching dependencies,
+      By default, when caching dependencies,
       &SCons; notices when a file has been modified
       and re-scans the file for any updated
       implicit dependency information.

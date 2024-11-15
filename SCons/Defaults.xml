@@ -261,7 +261,7 @@ to each directory in &cv-link-CPPPATH;.
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
 directories for include files.
-In general it's not advised to put include directory directives
+In general, it's not advised to put include directory directives
 directly into &cv-link-CCFLAGS; or &cv-link-CXXFLAGS;
 as the result will be non-portable
 and the directories will not be searched by the dependency scanner.
@@ -276,7 +276,7 @@ directory names in &cv-CPPPATH;
 will be looked-up relative to the directory of the SConscript file
 when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree use
+to look-up a directory relative to the root of the source tree, use
 the <literal>#</literal> prefix:
 </para>
 
@@ -548,7 +548,7 @@ directory names in &cv-LIBPATH; will be looked-up relative to the
 directory of the SConscript file
 when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree use
+to look-up a directory relative to the root of the source tree, use
 the <literal>#</literal> prefix:
 </para>
 

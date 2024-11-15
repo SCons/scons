@@ -138,7 +138,7 @@ to support additional input file types.
 <para>Information about files involved in the build,
 including a cryptographic hash of the contents of source files,
 is cached for later reuse.
-By default this hash (the <firstterm>&contentsig;</firstterm>)
+By default, this hash (the <firstterm>&contentsig;</firstterm>)
 is used to decide if a file has changed since the last build,
 although other algorithms can be used by selecting an appropriate
 <firstterm>&f-link-Decider;</firstterm> function.
@@ -757,7 +757,7 @@ built during this invocation.
   <varlistentry id="opt-cache-show">
   <term><option>--cache-show</option></term>
   <listitem>
-<para>When using a derived-file cache show the command
+<para>When using a derived-file cache, show the command
 that would have been executed to build the file
 (or the corresponding <literal>*COMSTR</literal>
 contents if set)
@@ -1341,7 +1341,7 @@ to use the specified algorithm.</para>
 
 <para>If this option is omitted,
 the first supported hash format found is selected.
-Typically this is MD5, however, on a FIPS-compliant system
+Typically, this is MD5, however, on a FIPS-compliant system
 using a version of &Python; older than 3.9,
 SHA1 or SHA256 is chosen as the default.
 &Python; 3.9 and onwards clients always default to MD5, even in FIPS mode.
@@ -2920,7 +2920,7 @@ of the &SConscript; file currently being processed.
 &SCons; also recognizes a third way to specify
 path strings: if the string begins with
 the <emphasis role="bold">#</emphasis> character it is
-<firstterm>top-relative</firstterm> - it works like a relative path but the
+<firstterm>top-relative</firstterm> - it works like a relative path, but the
 search follows down from the project top directory rather than
 from the current directory. The <emphasis role="bold">#</emphasis>
 can optionally be followed by a pathname separator,
@@ -5864,7 +5864,7 @@ If the suffix is a string, then
 &scons;
 prepends a <literal>'.'</literal> to the suffix if it's not already there.
 The string returned by the callable object or obtained from the
-dictionary is untouched and you need to manually prepend a <literal>'.'</literal>
+dictionary is untouched, and you need to manually prepend a <literal>'.'</literal>
 if one is required.</para>
 
 <programlisting language="python">
@@ -8848,7 +8848,7 @@ env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 <para>In general, &scons; is not controlled by environment
 variables set in the shell used to invoke it, leaving it
 up to the &SConscript; file author to import those if desired.
-However the following variables are imported by
+However, the following variables are imported by
 &scons; itself if set:
 </para>
 

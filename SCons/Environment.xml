@@ -2033,7 +2033,7 @@ FindSourceFiles('src')
 </example_commands>
 
 <para>
-As you can see build support files (&SConstruct; in the above example)
+As you can see, build support files (&SConstruct; in the above example)
 will also be returned by this function.
 </para>
 </summary>

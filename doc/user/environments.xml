@@ -2152,7 +2152,7 @@ C:\Python35\Lib\site-packages\someinstalledpackage\SomeTool\__init__.py
       located within an installed external pip package.
       This is possible by the use of
       <varname>sys.path</varname> with the toolpath.
-      However in that situation you need to provide a prefix to the toolname
+      However, in that situation you need to provide a prefix to the toolname
       to indicate where it is located within <varname>sys.path</varname>.
       </para>
 

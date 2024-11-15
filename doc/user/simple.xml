@@ -487,7 +487,7 @@ int main() { printf("Goodbye, world!\n"); }
 
      <para>
 
-     Then when you execute &SCons;,
+     Then, when you execute &SCons;,
      you will see the output from calling the <function>print</function>
      function in between the messages about
      reading the &SConscript; files,

@@ -68,7 +68,7 @@ and &cv-link-TEXTFILESUFFIX; &consvars;
 are automatically added to the target if they are not already present.
 </para>
 <para>
-By default the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
+By default, the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
 Examples:
 </para>
 
@@ -131,7 +131,7 @@ are flattened. See also &b-link-Textfile;.
 </para>
 
 <para>
-By default the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
+By default, the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
 Examples:
 </para>
 

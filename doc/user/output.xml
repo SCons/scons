@@ -31,7 +31,7 @@ This file is processed by the bin/SConsDoc.py module.
   <para>
 
   A key aspect of creating a usable build configuration
-  is providing useful output from the build
+  is providing useful output from the build,
   so its users can readily understand
   what the build is doing
   and get information about how to control the build.

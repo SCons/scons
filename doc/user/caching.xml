@@ -87,7 +87,7 @@ CacheDir('/usr/local/build_cache')
     on a shared or NFS-mounted file system.
     While &SCons; will create the specified cache directory as needed,
     in this multi user scenario it is usually best
-    to create it ahead of time so the access rights
+    to create it ahead of time, so the access rights
     can be set up correctly.
 
     </para>
@@ -240,7 +240,7 @@ hello.c
 
     <para>
 
-    Then when you run &scons; after cleaning
+    Then, when you run &scons; after cleaning
     the built targets,
     it will recompile the object file locally
     (since it doesn't exist in the derived-file cache directory),

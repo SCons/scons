@@ -893,7 +893,7 @@ void bar(void) { printf("bar/bar.c\n"); }
       (The corresponding
       <filename>bar/SConscript</filename>
       file should be pretty obvious.)
-      Then when we run &SCons;,
+      Then, when we run &SCons;,
       the object files from the subsidiary subdirectories
       are all correctly archived in the desired library:
 

@@ -219,7 +219,7 @@ int main() { printf("Hello, world!\n"); }
 
     <para>
 
-    When you set up a variant directory &SCons; conceptually behaves as
+    When you set up a variant directory, &SCons; conceptually behaves as
     if you requested a build in that directory.
     As noted in the previous chapter,
     all builds actually happen from the top level directory,

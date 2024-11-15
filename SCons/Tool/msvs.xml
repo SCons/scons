@@ -292,7 +292,7 @@ This file is processed by the bin/SConsDoc.py module.
         it is important not to set Visual Studio to do parallel builds,
         as it will then launch the separate project builds in parallel,
         and &SCons; does not work well if called that way.
-        Instead you can set up the &SCons; build for parallel building -
+        Instead, you can set up the &SCons; build for parallel building -
         see the &f-link-SetOption; function for how to do this with
         <parameter>num_jobs</parameter>.
       </para>
@@ -747,7 +747,7 @@ env.MSVSSolution(
         <literal>SccProjectFilePathRelativizedFromConnection[i]</literal>
         (where [i] ranges from 0 to the number of projects in the solution)
         attributes of the <literal>GlobalSection(SourceCodeControl)</literal>
-        section of the Microsoft Visual Studio solution file. Similarly
+        section of the Microsoft Visual Studio solution file. Similarly,
         the relative solution file path is placed as the values of the
         <literal>SccLocalPath[i]</literal> (where [i] ranges from 0
         to the number of projects in the solution) attributes of the
