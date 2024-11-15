@@ -552,7 +552,7 @@ env.MSVSProject(
               Under certain circumstances, solution file names or
               solution file nodes may be present in the
               <parameter>projects</parameter> argument list.
-              When solution file names or nodes are present in the 
+              When solution file names or nodes are present in the
               <parameter>projects</parameter> argument list, the generated
               solution file may contain erroneous Project records resulting
               in VS IDE error messages when opening the generated solution

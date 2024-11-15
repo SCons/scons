@@ -41,7 +41,7 @@
 </refnamediv>
 <refsynopsisdiv id='synopsis'>
 <cmdsynopsis>
-  <command>scons-time</command>    
+  <command>scons-time</command>
     <arg choice='plain'><replaceable>subcommand</replaceable></arg>
     <arg choice='opt' rep='repeat'><replaceable>options</replaceable></arg>
     <arg choice='opt' rep='repeat'><replaceable>arguments</replaceable></arg>
@@ -129,7 +129,7 @@
 </refsect1>
 
 <refsect1 id='description'><title>DESCRIPTION</title>
-<para>The 
+<para>The
 <command>scons-time</command>
 command runs an SCons configuration
 through a standard set of profiled timings
