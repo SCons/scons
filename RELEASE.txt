@@ -177,6 +177,8 @@ DEVELOPMENT
 
 - List visible changes in the way SCons is developed
 
+- Ruff/Mypy: Excluded items now synced.
+
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text

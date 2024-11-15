@@ -76,6 +76,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       - Change the attempted conversion of a define expansion from using int() to
         a constant expression evaluation.
 
+  From Thaddeus Crews:
+    - Ruff/Mypy: Excluded items now synced.
+
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access
       /etc/paths.d. This may occur if SCons is invoked in a sandboxed
