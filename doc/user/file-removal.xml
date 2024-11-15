@@ -41,7 +41,7 @@ This file is processed by the bin/SConsDoc.py module.
   <literal>-c</literal> option to "clean"
   a tree of its built targets.
 
-  These behaviours can be suppressed with the
+  These behaviors can be suppressed with the
   &Precious; and &NoClean; functions, respectively.
 
   </para>

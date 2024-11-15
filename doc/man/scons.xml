@@ -3887,7 +3887,7 @@ The mechanism is portable across platforms.
 does not maintain an explicit cache of the tested values
 (this is different than &Autoconf;),
 but uses its normal dependency tracking to keep the checked values
-up to date. However, users may override this behaviour with the
+up to date. However, users may override this behavior with the
 <link linkend="opt-config"><option>--config</option></link>
 command line option.</para>
 

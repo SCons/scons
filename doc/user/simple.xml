@@ -308,7 +308,7 @@ public class Example1
    in exactly the same way as you control what gets built.
    If you build the C example above
    and then invoke <userinput>scons -c</userinput>
-   afterwards, the output on POSIX looks like:
+   afterward, the output on POSIX looks like:
 
    </para>
 

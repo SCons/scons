@@ -27,7 +27,7 @@ This file is processed by the bin/SConsDoc.py module.
 <tool name="lex">
 <summary>
 <para>
-Sets construction variables for the &lex; lexical analyser.
+Sets construction variables for the &lex; lexical analyzer.
 </para>
 </summary>
 <sets>
