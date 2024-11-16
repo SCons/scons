@@ -786,7 +786,7 @@ def run_test(t, io_lock=None, run_async=True):
     command_args = []
     if debug:
         command_args.extend(['-m', debug])
-    if args.devmode and sys.version_info >= (3, 7, 0):
+    if args.devmode:
         command_args.append('-X dev')
     command_args.append(t.path)
     if args.runner and t.path in unittests:
