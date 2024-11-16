@@ -217,7 +217,7 @@ env = Environment(SWIGPATH='#/include')
 </example_commands>
 
 <para>
-The directory look-up can also be forced using the
+The directory lookup can also be forced using the
 &Dir;()
 function:
 </para>
