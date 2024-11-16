@@ -87,6 +87,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Keith F Prussing:
     - Added support for tracking beamer themes in the LaTeX scanner.
 
+  From rico-chet:
+    - Many grammatical and spelling fixes in the documentation.
+
   From Mats Wichmann:
     - PackageVariable now does what the documentation always said it does
       if the variable is used on the command line with one of the enabling

@@ -172,6 +172,9 @@ DOCUMENTATION
 
 - Clarify documentation of Repository() in manpage and user guide.
 
+- Many grammatical and spelling fixes in the documentation.
+
+
 DEVELOPMENT
 -----------
 
