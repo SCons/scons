@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,7 +21,7 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 
 """
 Verify that use of --implicit-cache with the Python Value Nodes
@@ -52,7 +54,6 @@ something else changed in the .sconf_temp directory), the string would
 get longer and longer until it blew out the users's memory.
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSConsign
 from SCons.Util import get_hash_format, get_current_hash_algorithm_used
@@ -60,6 +61,7 @@ from SCons.Util import get_hash_format, get_current_hash_algorithm_used
 test = TestSConsign.TestSConsign()
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(CPPPATH=['.'])
 conf = Configure(env)
 conf.CheckHeader( 'math.h' )

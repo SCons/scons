@@ -115,11 +115,11 @@ diff_map = {
 
 diff_function = diff_map.get(diff_type, simple_diff)
 
-baseline_re = re.compile('(# |@REM )/home/\S+/baseline/')
-comment_rev_re = re.compile('(# |@REM )(\S+) 0.96.[CD]\d+ \S+ \S+( knight)')
-revision_re = re.compile('__revision__ = "[^"]*"')
-build_re = re.compile('__build__ = "[^"]*"')
-date_re = re.compile('__date__ = "[^"]*"')
+baseline_re = re.compile(r'(# |@REM )/home/\S+/baseline/')
+comment_rev_re = re.compile(r'(# |@REM )(\S+) 0.96.[CD]\d+ \S+ \S+( knight)')
+revision_re = re.compile(r'__revision__ = "[^"]*"')
+build_re = re.compile(r'__build__ = "[^"]*"')
+date_re = re.compile(r'__date__ = "[^"]*"')
 
 def lines_read(file):
     return open(file).readlines()

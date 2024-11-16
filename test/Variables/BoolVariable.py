@@ -27,7 +27,6 @@
 Test the BoolVariable canned Variable type.
 """
 
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -40,10 +39,7 @@ def check(expect):
 
 
 test.write(SConstruct_path, """\
-from SCons.Variables.BoolVariable import BoolVariable
-
-BV = BoolVariable
-
+from SCons.Variables.BoolVariable import BoolVariable as BV
 from SCons.Variables import BoolVariable
 
 opts = Variables(args=ARGUMENTS)
@@ -52,7 +48,8 @@ opts.AddVariables(
     BV('profile', 'create profiling informations', False),
 )
 
-env = Environment(variables=opts)
+_ = DefaultEnvironment(tools=[])
+env = Environment(variables=opts, tools=[])
 Help(opts.GenerateHelpText(env))
 
 print(env['warnings'])
@@ -68,11 +65,11 @@ test.run(arguments='warnings=0 profile=no profile=true')
 check([str(False), str(True)])
 
 expect_stderr = """
-scons: *** Error converting option: warnings
-Invalid value for boolean option: irgendwas
-""" + test.python_file_line(SConstruct_path, 13)
+scons: *** Error converting option: 'warnings'
+Invalid value for boolean variable: 'irgendwas'
+""" + test.python_file_line(SConstruct_path, 11)
 
-test.run(arguments='warnings=irgendwas', stderr = expect_stderr, status=2)
+test.run(arguments='warnings=irgendwas', stderr=expect_stderr, status=2)
 
 test.pass_test()
 

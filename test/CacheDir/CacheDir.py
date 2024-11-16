@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test retrieving derived files from a CacheDir.
@@ -42,7 +41,7 @@ src_ccc_out = test.workpath('src', 'ccc.out')
 src_cat_out = test.workpath('src', 'cat.out')
 src_all = test.workpath('src', 'all')
 
-test.subdir('cache', 'src')
+test.subdir('src')
 
 test.write(['src', 'SConstruct'], """\
 DefaultEnvironment(tools=[])
@@ -85,8 +84,12 @@ test.must_not_exist(src_bbb_out)
 test.must_not_exist(src_ccc_out)
 test.must_not_exist(src_all)
 # Even if you do -n, the cache will be configured.
-test.fail_test(os.listdir(cache) != ['config'])
-
+expect = ['CACHEDIR.TAG', 'config']
+found = sorted(os.listdir(cache))
+test.fail_test(
+    expect != found,
+    message=f"expected cachedir contents {expect}, found {found}",
+)
 # Verify that a normal build works correctly, and clean up.
 # This should populate the cache with our derived files.
 test.run(chdir = 'src', arguments = '.')

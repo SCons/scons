@@ -40,7 +40,7 @@
     This paper has introduced &SCons;, a next-generation build tool
     with a modular, embeddable architecture and a direct Python
     interface. &SCons; has a global view of the dependencies in a source
-    tree, uses MD5 signatures to decide if derived files are out of date,
+    tree, uses MD5 signatures to decide if derived files are out-of-date,
     and automatically scans files for dependencies, all of which make &SCons;
     builds exceptionally reliable. The &SCons; development methodology has
     been described, notable for its emphasis on automated regression

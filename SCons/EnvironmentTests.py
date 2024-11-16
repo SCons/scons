@@ -38,7 +38,6 @@ from SCons.Environment import (
     NoSubstitutionProxy,
     OverrideEnvironment,
     SubstitutionEnvironment,
-    is_valid_construction_var,
 )
 from SCons.Util import CLVar
 from SCons.SConsign import current_sconsign_filename
@@ -181,16 +180,19 @@ class SubstitutionTestCase(unittest.TestCase):
         env3 = SubstitutionEnvironment(XXX = 'xxx')
         env4 = SubstitutionEnvironment(XXX = 'x', YYY = 'x')
 
-        assert env1 == env2
-        assert env1 != env3
-        assert env1 != env4
+        with self.subTest():
+            self.assertEqual(env1, env2)
+        with self.subTest():
+            self.assertNotEqual(env1, env3)
+        with self.subTest():
+            self.assertNotEqual(env1, env4)
 
     def test___delitem__(self) -> None:
         """Test deleting a variable from a SubstitutionEnvironment."""
         env1 = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
         env2 = SubstitutionEnvironment(XXX = 'x')
         del env1['YYY']
-        assert env1 == env2
+        self.assertEqual(env1, env2)
 
     def test___getitem__(self) -> None:
         """Test fetching a variable from a SubstitutionEnvironment."""
@@ -202,7 +204,7 @@ class SubstitutionTestCase(unittest.TestCase):
         env1 = SubstitutionEnvironment(XXX = 'x')
         env2 = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
         env1['YYY'] = 'y'
-        assert env1 == env2
+        self.assertEqual(env1, env2)
 
     def test_get(self) -> None:
         """Test the SubstitutionEnvironment get() method."""
@@ -822,6 +824,7 @@ sys.exit(0)
             "-DFOO -DBAR=value -D BAZ "
             "-fsanitize=memory "
             "-fsanitize-address-use-after-return "
+            "-stdlib=libc++"
         )
 
         d = env.ParseFlags(s)
@@ -841,7 +844,7 @@ sys.exit(0)
                                 '+DD64',
                                 '-fsanitize=memory',
                                 '-fsanitize-address-use-after-return'], repr(d['CCFLAGS'])
-        assert d['CXXFLAGS'] == ['-std=c++0x'], repr(d['CXXFLAGS'])
+        assert d['CXXFLAGS'] == ['-std=c++0x', '-stdlib=libc++'], repr(d['CXXFLAGS'])
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
         assert d['CPPFLAGS'] == ['-Wp,-cpp'], d['CPPFLAGS']
         assert d['CPPPATH'] == ['/usr/include/fum',
@@ -1034,7 +1037,8 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
     # underlying method it tests (Environment.BuilderWrapper.execute())
     # is necessary, but we're leaving the code here for now in case
     # that's mistaken.
-    def _DO_NOT_test_Builder_execs(self) -> None:
+    @unittest.skip("BuilderWrapper.execute method not needed")
+    def test_Builder_execs(self) -> None:
         """Test Builder execution through different environments
 
         One environment is initialized with a single
@@ -1193,18 +1197,6 @@ env4.builder1.env, env3)
 
     def test_ReservedVariables(self) -> None:
         """Test warning generation when reserved variable names are set"""
-
-        reserved_variables = [
-            'CHANGED_SOURCES',
-            'CHANGED_TARGETS',
-            'SOURCE',
-            'SOURCES',
-            'TARGET',
-            'TARGETS',
-            'UNCHANGED_SOURCES',
-            'UNCHANGED_TARGETS',
-        ]
-
         warning = SCons.Warnings.ReservedVariableWarning
         SCons.Warnings.enableWarningClass(warning)
         old = SCons.Warnings.warningAsException(1)
@@ -1300,10 +1292,14 @@ env4.builder1.env, env3)
         ]
         assert flags == expect, flags
 
-        env.Replace(F77PATH = [ 'foo', '$FOO/bar', blat ],
-                    INCPREFIX = 'foo ',
-                    INCSUFFIX = 'bar',
-                    FOO = 'baz')
+        # do a Replace using the dict form
+        newvalues = {
+            "F77PATH": ['foo', '$FOO/bar', blat],
+            "INCPREFIX": 'foo ',
+            "INCSUFFIX": 'bar',
+            "FOO": 'baz',
+        }
+        env.Replace(**newvalues)
         flags = env.subst_list('$_F77INCFLAGS', 1)[0]
         expect = [ '$(',
                    normalize_path('foo'),
@@ -1568,7 +1564,7 @@ def exists(env):
 
 
     def test_gvars(self) -> None:
-        """Test the Environment gvars() method"""
+        """Test the Environment gvars() method."""
         env = self.TestEnvironment(XXX = 'x', YYY = 'y', ZZZ = 'z')
         gvars = env.gvars()
         assert gvars['XXX'] == 'x', gvars['XXX']
@@ -1576,7 +1572,7 @@ def exists(env):
         assert gvars['ZZZ'] == 'z', gvars['ZZZ']
 
     def test__update(self) -> None:
-        """Test the _update() method"""
+        """Test the _update() method."""
         env = self.TestEnvironment(X = 'x', Y = 'y', Z = 'z')
         assert env['X'] == 'x', env['X']
         assert env['Y'] == 'y', env['Y']
@@ -1596,106 +1592,103 @@ def exists(env):
         assert env['SOURCES'] == 'sss', env['SOURCES']
 
     def test_Append(self) -> None:
-        """Test appending to construction variables in an Environment
-        """
-
+        """Test appending to construction variables in an Environment."""
         b1 = Environment()['BUILDERS']
         b2 = Environment()['BUILDERS']
         assert b1 == b2, diff_dict(b1, b2)
 
         cases = [
-            'a1',       'A1',           'a1A1',
-            'a2',       ['A2'],         ['a2', 'A2'],
-            'a3',       UL(['A3']),     UL(['a', '3', 'A3']),
-            'a4',       '',             'a4',
-            'a5',       [],             ['a5'],
-            'a6',       UL([]),         UL(['a', '6']),
-            'a7',       [''],           ['a7', ''],
-            'a8',       UL(['']),       UL(['a', '8', '']),
+            ('a1',       'A1',           'a1A1'),
+            ('a2',       ['A2'],         ['a2', 'A2']),
+            ('a3',       UL(['A3']),     UL(['a', '3', 'A3'])),
+            ('a4',       '',             'a4'),
+            ('a5',       [],             ['a5']),
+            ('a6',       UL([]),         UL(['a', '6'])),
+            ('a7',       [''],           ['a7', '']),
+            ('a8',       UL(['']),       UL(['a', '8', ''])),
 
-            ['e1'],     'E1',           ['e1', 'E1'],
-            ['e2'],     ['E2'],         ['e2', 'E2'],
-            ['e3'],     UL(['E3']),     UL(['e3', 'E3']),
-            ['e4'],     '',             ['e4'],
-            ['e5'],     [],             ['e5'],
-            ['e6'],     UL([]),         UL(['e6']),
-            ['e7'],     [''],           ['e7', ''],
-            ['e8'],     UL(['']),       UL(['e8', '']),
+            (['e1'],     'E1',           ['e1', 'E1']),
+            (['e2'],     ['E2'],         ['e2', 'E2']),
+            (['e3'],     UL(['E3']),     UL(['e3', 'E3'])),
+            (['e4'],     '',             ['e4']),
+            (['e5'],     [],             ['e5']),
+            (['e6'],     UL([]),         UL(['e6'])),
+            (['e7'],     [''],           ['e7', '']),
+            (['e8'],     UL(['']),       UL(['e8', ''])),
 
-            UL(['i1']), 'I1',           UL(['i1', 'I', '1']),
-            UL(['i2']), ['I2'],         UL(['i2', 'I2']),
-            UL(['i3']), UL(['I3']),     UL(['i3', 'I3']),
-            UL(['i4']), '',             UL(['i4']),
-            UL(['i5']), [],             UL(['i5']),
-            UL(['i6']), UL([]),         UL(['i6']),
-            UL(['i7']), [''],           UL(['i7', '']),
-            UL(['i8']), UL(['']),       UL(['i8', '']),
+            (UL(['i1']), 'I1',           UL(['i1', 'I', '1'])),
+            (UL(['i2']), ['I2'],         UL(['i2', 'I2'])),
+            (UL(['i3']), UL(['I3']),     UL(['i3', 'I3'])),
+            (UL(['i4']), '',             UL(['i4'])),
+            (UL(['i5']), [],             UL(['i5'])),
+            (UL(['i6']), UL([]),         UL(['i6'])),
+            (UL(['i7']), [''],           UL(['i7', ''])),
+            (UL(['i8']), UL(['']),       UL(['i8', ''])),
 
-            {'d1':1},   'D1',           {'d1':1, 'D1':None},
-            {'d2':1},   ['D2'],         {'d2':1, 'D2':None},
-            {'d3':1},   UL(['D3']),     {'d3':1, 'D3':None},
-            {'d4':1},   {'D4':1},       {'d4':1, 'D4':1},
-            {'d5':1},   UD({'D5':1}),   UD({'d5':1, 'D5':1}),
+            ({'d1':1},   'D1',           {'d1':1, 'D1':None}),
+            ({'d2':1},   ['D2'],         {'d2':1, 'D2':None}),
+            ({'d3':1},   UL(['D3']),     {'d3':1, 'D3':None}),
+            ({'d4':1},   {'D4':1},       {'d4':1, 'D4':1}),
+            ({'d5':1},   UD({'D5':1}),   UD({'d5':1, 'D5':1})),
 
-            UD({'u1':1}), 'U1',         UD({'u1':1, 'U1':None}),
-            UD({'u2':1}), ['U2'],       UD({'u2':1, 'U2':None}),
-            UD({'u3':1}), UL(['U3']),   UD({'u3':1, 'U3':None}),
-            UD({'u4':1}), {'U4':1},     UD({'u4':1, 'U4':1}),
-            UD({'u5':1}), UD({'U5':1}), UD({'u5':1, 'U5':1}),
+            (UD({'u1':1}), 'U1',         UD({'u1':1, 'U1':None})),
+            (UD({'u2':1}), ['U2'],       UD({'u2':1, 'U2':None})),
+            (UD({'u3':1}), UL(['U3']),   UD({'u3':1, 'U3':None})),
+            (UD({'u4':1}), {'U4':1},     UD({'u4':1, 'U4':1})),
+            ((UD({'u5':1}), UD({'U5':1}), UD({'u5':1, 'U5':1}))),
 
-            '',         'M1',           'M1',
-            '',         ['M2'],         ['M2'],
-            '',         UL(['M3']),     UL(['M3']),
-            '',         '',             '',
-            '',         [],             [],
-            '',         UL([]),         UL([]),
-            '',         [''],           [''],
-            '',         UL(['']),       UL(['']),
+            ('',         'M1',           'M1'),
+            ('',         ['M2'],         ['M2']),
+            ('',         UL(['M3']),     UL(['M3'])),
+            ('',         '',             ''),
+            ('',         [],             []),
+            ('',         UL([]),         UL([])),
+            ('',         [''],           ['']),
+            ('',         UL(['']),       UL([''])),
 
-            [],         'N1',           ['N1'],
-            [],         ['N2'],         ['N2'],
-            [],         UL(['N3']),     UL(['N3']),
-            [],         '',             [],
-            [],         [],             [],
-            [],         UL([]),         UL([]),
-            [],         [''],           [''],
-            [],         UL(['']),       UL(['']),
+            ([],         'N1',           ['N1']),
+            ([],         ['N2'],         ['N2']),
+            ([],         UL(['N3']),     UL(['N3'])),
+            ([],         '',             []),
+            ([],         [],             []),
+            ([],         UL([]),         UL([])),
+            ([],         [''],           ['']),
+            ([],         UL(['']),       UL([''])),
 
-            UL([]),     'O1',           ['O', '1'],
-            UL([]),     ['O2'],         ['O2'],
-            UL([]),     UL(['O3']),     UL(['O3']),
-            UL([]),     '',             UL([]),
-            UL([]),     [],             UL([]),
-            UL([]),     UL([]),         UL([]),
-            UL([]),     [''],           UL(['']),
-            UL([]),     UL(['']),       UL(['']),
+            (UL([]),     'O1',           ['O', '1']),
+            (UL([]),     ['O2'],         ['O2']),
+            (UL([]),     UL(['O3']),     UL(['O3'])),
+            (UL([]),     '',             UL([])),
+            (UL([]),     [],             UL([])),
+            (UL([]),     UL([]),         UL([])),
+            (UL([]),     [''],           UL([''])),
+            (UL([]),     UL(['']),       UL([''])),
 
-            [''],       'P1',           ['', 'P1'],
-            [''],       ['P2'],         ['', 'P2'],
-            [''],       UL(['P3']),     UL(['', 'P3']),
-            [''],       '',             [''],
-            [''],       [],             [''],
-            [''],       UL([]),         UL(['']),
-            [''],       [''],           ['', ''],
-            [''],       UL(['']),       UL(['', '']),
+            ([''],       'P1',           ['', 'P1']),
+            ([''],       ['P2'],         ['', 'P2']),
+            ([''],       UL(['P3']),     UL(['', 'P3'])),
+            ([''],       '',             ['']),
+            ([''],       [],             ['']),
+            ([''],       UL([]),         UL([''])),
+            ([''],       [''],           ['', '']),
+            ([''],       UL(['']),       UL(['', ''])),
 
-            UL(['']),   'Q1',           ['', 'Q', '1'],
-            UL(['']),   ['Q2'],         ['', 'Q2'],
-            UL(['']),   UL(['Q3']),     UL(['', 'Q3']),
-            UL(['']),   '',             UL(['']),
-            UL(['']),   [],             UL(['']),
-            UL(['']),   UL([]),         UL(['']),
-            UL(['']),   [''],           UL(['', '']),
-            UL(['']),   UL(['']),       UL(['', '']),
+            (UL(['']),   'Q1',           ['', 'Q', '1']),
+            (UL(['']),   ['Q2'],         ['', 'Q2']),
+            (UL(['']),   UL(['Q3']),     UL(['', 'Q3'])),
+            (UL(['']),   '',             UL([''])),
+            (UL(['']),   [],             UL([''])),
+            (UL(['']),   UL([]),         UL([''])),
+            (UL(['']),   [''],           UL(['', ''])),
+            (UL(['']),   UL(['']),       UL(['', ''])),
         ]
 
         env = Environment()
         failed = 0
-        while cases:
-            input, append, expect = cases[:3]
+        for input, append, expect in cases:
             env['XXX'] = copy.copy(input)
             try:
-                env.Append(XXX = append)
+                env.Append(XXX=append)
             except Exception as e:
                 if failed == 0: print()
                 print("    %s Append %s exception: %s" % \
@@ -1707,8 +1700,7 @@ def exists(env):
                     if failed == 0: print()
                     print("    %s Append %s => %s did not match %s" % \
                           (repr(input), repr(append), repr(result), repr(expect)))
-                    failed = failed + 1
-            del cases[:3]
+                    failed += 1
         assert failed == 0, "%d Append() cases failed" % failed
 
         env['UL'] = UL(['foo'])
@@ -1759,19 +1751,26 @@ def exists(env):
             ENV={'PATH': r'C:\dir\num\one;C:\dir\num\two'},
             MYENV={'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'},
         )
+
         # have to include the pathsep here so that the test will work on UNIX too.
         env1.AppendENVPath('PATH', r'C:\dir\num\two', sep=';')
         env1.AppendENVPath('PATH', r'C:\dir\num\three', sep=';')
-        env1.AppendENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
         assert (
             env1['ENV']['PATH'] == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three'
         ), env1['ENV']['PATH']
 
+        # add nonexisting - at end
         env1.AppendENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
+        assert (
+            env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\two;C:\mydir\num\three'
+        ), env1['MYENV']['MYPATH']
+
+        # add existing with delete_existing true - moves to the end
         env1.AppendENVPath(
-            'MYPATH', r'C:\mydir\num\one', 'MYENV', sep=';', delete_existing=1
+            'MYPATH', r'C:\mydir\num\one', 'MYENV', sep=';', delete_existing=True
         )
-        # this should do nothing since delete_existing is 0
+        # this should do nothing since delete_existing is false (the default)
+        env1.AppendENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
         assert (
             env1['MYENV']['MYPATH'] == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one'
         ), env1['MYENV']['MYPATH']
@@ -1782,6 +1781,7 @@ def exists(env):
         env1.AppendENVPath('PATH', '#sub1', sep=';')
         env1.AppendENVPath('PATH', env1.fs.Dir('sub2'), sep=';')
         assert env1['ENV']['PATH'] == p + ';sub1;sub2', env1['ENV']['PATH']
+
 
     def test_AppendUnique(self) -> None:
         """Test appending to unique values to construction variables
@@ -1832,33 +1832,47 @@ def exists(env):
         assert env['CCC1'] == 'c1', env['CCC1']
         assert env['CCC2'] == ['c2'], env['CCC2']
         assert env['DDD1'] == ['a', 'b', 'c'], env['DDD1']
-        assert env['LL1']  == [env.Literal('a literal'), env.Literal('b literal')], env['LL1']
-        assert env['LL2']  == [env.Literal('c literal'), env.Literal('b literal'), env.Literal('a literal')], [str(x) for x in env['LL2']]
+        assert env['LL1'] == [
+            env.Literal('a literal'),
+            env.Literal('b literal'),
+        ], env['LL1']
+        assert env['LL2'] == [
+            env.Literal('c literal'),
+            env.Literal('b literal'),
+            env.Literal('a literal'),
+        ], [str(x) for x in env['LL2']]
 
-        env.AppendUnique(DDD1 = 'b', delete_existing=1)
-        assert env['DDD1'] == ['a', 'c', 'b'], env['DDD1'] # b moves to end
-        env.AppendUnique(DDD1 = ['a','b'], delete_existing=1)
-        assert env['DDD1'] == ['c', 'a', 'b'], env['DDD1'] # a & b move to end
-        env.AppendUnique(DDD1 = ['e','f', 'e'], delete_existing=1)
-        assert env['DDD1'] == ['c', 'a', 'b', 'f', 'e'], env['DDD1'] # add last
+        env.AppendUnique(DDD1='b', delete_existing=True)
+        assert env['DDD1'] == ['a', 'c', 'b'], env['DDD1']  # b moves to end
+
+        env.AppendUnique(DDD1=['a', 'b'], delete_existing=True)
+        assert env['DDD1'] == ['c', 'a', 'b'], env['DDD1']  # a & b move to end
+
+        env.AppendUnique(DDD1=['e', 'f', 'e'], delete_existing=True)
+        assert env['DDD1'] == ['c', 'a', 'b', 'f', 'e'], env['DDD1']  # add last
+
+        # issue regression: substrings should not be deleted
+        env.AppendUnique(BBB4='b4.newer', delete_existing=True)
+        assert env['BBB4'] == ['b4', 'b4.new', 'b4.newer'], env['BBB4']
 
         env['CLVar'] = CLVar([])
-        env.AppendUnique(CLVar = 'bar')
+        env.AppendUnique(CLVar='bar')
         result = env['CLVar']
         assert isinstance(result, CLVar), repr(result)
         assert result == ['bar'], result
 
         env['CLVar'] = CLVar(['abc'])
-        env.AppendUnique(CLVar = 'bar')
+        env.AppendUnique(CLVar='bar')
         result = env['CLVar']
         assert isinstance(result, CLVar), repr(result)
         assert result == ['abc', 'bar'], result
 
         env['CLVar'] = CLVar(['bar'])
-        env.AppendUnique(CLVar = 'bar')
+        env.AppendUnique(CLVar='bar')
         result = env['CLVar']
         assert isinstance(result, CLVar), repr(result)
         assert result == ['bar'], result
+
 
     def test_Clone(self) -> None:
         """Test construction environment cloning.
@@ -2123,6 +2137,13 @@ def generate(env):
         xxx, zzz = env.Dictionary('XXX', 'ZZZ')
         assert xxx == 'x'
         assert zzz == 'z'
+        # added in NEXT_RELEASE: as_dict flag
+        with self.subTest():
+            expect = {'XXX': 'x'}
+            self.assertEqual(env.Dictionary('XXX', as_dict=True), expect)
+        with self.subTest():
+            expect = {'XXX': 'x', 'YYY': 'y'}
+            self.assertEqual(env.Dictionary('XXX', 'YYY', as_dict=True), expect)
         assert 'BUILDERS' in env.Dictionary()
         assert 'CC' in env.Dictionary()
         assert 'CCFLAGS' in env.Dictionary()
@@ -2305,7 +2326,7 @@ f5: \
 
         exc_caught = None
         try:
-            env.ParseDepends(test.workpath('does_not_exist'), must_exist=1)
+            env.ParseDepends(test.workpath('does_not_exist'), must_exist=True)
         except IOError:
             exc_caught = 1
         assert exc_caught, "did not catch expected IOError"
@@ -2313,7 +2334,7 @@ f5: \
         del tlist[:]
         del dlist[:]
 
-        env.ParseDepends('$SINGLE', only_one=1)
+        env.ParseDepends('$SINGLE', only_one=True)
         t = list(map(str, tlist))
         d = list(map(str, dlist))
         assert t == ['f0'], t
@@ -2330,7 +2351,7 @@ f5: \
 
         exc_caught = None
         try:
-            env.ParseDepends(test.workpath('multiple'), only_one=1)
+            env.ParseDepends(test.workpath('multiple'), only_one=True)
         except SCons.Errors.UserError:
             exc_caught = 1
         assert exc_caught, "did not catch expected UserError"
@@ -2360,101 +2381,99 @@ f5: \
         assert env['OBJSUFFIX'] == '.obj', env['OBJSUFFIX']
 
     def test_Prepend(self) -> None:
-        """Test prepending to construction variables in an Environment
-        """
+        """Test prepending to construction variables in an Environment."""
         cases = [
-            'a1',       'A1',           'A1a1',
-            'a2',       ['A2'],         ['A2', 'a2'],
-            'a3',       UL(['A3']),     UL(['A3', 'a', '3']),
-            'a4',       '',             'a4',
-            'a5',       [],             ['a5'],
-            'a6',       UL([]),         UL(['a', '6']),
-            'a7',       [''],           ['', 'a7'],
-            'a8',       UL(['']),       UL(['', 'a', '8']),
+            ('a1',       'A1',           'A1a1'),
+            ('a2',       ['A2'],         ['A2', 'a2']),
+            ('a3',       UL(['A3']),     UL(['A3', 'a', '3'])),
+            ('a4',       '',             'a4'),
+            ('a5',       [],             ['a5']),
+            ('a6',       UL([]),         UL(['a', '6'])),
+            ('a7',       [''],           ['', 'a7']),
+            ('a8',       UL(['']),       UL(['', 'a', '8'])),
 
-            ['e1'],     'E1',           ['E1', 'e1'],
-            ['e2'],     ['E2'],         ['E2', 'e2'],
-            ['e3'],     UL(['E3']),     UL(['E3', 'e3']),
-            ['e4'],     '',             ['e4'],
-            ['e5'],     [],             ['e5'],
-            ['e6'],     UL([]),         UL(['e6']),
-            ['e7'],     [''],           ['', 'e7'],
-            ['e8'],     UL(['']),       UL(['', 'e8']),
+            (['e1'],     'E1',           ['E1', 'e1']),
+            (['e2'],     ['E2'],         ['E2', 'e2']),
+            (['e3'],     UL(['E3']),     UL(['E3', 'e3'])),
+            (['e4'],     '',             ['e4']),
+            (['e5'],     [],             ['e5']),
+            (['e6'],     UL([]),         UL(['e6'])),
+            (['e7'],     [''],           ['', 'e7']),
+            (['e8'],     UL(['']),       UL(['', 'e8'])),
 
-            UL(['i1']), 'I1',           UL(['I', '1', 'i1']),
-            UL(['i2']), ['I2'],         UL(['I2', 'i2']),
-            UL(['i3']), UL(['I3']),     UL(['I3', 'i3']),
-            UL(['i4']), '',             UL(['i4']),
-            UL(['i5']), [],             UL(['i5']),
-            UL(['i6']), UL([]),         UL(['i6']),
-            UL(['i7']), [''],           UL(['', 'i7']),
-            UL(['i8']), UL(['']),       UL(['', 'i8']),
+            (UL(['i1']), 'I1',           UL(['I', '1', 'i1'])),
+            (UL(['i2']), ['I2'],         UL(['I2', 'i2'])),
+            (UL(['i3']), UL(['I3']),     UL(['I3', 'i3'])),
+            (UL(['i4']), '',             UL(['i4'])),
+            (UL(['i5']), [],             UL(['i5'])),
+            (UL(['i6']), UL([]),         UL(['i6'])),
+            (UL(['i7']), [''],           UL(['', 'i7'])),
+            (UL(['i8']), UL(['']),       UL(['', 'i8'])),
 
-            {'d1':1},   'D1',           {'d1':1, 'D1':None},
-            {'d2':1},   ['D2'],         {'d2':1, 'D2':None},
-            {'d3':1},   UL(['D3']),     {'d3':1, 'D3':None},
-            {'d4':1},   {'D4':1},       {'d4':1, 'D4':1},
-            {'d5':1},   UD({'D5':1}),   UD({'d5':1, 'D5':1}),
+            ({'d1':1},   'D1',           {'d1':1, 'D1':None}),
+            ({'d2':1},   ['D2'],         {'d2':1, 'D2':None}),
+            ({'d3':1},   UL(['D3']),     {'d3':1, 'D3':None}),
+            ({'d4':1},   {'D4':1},       {'d4':1, 'D4':1}),
+            ({'d5':1},   UD({'D5':1}),   UD({'d5':1, 'D5':1})),
 
-            UD({'u1':1}), 'U1',         UD({'u1':1, 'U1':None}),
-            UD({'u2':1}), ['U2'],       UD({'u2':1, 'U2':None}),
-            UD({'u3':1}), UL(['U3']),   UD({'u3':1, 'U3':None}),
-            UD({'u4':1}), {'U4':1},     UD({'u4':1, 'U4':1}),
-            UD({'u5':1}), UD({'U5':1}), UD({'u5':1, 'U5':1}),
+            (UD({'u1':1}), 'U1',         UD({'u1':1, 'U1':None})),
+            (UD({'u2':1}), ['U2'],       UD({'u2':1, 'U2':None})),
+            (UD({'u3':1}), UL(['U3']),   UD({'u3':1, 'U3':None})),
+            (UD({'u4':1}), {'U4':1},     UD({'u4':1, 'U4':1})),
+            (UD({'u5':1}), UD({'U5':1}), UD({'u5':1, 'U5':1})),
 
-            '',         'M1',           'M1',
-            '',         ['M2'],         ['M2'],
-            '',         UL(['M3']),     UL(['M3']),
-            '',         '',             '',
-            '',         [],             [],
-            '',         UL([]),         UL([]),
-            '',         [''],           [''],
-            '',         UL(['']),       UL(['']),
+            ('',         'M1',           'M1'),
+            ('',         ['M2'],         ['M2']),
+            ('',         UL(['M3']),     UL(['M3'])),
+            ('',         '',             ''),
+            ('',         [],             []),
+            ('',         UL([]),         UL([])),
+            ('',         [''],           ['']),
+            ('',         UL(['']),       UL([''])),
 
-            [],         'N1',           ['N1'],
-            [],         ['N2'],         ['N2'],
-            [],         UL(['N3']),     UL(['N3']),
-            [],         '',             [],
-            [],         [],             [],
-            [],         UL([]),         UL([]),
-            [],         [''],           [''],
-            [],         UL(['']),       UL(['']),
+            ([],         'N1',           ['N1']),
+            ([],         ['N2'],         ['N2']),
+            ([],         UL(['N3']),     UL(['N3'])),
+            ([],         '',             []),
+            ([],         [],             []),
+            ([],         UL([]),         UL([])),
+            ([],         [''],           ['']),
+            ([],         UL(['']),       UL([''])),
 
-            UL([]),     'O1',           UL(['O', '1']),
-            UL([]),     ['O2'],         UL(['O2']),
-            UL([]),     UL(['O3']),     UL(['O3']),
-            UL([]),     '',             UL([]),
-            UL([]),     [],             UL([]),
-            UL([]),     UL([]),         UL([]),
-            UL([]),     [''],           UL(['']),
-            UL([]),     UL(['']),       UL(['']),
+            (UL([]),     'O1',           UL(['O', '1'])),
+            (UL([]),     ['O2'],         UL(['O2'])),
+            (UL([]),     UL(['O3']),     UL(['O3'])),
+            (UL([]),     '',             UL([])),
+            (UL([]),     [],             UL([])),
+            (UL([]),     UL([]),         UL([])),
+            (UL([]),     [''],           UL([''])),
+            (UL([]),     UL(['']),       UL([''])),
 
-            [''],       'P1',           ['P1', ''],
-            [''],       ['P2'],         ['P2', ''],
-            [''],       UL(['P3']),     UL(['P3', '']),
-            [''],       '',             [''],
-            [''],       [],             [''],
-            [''],       UL([]),         UL(['']),
-            [''],       [''],           ['', ''],
-            [''],       UL(['']),       UL(['', '']),
+            ([''],       'P1',           ['P1', '']),
+            ([''],       ['P2'],         ['P2', '']),
+            ([''],       UL(['P3']),     UL(['P3', ''])),
+            ([''],       '',             ['']),
+            ([''],       [],             ['']),
+            ([''],       UL([]),         UL([''])),
+            ([''],       [''],           ['', '']),
+            ([''],       UL(['']),       UL(['', ''])),
 
-            UL(['']),   'Q1',           UL(['Q', '1', '']),
-            UL(['']),   ['Q2'],         UL(['Q2', '']),
-            UL(['']),   UL(['Q3']),     UL(['Q3', '']),
-            UL(['']),   '',             UL(['']),
-            UL(['']),   [],             UL(['']),
-            UL(['']),   UL([]),         UL(['']),
-            UL(['']),   [''],           UL(['', '']),
-            UL(['']),   UL(['']),       UL(['', '']),
+            (UL(['']),   'Q1',           UL(['Q', '1', ''])),
+            (UL(['']),   ['Q2'],         UL(['Q2', ''])),
+            (UL(['']),   UL(['Q3']),     UL(['Q3', ''])),
+            (UL(['']),   '',             UL([''])),
+            (UL(['']),   [],             UL([''])),
+            (UL(['']),   UL([]),         UL([''])),
+            (UL(['']),   [''],           UL(['', ''])),
+            (UL(['']),   UL(['']),       UL(['', ''])),
         ]
 
         env = Environment()
         failed = 0
-        while cases:
-            input, prepend, expect = cases[:3]
+        for input, prepend, expect in cases:
             env['XXX'] = copy.copy(input)
             try:
-                env.Prepend(XXX = prepend)
+                env.Prepend(XXX=prepend)
             except Exception as e:
                 if failed == 0: print()
                 print("    %s Prepend %s exception: %s" % \
@@ -2466,8 +2485,7 @@ f5: \
                     if failed == 0: print()
                     print("    %s Prepend %s => %s did not match %s" % \
                           (repr(input), repr(prepend), repr(result), repr(expect)))
-                    failed = failed + 1
-            del cases[:3]
+                    failed += 1
         assert failed == 0, "%d Prepend() cases failed" % failed
 
         env['UL'] = UL(['foo'])
@@ -2501,6 +2519,7 @@ f5: \
             ENV={'PATH': r'C:\dir\num\one;C:\dir\num\two'},
             MYENV={'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'},
         )
+
         # have to include the pathsep here so that the test will work on UNIX too.
         env1.PrependENVPath('PATH', r'C:\dir\num\two', sep=';')
         env1.PrependENVPath('PATH', r'C:\dir\num\three', sep=';')
@@ -2508,11 +2527,18 @@ f5: \
             env1['ENV']['PATH'] == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one'
         ), env1['ENV']['PATH']
 
+
+        # add nonexisting - at front
         env1.PrependENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
+        assert (
+            env1['MYENV']['MYPATH'] == r'C:\mydir\num\three;C:\mydir\num\one;C:\mydir\num\two'
+        ), env1['MYENV']['MYPATH']
+
+        # add existing - moves to the front
         env1.PrependENVPath('MYPATH', r'C:\mydir\num\one', 'MYENV', sep=';')
-        # this should do nothing since delete_existing is 0
+        # this should do nothing since delete_existing is false
         env1.PrependENVPath(
-            'MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';', delete_existing=0
+            'MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';', delete_existing=False
         )
         assert (
             env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two'
@@ -2524,6 +2550,7 @@ f5: \
         env1.PrependENVPath('PATH', '#sub1', sep=';')
         env1.PrependENVPath('PATH', env1.fs.Dir('sub2'), sep=';')
         assert env1['ENV']['PATH'] == 'sub2;sub1;' + p, env1['ENV']['PATH']
+
 
     def test_PrependUnique(self) -> None:
         """Test prepending unique values to construction variables
@@ -2570,31 +2597,37 @@ f5: \
         assert env['CCC2'] == ['c2'], env['CCC2']
         assert env['DDD1'] == ['a', 'b', 'c'], env['DDD1']
 
-        env.PrependUnique(DDD1 = 'b', delete_existing=1)
-        assert env['DDD1'] == ['b', 'a', 'c'], env['DDD1'] # b moves to front
-        env.PrependUnique(DDD1 = ['a','c'], delete_existing=1)
-        assert env['DDD1'] == ['a', 'c', 'b'], env['DDD1'] # a & c move to front
-        env.PrependUnique(DDD1 = ['d','e','d'], delete_existing=1)
+        env.PrependUnique(DDD1='b', delete_existing=True)
+        assert env['DDD1'] == ['b', 'a', 'c'], env['DDD1']  # b moves to front
+
+        env.PrependUnique(DDD1=['a', 'c'], delete_existing=True)
+        assert env['DDD1'] == ['a', 'c', 'b'], env['DDD1']  # a & c move to front
+
+        env.PrependUnique(DDD1=['d', 'e', 'd'], delete_existing=True)
         assert env['DDD1'] == ['d', 'e', 'a', 'c', 'b'], env['DDD1']
 
+        # issue regression: substrings should not be deleted
+        env.PrependUnique(BBB4='b4.newer', delete_existing=True)
+        assert env['BBB4'] == ['b4.newer', 'b4.new', 'b4'], env['BBB4']
 
         env['CLVar'] = CLVar([])
-        env.PrependUnique(CLVar = 'bar')
+        env.PrependUnique(CLVar='bar')
         result = env['CLVar']
         assert isinstance(result, CLVar), repr(result)
         assert result == ['bar'], result
 
         env['CLVar'] = CLVar(['abc'])
-        env.PrependUnique(CLVar = 'bar')
+        env.PrependUnique(CLVar='bar')
         result = env['CLVar']
         assert isinstance(result, CLVar), repr(result)
         assert result == ['bar', 'abc'], result
 
         env['CLVar'] = CLVar(['bar'])
-        env.PrependUnique(CLVar = 'bar')
+        env.PrependUnique(CLVar='bar')
         result = env['CLVar']
         assert isinstance(result, CLVar), repr(result)
         assert result == ['bar'], result
+
 
     def test_Replace(self) -> None:
         """Test replacing construction variables in an Environment
@@ -3176,22 +3209,42 @@ def generate(env):
 
     def test_Dump(self) -> None:
         """Test the Dump() method"""
+        env = self.TestEnvironment(FOO='foo', FOOFLAGS=CLVar('--bar --baz'))
 
-        env = self.TestEnvironment(FOO = 'foo')
-        assert env.Dump('FOO') == "'foo'", env.Dump('FOO')
-        assert len(env.Dump()) > 200, env.Dump()    # no args version
+        # changed in NEXT_RELEASE: single arg now displays as a dict,
+        #   not a bare value; more than one arg is allowed.
+        with self.subTest():  # one-arg version
+            self.assertEqual(env.Dump('FOO'), "{'FOO': 'foo'}")
 
-        assert env.Dump('FOO', 'json') == '"foo"'    # JSON key version
-        import json
-        env_dict = json.loads(env.Dump(format = 'json'))
-        assert env_dict['FOO'] == 'foo'    # full JSON version
+        with self.subTest():  # multi-arg version
+            expect = "{'FOO': 'foo', 'FOOFLAGS': ['--bar', '--baz']}"
+            self.assertEqual(env.Dump('FOO', 'FOOFLAGS'), expect)
 
-        try:
-            env.Dump(format = 'markdown')
-        except ValueError as e:
-            assert str(e) == "Unsupported serialization format: markdown."
-        else:
-            self.fail("Did not catch expected ValueError.")
+        with self.subTest():  # no-arg version
+            self.assertGreater(len(env.Dump()), 200)
+
+        with self.subTest():  # one-arg JSON version, simple value
+            expect = '{\n    "FOO": "foo"\n}'
+            self.assertEqual(env.Dump('FOO', format='json'), expect)
+
+        with self.subTest():  # one-arg JSON version, list value
+            expect = '{\n    "FOOFLAGS": [\n        "--bar",\n        "--baz"\n    ]\n}'
+            self.assertEqual(env.Dump('FOOFLAGS', format='json'), expect)
+
+        with self.subTest():  # multi--arg JSON version, list value
+            expect = '{\n    "FOO": "foo",\n    "FOOFLAGS": [\n        "--bar",\n        "--baz"\n    ]\n}'
+            self.assertEqual(env.Dump('FOO', 'FOOFLAGS', format='json'), expect)
+
+        with self.subTest():  # full JSON version
+            import json
+            env_dict = json.loads(env.Dump(format='json'))
+            self.assertEqual(env_dict['FOO'], 'foo')
+
+        with self.subTest():  # unsupported format type
+            with self.assertRaises(ValueError) as cm:
+                env.Dump(format='markdown')
+            self.assertEqual(str(cm.exception), "Unsupported serialization format: markdown.")
+
 
     def test_Environment(self) -> None:
         """Test the Environment() method"""
@@ -3745,13 +3798,17 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     def setUp(self) -> None:
         env = Environment()
         env._dict = {'XXX' : 'x', 'YYY' : 'y'}
+
         def verify_value(env, key, value, *args, **kwargs) -> None:
             """Verifies that key is value on the env this is called with."""
-            assert env[key] == value
+            self.assertEqual(env[key], value)
+
         env.AddMethod(verify_value)
+        # env2 does not overrride 'YYY' to test passthrough
         env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
+        # env3 overrides both, plus sets a new var 'ZZZ'
         env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'})
-        self.envs = [ env, env2, env3 ]
+        self.envs = [env, env2, env3]
 
     def checkpath(self, node, expect):
         return str(node) == os.path.normpath(expect)
@@ -3759,31 +3816,79 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     def test___init__(self) -> None:
         """Test OverrideEnvironment initialization"""
         env, env2, env3 = self.envs
-        assert env['XXX'] == 'x', env['XXX']
-        assert env2['XXX'] == 'x2', env2['XXX']
-        assert env3['XXX'] == 'x3', env3['XXX']
-        assert env['YYY'] == 'y', env['YYY']
-        assert env2['YYY'] == 'y', env2['YYY']
-        assert env3['YYY'] == 'y3', env3['YYY']
+
+        with self.subTest():
+            self.assertEqual(env['XXX'], 'x')
+        with self.subTest():
+            self.assertEqual(env2['XXX'], 'x2')
+        with self.subTest():
+            self.assertEqual(env3['XXX'], 'x3')
+        with self.subTest():
+            self.assertEqual(env['YYY'], 'y')
+        with self.subTest():
+            self.assertEqual(env2['YYY'], 'y')
+        with self.subTest():
+            self.assertEqual(env3['YYY'], 'y3')
+        with self.subTest():
+            self.assertNotIn('ZZZ', env)
+        with self.subTest():
+            self.assertNotIn('ZZZ', env2)
+        with self.subTest():
+            self.assertEqual(env3['ZZZ'], 'z3')
+
+    def test___setitem__(self) -> None:
+        """Test setting a variable does not leak through."""
+        env, env2, env3 = self.envs
+        env3['QQQ'] = 'q'
+        with self.subTest():
+            self.assertEqual(env3['QQQ'], 'q')
+        with self.subTest():
+            self.assertNotIn('QQQ', env2)
+        with self.subTest():
+            self.assertNotIn('QQQ', env)
 
     def test___delitem__(self) -> None:
         """Test deleting variables from an OverrideEnvironment"""
         env, env2, env3 = self.envs
 
+        # changed in NEXT_RELEASE: delete does not cascade to underlying envs
+        # XXX is in all three, del from env3 should affect only it
         del env3['XXX']
-        assert 'XXX' not in env, "env has XXX?"
-        assert 'XXX' not in env2, "env2 has XXX?"
-        assert 'XXX' not in env3, "env3 has XXX?"
+        with self.subTest():
+            self.assertIn('XXX', env)
+        with self.subTest():
+            self.assertIn('XXX', env2)
+        with self.subTest():
+            self.assertNotIn('XXX', env3)
 
+        # YYY unique in env and env3, shadowed in env2: env2 should still work.
         del env3['YYY']
-        assert 'YYY' not in env, "env has YYY?"
-        assert 'YYY' not in env2, "env2 has YYY?"
-        assert 'YYY' not in env3, "env3 has YYY?"
+        with self.subTest():
+            self.assertIn('YYY', env)
+        with self.subTest():
+            self.assertEqual(env2['YYY'], 'y')
+        with self.subTest():
+            self.assertIn('YYY', env2)
+        with self.subTest():
+            self.assertNotIn('YYY', env3)
 
+        # ZZZ is only in env3, none should have it
         del env3['ZZZ']
-        assert 'ZZZ' not in env, "env has ZZZ?"
-        assert 'ZZZ' not in env2, "env2 has ZZZ?"
-        assert 'ZZZ' not in env3, "env3 has ZZZ?"
+        with self.subTest():
+            self.assertNotIn('ZZZ', env)
+        with self.subTest():
+            self.assertNotIn('ZZZ', env2)
+        with self.subTest():
+            self.assertNotIn('ZZZ', env3)
+
+        # make sure we can write back after deletion
+        env3['XXX'] = 'x4'
+        with self.subTest():
+            self.assertEqual(env3['XXX'], 'x4')
+        with self.subTest():
+            self.assertEqual(env2['XXX'], 'x2')
+        with self.subTest():
+            self.assertEqual(env['XXX'], 'x')
 
     def test_get(self) -> None:
         """Test the OverrideEnvironment get() method"""
@@ -3817,21 +3922,35 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         # nothing overrriden
         items = env.Dictionary()
         assert items == {'XXX' : 'x', 'YYY' : 'y'}, items
+
         # env2 overrides XXX, YYY unchanged
         items = env2.Dictionary()
         assert items == {'XXX' : 'x2', 'YYY' : 'y'}, items
+
         # env3 overrides XXX, YYY, adds ZZZ
         items = env3.Dictionary()
         assert items == {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'}, items
+
         # test one-arg and multi-arg Dictionary
         assert env3.Dictionary('XXX') == 'x3', env3.Dictionary('XXX')
         xxx, yyy = env2.Dictionary('XXX', 'YYY')
         assert xxx == 'x2', xxx
         assert yyy == 'y', yyy
+        # added in NEXT_VERSION: as_dict flag
+        with self.subTest():
+            expect = {'XXX': 'x3'}
+            self.assertEqual(env3.Dictionary('XXX', as_dict=True), expect)
+        with self.subTest():
+            expect = {'XXX': 'x2', 'YYY': 'y'}
+            self.assertEqual(env2.Dictionary('XXX', 'YYY', as_dict=True), expect)
+
+        # test deletion in top override
         del env3['XXX']
-        assert 'XXX' not in env3.Dictionary()
-        assert 'XXX' not in env2.Dictionary()
-        assert 'XXX' not in env.Dictionary()
+        self.assertRaises(KeyError, env3.Dictionary, 'XXX')
+        # changed in NEXT_RELEASE: *not* deleted from underlying envs
+        assert 'XXX' in env2.Dictionary()
+        assert 'XXX' in env.Dictionary()
+
 
     def test_items(self) -> None:
         """Test the OverrideEnvironment items() method"""
@@ -3896,15 +4015,9 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     def test_Replace(self) -> None:
         """Test the OverrideEnvironment Replace() method"""
         env, env2, env3 = self.envs
-        assert env['XXX'] == 'x', env['XXX']
-        assert env2['XXX'] == 'x2', env2['XXX']
-        assert env3['XXX'] == 'x3', env3['XXX']
-        assert env['YYY'] == 'y', env['YYY']
-        assert env2['YYY'] == 'y', env2['YYY']
-        assert env3['YYY'] == 'y3', env3['YYY']
+        # initial state already proven by test___init__
 
-        env.Replace(YYY = 'y4')
-
+        env.Replace(YYY='y4')
         assert env['XXX'] == 'x', env['XXX']
         assert env2['XXX'] == 'x2', env2['XXX']
         assert env3['XXX'] == 'x3', env3['XXX']
@@ -3912,8 +4025,68 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert env2['YYY'] == 'y4', env2['YYY']
         assert env3['YYY'] == 'y3', env3['YYY']
 
+
+    def test_Override_Leakage(self) -> None:
+        """Test OverrideEnvironment modifying a variable for leakage."""
+        env, env2, env3 = self.envs
+        # initial state already proven by test___init__
+
+        # string appending should be additive - only in the override
+        env.Append(WWW='w')
+        self.assertEqual(env2['WWW'], 'w')
+        with self.subTest():
+            env2.Append(WWW='w2')
+            self.assertEqual(env2['WWW'], 'ww2')
+            # did it leak?
+            self.assertEqual(env['WWW'], 'w', "leak error")
+
+        # append to a string already in the override
+        self.assertEqual(env['XXX'], 'x')
+        self.assertEqual(env2['XXX'], 'x2')
+        with self.subTest():
+            env2.Append(XXX='x4')
+            self.assertEqual(env2['XXX'], 'x2x4')
+            # did it leak?
+            self.assertEqual(env['XXX'], 'x', "leak error")
+
+        # add a new mutable key to base env, but copy it before modifying
+        # This isn't a terribly interesting test, just shows that if you
+        # "behave carefully", things don't leak.
+        env.Append(QQQ=deque(['q1', 'q2', 'q3']))
+        self.assertEqual(env2['QQQ'], deque(['q1', 'q2', 'q3']))
+        with self.subTest():
+            env2['QQQ'] = env2['QQQ'].copy()
+            env2.Append(QQQ='q4')
+            self.assertEqual(env2['QQQ'], deque(['q1', 'q2', 'q3', 'q4']))
+            # did it leak?
+            self.assertNotIn('q4', env['QQQ'], "leak error")
+
+
+    @unittest.expectedFailure
+    def test_Override_Mutable_Leakage(self) -> None:
+        """Test OverrideEnvironment modifying a mutable variable for leakage.
+
+        This is factored out from test_Override_Leakage as currently
+        there is no way to prevent the leakage when updating a mutable
+        element such as a list - thus it's marked as an xfail. This
+        gives us something to come back to if we ever invent some sort
+        of isolation via object copying, etc.
+        """
+        env, env2, env3 = self.envs
+        # initial state already proven by test___init__
+
+        # add a new key to base env, with a mutable value
+        env.Append(QQQ=deque(['q1', 'q2', 'q3']))
+        self.assertEqual(env2['QQQ'], deque(['q1', 'q2', 'q3']))
+        with self.subTest():
+            env2.Append(QQQ='q4')
+            self.assertEqual(env2['QQQ'], deque(['q1', 'q2', 'q3', 'q4']))
+            # did it leak?
+            self.assertNotIn('q4', env['QQQ'], "leak error")
+
+
     # Tests a number of Base methods through an OverrideEnvironment to
-    # make sure they handle overridden constructionv variables properly.
+    # make sure they handle overridden construction variables properly.
     #
     # The following Base methods also call self.subst(), and so could
     # theoretically be subject to problems with evaluating overridden
@@ -4138,40 +4311,6 @@ class NoSubstitutionProxyTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert x == 'x ttt sss y', x
         x = proxy.subst_target_source(*args, **kw)
         assert x == ' ttt sss ', x
-
-class EnvironmentVariableTestCase(unittest.TestCase):
-
-    def test_is_valid_construction_var(self) -> None:
-        """Testing is_valid_construction_var()"""
-        r = is_valid_construction_var("_a")
-        assert r is not None, r
-        r = is_valid_construction_var("z_")
-        assert r is not None, r
-        r = is_valid_construction_var("X_")
-        assert r is not None, r
-        r = is_valid_construction_var("2a")
-        assert r is None, r
-        r = is_valid_construction_var("a2_")
-        assert r is not None, r
-        r = is_valid_construction_var("/")
-        assert r is None, r
-        r = is_valid_construction_var("_/")
-        assert r is None, r
-        r = is_valid_construction_var("a/")
-        assert r is None, r
-        r = is_valid_construction_var(".b")
-        assert r is None, r
-        r = is_valid_construction_var("_.b")
-        assert r is None, r
-        r = is_valid_construction_var("b1._")
-        assert r is None, r
-        r = is_valid_construction_var("-b")
-        assert r is None, r
-        r = is_valid_construction_var("_-b")
-        assert r is None, r
-        r = is_valid_construction_var("b1-_")
-        assert r is None, r
-
 
 
 if __name__ == "__main__":

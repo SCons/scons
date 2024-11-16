@@ -23,6 +23,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""Test Value() with different deciders."""
+
 import re
 
 import TestSCons
@@ -34,12 +36,16 @@ test = TestSCons.TestSCons(match=TestCmd.match_re)
 
 python = TestSCons.python
 
+# do not f-string, "source_signature" substituted in a loop below
 SConstruct_content = """
 Decider(r'%(source_signature)s')
 
 class Custom:
-    def __init__(self, value):  self.value = value
-    def __str__(self):          return "C=" + str(self.value)
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return "C=" + str(self.value)
 
 P = ARGUMENTS.get('prefix', '/usr/local')
 L = len(P)
@@ -51,22 +57,22 @@ def create(target, source, env):
 
 DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
-env['BUILDERS']['B'] = Builder(action = create)
-env['BUILDERS']['S'] = Builder(action = r'%(_python_)s put.py $SOURCES into $TARGET')
+env['BUILDERS']['B'] = Builder(action=create)
+env['BUILDERS']['S'] = Builder(action=r'%(_python_)s put.py $SOURCES into $TARGET')
 env.B('f1.out', Value(P))
 env.B('f2.out', env.Value(L))
 env.B('f3.out', Value(C))
 env.S('f4.out', Value(L))
 
-def create_value (target, source, env):
+def create_value(target, source, env):
     target[0].write(source[0].get_contents())
 
-def create_value_file (target, source, env):
+def create_value_file(target, source, env):
     with open(str(target[0]), 'wb') as f:
         f.write(source[0].read())
 
-env['BUILDERS']['B2'] = Builder(action = create_value)
-env['BUILDERS']['B3'] = Builder(action = create_value_file)
+env['BUILDERS']['B2'] = Builder(action=create_value)
+env['BUILDERS']['B3'] = Builder(action=create_value_file)
 
 V = Value('my value')
 env.B2(V, 'f3.out')

@@ -1,8 +1,11 @@
 <?xml version='1.0'?>
-<!--
-SPDX-License-Identifier: MIT
 
-Copyright The SCons Foundation
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -83,8 +86,8 @@ CacheDir('/usr/local/build_cache')
     this directory would typically be
     on a shared or NFS-mounted file system.
     While &SCons; will create the specified cache directory as needed,
-    in this multi user scenario it is usually best
-    to create it ahead of time so the access rights
+    in this multiuser scenario it is usually best
+    to create it ahead of time, so the access rights
     can be set up correctly.
 
     </para>
@@ -121,7 +124,7 @@ CacheDir('/usr/local/build_cache')
       </para>
 
       <para>
-      The use of the &buildsig; provides protection from concflicts:
+      The use of the &buildsig; provides protection from conflicts:
       if two developers have different setups, so they would produce
       built objects that are not identical, then because the difference in
       tools will show up in the &buildsig;, which is used as the
@@ -237,7 +240,7 @@ hello.c
 
     <para>
 
-    Then when you run &scons; after cleaning
+    Then, when you run &scons; after cleaning
     the built targets,
     it will recompile the object file locally
     (since it doesn't exist in the derived-file cache directory),
@@ -334,7 +337,7 @@ Retrieved `hello' from cache
 
     <para>
 
-    In this case, you can use the
+    In this case, you can use
     the <option>--cache-force</option> option
     to tell &SCons; to put all derived files in the cache,
     even if the files already exist in your local tree

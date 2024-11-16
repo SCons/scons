@@ -90,9 +90,11 @@ main(int argc, char *argv)
 
 test.run(chdir='sub dir', arguments='.')
 
+test.unlink_files('sub dir', ['foo.exe', 'foo.obj', '.sconsign.dblite'])
+
 test.run(chdir='sub dir',
          program=[test.get_msvs_executable(msvs_version)],
-         arguments=['Test.dsp', '/MAKE', 'foo - Win32 Release'])
+         arguments=['foo.dsp', '/MAKE', 'foo - Win32 Release'])
 
 test.run(program=test.workpath('sub dir', 'foo'), stdout="foo.c\n")
 

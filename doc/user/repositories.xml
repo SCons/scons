@@ -1,8 +1,17 @@
 <?xml version='1.0'?>
+
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
+-->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -19,31 +28,6 @@
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>Building From Code Repositories</title>
 
-<!--
-
-  __COPYRIGHT__
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--->
-
   <para>
 
   Often, a software project will have
@@ -57,7 +41,7 @@
 
   </para>
 
-  <section>
+  <section id="sect-repository">
   <title>The &Repository; Method</title>
 
  <!--
@@ -110,7 +94,7 @@ int main() { printf("Hello, world!\n"); }
     Multiple calls to the &Repository; method
     will simply add repositories to the global list
     that &SCons; maintains,
-    with the exception that &SCons; will automatically eliminate
+    with the exception that &SCons; will automatically filter out
     the current directory and any non-existent
     directories from the list.
 
@@ -118,7 +102,7 @@ int main() { printf("Hello, world!\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-repository-finding-sources">
   <title>Finding source files in repositories</title>
 
     <para>
@@ -211,12 +195,12 @@ int main() { printf("Hello, world!\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-repository-finding-headers">
   <title>Finding <literal>#include</literal> files in repositories</title>
 
     <para>
 
-    We've already seen that SCons will scan the contents of
+    You've already seen that SCons will scan the contents of
     a source file for <literal>#include</literal> file names
     and realize that targets built from that source file
     also depend on the <literal>#include</literal> file(s).
@@ -250,17 +234,17 @@ hello.c:1: hello.h: No such file or directory
     <para>
 
     In order to inform the C compiler about the repositories,
-    &SCons; will add appropriate
-    <literal>-I</literal> flags to the compilation commands
-    for each directory in the &cv-CPPPATH; list.
-    So if we add the current directory to the
-    construction environment &cv-CPPPATH; like so:
+    &SCons; will add appropriate source file inclusion
+    directives (<literal>-I</literal> or <literal>/I</literal> flags)
+    to the compilation commands for each directory in the &cv-CPPPATH; list.
+    So if you add the current directory to the
+    &consenv; &cv-CPPPATH;:
 
     </para>
 
     <scons_example name="repositories_CPPPATH">
       <file name="SConstruct" printme="1">
-env = Environment(CPPPATH = ['.'])
+env = Environment(CPPPATH=['.'])
 env.Program('hello.c')
 Repository('__ROOT__/usr/repository1')
       </file>
@@ -296,7 +280,7 @@ int main() { printf("Hello, world!\n"); }
 
     <scons_example name="repositories_CPPPATH3">
       <file name="SConstruct" printme="1">
-env = Environment(CPPPATH = ['dir1', 'dir2', 'dir3'])
+env = Environment(CPPPATH=['dir1', 'dir2', 'dir3'])
 env.Program('hello.c')
 Repository('__ROOT__/r1', '__ROOT__/r2')
       </file>
@@ -307,7 +291,7 @@ int main() { printf("Hello, world!\n"); }
 
     <para>
 
-    Then we'll end up with nine <literal>-I</literal> options
+    Then you'll end up with nine <literal>-I</literal> options
     on the command line,
     three (for each of the &cv-CPPPATH; directories)
     times three (for the local directory plus the two repositories):
@@ -331,7 +315,7 @@ coming into existence.)
 
 -->
 
-    <section>
+    <section id="sect-repository-header-limitations">
     <title>Limitations on <literal>#include</literal> files in repositories</title>
 
       <para>
@@ -348,7 +332,7 @@ coming into existence.)
 
       <para>
 
-      As we've seen,
+      As you've seen,
       &SCons; will compile the &hello_c; file from
       the repository if it doesn't exist in
       the local directory.
@@ -380,7 +364,7 @@ main(int argc, char *argv[])
 
       <scons_example name="repositories_quote1">
         <file name="SConstruct">
-env = Environment(CPPPATH = ['.'])
+env = Environment(CPPPATH=['.'])
 env.Program('hello.c')
 Repository('__ROOT__/usr/repository1')
         </file>
@@ -416,9 +400,9 @@ int main() { printf("Hello, world!\n"); }
         Some modern versions of C compilers do have an option
         to disable or control this behavior.
         If so, add that option to &cv-link-CFLAGS;
-        (or &cv-link-CXXFLAGS; or both) in your construction environment(s).
-        Make sure the option is used for all construction
-        environments that use C preprocessing!
+        (or &cv-link-CXXFLAGS;, or both) in your &consenvs;.
+        Make sure the option is used for all &consenv;
+        that use C preprocessing!
 
         </para>
         </listitem>
@@ -457,7 +441,7 @@ int main() { printf("Hello, world!\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-repository-sconstruct">
   <title>Finding the &SConstruct; file in repositories</title>
 
     <para>
@@ -488,6 +472,18 @@ int main() { printf("Hello, world!\n"); }
 
     </para>
 
+    <para>
+
+    Note that while other files are searched through the chain of
+    repositories, &SConstruct; is special - it must be found either in
+    the current directory or the first directory
+    specified using the <literal>-Y</literal>
+    (or the <literal>--repository</literal> or
+    <literal>--srcdir</literal> synonyms)
+    command line option, or the build will abort.
+
+    </para>
+
   </section>
 
   <section>
@@ -498,9 +494,9 @@ int main() { printf("Hello, world!\n"); }
     If a repository contains not only source files,
     but also derived files (such as object files,
     libraries, or executables), &SCons; will perform
-    its normal MD5 signature calculation to
+    its normal signature calculation to
     decide if a derived file in a repository is up-to-date,
-    or the derived file must be rebuilt in the local build directory.
+    or if it needs to be rebuilt in the local build directory.
     For the &SCons; signature calculation to work correctly,
     a repository tree must contain the &sconsigndb; files
     that &SCons; uses to keep track of signature information.
@@ -540,7 +536,7 @@ int f2() { printf("file2.c\n"); }
     </scons_output>
 
     <para>
-    
+
     (Note that this is safe even if the &SConstruct; file
     lists <filename>/usr/repository1</filename> as a repository,
     because &SCons; will remove the current build directory
@@ -551,8 +547,8 @@ int f2() { printf("file2.c\n"); }
     <para>
 
     Now, with the repository populated,
-    we only need to create the one local source file
-    we're interested in working with at the moment,
+    you only need to create the one local source file
+    you're interested in working with at the moment,
     and use the <literal>-Y</literal> option to
     tell &SCons; to fetch any other files it needs
     from the repository:
@@ -591,7 +587,7 @@ cc -o hello hello.o /usr/repository1/file1.o /usr/repository1/file2.o
     <para>
 
     If the repository tree contains the complete results of a build,
-    and we try to build from the repository
+    and you try to build from the repository
     without any files in our local tree,
     something moderately surprising happens:
 
@@ -609,8 +605,7 @@ scons: `hello' is up-to-date.
     Why does &SCons; say that the &hello; program
     is up-to-date when there is no &hello; program
     in the local build directory?
-    Because the repository (not the local directory)
-    contains the up-to-date &hello; program,
+    Because the repository contains the &hello; program,
     and &SCons; correctly determines that nothing
     needs to be done to rebuild that
     up-to-date copy of the file.
@@ -619,11 +614,17 @@ scons: `hello' is up-to-date.
 
     <para>
 
-    There are, however, many times when you want to ensure that a
+    There are, however, times when you want to ensure that a
     local copy of a file always exists.
-    A packaging or testing script, for example,
-    may assume that certain generated files exist locally.
-    To tell &SCons; to make a copy of any up-to-date repository
+    For example, if you are packaging the result of the build,
+    all the files used in the package need to be present locally,
+    and the packaging tool is unlikely to know anything about
+    &SCons; repositories. Similarly, if you build a unit test
+    program, and then expect to run after the build,
+    it doesn't help if the test program is somewhere else
+    and wasn't rebuilt into the local directory.
+    In these cases, you can tell
+    &SCons; to make a copy of any up-to-date repository
     file in the local build directory,
     use the &Local; function:
 
@@ -642,7 +643,7 @@ int main() { printf("Hello, world!\n"); }
 
     <para>
 
-    If we then run the same command,
+    Now, if you run the same command,
     &SCons; will make a local copy of the program
     from the repository copy,
     and tell you that it is doing so:
@@ -663,6 +664,38 @@ scons: `hello' is up-to-date.
 
     </para>
 
+  </section>
+
+  <section id="sect-repository-out-of-source">
+  <title>Using Repository to separate source and build.</title>
+
+    <para>
+
+    If you want to just do a build where the build artifacts don't
+    pollute the source directory, the repository mechanism can help with that.
+    Here's an example: checkout or unpack your project in the
+    directory <filename>src</filename>,
+    and then build it in <filename>build</filename>:
+
+    </para>
+
+    <screen>
+$ <userinput>mkdir build</userinput>
+$ <userinput>cd build</userinput>
+$ <userinput>scons -Q -Y ../src</userinput>
+gcc -o foo.o -I. -I/path/to/src -c /path/to/src/foo.c
+gcc -o foo foo.o
+$ <userinput>ls</userinput>
+foo  foo.o
+    </screen>
+
+    <para>
+
+    It can become awkward to keep having to type
+    <literal>-Y path-to-repo</literal> repeatedly.
+    If so, the option can be placed in &SCONSFLAGS;.
+
+    </para>
   </section>
 
 </chapter>

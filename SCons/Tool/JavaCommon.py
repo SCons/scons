@@ -23,11 +23,14 @@
 
 """Common routines for processing Java. """
 
+from __future__ import annotations
+
 import os
 import re
 import glob
 from pathlib import Path
-from typing import List
+
+import SCons.Util
 
 java_parsing = True
 
@@ -451,8 +454,8 @@ if java_parsing:
 
 
     def parse_java_file(fn, version=default_java_version):
-        with open(fn, encoding='utf-8') as f:
-            data = f.read()
+        with open(fn, "rb") as f:
+            data = SCons.Util.to_Text(f.read())
         return parse_java(data, version)
 
 
@@ -489,7 +492,7 @@ else:
         return os.path.split(fn)
 
 
-def get_java_install_dirs(platform, version=None) -> List[str]:
+def get_java_install_dirs(platform, version=None) -> list[str]:
     """ Find possible java jdk installation directories.
 
     Returns a list for use as `default_paths` when looking up actual
@@ -538,7 +541,7 @@ def get_java_install_dirs(platform, version=None) -> List[str]:
     return []
 
 
-def get_java_include_paths(env, javac, version) -> List[str]:
+def get_java_include_paths(env, javac, version) -> list[str]:
     """Find java include paths for JNI building.
 
     Cannot be called in isolation - `javac` refers to an already detected

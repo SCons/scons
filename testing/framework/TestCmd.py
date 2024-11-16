@@ -1,3 +1,22 @@
+# Copyright 2000-2024 Steven Knight
+#
+# This module is free software, and you may redistribute it and/or modify
+# it under the same terms as Python itself, so long as this copyright message
+# and disclaimer are retained in their original form.
+#
+# IN NO EVENT SHALL THE AUTHOR BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT,
+# SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF
+# THIS CODE, EVEN IF THE AUTHOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+# DAMAGE.
+#
+# THE AUTHOR SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+# PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
+# AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
+# SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+#
+# Python License: https://docs.python.org/3/license.html#psf-license
+
 """
 A testing framework for commands and scripts.
 
@@ -24,7 +43,7 @@ There are a bunch of keyword arguments available at instantiation:
         interpreter='script_interpreter',
         workdir='prefix',
         subdir='subdir',
-        verbose=Boolean,
+        verbose=int,  # verbosity level
         match=default_match_function,
         match_stdout=default_match_stdout_function,
         match_stderr=default_match_stderr_function,
@@ -276,21 +295,7 @@ version.
     TestCmd.where_is('foo', 'PATH1;PATH2', '.suffix3;.suffix4')
 """
 
-# Copyright 2000-2010 Steven Knight
-# This module is free software, and you may redistribute it and/or modify
-# it under the same terms as Python itself, so long as this copyright message
-# and disclaimer are retained in their original form.
-#
-# IN NO EVENT SHALL THE AUTHOR BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT,
-# SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF
-# THIS CODE, EVEN IF THE AUTHOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
-# DAMAGE.
-#
-# THE AUTHOR SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-# PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
-# AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
-# SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+from __future__ import annotations
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmd.py 1.3.D001 2010/06/03 12:58:27 knight"
@@ -320,12 +325,16 @@ import traceback
 from collections import UserList, UserString
 from pathlib import Path
 from subprocess import PIPE, STDOUT
-from typing import Optional
+from typing import Callable
 
 IS_WINDOWS = sys.platform == 'win32'
 IS_MACOS = sys.platform == 'darwin'
 IS_64_BIT = sys.maxsize > 2**32
 IS_PYPY = hasattr(sys, 'pypy_translation_info')
+try:
+    IS_ROOT = os.geteuid() == 0
+except AttributeError:
+    IS_ROOT = False
 NEED_HELPER = os.environ.get('SCONS_NO_DIRECT_SCRIPT')
 
 # sentinel for cases where None won't do
@@ -427,7 +436,13 @@ def clean_up_ninja_daemon(self, result_type) -> None:
                 shutil.rmtree(daemon_dir)
 
 
-def fail_test(self=None, condition: bool=True, function=None, skip: int=0, message=None) -> None:
+def fail_test(
+    self=None,
+    condition: bool = True,
+    function: Callable | None = None,
+    skip: int = 0,
+    message: str = "",
+) -> None:
     """Causes a test to exit with a fail.
 
     Reports that the test FAILED and exits with a status of 1, unless
@@ -1023,23 +1038,23 @@ class TestCmd:
         interpreter=None,
         workdir=None,
         subdir=None,
-        verbose=None,
+        verbose: int = -1,
         match=None,
         match_stdout=None,
         match_stderr=None,
         diff=None,
         diff_stdout=None,
         diff_stderr=None,
-        combine: int=0,
-        universal_newlines: bool=True,
-        timeout=None,
+        combine: bool = False,
+        universal_newlines: bool | None = True,
+        timeout: float | None = None,
     ) -> None:
         self.external = os.environ.get('SCONS_EXTERNAL_TEST', 0)
         self._cwd = os.getcwd()
         self.description_set(description)
         self.program_set(program)
         self.interpreter_set(interpreter)
-        if verbose is None:
+        if verbose == -1:
             try:
                 verbose = max(0, int(os.environ.get('TESTCMD_VERBOSE', 0)))
             except ValueError:
@@ -1047,7 +1062,7 @@ class TestCmd:
         self.verbose_set(verbose)
         self.combine = combine
         self.universal_newlines = universal_newlines
-        self.process = None
+        self.process: Popen | None = None
         # Two layers of timeout: one at the test class instance level,
         # one set on an individual start() call (usually via a run() call)
         self.timeout = timeout
@@ -1055,29 +1070,25 @@ class TestCmd:
         self.set_match_function(match, match_stdout, match_stderr)
         self.set_diff_function(diff, diff_stdout, diff_stderr)
         self._dirlist = []
-        self._preserve = {'pass_test': 0, 'fail_test': 0, 'no_result': 0}
+        self._preserve: dict[str, str | bool] = {
+            'pass_test': False,
+            'fail_test': False,
+            'no_result': False,
+        }
         preserve_value = os.environ.get('PRESERVE', False)
         if preserve_value not in [0, '0', 'False']:
             self._preserve['pass_test'] = os.environ['PRESERVE']
             self._preserve['fail_test'] = os.environ['PRESERVE']
             self._preserve['no_result'] = os.environ['PRESERVE']
         else:
-            try:
-                self._preserve['pass_test'] = os.environ['PRESERVE_PASS']
-            except KeyError:
-                pass
-            try:
-                self._preserve['fail_test'] = os.environ['PRESERVE_FAIL']
-            except KeyError:
-                pass
-            try:
-                self._preserve['no_result'] = os.environ['PRESERVE_NO_RESULT']
-            except KeyError:
-                pass
+            self._preserve['pass_test'] = os.environ.get('PRESERVE_PASS', False)
+            self._preserve['fail_test'] = os.environ.get('PRESERVE_FAIL', False)
+            self._preserve['no_result'] = os.environ.get('PRESERVE_NO_RESULT', False)
         self._stdout = []
         self._stderr = []
-        self.status = None
+        self.status: int | None = None
         self.condition = 'no_result'
+        self.workdir: str | None
         self.workdir_set(workdir)
         self.subdir(subdir)
 
@@ -1144,8 +1155,8 @@ class TestCmd:
             list = self._dirlist[:]
             list.reverse()
             for dir in list:
-                self.writable(dir, 1)
-                shutil.rmtree(dir, ignore_errors=1)
+                self.writable(dir, True)
+                shutil.rmtree(dir, ignore_errors=True)
             self._dirlist = []
 
             global _Cleanup
@@ -1178,6 +1189,9 @@ class TestCmd:
                 cmd.extend([f"{k}={v}" for k, v in arguments.items()])
                 return cmd
             if isinstance(arguments, str):
+                # Split into a list for passing to SCons. This *will*
+                # break if the string has embedded spaces as part of a substing -
+                # use a # list to pass those to avoid the problem.
                 arguments = arguments.split()
             cmd.extend(arguments)
         return cmd
@@ -1239,16 +1253,24 @@ class TestCmd:
 
     unified_diff = staticmethod(difflib.unified_diff)
 
-    def fail_test(self, condition: bool=True, function=None, skip: int=0, message=None) -> None:
+    def fail_test(
+        self,
+        condition: bool = True,
+        function: Callable | None = None,
+        skip: int = 0,
+        message: str = "",
+    )-> None:
         """Cause the test to fail."""
         if not condition:
             return
         self.condition = 'fail_test'
-        fail_test(self=self,
-                  condition=condition,
-                  function=function,
-                  skip=skip,
-                  message=message)
+        fail_test(
+            self=self,
+            condition=condition,
+            function=function,
+            skip=skip,
+            message=message
+        )
 
     def interpreter_set(self, interpreter) -> None:
         """Set the program to be used to interpret the program
@@ -1335,7 +1357,7 @@ class TestCmd:
         if not conditions:
             conditions = ('pass_test', 'fail_test', 'no_result')
         for cond in conditions:
-            self._preserve[cond] = 1
+            self._preserve[cond] = True
 
     def program_set(self, program) -> None:
         """Sets the executable program or script to be tested."""
@@ -1503,7 +1525,7 @@ class TestCmd:
               arguments=None,
               universal_newlines=None,
               timeout=None,
-              **kw):
+              **kw) -> Popen:
         """ Starts a program or script for the test environment.
 
         The specified program will have the original directory
@@ -1555,20 +1577,20 @@ class TestCmd:
 
     @staticmethod
     def fix_binary_stream(stream):
-        """Handle stream from popen when we specify not universal_newlines
+        """Handle stream from popen when universal_newline is not enabled.
 
         This will read from the pipes in binary mode, will not decode the
-        output, and will not convert line endings to \n.
-        We do this because in py3 (3.5) with universal_newlines=True, it will
-        choose the default system locale to decode the output, and this breaks unicode
-        output. Specifically test/option--tree.py which outputs a unicode char.
+        output, and will not convert line endings to \n.  We do this because
+        in py3 (3.5) with universal_newlines=True, it will choose the default
+        system locale to decode the output, and this breaks unicode output.
+        Specifically test/option--tree.py which outputs a unicode char.
 
-        py 3.6 allows us to pass an encoding param to popen thus not requiring the decode
-        nor end of line handling, because we propagate universal_newlines as specified.
+        py 3.6 allows us to pass an encoding param to Popen thus not requiring
+        the decode nor end of line handling, because we propagate
+        universal_newlines as specified.
 
         TODO: Do we need to pass universal newlines into this function?
         """
-
         if not stream:
             return stream
         # It seems that py3.6 still sets text mode if you set encoding.
@@ -1626,11 +1648,11 @@ class TestCmd:
         Output and error output are saved for future retrieval via
         the stdout() and stderr() methods.
 
-        The specified program will have the original directory
+        The specified *program* will have the original directory
         prepended unless it is enclosed in a [list].
 
-        argument: If this is a dict() then will create arguments with KEY+VALUE for
-                  each entry in the dict.
+        If *arguments* is a dict then will create arguments with KEY+VALUE
+        for each entry in the dict.
         """
         if self.external:
             if not program:
@@ -1698,12 +1720,12 @@ class TestCmd:
         if self.verbose >= 2:
             write = sys.stdout.write
             write('============ STATUS: %d\n' % self.status)
-            out = self.stdout()
+            out = self.stdout() or ""
             if out or self.verbose >= 3:
                 write(f'============ BEGIN STDOUT (len={len(out)}):\n')
                 write(out)
                 write('============ END STDOUT\n')
-            err = self.stderr()
+            err = self.stderr() or ""
             if err or self.verbose >= 3:
                 write(f'============ BEGIN STDERR (len={len(err)})\n')
                 write(err)
@@ -1718,7 +1740,7 @@ class TestCmd:
         """
         time.sleep(seconds)
 
-    def stderr(self, run=None) -> Optional[str]:
+    def stderr(self, run=None) -> str | None:
         """Returns the stored standard error output from a given run.
 
         Args:
@@ -1740,7 +1762,7 @@ class TestCmd:
         except IndexError:
             return None
 
-    def stdout(self, run=None) -> Optional[str]:
+    def stdout(self, run=None) -> str | None:
         """Returns the stored standard output from a given run.
 
         Args:
@@ -1818,7 +1840,11 @@ class TestCmd:
         """
         if path is None:
             try:
-                path = tempfile.mkdtemp(prefix=testprefix)
+                # put tests in a subdir of the default, so antivirus
+                # can be given that directory as an "ignore".
+                testdir = Path(tempfile.gettempdir()) / "scons"
+                testdir.mkdir(exist_ok=True)
+                path = tempfile.mkdtemp(prefix=testprefix, dir=testdir)
             except TypeError:
                 path = tempfile.mkdtemp()
         else:
@@ -1871,6 +1897,31 @@ class TestCmd:
         """
         file = self.canonicalize(file)
         os.unlink(file)
+
+    def unlink_files(self, dirpath, files):
+        """Unlinks a list of file names from the specified directory.
+
+        The directory path may be a list, in which case the elements are
+        concatenated with the os.path.join() method.
+
+        A file name may be a list, in which case the elements are
+        concatenated with the os.path.join() method.
+
+        The directory path and file name are concatenated with the
+        os.path.join() method.  The resulting file path is assumed to be
+        under the temporary working directory unless it is an absolute path
+        name.  An attempt to unlink the resulting file is made only when the
+        file exists otherwise the file path is ignored.
+        """
+        if is_List(dirpath):
+            dirpath = os.path.join(*dirpath)
+        for file in files:
+            if is_List(file):
+                file = os.path.join(*file)
+            filepath = os.path.join(dirpath, file)
+            filepath = self.canonicalize(filepath)
+            if os.path.exists(filepath):
+                self.unlink(filepath)
 
     def verbose_set(self, verbose) -> None:
         """Sets the verbose level."""
@@ -1953,16 +2004,20 @@ class TestCmd:
             # in the tree bottom-up, lest disabling read permission from
             # the top down get in the way of being able to get at lower
             # parts of the tree.
-            for dirpath, dirnames, filenames in os.walk(top, topdown=0):
+            for dirpath, dirnames, filenames in os.walk(top, topdown=False):
                 for name in dirnames + filenames:
                     do_chmod(os.path.join(dirpath, name))
             do_chmod(top)
 
-    def writable(self, top, write: bool=True) -> None:
+    def writable(self, top, write: bool = True) -> None:
         """Make the specified directory tree writable or unwritable.
 
         Tree is made writable if `write` evaluates True (the default),
         else it is made not writable.
+
+        Note on Windows the only thing we can do is and/remove the
+        "readable" setting without resorting to PyWin32 - and that,
+        only as Administrator, so this is kind of pointless there.
         """
 
         if sys.platform == 'win32':
@@ -1989,7 +2044,7 @@ class TestCmd:
                     except OSError:
                         pass
                     else:
-                        os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE] | 0o200))
+                        os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE] | stat.S_IWRITE))
             else:
                 def do_chmod(fname) -> None:
                     try:
@@ -1998,13 +2053,13 @@ class TestCmd:
                         pass
                     else:
                         os.chmod(fname, stat.S_IMODE(
-                            st[stat.ST_MODE] & ~0o200))
+                            st[stat.ST_MODE] & ~stat.S_IWRITE))
 
         if os.path.isfile(top):
             do_chmod(top)
         else:
             do_chmod(top)
-            for dirpath, dirnames, filenames in os.walk(top, topdown=0):
+            for dirpath, dirnames, filenames in os.walk(top, topdown=False):
                 for name in dirnames + filenames:
                     do_chmod(os.path.join(dirpath, name))
 
@@ -2058,7 +2113,7 @@ class TestCmd:
             # in the tree bottom-up, lest disabling execute permission from
             # the top down get in the way of being able to get at lower
             # parts of the tree.
-            for dirpath, dirnames, filenames in os.walk(top, topdown=0):
+            for dirpath, dirnames, filenames in os.walk(top, topdown=False):
                 for name in dirnames + filenames:
                     do_chmod(os.path.join(dirpath, name))
             do_chmod(top)

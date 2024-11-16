@@ -30,9 +30,10 @@ Usage::
 #   The lock attributes could probably be made opaque. Showed one visible
 #     in the example above, but not sure the benefit of that.
 
+from __future__ import annotations
+
 import os
 import time
-from typing import Optional
 
 
 class SConsLockFailure(Exception):
@@ -42,7 +43,7 @@ class SConsLockFailure(Exception):
 class FileLock:
     """Lock a file using a lockfile.
 
-    Locking for the case where multiple processes try to hit an externally
+    Basic locking for when multiple processes may hit an externally
     shared resource that cannot depend on locking within a single SCons
     process. SCons does not have a lot of those, but caches come to mind.
 
@@ -51,8 +52,9 @@ class FileLock:
     and :meth:`release_lock`.
 
     Lock can be a write lock, which is held until released, or a read
-    lock, which releases immediately upon aquisition - the interesting
-    thing being to not read a file which somebody else may be writing,
+    lock, which releases immediately upon aquisition - we want to not
+    read a file which somebody else may be writing, but not create the
+    writers starvation problem of the classic readers/writers lock.
 
     TODO: Should default timeout be None (non-blocking), or 0 (block forever),
        or some arbitrary number?
@@ -74,8 +76,8 @@ class FileLock:
     def __init__(
         self,
         file: str,
-        timeout: Optional[int] = None,
-        delay: Optional[float] = 0.05,
+        timeout: int | None = None,
+        delay: float | None = 0.05,
         writer: bool = False,
     ) -> None:
         if timeout is not None and delay is None:
@@ -89,7 +91,7 @@ class FileLock:
         # Our simple first guess is just put it where the file is.
         self.file = file
         self.lockfile = f"{file}.lock"
-        self.lock: Optional[int] = None
+        self.lock: int | None = None
         self.timeout = 999999 if timeout == 0 else timeout
         self.delay = 0.0 if delay is None else delay
         self.writer = writer
@@ -127,7 +129,7 @@ class FileLock:
             os.unlink(self.lockfile)
             self.lock = None
 
-    def __enter__(self) -> "FileLock":
+    def __enter__(self) -> FileLock:
         """Context manager entry: acquire lock if not holding."""
         if not self.lock:
             self.acquire_lock()

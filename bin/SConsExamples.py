@@ -554,7 +554,7 @@ def CCCom(target, source, env):
             process(src, fp)
             fp.write('debug = ' + ARGUMENTS.get('debug', '0') + '\\n')
 
-public_class_re = re.compile('^public class (\S+)', re.MULTILINE)
+public_class_re = re.compile(r'^public class (\S+)', re.MULTILINE)
 
 def JavaCCom(target, source, env):
     # This is a fake Java compiler that just looks for

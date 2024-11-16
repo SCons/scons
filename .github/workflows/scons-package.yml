@@ -9,23 +9,24 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  package:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4.1.6
 
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v2
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5.1.0
       with:
-        python-version: '3.10'
+        python-version: '3.12'
+        cache: 'pip'
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip setuptools wheel build
+        python -m pip install --progress-bar off --upgrade pip setuptools wheel
         #python -m pip install flake8 pytest
-        if [ -f requirements-pkg.txt ]; then pip install -r requirements-pkg.txt; elif [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f requirements-pkg.txt ]; then pip install --progress-bar off -r requirements-pkg.txt; elif [ -f requirements.txt ]; then pip install --progress-bar off -r requirements.txt; fi
         sudo apt-get update
         sudo apt-get -y install docbook-xml docbook-xsl xsltproc fop docbook-xsl-doc-pdf
         # try to keep the texlive install as small as we can to save some time/space

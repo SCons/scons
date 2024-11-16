@@ -38,6 +38,8 @@ if sys.platform != 'win32':
     msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
+project_guid = TestSConsMSVS.PROJECT_GUID
+
 vcproj_template = """\
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
@@ -83,22 +85,19 @@ vcproj_template = """\
 </VisualStudioProject>
 """
 
-
-
 SConscript_contents = """\
 env=Environment(tools=['msvs'], MSVS_VERSION = '8.0')
 
 testsrc = %(testsrc)s
 
 env.MSVSProject(target = 'Test.vcproj',
+                MSVS_PROJECT_GUID = '%(project_guid)s',
                 slnguid = '{SLNGUID}',
                 srcs = testsrc,
                 buildtarget = 'Test.exe',
                 variant = 'Release',
                 auto_build_solution = 0)
 """
-
-
 
 test.subdir('work1')
 
@@ -142,8 +141,6 @@ expect = test.msvs_substitute(expected_vcprojfile, '8.0', 'work1', 'SConstruct')
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
-
-
 test.subdir('work2')
 
 testsrc = repr([
@@ -169,8 +166,6 @@ expected_vcprojfile = vcproj_template % locals()
 expect = test.msvs_substitute(expected_vcprojfile, '8.0', 'work2', 'SConstruct')
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
-
-
 
 test.pass_test()
 

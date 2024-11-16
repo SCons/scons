@@ -81,7 +81,7 @@ scons: `.' is up to date.\n""",
 )
 
 
-# --site-dir followed by --no-site-dir turns processing off:
+# --site-dir followed by --no-site-dir turns processing off
 test.run(
     arguments="-Q --site-dir=alt_site --no-site-dir .",
     stdout="""scons: `.' is up to date.\n""",
@@ -93,6 +93,20 @@ os.environ["SCONSFLAGS"] = "-Q --site-dir=alt_site"
 test.run(
     arguments="--no-site-dir .",
     stdout="""scons: `.' is up to date.\n""",
+)
+
+# no-site-dir followed by --site-dir picks up alt_site
+test.run(
+    arguments='-Q --no-site-dir --site-dir=alt_site .',
+    stdout="""Hi there, I am in alt_site/site_init.py!
+scons: `.' is up to date.\n""",
+)
+
+# --site-dir is not additive
+test.run(
+    arguments='-Q --site-dir=alt_site --site-dir=site_scons .',
+    stdout="""Hi there, I am in site_scons/site_init.py!
+scons: `.' is up to date.\n""",
 )
 
 

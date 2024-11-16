@@ -13,10 +13,14 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+    # for use by the Windows runner (ignored by the others):
+    SCONS_CACHE_MSVC_CONFIG: 1
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  experimental:
 
     strategy:
       fail-fast: false
@@ -32,25 +36,26 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4.1.6
 
       # experiment: maybe don't need this?
       # update: looks like we do: with this commented out, the build hung
       - name: Set up MinGW
-        uses: egor-tensin/setup-mingw@v2
+        uses: egor-tensin/setup-mingw@v2.2.0
         if: matrix.os == 'windows-2019'
         with:
           platform: x64
+          static: 0
 
       - name: Set up Python 3.11 ${{ matrix.os }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5.1.0
         with:
           python-version: '3.11'
 
       - name: Install dependencies including ninja ${{ matrix.os }}
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install ninja psutil
+          python -m pip install --progress-bar off --upgrade pip
+          python -m pip install --progress-bar off ninja psutil
           # sudo apt-get update
 
       - name: Test experimental packages ${{ matrix.os }}

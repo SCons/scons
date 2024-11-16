@@ -20,15 +20,22 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+from __future__ import annotations
+
 import os
 import shutil
 from os.path import join as joinpath
 from collections import OrderedDict
+from typing import TYPE_CHECKING
 
 import SCons
 from SCons.Action import get_default_ENV, _string_from_cmd_list
 from SCons.Script import AddOption
 from SCons.Util import is_List, flatten_sequence
+
+if TYPE_CHECKING:
+    from SCons.Executor import Executor
 
 class NinjaExperimentalWarning(SCons.Warnings.WarningOnByDefault):
     pass
@@ -43,6 +50,7 @@ def ninja_add_command_line_options() -> None:
               metavar='BOOL',
               action="store_true",
               default=False,
+              settable=True,
               help='Disable automatically running ninja after scons')
 
     AddOption('--disable-ninja',
@@ -50,6 +58,7 @@ def ninja_add_command_line_options() -> None:
               metavar='BOOL',
               action="store_true",
               default=False,
+              settable=True,
               help='Disable ninja generation and build with scons even if tool is loaded. '+
                    'Also used by ninja to build targets which only scons can build.')
 
@@ -58,6 +67,7 @@ def ninja_add_command_line_options() -> None:
               metavar='BOOL',
               action="store_true",
               default=False,
+              settable=True,
               help='Allow scons to skip regeneration of the ninja file and restarting of the daemon. ' +
                     'Care should be taken in cases where Glob is in use or SCons generated files are used in ' +
                     'command lines.')
@@ -344,7 +354,7 @@ def get_comstr(env, action, targets, sources):
     return action.genstring(targets, sources, env)
 
 
-def generate_command(env, node, action, targets, sources, executor=None):
+def generate_command(env, node, action, targets, sources, executor: Executor | None = None):
     # Actions like CommandAction have a method called process that is
     # used by SCons to generate the cmd_line they need to run. So
     # check if it's a thing like CommandAction and call it if we can.

@@ -30,6 +30,8 @@ This holds a "default_fs" variable that should be initialized with an FS
 that can be used by scripts or modules looking for the canonical default.
 """
 
+from __future__ import annotations
+
 import codecs
 import fnmatch
 import importlib.util
@@ -40,7 +42,6 @@ import stat
 import sys
 import time
 from itertools import chain
-from typing import Optional
 
 import SCons.Action
 import SCons.Debug
@@ -120,30 +121,31 @@ def save_strings(val) -> None:
     global Save_Strings
     Save_Strings = val
 
-#
-# Avoid unnecessary function calls by recording a Boolean value that
-# tells us whether or not os.path.splitdrive() actually does anything
-# on this system, and therefore whether we need to bother calling it
-# when looking up path names in various methods below.
-#
 
 do_splitdrive = None
-_my_splitdrive =None
+_my_splitdrive = None
 
 def initialize_do_splitdrive() -> None:
-    global do_splitdrive
-    global has_unc
-    drive, path = os.path.splitdrive('X:/foo')
-    # splitunc is removed from python 3.7 and newer
-    # so we can also just test if splitdrive works with UNC
-    has_unc = (hasattr(os.path, 'splitunc')
-        or os.path.splitdrive(r'\\split\drive\test')[0] == r'\\split\drive')
+    """Set up splitdrive usage.
 
-    do_splitdrive = not not drive or has_unc
+    Avoid unnecessary function calls by recording a flag that tells us whether
+    or not :func:`os.path.splitdrive` actually does anything on this system,
+    and therefore whether we need to bother calling it when looking up path
+    names in various methods below.
 
-    global _my_splitdrive
-    if has_unc:
-        def splitdrive(p):
+    If :data:`do_splitdrive` is True, :func:`_my_splitdrive` will be a real
+    function which we can call. As all supported Python versions' ntpath module
+    now handle UNC paths correctly, we no longer special-case that.
+
+    Deferring the setup of ``_my_splitdrive`` also lets unit tests do
+    their thing and test UNC path handling on a POSIX host.
+    """
+    global do_splitdrive, _my_splitdrive
+
+    do_splitdrive = bool(os.path.splitdrive('X:/foo')[0])
+
+    if do_splitdrive:
+        def _my_splitdrive(p):
             if p[1:2] == ':':
                 return p[:2], p[2:]
             if p[0:2] == '//':
@@ -151,12 +153,9 @@ def initialize_do_splitdrive() -> None:
                 # because UNC paths are always absolute.
                 return '//', p[1:]
             return '', p
-    else:
-        def splitdrive(p):
-            if p[1:2] == ':':
-                return p[:2], p[2:]
-            return '', p
-    _my_splitdrive = splitdrive
+    # TODO: the os routine should work and be better debugged than ours,
+    #   but unit test test_unc_path fails on POSIX platforms. Resolve someday.
+    # _my_splitdrive = os.path.splitdrive
 
     # Keep some commonly used values in global variables to skip to
     # module look-up costs.
@@ -328,7 +327,11 @@ LocalCopy = SCons.Action.Action(LinkFunc, LocalString)
 
 def UnlinkFunc(target, source, env) -> int:
     t = target[0]
-    t.fs.unlink(t.get_abspath())
+    file = t.get_abspath()
+    try:
+        t.fs.unlink(file)
+    except FileNotFoundError:
+        pass
     return 0
 
 Unlink = SCons.Action.Action(UnlinkFunc, None)
@@ -1057,7 +1060,7 @@ class Entry(Base):
         contents of the file."""
         return SCons.Node._get_contents_map[self._func_get_contents](self)
 
-    def get_text_contents(self):
+    def get_text_contents(self) -> str:
         """Fetch the decoded text contents of a Unicode encoded Entry.
 
         Since this should return the text contents from the file
@@ -1073,6 +1076,7 @@ class Entry(Base):
             # hand or catch the exception.
             return ''
         else:
+            # now we're a different node type, call its method to get the text.
             return self.get_text_contents()
 
     def must_be_same(self, klass) -> None:
@@ -1237,7 +1241,10 @@ class FS(LocalFS):
             self.pathTop = os.getcwd()
         else:
             self.pathTop = path
-        self.defaultDrive = _my_normcase(_my_splitdrive(self.pathTop)[0])
+        if do_splitdrive:
+            self.defaultDrive = _my_normcase(_my_splitdrive(self.pathTop)[0])
+        else:
+            self.defaultDrive = ""
 
         self.Top = self.Dir(self.pathTop)
         self.Top._path = '.'
@@ -1294,7 +1301,7 @@ class FS(LocalFS):
                 self.Root[''] = root
             return root
 
-    def _lookup(self, p, directory, fsclass, create: int=1):
+    def _lookup(self, p, directory, fsclass, create: bool = True):
         """
         The generic entry point for Node lookup with user-supplied data.
 
@@ -1430,7 +1437,7 @@ class FS(LocalFS):
 
         return root._lookup_abs(p, fsclass, create)
 
-    def Entry(self, name, directory = None, create: int = 1):
+    def Entry(self, name, directory = None, create: bool = True):
         """Look up or create a generic Entry node with the specified name.
         If the name is a relative path (begins with ./, ../, or a file
         name), then it is looked up relative to the supplied directory
@@ -1439,7 +1446,7 @@ class FS(LocalFS):
         """
         return self._lookup(name, directory, Entry, create)
 
-    def File(self, name, directory = None, create: int = 1):
+    def File(self, name, directory = None, create: bool = True):
         """Look up or create a File node with the specified name.  If
         the name is a relative path (begins with ./, ../, or a file name),
         then it is looked up relative to the supplied directory node,
@@ -1486,21 +1493,24 @@ class FS(LocalFS):
                 d = self.Dir(d)
             self.Top.addRepository(d)
 
-    def PyPackageDir(self, modulename):
-        r"""Locate the directory of a given python module name
+    def PyPackageDir(self, modulename) -> Dir | None:
+        r"""Locate the directory of Python module *modulename*.
 
-        For example scons might resolve to
-        Windows: C:\Python27\Lib\site-packages\scons-2.5.1
-        Linux: /usr/lib/scons
+        For example 'SCons' might resolve to
+        Windows: C:\Python311\Lib\site-packages\SCons
+        Linux: /usr/lib64/python3.11/site-packages/SCons
 
-        This can be useful when we want to determine a toolpath based on a python module name"""
+        Can be used to determine a toolpath based on a Python module name.
 
-        dirpath = ''
-
-        # Python3 Code
+        This is the backend called by the public API function
+        :meth:`~Environment.Base.PyPackageDir`.
+        """
         modspec = importlib.util.find_spec(modulename)
-        dirpath = os.path.dirname(modspec.origin)
-        return self._lookup(dirpath, None, Dir, True)
+        if modspec:
+            origin = os.path.dirname(modspec.origin)
+            return self._lookup(origin, directory=None, fsclass=Dir, create=True)
+        else:
+            return None
 
 
     def variant_dir_target_climb(self, orig, dir, tail):
@@ -1550,11 +1560,15 @@ class DirNodeInfo(SCons.Node.NodeInfoBase):
     def str_to_node(self, s):
         top = self.fs.Top
         root = top.root
+        # Python 3.13/Win changed isabs() - after you split C:/foo/bar,
+        # the path part is no longer considerd absolute. Save the passed
+        # path for the isabs check so we can get the right answer.
+        path = s
         if do_splitdrive:
             drive, s = _my_splitdrive(s)
             if drive:
                 root = self.fs.get_root(drive)
-        if not os.path.isabs(s):
+        if not os.path.isabs(path):
             s = top.get_labspath() + '/' + s
         return root._lookup_abs(s, Entry)
 
@@ -2376,7 +2390,7 @@ class RootDir(Dir):
         # The // entry is necessary because os.path.normpath()
         # preserves double slashes at the beginning of a path on Posix
         # platforms.
-        if not has_unc:
+        if not do_splitdrive:
             self._lookupDict['//'] = self
 
     def _morph(self) -> None:
@@ -2507,44 +2521,17 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
     def str_to_node(self, s):
         top = self.fs.Top
         root = top.root
+        # Python 3.13/Win changed isabs() - after you split C:/foo/bar,
+        # the path part is no longer considerd absolute. Save the passed
+        # path for the isabs check so we can get the right answer.
+        path = s
         if do_splitdrive:
             drive, s = _my_splitdrive(s)
             if drive:
                 root = self.fs.get_root(drive)
-        if not os.path.isabs(s):
+        if not os.path.isabs(path):
             s = top.get_labspath() + '/' + s
         return root._lookup_abs(s, Entry)
-
-    def __getstate__(self):
-        """
-        Return all fields that shall be pickled. Walk the slots in the class
-        hierarchy and add those to the state dictionary. If a '__dict__' slot is
-        available, copy all entries to the dictionary. Also include the version
-        id, which is fixed for all instances of a class.
-        """
-        state = getattr(self, '__dict__', {}).copy()
-        for obj in type(self).mro():
-            for name in getattr(obj, '__slots__', ()):
-                if hasattr(self, name):
-                    state[name] = getattr(self, name)
-
-        state['_version_id'] = self.current_version_id
-        try:
-            del state['__weakref__']
-        except KeyError:
-            pass
-
-        return state
-
-    def __setstate__(self, state) -> None:
-        """
-        Restore the attributes from a pickled state.
-        """
-        # TODO check or discard version
-        del state['_version_id']
-        for key, value in state.items():
-            if key not in ('__weakref__',):
-                setattr(self, key, value)
 
     def __eq__(self, other):
         return self.csig == other.csig and self.timestamp == other.timestamp and self.size == other.size
@@ -2751,38 +2738,13 @@ class File(Base):
         return SCons.Node._get_contents_map[self._func_get_contents](self)
 
     def get_text_contents(self) -> str:
-        """Return the contents of the file in text form.
-
-        This attempts to figure out what the encoding of the text is
-        based upon the BOM bytes, and then decodes the contents so that
-        it's a valid python string.
-        """
-        contents = self.get_contents()
-        # The behavior of various decode() methods and functions
-        # w.r.t. the initial BOM bytes is different for different
-        # encodings and/or Python versions.  ('utf-8' does not strip
-        # them, but has a 'utf-8-sig' which does; 'utf-16' seems to
-        # strip them; etc.)  Just sidestep all the complication by
-        # explicitly stripping the BOM before we decode().
-        if contents[:len(codecs.BOM_UTF8)] == codecs.BOM_UTF8:
-            return contents[len(codecs.BOM_UTF8):].decode('utf-8')
-        if contents[:len(codecs.BOM_UTF16_LE)] == codecs.BOM_UTF16_LE:
-            return contents[len(codecs.BOM_UTF16_LE):].decode('utf-16-le')
-        if contents[:len(codecs.BOM_UTF16_BE)] == codecs.BOM_UTF16_BE:
-            return contents[len(codecs.BOM_UTF16_BE):].decode('utf-16-be')
-        try:
-            return contents.decode('utf-8')
-        except UnicodeDecodeError as e:
-            try:
-                return contents.decode('latin-1')
-            except UnicodeDecodeError as e:
-                return contents.decode('utf-8', errors='backslashreplace')
+        """Return the contents of the file as text."""
+        return SCons.Util.to_Text(self.get_contents())
 
     def get_content_hash(self) -> str:
-        """
-        Compute and return the hash for this file.
-        """
+        """Compute and return the hash for this file."""
         if not self.rexists():
+            # special marker to help distinguish from empty file
             return hash_signature(SCons.Util.NOFILE)
         fname = self.rfile().get_abspath()
         try:
@@ -3007,7 +2969,7 @@ class File(Base):
         # created.
         self.dir._create()
 
-    def push_to_cache(self) -> None:
+    def push_to_cache(self) -> bool:
         """Try to push the node into a cache
         """
         # This should get called before the Nodes' .built() method is
@@ -3018,10 +2980,10 @@ class File(Base):
         # the node to cache so that the memoization of the self.exists()
         # return value doesn't interfere.
         if self.nocache:
-            return
+            return None
         self.clear_memoized_values()
         if self.exists():
-            self.get_build_env().get_CacheDir().push(self)
+            return self.get_build_env().get_CacheDir().push(self)
 
     def retrieve_from_cache(self) -> bool:
         """Try to retrieve the node's content from a cache
@@ -3197,12 +3159,16 @@ class File(Base):
         return None
 
     def do_duplicate(self, src):
+        """Create a duplicate of this file from the specified source."""
         self._createDir()
         if SCons.Node.print_duplicate:
             print(f"dup: relinking variant '{self}' from '{src}'")
         Unlink(self, None, None)
-        e = Link(self, src, None)
-        if isinstance(e, SCons.Errors.BuildError):
+        try:
+            e = Link(self, src, None)
+            if isinstance(e, SCons.Errors.BuildError):
+                raise e
+        except SCons.Errors.BuildError as e:
             raise SCons.Errors.StopError(f"Cannot duplicate `{src.get_internal_path()}' in `{self.dir._path}': {e.errstr}.")
         self.linked = 1
         # The Link() action may or may not have actually
@@ -3225,7 +3191,7 @@ class File(Base):
     # SIGNATURE SUBSYSTEM
     #
 
-    def get_max_drift_csig(self) -> Optional[str]:
+    def get_max_drift_csig(self) -> str | None:
         """
         Returns the content signature currently stored for this node
         if it's been unmodified longer than the max_drift value, or the
@@ -3555,7 +3521,7 @@ class File(Base):
 
         In all cases self is the target we're checking to see if it's up to date
         """
-        T = 0
+        T = False
         if T: Trace('is_up_to_date(%s):' % self)
         if not self.exists():
             if T: Trace(' not self.exists():')
@@ -3751,7 +3717,10 @@ class FileFinder:
         if fd is None:
             fd = self.default_filedir
         dir, name = os.path.split(fd)
-        drive, d = _my_splitdrive(dir)
+        if do_splitdrive:
+            drive, d = _my_splitdrive(dir)
+        else:
+            drive, d = "", dir
         if not name and d[:1] in ('/', OS_SEP):
             #return p.fs.get_root(drive).dir_on_disk(name)
             return p.fs.get_root(drive)

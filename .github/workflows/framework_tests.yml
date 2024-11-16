@@ -29,10 +29,10 @@ jobs:
 
     steps:
       # Checkouut repository under $GITHUB_WORKSPACE
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4.1.6
 
       - name: Set up Python 3.11 ${{ matrix.os }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5.1.0
         with:
           python-version: '3.11'
 

@@ -165,16 +165,18 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
     # and do clean up stuff
     if stdout is not None and not stdoutRedirected:
         try:
-            with open(tmpFileStdoutName) as tmpFileStdout:
-                stdout.write(tmpFileStdout.read())
+            with open(tmpFileStdoutName, "rb") as tmpFileStdout:
+                output = tmpFileStdout.read()
+                stdout.write(output.decode('oem', "replace").replace("\r\n", "\n"))
             os.remove(tmpFileStdoutName)
         except OSError:
             pass
 
     if stderr is not None and not stderrRedirected:
         try:
-            with open(tmpFileStderrName) as tmpFileStderr:
-                stderr.write(tmpFileStderr.read())
+            with open(tmpFileStderrName, "rb") as tmpFileStderr:
+                errors = tmpFileStderr.read()
+                stderr.write(errors.decode('oem', "replace").replace("\r\n", "\n"))
             os.remove(tmpFileStderrName)
         except OSError:
             pass

@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -71,7 +72,7 @@ in this case.
 If the <option>--install-sandbox</option> command line
 option is given, the target directory will be prefixed
 by the directory path specified.
-This is useful to test installs without installing to
+This is useful to test installation behavior without installing to
 a "live" location in the system.
 </para>
 

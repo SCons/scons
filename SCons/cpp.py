@@ -26,6 +26,8 @@
 import os
 import re
 
+import SCons.Util
+
 # First "subsystem" of regular expressions that we set up:
 #
 # Stuff to turn the C preprocessor directives in a file's contents into
@@ -144,13 +146,27 @@ expr = '|'.join(map(re.escape, l))
 # ...and compile the expression.
 CPP_to_Python_Ops_Expression = re.compile(expr)
 
+# integer specifications
+int_suffix_opt = r'(?:[uU](?:l{1,2}|L{1,2}|[zZ]|wb|WB)?|(?:l{1,2}|L{1,2}|[zZ]|wb|WB)[uU]?)?'
+
+hex_integer = fr'(0[xX][0-9A-Fa-f]+){int_suffix_opt}'
+bin_integer = fr'(0[bB][01]+){int_suffix_opt}'
+oct_integer = fr'(0[0-7]*){int_suffix_opt}'
+dec_integer = fr'([1-9][0-9]*){int_suffix_opt}'
+
+int_boundary = r'[a-zA-Z0-9_]'
+int_neg_lookbehind = fr'(?<!{int_boundary})'
+int_neg_lookahead = fr'(?!{int_boundary})'
+
 # A separate list of expressions to be evaluated and substituted
 # sequentially, not all at once.
 CPP_to_Python_Eval_List = [
-    [r'defined\s+(\w+)',                 '"\\1" in __dict__'],
-    [r'defined\s*\((\w+)\)',             '"\\1" in __dict__'],
-    [r'(0x[0-9A-Fa-f]+)(?:L|UL)?',  '\\1'],
-    [r'(\d+)(?:L|UL)?',  '\\1'],
+    [r'defined\s+(\w+)', '"\\1" in __dict__'],
+    [r'defined\s*\((\w+)\)', '"\\1" in __dict__'],
+    [fr'{int_neg_lookbehind}{hex_integer}{int_neg_lookahead}', '\\1'],
+    [fr'{int_neg_lookbehind}{bin_integer}{int_neg_lookahead}', '\\1'],
+    [fr'{int_neg_lookbehind}{oct_integer}{int_neg_lookahead}', '0o\\1'],
+    [fr'{int_neg_lookbehind}{dec_integer}{int_neg_lookahead}', '\\1'],
 ]
 
 # Replace the string representations of the regular expressions in the
@@ -247,6 +263,9 @@ class PreProcessor:
         # Python).
         self.cpp_namespace = dict.copy()
         self.cpp_namespace['__dict__'] = self.cpp_namespace
+
+        # Namespace for constant expression evaluation (literals only)
+        self.constant_expression_namespace = {}
 
         # Return all includes without resolving
         if all:
@@ -367,6 +386,25 @@ class PreProcessor:
     def scons_current_file(self, t) -> None:
         self.current_file = t[1]
 
+    def eval_constant_expression(self, s):
+        """
+        Evaluates a C preprocessor expression.
+
+        This is done by converting it to a Python equivalent and
+        eval()ing it in the C preprocessor namespace we use to
+        track #define values.
+
+        Returns None if the eval() result is not an integer.
+        """
+        s = CPP_to_Python(s)
+        try:
+            rval = eval(s, self.constant_expression_namespace)
+        except (NameError, TypeError, SyntaxError) as e:
+            rval = None
+        if not isinstance(rval, int):
+            rval = None
+        return rval
+
     def eval_expression(self, t):
         """
         Evaluates a C preprocessor expression.
@@ -401,9 +439,9 @@ class PreProcessor:
                 return f
         return None
 
-    def read_file(self, file):
-        with open(file) as f:
-            return f.read()
+    def read_file(self, file) -> str:
+        with open(file, 'rb') as f:
+            return SCons.Util.to_Text(f.read())
 
     # Start and stop processing include lines.
 
@@ -505,9 +543,11 @@ class PreProcessor:
         Default handling of a #define line.
         """
         _, name, args, expansion = t
-        try:
-            expansion = int(expansion)
-        except (TypeError, ValueError):
+
+        rval = self.eval_constant_expression(expansion)
+        if rval is not None:
+            expansion = rval
+        else:
             # handle "defined" chain "! (defined (A) || defined (B)" ...
             if "defined " in expansion:
                 self.cpp_namespace[name] = self.eval_expression(t[2:])

@@ -34,9 +34,10 @@ It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
 """
 
+from __future__ import annotations
+
 import os.path
 import sys
-from typing import Optional
 
 import SCons.Defaults
 import SCons.Tool
@@ -68,7 +69,7 @@ def _yaccEmitter(target, source, env, ysuf, hsuf) -> tuple:
 
     # If -d is specified on the command line, yacc will emit a .h
     # or .hpp file with the same base name as the .c or .cpp output file.
-    # if '-d' in flags: 
+    # if '-d' in flags:
     # or  bison options -H, --header, --defines (obsolete)
     if "-d" in flags or "-H" in flags or "--header" in flags or "--defines" in flags:
         target.append(targetBase + env.subst(hsuf, target=target, source=source))
@@ -76,7 +77,7 @@ def _yaccEmitter(target, source, env, ysuf, hsuf) -> tuple:
     # If -g is specified on the command line, yacc will emit a graph
     # file with the same base name as the .c or .cpp output file.
     # TODO: should this be handled like -v? i.e. a side effect, not target
-    # if "-g" in flags:  
+    # if "-g" in flags:
     # or bison option --graph
     if "-g" in flags or "--graph" in flags:
         target.append(targetBase + env.subst("$YACC_GRAPH_FILE_SUFFIX"))
@@ -134,7 +135,7 @@ def yyEmitter(target, source, env) -> tuple:
     return _yaccEmitter(target, source, env, ['.yy'], '$YACCHXXFILESUFFIX')
 
 
-def get_yacc_path(env, append_paths: bool=False) -> Optional[str]:
+def get_yacc_path(env, append_paths: bool=False) -> str | None:
     """
     Returns the path to the yacc tool, searching several possible names.
 
@@ -200,7 +201,7 @@ def generate(env) -> None:
     env['_YACC_GRAPH'] = '${YACC_GRAPH_FILE and "--graph=" + str(YACC_GRAPH_FILE)}'
 
 
-def exists(env) -> Optional[str]:
+def exists(env) -> str | None:
     if 'YACC' in env:
         return env.Detect(env['YACC'])
 

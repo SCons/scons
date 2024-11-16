@@ -29,12 +29,19 @@ import json
 import os
 import stat
 import sys
+import tempfile
 import uuid
 
 import SCons.Action
 import SCons.Errors
 import SCons.Warnings
-import SCons
+import SCons.Util
+
+CACHE_PREFIX_LEN = 2  # first two characters used as subdirectory name
+CACHE_TAG = (
+    b"Signature: 8a477f597d28d172789f06886806bc55\n"
+    b"# SCons cache directory - see https://bford.info/cachedir/\n"
+)
 
 cache_enabled = True
 cache_debug = False
@@ -67,20 +74,20 @@ def CacheRetrieveFunc(target, source, env) -> int:
         fs.chmod(t.get_internal_path(), stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     return 0
 
-def CacheRetrieveString(target, source, env) -> None:
+def CacheRetrieveString(target, source, env) -> str:
     t = target[0]
     fs = t.fs
     cd = env.get_CacheDir()
     cachedir, cachefile = cd.cachepath(t)
     if t.fs.exists(cachefile):
         return "Retrieved `%s' from cache" % t.get_internal_path()
-    return None
+    return ""
 
 CacheRetrieve = SCons.Action.Action(CacheRetrieveFunc, CacheRetrieveString)
 
 CacheRetrieveSilent = SCons.Action.Action(CacheRetrieveFunc, None)
 
-def CachePushFunc(target, source, env):
+def CachePushFunc(target, source, env) -> None:
     if cache_readonly:
         return
 
@@ -134,8 +141,7 @@ CachePush = SCons.Action.Action(CachePushFunc, None)
 class CacheDir:
 
     def __init__(self, path) -> None:
-        """
-        Initialize a CacheDir object.
+        """Initialize a CacheDir object.
 
         The cache configuration is stored in the object. It
         is read from the config file in the supplied path if
@@ -147,50 +153,97 @@ class CacheDir:
         self.path = path
         self.current_cache_debug = None
         self.debugFP = None
-        self.config = dict()
-        if path is None:
-            return
+        self.config = {}
+        if path is not None:
+            self._readconfig(path)
 
-        self._readconfig(path)
+    def _add_config(self, path: str) -> None:
+        """Create the cache config file in *path*.
 
-
-    def _readconfig(self, path):
-        """
-        Read the cache config.
-
-        If directory or config file do not exist, create.  Take advantage
-        of Py3 capability in os.makedirs() and in file open(): just try
-        the operation and handle failure appropriately.
-
-        Omit the check for old cache format, assume that's old enough
-        there will be none of those left to worry about.
-
-        :param path: path to the cache directory
+        Locking isn't necessary in the normal case - when the cachedir is
+        being created - because it's written to a unique directory first,
+        before the directory is renamed. But it is legal to call CacheDir
+        with an existing directory, which may be missing the config file,
+        and in that case we do need locking. Simpler to always lock.
         """
         config_file = os.path.join(path, 'config')
+        # TODO: this breaks the "unserializable config object" test which
+        #   does some crazy stuff, so for now don't use setdefault. It does
+        #   seem like it would be better to preserve an exisiting value.
+        # self.config.setdefault('prefix_len', CACHE_PREFIX_LEN)
+        self.config['prefix_len'] = CACHE_PREFIX_LEN
+        with SCons.Util.FileLock(config_file, timeout=5, writer=True), open(
+            config_file, "x"
+        ) as config:
+            try:
+                json.dump(self.config, config)
+            except Exception:
+                msg = "Failed to write cache configuration for " + path
+                raise SCons.Errors.SConsEnvironmentError(msg)
+
+        # Add the tag file "carelessly" - the contents are not used by SCons
+        # so we don't care about the chance of concurrent writes.
         try:
-            os.makedirs(path, exist_ok=True)
+            tagfile = os.path.join(path, "CACHEDIR.TAG")
+            with open(tagfile, 'xb') as cachedir_tag:
+                cachedir_tag.write(CACHE_TAG)
         except FileExistsError:
             pass
-        except OSError:
-            msg = "Failed to create cache directory " + path
-            raise SCons.Errors.SConsEnvironmentError(msg)
+
+    def _mkdir_atomic(self, path: str) -> bool:
+        """Create cache directory at *path*.
+
+        Uses directory renaming to avoid races.  If we are actually
+        creating the dir, populate it with the metadata files at the
+        same time as that's the safest way. But it's not illegal to point
+        CacheDir at an existing directory that wasn't a cache previously,
+        so we may have to do that elsewhere, too.
+
+        Returns:
+            ``True`` if it we created the dir, ``False`` if already existed,
+
+        Raises:
+            SConsEnvironmentError: if we tried and failed to create the cache.
+        """
+        directory = os.path.abspath(path)
+        if os.path.exists(directory):
+            return False
 
         try:
-            with open(config_file, 'x') as config:
-                self.config['prefix_len'] = 2
-                try:
-                    json.dump(self.config, config)
-                except Exception:
-                    msg = "Failed to write cache configuration for " + path
-                    raise SCons.Errors.SConsEnvironmentError(msg)
-        except FileExistsError:
+            tempdir = tempfile.TemporaryDirectory(dir=os.path.dirname(directory))
+        except OSError as e:
+            msg = "Failed to create cache directory " + path
+            raise SCons.Errors.SConsEnvironmentError(msg) from e
+        self._add_config(tempdir.name)
+        with tempdir:
             try:
-                with open(config_file) as config:
-                    self.config = json.load(config)
-            except ValueError:
-                msg = "Failed to read cache configuration for " + path
-                raise SCons.Errors.SConsEnvironmentError(msg)
+                os.rename(tempdir.name, directory)
+                return True
+            except Exception as e:
+                # did someone else get there first?
+                if os.path.isdir(directory):
+                    return False
+                msg = "Failed to create cache directory " + path
+                raise SCons.Errors.SConsEnvironmentError(msg) from e
+
+    def _readconfig(self, path: str) -> None:
+        """Read the cache config from *path*.
+
+        If directory or config file do not exist, create and populate.
+        """
+        config_file = os.path.join(path, 'config')
+        created = self._mkdir_atomic(path)
+        if not created and not os.path.isfile(config_file):
+            # Could have been passed an empty directory
+            self._add_config(path)
+        try:
+            with SCons.Util.FileLock(config_file, timeout=5, writer=False), open(
+                config_file
+            ) as config:
+                self.config = json.load(config)
+        except (ValueError, json.decoder.JSONDecodeError):
+            msg = "Failed to read cache configuration for " + path
+            raise SCons.Errors.SConsEnvironmentError(msg)
 
     def CacheDebug(self, fmt, target, cachefile) -> None:
         if cache_debug != self.current_cache_debug:
@@ -249,7 +302,7 @@ class CacheDir:
     def is_readonly(self) -> bool:
         return cache_readonly
 
-    def get_cachedir_csig(self, node):
+    def get_cachedir_csig(self, node) -> str:
         cachedir, cachefile = self.cachepath(node)
         if cachefile and os.path.exists(cachefile):
             return SCons.Util.hash_file_signature(cachefile, SCons.Node.FS.File.hash_chunksize)

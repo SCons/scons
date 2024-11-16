@@ -43,7 +43,6 @@ class BoolVariableTestCase(unittest.TestCase):
         """Test the BoolVariable converter"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.BoolVariable('test', 'test option help', False))
-
         o = opts.options[0]
 
         true_values = [
@@ -67,18 +66,25 @@ class BoolVariableTestCase(unittest.TestCase):
 
         for t in true_values:
             x = o.converter(t)
-            assert x, "converter returned false for '%s'" % t
+            assert x, f"converter returned False for {t!r}"
 
         for f in false_values:
             x = o.converter(f)
-            assert not x, "converter returned true for '%s'" % f
+            assert not x, f"converter returned True for {f!r}"
 
-        caught = False
-        try:
+        with self.assertRaises(ValueError):
             o.converter('x')
-        except ValueError:
-            caught = True
-        assert caught, "did not catch expected ValueError for 'x'"
+
+        # Synthesize the case where the variable is created with subst=False:
+        # Variables code won't subst before calling the converter,
+        # and we might have pulled a bool from the option default.
+        with self.subTest():
+            x = o.converter(True)
+            assert x, f"converter returned False for {t!r}"
+        with self.subTest():
+            x = o.converter(False)
+            assert not x, f"converter returned False for {t!r}"
+
 
     def test_validator(self) -> None:
         """Test the BoolVariable validator"""
@@ -98,19 +104,11 @@ class BoolVariableTestCase(unittest.TestCase):
         o.validator('F', 0, env)
 
         # negative checks
-        caught = False
-        try:
+        with self.assertRaises(SCons.Errors.UserError):
             o.validator('N', 0, env)
-        except SCons.Errors.UserError:
-            caught = True
-        assert caught, "did not catch expected UserError for value %s" % env['N']
 
-        caught = False
-        try:
+        with self.assertRaises(KeyError):
             o.validator('NOSUCHKEY', 0, env)
-        except KeyError:
-            caught = True
-        assert caught, "did not catch expected KeyError for 'NOSUCHKEY'"
 
 
 if __name__ == "__main__":

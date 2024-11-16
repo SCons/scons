@@ -1,4 +1,13 @@
 <?xml version='1.0'?>
+
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
+-->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
@@ -18,31 +27,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>Troubleshooting</title>
-
-<!--
-
-  __COPYRIGHT__
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--->
 
   <para>
 
@@ -209,7 +193,7 @@ file3.c
     This becomes even more helpful
     in identifying when a file is rebuilt
     due to a change in an implicit dependency,
-    such as an incuded <filename>.h</filename> file.
+    such as an included <filename>.h</filename> file.
     If the <filename>file1.c</filename>
     and <filename>file3.c</filename> files
     in our example
@@ -307,7 +291,7 @@ print(env.Dump())
 
     <para>
 
-    On a Windows system with Visual C++
+    On a Windows system with &MSVC;
     the output might look like:
 
     </para>
@@ -319,7 +303,7 @@ print(env.Dump())
     <para>
 
     The &consenvs; in these examples have
-    actually been restricted to just gcc and Visual C++,
+    actually been restricted to just gcc and &MSVC;
     respectively.
     In a real-life situation,
     the &consenvs; will
@@ -337,7 +321,7 @@ print(env.Dump())
     interested in,
     the &Dump; method allows you to
     specify a specific &consvar;
-    that you want to disply.
+    that you want to display.
     For example,
     it's not unusual to want to verify
     the external environment used to execute build commands,
@@ -442,7 +426,7 @@ inc.h
 
     <para>
 
-    By default &SCons; uses "ASCII art" to draw the tree. It is
+    By default, &SCons; uses "ASCII art" to draw the tree. It is
     possible to use line-drawing characters (Unicode calls these
     Box Drawing) to make a nicer display. To do this, add the
     <option>linedraw</option> qualifier:
@@ -674,7 +658,7 @@ cc -o prog prog.o
     To get some insight into what library names
     &SCons; is searching for,
     and in which directories it is searching,
-    Use the &debug-findlibs; option.
+    use the &debug-findlibs; option.
     Given the following input &SConstruct; file:
 
     </para>
@@ -893,7 +877,7 @@ prog.c
 
     <para>
 
-    Sometimes SCons doesn't build the target you want
+    Sometimes SCons doesn't build the target you want,
     and it's difficult to figure out why.  You can use
     the &debug-prepare; option
     to see all the targets &SCons; is considering, and whether
@@ -909,7 +893,7 @@ prog.c
 
     <para>
 
-    When using the &Duplicate; option to create variant dirs,
+    When using the &Duplicate; option to create variant directories,
     sometimes you may find files not getting linked or copied to where you
     expect (or not at all), or files mysteriously disappearing.
     These are usually because of a misconfiguration of some kind in the
@@ -917,7 +901,7 @@ prog.c
     &debug-duplicate; option shows each time a variant file is
     unlinked and relinked from its source (or copied, depending on
     settings), and also shows a message for removing "stale"
-    variant-dir files that no longer have a corresponding source file.
+    variant-directory files that no longer have a corresponding source file.
     It also prints a line for each target that's removed just before
     building, since that can also be mistaken for the same thing.
 

@@ -28,9 +28,10 @@ import unittest
 import tempfile
 import stat
 
-from TestCmd import TestCmd
+from TestCmd import TestCmd, IS_WINDOWS, IS_ROOT
 
 import SCons.CacheDir
+import SCons.Node.FS
 
 built_it = None
 
@@ -62,15 +63,11 @@ class Environment:
         return self.cachedir
 
 class BaseTestCase(unittest.TestCase):
-    """
-    Base fixtures common to our other unittest classes.
-    """
+    """Base fixtures common to our other unittest classes."""
+
     def setUp(self) -> None:
         self.test = TestCmd(workdir='')
-
-        import SCons.Node.FS
         self.fs = SCons.Node.FS.FS()
-
         self._CacheDir = SCons.CacheDir.CacheDir('cache')
 
     def File(self, name, bsig=None, action=Action()):
@@ -83,14 +80,11 @@ class BaseTestCase(unittest.TestCase):
         return node
 
     def tearDown(self) -> None:
-        os.remove(os.path.join(self._CacheDir.path, 'config'))
-        os.rmdir(self._CacheDir.path)
-        # Should that be shutil.rmtree?
+        shutil.rmtree(self._CacheDir.path)
 
 class CacheDirTestCase(BaseTestCase):
-    """
-    Test calling CacheDir code directly.
-    """
+    """Test calling CacheDir code directly."""
+
     def test_cachepath(self) -> None:
         """Test the cachepath() method"""
 
@@ -98,6 +92,7 @@ class CacheDirTestCase(BaseTestCase):
         # of the file in cache.
         def my_collect(list, hash_format=None):
             return list[0]
+
         save_collect = SCons.Util.hash_collect
         SCons.Util.hash_collect = my_collect
 
@@ -112,6 +107,21 @@ class CacheDirTestCase(BaseTestCase):
         finally:
             SCons.Util.hash_collect = save_collect
 
+class CacheDirExistsTestCase(unittest.TestCase):
+    """Test passing an existing but not setup cache directory."""
+
+    def setUp(self) -> None:
+        self.test = TestCmd(workdir='')
+        self.test.subdir('ex-cache')  # force an empty dir
+        cache = self.test.workpath('ex-cache')
+        self.fs = SCons.Node.FS.FS()
+        self._CacheDir = SCons.CacheDir.CacheDir(cache)
+
+    def test_existing_cachedir(self) -> None:
+        """Test the setup happened even though cache already existed."""
+        assert os.path.exists(self.test.workpath('ex-cache', 'config'))
+        assert os.path.exists(self.test.workpath('ex-cache', 'CACHEDIR.TAG'))
+
 class ExceptionTestCase(unittest.TestCase):
     """Test that the correct exceptions are thrown by CacheDir."""
 
@@ -124,28 +134,38 @@ class ExceptionTestCase(unittest.TestCase):
     def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)
 
-    @unittest.skipIf(sys.platform.startswith("win"), "This fixture will not trigger an OSError on Windows")
+    @unittest.skipIf(
+        IS_WINDOWS,
+        "Skip privileged CacheDir test on Windows, cannot change directory rights",
+    )
+    @unittest.skipIf(
+        IS_ROOT,
+        "Skip privileged CacheDir test if running as root.",
+    )
     def test_throws_correct_on_OSError(self) -> None:
-        """Test that the correct error is thrown when cache directory cannot be created."""
+        """Test for correct error when cache directory cannot be created."""
+        test = TestCmd()
         privileged_dir = os.path.join(self.tmpdir, "privileged")
-        try:
-            os.mkdir(privileged_dir)
-            os.chmod(privileged_dir, stat.S_IREAD)
-            cd = SCons.CacheDir.CacheDir(os.path.join(privileged_dir, "cache"))
-            assert False, "Should have raised exception and did not"
-        except SCons.Errors.SConsEnvironmentError as e:
-            assert str(e) == "Failed to create cache directory {}".format(os.path.join(privileged_dir, "cache"))
-        finally:
-            os.chmod(privileged_dir, stat.S_IWRITE | stat.S_IEXEC | stat.S_IREAD)
-            shutil.rmtree(privileged_dir)
-
+        cachedir_path = os.path.join(privileged_dir, "cache")
+        os.makedirs(privileged_dir, exist_ok=True)
+        test.writable(privileged_dir, False)
+        with self.assertRaises(SCons.Errors.SConsEnvironmentError) as cm:
+            cd = SCons.CacheDir.CacheDir(cachedir_path)
+        self.assertEqual(
+            str(cm.exception),
+            "Failed to create cache directory " + cachedir_path
+        )
+        test.writable(privileged_dir, True)
+        shutil.rmtree(privileged_dir)
 
     def test_throws_correct_when_failed_to_write_configfile(self) -> None:
+        """Test for correct error if cache config file cannot be created."""
+
         class Unserializable:
-            """A class which the JSON should not be able to serialize"""
+            """A class which the JSON module should not be able to serialize."""
 
             def __init__(self, oldconfig) -> None:
-                self.something = 1 # Make the object unserializable
+                self.something = 1  # Make the object unserializable
                 # Pretend to be the old config just enough
                 self.__dict__["prefix_len"] = oldconfig["prefix_len"]
 
@@ -160,16 +180,17 @@ class ExceptionTestCase(unittest.TestCase):
 
         oldconfig = self._CacheDir.config
         self._CacheDir.config = Unserializable(oldconfig)
+
         # Remove the config file that got created on object creation
         # so that _readconfig* will try to rewrite it
         old_config = os.path.join(self._CacheDir.path, "config")
         os.remove(old_config)
-        
-        try:
+        with self.assertRaises(SCons.Errors.SConsEnvironmentError) as cm:
             self._CacheDir._readconfig(self._CacheDir.path)
-            assert False, "Should have raised exception and did not"
-        except SCons.Errors.SConsEnvironmentError as e:
-            assert str(e) == "Failed to write cache configuration for {}".format(self._CacheDir.path)
+        self.assertEqual(
+            str(cm.exception),
+            "Failed to write cache configuration for " + self._CacheDir.path,
+        )
 
     def test_raise_environment_error_on_invalid_json(self) -> None:
         config_file = os.path.join(self._CacheDir.path, "config")
@@ -180,17 +201,16 @@ class ExceptionTestCase(unittest.TestCase):
         with open(config_file, "w") as cfg:
             cfg.write(content)
 
-        try:
-            # Construct a new cache dir that will try to read the invalid config
+        with self.assertRaises(SCons.Errors.SConsEnvironmentError) as cm:
+            # Construct a new cachedir that will try to read the invalid config
             new_cache_dir = SCons.CacheDir.CacheDir(self._CacheDir.path)
-            assert False, "Should have raised exception and did not"
-        except SCons.Errors.SConsEnvironmentError as e:
-            assert str(e) == "Failed to read cache configuration for {}".format(self._CacheDir.path)
+        self.assertEqual(
+            str(cm.exception),
+            "Failed to read cache configuration for " + self._CacheDir.path,
+        )
 
 class FileTestCase(BaseTestCase):
-    """
-    Test calling CacheDir code through Node.FS.File interfaces.
-    """
+    """Test calling CacheDir code through Node.FS.File interfaces."""
     # These tests were originally in Nodes/FSTests.py and got moved
     # when the CacheDir support was refactored into its own module.
     # Look in the history for Node/FSTests.py if any of this needs
@@ -266,9 +286,7 @@ class FileTestCase(BaseTestCase):
 
     def test_CachePush(self) -> None:
         """Test the CachePush() function"""
-
         save_CachePush = SCons.CacheDir.CachePush
-
         SCons.CacheDir.CachePush = self.push
 
         try:
@@ -301,7 +319,6 @@ class FileTestCase(BaseTestCase):
 
     def test_warning(self) -> None:
         """Test raising a warning if we can't copy a file to cache."""
-
         test = TestCmd(workdir='')
 
         save_copy2 = shutil.copy2
@@ -315,27 +332,20 @@ class FileTestCase(BaseTestCase):
         old_warn_exceptions = SCons.Warnings.warningAsException(1)
         SCons.Warnings.enableWarningClass(SCons.Warnings.CacheWriteErrorWarning)
 
-        try:
-            cd_f7 = self.test.workpath("cd.f7")
-            self.test.write(cd_f7, "cd.f7\n")
-            f7 = self.File(cd_f7, 'f7_bsig')
+        cd_f7 = self.test.workpath("cd.f7")
+        self.test.write(cd_f7, "cd.f7\n")
+        f7 = self.File(cd_f7, 'f7_bsig')
 
-            warn_caught = 0
-            try:
-                f7.push_to_cache()
-            except SCons.Errors.BuildError as e:
-                assert e.exc_info[0] == SCons.Warnings.CacheWriteErrorWarning
-                warn_caught = 1
-            assert warn_caught
-        finally:
-            shutil.copy2 = save_copy2
-            os.mkdir = save_mkdir
-            SCons.Warnings.warningAsException(old_warn_exceptions)
-            SCons.Warnings.suppressWarningClass(SCons.Warnings.CacheWriteErrorWarning)
+        warn_caught = 0
+        r = f7.push_to_cache()
+        assert r.exc_info[0] == SCons.Warnings.CacheWriteErrorWarning
+        shutil.copy2 = save_copy2
+        os.mkdir = save_mkdir
+        SCons.Warnings.warningAsException(old_warn_exceptions)
+        SCons.Warnings.suppressWarningClass(SCons.Warnings.CacheWriteErrorWarning)
 
     def test_no_strfunction(self) -> None:
         """Test handling no strfunction() for an action."""
-
         save_CacheRetrieveSilent = SCons.CacheDir.CacheRetrieveSilent
 
         f8 = self.File("cd.f8", 'f8_bsig')

@@ -41,9 +41,9 @@ import os
 import sys
 
 # python compatibility check
-if sys.version_info < (3, 6, 0):
+if sys.version_info < (3, 7, 0):
     msg = "scons: *** SCons version %s does not run under Python version %s.\n\
-Python >= 3.5 is required.\n"
+Python >= 3.7.0 is required.\n"
     sys.stderr.write(msg % (__version__, sys.version.split()[0]))
     sys.exit(1)
 

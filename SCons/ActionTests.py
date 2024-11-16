@@ -27,6 +27,8 @@
 # contents, so try to minimize changes by defining them here, before we
 # even import anything.
 
+from __future__ import annotations
+
 def GlobalFunc() -> None:
     pass
 
@@ -43,11 +45,15 @@ import types
 import unittest
 from unittest import mock
 from subprocess import PIPE
+from typing import TYPE_CHECKING
 
 import SCons.Action
 import SCons.Environment
 import SCons.Errors
 from SCons.Action import scons_subproc_run
+
+if TYPE_CHECKING:
+    from SCons.Executor import Executor
 
 import TestCmd
 
@@ -347,7 +353,7 @@ class ActionTestCase(unittest.TestCase):
         """Test the Action() factory's creation of ListAction objects."""
 
         a1 = SCons.Action.Action(["x", "y", "z", ["a", "b", "c"]])
-        assert isinstance(a1, SCons.Action.ListAction), a1
+        assert isinstance(a1, SCons.Action.ListAction), f"a1 is {type(a1)}"
         assert a1.varlist == (), a1.varlist
         assert isinstance(a1.list[0], SCons.Action.CommandAction), a1.list[0]
         assert a1.list[0].cmd_list == "x", a1.list[0].cmd_list
@@ -359,7 +365,7 @@ class ActionTestCase(unittest.TestCase):
         assert a1.list[3].cmd_list == ["a", "b", "c"], a1.list[3].cmd_list
 
         a2 = SCons.Action.Action("x\ny\nz")
-        assert isinstance(a2, SCons.Action.ListAction), a2
+        assert isinstance(a2, SCons.Action.ListAction), f"a2 is {type(a2)}"
         assert a2.varlist == (), a2.varlist
         assert isinstance(a2.list[0], SCons.Action.CommandAction), a2.list[0]
         assert a2.list[0].cmd_list == "x", a2.list[0].cmd_list
@@ -372,7 +378,7 @@ class ActionTestCase(unittest.TestCase):
             pass
 
         a3 = SCons.Action.Action(["x", foo, "z"])
-        assert isinstance(a3, SCons.Action.ListAction), a3
+        assert isinstance(a3, SCons.Action.ListAction), f"a3 is {type(a3)}"
         assert a3.varlist == (), a3.varlist
         assert isinstance(a3.list[0], SCons.Action.CommandAction), a3.list[0]
         assert a3.list[0].cmd_list == "x", a3.list[0].cmd_list
@@ -382,7 +388,7 @@ class ActionTestCase(unittest.TestCase):
         assert a3.list[2].cmd_list == "z", a3.list[2].cmd_list
 
         a4 = SCons.Action.Action(["x", "y"], strfunction=foo)
-        assert isinstance(a4, SCons.Action.ListAction), a4
+        assert isinstance(a4, SCons.Action.ListAction), f"a4 is {type(a4)}"
         assert a4.varlist == (), a4.varlist
         assert isinstance(a4.list[0], SCons.Action.CommandAction), a4.list[0]
         assert a4.list[0].cmd_list == "x", a4.list[0].cmd_list
@@ -392,7 +398,7 @@ class ActionTestCase(unittest.TestCase):
         assert a4.list[1].strfunction == foo, a4.list[1].strfunction
 
         a5 = SCons.Action.Action("x\ny", strfunction=foo)
-        assert isinstance(a5, SCons.Action.ListAction), a5
+        assert isinstance(a5, SCons.Action.ListAction), f"a5 is {type(a5)}"
         assert a5.varlist == (), a5.varlist
         assert isinstance(a5.list[0], SCons.Action.CommandAction), a5.list[0]
         assert a5.list[0].cmd_list == "x", a5.list[0].cmd_list
@@ -400,6 +406,9 @@ class ActionTestCase(unittest.TestCase):
         assert isinstance(a5.list[1], SCons.Action.CommandAction), a5.list[1]
         assert a5.list[1].cmd_list == "y", a5.list[1].cmd_list
         assert a5.list[1].strfunction == foo, a5.list[1].strfunction
+
+        a6 = SCons.Action.Action(["action with space"])
+        assert isinstance(a6, SCons.Action.CommandAction), f"a6 is {type(a6)}"
 
     def test_CommandGeneratorAction(self) -> None:
         """Test the Action factory's creation of CommandGeneratorAction objects."""
@@ -1536,14 +1545,13 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
         # Since the python bytecode has per version differences, we need different expected results per version
         func_matches = {
-            (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
-            (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
             (3, 12): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00y\x00),(),()'),
+            (3, 13): bytearray(b'0, 0, 0, 0,(),(),(\x95\x00g\x00),(),()'),
         }
 
         meth_matches = [
@@ -1695,11 +1703,11 @@ class FunctionActionTestCase(unittest.TestCase):
         c = test.read(outfile, 'r')
         assert c == "class1b\n", c
 
-        def build_it(target, source, env, executor=None, self=self) -> int:
+        def build_it(target, source, env, executor: Executor | None = None, self=self) -> int:
             self.build_it = 1
             return 0
 
-        def string_it(target, source, env, executor=None, self=self):
+        def string_it(target, source, env, executor: Executor | None = None, self=self):
             self.string_it = 1
             return None
 
@@ -1717,26 +1725,24 @@ class FunctionActionTestCase(unittest.TestCase):
             pass
 
         func_matches = {
-            (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
-            (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
             (3, 12): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00y\x00),(),()'),
+            (3, 13): bytearray(b'0, 0, 0, 0,(),(),(\x95\x00g\x00),(),()'),
 
         }
 
         meth_matches = {
-            (3, 5): bytearray(b'1, 1, 0, 0,(),(),(d\x00\x00S),(),()'),
-            (3, 6): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 10): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'1, 1, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
             (3, 12): bytearray(b'1, 1, 0, 0,(),(),(\x97\x00y\x00),(),()'),
+            (3, 13): bytearray(b'1, 1, 0, 0,(),(),(\x95\x00g\x00),(),()'),
         }
 
         def factory(act, **kw):
@@ -1970,14 +1976,13 @@ class LazyActionTestCase(unittest.TestCase):
             pass
 
         func_matches = {
-            (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
-            (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
             (3, 12): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00y\x00),(),()'),
+            (3, 13): bytearray(b'0, 0, 0, 0,(),(),(\x95\x00g\x00),(),()'),
         }
 
         meth_matches = [
@@ -2033,14 +2038,13 @@ class ActionCallerTestCase(unittest.TestCase):
             pass
 
         matches = {
-            (3, 5): b'd\x00\x00S',
-            (3, 6): b'd\x00S\x00',
             (3, 7): b'd\x00S\x00',
             (3, 8): b'd\x00S\x00',
             (3, 9): b'd\x00S\x00',
             (3, 10): b'd\x00S\x00',
             (3, 11): b'\x97\x00d\x00S\x00',
             (3, 12): b'\x97\x00y\x00',
+            (3, 13): b'\x95\x00g\x00',
         }
 
         with self.subTest():
@@ -2236,8 +2240,6 @@ class ObjectContentsTestCase(unittest.TestCase):
         # we need different expected results per version
         # Note unlike the others, this result is a tuple, use assertIn
         expected = {
-            (3, 5): (bytearray(b'3, 3, 0, 0,(),(),(|\x00\x00S),(),()'),),
-            (3, 6): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),),
             (3, 7): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),),
             (3, 8): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),),
             (3, 9): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),),
@@ -2247,6 +2249,7 @@ class ObjectContentsTestCase(unittest.TestCase):
             ),
             (3, 11): (bytearray(b'3, 3, 0, 0,(),(),(\x97\x00|\x00S\x00),(),()'),),
             (3, 12): (bytearray(b'3, 3, 0, 0,(),(),(\x97\x00|\x00S\x00),(),()'),),
+            (3, 13): (bytearray(b'3, 3, 0, 0,(),(),(\x95\x00U\x00$\x00),(),()'),),
         }
 
         c = SCons.Action._function_contents(func1)
@@ -2264,12 +2267,6 @@ class ObjectContentsTestCase(unittest.TestCase):
         # Since the python bytecode has per version differences,
         # we need different expected results per version
         expected = {
-            (3, 5): bytearray(
-                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01\x00|\x00\x00_\x00\x00d\x02\x00|\x00\x00_\x01\x00d\x00\x00S),(),(),2, 2, 0, 0,(),(),(d\x00\x00S),(),()}}{{{a=a,b=b}}}"
-            ),
-            (3, 6): bytearray(
-                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
-            ),
             (3, 7): bytearray(
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
             ),
@@ -2288,6 +2285,9 @@ class ObjectContentsTestCase(unittest.TestCase):
             (3, 12): bytearray(
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x97\x00d\x01|\x00_\x00\x00\x00\x00\x00\x00\x00\x00\x00d\x02|\x00_\x01\x00\x00\x00\x00\x00\x00\x00\x00y\x00),(),(),2, 2, 0, 0,(),(),(\x97\x00y\x00),(),()}}{{{a=a,b=b}}}"
             ),
+            (3, 13): bytearray(
+                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x95\x00S\x01U\x00l\x00\x00\x00\x00\x00\x00\x00\x00\x00S\x02U\x00l\x01\x00\x00\x00\x00\x00\x00\x00\x00g\x00),(),(),2, 2, 0, 0,(),(),(\x95\x00g\x00),(),()}}{{{a=a,b=b}}}"
+            ),
         }
 
         self.assertEqual(c, expected[sys.version_info[:2]])
@@ -2300,12 +2300,6 @@ class ObjectContentsTestCase(unittest.TestCase):
 
         # Since the python bytecode has per version differences, we need different expected results per version
         expected = {
-            (3, 5): bytearray(
-                b'0, 0, 0, 0,(Hello, World!),(print),(e\x00\x00d\x00\x00\x83\x01\x00\x01d\x01\x00S)'
-            ),
-            (3, 6): bytearray(
-                b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'
-            ),
             (3, 7): bytearray(
                 b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'
             ),
@@ -2323,6 +2317,9 @@ class ObjectContentsTestCase(unittest.TestCase):
             ),
             (3, 12): bytearray(
                 b'0, 0, 0, 0,(Hello, World!),(print),(\x97\x00\x02\x00e\x00d\x00\xab\x01\x00\x00\x00\x00\x00\x00\x01\x00y\x01)'
+            ),
+            (3, 13): bytearray(
+                b'0, 0, 0, 0,(Hello, World!),(print),(\x95\x00\\\x00"\x00S\x005\x01\x00\x00\x00\x00\x00\x00 \x00g\x01)'
             ),
         }
 
@@ -2370,17 +2367,17 @@ class ObjectContentsTestCase(unittest.TestCase):
                 {"text": True, "check": False},
             )
 
-        # 3.6:
-        sys.version_info = (3, 6, 2)
+        # 3.7:
+        sys.version_info = (3, 7, 2)
         with self.subTest():
             self.assertEqual(
                 scons_subproc_run(env, capture_output=True),
-                {"check": False, "stdout": PIPE, "stderr": PIPE},
+                {"capture_output": True, "check": False},
             )
         with self.subTest():
             self.assertEqual(
                 scons_subproc_run(env, text=True),
-                {"check": False, "universal_newlines": True},
+                {"check": False, "text": True},
             )
         with self.subTest():
             self.assertEqual(

@@ -1,8 +1,11 @@
 <?xml version='1.0'?>
-<!--
-SPDX-License-Identifier: MIT
 
-Copyright The SCons Foundation
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -106,7 +109,7 @@ int main() { printf("Hello, world!\n"); }
 
    <para>
 
-   On a Windows system with the Microsoft Visual C++ compiler,
+   On a Windows system with the &MSVC; compiler,
    you'll see something like:
 
    </para>
@@ -215,7 +218,7 @@ int main() { printf("Hello, world!\n"); }
    <para>
 
    And just the &hello_obj; object file
-   on a Windows system (with the Microsoft Visual C++ compiler):
+   on a Windows system (with the &MSVC; compiler):
 
    </para>
 
@@ -484,7 +487,7 @@ int main() { printf("Goodbye, world!\n"); }
 
      <para>
 
-     Then when you execute &SCons;,
+     Then, when you execute &SCons;,
      you will see the output from calling the <function>print</function>
      function in between the messages about
      reading the &SConscript; files,

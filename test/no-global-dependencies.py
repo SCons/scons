@@ -48,11 +48,12 @@ opts.AddVariables(
     BoolVariable('duplicate', 'Duplicate sources to variant dir', True)
 )
 
+_ = DefaultEnvironment(tools=[])
 env = Environment(options=opts)
 Export('env')
 
 SConscript(dirs='.', variant_dir='build', duplicate=env['duplicate'])
-""" % locals())
+""")
 
 
 test.write('SConscript', """\
@@ -62,7 +63,7 @@ if env['view_all_dependencies']:
     SConscript(dirs='dir1')
 
 SConscript(dirs='dir2')
-""" % locals())
+""")
 
 test.write('dir1/SConscript', """\
 Import('env')
@@ -70,13 +71,13 @@ Import('env')
 env.Command('x.cpp', '', Touch('$TARGET'))
 
 env.Object(env.File('x.cpp'))
-""" % locals())
+""")
 
 test.write('dir2/SConscript', """\
 Import('env')
 
 env.Object(env.File('#/build/dir1/x.cpp'))
-""" % locals())
+""")
 
 test.must_not_exist('build/dir1/x.cpp')
 
@@ -87,36 +88,36 @@ test.must_not_exist('build/dir1/x.cpp')
 #
 
 # Build everything first.
-test.run(arguments = 'duplicate=False view_all_dependencies=True .')
+test.run(arguments='duplicate=False view_all_dependencies=True .')
 test.must_exist('build/dir1/x.cpp')
 test.must_not_contain_any_line(test.stdout(), ["`.' is up to date."])
 
 # Double check that targets are not rebuilt.
-test.run(arguments = 'duplicate=False view_all_dependencies=True .')
+test.run(arguments='duplicate=False view_all_dependencies=True .')
 test.must_exist('build/dir1/x.cpp')
 test.must_contain_all_lines(test.stdout(), ["`.' is up to date."])
 
 # Clean-up only the object file
-test.run(arguments = 'duplicate=False view_all_dependencies=False -c .')
+test.run(arguments='duplicate=False view_all_dependencies=False -c .')
 test.must_exist('build/dir1/x.cpp')
 
 # Rebuild the only object file without seeing all the dependencies.
-test.run(arguments = 'duplicate=False view_all_dependencies=False .')
+test.run(arguments='duplicate=False view_all_dependencies=False .')
 test.must_exist('build/dir1/x.cpp')
 test.must_not_contain_any_line(test.stdout(), ["`.' is up to date."])
 
 # Double check that targets are not rebuilt without and with all the
 # dependencies.
-test.run(arguments = 'duplicate=False view_all_dependencies=False .')
+test.run(arguments='duplicate=False view_all_dependencies=False .')
 test.must_exist('build/dir1/x.cpp')
 test.must_contain_all_lines(test.stdout(), ["`.' is up to date."])
 
-test.run(arguments = 'duplicate=False view_all_dependencies=True .')
+test.run(arguments='duplicate=False view_all_dependencies=True .')
 test.must_exist('build/dir1/x.cpp')
 test.must_contain_all_lines(test.stdout(), ["`.' is up to date."])
 
 # Clean-up everything.
-test.run(arguments = 'duplicate=False view_all_dependencies=True -c .')
+test.run(arguments='duplicate=False view_all_dependencies=True -c .')
 test.must_not_exist('build/dir1/x.cpp')
 
 
@@ -131,36 +132,36 @@ test.must_not_exist('build/dir1/x.cpp')
 #
 
 # # Build everything first.
-# test.run(arguments = 'duplicate=True view_all_dependencies=True .')
+# test.run(arguments='duplicate=True view_all_dependencies=True .')
 # test.must_exist('build/dir1/x.cpp')
 # test.must_not_contain_any_line(test.stdout(), ["`.' is up to date."])
 
 # # Double check that targets are not rebuilt.
-# test.run(arguments = 'duplicate=True view_all_dependencies=True .')
+# test.run(arguments='duplicate=True view_all_dependencies=True .')
 # test.must_exist('build/dir1/x.cpp')
 # test.must_contain_all_lines(test.stdout(), ["`.' is up to date."])
 
 # # Clean-up only the object file
-# test.run(arguments = 'duplicate=True view_all_dependencies=False -c .')
+# test.run(arguments='duplicate=True view_all_dependencies=False -c .')
 # test.must_exist('build/dir1/x.cpp')
 
 # # Rebuild the only object file without seeing all the dependencies.
-# test.run(arguments = 'duplicate=True view_all_dependencies=False .')
+# test.run(arguments='duplicate=True view_all_dependencies=False .')
 # test.must_exist('build/dir1/x.cpp')
 # test.must_not_contain_any_line(test.stdout(), ["`.' is up to date."])
 
 # # Double check that targets are not rebuilt without and with all the
 # # dependencies.
-# test.run(arguments = 'duplicate=True view_all_dependencies=False .')
+# test.run(arguments='duplicate=True view_all_dependencies=False .')
 # test.must_exist('build/dir1/x.cpp')
 # test.must_contain_all_lines(test.stdout(), ["`.' is up to date."])
 
-# test.run(arguments = 'duplicate=True view_all_dependencies=True .')
+# test.run(arguments='duplicate=True view_all_dependencies=True .')
 # test.must_exist('build/dir1/x.cpp')
 # test.must_contain_all_lines(test.stdout(), ["`.' is up to date."])
 
 # # Clean-up everything.
-# test.run(arguments = 'duplicate=True view_all_dependencies=True -c .')
+# test.run(arguments='duplicate=True view_all_dependencies=True -c .')
 # test.must_not_exist('build/dir1/x.cpp')
 
 

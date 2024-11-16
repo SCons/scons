@@ -34,6 +34,8 @@ from those classes, as well as any overridden or additional methods or
 attributes defined in this subclass.
 """
 
+from __future__ import annotations
+
 import os
 import re
 import shutil
@@ -55,12 +57,12 @@ from TestCmd import PIPE
 # here provides some independent verification that what we packaged
 # conforms to what we expect.
 
-default_version = '4.7.0ayyyymmdd'
+default_version = '4.8.2ayyyymmdd'
 
 # TODO: these need to be hand-edited when there are changes
-python_version_unsupported = (3, 6, 0)
-python_version_deprecated = (3, 6, 0)
-python_version_supported_str = "3.6.0"  # str of lowest non-deprecated version
+python_version_unsupported = (3, 7, 0)
+python_version_deprecated = (3, 7, 0)
+python_version_supported_str = "3.7.0"  # str of lowest non-deprecated Python
 
 SConsVersion = default_version
 
@@ -173,7 +175,7 @@ def deprecated_python_version(version=sys.version_info):
 
 if deprecated_python_version():
     msg = r"""
-scons: warning: Support for pre-%s Python version (%s) is deprecated.
+scons: warning: Support for Python older than %s is deprecated (%s detected).
     If this will cause hardship, contact scons-dev@scons.org
 """
     deprecated_python_expr = (
@@ -426,12 +428,12 @@ class TestSCons(TestCommon):
         Makes a complete message to match against.
 
         Args:
-            read_str: the message for the execution part of the output.
+            build_str: the message for the execution part of the output.
                 If non-empty, needs to be newline-terminated.
             read_str: the message for the reading-sconscript part of
                 the output. If non-empty, needs to be newline-terminated.
             error: if true, expect a fail message rather than a done message.
-            cleaning (int): index into type messages, if 0 selects
+            cleaning: index into type messages, if 0 selects
                 build messages, if 1 selects clean messages.
         """
         cap, lc = [('Build', 'build'),
@@ -573,8 +575,9 @@ class TestSCons(TestCommon):
                 self.pass_test()
             else:
                 # test failed; have to do this by hand...
+                stdout = self.stdout() or ""
                 print(self.banner('STDOUT '))
-                print(self.stdout())
+                print(stdout)
                 print(self.diff(warning, stderr, 'STDERR '))
                 self.fail_test()
 
@@ -668,14 +671,14 @@ class TestSCons(TestCommon):
         return s
 
     @staticmethod
-    def to_bytes_re_sub(pattern, repl, str, count: int=0, flags: int=0):
+    def to_bytes_re_sub(pattern, repl, string, count: int=0, flags: int=0):
         """
         Wrapper around re.sub to change pattern and repl to bytes to work with
         both python 2 & 3
         """
         pattern = to_bytes(pattern)
         repl = to_bytes(repl)
-        return re.sub(pattern, repl, str, count, flags)
+        return re.sub(pattern, repl, string, count=count, flags=flags)
 
     def normalize_pdf(self, s):
         s = self.to_bytes_re_sub(r'/(Creation|Mod)Date \(D:[^)]*\)',
@@ -728,8 +731,9 @@ class TestSCons(TestCommon):
             result.extend(sorted(glob.glob(p)))
         return result
 
-    def get_sconsignname(self):
+    def get_sconsignname(self) -> str:
         """Get the scons database name used, and return both the prefix and full filename.
+
         if the user left the options defaulted AND the default algorithm set by
         SCons is md5, then set the database name to be the special default name
 
@@ -739,6 +743,11 @@ class TestSCons(TestCommon):
 
         Returns:
             a pair containing: the current dbname, the dbname.dblite filename
+
+        TODO: docstring is not truthful about returning "both" - but which to fix?
+            Say it returns just basename, or return both?
+        TODO: has no way to account for an ``SConsignFile()`` call which might assign
+            a different dbname. Document that it's only useful for hash testing?
         """
         hash_format = get_hash_format()
         current_hash_algorithm = get_current_hash_algorithm_used()
@@ -749,20 +758,19 @@ class TestSCons(TestCommon):
             return database_prefix
 
 
-    def unlink_sconsignfile(self, name: str='.sconsign.dblite') -> None:
+    def unlink_sconsignfile(self, name: str = '.sconsign.dblite') -> None:
         """Delete the sconsign file.
 
-        Note on python it seems to append .p3 to the file name so we take
-        care of that.
-
-        TODO the above seems to not be an issue any more.
+        Provides a hook to do special things for the sconsign DB,
+        although currently it just calls unlink.
 
         Args:
             name: expected name of sconsign file
+
+        TODO: deal with suffix if :meth:`getsconsignname` does not provide it.
+            How do we know, since multiple formats are allowed?
         """
-        if sys.version_info[0] == 3:
-            name += '.p3'
-        self.unlink(name)
+        return self.unlink(name)
 
     def java_ENV(self, version=None):
         """ Initialize JAVA SDK environment.
@@ -858,7 +866,7 @@ class TestSCons(TestCommon):
             result.append(os.path.join(d, 'linux'))
         return result
 
-    def java_where_java_home(self, version=None) -> str:
+    def java_where_java_home(self, version=None) -> str | None:
         """ Find path to what would be JAVA_HOME.
 
         SCons does not read JAVA_HOME from the environment, so deduce it.
@@ -912,6 +920,7 @@ class TestSCons(TestCommon):
             "Could not run Java: unable to detect valid JAVA_HOME, skipping test.\n",
             from_fw=True,
         )
+        return None
 
     def java_mac_check(self, where_java_bin, java_bin_name) -> None:
         """Extra check for Java on MacOS.
@@ -972,7 +981,7 @@ class TestSCons(TestCommon):
 
         return where_java
 
-    def java_where_javac(self, version=None) -> str:
+    def java_where_javac(self, version=None) -> tuple[str, str]:
         """ Find java compiler.
 
         Args:
@@ -996,21 +1005,25 @@ class TestSCons(TestCommon):
                  stderr=None,
                  status=None)
         # Note recent versions output version info to stdout instead of stderr
+        stdout = self.stdout() or ""
+        stderr = self.stderr() or ""
         if version:
             verf = f'javac {version}'
-            if self.stderr().find(verf) == -1 and self.stdout().find(verf) == -1:
+            if stderr.find(verf) == -1 and stdout.find(verf) == -1:
                 fmt = "Could not find javac for Java version %s, skipping test(s).\n"
                 self.skip_test(fmt % version, from_fw=True)
         else:
             version_re = r'javac (\d*\.*\d)'
-            m = re.search(version_re, self.stderr())
+            m = re.search(version_re, stderr)
             if not m:
-                m = re.search(version_re, self.stdout())
+                m = re.search(version_re, stdout)
 
             if m:
                 version = m.group(1)
                 self.javac_is_gcj = False
-            elif self.stderr().find('gcj') != -1:
+                return where_javac, version
+
+            if stderr.find('gcj') != -1:
                 version = '1.2'
                 self.javac_is_gcj = True
             else:
@@ -1174,7 +1187,7 @@ else:
 
     def Qt_create_SConstruct(self, place, qt_tool: str='qt3') -> None:
         if isinstance(place, list):
-            place = test.workpath(*place)
+            place = self.workpath(*place)
 
         var_prefix=qt_tool.upper()
         self.write(place, f"""\
@@ -1288,7 +1301,7 @@ SConscript(sconscript)
                     logfile.find("scons: warning: The stored build information has an unexpected class.") >= 0):
                 self.fail_test()
 
-            log = r'file\ \S*%s\,line \d+:' % re.escape(sconstruct) + ls
+            log = r'file \S*%s\,line \d+:' % re.escape(sconstruct) + ls
             if doCheckLog:
                 lastEnd = match_part_of_configlog(log, logfile, lastEnd)
 
@@ -1373,10 +1386,11 @@ SConscript(sconscript)
 
         if doCheckStdout:
             exp_stdout = self.wrap_stdout(".*", rdstr)
-            if not self.match_re_dotall(self.stdout(), exp_stdout):
+            stdout = self.stdout() or ""
+            if not self.match_re_dotall(stdout, exp_stdout):
                 print("Unexpected stdout: ")
                 print("-----------------------------------------------------")
-                print(repr(self.stdout()))
+                print(repr(stdout))
                 print("-----------------------------------------------------")
                 print(repr(exp_stdout))
                 print("-----------------------------------------------------")
@@ -1426,7 +1440,7 @@ SConscript(sconscript)
             sconf_dir = sconf_dir
             sconstruct = sconstruct
 
-            log = r'file\ \S*%s\,line \d+:' % re.escape(sconstruct) + ls
+            log = r'file \S*%s\,line \d+:' % re.escape(sconstruct) + ls
             if doCheckLog:
                 lastEnd = match_part_of_configlog(log, logfile, lastEnd)
 
@@ -1529,10 +1543,11 @@ SConscript(sconscript)
 
         if doCheckStdout:
             exp_stdout = self.wrap_stdout(".*", rdstr)
-            if not self.match_re_dotall(self.stdout(), exp_stdout):
+            stdout = self.stdout() or ""
+            if not self.match_re_dotall(stdout, exp_stdout):
                 print("Unexpected stdout: ")
                 print("----Actual-------------------------------------------")
-                print(repr(self.stdout()))
+                print(repr(stdout))
                 print("----Expected-----------------------------------------")
                 print(repr(exp_stdout))
                 print("-----------------------------------------------------")
@@ -1617,11 +1632,12 @@ if os.path.exists(Python_h):
 else:
     print("False")
 """)
-        incpath, libpath, libname, python_h = self.stdout().strip().split('\n')
+        stdout = self.stdout() or ""
+        incpath, libpath, libname, python_h = stdout.strip().split('\n')
         if python_h == "False" and python_h_required:
             self.skip_test('Can not find required "Python.h", skipping test.\n', from_fw=True)
 
-        return (python, incpath, libpath, libname)
+        return (python, incpath, libpath, libname + _lib)
 
     def start(self, *args, **kw):
         """
@@ -1744,7 +1760,7 @@ class TimeSCons(TestSCons):
         directory containing the executing script to the temporary
         working directory.
         """
-        self.variables = kw.get('variables')
+        self.variables: dict = kw.get('variables')
         default_calibrate_variables = []
         if self.variables is not None:
             for variable, value in self.variables.items():
@@ -1879,8 +1895,9 @@ class TimeSCons(TestSCons):
         # the full and null builds.
         kw['status'] = None
         self.run(*args, **kw)
-        sys.stdout.write(self.stdout())
-        stats = self.collect_stats(self.stdout())
+        stdout = self.stdout() or ""
+        sys.stdout.write(stdout)
+        stats = self.collect_stats(stdout)
         # Delete the time-commands, since no commands are ever
         # executed on the help run and it is (or should be) always 0.0.
         del stats['time-commands']
@@ -1892,8 +1909,9 @@ class TimeSCons(TestSCons):
         """
         self.add_timing_options(kw)
         self.run(*args, **kw)
-        sys.stdout.write(self.stdout())
-        stats = self.collect_stats(self.stdout())
+        stdout = self.stdout() or ""
+        sys.stdout.write(stdout)
+        stats = self.collect_stats(stdout)
         self.report_traces('full', stats)
         self.trace('full-memory', 'initial', **stats['memory-initial'])
         self.trace('full-memory', 'prebuild', **stats['memory-prebuild'])
@@ -1924,8 +1942,9 @@ class TimeSCons(TestSCons):
         # SConscript:/private/var/folders/ng/48pttrpj239fw5rmm3x65pxr0000gn/T/testcmd.12081.pk1bv5i5/SConstruct  took 533.646 ms
         read_str = 'SConscript:.*\n'
         self.up_to_date(arguments='.', read_str=read_str, **kw)
-        sys.stdout.write(self.stdout())
-        stats = self.collect_stats(self.stdout())
+        stdout = self.stdout() or ""
+        sys.stdout.write(stdout)
+        stats = self.collect_stats(stdout)
         # time-commands should always be 0.0 on a null build, because
         # no commands should be executed.  Remove it from the stats
         # so we don't trace it, but only if it *is* 0 so that we'll

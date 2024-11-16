@@ -21,6 +21,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
+
 import functools
 import hashlib
 import io
@@ -30,7 +32,6 @@ import unittest
 import unittest.mock
 import warnings
 from collections import UserDict, UserList, UserString, namedtuple
-from typing import Union
 
 import TestCmd
 
@@ -73,6 +74,7 @@ from SCons.Util import (
     to_bytes,
     to_str,
 )
+from SCons.Util.envs import is_valid_construction_var
 from SCons.Util.hashes import (
     _attempt_init_of_python_3_9_hash_object,
     _attempt_get_hash_function,
@@ -532,8 +534,8 @@ class UtilTestCase(unittest.TestCase):
 
     def test_PrependPath(self) -> None:
         """Test prepending to a path"""
-        p1: Union[list, str] = r'C:\dir\num\one;C:\dir\num\two'
-        p2: Union[list, str] = r'C:\mydir\num\one;C:\mydir\num\two'
+        p1: list | str = r'C:\dir\num\one;C:\dir\num\two'
+        p2: list | str = r'C:\mydir\num\one;C:\mydir\num\two'
         # have to include the pathsep here so that the test will work on UNIX too.
         p1 = PrependPath(p1, r'C:\dir\num\two', sep=';')
         p1 = PrependPath(p1, r'C:\dir\num\three', sep=';')
@@ -544,14 +546,14 @@ class UtilTestCase(unittest.TestCase):
         assert p2 == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two', p2
 
         # check (only) first one is kept if there are dupes in new
-        p3: Union[list, str] = r'C:\dir\num\one'
+        p3: list | str = r'C:\dir\num\one'
         p3 = PrependPath(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\two', sep=';')
         assert p3 == r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\one', p3
 
     def test_AppendPath(self) -> None:
         """Test appending to a path."""
-        p1: Union[list, str] = r'C:\dir\num\one;C:\dir\num\two'
-        p2: Union[list, str] = r'C:\mydir\num\one;C:\mydir\num\two'
+        p1: list | str = r'C:\dir\num\one;C:\dir\num\two'
+        p2: list | str = r'C:\mydir\num\one;C:\mydir\num\two'
         # have to include the pathsep here so that the test will work on UNIX too.
         p1 = AppendPath(p1, r'C:\dir\num\two', sep=';')
         p1 = AppendPath(p1, r'C:\dir\num\three', sep=';')
@@ -562,13 +564,13 @@ class UtilTestCase(unittest.TestCase):
         assert p2 == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one', p2
 
         # check (only) last one is kept if there are dupes in new
-        p3: Union[list, str] = r'C:\dir\num\one'
+        p3: list | str = r'C:\dir\num\one'
         p3 = AppendPath(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\two', sep=';')
         assert p3 == r'C:\dir\num\one;C:\dir\num\three;C:\dir\num\two', p3
 
     def test_PrependPathPreserveOld(self) -> None:
         """Test prepending to a path while preserving old paths"""
-        p1: Union[list, str] = r'C:\dir\num\one;C:\dir\num\two'
+        p1: list | str = r'C:\dir\num\one;C:\dir\num\two'
         # have to include the pathsep here so that the test will work on UNIX too.
         p1 = PrependPath(p1, r'C:\dir\num\two', sep=';', delete_existing=False)
         p1 = PrependPath(p1, r'C:\dir\num\three', sep=';')
@@ -576,7 +578,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_AppendPathPreserveOld(self) -> None:
         """Test appending to a path while preserving old paths"""
-        p1: Union[list, str] = r'C:\dir\num\one;C:\dir\num\two'
+        p1: list | str = r'C:\dir\num\one;C:\dir\num\two'
         # have to include the pathsep here so that the test will work on UNIX too.
         p1 = AppendPath(p1, r'C:\dir\num\one', sep=';', delete_existing=False)
         p1 = AppendPath(p1, r'C:\dir\num\three', sep=';')
@@ -1204,6 +1206,41 @@ class get_os_env_boolTestCase(unittest.TestCase):
             assert var is True, 'var should be True, not %s' % repr(var)
             var = get_os_env_bool('FOO', False)
             assert var is False, 'var should be False, not %s' % repr(var)
+
+
+class EnvironmentVariableTestCase(unittest.TestCase):
+
+    def test_is_valid_construction_var(self) -> None:
+        """Testing is_valid_construction_var()"""
+        r = is_valid_construction_var("_a")
+        assert r, r
+        r = is_valid_construction_var("z_")
+        assert r, r
+        r = is_valid_construction_var("X_")
+        assert r, r
+        r = is_valid_construction_var("2a")
+        assert not r, r
+        r = is_valid_construction_var("a2_")
+        assert r, r
+        r = is_valid_construction_var("/")
+        assert not r, r
+        r = is_valid_construction_var("_/")
+        assert not r, r
+        r = is_valid_construction_var("a/")
+        assert not r, r
+        r = is_valid_construction_var(".b")
+        assert not r, r
+        r = is_valid_construction_var("_.b")
+        assert not r, r
+        r = is_valid_construction_var("b1._")
+        assert not r, r
+        r = is_valid_construction_var("-b")
+        assert not r, r
+        r = is_valid_construction_var("_-b")
+        assert not r, r
+        r = is_valid_construction_var("b1-_")
+        assert not r, r
+
 
 
 if __name__ == "__main__":

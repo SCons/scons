@@ -31,6 +31,8 @@ Tests on the build system can detect if compiler sees header files, if
 libraries are installed, if some command line options are supported etc.
 """
 
+from __future__ import annotations
+
 import SCons.compat
 
 import atexit
@@ -39,7 +41,6 @@ import os
 import re
 import sys
 import traceback
-from typing import Tuple
 
 import SCons.Action
 import SCons.Builder
@@ -251,10 +252,9 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
     def failed(self):
         # check, if the reason was a ConfigureDryRunError or a
         # ConfigureCacheError and if yes, reraise the exception
-        exc_type = self.exc_info()[0]
+        exc_type, exc, _ = self.exc_info()
         if issubclass(exc_type, SConfError):
-            # TODO pylint E0704: bare raise not inside except
-            raise
+            raise exc
         elif issubclass(exc_type, SCons.Errors.BuildError):
             # we ignore Build Errors (occurs, when a test doesn't pass)
             # Clear the exception to prevent the contained traceback
@@ -266,7 +266,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
             sys.excepthook(*self.exc_info())
         return SCons.Taskmaster.Task.failed(self)
 
-    def collect_node_states(self) -> Tuple[bool, bool, bool]:
+    def collect_node_states(self) -> tuple[bool, bool, bool]:
         # returns (is_up_to_date, cached_error, cachable)
         # where is_up_to_date is True if the node(s) are up_to_date
         #       cached_error  is True if the node(s) are up_to_date, but the
@@ -1002,8 +1002,8 @@ def SConf(*args, **kw):
         return SCons.Util.Null()
 
 
-def CheckFunc(context, function_name, header = None, language = None) -> bool:
-    res = SCons.Conftest.CheckFunc(context, function_name, header = header, language = language)
+def CheckFunc(context, function_name, header = None, language = None, funcargs = None) -> bool:
+    res = SCons.Conftest.CheckFunc(context, function_name, header = header, language = language, funcargs = funcargs)
     context.did_show_result = 1
     return not res
 

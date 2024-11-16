@@ -23,6 +23,8 @@
 
 """Execute actions with specific lists of target and source Nodes."""
 
+from __future__ import annotations
+
 import collections
 
 import SCons.Errors
@@ -548,12 +550,12 @@ class Executor(metaclass=NoSlotsPyPy):
 
 
 
-_batch_executors = {}
+_batch_executors: dict[str, Executor] = {}
 
-def GetBatchExecutor(key):
+def GetBatchExecutor(key: str) -> Executor:
     return _batch_executors[key]
 
-def AddBatchExecutor(key, executor) -> None:
+def AddBatchExecutor(key: str, executor: Executor) -> None:
     assert key not in _batch_executors
     _batch_executors[key] = executor
 

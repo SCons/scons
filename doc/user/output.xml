@@ -1,8 +1,11 @@
 <?xml version='1.0'?>
-<!--
-SPDX-License-Identifier: MIT
 
-Copyright The SCons Foundation
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -28,7 +31,7 @@ Copyright The SCons Foundation
   <para>
 
   A key aspect of creating a usable build configuration
-  is providing useful output from the build
+  is providing useful output from the build,
   so its users can readily understand
   what the build is doing
   and get information about how to control the build.
@@ -39,7 +42,7 @@ Copyright The SCons Foundation
 
   </para>
 
-  <section>
+  <section id="sect-build-help">
   <title>Providing Build Help:  the &Help; Function</title>
 
     <para>
@@ -360,7 +363,7 @@ cc -o foo foo.o
 
   </section>
 
-  <section>
+  <section id="sect-build-progress">
   <title>Providing Build Progress Output:  the &Progress; Function</title>
 
     <para>
@@ -593,7 +596,7 @@ Progress(progress_function)
 
   </section>
 
-  <section>
+  <section id="sect-build-status">
   <title>Printing Detailed Build Status:  the &GetBuildFailures; Function</title>
 
     <para>

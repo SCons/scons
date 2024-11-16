@@ -97,9 +97,9 @@ class EnumVariableTestCase(unittest.TestCase):
                                            'c' : 'three'},
                                           ignorecase=2))
 
-        o0 = opts.options[0]
-        o1 = opts.options[1]
-        o2 = opts.options[2]
+        opt0 = opts.options[0]
+        opt1 = opts.options[1]
+        opt2 = opts.options[2]
 
         table = {
             'one'   : ['one',   'one',   'one'],
@@ -119,13 +119,13 @@ class EnumVariableTestCase(unittest.TestCase):
             'C'     : ['C',     'three', 'three'],
         }
 
-        for k, l in table.items():
-            x = o0.converter(k)
-            assert x == l[0], "o0 got %s, expected %s" % (x, l[0])
-            x = o1.converter(k)
-            assert x == l[1], "o1 got %s, expected %s" % (x, l[1])
-            x = o2.converter(k)
-            assert x == l[2], "o2 got %s, expected %s" % (x, l[2])
+        for k, expected in table.items():
+            x = opt0.converter(k)
+            assert x == expected[0], f"opt0 got {x}, expected {expected[0]}"
+            x = opt1.converter(k)
+            assert x == expected[1], f"opt1 got {x}, expected {expected[1]}"
+            x = opt2.converter(k)
+            assert x == expected[2], f"opt2 got {x}, expected {expected[2]}"
 
     def test_validator(self) -> None:
         """Test the EnumVariable validator"""
@@ -149,21 +149,19 @@ class EnumVariableTestCase(unittest.TestCase):
                                            'c' : 'three'},
                                           ignorecase=2))
 
-        o0 = opts.options[0]
-        o1 = opts.options[1]
-        o2 = opts.options[2]
+        opt0 = opts.options[0]
+        opt1 = opts.options[1]
+        opt2 = opts.options[2]
 
         def valid(o, v) -> None:
             o.validator('X', v, {})
 
         def invalid(o, v) -> None:
-            caught = None
-            try:
+            with self.assertRaises(
+                SCons.Errors.UserError,
+                msg=f"did not catch expected UserError for o = {o.key!r}, v = {v!r}",
+            ):
                 o.validator('X', v, {})
-            except SCons.Errors.UserError:
-                caught = 1
-            assert caught, "did not catch expected UserError for o = %s, v = %s" % (o.key, v)
-
         table = {
             'one'   : [  valid,   valid,   valid],
             'One'   : [invalid,   valid,   valid],
@@ -183,10 +181,26 @@ class EnumVariableTestCase(unittest.TestCase):
             'no_v'  : [invalid, invalid, invalid],
         }
 
-        for v, l in table.items():
-            l[0](o0, v)
-            l[1](o1, v)
-            l[2](o2, v)
+        for v, expected in table.items():
+            expected[0](opt0, v)
+            expected[1](opt1, v)
+            expected[2](opt2, v)
+
+        # make sure there are no problems with space-containing entries
+        opts = SCons.Variables.Variables()
+        opts.Add(
+            SCons.Variables.EnumVariable(
+                'test0',
+                help='test option help',
+                default='nospace',
+                allowed_values=['nospace', 'with space'],
+                map={},
+                ignorecase=0,
+            )
+        )
+        opt = opts.options[0]
+        valid(opt, 'nospace')
+        valid(opt, 'with space')
 
 
 if __name__ == "__main__":

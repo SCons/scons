@@ -45,7 +45,7 @@ DefaultEnvironment(tools=[])
 env = Environment(tools=['msvc', 'mslink'],
                   MSVC_BATCH=ARGUMENTS.get('MSVC_BATCH'))
 env.SharedLibrary('mylib', Glob('source*.cxx'))
-""" % locals())
+""")
 
 test.run(arguments='MSVC_BATCH=1 .')
 test.must_exist('mylib.dll')

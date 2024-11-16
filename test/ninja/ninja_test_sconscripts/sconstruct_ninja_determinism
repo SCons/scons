@@ -5,12 +5,10 @@
 import random
 
 SetOption('experimental', 'ninja')
-SetOption('skip_ninja_regen', True)
 DefaultEnvironment(tools=[])
-
 env = Environment(tools=[])
-
 env.Tool('ninja')
+SetOption('skip_ninja_regen', True)  # must wait until tool creates the option
 
 # make the dependency list vary in order. Ninja tool should sort them to be deterministic.
 for i in range(1, 10):

@@ -1,9 +1,13 @@
 <?xml version='1.0'?>
-<!--
-SPDX-License-Identifier: MIT
 
-Copyright The SCons Foundation
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
@@ -297,7 +301,7 @@ Program('hello', ['hello.c'])
     Although &SCons; functions
     are forgiving about whether or not you
     use a string vs. a list for a single file name,
-    &Python; itself is more strict about
+    &Python; itself is stricter about
     treating lists and strings differently.
     So where &SCons; allows either
     a string or list:
@@ -372,7 +376,7 @@ Program('program', Split('main.c file1.c file2.c'))
     (If you're already familiar with &Python;,
     you'll have realized that this is similar to the
     <function>split()</function> method
-    of &Python; string objects..
+    of &Python; string objects.
     Unlike the <function>split()</function> method,
     however, the &Split; function
     does not require a string as input

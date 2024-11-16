@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-"""
-Unit tests for the TestCmd.py module.
-"""
-
+#
 # Copyright 2000-2010 Steven Knight
+#
 # This module is free software, and you may redistribute it and/or modify
 # it under the same terms as Python itself, so long as this copyright message
 # and disclaimer are retained in their original form.
@@ -18,7 +16,12 @@ Unit tests for the TestCmd.py module.
 # PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+#
+# Python License: https://docs.python.org/3/license.html#psf-license
 
+"""
+Unit tests for the TestCmd.py module.
+"""
 
 import os
 import shutil
@@ -2225,59 +2228,67 @@ class command_args_TestCase(TestCmdTestCase):
 
         r = test.command_args('prog')
         expect = [run_env.workpath('prog')]
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args(test.workpath('new_prog'))
         expect = [test.workpath('new_prog')]
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args('prog', 'python')
         expect = ['python', run_env.workpath('prog')]
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args('prog', 'python', 'arg1 arg2')
         expect = ['python', run_env.workpath('prog'), 'arg1', 'arg2']
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
+
+        r = test.command_args('prog', 'python', 'arg1 arg2=value')
+        expect = ['python', run_env.workpath('prog'), 'arg1', 'arg2=value']
+        with self.subTest():
+            self.assertEqual(expect, r)
+
+        r = test.command_args('prog', 'python', ['arg1', 'arg2=with space'])
+        expect = ['python', run_env.workpath('prog'), 'arg1', 'arg2=with space']
+        with self.subTest():
+            self.assertEqual(expect, r)
 
         test.program_set('default_prog')
         default_prog = run_env.workpath('default_prog')
 
         r = test.command_args()
         expect = [default_prog]
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args(interpreter='PYTHON')
         expect = ['PYTHON', default_prog]
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args(interpreter='PYTHON', arguments='arg3 arg4')
         expect = ['PYTHON', default_prog, 'arg3', 'arg4']
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         # Test arguments = dict
         r = test.command_args(interpreter='PYTHON', arguments={'VAR1':'1'})
         expect = ['PYTHON', default_prog, 'VAR1=1']
-        assert r == expect, (expect, r)
-
+        self.assertEqual(expect, r)
 
         test.interpreter_set('default_python')
 
         r = test.command_args()
         expect = ['default_python', default_prog]
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args(arguments='arg5 arg6')
         expect = ['default_python', default_prog, 'arg5', 'arg6']
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args('new_prog_1')
         expect = [run_env.workpath('new_prog_1')]
-        assert r == expect, (expect, r)
+        self.assertEqual(expect, r)
 
         r = test.command_args(program='new_prog_2')
         expect = [run_env.workpath('new_prog_2')]
-        assert r == expect, (expect, r)
-
+        self.assertEqual(expect, r)
 
 
 class start_TestCase(TestCmdTestCase):
@@ -2605,6 +2616,7 @@ script_recv:  STDERR:  input
             expect = f"script_recv:  {input}"
             assert result == expect, f"Result:[{result}] should match\nExpected:[{expect}]"
 
+            # TODO: Python 3.6+ ResourceWarning: unclosed file <_io.BufferedReader name=9>
             p = test.start(stdin=1)
             input = 'send() input to the receive script\n'
             p.send(input)
@@ -2984,6 +2996,103 @@ class unlink_TestCase(TestCmdTestCase):
             try:
                 try:
                     test.unlink('file5')
+                except OSError: # expect "Permission denied"
+                    pass
+                except:
+                    raise
+            finally:
+                os.chmod(test.workdir, 0o700)
+                os.chmod(wdir_file5, 0o600)
+
+
+class unlink_files_TestCase(TestCmdTestCase):
+    def test_unlink_files(self):
+        """Test unlink_files()"""
+        test = TestCmd.TestCmd(workdir = '', subdir = 'foo')
+        wdir_file1 = os.path.join(test.workdir, 'file1')
+        wdir_file2 = os.path.join(test.workdir, 'file2')
+        wdir_foo_file3a = os.path.join(test.workdir, 'foo', 'file3a')
+        wdir_foo_file3b = os.path.join(test.workdir, 'foo', 'file3b')
+        wdir_foo_file3c = os.path.join(test.workdir, 'foo', 'file3c')
+        wdir_foo_file3d = os.path.join(test.workdir, 'foo', 'file3d')
+        wdir_foo_file4a = os.path.join(test.workdir, 'foo', 'file4a')
+        wdir_foo_file4b = os.path.join(test.workdir, 'foo', 'file4b')
+        wdir_foo_file4c = os.path.join(test.workdir, 'foo', 'file4c')
+        wdir_foo_file4d = os.path.join(test.workdir, 'foo', 'file4d')
+        wdir_file5 = os.path.join(test.workdir, 'file5')
+
+        with open(wdir_file1, 'w') as f:
+            f.write("")
+        with open(wdir_file2, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file3a, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file3b, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file3c, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file3d, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file4a, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file4b, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file4c, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file4d, 'w') as f:
+            f.write("")
+        with open(wdir_file5, 'w') as f:
+            f.write("")
+
+        test.unlink_files('', [
+            'no_file_a',
+            'no_file_b',
+        ])
+
+        test.unlink_files('', [
+            'file1',
+            'file2',
+        ])
+        assert not os.path.exists(wdir_file1)
+        assert not os.path.exists(wdir_file2)
+
+        test.unlink_files('foo', [
+            'file3a',
+            'file3b',
+        ])
+        assert not os.path.exists(wdir_foo_file3a)
+        assert not os.path.exists(wdir_foo_file3b)
+
+        test.unlink_files(['foo'], [
+            'file3c',
+            'file3d',
+        ])
+        assert not os.path.exists(wdir_foo_file3c)
+        assert not os.path.exists(wdir_foo_file3d)
+
+        test.unlink_files('', [
+            ['foo', 'file4a'],
+            ['foo', 'file4b'],
+        ])
+        assert not os.path.exists(wdir_foo_file4a)
+        assert not os.path.exists(wdir_foo_file4b)
+
+        test.unlink_files([''], [
+            ['foo', 'file4c'],
+            ['foo', 'file4d'],
+        ])
+        assert not os.path.exists(wdir_foo_file4c)
+        assert not os.path.exists(wdir_foo_file4d)
+
+        # Make it so we can't unlink file5.
+        # For UNIX, remove write permission from the dir and the file.
+        # For Windows, open the file.
+        os.chmod(test.workdir, 0o500)
+        os.chmod(wdir_file5, 0o400)
+        with open(wdir_file5, 'r'):
+            try:
+                try:
+                    test.unlink_files('', ['file5'])
                 except OSError: # expect "Permission denied"
                     pass
                 except:

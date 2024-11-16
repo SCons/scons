@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,10 +21,7 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 
 """
 Verify use of the --config=<auto|force|cache> option.
@@ -51,6 +50,7 @@ if get_current_hash_algorithm_used() != 'md5':
 SConstruct_path = test.workpath('SConstruct')
 
 test.write(SConstruct_path, """
+DefaultEnvironment(tools=[])
 env = Environment(CPPPATH='#/include')
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])
@@ -78,7 +78,7 @@ conftest_0_base = os.path.join(".sconf_temp", "conftest_%s_0%%s"%conftest_0_c_ha
 conftest_0_c = conftest_0_base%'.c'
 conftest_1_base = os.path.join(".sconf_temp", "conftest_%s_0%%s"%conftest_1_c_hash)
 
-SConstruct_file_line = test.python_file_line(SConstruct_path, 6)[:-1]
+SConstruct_file_line = test.python_file_line(SConstruct_path, 7)[:-1]
 
 expect = """
 scons: *** "%(conftest_0_c)s" is not yet built and cache is forced.
@@ -191,6 +191,7 @@ test.file_fixture('test_main.c')
 # Check the combination of --config=force and Decider('MD5-timestamp')
 SConstruct_path = test.workpath('SConstruct')
 test.write(SConstruct_path, """
+DefaultEnvironment(tools=[])
 env = Environment()
 env.Decider('MD5-timestamp')
 conf = Configure(env)

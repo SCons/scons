@@ -28,6 +28,7 @@ Test the MSVC_TOOLSET_VERSION construction variable.
 """
 import textwrap
 
+import SCons.Tool.MSCommon.MSVC.Config as Config
 from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 from SCons.Tool.MSCommon import msvc_toolset_versions
 
@@ -38,9 +39,30 @@ test.skip_if_not_msvc()
 
 installed_versions = get_installed_vcs_components()
 default_version = installed_versions[0]
+
 GE_VS2017_versions = [v for v in installed_versions if v.msvc_vernum >= 14.1]
 LT_VS2017_versions = [v for v in installed_versions if v.msvc_vernum < 14.1]
 LT_VS2015_versions = [v for v in LT_VS2017_versions if v.msvc_vernum < 14.0]
+
+known_buildseries = set(Config.MSVC_BUILDSERIES_EXTERNAL.keys())
+
+def get_toolset_buildseries_version(toolset_version):
+    comps = toolset_version.split('.')
+    buildseries_version = comps[0] + '.' + comps[1][0]
+    vc_buildseries_def = Config.MSVC_BUILDSERIES_EXTERNAL[buildseries_version]
+    vc_version = vc_buildseries_def.vc_version
+    return vc_version
+
+def get_latest_buildseries_version(v):
+    vs_def = Config.MSVC_VERSION_EXTERNAL[v.msvc_verstr]
+    vc_version = vs_def.vc_buildtools_def.vc_buildseries_list[0].vc_version
+    return vc_version
+
+def is_buildseries_known(toolset_version):
+    comps = toolset_version.split('.')
+    buildseries_version = comps[0] + '.' + comps[1][0]
+    rval = bool(buildseries_version in known_buildseries)
+    return rval
 
 if GE_VS2017_versions:
     # VS2017 and later for toolset argument
@@ -52,6 +74,11 @@ if GE_VS2017_versions:
 
         toolset_sxs_versions = msvc_toolset_versions(supported.msvc_version, full=False, sxs=True)
         toolset_sxs_version = toolset_sxs_versions[0] if toolset_sxs_versions else None
+
+        toolset_version = toolset_full_version if toolset_full_version else supported.msvc_version
+        buildseries_version = get_toolset_buildseries_version(toolset_version)
+
+        latest_buildseries_version = get_latest_buildseries_version(supported)
 
         if toolset_full_version:
 
@@ -90,21 +117,21 @@ if GE_VS2017_versions:
             ))
             test.run(arguments='-Q -s', stdout='')
 
-        # msvc_version as toolset version
+        # build series version as toolset version
         test.write('SConstruct', textwrap.dedent(
             """
             DefaultEnvironment(tools=[])
             env = Environment(MSVC_VERSION={}, MSVC_TOOLSET_VERSION={}, tools=['msvc'])
-            """.format(repr(supported.msvc_version), repr(supported.msvc_verstr))
+            """.format(repr(supported.msvc_version), repr(buildseries_version))
         ))
         test.run(arguments='-Q -s', stdout='')
 
-        # msvc_version as toolset version using script argument
+        # build series version as toolset version using script argument
         test.write('SConstruct', textwrap.dedent(
             """
             DefaultEnvironment(tools=[])
             env = Environment(MSVC_VERSION={}, MSVC_SCRIPT_ARGS='-vcvars_ver={}', tools=['msvc'])
-            """.format(repr(supported.msvc_version), supported.msvc_verstr)
+            """.format(repr(supported.msvc_version), buildseries_version)
         ))
         test.run(arguments='-Q -s', stdout='')
 
@@ -113,11 +140,11 @@ if GE_VS2017_versions:
             """
             DefaultEnvironment(tools=[])
             env = Environment(MSVC_VERSION={}, MSVC_TOOLSET_VERSION={}, MSVC_SCRIPT_ARGS='-vcvars_ver={}', tools=['msvc'])
-            """.format(repr(supported.msvc_version), repr(supported.msvc_verstr), supported.msvc_verstr)
+            """.format(repr(supported.msvc_version), repr(buildseries_version), buildseries_version)
         ))
         test.run(arguments='-Q -s', status=2, stderr=None)
         expect = "MSVCArgumentError: multiple toolset version declarations: MSVC_TOOLSET_VERSION={} and MSVC_SCRIPT_ARGS='-vcvars_ver={}':".format(
-            repr(supported.msvc_verstr), supported.msvc_verstr
+            repr(buildseries_version), buildseries_version
         )
         test.must_contain_all(test.stderr(), expect)
 
@@ -149,9 +176,19 @@ if GE_VS2017_versions:
         )
         test.must_contain_all(test.stderr(), expect)
 
-        # msvc_toolset_version is invalid (version greater than msvc version)
-        invalid_toolset_vernum = round(supported.msvc_vernum + 0.1, 1)
+        # msvc_toolset_version is invalid (version not supported for msvc version)
+        invalid_toolset_vernum = round(float(latest_buildseries_version) + 0.1, 1)
         invalid_toolset_version = str(invalid_toolset_vernum)
+
+        if is_buildseries_known(invalid_toolset_version):
+            expect = "MSVCArgumentError: MSVC_TOOLSET_VERSION ({}) constraint violation: toolset msvc version {} > {} MSVC_VERSION:".format(
+                repr(invalid_toolset_version), repr(invalid_toolset_version), repr(supported.msvc_version)
+            )
+        else:
+            expect = "MSVCArgumentError: MSVC_TOOLSET_VERSION {} build series {} is not supported:".format(
+                repr(invalid_toolset_version), repr(invalid_toolset_version)
+            )
+
         test.write('SConstruct', textwrap.dedent(
             """
             DefaultEnvironment(tools=[])
@@ -159,9 +196,6 @@ if GE_VS2017_versions:
             """.format(repr(supported.msvc_version), repr(invalid_toolset_version))
         ))
         test.run(arguments='-Q -s', status=2, stderr=None)
-        expect = "MSVCArgumentError: MSVC_TOOLSET_VERSION ({}) constraint violation: toolset version {} > {} MSVC_VERSION:".format(
-            repr(invalid_toolset_version), repr(invalid_toolset_version), repr(supported.msvc_version)
-        )
         test.must_contain_all(test.stderr(), expect)
 
         # msvc_toolset_version is invalid (version less than 14.0)
@@ -173,7 +207,7 @@ if GE_VS2017_versions:
             """.format(repr(supported.msvc_version), repr(invalid_toolset_version))
         ))
         test.run(arguments='-Q -s', status=2, stderr=None)
-        expect = "MSVCArgumentError: MSVC_TOOLSET_VERSION ({}) constraint violation: toolset version {} < '14.0' VS2015:".format(
+        expect = "MSVCArgumentError: MSVC_TOOLSET_VERSION ({}) constraint violation: toolset msvc version {} < '14.0' VS2015:".format(
             repr(invalid_toolset_version), repr(invalid_toolset_version)
         )
         test.must_contain_all(test.stderr(), expect)
@@ -187,7 +221,7 @@ if GE_VS2017_versions:
             """.format(repr(supported.msvc_version), repr(invalid_toolset_version))
         ))
         test.run(arguments='-Q -s', status=2, stderr=None)
-        expect = "MSVCArgumentError: MSVC_TOOLSET_VERSION ({}) constraint violation: toolset version {} != '14.0':".format(
+        expect = "MSVCArgumentError: MSVC_TOOLSET_VERSION ({}) constraint violation: toolset msvc version {} != '14.0':".format(
             repr(invalid_toolset_version), repr(invalid_toolset_version)
         )
         test.must_contain_all(test.stderr(), expect)

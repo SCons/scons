@@ -207,7 +207,7 @@ class SConfTestCase(unittest.TestCase):
                         return False
                     def prepare(self) -> None:
                         pass
-                    def push_to_cache(self) -> None:
+                    def push_to_cache(self) -> bool:
                         pass
                     def retrieve_from_cache(self) -> bool:
                         return False
@@ -671,10 +671,25 @@ int main(void) {
                                  log_file=self.test.workpath('config.log'))
 
         try:
-            # CheckFunc()
+            # look for function using default heading
             r = sconf.CheckFunc('strcpy')
             assert r, "did not find strcpy"
+            # no default heading, supply dummy signature
             r = sconf.CheckFunc('strcpy', '/* header */ char strcpy();')
+            assert r, "did not find strcpy"
+            # ... supply complete signature, and function args
+            r = sconf.CheckFunc('strcpy', header='/* header */ char *strcpy(char *dest, char *src);', funcargs='"", ""')
+            # ... supply standard header for prototype, and function args
+            assert r, "did not find strcpy"
+            r = sconf.CheckFunc('strcpy', header='#include <string.h>', funcargs='"", ""')
+            # also try in C++ mode
+            cpp_header = """\
+#ifdef __cplusplus
+extern "C"
+#endif
+char *strcpy(char *dest, char *src);
+"""
+            r = sconf.CheckFunc('strcpy', header=cpp_header, funcargs='"", ""', language="C++")
             assert r, "did not find strcpy"
             r = sconf.CheckFunc('hopefullynofunction')
             assert not r, "unexpectedly found hopefullynofunction"

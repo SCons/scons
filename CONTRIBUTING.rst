@@ -297,13 +297,13 @@ You may specifically list one or more tests to be run::
 
         $ python runtest.py SCons/BuilderTests.py
 
-        $ python runtest.py test/option-j.py test/Program.py
+        $ python runtest.py test/option/option-j.py test/Program.py
 
 You also use the ``-f`` option to execute just the tests listed in a specified
 text file::
 
         $ cat testlist.txt
-        test/option-j.py
+        test/option/option-j.py
         test/Program.py
         $ python runtest.py -f testlist.txt
 

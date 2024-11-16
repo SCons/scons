@@ -1,4 +1,13 @@
 <?xml version='1.0'?>
+
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
+-->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
@@ -20,34 +29,7 @@
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>Dependencies</title>
 
-<!--
-
-  MIT License
-
-  Copyright The SCons Foundation
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--->
-
-  <para>
+<para>
 
   So far we've seen how &SCons; handles one-time builds.
   But one of the main functions of a build tool like &SCons;
@@ -125,7 +107,7 @@ int main() { printf("Hello, world!\n"); }
 
       <para>
 
-      By default, &SCons; 
+      By default, &SCons;
       uses a cryptographic hash of the file's contents,
       not the file's modification time,
       to decide whether a file has changed.
@@ -455,7 +437,7 @@ cc -o hello hello.o
       will have been performed by simply looking at the
       modification time of the &hello_c; file,
       not by opening it and performing
-      a signature calcuation on its contents.
+      a signature calculation on its contents.
       This can significantly speed up many up-to-date builds.
 
       </para>
@@ -573,7 +555,7 @@ int main() { printf("Hello, world!\n"); }
         <listitem>
         <para>
         The &contentsig;:
-        a cryptgraphic hash, or checksum, of the file contents
+        a cryptographic hash, or checksum, of the file contents
         of the <varname>dependency</varname>
         file the last time the &target; was built.
         </para>
@@ -984,7 +966,7 @@ SetOption('implicit_cache', 1)
 
         When &implicit-cache; is used, &SCons; will ignore any changes that
         may have been made to search paths
-        (like &cv-CPPPATH; or &cv-LIBPATH;,).
+        (like &cv-CPPPATH; or &cv-LIBPATH;).
         This can lead to &SCons; not rebuilding a file if a change to
         &cv-CPPPATH; would normally cause a different, same-named file from
         a different directory to be used.
@@ -1019,7 +1001,7 @@ SetOption('implicit_cache', 1)
       external code that you use for compilation,
       the external header files will have changed
       and the previously-cached implicit dependencies
-      will be out of date.
+      will be out-of-date.
       You can update them by
       running &SCons; with the &implicit-deps-changed; option:
 
@@ -1044,7 +1026,7 @@ SetOption('implicit_cache', 1)
 
       <para>
 
-      By default when caching dependencies,
+      By default, when caching dependencies,
       &SCons; notices when a file has been modified
       and re-scans the file for any updated
       implicit dependency information.

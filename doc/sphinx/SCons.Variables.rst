@@ -1,6 +1,15 @@
 SCons.Variables package
 =======================
 
+Module contents
+---------------
+
+.. automodule:: SCons.Variables
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Submodules
 ----------
 
@@ -44,11 +53,3 @@ SCons.Variables.PathVariable module
     :undoc-members:
     :show-inheritance:
 
-
-Module contents
----------------
-
-.. automodule:: SCons.Variables
-    :members:
-    :undoc-members:
-    :show-inheritance:

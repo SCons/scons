@@ -15,6 +15,8 @@ This script adds SCons/ and testing/ directories to PYTHONPATH,
 performs test discovery and processes tests according to options.
 """
 
+from __future__ import annotations
+
 import argparse
 import itertools
 import os
@@ -27,11 +29,11 @@ from abc import ABC, abstractmethod
 from io import StringIO
 from pathlib import Path, PurePath, PureWindowsPath
 from queue import Queue
-from typing import List, TextIO, Optional
+from typing import TextIO
 
 cwd = os.getcwd()
-debug: Optional[str] = None
-scons: Optional[str] = None
+debug: str | None = None
+scons: str | None = None
 catch_output: bool = False
 suppress_output: bool = False
 script = PurePath(sys.argv[0]).name
@@ -43,7 +45,7 @@ Environment Variables:
 """
 
 # this is currently expected to be global, maybe refactor later?
-unittests: List[str]
+unittests: list[str]
 
 parser = argparse.ArgumentParser(
     usage=usagestr,
@@ -417,7 +419,7 @@ class SystemExecutor(RuntestBase):
     def execute(self, env):
         self.stderr, self.stdout, s = spawn_it(self.command_args, env)
         self.status = s
-        if s < 0 or s > 2:
+        if s < 0 or s > 2 and s != 5:
             sys.stdout.write("Unexpected exit status %d\n" % s)
 
 
@@ -784,7 +786,7 @@ def run_test(t, io_lock=None, run_async=True):
     command_args = []
     if debug:
         command_args.extend(['-m', debug])
-    if args.devmode and sys.version_info >= (3, 7, 0):
+    if args.devmode:
         command_args.append('-X dev')
     command_args.append(t.path)
     if args.runner and t.path in unittests:

@@ -27,16 +27,176 @@ Design Notes
   ``MSCommon/vc.py`` and are available via the ``SCons.Tool.MSCommon`` namespace.
 
 
+MSVC Detection Priority
+=======================
+
+For msvc version specifications without an 'Exp' suffix, an express
+installation is used only when no other installation is detected.
+
++---------+---------+----------------------------------------------------------+
+| Product | VCVer   | Priority                                                 |
++=========+=========+==========================================================+
+| VS2022  | 14.3    | Enterprise, Professional, Community, BuildTools          |
++---------+---------+----------------------------------------------------------+
+| VS2019  | 14.2    | Enterprise, Professional, Community, BuildTools          |
++---------+---------+----------------------------------------------------------+
+| VS2017  | 14.1    | Enterprise, Professional, Community, BuildTools, Express |
++---------+---------+----------------------------------------------------------+
+| VS2017  | 14.1Exp | Express                                                  |
++---------+---------+----------------------------------------------------------+
+| VS2015  | 14.0    | [Develop, BuildTools, CmdLine], Express                  |
++---------+---------+----------------------------------------------------------+
+| VS2015  | 14.0Exp | Express                                                  |
++---------+---------+----------------------------------------------------------+
+| VS2013  | 12.0    | Develop, Express                                         |
++---------+---------+----------------------------------------------------------+
+| VS2013  | 12.0Exp | Express                                                  |
++---------+---------+----------------------------------------------------------+
+| VS2012  | 11.0    | Develop, Express                                         |
++---------+---------+----------------------------------------------------------+
+| VS2012  | 11.0Exp | Express                                                  |
++---------+---------+----------------------------------------------------------+
+| VS2010  | 10.0    | Develop, Express                                         |
++---------+---------+----------------------------------------------------------+
+| VS2010  | 10.0Exp | Express                                                  |
++---------+---------+----------------------------------------------------------+
+| VS2008  | 9.0     | Develop, VCForPython, Express                            |
++---------+---------+----------------------------------------------------------+
+| VS2008  | 9.0Exp  | Express                                                  |
++---------+---------+----------------------------------------------------------+
+| VS2005  | 8.0     | Develop, Express                                         |
++---------+---------+----------------------------------------------------------+
+| VS2005  | 8.0Exp  | Express                                                  |
++---------+---------+----------------------------------------------------------+
+| VS2003  | 7.1     | Develop                                                  |
++---------+---------+----------------------------------------------------------+
+| VS2002  | 7.0     | Develop                                                  |
++---------+---------+----------------------------------------------------------+
+| VS6.0   | 6.0     | Develop                                                  |
++---------+---------+----------------------------------------------------------+
+
+Legend:
+
+  Develop
+    devenv.com or msdev.com is detected.
+  
+  Express
+    WDExpress.exe or VCExpress.exe is detected.
+  
+  BuildTools [VS2015]
+    The vcvarsall batch file dispatches to the buildtools batch file.
+  
+  CmdLine [VS2015]
+    Neither Develop, Express, or BuildTools.
+
+VS2015 Edition Limitations
+==========================
+
+VS2015 BuildTools
+-----------------
+
+The VS2015 BuildTools stand-alone batch file does not support the ``sdk version`` argument.
+
+The VS2015 BuildTools stand-alone batch file does not support the ``store`` argument.
+
+These arguments appear to be silently ignored and likely would result in compiler
+and/or linker build failures.
+
+The VS2015 BuildTools ``vcvarsall.bat`` batch file dispatches to the stand-alone buildtools
+batch file under certain circumstances. A fragment from the vcvarsall batch file is:
+
+::
+
+    if exist "%~dp0..\common7\IDE\devenv.exe" goto setup_VS
+    if exist "%~dp0..\common7\IDE\wdexpress.exe" goto setup_VS
+    if exist "%~dp0..\..\Microsoft Visual C++ Build Tools\vcbuildtools.bat" goto setup_buildsku
+
+    :setup_VS
+
+    ...
+
+    :setup_buildsku
+    if not exist "%~dp0..\..\Microsoft Visual C++ Build Tools\vcbuildtools.bat" goto usage
+    set CurrentDir=%CD%
+    call "%~dp0..\..\Microsoft Visual C++ Build Tools\vcbuildtools.bat" %1 %2
+    cd /d %CurrentDir%
+    goto :eof
+
+VS2015 Express
+--------------
+
+The VS2015 Express batch file does not support the ``sdk version`` argument.
+
+The VS2015 Express batch file does not support the ``store`` argument for the ``amd64`` and
+``arm`` target architectures
+
+amd64 Target Architecture
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As installed, VS2015 Express does not support the ``store`` argument for the ``amd64`` target
+architecture.  The generated ``store`` library paths include directories that do not exist.
+
+The store library paths appear in two places in the ``vcvarsx86_amd64`` batch file:
+
+::
+
+    :setstorelib
+    @if exist "%VCINSTALLDIR%LIB\amd64\store" set LIB=%VCINSTALLDIR%LIB\amd64\store;%LIB%
+    ...
+    :setstorelibpath
+    @if exist "%VCINSTALLDIR%LIB\amd64\store" set LIBPATH=%VCINSTALLDIR%LIB\amd64\store;%LIBPATH%
+
+The correct store library paths would be:
+
+::
+
+    :setstorelib
+    @if exist "%VCINSTALLDIR%LIB\store\amd64" set LIB=%VCINSTALLDIR%LIB\store\amd64;%LIB%
+    ...
+    :setstorelibpath
+    @if exist "%VCINSTALLDIR%LIB\store\amd64" set LIBPATH=%VCINSTALLDIR%LIB\store\amd64;%LIBPATH%
+
+arm Target Architecture
+^^^^^^^^^^^^^^^^^^^^^^^
+
+As installed, VS2015 Express does not support the ``store`` argument for the ``arm`` target
+architecture.  The generated ``store`` library paths include directories that do not exist.
+
+The store library paths appear in two places in the ``vcvarsx86_arm`` batch file:
+
+::
+
+    :setstorelib
+    @if exist "%VCINSTALLDIR%LIB\ARM\store" set LIB=%VCINSTALLDIR%LIB\ARM\store;%LIB%
+    ...
+    :setstorelibpath
+    @if exist "%VCINSTALLDIR%LIB\ARM\store" set LIBPATH=%VCINSTALLDIR%LIB\ARM\store;%LIBPATH%
+
+The correct store library paths would be file:
+
+::
+
+    :setstorelib
+    @if exist "%VCINSTALLDIR%LIB\store\ARM" set LIB=%VCINSTALLDIR%LIB\store\ARM;%LIB%
+    ...
+    :setstorelibpath
+    @if exist "%VCINSTALLDIR%LIB\store\ARM" set LIBPATH=%VCINSTALLDIR%LIB\store\ARM;%LIBPATH%
+
+
 Known Issues
 ============
 
 The following issues are known to exist:
 
 * Using ``MSVC_USE_SCRIPT`` and ``MSVC_USE_SCRIPT_ARGS`` to call older Microsoft SDK
-  ``SetEnv.cmd`` batch files may result in build failures.  Some of these batch files
-  require delayed expansion to be enabled which is not usually the Windows default.
-  One solution would be to launch the MSVC batch file command in a new command interpreter
-  instance with delayed expansion enabled via command-line options.
+  ``SetEnv.cmd`` batch files may result in build failures.
+
+  Typically, the reasons for build failures with SDK batch files are one, or both, of:
+
+  * The batch files require delayed expansion to be enabled which is not usually the Windows default.
+
+  * The batch files inspect environment variables that are not defined in the minimal subprocess
+    environment in which the batch files are invoked.
 
 * The code to suppress the "No versions of the MSVC compiler were found" warning for
   the default environment was moved from ``MSCommon/vc.py`` to ``MSCommon/MSVC/SetupEnvDefault.py``.
@@ -47,20 +207,24 @@ The following issues are known to exist:
 Experimental Features
 =====================
 
-msvc_query_version_toolset(version=None, prefer_newest=True)
-------------------------------------------------------------
+msvc_query_version_toolset(version=None, prefer_newest=True, vswhere_exe=None)
+------------------------------------------------------------------------------
 
 The experimental function ``msvc_query_version_toolset`` was added to ``MSCommon/vc.py``
-and is available via the ``SCons.Tool.MSCommon`` namespace. This function takes a version
-specification or a toolset version specification and a product preference as arguments and
-returns the msvc version and the msvc toolset version for the corresponding version specification.
+and is available via the ``SCons.Tool.MSCommon`` namespace.
+
+This function takes a version specification or a toolset version specification, an optional product
+preference, and an optional vswhere executable location as arguments and returns the msvc version and
+the msvc toolset version for the corresponding version specification.
 
 This is a proxy for using the toolset version for selection until that functionality can be added.
 
 Example usage:
+
 ::
 
     for version in [
+        '14.4',
         '14.3',
         '14.2',
         '14.1',
@@ -90,6 +254,7 @@ Example usage:
             print('{}Query: {} version={}, prefer_newest={}'.format(newline, msg, version, prefer_newest))
 
 Example output fragment
+
 ::
 
     Build: _build003 {'MSVC_VERSION': '14.3', 'MSVC_TOOLSET_VERSION': '14.29.30133'}
@@ -117,6 +282,7 @@ added to the batch file argument list.  This is intended to make the cache more 
 updates that may change the default toolset version and/or the default SDK version.
 
 Example usage:
+
 ::
 
     @echo Enabling scons cache ...
@@ -139,6 +305,7 @@ Enabling warnings to be produced for detected msvc batch file errors may provide
 for build failures. Refer to the documentation for details.
 
 Change the default policy:
+
 ::
 
     from SCons.Tool.MSCommon import msvc_set_scripterror_policy
@@ -146,6 +313,7 @@ Change the default policy:
     msvc_set_scripterror_policy('Warning')
 
 Specify the policy per-environment:
+
 ::
 
     env = Environment(MSVC_VERSION='14.3', MSVC_SPECTRE_LIBS=True, MSVC_SCRIPTERROR_POLICY='Warning')
@@ -171,6 +339,7 @@ On occasion, the raw vswhere output may prove useful especially if there are sus
 detection of installed msvc instances.
 
 Windows command-line sample invocations:
+
 ::
 
     @rem 64-Bit Windows
@@ -188,31 +357,37 @@ Batch File Arguments
 
 Supported MSVC batch file arguments by product:
 
-======= === === ======= =======
-Product UWP SDK Toolset Spectre
-======= === === ======= =======
-VS2022   X   X     X       X
-------- --- --- ------- -------
-VS2019   X   X     X       X
-------- --- --- ------- -------
-VS2017   X   X     X       X
-------- --- --- ------- -------
-VS2015   X   X
-======= === === ======= =======
++---------+---------+--------+---------+---------+
+| Product | UWP     | SDK    | Toolset | Spectre |
++=========+=========+========+=========+=========+
+| VS2022  | X       | X      | X       | X       |
++---------+---------+--------+---------+---------+
+| VS2019  | X       | X      | X       | X       |
++---------+---------+--------+---------+---------+
+| VS2017  | X       | X      | X       | X       |
++---------+---------+--------+---------+---------+
+| VS2015  | X [1]   | X [2]  |         |         |
++---------+---------+--------+---------+---------+
+
+Notes:
+
+1) The BuildTools edition does not support the ``store`` argument.  The Express edition
+   supports the ``store`` argument for the ``x86`` target only.
+2) The ``sdk version`` argument is not supported in the BuildTools and Express editions.
 
 Supported MSVC batch file arguments in SCons:
 
-======== ====================================== ===================================================
-Argument Construction Variable                  Script Argument Equivalent
-======== ====================================== ===================================================
-UWP      ``MSVC_UWP_APP=True``                  ``MSVC_SCRIPT_ARGS='store'``
--------- -------------------------------------- ---------------------------------------------------
-SDK      ``MSVC_SDK_VERSION='10.0.20348.0'``    ``MSVC_SCRIPT_ARGS='10.0.20348.0'``
--------- -------------------------------------- ---------------------------------------------------
-Toolset  ``MSVC_TOOLSET_VERSION='14.31.31103'`` ``MSVC_SCRIPT_ARGS='-vcvars_ver=14.31.31103'``
--------- -------------------------------------- ---------------------------------------------------
-Spectre  ``MSVC_SPECTRE_LIBS=True``             ``MSVC_SCRIPT_ARGS='-vcvars_spectre_libs=spectre'``
-======== ====================================== ===================================================
++----------+----------------------------------------+-----------------------------------------------------+
+| Argument | Construction Variable                  | Script Argument Equivalent                          |
++==========+========================================+=====================================================+
+| UWP      | ``MSVC_UWP_APP=True``                  | ``MSVC_SCRIPT_ARGS='store'``                        |
++----------+----------------------------------------+-----------------------------------------------------+
+| SDK      | ``MSVC_SDK_VERSION='10.0.20348.0'``    | ``MSVC_SCRIPT_ARGS='10.0.20348.0'``                 |
++----------+----------------------------------------+-----------------------------------------------------+
+| Toolset  | ``MSVC_TOOLSET_VERSION='14.31.31103'`` | ``MSVC_SCRIPT_ARGS='-vcvars_ver=14.31.31103'``      |
++----------+----------------------------------------+-----------------------------------------------------+
+| Spectre  | ``MSVC_SPECTRE_LIBS=True``             | ``MSVC_SCRIPT_ARGS='-vcvars_spectre_libs=spectre'`` |
++----------+----------------------------------------+-----------------------------------------------------+
 
 **MSVC_SCRIPT_ARGS contents are not validated.  Utilizing script arguments that have construction
 variable equivalents is discouraged and may lead to difficult to diagnose build errors.**
@@ -244,6 +419,7 @@ that the msvc batch files would return.  When using ``MSVC_SCRIPT_ARGS``, the
 toolset specification should be omitted entirely.
 
 Local installation and summary test results:
+
 ::
 
     VS2022\VC\Auxiliary\Build\Microsoft.VCToolsVersion.v143.default.txt
@@ -253,6 +429,7 @@ Local installation and summary test results:
         14.32.31326
 
 Toolset version summary:
+
 ::
 
     14.31.31103   Environment()
@@ -268,6 +445,7 @@ Toolset version summary:
     14.32.31326   Environment(MSVC_SCRIPT_ARGS=['-vcvars_ver=14.32'])
 
 VS2022\\Common7\\Tools\\vsdevcmd\\ext\\vcvars.bat usage fragment:
+
 ::
 
     @echo     -vcvars_ver=version : Version of VC++ Toolset to select
@@ -289,6 +467,7 @@ VS2022\\Common7\\Tools\\vsdevcmd\\ext\\vcvars.bat usage fragment:
     @echo                             SxS toolset to [VSInstallDir]\VC\MSVC\Tools\ directory.
 
 VS2022 batch file fragment to determine the default toolset version:
+
 ::
 
     @REM Add MSVC
@@ -315,75 +494,114 @@ Visual Studio Version Notes
 SDK Versions
 ------------
 
-==== ============
-SDK  Format
-==== ============
-10.0 10.0.XXXXX.Y
----- ------------
-8.1  8.1
-==== ============
++------+-------------------+
+| SDK  | Format            |
++======+===================+
+| 10.0 | 10.0.XXXXX.Y [1]  |
++------+-------------------+
+| 8.1  | 8.1               |
++------+-------------------+
+
+Notes:
+
+1) The Windows 10 SDK version number is 10.0.20348.0 and earlier.
+
+   The Windows 11 SDK version number is 10.0.22000.194 and later.
+
+BuildSeries Versions
+--------------------
+
++-------------+-------+-------+
+| BuildSeries | VCVER | CLVER |
++=============+=======+=======+
+| 14.4        | 14.4X | 19.4  |
++-------------+-------+-------+
+| 14.3        | 14.3X | 19.3  |
++-------------+-------+-------+
+| 14.2        | 14.2X | 19.2  |
++-------------+-------+-------+
+| 14.1        | 14.1X | 19.1  |
++-------------+-------+-------+
+| 14.0        | 14.0  | 19.0  |
++-------------+-------+-------+
+| 12.0        | 12.0  | 18.0  |
++-------------+-------+-------+
+| 11.0        | 11.0  | 17.0  |
++-------------+-------+-------+
+| 10.0        | 10.0  | 16.0  |
++-------------+-------+-------+
+| 9.0         | 9.0   | 15.0  |
++-------------+-------+-------+
+| 8.0         | 8.0   | 14.0  |
++-------------+-------+-------+
+| 7.1         | 7.1   | 13.1  |
++-------------+-------+-------+
+| 7.0         | 7.0   | 13.0  |
++-------------+-------+-------+
+| 6.0         | 6.0   | 12.0  |
++-------------+-------+-------+
 
 BuildTools Versions
 -------------------
 
-========== ===== ===== ========
-BuildTools VCVER CLVER MSVCRT
-========== ===== ===== ========
-v143       14.3   19.3 140/ucrt
----------- ----- ----- --------
-v142       14.2   19.2 140/ucrt
----------- ----- ----- --------
-v141       14.1   19.1 140/ucrt
----------- ----- ----- --------
-v140       14.0   19.0 140/ucrt
----------- ----- ----- --------
-v120       12.0   18.0 120
----------- ----- ----- --------
-v110       11.0   17.0 110
----------- ----- ----- --------
-v100       10.0   16.0 100
----------- ----- ----- --------
-v90         9.0   15.0  90
----------- ----- ----- --------
-v80         8.0   14.0  80
----------- ----- ----- --------
-v71         7.1   13.1  71
----------- ----- ----- --------
-v70         7.0   13.0  70
----------- ----- ----- --------
-v60         6.0   12.0  60
-========== ===== ===== ========
++------------+-------------+----------+
+| BuildTools | BuildSeries | MSVCRT   |
++============+=============+==========+
+| v143       | 14.4, 14.3  | 140/ucrt |
++------------+-------------+----------+
+| v142       | 14.2        | 140/ucrt |
++------------+-------------+----------+
+| v141       | 14.1        | 140/ucrt |
++------------+-------------+----------+
+| v140       | 14.0        | 140/ucrt |
++------------+-------------+----------+
+| v120       | 12.0        | 120      |
++------------+-------------+----------+
+| v110       | 11.0        | 110      |
++------------+-------------+----------+
+| v100       | 10.0        | 100      |
++------------+-------------+----------+
+| v90        | 9.0         | 90       |
++------------+-------------+----------+
+| v80        | 8.0         | 80       |
++------------+-------------+----------+
+| v71        | 7.1         | 71       |
++------------+-------------+----------+
+| v70        | 7.0         | 70       |
++------------+-------------+----------+
+| v60        | 6.0         | 60       |
++------------+-------------+----------+
 
 Product Versions
 ----------------
 
-======== ===== ========= ======================
-Product  VSVER SDK       BuildTools
-======== ===== ========= ======================
-2022     17.0  10.0, 8.1 v143, v142, v141, v140
--------- ----- --------- ----------------------
-2019     16.0  10.0, 8.1 v142, v141, v140
--------- ----- --------- ----------------------
-2017     15.0  10.0, 8.1 v141, v140
--------- ----- --------- ----------------------
-2015     14.0  10.0, 8.1 v140
--------- ----- --------- ----------------------
-2013     12.0            v120
--------- ----- --------- ----------------------
-2012     11.0            v110
--------- ----- --------- ----------------------
-2010     10.0            v100
--------- ----- --------- ----------------------
-2008      9.0            v90
--------- ----- --------- ----------------------
-2005      8.0            v80
--------- ----- --------- ----------------------
-2003.NET  7.1            v71
--------- ----- --------- ----------------------
-2002.NET  7.0            v70
--------- ----- --------- ----------------------
-6.0       6.0            v60
-======== ===== ========= ======================
++----------+-------+-------+-----------+------------------------+
+| Product  | VSVER | SCons | SDK       | BuildTools             |
++==========+=======+=======+===========+========================+
+| 2022     | 17.0  | 14.3  | 10.0, 8.1 | v143, v142, v141, v140 |
++----------+-------+-------+-----------+------------------------+
+| 2019     | 16.0  | 14.2  | 10.0, 8.1 | v142, v141, v140       |
++----------+-------+-------+-----------+------------------------+
+| 2017     | 15.0  | 14.1  | 10.0, 8.1 | v141, v140             |
++----------+-------+-------+-----------+------------------------+
+| 2015     | 14.0  | 14.0  | 10.0, 8.1 | v140                   |
++----------+-------+-------+-----------+------------------------+
+| 2013     | 12.0  | 12.0  |           | v120                   |
++----------+-------+-------+-----------+------------------------+
+| 2012     | 11.0  | 11.0  |           | v110                   |
++----------+-------+-------+-----------+------------------------+
+| 2010     | 10.0  | 10.0  |           | v100                   |
++----------+-------+-------+-----------+------------------------+
+| 2008     | 9.0   | 9.0   |           | v90                    |
++----------+-------+-------+-----------+------------------------+
+| 2005     | 8.0   | 8.0   |           | v80                    |
++----------+-------+-------+-----------+------------------------+
+| 2003.NET | 7.1   | 7.1   |           | v71                    |
++----------+-------+-------+-----------+------------------------+
+| 2002.NET | 7.0   | 7.0   |           | v70                    |
++----------+-------+-------+-----------+------------------------+
+| 6.0      | 6.0   | 6.0   |           | v60                    |
++----------+-------+-------+-----------+------------------------+
 
 
 SCons Implementation Notes

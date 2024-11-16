@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-Copyright The SCons Foundation
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -30,16 +31,16 @@ See its __doc__ string for a discussion of the format.
 </arguments>
 <summary>
 <para>
-Specifies the exceptions that will be allowed
-when expanding construction variables.
+Specifies the exceptions that will be ignored
+when expanding &consvars;.
 By default,
-any construction variable expansions that generate a
-<literal>NameError</literal>
+any &consvar; expansions that generate a
+&NameError;
 or
-<literal>IndexError</literal>
+&IndexError;
 exception will expand to a
 <literal>''</literal>
-(an empty string) and not cause scons to fail.
+(an empty string) and not cause &scons; to fail.
 All exceptions not in the specified list
 will generate an error message
 and terminate processing.
@@ -50,7 +51,8 @@ If
 &f-AllowSubstExceptions;
 is called multiple times,
 each call completely overwrites the previous list
-of allowed exceptions.
+of ignored exceptions.
+Calling it with no arguments means no exceptions will be ignored.
 </para>
 
 <para>
@@ -64,7 +66,7 @@ Example:
 AllowSubstExceptions()
 
 # Also allow a string containing a zero-division expansion
-# like '${1 / 0}' to evalute to ''.
+# like '${1 / 0}' to evaluate to ''.
 AllowSubstExceptions(IndexError, NameError, ZeroDivisionError)
 </example_commands>
 </summary>

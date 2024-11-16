@@ -6,11 +6,13 @@
 
 Routines which check types and do type conversions.
 """
+from __future__ import annotations
 
+import codecs
 import os
 import pprint
 import re
-from typing import Optional
+import sys
 
 from collections import UserDict, UserList, UserString, deque
 from collections.abc import MappingView, Iterable
@@ -49,38 +51,67 @@ StringTypes = (str, UserString)
 # Empirically, it is faster to check explicitly for str than for basestring.
 BaseStringTypes = str
 
+# Later Python versions allow us to explicitly apply type hints based off the
+# return value similar to isinstance(), albeit not as precise.
+if sys.version_info >= (3, 13):
+    from typing import TypeAlias, TypeIs
+
+    DictTypeRet: TypeAlias = TypeIs[dict | UserDict]
+    ListTypeRet: TypeAlias = TypeIs[list | UserList | deque]
+    SequenceTypeRet: TypeAlias = TypeIs[list | tuple | deque | UserList | MappingView]
+    TupleTypeRet: TypeAlias = TypeIs[tuple]
+    StringTypeRet: TypeAlias = TypeIs[str | UserString]
+elif sys.version_info >= (3, 10):
+    from typing import TypeAlias, TypeGuard
+
+    DictTypeRet: TypeAlias = TypeGuard[dict | UserDict]
+    ListTypeRet: TypeAlias = TypeGuard[list | UserList | deque]
+    SequenceTypeRet: TypeAlias = TypeGuard[list | tuple | deque | UserList | MappingView]
+    TupleTypeRet: TypeAlias = TypeGuard[tuple]
+    StringTypeRet: TypeAlias = TypeGuard[str | UserString]
+else:
+    # Because we have neither `TypeAlias` class nor `type` keyword pre-3.10,
+    # the boolean fallback type has to be wrapped in the legacy `Union` class.
+    from typing import Union
+
+    DictTypeRet = Union[bool, bool]
+    ListTypeRet = Union[bool, bool]
+    SequenceTypeRet = Union[bool, bool]
+    TupleTypeRet = Union[bool, bool]
+    StringTypeRet = Union[bool, bool]
+
 
 def is_Dict(  # pylint: disable=redefined-outer-name,redefined-builtin
     obj, isinstance=isinstance, DictTypes=DictTypes
-) -> bool:
+) -> DictTypeRet:
     """Check if object is a dict."""
     return isinstance(obj, DictTypes)
 
 
 def is_List(  # pylint: disable=redefined-outer-name,redefined-builtin
     obj, isinstance=isinstance, ListTypes=ListTypes
-) -> bool:
+) -> ListTypeRet:
     """Check if object is a list."""
     return isinstance(obj, ListTypes)
 
 
 def is_Sequence(  # pylint: disable=redefined-outer-name,redefined-builtin
     obj, isinstance=isinstance, SequenceTypes=SequenceTypes
-) -> bool:
+) -> SequenceTypeRet:
     """Check if object is a sequence."""
     return isinstance(obj, SequenceTypes)
 
 
 def is_Tuple(  # pylint: disable=redefined-builtin
     obj, isinstance=isinstance, tuple=tuple
-) -> bool:
+) -> TupleTypeRet:
     """Check if object is a tuple."""
     return isinstance(obj, tuple)
 
 
 def is_String(  # pylint: disable=redefined-outer-name,redefined-builtin
     obj, isinstance=isinstance, StringTypes=StringTypes
-) -> bool:
+) -> StringTypeRet:
     """Check if object is a string."""
     return isinstance(obj, StringTypes)
 
@@ -187,7 +218,11 @@ def to_String(  # pylint: disable=redefined-outer-name,redefined-builtin
     UserString=UserString,
     BaseStringTypes=BaseStringTypes,
 ) -> str:
-    """Return a string version of obj."""
+    """Return a string version of obj.
+
+    Use this for data likely to be well-behaved. Use
+    :func:`to_Text` for unknown file data that needs to be decoded.
+    """
     if isinstance(obj, BaseStringTypes):
         # Early out when already a string!
         return obj
@@ -244,6 +279,42 @@ def to_String_for_signature(  # pylint: disable=redefined-outer-name,redefined-b
     return f()
 
 
+def to_Text(data: bytes) -> str:
+    """Return bytes data converted to text.
+
+    Useful for whole-file reads where the data needs some interpretation,
+    particularly for Scanners.  Attempts to figure out what the encoding of
+    the text is based upon the BOM bytes, and then decodes the contents so
+    that it's a valid python string.
+    """
+    _encoding_map = [
+        (codecs.BOM_UTF8, 'utf-8'),
+        (codecs.BOM_UTF16_LE, 'utf-16le'),
+        (codecs.BOM_UTF16_BE, 'utf-16be'),
+        (codecs.BOM_UTF32_LE, 'utf-32le'),
+        (codecs.BOM_UTF32_BE, 'utf-32be'),
+    ]
+
+    # First look for Byte-order-mark sequences to identify the encoding.
+    # Strip these since some codecs do, some don't.
+    for bom, encoding in _encoding_map:
+        if data.startswith(bom):
+            return data[len(bom):].decode(encoding, errors='backslashreplace')
+
+    # If we didn't see a BOM, try UTF-8, then the "preferred" encoding
+    # (the files might be written on this system), then finally latin-1.
+    # TODO: possibly should be a way for the build to set an encoding.
+    try:
+        return data.decode('utf-8')
+    except UnicodeDecodeError:
+            try:
+                import locale
+                prefencoding = locale.getpreferredencoding()
+                return data.decode(prefencoding)
+            except (UnicodeDecodeError, LookupError):
+                return data.decode('latin-1', errors='backslashreplace')
+
+
 def get_env_bool(env, name: str, default: bool=False) -> bool:
     """Convert a construction variable to bool.
 
@@ -287,7 +358,7 @@ def get_os_env_bool(name: str, default: bool=False) -> bool:
 _get_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
 
 
-def get_environment_var(varstr) -> Optional[str]:
+def get_environment_var(varstr) -> str | None:
     """Return undecorated construction variable string.
 
     Determine if *varstr* looks like a reference

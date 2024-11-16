@@ -40,6 +40,8 @@ be able to depend on any other type of "thing."
 
 """
 
+from __future__ import annotations
+
 import collections
 import copy
 from itertools import chain, zip_longest
@@ -49,6 +51,7 @@ import SCons.Executor
 import SCons.Memoize
 from SCons.compat import NoSlotsPyPy
 from SCons.Debug import logInstanceCreation, Trace
+from SCons.Executor import Executor
 from SCons.Util import hash_signature, is_List, UniqueList, render_tree
 
 print_duplicate = 0
@@ -634,11 +637,11 @@ class Node(metaclass=NoSlotsPyPy):
         """Fetch the appropriate scanner path for this node."""
         return self.get_executor().get_build_scanner_path(scanner)
 
-    def set_executor(self, executor) -> None:
+    def set_executor(self, executor: Executor) -> None:
         """Set the action executor for this node."""
         self.executor = executor
 
-    def get_executor(self, create: int=1):
+    def get_executor(self, create: int=1) -> Executor:
         """Fetch the action executor for this node.  Create one if
         there isn't already one, and requested to do so."""
         try:
@@ -649,7 +652,7 @@ class Node(metaclass=NoSlotsPyPy):
             try:
                 act = self.builder.action
             except AttributeError:
-                executor = SCons.Executor.Null(targets=[self])
+                executor = SCons.Executor.Null(targets=[self])  # type: ignore
             else:
                 executor = SCons.Executor.Executor(act,
                                                    self.env or self.builder.env,
@@ -676,7 +679,7 @@ class Node(metaclass=NoSlotsPyPy):
         except AttributeError:
             pass
 
-    def push_to_cache(self) -> None:
+    def push_to_cache(self) -> bool:
         """Try to push a node into a cache
         """
         pass
@@ -1061,6 +1064,7 @@ class Node(metaclass=NoSlotsPyPy):
         # Don't bother scanning non-derived files, because we don't
         # care what their dependencies are.
         # Don't scan again, if we already have scanned.
+        T = False
         if self.implicit is not None:
             return
         self.implicit = []
@@ -1085,7 +1089,12 @@ class Node(metaclass=NoSlotsPyPy):
                 # essentially short-circuits an N*M scan of the
                 # sources for each individual target, which is a hell
                 # of a lot more efficient.
+                def print_nodelist(n):
+                    tgts = [f"{t.path!r}" for t in n]
+                    return f"[{', '.join(tgts)}]"
+
                 for tgt in executor.get_all_targets():
+                    if T: Trace(f"adding implicit {print_nodelist(implicit)} to {tgt!s}\n")
                     tgt.add_to_implicit(implicit)
 
                 if implicit_deps_unchanged or self.is_up_to_date():
@@ -1230,7 +1239,7 @@ class Node(metaclass=NoSlotsPyPy):
         self.precious = precious
 
     def set_pseudo(self, pseudo: bool = True) -> None:
-        """Set the Node's precious value."""
+        """Set the Node's pseudo value."""
         self.pseudo = pseudo
 
     def set_noclean(self, noclean: int = 1) -> None:
@@ -1250,7 +1259,7 @@ class Node(metaclass=NoSlotsPyPy):
         self.always_build = always_build
 
     def exists(self) -> bool:
-        """Does this node exists?"""
+        """Reports whether node exists."""
         return _exists_map[self._func_exists](self)
 
     def rexists(self):
@@ -1470,8 +1479,8 @@ class Node(metaclass=NoSlotsPyPy):
 
         @see: FS.File.changed(), FS.File.release_target_info()
         """
-        t = 0
-        if t: Trace('changed(%s [%s], %s)' % (self, classname(self), node))
+        T = False
+        if T: Trace('changed(%s [%s], %s)' % (self, classname(self), node))
         if node is None:
             node = self
 
@@ -1489,25 +1498,24 @@ class Node(metaclass=NoSlotsPyPy):
             # entries to equal the new dependency list, for the benefit
             # of the loop below that updates node information.
             then.extend([None] * diff)
-            if t: Trace(': old %s new %s' % (len(then), len(children)))
+            if T: Trace(': old %s new %s' % (len(then), len(children)))
             result = True
 
         for child, prev_ni in zip(children, then):
             if _decider_map[child.changed_since_last_build](child, self, prev_ni, node):
-                if t: Trace(': %s changed' % child)
+                if T: Trace(f": '{child!s}' changed")
                 result = True
 
         if self.has_builder():
             contents = self.get_executor().get_contents()
             newsig = hash_signature(contents)
             if bi.bactsig != newsig:
-                if t: Trace(': bactsig %s != newsig %s' % (bi.bactsig, newsig))
+                if T: Trace(': bactsig %s != newsig %s' % (bi.bactsig, newsig))
                 result = True
 
         if not result:
-            if t: Trace(': up to date')
-
-        if t: Trace('\n')
+            if T: Trace(': up to date')
+        if T: Trace('\n')
 
         return result
 

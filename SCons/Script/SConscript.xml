@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-Copyright The SCons Foundation
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -133,6 +134,19 @@ EnsureSConsVersion(0,14)
 
 EnsureSConsVersion(0,96,90)
 </example_commands>
+</summary>
+</scons_function>
+
+<scons_function name="GetSConsVersion">
+<arguments signature="global">
+()
+</arguments>
+<summary>
+<para>
+Returns the current SCons version in the form of a Tuple[int, int, int],
+representing the major, minor, and revision values respectively.
+<emphasis>Added in 4.8.0</emphasis>.
+</para>
 </summary>
 </scons_function>
 
@@ -350,7 +364,7 @@ Import("*")
 Return to the calling SConscript, optionally
 returning the values of variables named in
 <varname>vars</varname>.
-Multiple strings contaning variable names may be passed to
+Multiple strings containing variable names may be passed to
 &f-Return;. A string containing white space
 is split into individual variable names.
 Returns the value if one variable is specified,

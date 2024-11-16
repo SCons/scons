@@ -33,10 +33,11 @@ one needs to use or tie in to this subsystem in order to roll their own
 tool specifications.
 """
 
+from __future__ import annotations
+
 import sys
 import os
 import importlib.util
-from typing import Optional
 
 import SCons.Builder
 import SCons.Errors
@@ -251,7 +252,7 @@ class Tool:
                 kw.update(call_kw)
             else:
                 kw = self.init_kw
-        env.Append(TOOLS=[self.name])
+        env.AppendUnique(TOOLS=[self.name])
         if hasattr(self, 'options'):
             import SCons.Variables
             if 'options' not in env:
@@ -691,8 +692,8 @@ def tool_list(platform, env):
     if str(platform) == 'win32':
         "prefer Microsoft tools on Windows"
         linkers = ['mslink', 'gnulink', 'ilink', 'linkloc', 'ilink32']
-        c_compilers = ['msvc', 'mingw', 'gcc', 'intelc', 'icl', 'icc', 'cc', 'bcc32']
-        cxx_compilers = ['msvc', 'intelc', 'icc', 'g++', 'cxx', 'bcc32']
+        c_compilers = ['msvc', 'mingw', 'gcc', 'clang', 'intelc', 'icl', 'icc', 'cc', 'bcc32']
+        cxx_compilers = ['msvc', 'intelc', 'icc', 'g++', 'clang++', 'cxx', 'bcc32']
         assemblers = ['masm', 'nasm', 'gas', '386asm']
         fortran_compilers = ['gfortran', 'g77', 'ifl', 'cvf', 'f95', 'f90', 'fortran']
         ars = ['mslib', 'ar', 'tlib']
@@ -757,8 +758,8 @@ def tool_list(platform, env):
     else:
         "prefer GNU tools on all other platforms"
         linkers = ['gnulink', 'ilink']
-        c_compilers = ['gcc', 'intelc', 'icc', 'cc']
-        cxx_compilers = ['g++', 'intelc', 'icc', 'cxx']
+        c_compilers = ['gcc', 'clang', 'intelc', 'icc', 'cc']
+        cxx_compilers = ['g++', 'clang++', 'intelc', 'icc', 'cxx']
         assemblers = ['gas', 'nasm', 'masm']
         fortran_compilers = ['gfortran', 'g77', 'ifort', 'ifl', 'f95', 'f90', 'f77']
         ars = ['ar', ]
@@ -824,7 +825,7 @@ def tool_list(platform, env):
     return [x for x in tools if x]
 
 
-def find_program_path(env, key_program, default_paths=None, add_path: bool=False) -> Optional[str]:
+def find_program_path(env, key_program, default_paths=None, add_path: bool=False) -> str | None:
     """
     Find the location of a tool using various means.
 

@@ -32,11 +32,11 @@ class PackageVariableTestCase(unittest.TestCase):
     def test_PackageVariable(self) -> None:
         """Test PackageVariable creation"""
         opts = SCons.Variables.Variables()
-        opts.Add(SCons.Variables.PackageVariable('test', 'test option help', '/default/path'))
+        opts.Add(SCons.Variables.PackageVariable('test', 'test build variable help', '/default/path'))
 
         o = opts.options[0]
         assert o.key == 'test', o.key
-        assert o.help == 'test option help\n    ( yes | no | /path/to/test )', repr(o.help)
+        assert o.help == 'test build variable help\n    ( yes | no | /path/to/test )', repr(o.help)
         assert o.default == '/default/path', o.default
         assert o.validator is not None, o.validator
         assert o.converter is not None, o.converter
@@ -44,7 +44,7 @@ class PackageVariableTestCase(unittest.TestCase):
     def test_converter(self) -> None:
         """Test the PackageVariable converter"""
         opts = SCons.Variables.Variables()
-        opts.Add(SCons.Variables.PackageVariable('test', 'test option help', '/default/path'))
+        opts.Add(SCons.Variables.PackageVariable('test', 'test build variable help', '/default/path'))
 
         o = opts.options[0]
 
@@ -64,11 +64,11 @@ class PackageVariableTestCase(unittest.TestCase):
 
         for t in true_values:
             x = o.converter(t)
-            assert x, "converter returned false for '%s'" % t
+            assert x, f"converter returned False for {t!r}"
 
         for f in false_values:
             x = o.converter(f)
-            assert not x, "converter returned true for '%s'" % f
+            assert not x, f"converter returned True for {f!r}"
 
         x = o.converter('/explicit/path')
         assert x == '/explicit/path', x
@@ -82,10 +82,20 @@ class PackageVariableTestCase(unittest.TestCase):
         x = o.converter(str(False))
         assert not x, "converter returned a string when given str(False)"
 
+        # Synthesize the case where the variable is created with subst=False:
+        # Variables code won't subst before calling the converter,
+        # and we might have pulled a bool from the option default.
+        with self.subTest():
+            x = o.converter(True)
+            assert x, f"converter returned False for {t!r}"
+        with self.subTest():
+            x = o.converter(False)
+            assert not x, f"converter returned False for {t!r}"
+
     def test_validator(self) -> None:
         """Test the PackageVariable validator"""
         opts = SCons.Variables.Variables()
-        opts.Add(SCons.Variables.PackageVariable('test', 'test option help', '/default/path'))
+        opts.Add(SCons.Variables.PackageVariable('test', 'test build variable help', '/default/path'))
 
         test = TestCmd.TestCmd(workdir='')
         test.write('exists', 'exists\n')
@@ -101,12 +111,8 @@ class PackageVariableTestCase(unittest.TestCase):
         o.validator('T', '/path', env)
         o.validator('X', exists, env)
 
-        caught = None
-        try:
+        with self.assertRaises(SCons.Errors.UserError):
             o.validator('X', does_not_exist, env)
-        except SCons.Errors.UserError:
-            caught = 1
-        assert caught, "did not catch expected UserError"
 
 
 if __name__ == "__main__":

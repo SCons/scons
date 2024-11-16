@@ -1,4 +1,13 @@
 <?xml version='1.0'?>
+
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
+-->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
@@ -19,38 +28,11 @@
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>Preface</title>
 
-<!--
-
-  MIT License
-
-  Copyright The SCons Foundation
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--->
-
-  <para>
+<para>
 
   Thank you for taking the time to read about &SCons;.
   &SCons; is a modern
-  software construction too - a software utility
+  software construction tool - a software utility
   for building software (or other files)
   and keeping built software up-to-date
   whenever the underlying input files change.
@@ -120,7 +102,7 @@
 
   -->
 
-  <section>
+  <section id="sect-principles">
   <title>&SCons; Principles</title>
 
     <para>
@@ -211,7 +193,7 @@
 
   -->
 
-  <section>
+  <section id="sect-using-guide">
   <title>How to Use this Guide</title>
 
     <para>
@@ -241,19 +223,23 @@
 
     <para>
 
-    It is often useful to keep &SCons; man page open in a separate
+    If you are viewing an html version of this Guide, there are many
+    hyperlinks present that you can follow to get more details
+    if you want them, as the User Guide intentionally does not attempt
+    to provide every detail, to allow smoother study of the basics.
+    It may also be useful to keep the &SCons; man page open in a separate
     browser tab or window to refer to as a complement to this Guide,
-    as the User Guide does not attempt to provide every detail.
-    While this Guide's Appendices A-D do duplicate information that appears
-    in the man page (this is to allow intra-document links to
-    definitions of &consvars;, builders, tools and environment methods
-    to work), the rest of the man page is unique content.
+    which can avoid some jumping back and forth.
+    The four important manpage sections describiing the
+    of &consvars;, builders, tools and environment methods
+    are actually duplicated as appendices in the User Guide,
+    to avoid inter-document links.
 
     </para>
 
   </section>
 
-  <section>
+  <section id="sect-completeness">
   <title>A Caveat About This Guide's Completeness</title>
 
   <para>
@@ -290,7 +276,7 @@
 
   </section>
 
-  <section>
+  <section id="sect-acknowledgements">
   <title>Acknowledgements</title>
 
     <para>
@@ -413,7 +399,7 @@
     <para>
 
     And last, thanks to Guido van Rossum
-    for his elegant scripting language,
+    for his elegant scripting language &Python;,
     which is the basis not only for the &SCons; implementation,
     but for the interface itself.
 
@@ -421,7 +407,7 @@
 
   </section>
 
-  <section>
+  <section id="sect-contact">
   <title>Contact</title>
 
     <para>

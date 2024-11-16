@@ -1,6 +1,8 @@
-2#!/usr/bin/env python
+#!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 End-to-end tests for POTUpdate. Assure, that the examples from user's
@@ -44,6 +43,7 @@ test.subdir(['ex1'])
 test.subdir(['ex1', 'po'])
 test.write( ['ex1', 'po', 'SConstruct' ],
 """
+_ = DefaultEnvironment(tools=[])
 env = Environment( tools = ['default', 'xgettext'] )
 env.POTUpdate(['foo'], ['../a.cpp', '../b.cpp'])
 env.POTUpdate(['bar'], ['../c.cpp', '../d.cpp'])
@@ -88,6 +88,7 @@ test.must_exist(        ['ex1', 'po', 'bar.pot'] )
 test.subdir(['ex2'])
 test.write( ['ex2', 'SConstruct'],
 """
+_ = DefaultEnvironment(tools=[])
 env = Environment( tools = ['default', 'xgettext'] )
 env['POTDOMAIN'] = "foo"
 env.POTUpdate(source = ["a.cpp", "b.cpp"]) # Creates foo.pot ...
@@ -121,6 +122,7 @@ test.subdir(['ex3', 'po'])
 test.write( ['ex3', 'po', 'SConstruct'],
 """
 # SConstruct file in 'po/' subdirectory
+_ = DefaultEnvironment(tools=[])
 env = Environment( tools = ['default', 'xgettext'] )
 env.POTUpdate(XGETTEXTFROM = 'POTFILES.in')
 """)
@@ -147,6 +149,7 @@ test.subdir(['ex4', 'po'])
 test.write( ['ex4', 'po', 'SConstruct'],
 """
 # SConstruct file in 'po/' subdirectory
+_ = DefaultEnvironment(tools=[])
 env = Environment( tools = ['default', 'xgettext'] )
 env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH='../')
 """)
@@ -176,6 +179,7 @@ test.subdir(['ex5', '0', '1', 'po'])
 test.write( ['ex5', '0', '1', 'po', 'SConstruct'],
 """
 # SConstruct file in '0/1/po/' subdirectory
+_ = DefaultEnvironment(tools=[])
 env = Environment( tools = ['default', 'xgettext'] )
 env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH=['../', '../../'])
 """)
@@ -191,14 +195,15 @@ test.write(['ex5', '0', '1', 'a.cpp'], """ gettext("Hello from ../a.cpp") """)
 # scons 'pot-update' creates messages.pot
 test.run(arguments = 'pot-update', chdir = path.join('ex5', '0', '1', 'po'))
 test.must_exist(        ['ex5', '0', '1', 'po', 'messages.pot'])
-test.must_contain(      ['ex5', '0', '1', 'po', 'messages.pot'], 
+test.must_contain(      ['ex5', '0', '1', 'po', 'messages.pot'],
                         'Hello from ../a.cpp', mode='r' )
-test.must_not_contain(  ['ex5', '0', '1', 'po', 'messages.pot'], 
+test.must_not_contain(  ['ex5', '0', '1', 'po', 'messages.pot'],
                         'Hello from ../../a.cpp', mode='r' )
 
 test.write(['ex5', '0', '1', 'po', 'SConstruct'],
 """
 # SConstruct file in '0/1/po/' subdirectory
+_ = DefaultEnvironment(tools=[])
 env = Environment( tools = ['default', 'xgettext'] )
 env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH=['../../', '../'])
 """)

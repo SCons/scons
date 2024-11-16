@@ -41,6 +41,7 @@ test = TestSCons.TestSCons()
 test.dir_fixture('addpost-link-fixture')
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment()
 
 mylib = env.StaticLibrary('mytest', 'test_lib.c')

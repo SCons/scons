@@ -26,9 +26,15 @@
 Used to handle internal and user errors in SCons.
 """
 
+from __future__ import annotations
+
 import shutil
+from typing import TYPE_CHECKING
 
 from SCons.Util.sctypes import to_String, is_String
+
+if TYPE_CHECKING:
+    from SCons.Executor import Executor
 
 # Note that not all Errors are defined here, some are at the point of use
 
@@ -73,7 +79,7 @@ class BuildError(Exception):
 
     def __init__(self,
                  node=None, errstr: str="Unknown error", status: int=2, exitstatus: int=2,
-                 filename=None, executor=None, action=None, command=None,
+                 filename=None, executor: Executor | None = None, action=None, command=None,
                  exc_info=(None, None, None)) -> None:
 
         # py3: errstr should be string and not bytes.
@@ -175,8 +181,12 @@ def convert_to_BuildError(status, exc_info=None):
         # (for example, failure to create the directory in which the
         # target file will appear).
         filename = getattr(status, 'filename', None)
-        strerror = getattr(status, 'strerror', str(status))
-        errno = getattr(status, 'errno', 2)
+        strerror = getattr(status, 'strerror', None)
+        if strerror is None:
+            strerror = str(status)
+        errno = getattr(status, 'errno', None)
+        if errno is None:
+            errno = 2
 
         buildError = BuildError(
             errstr=strerror,

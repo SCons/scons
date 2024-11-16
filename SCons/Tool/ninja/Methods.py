@@ -21,9 +21,12 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
+
 import os
 import shlex
 import textwrap
+from typing import TYPE_CHECKING
 
 import SCons
 from SCons.Subst import SUBST_CMD
@@ -31,6 +34,9 @@ from SCons.Tool.ninja import NINJA_CUSTOM_HANDLERS, NINJA_RULES, NINJA_POOLS
 from SCons.Tool.ninja.Globals import __NINJA_RULE_MAPPING
 from SCons.Tool.ninja.Utils import get_targets_sources, get_dependencies, get_order_only, get_outputs, get_inputs, \
     get_rule, get_path, generate_command, get_command_env, get_comstr
+
+if TYPE_CHECKING:
+    from SCons.Executor import Executor
 
 
 def register_custom_handler(env, name, handler) -> None:
@@ -76,7 +82,7 @@ def set_build_node_callback(env, node, callback) -> None:
         node.attributes.ninja_build_callback = callback
 
 
-def get_generic_shell_command(env, node, action, targets, sources, executor=None):
+def get_generic_shell_command(env, node, action, targets, sources, executor: Executor | None = None):
     return (
         "GENERATED_CMD",
         {
@@ -229,7 +235,7 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic: bool=False, 
     if "$" in tool:
         tool_is_dynamic = True
 
-    def get_response_file_command(env, node, action, targets, sources, executor=None):
+    def get_response_file_command(env, node, action, targets, sources, executor: Executor | None = None):
         if hasattr(action, "process"):
             cmd_list, _, _ = action.process(targets, sources, env, executor=executor)
             cmd_list = [str(c).replace("$", "$$") for c in cmd_list[0]]

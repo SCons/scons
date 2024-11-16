@@ -47,6 +47,7 @@ test.subdir(['foo'],
 test.write(['SConstruct'], """\
 import os
 
+_ = DefaultEnvironment(tools=[])
 env = Environment(ENV=os.environ)
 if env['PLATFORM'] != 'win32':
     env.Append(CPPFLAGS=' -g -Wall')
@@ -56,7 +57,7 @@ Export('env')
 
 SConscript('#foo/SConscript')
 SConscript('#java/SConscript')
-""" % locals())
+""")
 
 test.write(['foo', 'SConscript'], """\
 Import('env')
@@ -68,7 +69,7 @@ test.write(['foo', 'foo.cpp'], """\
 #include "foo.h"
 
 int fooAdd(int a, int b) {
-	return a + b;
+    return a + b;
 }
 """)
 
@@ -115,11 +116,11 @@ libpath = ['#foo',]
 swigflags = '-c++ -java -Wall -Ifoo -DTEST_$PLATFORM'
 
 Java_foo_interface = env.SharedLibrary(
-    'Java_foo_interface', 
-    'Java_foo_interface.i', 
-    LIBS = libadd, 
-    LIBPATH = libpath, 
-    SWIGFLAGS = swigflags, 
+    'Java_foo_interface',
+    'Java_foo_interface.i',
+    LIBS = libadd,
+    LIBPATH = libpath,
+    SWIGFLAGS = swigflags,
     SWIGOUTDIR = Dir('build'),
     SWIGCXXFILESUFFIX = "_wrap.cpp")
 
