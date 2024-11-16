@@ -86,7 +86,7 @@ CacheDir('/usr/local/build_cache')
     this directory would typically be
     on a shared or NFS-mounted file system.
     While &SCons; will create the specified cache directory as needed,
-    in this multi-user scenario it is usually best
+    in this multiuser scenario it is usually best
     to create it ahead of time, so the access rights
     can be set up correctly.
 
