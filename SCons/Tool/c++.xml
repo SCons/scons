@@ -56,7 +56,7 @@ Sets construction variables for generic POSIX C++ compilers.
 <summary>
 <para>
 The C++ compiler.
-See also &cv-link-SHCXX; for compiling to shared objects..
+See also &cv-link-SHCXX; for compiling to shared objects.
 </para>
 </summary>
 </cvar>
@@ -68,7 +68,7 @@ The command line used to compile a C++ source file to an object file.
 Any options specified in the &cv-link-CXXFLAGS; and
 &cv-link-CPPFLAGS; construction variables
 are included on this command line.
-See also &cv-link-SHCXXCOM; for compiling to shared objects..
+See also &cv-link-SHCXXCOM; for compiling to shared objects.
 </para>
 </summary>
 </cvar>
@@ -79,7 +79,7 @@ See also &cv-link-SHCXXCOM; for compiling to shared objects..
 If set, the string displayed when a C++ source file
 is compiled to a (static) object file.
 If not set, then &cv-link-CXXCOM; (the command line) is displayed.
-See also &cv-link-SHCXXCOMSTR; for compiling to shared objects..
+See also &cv-link-SHCXXCOMSTR; for compiling to shared objects.
 </para>
 
 <example_commands>
@@ -96,7 +96,7 @@ By default, this includes the value of &cv-link-CCFLAGS;,
 so that setting &cv-CCFLAGS; affects both C and C++ compilation.
 If you want to add C++-specific flags,
 you must set or override the value of &cv-link-CXXFLAGS;.
-See also &cv-link-SHCXXFLAGS; for compiling to shared objects..
+See also &cv-link-SHCXXFLAGS; for compiling to shared objects.
 </para>
 </summary>
 </cvar>

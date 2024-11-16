@@ -364,7 +364,7 @@ Import("*")
 Return to the calling SConscript, optionally
 returning the values of variables named in
 <varname>vars</varname>.
-Multiple strings contaning variable names may be passed to
+Multiple strings containing variable names may be passed to
 &f-Return;. A string containing white space
 is split into individual variable names.
 Returns the value if one variable is specified,

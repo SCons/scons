@@ -298,7 +298,7 @@ only if the &cv-link-PDB; &consvar; is set.
 <para>
 This variable specifies how much of a source file is precompiled. This
 variable is ignored by tools other than &MSVC;, or when
-the PCH variable is not being used. When this variable is define it
+the PCH variable is not being used. When this variable is defined, it
 must be a string that is the name of the header that
 is included at the end of the precompiled portion of the source files, or
 the empty string if the "#pragma hrdstop" construct is being used:
@@ -621,7 +621,7 @@ Visual Studio </literallayout></entry>
     It is only necessary to specify the <literal>Exp</literal>
     suffix to select the express edition when both express and
     non-express editions of the same product are installed
-    simulaneously. The <literal>Exp</literal> suffix is unnecessary,
+    simultaneously. The <literal>Exp</literal> suffix is unnecessary,
     but accepted, when only the express edition is installed.
     </para></listitem>
   </itemizedlist>

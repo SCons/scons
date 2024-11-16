@@ -1609,7 +1609,7 @@ print("NEW_VARIABLE = %s" % env['NEW_VARIABLE'])
 
       <para>
 
-      Some times it's useful to add a new value
+      Sometimes it's useful to add a new value
       to the beginning of a &consvar;
       only if the existing value
       doesn't already contain the to-be-added value.
@@ -1842,7 +1842,7 @@ env['ENV']['PATH'] = ['/usr/local/bin', '/bin', '/usr/bin']
 
     Note that &SCons; does allow you to define
     the directories in the &PATH; in a string with paths
-    separated by the pathname-separator character
+    separated by the pathname separator character
     for your system (<literal>':'</literal> on POSIX systems,
     <literal>';'</literal> on Windows).
 
@@ -2018,7 +2018,7 @@ env.AppendENVPath('LIB', '/usr/local/lib')
       </para>
 
       <sconstruct>
-# Builtin tool or tool located within site_tools
+# Built-in tool or tool located within site_tools
 env = Environment(tools=['SomeTool'])
 env.SomeTool(targets, sources)
 
@@ -2068,11 +2068,11 @@ SCons/Tool/SomeTool/__init__.py
       <para>
 
       Since &SCons; 3.0, a Builder may be located
-      within a sub-directory / sub-package of the toolpath.
+      within a subdirectory / sub-package of the toolpath.
       This is similar to namespacing within &Python;.
       <!-- TODO: that was an advanced topic!!! -->
       With nested or namespaced tools we can use the dot notation
-      to specify a sub-directory that the tool is located under.
+      to specify a subdirectory that the tool is located under.
 
       </para>
 
@@ -2149,10 +2149,10 @@ C:\Python35\Lib\site-packages\someinstalledpackage\SomeTool\__init__.py
 
       <para>
       In some cases you may want to use a tool
-      located within a installed external pip package.
+      located within an installed external pip package.
       This is possible by the use of
       <varname>sys.path</varname> with the toolpath.
-      However in that situation you need to provide a prefix to the toolname
+      However, in that situation you need to provide a prefix to the toolname
       to indicate where it is located within <varname>sys.path</varname>.
       </para>
 

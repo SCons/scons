@@ -193,7 +193,7 @@ file3.c
     This becomes even more helpful
     in identifying when a file is rebuilt
     due to a change in an implicit dependency,
-    such as an incuded <filename>.h</filename> file.
+    such as an included <filename>.h</filename> file.
     If the <filename>file1.c</filename>
     and <filename>file3.c</filename> files
     in our example
@@ -321,7 +321,7 @@ print(env.Dump())
     interested in,
     the &Dump; method allows you to
     specify a specific &consvar;
-    that you want to disply.
+    that you want to display.
     For example,
     it's not unusual to want to verify
     the external environment used to execute build commands,
@@ -426,7 +426,7 @@ inc.h
 
     <para>
 
-    By default &SCons; uses "ASCII art" to draw the tree. It is
+    By default, &SCons; uses "ASCII art" to draw the tree. It is
     possible to use line-drawing characters (Unicode calls these
     Box Drawing) to make a nicer display. To do this, add the
     <option>linedraw</option> qualifier:
@@ -658,7 +658,7 @@ cc -o prog prog.o
     To get some insight into what library names
     &SCons; is searching for,
     and in which directories it is searching,
-    Use the &debug-findlibs; option.
+    use the &debug-findlibs; option.
     Given the following input &SConstruct; file:
 
     </para>
@@ -877,7 +877,7 @@ prog.c
 
     <para>
 
-    Sometimes SCons doesn't build the target you want
+    Sometimes SCons doesn't build the target you want,
     and it's difficult to figure out why.  You can use
     the &debug-prepare; option
     to see all the targets &SCons; is considering, and whether
@@ -893,7 +893,7 @@ prog.c
 
     <para>
 
-    When using the &Duplicate; option to create variant dirs,
+    When using the &Duplicate; option to create variant directories,
     sometimes you may find files not getting linked or copied to where you
     expect (or not at all), or files mysteriously disappearing.
     These are usually because of a misconfiguration of some kind in the
@@ -901,7 +901,7 @@ prog.c
     &debug-duplicate; option shows each time a variant file is
     unlinked and relinked from its source (or copied, depending on
     settings), and also shows a message for removing "stale"
-    variant-dir files that no longer have a corresponding source file.
+    variant-directory files that no longer have a corresponding source file.
     It also prints a line for each target that's removed just before
     building, since that can also be mistaken for the same thing.
 

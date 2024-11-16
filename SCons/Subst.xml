@@ -66,7 +66,7 @@ Example:
 AllowSubstExceptions()
 
 # Also allow a string containing a zero-division expansion
-# like '${1 / 0}' to evalute to ''.
+# like '${1 / 0}' to evaluate to ''.
 AllowSubstExceptions(IndexError, NameError, ZeroDivisionError)
 </example_commands>
 </summary>

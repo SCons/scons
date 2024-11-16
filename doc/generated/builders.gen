@@ -47,7 +47,7 @@ This is useful for "one-off" builds
 where a full Builder is not needed.
 Since the anonymous Builder is never hooked
 into the standard Builder framework,
-an Action must always be specfied.
+an Action must always be specified.
 See the &f-link-Command; function description
 for the calling syntax and details.
 </para>
@@ -474,7 +474,7 @@ in this case.
 If the <option>--install-sandbox</option> command line
 option is given, the target directory will be prefixed
 by the directory path specified.
-This is useful to test installs without installing to
+This is useful to test installation behavior without installing to
 a "live" location in the system.
 </para>
 
@@ -642,8 +642,8 @@ env.Java(target='classes', source=['File1.java', 'File2.java'])
                 In this case, the user must specify the
                 <literal>LANG</literal>
                 environment variable to tell the compiler what encoding is used.
-                For portibility, it's best if the encoding is hard-coded
-                so that the compile will work if it is done on a system
+                For portability, it's best if the encoding is hard-coded,
+                so that the compilation works when run on a system
                 with a different encoding.
             </para>
 
@@ -787,8 +787,12 @@ env.Moc('foo.cpp')  # generates foo.moc
     <term><function>MOFiles</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>MOFiles</methodname>()</term>
     <listitem><para>
-This builder belongs to &t-link-msgfmt; tool. The builder compiles
+This builder is set up by the &t-link-msgfmt; tool.
+The builder compiles
 <literal>PO</literal> files to <literal>MO</literal> files.
+&b-MOFiles; is a single-source builder.
+The <parameter>source</parameter> parameter
+can also be omitted if &cv-link-LINGUAS_FILE; is set.
 </para>
 
 <para>
@@ -796,19 +800,17 @@ This builder belongs to &t-link-msgfmt; tool. The builder compiles
 Create <filename>pl.mo</filename> and <filename>en.mo</filename> by compiling
 <filename>pl.po</filename> and <filename>en.po</filename>:
 </para>
-<example_commands>
-  # ...
-  env.MOFiles(['pl', 'en'])
-</example_commands>
+<programlisting language="python">
+env.MOFiles(['pl', 'en'])
+</programlisting>
 
 <para>
 <emphasis>Example 2</emphasis>.
 Compile files for languages defined in <filename>LINGUAS</filename> file:
 </para>
-<example_commands>
-  # ...
-  env.MOFiles(LINGUAS_FILE = 1)
-</example_commands>
+<programlisting language="python">
+env.MOFiles(LINGUAS_FILE=True)
+</programlisting>
 
 <para>
 <emphasis>Example 3</emphasis>.
@@ -816,21 +818,19 @@ Create <filename>pl.mo</filename> and <filename>en.mo</filename> by compiling
 <filename>pl.po</filename> and <filename>en.po</filename> plus files for
 languages defined in <filename>LINGUAS</filename> file:
 </para>
-<example_commands>
-  # ...
-  env.MOFiles(['pl', 'en'], LINGUAS_FILE = 1)
-</example_commands>
+<programlisting language="python">
+env.MOFiles(['pl', 'en'], LINGUAS_FILE=True)
+</programlisting>
 
 <para>
 <emphasis>Example 4</emphasis>.
 Compile files for languages defined in <filename>LINGUAS</filename> file
 (another version):
 </para>
-<example_commands>
-  # ...
-  env['LINGUAS_FILE'] = 1
-  env.MOFiles()
-</example_commands>
+<programlisting language="python">
+env['LINGUAS_FILE'] = True
+env.MOFiles()
+</programlisting>
 </listitem>
   </varlistentry>
   <varlistentry id="b-MSVSProject">
@@ -1075,7 +1075,7 @@ Compile files for languages defined in <filename>LINGUAS</filename> file
         "build" from the Visual Studio interface) you lose the direct
         control of target selection and command-line options you would
         have if launching the build directly from &SCons;,
-        because these will be hardcoded in the project file to the
+        because these will be hard-coded in the project file to the
         values specified in the &b-MSVSProject; call.
         You can regain some of this control by defining multiple variants,
         using multiple &b-MSVSProject; calls to arrange different build
@@ -1088,7 +1088,7 @@ Compile files for languages defined in <filename>LINGUAS</filename> file
         it is important not to set Visual Studio to do parallel builds,
         as it will then launch the separate project builds in parallel,
         and &SCons; does not work well if called that way.
-        Instead you can set up the &SCons; build for parallel building -
+        Instead, you can set up the &SCons; build for parallel building -
         see the &f-link-SetOption; function for how to do this with
         <parameter>num_jobs</parameter>.
       </para>
@@ -1234,7 +1234,7 @@ V10DebugSettings = {
 }
 
 #
-# 3. Select the dictionary you want depending on the version of visual Studio
+# 3. Select the dictionary you want depending on the version of Visual Studio
 # Files you want to generate.
 #
 if not env.GetOption('userfile'):
@@ -1334,6 +1334,74 @@ env.MSVSProject(
               <application>MSBuild</application>
               and by Visual Studio, which know nothing about &SCons; Node types.
             </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+      <para>
+        In addition to the mandatory arguments above, the following optional
+        values may be specified as keyword arguments:
+      </para>
+      <variablelist>
+        <varlistentry>
+          <term><parameter>auto_filter_projects</parameter></term>
+          <listitem>
+            <para>
+              Under certain circumstances, solution file names or
+              solution file nodes may be present in the
+              <parameter>projects</parameter> argument list.
+              When solution file names or nodes are present in the
+              <parameter>projects</parameter> argument list, the generated
+              solution file may contain erroneous Project records resulting
+              in VS IDE error messages when opening the generated solution
+              file.
+              By default, an exception is raised when a solution file
+              name or solution file node is detected in the
+              <parameter>projects</parameter> argument list.
+            </para>
+            <para>
+              The accepted values for <parameter>auto_filter_projects</parameter>
+              are:
+            </para>
+            <variablelist>
+              <varlistentry>
+                <term><parameter>None</parameter></term>
+                <listitem>
+                  <para>
+                    An exception is raised when a solution file name or solution
+                    file node is detected in the <parameter>projects</parameter>
+                    argument list.
+                  </para>
+                  <para>
+                    <parameter>None</parameter> is the default value.
+                  </para>
+                </listitem>
+              </varlistentry>
+              <varlistentry>
+                <term><parameter>True or evaluates True</parameter></term>
+                <listitem>
+                  <para>
+                    Automatically remove solution file names and solution file
+                    nodes from the <parameter>projects</parameter> argument list.
+                  </para>
+                </listitem>
+              </varlistentry>
+              <varlistentry>
+                <term><parameter>False or evaluates False</parameter></term>
+                <listitem>
+                  <para>
+                    Leave the solution file names and solution file nodes
+                    in the <parameter>projects</parameter> argument list.
+                    An exception is not raised.
+                  </para>
+                  <para>
+                    When opening the generated solution file with the VS IDE,
+                    the VS IDE will likely report that there are erroneous
+                    Project records that are not supported or that need to be
+                    modified.
+                  </para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -1442,7 +1510,7 @@ env = Environment(tools=['default', 'packaging'])
 <para>
 &SCons; can build packages in a number of well known packaging formats.
 The target package type may be selected with the
-the &cv-link-PACKAGETYPE; construction variable
+&cv-link-PACKAGETYPE; construction variable
 or the <option>--package-type</option> command line option.
 The package type may be a list, in which case &SCons; will attempt
 to build packages for each type in the list. Example:
@@ -1460,7 +1528,7 @@ The currently supported packagers are:
 <tgroup cols="2">
 <tbody>
 <row><entry><literal>msi</literal></entry><entry>Microsoft Installer package</entry></row>
-<row><entry><literal>rpm</literal></entry><entry>RPM Package Manger package</entry></row>
+<row><entry><literal>rpm</literal></entry><entry>RPM Package Manager package</entry></row>
 <row><entry><literal>ipkg</literal></entry><entry>Itsy Package Management package</entry></row>
 <row><entry><literal>tarbz2</literal></entry><entry>bzip2-compressed tar file</entry></row>
 <row><entry><literal>targz</literal></entry><entry>gzip-compressed tar file</entry></row>
@@ -1606,41 +1674,48 @@ or
 The suffix specified by the &cv-link-PDFSUFFIX; construction variable
 (<filename>.pdf</filename> by default)
 is added automatically to the target
-if it is not already present.  Example:
+if it is not already present.
+&b-PDF; is a single-source builder.
+Example:
 </para>
 
-<example_commands>
+<programlisting language="python">
 # builds from aaa.tex
 env.PDF(target = 'aaa.pdf', source = 'aaa.tex')
 # builds bbb.pdf from bbb.dvi
 env.PDF(target = 'bbb', source = 'bbb.dvi')
-</example_commands>
+</programlisting>
 </listitem>
   </varlistentry>
   <varlistentry id="b-POInit">
     <term><function>POInit</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>POInit</methodname>()</term>
     <listitem><para>
-This builder belongs to &t-link-msginit; tool. The builder initializes missing
-<literal>PO</literal> file(s) if &cv-link-POAUTOINIT; is set.  If
-&cv-link-POAUTOINIT; is not set (default), &b-POInit; prints instruction for
-user (that is supposed to be a translator), telling how the
-<literal>PO</literal> file should be initialized. In normal projects
+This builder is set up by the &t-link-msginit; tool.
+The builder initializes missing
+<literal>PO</literal> file(s) if &cv-link-POAUTOINIT; is set.
+If &cv-link-POAUTOINIT; is not set (the default),
+&b-POInit; prints instruction for the user (such as a translator),
+telling how the <literal>PO</literal> file should be initialized.
+In normal projects
 <emphasis>you should not use &b-POInit; and use &b-link-POUpdate;
 instead</emphasis>. &b-link-POUpdate; chooses intelligently between
 <command>msgmerge(1)</command> and <command>msginit(1)</command>. &b-POInit;
 always uses <command>msginit(1)</command> and should be regarded as builder for
 special purposes or for temporary use (e.g. for quick, one time initialization
 of a bunch of <literal>PO</literal> files) or for tests.
+&b-POInit; is a single-source builder.
+The <parameter>source</parameter> parameter
+can also be omitted if &cv-link-LINGUAS_FILE; is set.
 </para>
 
 <para>
 Target nodes defined through &b-POInit; are not built by default (they're
 <literal>Ignore</literal>d from <literal>'.'</literal> node) but are added to
-special <literal>Alias</literal> (<literal>'po-create'</literal> by default).
+special &f-link-Alias; (<literal>'po-create'</literal> by default).
 The alias name may be changed through the &cv-link-POCREATE_ALIAS;
-construction variable. All <literal>PO</literal> files defined through
-&b-POInit; may be easily initialized by <command>scons po-create</command>.
+&consvar;. All <literal>PO</literal> files defined through
+&b-POInit; may be easily initialized by <userinput>scons po-create</userinput>.
 </para>
 
 <para>
@@ -1648,31 +1723,27 @@ construction variable. All <literal>PO</literal> files defined through
 Initialize <filename>en.po</filename> and <filename>pl.po</filename> from
 <filename>messages.pot</filename>:
 </para>
-<example_commands>
-  # ...
-  env.POInit(['en', 'pl']) # messages.pot --&gt; [en.po, pl.po]
-</example_commands>
+<programlisting language="python">
+env.POInit(['en', 'pl']) # messages.pot --&gt; [en.po, pl.po]
+</programlisting>
 
 <para>
 <emphasis>Example 2</emphasis>.
 Initialize <filename>en.po</filename> and <filename>pl.po</filename> from
 <filename>foo.pot</filename>:
 </para>
-<example_commands>
-  # ...
-  env.POInit(['en', 'pl'], ['foo']) # foo.pot --&gt; [en.po, pl.po]
-</example_commands>
+<programlisting language="python">
+env.POInit(['en', 'pl'], ['foo']) # foo.pot --&gt; [en.po, pl.po]
+</programlisting>
 
 <para>
 <emphasis>Example 3</emphasis>.
 Initialize <filename>en.po</filename> and <filename>pl.po</filename> from
-<filename>foo.pot</filename> but using &cv-link-POTDOMAIN; construction
-variable:
+<filename>foo.pot</filename> but using the &cv-link-POTDOMAIN; &consvar;:
 </para>
-<example_commands>
-  # ...
-  env.POInit(['en', 'pl'], POTDOMAIN='foo') # foo.pot --&gt; [en.po, pl.po]
-</example_commands>
+<programlisting language="python">
+env.POInit(['en', 'pl'], POTDOMAIN='foo') # foo.pot --&gt; [en.po, pl.po]
+</programlisting>
 
 <para>
 <emphasis>Example 4</emphasis>.
@@ -1680,10 +1751,9 @@ Initialize <literal>PO</literal> files for languages defined in
 <filename>LINGUAS</filename> file. The files will be initialized from template
 <filename>messages.pot</filename>:
 </para>
-<example_commands>
-  # ...
-  env.POInit(LINGUAS_FILE = 1) # needs 'LINGUAS' file
-</example_commands>
+<programlisting language="python">
+env.POInit(LINGUAS_FILE=True)  # needs 'LINGUAS' file
+</programlisting>
 
 <para>
 <emphasis>Example 5</emphasis>.
@@ -1692,30 +1762,27 @@ Initialize <filename>en.po</filename> and <filename>pl.pl</filename>
 <filename>LINGUAS</filename> file. The files will be initialized from template
 <filename>messages.pot</filename>:
 </para>
-<example_commands>
-  # ...
-  env.POInit(['en', 'pl'], LINGUAS_FILE = 1)
-</example_commands>
+<programlisting language="python">
+env.POInit(['en', 'pl'], LINGUAS_FILE=True)
+</programlisting>
 
 <para>
 <emphasis>Example 6</emphasis>.
 You may preconfigure your environment first, and then initialize
 <literal>PO</literal> files:
 </para>
-<example_commands>
-  # ...
-  env['POAUTOINIT'] = 1
-  env['LINGUAS_FILE'] = 1
-  env['POTDOMAIN'] = 'foo'
-  env.POInit()
-</example_commands>
+<programlisting language="python">
+env['POAUTOINIT'] = True
+env['LINGUAS_FILE'] = True
+env['POTDOMAIN'] = 'foo'
+env.POInit()
+</programlisting>
 <para>
 which has same efect as:
 </para>
-<example_commands>
-  # ...
-  env.POInit(POAUTOINIT = 1, LINGUAS_FILE = 1, POTDOMAIN = 'foo')
-</example_commands>
+<programlisting language="python">
+env.POInit(POAUTOINIT=True, LINGUAS_FILE=True, POTDOMAIN='foo')
+</programlisting>
 </listitem>
   </varlistentry>
   <varlistentry id="b-PostScript">
@@ -1731,30 +1798,35 @@ or
 The suffix specified by the &cv-link-PSSUFFIX; construction variable
 (<filename>.ps</filename> by default)
 is added automatically to the target
-if it is not already present.  Example:
+if it is not already present.
+&b-PostScript; is a single-source builder.
+Example:
 </para>
 
-<example_commands>
+<programlisting language="python">
 # builds from aaa.tex
 env.PostScript(target = 'aaa.ps', source = 'aaa.tex')
 # builds bbb.ps from bbb.dvi
 env.PostScript(target = 'bbb', source = 'bbb.dvi')
-</example_commands>
+</programlisting>
 </listitem>
   </varlistentry>
   <varlistentry id="b-POTUpdate">
     <term><function>POTUpdate</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>POTUpdate</methodname>()</term>
     <listitem><para>
-The builder belongs to &t-link-xgettext; tool. The builder updates target
-<literal>POT</literal> file if exists or creates one if it doesn't. The node is
-not built by default (i.e. it is <literal>Ignore</literal>d from
-<literal>'.'</literal>), but only on demand (i.e.  when given
-<literal>POT</literal> file is required or when special alias is invoked). This
-builder adds its targe node (<filename>messages.pot</filename>, say) to a
+The builder is set up by the &t-link-xgettext; tool,
+part of the &t-link-gettext; toolset.
+The builder updates the target
+<literal>POT</literal> file if exists or creates it if it doesn't.
+The target node is <emphasis>not</emphasis>
+selected for building by default (e.g. <userinput>scons .</userinput>),
+but only on demand (i.e.  when the given
+<literal>POT</literal> file is required or when special alias is invoked).
+This builder adds its target node (<filename>messages.pot</filename>, say) to a
 special alias (<literal>pot-update</literal> by default, see
 &cv-link-POTUPDATE_ALIAS;) so you can update/create them easily with
-<command>scons pot-update</command>. The file is not written until there is no
+<userinput>scons pot-update</userinput>. The file is not written until there is no
 real change in internationalized messages (or in comments that enter
 <literal>POT</literal> file).
 </para>
@@ -1774,86 +1846,87 @@ not.</para></note>
 Let's create <filename>po/</filename> directory and place following
 <filename>SConstruct</filename> script there:
 </para>
-<example_commands>
-  # SConstruct in 'po/' subdir
-  env = Environment( tools = ['default', 'xgettext'] )
-  env.POTUpdate(['foo'], ['../a.cpp', '../b.cpp'])
-  env.POTUpdate(['bar'], ['../c.cpp', '../d.cpp'])
-</example_commands>
+<programlisting language="python">
+# SConstruct in 'po/' subdir
+env = Environment(tools=['default', 'xgettext'])
+env.POTUpdate(['foo'], ['../a.cpp', '../b.cpp'])
+env.POTUpdate(['bar'], ['../c.cpp', '../d.cpp'])
+</programlisting>
 <para>
 Then invoke scons few times:
 </para>
-<example_commands>
-  user@host:$ scons             # Does not create foo.pot nor bar.pot
-  user@host:$ scons foo.pot     # Updates or creates foo.pot
-  user@host:$ scons pot-update  # Updates or creates foo.pot and bar.pot
-  user@host:$ scons -c          # Does not clean foo.pot nor bar.pot.
-</example_commands>
+<screen>
+$ scons             # Does not create foo.pot nor bar.pot
+$ scons foo.pot     # Updates or creates foo.pot
+$ scons pot-update  # Updates or creates foo.pot and bar.pot
+$ scons -c          # Does not clean foo.pot nor bar.pot.
+</screen>
 <para>
 the results shall be as the comments above say.
 </para>
 
 <para>
 <emphasis>Example 2.</emphasis>
-The &b-POTUpdate; builder may be used with no target specified, in which
-case default target <filename>messages.pot</filename> will be used. The
-default target may also be overridden by setting &cv-link-POTDOMAIN; construction
-variable or providing it as an override to &b-POTUpdate; builder:
+The <parameter>target</parameter> argument can be omitted, in which
+case the default target name <filename>messages.pot</filename> is used.
+The target may also be overridden by setting the &cv-link-POTDOMAIN;
+&consvar; or providing it as an override to the &b-POTUpdate; builder:
 </para>
-<example_commands>
-  # SConstruct script
-  env = Environment( tools = ['default', 'xgettext'] )
-  env['POTDOMAIN'] = "foo"
-  env.POTUpdate(source = ["a.cpp", "b.cpp"]) # Creates foo.pot ...
-  env.POTUpdate(POTDOMAIN = "bar", source = ["c.cpp", "d.cpp"]) # and bar.pot
-</example_commands>
+<programlisting language="python">
+# SConstruct script
+env = Environment(tools=['default', 'xgettext'])
+env['POTDOMAIN'] = "foo"
+env.POTUpdate(source=["a.cpp", "b.cpp"])  # Creates foo.pot ...
+env.POTUpdate(POTDOMAIN="bar", source=["c.cpp", "d.cpp"])  # and bar.pot
+</programlisting>
 
 <para>
 <emphasis>Example 3.</emphasis>
-The sources may be specified within separate file, for example
+The <parameter>source</parameter> parameter may also be omitted,
+if it is specified in a separate file, for example
 <filename>POTFILES.in</filename>:
 </para>
-<example_commands>
-  # POTFILES.in in 'po/' subdirectory
-  ../a.cpp
-  ../b.cpp
-  # end of file
-</example_commands>
+<programlisting>
+# POTFILES.in in 'po/' subdirectory
+../a.cpp
+../b.cpp
+# end of file
+</programlisting>
 <para>
 The name of the file (<filename>POTFILES.in</filename>) containing the list of
 sources is provided via &cv-link-XGETTEXTFROM;:
 </para>
-<example_commands>
-  # SConstruct file in 'po/' subdirectory
-  env = Environment( tools = ['default', 'xgettext'] )
-  env.POTUpdate(XGETTEXTFROM = 'POTFILES.in')
-</example_commands>
+<programlisting language="python">
+# SConstruct file in 'po/' subdirectory
+env = Environment(tools=['default', 'xgettext'])
+env.POTUpdate(XGETTEXTFROM='POTFILES.in')
+</programlisting>
 
 <para>
 <emphasis>Example 4.</emphasis>
-You may use &cv-link-XGETTEXTPATH; to define source search path. Assume, for
-example, that you have files <filename>a.cpp</filename>,
+You can use &cv-link-XGETTEXTPATH; to define the source search path.
+Assume, for example, that you have files <filename>a.cpp</filename>,
 <filename>b.cpp</filename>, <filename>po/SConstruct</filename>,
-<filename>po/POTFILES.in</filename>. Then your <literal>POT</literal>-related
-files could look as below:
+<filename>po/POTFILES.in</filename>.
+Then your <literal>POT</literal>-related files could look like this:
 </para>
-<example_commands>
-  # POTFILES.in in 'po/' subdirectory
-  a.cpp
-  b.cpp
-  # end of file
-</example_commands>
+<programlisting>
+# POTFILES.in in 'po/' subdirectory
+a.cpp
+b.cpp
+# end of file
+</programlisting>
 
-<example_commands>
-  # SConstruct file in 'po/' subdirectory
-  env = Environment( tools = ['default', 'xgettext'] )
-  env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH='../')
-</example_commands>
+<programlisting language="python">
+# SConstruct file in 'po/' subdirectory
+env = Environment(tools=['default', 'xgettext'])
+env.POTUpdate(XGETTEXTFROM='POTFILES.in', XGETTEXTPATH='../')
+</programlisting>
 
 <para>
 <emphasis>Example 5.</emphasis>
-Multiple search directories may be defined within a list, i.e.
-<literal>XGETTEXTPATH = ['dir1', 'dir2', ...]</literal>. The order in the list
+Multiple search directories may be defined as a list, i.e.
+<literal>XGETTEXTPATH=['dir1', 'dir2', ...]</literal>. The order in the list
 determines the search order of source files. The path to the first file found
 is used.
 </para>
@@ -1861,44 +1934,44 @@ is used.
 <para>
 Let's create <filename>0/1/po/SConstruct</filename> script:
 </para>
-<example_commands>
-  # SConstruct file in '0/1/po/' subdirectory
-  env = Environment( tools = ['default', 'xgettext'] )
-  env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH=['../', '../../'])
-</example_commands>
+<programlisting language="python">
+# SConstruct file in '0/1/po/' subdirectory
+env = Environment(tools=['default', 'xgettext'])
+env.POTUpdate(XGETTEXTFROM='POTFILES.in', XGETTEXTPATH=['../', '../../'])
+</programlisting>
 <para>
 and <filename>0/1/po/POTFILES.in</filename>:
 </para>
-<example_commands>
-  # POTFILES.in in '0/1/po/' subdirectory
-  a.cpp
-  # end of file
-</example_commands>
+<programlisting>
+# POTFILES.in in '0/1/po/' subdirectory
+a.cpp
+# end of file
+</programlisting>
 <para>
 Write two <filename>*.cpp</filename> files, the first one is
 <filename>0/a.cpp</filename>:
 </para>
-<example_commands>
-  /* 0/a.cpp */
-  gettext("Hello from ../../a.cpp")
-</example_commands>
+<programlisting language="c++">
+/* 0/a.cpp */
+gettext("Hello from ../../a.cpp")
+</programlisting>
 <para>
 and the second is <filename>0/1/a.cpp</filename>:
 </para>
-<example_commands>
-  /* 0/1/a.cpp */
-  gettext("Hello from ../a.cpp")
-</example_commands>
+<programlisting language="c++">
+/* 0/1/a.cpp */
+gettext("Hello from ../a.cpp")
+</programlisting>
 <para>
 then run scons. You'll obtain <literal>0/1/po/messages.pot</literal> with the
 message <literal>"Hello from ../a.cpp"</literal>. When you reverse order in
 <varname>$XGETTEXTFOM</varname>, i.e. when you write SConscript as
 </para>
-<example_commands>
-  # SConstruct file in '0/1/po/' subdirectory
-  env = Environment( tools = ['default', 'xgettext'] )
-  env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH=['../../', '../'])
-</example_commands>
+<programlisting language="python">
+# SConstruct file in '0/1/po/' subdirectory
+env = Environment(tools=['default', 'xgettext'])
+env.POTUpdate(XGETTEXTFROM='POTFILES.in', XGETTEXTPATH=['../../', '../'])
+</programlisting>
 <para>
 then the <filename>messages.pot</filename> will contain
 <literal>msgid "Hello from ../../a.cpp"</literal> line and not
@@ -1911,23 +1984,29 @@ then the <filename>messages.pot</filename> will contain
     <term><function>POUpdate</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>POUpdate</methodname>()</term>
     <listitem><para>
-The builder belongs to &t-link-msgmerge; tool. The builder updates
+The builder is set up by the &t-link-msgmerge; tool.
+part of the &t-link-gettext; toolset.
+The builder updates
 <literal>PO</literal> files with <command>msgmerge(1)</command>, or initializes
-missing <literal>PO</literal> files as described in documentation of
-&t-link-msginit; tool and &b-link-POInit; builder (see also
-&cv-link-POAUTOINIT;). Note, that &b-POUpdate; <emphasis>does not add its
-targets to <literal>po-create</literal> alias</emphasis> as &b-link-POInit;
-does.
+missing <literal>PO</literal> files as described in the documentation of the
+&t-link-msginit; tool and the &b-link-POInit; builder (see also
+&cv-link-POAUTOINIT;).
+&b-POUpdate; is a single-source builder.
+The <parameter>source</parameter> parameter
+can also be omitted if &cv-link-LINGUAS_FILE; is set.
 </para>
 
 <para>
-Target nodes defined through &b-POUpdate; are not built by default
-(they're <literal>Ignore</literal>d from <literal>'.'</literal> node). Instead,
-they are added automatically to special <literal>Alias</literal>
+The target nodes are <emphasis>not</emphasis>
+selected for building by default (e.g. <userinput>scons .</userinput>).
+Instead, they are added automatically to special &f-link-Alias;
 (<literal>'po-update'</literal> by default). The alias name may be changed
-through the &cv-link-POUPDATE_ALIAS; construction variable.  You can easily
-update <literal>PO</literal> files in your project by <command>scons
-po-update</command>.
+through the &cv-link-POUPDATE_ALIAS; &consvar;.  You can easily
+update <literal>PO</literal> files in your project by
+<userinput>scons po-update</userinput>.
+Note that &b-POUpdate; does not add its
+targets to the <literal>po-create</literal> alias as &b-link-POInit;
+does.
 </para>
 
 <para>
@@ -1937,49 +2016,44 @@ Update <filename>en.po</filename> and <filename>pl.po</filename> from
 assuming that the later one exists or there is rule to build it (see
 &b-link-POTUpdate;):
 </para>
-<example_commands>
-  # ...
-  env.POUpdate(['en','pl']) # messages.pot --&gt; [en.po, pl.po]
-</example_commands>
+<programlisting language="python">
+env.POUpdate(['en','pl'])  # messages.pot --&gt; [en.po, pl.po]
+</programlisting>
 
 <para>
 <emphasis>Example 2.</emphasis>
 Update <filename>en.po</filename> and <filename>pl.po</filename> from
 <filename>foo.pot</filename> template:
 </para>
-<example_commands>
-  # ...
-  env.POUpdate(['en', 'pl'], ['foo']) # foo.pot --&gt;  [en.po, pl.pl]
-</example_commands>
+<programlisting language="python">
+env.POUpdate(['en', 'pl'], ['foo'])  # foo.pot --&gt;  [en.po, pl.pl]
+</programlisting>
 
 <para>
 <emphasis>Example 3.</emphasis>
 Update <filename>en.po</filename> and <filename>pl.po</filename> from
 <filename>foo.pot</filename> (another version):
 </para>
-<example_commands>
-  # ...
-  env.POUpdate(['en', 'pl'], POTDOMAIN='foo') # foo.pot -- &gt; [en.po, pl.pl]
-</example_commands>
+<programlisting language="python">
+env.POUpdate(['en', 'pl'], POTDOMAIN='foo')  # foo.pot -- &gt; [en.po, pl.pl]
+</programlisting>
 
 <para>
 <emphasis>Example 4.</emphasis>
 Update files for languages defined in <filename>LINGUAS</filename> file. The
 files are updated from <filename>messages.pot</filename> template:
 </para>
-<example_commands>
-  # ...
-  env.POUpdate(LINGUAS_FILE = 1) # needs 'LINGUAS' file
-</example_commands>
+<programlisting language="python">
+env.POUpdate(LINGUAS_FILE=True)  # needs 'LINGUAS' file
+</programlisting>
 
 <para>
 <emphasis>Example 5.</emphasis>
 Same as above, but update from <filename>foo.pot</filename> template:
 </para>
-<example_commands>
-  # ...
-  env.POUpdate(LINGUAS_FILE = 1, source = ['foo'])
-</example_commands>
+<programlisting language="python">
+env.POUpdate(LINGUAS_FILE=True, source=['foo'])
+</programlisting>
 
 <para>
 <emphasis>Example 6.</emphasis>
@@ -1987,20 +2061,19 @@ Update <filename>en.po</filename> and <filename>pl.po</filename> plus files for
 languages defined in <filename>LINGUAS</filename> file. The files are updated
 from <filename>messages.pot</filename> template:
 </para>
-<example_commands>
-  # produce 'en.po', 'pl.po' + files defined in 'LINGUAS':
-  env.POUpdate(['en', 'pl' ], LINGUAS_FILE = 1)
-</example_commands>
+<programlisting language="python">
+# produce 'en.po', 'pl.po' + files defined in 'LINGUAS':
+env.POUpdate(['en', 'pl' ], LINGUAS_FILE=True)
+</programlisting>
 
 <para>
 <emphasis>Example 7.</emphasis>
 Use &cv-link-POAUTOINIT; to automatically initialize <literal>PO</literal> file
 if it doesn't exist:
 </para>
-<example_commands>
-  # ...
-  env.POUpdate(LINGUAS_FILE = 1, POAUTOINIT = 1)
-</example_commands>
+<programlisting language="python">
+env.POUpdate(LINGUAS_FILE=True, POAUTOINIT=True)
+</programlisting>
 
 <para>
 <emphasis>Example 8.</emphasis>
@@ -2009,13 +2082,12 @@ Update <literal>PO</literal> files for languages defined in
 <filename>foo.pot</filename> template. All necessary settings are
 pre-configured via environment.
 </para>
-<example_commands>
-  # ...
-  env['POAUTOINIT'] = 1
-  env['LINGUAS_FILE'] = 1
-  env['POTDOMAIN'] = 'foo'
-  env.POUpdate()
-</example_commands>
+<programlisting language="python">
+env['POAUTOINIT'] = True
+env['LINGUAS_FILE'] = True
+env['POTDOMAIN'] = 'foo'
+env.POUpdate()
+</programlisting>
 
 </listitem>
   </varlistentry>
@@ -2508,7 +2580,7 @@ are flattened. See also &b-link-Textfile;.
 </para>
 
 <para>
-By default the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
+By default, the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
 Examples:
 </para>
 
@@ -2531,7 +2603,7 @@ it may be either a Python dictionary or a sequence of
 If it is a dictionary it is converted into a list of tuples
 with unspecified order,
 so if one key is a prefix of another key
-or if one substitution could be further expanded by another subsitition,
+or if one substitution could be further expanded by another substitution,
 it is unpredictable whether the expansion will occur.
 </para>
 
@@ -2562,7 +2634,7 @@ env.Substfile('foo.in', SUBST_DICT=bad_foo)
 good_foo = [('$foobar', '$foobar'), ('$foo', '$foo')]
 env.Substfile('foo.in', SUBST_DICT=good_foo)
 
-# UNPREDICTABLE - one substitution could be futher expanded
+# UNPREDICTABLE - one substitution could be further expanded
 bad_bar = {'@bar@': '@soap@', '@soap@': 'lye'}
 env.Substfile('bar.in', SUBST_DICT=bad_bar)
 
@@ -2654,7 +2726,7 @@ and &cv-link-TEXTFILESUFFIX; &consvars;
 are automatically added to the target if they are not already present.
 </para>
 <para>
-By default the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
+By default, the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
 Examples:
 </para>
 
@@ -2668,7 +2740,7 @@ env.Textfile(target='bar', source=['lalala', 'tanteratei'], LINESEPARATOR='|*')
 # nested lists are flattened automatically
 env.Textfile(target='blob', source=['lalala', ['Goethe', 42, 'Schiller'], 'tanteratei'])
 
-# files may be used as input by wraping them in File()
+# files may be used as input by wrapping them in File()
 env.Textfile(
     target='concat',  # concatenate files with a marker between
     source=[File('concat1'), File('concat2')],
@@ -2705,54 +2777,56 @@ env.Textfile(
     <term><function>Translate</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>Translate</methodname>()</term>
     <listitem><para>
-This pseudo-builder belongs to &t-link-gettext; toolset. The builder extracts
-internationalized messages from source files, updates <literal>POT</literal>
-template (if necessary) and then updates <literal>PO</literal> translations (if
-necessary). If &cv-link-POAUTOINIT; is set, missing <literal>PO</literal> files
+This pseudo-Builder is part of the &t-link-gettext; toolset.
+The builder extracts internationalized messages from source files,
+updates the <literal>POT</literal> template (if necessary)
+and then updates <literal>PO</literal> translations (if necessary).
+If &cv-link-POAUTOINIT; is set, missing <literal>PO</literal> files
 will be automatically created (i.e. without translator person intervention).
 The variables &cv-link-LINGUAS_FILE; and &cv-link-POTDOMAIN; are taken into
-acount too. All other construction variables used by &b-link-POTUpdate;, and
+account too. All other construction variables used by &b-link-POTUpdate;, and
 &b-link-POUpdate; work here too.
 </para>
 
 <para>
 <emphasis>Example 1</emphasis>.
 The simplest way is to specify input files and output languages inline in
-a SCons script when invoking &b-Translate;
+a SCons script when invoking &b-Translate;:
 </para>
-<example_commands>
+<programlisting language="python">
 # SConscript in 'po/' directory
-env = Environment( tools = ["default", "gettext"] )
-env['POAUTOINIT'] = 1
-env.Translate(['en','pl'], ['../a.cpp','../b.cpp'])
-</example_commands>
+env = Environment(tools=["default", "gettext"])
+env['POAUTOINIT'] = True
+env.Translate(['en', 'pl'], ['../a.cpp', '../b.cpp'])
+</programlisting>
 
 <para>
 <emphasis>Example 2</emphasis>.
-If you wish, you may also stick to conventional style known from
+If you wish, you may also stick to the conventional style known from
 <productname>autotools</productname>, i.e. using
 <filename>POTFILES.in</filename> and <filename>LINGUAS</filename> files
+to specify the targets and sources:
 </para>
-<example_commands>
+<programlisting language="python">
 # LINGUAS
 en pl
-#end
-</example_commands>
+# end
+</programlisting>
 
-<example_commands>
+<programlisting>
 # POTFILES.in
 a.cpp
 b.cpp
 # end
-</example_commands>
+</programlisting>
 
-<example_commands>
+<programlisting language="python">
 # SConscript
-env = Environment( tools = ["default", "gettext"] )
-env['POAUTOINIT'] = 1
+env = Environment(tools=["default", "gettext"])
+env['POAUTOINIT'] = True
 env['XGETTEXTPATH'] = ['../']
-env.Translate(LINGUAS_FILE = 1, XGETTEXTFROM = 'POTFILES.in')
-</example_commands>
+env.Translate(LINGUAS_FILE=True, XGETTEXTFROM='POTFILES.in')
+</programlisting>
 
 <para>
 The last approach is perhaps the recommended one. It allows easily split
@@ -2765,7 +2839,7 @@ factor" synchronizing these two scripts is then the content of
 <filename>LINGUAS</filename> file.  Note, that the updated
 <literal>POT</literal> and <literal>PO</literal> files are usually going to be
 committed back to the repository, so they must be updated within the source
-directory (and not in variant directories). Additionaly, the file listing of
+directory (and not in variant directories). Additionally, the file listing of
 <filename>po/</filename> directory contains <filename>LINGUAS</filename> file,
 so the source tree looks familiar to translators, and they may work with the
 project in their usual way.
@@ -2775,7 +2849,7 @@ project in their usual way.
 <emphasis>Example 3</emphasis>.
 Let's prepare a development tree as below
 </para>
-<example_commands>
+<programlisting>
  project/
   + SConstruct
   + build/
@@ -2785,52 +2859,55 @@ Let's prepare a development tree as below
           + SConscript.i18n
           + POTFILES.in
           + LINGUAS
-</example_commands>
+</programlisting>
 <para>
-with <filename>build</filename> being variant directory. Write the top-level
+with <filename>build</filename> being the variant directory.
+Write the top-level
 <filename>SConstruct</filename> script as follows
 </para>
-<example_commands>
-  # SConstruct
-  env = Environment( tools = ["default", "gettext"] )
-  VariantDir('build', 'src', duplicate = 0)
-  env['POAUTOINIT'] = 1
-  SConscript('src/po/SConscript.i18n', exports = 'env')
-  SConscript('build/po/SConscript', exports = 'env')
-</example_commands>
+<programlisting language="python">
+# SConstruct
+env = Environment(tools=["default", "gettext"])
+VariantDir('build', 'src', duplicate=False)
+env['POAUTOINIT'] = True
+SConscript('src/po/SConscript.i18n', exports='env')
+SConscript('build/po/SConscript', exports='env')
+</programlisting>
 <para>
 the <filename>src/po/SConscript.i18n</filename> as
 </para>
-<example_commands>
-  # src/po/SConscript.i18n
-  Import('env')
-  env.Translate(LINGUAS_FILE=1, XGETTEXTFROM='POTFILES.in', XGETTEXTPATH=['../'])
-</example_commands>
+<programlisting language="python">
+# src/po/SConscript.i18n
+Import('env')
+env.Translate(LINGUAS_FILE=True, XGETTEXTFROM='POTFILES.in', XGETTEXTPATH=['../'])
+</programlisting>
 <para>
 and the <filename>src/po/SConscript</filename>
 </para>
-<example_commands>
-  # src/po/SConscript
-  Import('env')
-  env.MOFiles(LINGUAS_FILE = 1)
-</example_commands>
+<programlisting language="python">
+# src/po/SConscript
+Import('env')
+env.MOFiles(LINGUAS_FILE=True)
+</programlisting>
 <para>
-Such setup produces <literal>POT</literal> and <literal>PO</literal> files
-under source tree in <filename>src/po/</filename> and binary
-<literal>MO</literal> files under variant tree in
+Such a setup produces <literal>POT</literal> and <literal>PO</literal> files
+under the source tree in <filename>src/po/</filename> and binary
+<literal>MO</literal> files under the variant tree in
 <filename>build/po/</filename>. This way the <literal>POT</literal> and
 <literal>PO</literal> files are separated from other output files, which must
 not be committed back to source repositories (e.g. <literal>MO</literal>
 files).
 </para>
 
-<para>
-<note><para>In above example, the <literal>PO</literal> files are not updated,
-nor created automatically when you issue <command>scons '.'</command> command.
-The files must be updated (created) by hand via <command>scons
-po-update</command> and then <literal>MO</literal> files can be compiled by
-running <command>scons '.'</command>.</para></note>
-</para>
+<note><para>In the above example,
+the <literal>PO</literal> files are not updated,
+nor created automatically when you issue the command
+<userinput>scons .</userinput>.
+The files must be updated (created) by hand via
+<userinput>scons po-update</userinput>
+and then <literal>MO</literal> files can be compiled by
+running <userinput>scons .</userinput>.
+</para></note>
 
 </listitem>
   </varlistentry>

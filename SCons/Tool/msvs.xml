@@ -279,7 +279,7 @@ This file is processed by the bin/SConsDoc.py module.
         "build" from the Visual Studio interface) you lose the direct
         control of target selection and command-line options you would
         have if launching the build directly from &SCons;,
-        because these will be hardcoded in the project file to the
+        because these will be hard-coded in the project file to the
         values specified in the &b-MSVSProject; call.
         You can regain some of this control by defining multiple variants,
         using multiple &b-MSVSProject; calls to arrange different build
@@ -292,7 +292,7 @@ This file is processed by the bin/SConsDoc.py module.
         it is important not to set Visual Studio to do parallel builds,
         as it will then launch the separate project builds in parallel,
         and &SCons; does not work well if called that way.
-        Instead you can set up the &SCons; build for parallel building -
+        Instead, you can set up the &SCons; build for parallel building -
         see the &f-link-SetOption; function for how to do this with
         <parameter>num_jobs</parameter>.
       </para>
@@ -438,7 +438,7 @@ V10DebugSettings = {
 }
 
 #
-# 3. Select the dictionary you want depending on the version of visual Studio
+# 3. Select the dictionary you want depending on the version of Visual Studio
 # Files you want to generate.
 #
 if not env.GetOption('userfile'):
@@ -552,7 +552,7 @@ env.MSVSProject(
               Under certain circumstances, solution file names or
               solution file nodes may be present in the
               <parameter>projects</parameter> argument list.
-              When solution file names or nodes are present in the 
+              When solution file names or nodes are present in the
               <parameter>projects</parameter> argument list, the generated
               solution file may contain erroneous Project records resulting
               in VS IDE error messages when opening the generated solution
@@ -747,7 +747,7 @@ env.MSVSSolution(
         <literal>SccProjectFilePathRelativizedFromConnection[i]</literal>
         (where [i] ranges from 0 to the number of projects in the solution)
         attributes of the <literal>GlobalSection(SourceCodeControl)</literal>
-        section of the Microsoft Visual Studio solution file. Similarly
+        section of the Microsoft Visual Studio solution file. Similarly,
         the relative solution file path is placed as the values of the
         <literal>SccLocalPath[i]</literal> (where [i] ranges from 0
         to the number of projects in the solution) attributes of the
@@ -803,7 +803,7 @@ env.MSVSSolution(
         and &cv-MSVC_VERSION; is not,
         &cv-MSVC_VERSION; will be initialized to the value
         of &cv-MSVS_VERSION;.
-        An error is raised if If both are set and have different values,
+        An error is raised if both are set and have different values.
       </para>
     </summary>
   </cvar>

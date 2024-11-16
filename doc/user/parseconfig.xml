@@ -34,7 +34,7 @@ This file is processed by the bin/SConsDoc.py module.
  libraries--especially shared libraries--that are available
  on POSIX systems can be complex.
  To help this situation,
- various utilies with names that end in <filename>config</filename>
+ various utilities with names that end in <filename>config</filename>
  return the command-line options for the GNU Compiler Collection (GCC)
  that are needed to build and link against those libraries;
  for example, the command-line options

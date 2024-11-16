@@ -311,7 +311,7 @@ See also &t-link-xgettext; tool and &b-link-POTUpdate; builder.
 <summary>
 <para>
 This flag is used to add single search path to
-<command>xgettext(1)</command>'s commandline (default:
+<command>xgettext(1)</command>'s command line (default:
 <literal>'-D'</literal>).
 </para>
 </summary>
@@ -329,7 +329,7 @@ This flag is used to add single search path to
 <summary>
 <para>
 This flag is used to add single &cv-link-XGETTEXTFROM; file to
-<command>xgettext(1)</command>'s commandline (default:
+<command>xgettext(1)</command>'s command line (default:
 <literal>'-f'</literal>).
 </para>
 </summary>
@@ -355,7 +355,7 @@ form source and target (default: <literal>'${TARGET.filebase}'</literal>).
 <cvar name="_XGETTEXTFROMFLAGS">
 <summary>
 <para>
-Internal "macro". Genrates list of <literal>-D&lt;dir&gt;</literal> flags
+Internal "macro". Generates list of <literal>-D&lt;dir&gt;</literal> flags
 from the &cv-link-XGETTEXTPATH; list.
 </para>
 </summary>

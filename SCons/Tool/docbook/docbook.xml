@@ -286,7 +286,7 @@ if one of them is installed (<literal>fop</literal> gets checked first).
 <cvar name="DOCBOOK_XSLTPROCFLAGS">
 <summary>
 <para>
-Additonal command-line flags for the external executable
+Additional command-line flags for the external executable
 <literal>xsltproc</literal> (or <literal>saxon</literal>,
 <literal>xalan</literal>).
 </para>
@@ -296,7 +296,7 @@ Additonal command-line flags for the external executable
 <cvar name="DOCBOOK_XMLLINTFLAGS">
 <summary>
 <para>
-Additonal command-line flags for the external executable
+Additional command-line flags for the external executable
 <literal>xmllint</literal>.
 </para>
 </summary>
@@ -305,7 +305,7 @@ Additonal command-line flags for the external executable
 <cvar name="DOCBOOK_FOPFLAGS">
 <summary>
 <para>
-Additonal command-line flags for the
+Additional command-line flags for the
 PDF renderer <literal>fop</literal> or <literal>xep</literal>.
 </para>
 </summary>
@@ -314,7 +314,7 @@ PDF renderer <literal>fop</literal> or <literal>xep</literal>.
 <cvar name="DOCBOOK_XSLTPROCPARAMS">
 <summary>
 <para>
-Additonal parameters that are not intended for the XSLT processor executable, but
+Additional parameters that are not intended for the XSLT processor executable, but
 the XSL processing itself. By default, they get appended at the end of the command line
 for <literal>saxon</literal> and <literal>saxon-xslt</literal>, respectively.
 </para>

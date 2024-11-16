@@ -59,9 +59,9 @@ greater than one, as that has a different meaning).
 <para>
 Action strings can be segmented by the
 use of an AND operator, <literal>&amp;&amp;</literal>.
-In a segemented string, each segment is a separate
+In a segmented string, each segment is a separate
 <quote>command line</quote>, these are run
-sequentially until one fails or the entire
+sequentially until one fails, or the entire
 sequence has been executed. If an
 action string is segmented, then the selected
 behavior of &cv-IMPLICIT_COMMAND_DEPENDENCIES;

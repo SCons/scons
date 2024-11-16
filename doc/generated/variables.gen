@@ -18,7 +18,7 @@
     </term>
     <listitem><para>
 This construction variable automatically introduces &cv-link-_LDMODULEVERSIONFLAGS;
-if &cv-link-LDMODULEVERSION; is set. Othervise it evaluates to an empty string.
+if &cv-link-LDMODULEVERSION; is set. Otherwise, it evaluates to an empty string.
 </para>
 </listitem>
   </varlistentry>
@@ -28,7 +28,7 @@ if &cv-link-LDMODULEVERSION; is set. Othervise it evaluates to an empty string.
     </term>
     <listitem><para>
 This construction variable automatically introduces &cv-link-_SHLIBVERSIONFLAGS;
-if &cv-link-SHLIBVERSION; is set. Othervise it evaluates to an empty string.
+if &cv-link-SHLIBVERSION; is set. Otherwise, it evaluates to an empty string.
 </para>
 </listitem>
   </varlistentry>
@@ -560,7 +560,7 @@ after the SCons template for the file has been written.
     </term>
     <listitem><para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -572,7 +572,7 @@ for more information).
     </term>
     <listitem><para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -763,7 +763,7 @@ and the second is the macro definition.
 If the definition is not omitted or <literal>None</literal>,
 the name and definition are combined into a single
 <literal>name=definition</literal> item
-before the preending/appending.
+before the prepending/appending.
 </para>
 
 <example_commands>
@@ -912,7 +912,7 @@ to each directory in &cv-link-CPPPATH;.
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
 directories for include files.
-In general it's not advised to put include directory directives
+In general, it's not advised to put include directory directives
 directly into &cv-link-CCFLAGS; or &cv-link-CXXFLAGS;
 as the result will be non-portable
 and the directories will not be searched by the dependency scanner.
@@ -927,7 +927,7 @@ directory names in &cv-CPPPATH;
 will be looked-up relative to the directory of the SConscript file
 when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree use
+to lookup a directory relative to the root of the source tree, use
 the <literal>#</literal> prefix:
 </para>
 
@@ -936,7 +936,7 @@ env = Environment(CPPPATH='#/include')
 </example_commands>
 
 <para>
-The directory look-up can also be forced using the
+The directory lookup can also be forced using the
 &f-link-Dir;
 function:
 </para>
@@ -990,7 +990,7 @@ The default list is:
     </term>
     <listitem><para>
 The C++ compiler.
-See also &cv-link-SHCXX; for compiling to shared objects..
+See also &cv-link-SHCXX; for compiling to shared objects.
 </para>
 </listitem>
   </varlistentry>
@@ -1003,7 +1003,7 @@ The command line used to compile a C++ source file to an object file.
 Any options specified in the &cv-link-CXXFLAGS; and
 &cv-link-CPPFLAGS; construction variables
 are included on this command line.
-See also &cv-link-SHCXXCOM; for compiling to shared objects..
+See also &cv-link-SHCXXCOM; for compiling to shared objects.
 </para>
 </listitem>
   </varlistentry>
@@ -1015,7 +1015,7 @@ See also &cv-link-SHCXXCOM; for compiling to shared objects..
 If set, the string displayed when a C++ source file
 is compiled to a (static) object file.
 If not set, then &cv-link-CXXCOM; (the command line) is displayed.
-See also &cv-link-SHCXXCOMSTR; for compiling to shared objects..
+See also &cv-link-SHCXXCOMSTR; for compiling to shared objects.
 </para>
 
 <example_commands>
@@ -1042,7 +1042,7 @@ and
 as C++ files,
 and files with
 <filename>.mm</filename>
-suffixes as Objective C++ files.
+suffixes as Objective-C++ files.
 On case-sensitive systems (Linux, UNIX, and other POSIX-alikes),
 SCons also treats
 <filename>.C</filename>
@@ -1061,7 +1061,7 @@ By default, this includes the value of &cv-link-CCFLAGS;,
 so that setting &cv-CCFLAGS; affects both C and C++ compilation.
 If you want to add C++-specific flags,
 you must set or override the value of &cv-link-CXXFLAGS;.
-See also &cv-link-SHCXXFLAGS; for compiling to shared objects..
+See also &cv-link-SHCXXFLAGS; for compiling to shared objects.
 </para>
 </listitem>
   </varlistentry>
@@ -1509,7 +1509,7 @@ The string displayed when a renderer like <literal>fop</literal> or
       <envar>DOCBOOK_FOPFLAGS</envar>
     </term>
     <listitem><para>
-Additonal command-line flags for the
+Additional command-line flags for the
 PDF renderer <literal>fop</literal> or <literal>xep</literal>.
 </para>
 </listitem>
@@ -1551,7 +1551,7 @@ XIncludes for a given XML file.
       <envar>DOCBOOK_XMLLINTFLAGS</envar>
     </term>
     <listitem><para>
-Additonal command-line flags for the external executable
+Additional command-line flags for the external executable
 <literal>xmllint</literal>.
 </para>
 </listitem>
@@ -1595,7 +1595,7 @@ an XML file via a given XSLT stylesheet.
       <envar>DOCBOOK_XSLTPROCFLAGS</envar>
     </term>
     <listitem><para>
-Additonal command-line flags for the external executable
+Additional command-line flags for the external executable
 <literal>xsltproc</literal> (or <literal>saxon</literal>,
 <literal>xalan</literal>).
 </para>
@@ -1606,7 +1606,7 @@ Additonal command-line flags for the external executable
       <envar>DOCBOOK_XSLTPROCPARAMS</envar>
     </term>
     <listitem><para>
-Additonal parameters that are not intended for the XSLT processor executable, but
+Additional parameters that are not intended for the XSLT processor executable, but
 the XSL processing itself. By default, they get appended at the end of the command line
 for <literal>saxon</literal> and <literal>saxon-xslt</literal>, respectively.
 </para>
@@ -1907,7 +1907,7 @@ and the directories will not be searched by the dependency scanner. Note:
 directory names in &cv-link-F03PATH; will be looked-up relative to the SConscript
 directory when they are used in a command. To force
 &scons;
-to look-up a directory relative to the root of the source tree use #:
+to lookup a directory relative to the root of the source tree, use #:
 You only need to set &cv-link-F03PATH; if you need to define a specific
 include path for Fortran 03 files.
 You should normally set the &cv-link-FORTRANPATH; variable,
@@ -1921,7 +1921,7 @@ env = Environment(F03PATH='#/include')
 </example_commands>
 
 <para>
-The directory look-up can also be forced using the
+The directory lookup can also be forced using the
 &Dir;()
 function:
 </para>
@@ -2095,7 +2095,7 @@ and the directories will not be searched by the dependency scanner. Note:
 directory names in &cv-link-F08PATH; will be looked-up relative to the SConscript
 directory when they are used in a command. To force
 &scons;
-to look-up a directory relative to the root of the source tree use #:
+to lookup a directory relative to the root of the source tree, use #:
 You only need to set &cv-link-F08PATH; if you need to define a specific
 include path for Fortran 08 files.
 You should normally set the &cv-link-FORTRANPATH; variable,
@@ -2109,7 +2109,7 @@ env = Environment(F08PATH='#/include')
 </example_commands>
 
 <para>
-The directory look-up can also be forced using the
+The directory lookup can also be forced using the
 &Dir;()
 function:
 </para>
@@ -2283,7 +2283,7 @@ and the directories will not be searched by the dependency scanner. Note:
 directory names in &cv-link-F77PATH; will be looked-up relative to the SConscript
 directory when they are used in a command. To force
 &scons;
-to look-up a directory relative to the root of the source tree use #:
+to lookup a directory relative to the root of the source tree, use #:
 You only need to set &cv-link-F77PATH; if you need to define a specific
 include path for Fortran 77 files.
 You should normally set the &cv-link-FORTRANPATH; variable,
@@ -2297,7 +2297,7 @@ env = Environment(F77PATH='#/include')
 </example_commands>
 
 <para>
-The directory look-up can also be forced using the
+The directory lookup can also be forced using the
 &Dir;()
 function:
 </para>
@@ -2471,7 +2471,7 @@ and the directories will not be searched by the dependency scanner. Note:
 directory names in &cv-link-F90PATH; will be looked-up relative to the SConscript
 directory when they are used in a command. To force
 &scons;
-to look-up a directory relative to the root of the source tree use #:
+to lookup a directory relative to the root of the source tree, use #:
 You only need to set &cv-link-F90PATH; if you need to define a specific
 include path for Fortran 90 files.
 You should normally set the &cv-link-FORTRANPATH; variable,
@@ -2485,7 +2485,7 @@ env = Environment(F90PATH='#/include')
 </example_commands>
 
 <para>
-The directory look-up can also be forced using the
+The directory lookup can also be forced using the
 &Dir;()
 function:
 </para>
@@ -2658,7 +2658,7 @@ and the directories will not be searched by the dependency scanner. Note:
 directory names in &cv-link-F95PATH; will be looked-up relative to the SConscript
 directory when they are used in a command. To force
 &scons;
-to look-up a directory relative to the root of the source tree use #:
+to lookup a directory relative to the root of the source tree, use #:
 You only need to set &cv-link-F95PATH; if you need to define a specific
 include path for Fortran 95 files.
 You should normally set the &cv-link-FORTRANPATH; variable,
@@ -2672,7 +2672,7 @@ env = Environment(F95PATH='#/include')
 </example_commands>
 
 <para>
-The directory look-up can also be forced using the
+The directory lookup can also be forced using the
 &Dir;()
 function:
 </para>
@@ -2962,7 +2962,7 @@ non-portable and the directories will not be searched by the dependency
 scanner. Note: directory names in FORTRANPATH will be looked-up relative
 to the SConscript directory when they are used in a command. To force
 &scons;
-to look-up a directory relative to the root of the source tree use #:
+to lookup a directory relative to the root of the source tree, use #:
 </para>
 
 <example_commands>
@@ -3365,9 +3365,9 @@ greater than one, as that has a different meaning).
 <para>
 Action strings can be segmented by the
 use of an AND operator, <literal>&amp;&amp;</literal>.
-In a segemented string, each segment is a separate
+In a segmented string, each segment is a separate
 <quote>command line</quote>, these are run
-sequentially until one fails or the entire
+sequentially until one fails, or the entire
 sequence has been executed. If an
 action string is segmented, then the selected
 behavior of &cv-IMPLICIT_COMMAND_DEPENDENCIES;
@@ -3559,7 +3559,7 @@ env = Environment(JARCOMSTR="JARchiving $SOURCES into $TARGET")
     </term>
     <listitem><para>
 General options passed to the Java archive tool.
-By default this is set to
+By default, this is set to
 <option>cf</option>
 to create the necessary
 <command>jar</command>
@@ -3881,7 +3881,7 @@ for Java classes.
                 that &SCons; expects will be generated by the &javac; compiler.
                 Setting &cv-JAVAVERSION; to a version greater than
                 <literal>1.4</literal> makes &SCons; realize that a build
-                with such a compiler is actually up to date.
+                with such a compiler is actually up-to-date.
                 The default is <literal>1.4</literal>.
             </para>
             <para>
@@ -4196,7 +4196,7 @@ by &SCons; in all situations. Consider using
       <envar>LEXUNISTD</envar>
     </term>
     <listitem><para>
-Used only on windows environments to set a lex flag to prevent 'unistd.h' from being included. The default value is '--nounistd'.
+Used only in Windows environments to set a lex flag to prevent 'unistd.h' from being included. The default value is '--nounistd'.
 </para>
 </listitem>
   </varlistentry>
@@ -4362,7 +4362,7 @@ directory names in &cv-LIBPATH; will be looked-up relative to the
 directory of the SConscript file
 when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree use
+to lookup a directory relative to the root of the source tree, use
 the <literal>#</literal> prefix:
 </para>
 
@@ -4371,7 +4371,7 @@ env = Environment(LIBPATH='#/libs')
 </example_commands>
 
 <para>
-The directory look-up can also be forced using the
+The directory lookup can also be forced using the
 &f-link-Dir; function:
 </para>
 
@@ -4461,7 +4461,7 @@ If &cv-link-LIBLITERALPREFIX; is set to a non-empty string,
 then a string-valued &cv-LIBS; entry
 that starts with &cv-link-LIBLITERALPREFIX;
 will cause the rest of the entry
-to be searched for for unmodified,
+to be searched for unmodified,
 but respecting normal library search paths
 (this is an exception to the guideline above
 about leaving off the prefix/suffix from the library name).
@@ -4492,12 +4492,12 @@ env.Append(LIBS=File('/tmp/mylib.so'))
 <!-- is this actually true? -->
 For each &Builder; call that causes linking with libraries,
 &SCons; will add the libraries in the setting of &cv-LIBS;
-in effect at that moment to the dependecy graph
+in effect at that moment to the dependency graph
 as dependencies of the target being generated.
 </para>
 
 <para>
-The library list will transformed to command line
+The library list will be transformed to command-line
 arguments through the automatically-generated
 &cv-link-_LIBFLAGS; &consvar;
 which is constructed by
@@ -4581,10 +4581,10 @@ It defaults to the current system line separator.
 The &cv-LINGUAS_FILE; defines file(s) containing list of additional linguas
 to be processed by &b-link-POInit;, &b-link-POUpdate; or &b-link-MOFiles;
 builders. It also affects &b-link-Translate; builder. If the variable contains
-a string, it defines name of the list file. The &cv-LINGUAS_FILE; may be a
+a string, it defines the name of the list file. The &cv-LINGUAS_FILE; may be a
 list of file names as well. If &cv-LINGUAS_FILE; is set to
-<literal>True</literal> (or non-zero numeric value), the list will be read from
-default file named
+a non-string truthy value, the list will be read from
+the file named
 <filename>LINGUAS</filename>.
 </para>
 
@@ -4852,7 +4852,7 @@ See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
     </term>
     <listitem><para>
 Path to <command>msginit(1)</command> program (found via
-<literal>Detect()</literal>).
+&f-link-Detect;).
 See &t-link-msginit; tool and &b-link-POInit; builder.
 </para>
 </listitem>
@@ -4872,8 +4872,9 @@ See &t-link-msginit; tool and &b-link-POInit; builder.
       <envar>MSGINITCOMSTR</envar>
     </term>
     <listitem><para>
-String to display when <command>msginit(1)</command> is invoked
-(default: <literal>''</literal>, which means ``print &cv-link-MSGINITCOM;'').
+String to display when <command>msginit(1)</command> is invoked.
+The default is an empty string,
+which will print the command line (&cv-link-MSGINITCOM;).
 See &t-link-msginit; tool and &b-link-POInit; builder.
 </para>
 </listitem>
@@ -4928,8 +4929,9 @@ See &t-link-msgmerge; tool and &b-link-POUpdate; builder.
       <envar>MSGMERGECOMSTR</envar>
     </term>
     <listitem><para>
-String to be displayed when <command>msgmerge(1)</command> is invoked
-(default: <literal>''</literal>, which means ``print &cv-link-MSGMERGECOM;'').
+String to be displayed when <command>msgmerge(1)</command> is invoked.
+The default is an empty string,
+which will print the command line (&cv-link-MSGMERGECOM;).
 See &t-link-msgmerge; tool and &b-link-POUpdate; builder.
 </para>
 </listitem>
@@ -6206,7 +6208,7 @@ Visual Studio </literallayout></entry>
     It is only necessary to specify the <literal>Exp</literal>
     suffix to select the express edition when both express and
     non-express editions of the same product are installed
-    simulaneously. The <literal>Exp</literal> suffix is unnecessary,
+    simultaneously. The <literal>Exp</literal> suffix is unnecessary,
     but accepted, when only the express edition is installed.
     </para></listitem>
   </itemizedlist>
@@ -6368,7 +6370,7 @@ and &cv-link-MSVC_USE_SETTINGS;.
         <literal>SccProjectFilePathRelativizedFromConnection[i]</literal>
         (where [i] ranges from 0 to the number of projects in the solution)
         attributes of the <literal>GlobalSection(SourceCodeControl)</literal>
-        section of the Microsoft Visual Studio solution file. Similarly
+        section of the Microsoft Visual Studio solution file. Similarly,
         the relative solution file path is placed as the values of the
         <literal>SccLocalPath[i]</literal> (where [i] ranges from 0
         to the number of projects in the solution) attributes of the
@@ -6433,7 +6435,7 @@ and &cv-link-MSVC_USE_SETTINGS;.
         and &cv-MSVC_VERSION; is not,
         &cv-MSVC_VERSION; will be initialized to the value
         of &cv-MSVS_VERSION;.
-        An error is raised if If both are set and have different values,
+        An error is raised if both are set and have different values.
       </para>
     </listitem>
   </varlistentry>
@@ -6759,7 +6761,7 @@ scons NINJA_CMD_ARGS="-v -j 3"
       <envar>NINJA_FORCE_SCONS_BUILD</envar>
     </term>
     <listitem><para>
-                If true, causes the build nodes to callback to scons instead of using
+                If true, causes the build nodes to call back to scons instead of using
                 &ninja; to build them. This is intended to be passed to the environment on the builder invocation.
                 It is useful if you have a build node which does something which is not easily translated into &ninja;.
             </para>
@@ -6829,7 +6831,7 @@ scons NINJA_CMD_ARGS="-v -j 3"
     </term>
     <listitem><para>
                 Internal value used to specify the function to call with argument env to generate the list of files
-                which if changed would require the &ninja; build file to be regenerated.
+                which, if changed, would require the &ninja; build file to be regenerated.
             </para>
         </listitem>
   </varlistentry>
@@ -6838,7 +6840,7 @@ scons NINJA_CMD_ARGS="-v -j 3"
       <envar>NINJA_SCONS_DAEMON_KEEP_ALIVE</envar>
     </term>
     <listitem><para>
-                The number of seconds for the SCons deamon launched by ninja to stay alive.
+                The number of seconds for the SCons daemon launched by ninja to stay alive.
                 (Default: 180000)
             </para>
         </listitem>
@@ -6916,7 +6918,7 @@ placed if applicable.  The default value is <quote>&cv-NAME;-&cv-VERSION;</quote
     </term>
     <listitem><para>
 Selects the package type to build when using the &b-link-Package;
-builder. May be a string or list of strings. See the docuentation
+builder. It may be a string or list of strings. See the documentation
 for the builder for the currently supported types.
 </para>
 
@@ -7000,7 +7002,7 @@ only if the &cv-link-PDB; &consvar; is set.
     <listitem><para>
 This variable specifies how much of a source file is precompiled. This
 variable is ignored by tools other than &MSVC;, or when
-the PCH variable is not being used. When this variable is define it
+the PCH variable is not being used. When this variable is defined, it
 must be a string that is the name of the header that
 is included at the end of the precompiled portion of the source files, or
 the empty string if the "#pragma hrdstop" construct is being used:
@@ -8294,7 +8296,7 @@ See also &cv-link-CXXFLAGS; for compiling to static objects.
     </term>
     <listitem><para>
 The name of the compiler to use when compiling D source
-destined to be in a shared objects.
+destined to be in a shared object.
 See also &cv-link-DC; for compiling to static objects.
 </para>
 </listitem>
@@ -9006,7 +9008,7 @@ When this &consvar; is defined, a versioned shared library
 is created by the &b-link-SharedLibrary; builder. This activates the
 &cv-link-_SHLIBVERSIONFLAGS; and thus modifies the &cv-link-SHLINKCOM; as
 required, adds the version number to the library name, and creates the symlinks
-that are needed.  &cv-link-SHLIBVERSION; versions should exist as alpha-numeric,
+that are needed.  &cv-link-SHLIBVERSION; versions should exist as alphanumeric,
 decimal-delimited values as defined by the regular expression "\w+[\.\w+]*".
 Example &cv-link-SHLIBVERSION; values include '1', '1.2.3', and '1.2.gitaa412c8b'.
 </para>
@@ -9146,7 +9148,7 @@ The variable is used, for example, by &t-link-gnulink; linker tool.
     </term>
     <listitem><para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -9173,7 +9175,7 @@ field in the controlling information for Ipkg and RPM packages.
     </term>
     <listitem><para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -9458,7 +9460,7 @@ will be looked-up relative to the SConscript
 directory when they are used in a command.
 To force
 &scons;
-to look-up a directory relative to the root of the source tree use
+to lookup a directory relative to the root of the source tree, use
 a top-relative path (<literal>#</literal>):
 </para>
 
@@ -9467,7 +9469,7 @@ env = Environment(SWIGPATH='#/include')
 </example_commands>
 
 <para>
-The directory look-up can also be forced using the
+The directory lookup can also be forced using the
 &Dir;()
 function:
 </para>
@@ -9555,7 +9557,7 @@ General options passed to the tar archiver.
     </term>
     <listitem><para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -9631,7 +9633,7 @@ for more information).
     </term>
     <listitem><para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -9885,7 +9887,7 @@ The value is informative and is not guaranteed to be complete.
     </term>
     <listitem><para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -9897,7 +9899,7 @@ for more information).
     </term>
     <listitem><para>
 A reserved variable name
-that may not be set or used in a construction environment.
+that may not be set or used in a &consenv;.
 (See the manpage section "Variable Substitution"
 for more information).
 </para>
@@ -10362,7 +10364,7 @@ field in the RPM
       <envar>X_RPM_EXTRADEFS</envar>
     </term>
     <listitem><para>
-A list used to supply extra defintions or flags
+A list used to supply extra definitions or flags
 to be added to the RPM <filename>.spec</filename> file.
 Each item is added as-is with a carriage return appended.
 This is useful if some specific RPM feature not otherwise
@@ -10643,7 +10645,7 @@ See &t-link-xgettext; tool and &b-link-POTUpdate; builder.
       <envar>_XGETTEXTFROMFLAGS</envar>
     </term>
     <listitem><para>
-Internal "macro". Genrates list of <literal>-D&lt;dir&gt;</literal> flags
+Internal "macro". Generates list of <literal>-D&lt;dir&gt;</literal> flags
 from the &cv-link-XGETTEXTPATH; list.
 </para>
 </listitem>
@@ -10654,7 +10656,7 @@ from the &cv-link-XGETTEXTPATH; list.
     </term>
     <listitem><para>
 This flag is used to add single &cv-link-XGETTEXTFROM; file to
-<command>xgettext(1)</command>'s commandline (default:
+<command>xgettext(1)</command>'s command line (default:
 <literal>'-f'</literal>).
 </para>
 </listitem>
@@ -10698,7 +10700,7 @@ from &cv-link-XGETTEXTFROM;.
     </term>
     <listitem><para>
 This flag is used to add single search path to
-<command>xgettext(1)</command>'s commandline (default:
+<command>xgettext(1)</command>'s command line (default:
 <literal>'-D'</literal>).
 </para>
 </listitem>
@@ -11010,7 +11012,7 @@ General options passed to the zip utility.
     <listitem><para>
 An optional zip root directory (default empty).  The filenames stored
 in the zip file will be relative to this directory, if given.
-Otherwise the filenames are relative to the current directory of the
+Otherwise, the filenames are relative to the current directory of the
 command.
 For instance:
 </para>

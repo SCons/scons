@@ -286,7 +286,7 @@ DVERSUFFIX.
 <summary>
 <para>
 The name of the compiler to use when compiling D source
-destined to be in a shared objects.
+destined to be in a shared object.
 See also &cv-link-DC; for compiling to static objects.
 </para>
 </summary>

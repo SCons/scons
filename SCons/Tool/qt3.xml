@@ -74,7 +74,7 @@ The &t-qt3; tool supports the following operations:
 <emphasis role="strong">Automatic moc file generation from header files.</emphasis>
 You do not have to specify moc files explicitly, the tool does it for you.
 However, there are a few preconditions to do so: Your header file must have
-the same filebase as your implementation file and must stay in the same
+the same basename as your implementation file and must stay in the same
 directory. It must have one of the suffixes
 <filename>.h</filename>,
 <filename>.hpp</filename>,

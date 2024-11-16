@@ -169,7 +169,7 @@ and the directories will not be searched by the dependency scanner. Note:
 directory names in &cv-link-F77PATH; will be looked-up relative to the SConscript
 directory when they are used in a command. To force
 &scons;
-to look-up a directory relative to the root of the source tree use #:
+to lookup a directory relative to the root of the source tree, use #:
 You only need to set &cv-link-F77PATH; if you need to define a specific
 include path for Fortran 77 files.
 You should normally set the &cv-link-FORTRANPATH; variable,
@@ -183,7 +183,7 @@ env = Environment(F77PATH='#/include')
 </example_commands>
 
 <para>
-The directory look-up can also be forced using the
+The directory lookup can also be forced using the
 &Dir;()
 function:
 </para>

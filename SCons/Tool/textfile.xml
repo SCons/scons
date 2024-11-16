@@ -68,7 +68,7 @@ and &cv-link-TEXTFILESUFFIX; &consvars;
 are automatically added to the target if they are not already present.
 </para>
 <para>
-By default the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
+By default, the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
 Examples:
 </para>
 
@@ -82,7 +82,7 @@ env.Textfile(target='bar', source=['lalala', 'tanteratei'], LINESEPARATOR='|*')
 # nested lists are flattened automatically
 env.Textfile(target='blob', source=['lalala', ['Goethe', 42, 'Schiller'], 'tanteratei'])
 
-# files may be used as input by wraping them in File()
+# files may be used as input by wrapping them in File()
 env.Textfile(
     target='concat',  # concatenate files with a marker between
     source=[File('concat1'), File('concat2')],
@@ -131,7 +131,7 @@ are flattened. See also &b-link-Textfile;.
 </para>
 
 <para>
-By default the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
+By default, the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
 Examples:
 </para>
 
@@ -154,7 +154,7 @@ it may be either a Python dictionary or a sequence of
 If it is a dictionary it is converted into a list of tuples
 with unspecified order,
 so if one key is a prefix of another key
-or if one substitution could be further expanded by another subsitition,
+or if one substitution could be further expanded by another substitution,
 it is unpredictable whether the expansion will occur.
 </para>
 
@@ -185,7 +185,7 @@ env.Substfile('foo.in', SUBST_DICT=bad_foo)
 good_foo = [('$foobar', '$foobar'), ('$foo', '$foo')]
 env.Substfile('foo.in', SUBST_DICT=good_foo)
 
-# UNPREDICTABLE - one substitution could be futher expanded
+# UNPREDICTABLE - one substitution could be further expanded
 bad_bar = {'@bar@': '@soap@', '@soap@': 'lye'}
 env.Substfile('bar.in', SUBST_DICT=bad_bar)
 

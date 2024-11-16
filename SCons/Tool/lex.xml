@@ -27,7 +27,7 @@ This file is processed by the bin/SConsDoc.py module.
 <tool name="lex">
 <summary>
 <para>
-Sets construction variables for the &lex; lexical analyser.
+Sets construction variables for the &lex; lexical analyzer.
 </para>
 </summary>
 <sets>
@@ -123,7 +123,7 @@ command-line option. Use this in preference to including
 <cvar name="LEXUNISTD">
 <summary>
 <para>
-Used only on windows environments to set a lex flag to prevent 'unistd.h' from being included. The default value is '--nounistd'.
+Used only in Windows environments to set a lex flag to prevent 'unistd.h' from being included. The default value is '--nounistd'.
 </para>
 </summary>
 </cvar>

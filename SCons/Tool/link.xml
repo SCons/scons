@@ -66,7 +66,7 @@ based on the types of source files.
 <summary>
 <para>
 This construction variable automatically introduces &cv-link-_LDMODULEVERSIONFLAGS;
-if &cv-link-LDMODULEVERSION; is set. Othervise it evaluates to an empty string.
+if &cv-link-LDMODULEVERSION; is set. Otherwise, it evaluates to an empty string.
 </para>
 </summary>
 </cvar>
@@ -75,7 +75,7 @@ if &cv-link-LDMODULEVERSION; is set. Othervise it evaluates to an empty string.
 <summary>
 <para>
 This construction variable automatically introduces &cv-link-_SHLIBVERSIONFLAGS;
-if &cv-link-SHLIBVERSION; is set. Othervise it evaluates to an empty string.
+if &cv-link-SHLIBVERSION; is set. Otherwise, it evaluates to an empty string.
 </para>
 </summary>
 </cvar>

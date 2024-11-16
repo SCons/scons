@@ -55,7 +55,7 @@ env = Environment(tools=['default', 'packaging'])
 <para>
 &SCons; can build packages in a number of well known packaging formats.
 The target package type may be selected with the
-the &cv-link-PACKAGETYPE; construction variable
+&cv-link-PACKAGETYPE; construction variable
 or the <option>--package-type</option> command line option.
 The package type may be a list, in which case &SCons; will attempt
 to build packages for each type in the list. Example:
@@ -73,7 +73,7 @@ The currently supported packagers are:
 <tgroup cols="2">
 <tbody>
 <row><entry><literal>msi</literal></entry><entry>Microsoft Installer package</entry></row>
-<row><entry><literal>rpm</literal></entry><entry>RPM Package Manger package</entry></row>
+<row><entry><literal>rpm</literal></entry><entry>RPM Package Manager package</entry></row>
 <row><entry><literal>ipkg</literal></entry><entry>Itsy Package Management package</entry></row>
 <row><entry><literal>tarbz2</literal></entry><entry>bzip2-compressed tar file</entry></row>
 <row><entry><literal>targz</literal></entry><entry>gzip-compressed tar file</entry></row>
@@ -262,7 +262,7 @@ placed if applicable.  The default value is <quote>&cv-NAME;-&cv-VERSION;</quote
 <summary>
 <para>
 Selects the package type to build when using the &b-link-Package;
-builder. May be a string or list of strings. See the docuentation
+builder. It may be a string or list of strings. See the documentation
 for the builder for the currently supported types.
 </para>
 
@@ -541,7 +541,7 @@ field in the RPM
 <cvar name="X_RPM_EXTRADEFS">
 <summary>
 <para>
-A list used to supply extra defintions or flags
+A list used to supply extra definitions or flags
 to be added to the RPM <filename>.spec</filename> file.
 Each item is added as-is with a carriage return appended.
 This is useful if some specific RPM feature not otherwise

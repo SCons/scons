@@ -43,7 +43,7 @@ but with a few additional capabilities noted below.
 See the
 <ulink url="https://docs.python.org/3/library/optparse.html">
 optparse documentation</ulink>
-for a thorough discussion of its option-processing capabities.
+for a thorough discussion of its option-processing capabilities.
 All options added through &f-AddOption; are placed
 in a special "Local Options" option group.
 </para>
@@ -200,8 +200,8 @@ Future versions of &SCons; will likely forbid such usage.
 </arguments>
 <summary>
 <para>
-Allows setting options for SCons debug options. Currently the only supported value is
-  <emphasis>json</emphasis> which sets the path to the json file created when
+Allows setting options for SCons debug options. Currently, the only supported value is
+  <emphasis>json</emphasis> which sets the path to the JSON file created when
   <literal>--debug=json</literal> is set.
 </para>
   <example_commands>
@@ -700,7 +700,7 @@ If the string contains the verbatim substring
 it will be replaced with the Node.
 Note that, for performance reasons, this is
 <emphasis>not</emphasis>
-a regular SCons variable substition,
+a regular SCons variable substitution,
 so you can not use other variables
 or use curly braces.
 The following example will print the name of

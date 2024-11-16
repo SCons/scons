@@ -482,7 +482,7 @@ and
 as C++ files,
 and files with
 <filename>.mm</filename>
-suffixes as Objective C++ files.
+suffixes as Objective-C++ files.
 On case-sensitive systems (Linux, UNIX, and other POSIX-alikes),
 SCons also treats
 <filename>.C</filename>
@@ -567,7 +567,7 @@ When this &consvar; is defined, a versioned shared library
 is created by the &b-link-SharedLibrary; builder. This activates the
 &cv-link-_SHLIBVERSIONFLAGS; and thus modifies the &cv-link-SHLINKCOM; as
 required, adds the version number to the library name, and creates the symlinks
-that are needed.  &cv-link-SHLIBVERSION; versions should exist as alpha-numeric,
+that are needed.  &cv-link-SHLIBVERSION; versions should exist as alphanumeric,
 decimal-delimited values as defined by the regular expression "\w+[\.\w+]*".
 Example &cv-link-SHLIBVERSION; values include '1', '1.2.3', and '1.2.gitaa412c8b'.
 </para>

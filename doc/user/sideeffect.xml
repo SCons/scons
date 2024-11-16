@@ -47,7 +47,7 @@ This file is processed by the bin/SConsDoc.py module.
  will also put data into <filename>log</filename>, which is used
  as a source for the command to generate <filename>file2</filename>,
  but <filename>log</filename> is unknown to &SCons; on a clean
- build: it neither exists, nor is it a target output by any builder.
+ build: it neither exists nor is it a target output by any builder.
  The <filename>SConscript</filename> uses
  &SideEffect; to inform &SCons; about the additional output file.
 
@@ -114,14 +114,14 @@ f1 = env.Command(
 
  In general, &SideEffect; is not intended for the case when
  a command produces extra target files (that is, files which
- will be used as sources to other build steps). For example, the
+ will be used as sources to other build steps). For example,
  the &MSVC; compiler is capable of performing
  incremental linking, for which it uses a status file - such that
  linking <filename>foo.exe</filename> also produces
  a <filename>foo.ilk</filename>, or uses it if it was already present,
  if the <option>/INCREMENTAL</option> option was supplied.
  Specifying <filename>foo.ilk</filename> as a
- side-effect of <filename>foo.exe</filename>
+ side effect of <filename>foo.exe</filename>
  is <emphasis>not</emphasis> a recommended use of &SideEffect;
  since <filename>foo.ilk</filename> is used by the link.
  &SCons; handles side-effect files
@@ -245,7 +245,7 @@ cat
 
  <para>
 
- This makes sure the the two
+ This makes sure the two
  <application>./build</application> steps are run sequentially,
  even with the <filename>--jobs=2</filename> in the command line:
 

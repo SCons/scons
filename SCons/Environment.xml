@@ -513,7 +513,7 @@ env.Alias('update', ['file1', 'file2'], "update_database $SOURCES")
 <para>
 Marks each given
 <parameter>target</parameter>
-so that it is always assumed to be out of date,
+so that it is always assumed to be out-of-date,
 and will always be rebuilt if needed.
 Note, however, that
 &f-AlwaysBuild;
@@ -572,15 +572,15 @@ named <parameter>key</parameter>,
 then <parameter>key</parameter> is simply
 stored with a value of <parameter>val</parameter>.
 Otherwise, <parameter>val</parameter> is
-combinined with the existing value,
+combined with the existing value,
 possibly converting into an appropriate type
 which can hold the expanded contents.
 There are a few special cases to be aware of.
 Normally, when two strings are combined,
 the result is a new string containing their concatenation
 (and you are responsible for supplying any needed separation);
-however, the contents of &cv-link-CPPDEFINES; will
-will be postprocessed by adding a prefix and/or suffix
+however, the contents of &cv-link-CPPDEFINES;
+will be post-processed by adding a prefix and/or suffix
 to each entry when the command line is produced,
 so &SCons; keeps them separate -
 appending a string will result in a separate string entry,
@@ -696,7 +696,7 @@ scons: `.' is up to date.
 
 <para>
 <emphasis>Changed in version  4.5</emphasis>:
-clarifined the use of tuples vs. other types,
+clarified the use of tuples vs. other types,
 handling is now consistent across the four functions.
 </para>
 
@@ -723,7 +723,7 @@ See &cv-link-CPPDEFINES; for more details.
 
 <para>
 Appending a string <parameter>val</parameter>
-to a dictonary-typed &consvar; enters
+to a dictionary-typed &consvar; enters
 <parameter>val</parameter> as the key in the dictionary,
 and <literal>None</literal> as its value.
 Using a tuple type to supply a key-value pair
@@ -1033,7 +1033,7 @@ either as separate arguments to the
 &f-Clean;
 method, or as a list.
 &f-Clean;
-will also accept the return value of any of the &consenv;
+will also accept the return value of the &consenv;
 Builder methods.
 Examples:
 </para>
@@ -1065,7 +1065,7 @@ Clean(['foo', 'bar'], 'something_else_to_clean')
 In this example,
 installing the project creates a subdirectory for the documentation.
 This statement causes the subdirectory to be removed
-if the project is deinstalled.
+if the project is uninstalled.
 </para>
 <example_commands>
 Clean(docdir, os.path.join(docdir, projectname))
@@ -1146,7 +1146,7 @@ This is useful for "one-off" builds
 where a full Builder is not needed.
 Since the anonymous Builder is never hooked
 into the standard Builder framework,
-an Action must always be specfied.
+an Action must always be specified.
 See the &f-link-Command; function description
 for the calling syntax and details.
 </para>
@@ -1339,7 +1339,7 @@ that specify a predefined decider function:
 <term><literal>"content"</literal></term>
 <listitem>
 <para>
-Specifies that a target shall be considered out of date and rebuilt
+Specifies that a target shall be considered out-of-date and rebuilt
 if the dependency's content has changed since the last time
 the target was built,
 as determined by performing a checksum
@@ -1361,7 +1361,7 @@ can still be used as a synonym, but is deprecated.
 <term><literal>"content-timestamp"</literal></term>
 <listitem>
 <para>
-Specifies that a target shall be considered out of date and rebuilt
+Specifies that a target shall be considered out-of-date and rebuilt
 if the dependency's content has changed since the last time
 the target was built,
 except that dependencies with a timestamp that matches
@@ -1398,7 +1398,7 @@ can still be used as a synonym, but is deprecated.
 <term><literal>"timestamp-newer"</literal></term>
 <listitem>
 <para>
-Specifies that a target shall be considered out of date and rebuilt
+Specifies that a target shall be considered out-of-date and rebuilt
 if the dependency's timestamp is newer than the target file's timestamp.
 This is the behavior of the classic Make utility,
 and
@@ -1412,7 +1412,7 @@ can be used a synonym for
 <term><literal>"timestamp-match"</literal></term>
 <listitem>
 <para>
-Specifies that a target shall be considered out of date and rebuilt
+Specifies that a target shall be considered out-of-date and rebuilt
 if the dependency's timestamp is different than the
 timestamp recorded the last time the target was built.
 This provides behavior very similar to the classic Make utility
@@ -1458,7 +1458,7 @@ The Node (file) which
 should cause the
 <parameter>target</parameter>
 to be rebuilt
-if it has "changed" since the last tme
+if it has "changed" since the last time
 <parameter>target</parameter>
 was built.
 </para>
@@ -1533,7 +1533,7 @@ otherwise
 <emphasis>not</emphasis>
 be rebuilt).
 Note that the decision can be made
-using whatever criteria are appopriate.
+using whatever criteria are appropriate.
 Ignoring some or all of the function arguments
 is perfectly normal.
 </para>
@@ -2033,7 +2033,7 @@ FindSourceFiles('src')
 </example_commands>
 
 <para>
-As you can see build support files (&SConstruct; in the above example)
+As you can see, build support files (&SConstruct; in the above example)
 will also be returned by this function.
 </para>
 </summary>
@@ -2117,8 +2117,8 @@ or (most commonly) relative to the directory of the current
 &f-Glob; matches both files stored on disk and Nodes
 which &SCons; already knows about, even if any corresponding
 file is not currently stored on disk.
-The evironment method form (&f-env-Glob;)
-performs string substition on
+The environment method form (&f-env-Glob;)
+performs string substitution on
 <parameter>pattern</parameter>
 and returns whatever matches the resulting expanded pattern.
 The results are sorted, unlike for the similar &Python;
@@ -2209,7 +2209,7 @@ If the optional
 <parameter>source</parameter>
 argument evaluates true,
 and the local directory is a variant directory,
-then &f-Glob; returnes Nodes from
+then &f-Glob; returns Nodes from
 the corresponding source directory,
 rather than the local directory.
 <!-- XXX what about generated files that don't exist in src but will be sources? -->
@@ -2243,7 +2243,7 @@ directory.)
 The optional
 <parameter>exclude</parameter>
 argument may be set to a pattern or a list of patterns
-descibing files or directories
+describing files or directories
 to filter out of the match list.
 Elements matching a least one specified pattern will be excluded.
 These patterns use the same syntax as for
@@ -2448,7 +2448,7 @@ In case of duplication,
 any &consvar; names that end in
 <literal>PATH</literal>
 keep the left-most value so the
-path searcb order is not altered.
+path search order is not altered.
 All other &consvars; keep
 the right-most value.
 If <literal>unique</literal> is false,
@@ -2620,11 +2620,11 @@ the output produced by <parameter>command</parameter>
 in order to distribute it to appropriate &consvars;.
 &f-env-MergeFlags; uses a separate function to
 do that processing -
-see &f-link-env-ParseFlags; for the details, including a
+see &f-link-env-ParseFlags; for the details, including
 a table of options and corresponding &consvars;.
 To provide alternative processing of the output of
 <parameter>command</parameter>,
-you can suppply a custom
+you can supply a custom
 <parameter>function</parameter>,
 which must accept three arguments:
 the &consenv; to modify,
@@ -2846,7 +2846,7 @@ See the manpage section "Construction Environments" for more details.
 <summary>
 <para>
 Prepend values to &consvars; in the current &consenv;,
-Works like &f-link-env-Append; (see for details),
+works like &f-link-env-Append; (see for details),
 except that values are added to the front,
 rather than the end, of any existing value of the &consvar;
 </para>
@@ -3225,7 +3225,7 @@ in a separate
 <filename>.sconsign</filename>
 file in each directory,
 not in a single combined database file.
-This is a backwards-compatibility meaure to support
+This is a backwards-compatibility measure to support
 what was the default behavior
 prior to &SCons; 0.97 (i.e. before 2008).
 Use of this mode is discouraged and may be
@@ -3602,7 +3602,7 @@ Returns a Node object representing the specified &Python;
 Value Nodes can be used as dependencies of targets.
 If the string representation of the Value Node
 changes between &SCons; runs, it is considered
-out of date and any targets depending it will be rebuilt.
+out-of-date and any targets depending on it will be rebuilt.
 Since Value Nodes have no filesystem representation,
 timestamps are not used; the timestamp deciders
 perform the same content-based up to date check.
