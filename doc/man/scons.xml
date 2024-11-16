@@ -3638,10 +3638,10 @@ the command line. If there are command line targets,
 this list has the same contents as
 <link linkend="v-BUILD_TARGETS">&BUILD_TARGETS;</link>.
 If there are no targets specified on the command line,
-the list is empty. The elements of this list are strings.
+this list is empty. The elements of this list are strings.
 This can be used, for example,
 to take specific actions only
-when a certain target is explicitly requested for building.</para>
+when a certain target(s) are explicitly requested for building.</para>
 
 <para>Example:</para>
 
