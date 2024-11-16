@@ -276,7 +276,7 @@ directory names in &cv-CPPPATH;
 will be looked-up relative to the directory of the SConscript file
 when they are used in a command.
 To force &scons;
-to look up a directory relative to the root of the source tree, use
+to lookup a directory relative to the root of the source tree, use
 the <literal>#</literal> prefix:
 </para>
 
@@ -285,7 +285,7 @@ env = Environment(CPPPATH='#/include')
 </example_commands>
 
 <para>
-The directory look up can also be forced using the
+The directory lookup can also be forced using the
 &f-link-Dir;
 function:
 </para>
@@ -548,7 +548,7 @@ directory names in &cv-LIBPATH; will be looked-up relative to the
 directory of the SConscript file
 when they are used in a command.
 To force &scons;
-to look up a directory relative to the root of the source tree, use
+to lookup a directory relative to the root of the source tree, use
 the <literal>#</literal> prefix:
 </para>
 
@@ -557,7 +557,7 @@ env = Environment(LIBPATH='#/libs')
 </example_commands>
 
 <para>
-The directory look up can also be forced using the
+The directory lookup can also be forced using the
 &f-link-Dir; function:
 </para>
 
