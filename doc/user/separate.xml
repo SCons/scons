@@ -224,11 +224,11 @@ int main() { printf("Hello, world!\n"); }
     As noted in the previous chapter,
     all builds actually happen from the top level directory,
     but as an aid to understanding how &SCons; operates, think
-    of it as <emphasis>build in-place in the variant directory</emphasis>,
-    not <emphasis>build in-source but send build artifacts
+    of it as <emphasis>build in place in the variant directory</emphasis>,
+    not <emphasis>build in source but send build artifacts
     to the variant directory</emphasis>.
-    It turns out in-place builds are easier to get right than out-of-tree
-    builds - so by default &SCons; simulates an in-place build
+    It turns out in place builds are easier to get right than out-of-tree
+    builds - so by default &SCons; simulates an in place build
     by making the variant directory look just like the source directory.
     The most straightforward way to do that is by making copies
     of the files needed for the build.
