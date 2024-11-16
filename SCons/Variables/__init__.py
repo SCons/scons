@@ -23,10 +23,12 @@
 
 """Adds user-friendly customizable variables to an SCons build."""
 
+from __future__ import annotations
+
 import os.path
 import sys
 from functools import cmp_to_key
-from typing import Callable, Dict, List, Optional, Sequence, Union
+from typing import Callable, Sequence
 
 import SCons.Errors
 import SCons.Util
@@ -90,16 +92,16 @@ class Variables:
 
     def __init__(
         self,
-        files: Optional[Union[str, Sequence[str]]] = None,
-        args: Optional[dict] = None,
+        files: str | Sequence[str | None] = None,
+        args: dict | None = None,
         is_global: bool = False,
     ) -> None:
-        self.options: List[Variable] = []
+        self.options: list[Variable] = []
         self.args = args if args is not None else {}
         if not SCons.Util.is_Sequence(files):
             files = [files] if files else []
         self.files: Sequence[str] = files
-        self.unknown: Dict[str, str] = {}
+        self.unknown: dict[str, str] = {}
 
     def __str__(self) -> str:
         """Provide a way to "print" a Variables object."""
@@ -113,11 +115,11 @@ class Variables:
     # lint: W0622: Redefining built-in 'help'
     def _do_add(
         self,
-        key: Union[str, List[str]],
+        key: str | list[str],
         help: str = "",
         default=None,
-        validator: Optional[Callable] = None,
-        converter: Optional[Callable] = None,
+        validator: Callable | None = None,
+        converter: Callable | None = None,
         **kwargs,
     ) -> None:
         """Create a Variable and add it to the list.
@@ -162,7 +164,7 @@ class Variables:
             yield option.key
 
     def Add(
-        self, key: Union[str, Sequence], *args, **kwargs,
+        self, key: str | Sequence, *args, **kwargs,
     ) -> None:
         """Add a Build Variable.
 
@@ -218,7 +220,7 @@ class Variables:
         for opt in optlist:
             self._do_add(*opt)
 
-    def Update(self, env, args: Optional[dict] = None) -> None:
+    def Update(self, env, args: dict | None = None) -> None:
         """Update an environment with the Build Variables.
 
         Args:
@@ -362,7 +364,7 @@ class Variables:
             msg = f'Error writing options to file: {filename}\n{exc}'
             raise SCons.Errors.UserError(msg) from exc
 
-    def GenerateHelpText(self, env, sort: Union[bool, Callable] = False) -> str:
+    def GenerateHelpText(self, env, sort: bool | Callable = False) -> str:
         """Generate the help text for the Variables object.
 
         Args:
@@ -403,7 +405,7 @@ class Variables:
         help: str,
         default,
         actual,
-        aliases: Optional[List[str]] = None,
+        aliases: list[str | None] = None,
     ) -> str:
         """Format the help text for a single variable.
 

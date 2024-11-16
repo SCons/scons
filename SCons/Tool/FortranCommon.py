@@ -23,9 +23,10 @@
 
 """Routines for setting up Fortran, common to all dialects."""
 
+from __future__ import annotations
+
 import re
 import os.path
-from typing import Tuple, List
 
 import SCons.Scanner.Fortran
 import SCons.Tool
@@ -96,7 +97,7 @@ def ShFortranEmitter(target, source, env) -> Tuple:
     return SharedObjectEmitter(target, source, env)
 
 
-def ComputeFortranSuffixes(suffixes: List[str], ppsuffixes: List[str]) -> None:
+def ComputeFortranSuffixes(suffixes: list[str], ppsuffixes: list[str]) -> None:
     """Update the suffix lists to reflect the platform requirements.
 
     If upper-cased suffixes can be distinguished from lower, those are
@@ -119,7 +120,7 @@ def ComputeFortranSuffixes(suffixes: List[str], ppsuffixes: List[str]) -> None:
 
 def CreateDialectActions(
     dialect: str,
-) -> Tuple[CommandAction, CommandAction, CommandAction, CommandAction]:
+) -> tuple[CommandAction, CommandAction, CommandAction, CommandAction]:
     """Create dialect specific actions."""
     CompAction = Action(f'${dialect}COM ', cmdstr=f'${dialect}COMSTR')
     CompPPAction = Action(f'${dialect}PPCOM ', cmdstr=f'${dialect}PPCOMSTR')
@@ -131,8 +132,8 @@ def CreateDialectActions(
 def DialectAddToEnv(
     env,
     dialect: str,
-    suffixes: List[str],
-    ppsuffixes: List[str],
+    suffixes: list[str],
+    ppsuffixes: list[str],
     support_mods: bool = False,
 ) -> None:
     """Add dialect specific construction variables.

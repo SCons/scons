@@ -21,17 +21,21 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
+
 import SCons.compat
 
 import collections
 import re
 import unittest
-from typing import Optional
+from typing import TYPE_CHECKING
 
 import SCons.Errors
 import SCons.Node
 import SCons.Util
-from SCons.Util.sctyping import ExecutorType
+
+if TYPE_CHECKING:
+    from SCons.Executor import Executor
 
 
 built_it = None
@@ -64,7 +68,7 @@ class MyAction(MyActionBase):
     def __init__(self) -> None:
         self.order = 0
 
-    def __call__(self, target, source, env, executor: Optional[ExecutorType] = None) -> int:
+    def __call__(self, target, source, env, executor: Executor | None = None) -> int:
         global built_it, built_target, built_source, built_args, built_order
         if executor:
             target = executor.get_all_targets()

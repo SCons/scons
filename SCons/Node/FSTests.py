@@ -21,6 +21,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
+
 import SCons.compat
 import os
 import os.path
@@ -29,7 +31,7 @@ import time
 import unittest
 import shutil
 import stat
-from typing import Optional
+from typing import TYPE_CHECKING
 
 from TestCmd import TestCmd, IS_WINDOWS, IS_ROOT
 
@@ -38,7 +40,9 @@ import SCons.Node.FS
 import SCons.Util
 import SCons.Warnings
 import SCons.Environment
-from SCons.Util.sctyping import ExecutorType
+
+if TYPE_CHECKING:
+    from SCons.Executor import Executor
 
 built_it = None
 
@@ -320,7 +324,7 @@ class VariantDirTestCase(unittest.TestCase):
             def __init__(self, dir_made) -> None:
                 self.dir_made = dir_made
 
-            def __call__(self, target, source, env, executor: Optional[ExecutorType] = None) -> None:
+            def __call__(self, target, source, env, executor: Executor | None = None) -> None:
                 if executor:
                     target = executor.get_all_targets()
                     source = executor.get_all_sources()
@@ -2491,7 +2495,7 @@ class EntryTestCase(_tempdirTestCase):
                             result += a
                         return result
 
-                    def signature(self, executor: ExecutorType):
+                    def signature(self, executor: Executor):
                         return self.val + 222
 
                 self.module = M(val)
@@ -3582,7 +3586,7 @@ class prepareTestCase(unittest.TestCase):
             def __init__(self, dir_made) -> None:
                 self.dir_made = dir_made
 
-            def __call__(self, target, source, env, executor: Optional[ExecutorType] = None) -> None:
+            def __call__(self, target, source, env, executor: Executor | None = None) -> None:
                 if executor:
                     target = executor.get_all_targets()
                     source = executor.get_all_sources()

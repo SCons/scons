@@ -295,6 +295,8 @@ version.
     TestCmd.where_is('foo', 'PATH1;PATH2', '.suffix3;.suffix4')
 """
 
+from __future__ import annotations
+
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmd.py 1.3.D001 2010/06/03 12:58:27 knight"
 __version__ = "1.3"
@@ -323,7 +325,7 @@ import traceback
 from collections import UserList, UserString
 from pathlib import Path
 from subprocess import PIPE, STDOUT
-from typing import Callable, Dict, Optional, Union
+from typing import Callable
 
 IS_WINDOWS = sys.platform == 'win32'
 IS_MACOS = sys.platform == 'darwin'
@@ -437,7 +439,7 @@ def clean_up_ninja_daemon(self, result_type) -> None:
 def fail_test(
     self=None,
     condition: bool = True,
-    function: Optional[Callable] = None,
+    function: Callable | None = None,
     skip: int = 0,
     message: str = "",
 ) -> None:
@@ -1044,8 +1046,8 @@ class TestCmd:
         diff_stdout=None,
         diff_stderr=None,
         combine: bool = False,
-        universal_newlines: Optional[bool] = True,
-        timeout: Optional[float] = None,
+        universal_newlines: bool | None = True,
+        timeout: float | None = None,
     ) -> None:
         self.external = os.environ.get('SCONS_EXTERNAL_TEST', 0)
         self._cwd = os.getcwd()
@@ -1060,7 +1062,7 @@ class TestCmd:
         self.verbose_set(verbose)
         self.combine = combine
         self.universal_newlines = universal_newlines
-        self.process: Optional[Popen] = None
+        self.process: Popen | None = None
         # Two layers of timeout: one at the test class instance level,
         # one set on an individual start() call (usually via a run() call)
         self.timeout = timeout
@@ -1068,7 +1070,7 @@ class TestCmd:
         self.set_match_function(match, match_stdout, match_stderr)
         self.set_diff_function(diff, diff_stdout, diff_stderr)
         self._dirlist = []
-        self._preserve: Dict[str, Union[str, bool]] = {
+        self._preserve: dict[str, str | bool] = {
             'pass_test': False,
             'fail_test': False,
             'no_result': False,
@@ -1084,9 +1086,9 @@ class TestCmd:
             self._preserve['no_result'] = os.environ.get('PRESERVE_NO_RESULT', False)
         self._stdout = []
         self._stderr = []
-        self.status: Optional[int] = None
+        self.status: int | None = None
         self.condition = 'no_result'
-        self.workdir: Optional[str]
+        self.workdir: str | None
         self.workdir_set(workdir)
         self.subdir(subdir)
 
@@ -1254,7 +1256,7 @@ class TestCmd:
     def fail_test(
         self,
         condition: bool = True,
-        function: Optional[Callable] = None,
+        function: Callable | None = None,
         skip: int = 0,
         message: str = "",
     )-> None:
@@ -1738,7 +1740,7 @@ class TestCmd:
         """
         time.sleep(seconds)
 
-    def stderr(self, run=None) -> Optional[str]:
+    def stderr(self, run=None) -> str | None:
         """Returns the stored standard error output from a given run.
 
         Args:
@@ -1760,7 +1762,7 @@ class TestCmd:
         except IndexError:
             return None
 
-    def stdout(self, run=None) -> Optional[str]:
+    def stdout(self, run=None) -> str | None:
         """Returns the stored standard output from a given run.
 
         Args:

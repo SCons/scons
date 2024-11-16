@@ -43,7 +43,9 @@ Usage example::
         ...
 """
 
-from typing import Callable, List, Optional, Tuple
+from __future__ import annotations
+
+from typing import Callable
 
 import SCons.Errors
 
@@ -69,10 +71,10 @@ def EnumVariable(
     key,
     help: str,
     default: str,
-    allowed_values: List[str],
-    map: Optional[dict] = None,
+    allowed_values: list[str],
+    map: dict | None = None,
     ignorecase: int = 0,
-) -> Tuple[str, str, str, Callable, Callable]:
+) -> tuple[str, str, str, Callable, Callable]:
     """Return a tuple describing an enumaration SCons Variable.
 
     The input parameters describe a variable with only predefined values

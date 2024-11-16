@@ -31,6 +31,8 @@ some other module.  If it's specific to the "scons" script invocation,
 it goes here.
 """
 
+from __future__ import annotations
+
 import SCons.compat
 
 import importlib.util
@@ -42,7 +44,6 @@ import time
 import traceback
 import platform
 import threading
-from typing import Optional, List, TYPE_CHECKING
 
 import SCons.CacheDir
 import SCons.Debug
@@ -552,7 +553,7 @@ def SetOption(name: str, value):
     """Set the value of an option - Public API."""
     return OptionsParser.values.set_option(name, value)
 
-def DebugOptions(json: Optional[str] = None) -> None:
+def DebugOptions(json: str | None = None) -> None:
     """Specify options to SCons debug logic - Public API.
 
     Currently only *json* is supported, which changes the JSON file
@@ -681,8 +682,8 @@ def _scons_internal_error() -> None:
     sys.exit(2)
 
 def _SConstruct_exists(
-    dirname: str, repositories: List[str], filelist: List[str]
-) -> Optional[str]:
+    dirname: str, repositories: list[str], filelist: list[str]
+) -> str | None:
     """Check that an SConstruct file exists in a directory.
 
     Arguments:
@@ -1424,7 +1425,7 @@ def _exec_main(parser, values) -> None:
         class SConsPdb(pdb.Pdb):
             """Specialization of Pdb to help find SConscript files."""
 
-            def lookupmodule(self, filename: str) -> Optional[str]:
+            def lookupmodule(self, filename: str) -> str | None:
                 """Helper function for break/clear parsing -- SCons version.
 
                 Translates (possibly incomplete) file or module name

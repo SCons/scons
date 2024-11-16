@@ -23,6 +23,8 @@
 
 """This module defines the Python API provided to SConscript files."""
 
+from __future__ import annotations
+
 import SCons
 import SCons.Action
 import SCons.Builder
@@ -45,7 +47,6 @@ import re
 import sys
 import traceback
 import time
-from typing import Tuple
 
 class SConscriptReturn(Exception):
     pass
@@ -386,7 +387,7 @@ class SConsEnvironment(SCons.Environment.Base):
     # Private methods of an SConsEnvironment.
     #
     @staticmethod
-    def _get_major_minor_revision(version_string: str) -> Tuple[int, int, int]:
+    def _get_major_minor_revision(version_string: str) -> tuple[int, int, int]:
         """Split a version string into major, minor and (optionally)
         revision parts.
 
@@ -485,7 +486,7 @@ class SConsEnvironment(SCons.Environment.Base):
         SCons.Script._Set_Default_Targets(self, targets)
 
     @staticmethod
-    def GetSConsVersion() -> Tuple[int, int, int]:
+    def GetSConsVersion() -> tuple[int, int, int]:
         """Return the current SCons version.
 
         .. versionadded:: 4.8.0

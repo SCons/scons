@@ -110,6 +110,8 @@ The TestCommon module also provides the following variables
 
 """
 
+from __future__ import annotations
+
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCommon.py 1.3.D001 2010/06/03 12:58:27 knight"
 __version__ = "1.3"
@@ -121,7 +123,7 @@ import sys
 import sysconfig
 
 from collections import UserList
-from typing import Callable, List, Optional, Union
+from typing import Callable
 
 from TestCmd import *
 from TestCmd import __all__
@@ -226,14 +228,14 @@ def separate_files(flist):
             missing.append(f)
     return existing, missing
 
-def contains(seq, subseq, find: Optional[Callable] = None) -> bool:
+def contains(seq, subseq, find: Callable | None = None) -> bool:
     if find is None:
         return subseq in seq
     else:
         f = find(seq, subseq)
         return f not in (None, -1) and f is not False
 
-def find_index(seq, subseq, find: Optional[Callable] = None) -> Optional[int]:
+def find_index(seq, subseq, find: Callable | None = None) -> int | None:
     # Returns either an index of the subseq within the seq, or None.
     # Accepts a function find(seq, subseq), which returns an integer on success
     # and either: None, False, or -1, on failure.
@@ -280,8 +282,8 @@ class TestCommon(TestCmd):
 
     def options_arguments(
         self,
-        options: Union[str, List[str]],
-        arguments: Union[str, List[str]],
+        options: str | list[str],
+        arguments: str | list[str],
     ):
         """Merges the "options" keyword argument with the arguments."""
         # TODO: this *doesn't* split unless both are non-empty strings.
@@ -323,7 +325,7 @@ class TestCommon(TestCmd):
         file: str,
         required: str,
         mode: str = 'rb',
-        find: Optional[Callable] = None,
+        find: Callable | None = None,
     ) -> None:
         """Ensures specified file contains the required text.
 
@@ -353,7 +355,7 @@ class TestCommon(TestCmd):
             print(file_contents)
             self.fail_test()
 
-    def must_contain_all(self, output, input, title: str = "", find: Optional[Callable] = None)-> None:
+    def must_contain_all(self, output, input, title: str = "", find: Callable | None = None)-> None:
         """Ensures that the specified output string (first argument)
         contains all of the specified input as a block (second argument).
 
@@ -376,7 +378,7 @@ class TestCommon(TestCmd):
             print(output)
             self.fail_test()
 
-    def must_contain_all_lines(self, output, lines, title: str = "", find: Optional[Callable] = None) -> None:
+    def must_contain_all_lines(self, output, lines, title: str = "", find: Callable | None = None) -> None:
         """Ensures that the specified output string (first argument)
         contains all of the specified lines (second argument).
 
@@ -427,7 +429,7 @@ class TestCommon(TestCmd):
             sys.stdout.write(output)
             self.fail_test()
 
-    def must_contain_any_line(self, output, lines, title: str = "", find: Optional[Callable] = None) -> None:
+    def must_contain_any_line(self, output, lines, title: str = "", find: Callable | None = None) -> None:
         """Ensures that the specified output string (first argument)
         contains at least one of the specified lines (second argument).
 
@@ -451,7 +453,7 @@ class TestCommon(TestCmd):
         sys.stdout.write(output)
         self.fail_test()
 
-    def must_contain_exactly_lines(self, output, expect, title: str = "", find: Optional[Callable] = None) -> None:
+    def must_contain_exactly_lines(self, output, expect, title: str = "", find: Callable | None = None) -> None:
         """Ensures that the specified output string (first argument)
         contains all of the lines in the expected string (second argument)
         with none left over.
@@ -499,7 +501,7 @@ class TestCommon(TestCmd):
         sys.stdout.flush()
         self.fail_test()
 
-    def must_contain_lines(self, lines, output, title: str = "", find: Optional[Callable] = None) -> None:
+    def must_contain_lines(self, lines, output, title: str = "", find: Callable | None = None) -> None:
         # Deprecated; retain for backwards compatibility.
         self.must_contain_all_lines(output, lines, title, find)
 
@@ -540,7 +542,7 @@ class TestCommon(TestCmd):
         file,
         expect,
         mode: str = 'rb',
-        match: Optional[Callable] = None,
+        match: Callable | None = None,
         message: str = "",
         newline=None,
     ):
@@ -569,7 +571,7 @@ class TestCommon(TestCmd):
         file,
         golden_file,
         mode: str = 'rb',
-        match: Optional[Callable] = None,
+        match: Callable | None = None,
         message: str = "",
         newline=None,
     ) -> None:
@@ -609,7 +611,7 @@ class TestCommon(TestCmd):
             print(file_contents)
             self.fail_test()
 
-    def must_not_contain_any_line(self, output, lines, title: str = "", find: Optional[Callable] = None) -> None:
+    def must_not_contain_any_line(self, output, lines, title: str = "", find: Callable | None = None) -> None:
         """Ensures that the specified output string (first argument)
         does not contain any of the specified lines (second argument).
 
@@ -635,7 +637,7 @@ class TestCommon(TestCmd):
             sys.stdout.write(output)
             self.fail_test()
 
-    def must_not_contain_lines(self, lines, output, title: str = "", find: Optional[Callable] = None) -> None:
+    def must_not_contain_lines(self, lines, output, title: str = "", find: Callable | None = None) -> None:
         self.must_not_contain_any_line(output, lines, title, find)
 
     def must_not_exist(self, *files) -> None:
@@ -768,9 +770,9 @@ class TestCommon(TestCmd):
     def finish(
         self,
         popen,
-        stdout: Optional[str] = None,
-        stderr: Optional[str] = '',
-        status: Optional[int] = 0,
+        stdout: str | None = None,
+        stderr: str | None = '',
+        status: int | None = 0,
         **kw,
     ) -> None:
         """Finish and wait for the process being run.
@@ -800,9 +802,9 @@ class TestCommon(TestCmd):
         self,
         options=None,
         arguments=None,
-        stdout: Optional[str] = None,
-        stderr: Optional[str] = '',
-        status: Optional[int] = 0,
+        stdout: str | None = None,
+        stderr: str | None = '',
+        status: int | None = 0,
         **kw,
     ) -> None:
         """Runs the program under test, checking that the test succeeded.

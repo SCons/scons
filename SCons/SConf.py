@@ -31,6 +31,8 @@ Tests on the build system can detect if compiler sees header files, if
 libraries are installed, if some command line options are supported etc.
 """
 
+from __future__ import annotations
+
 import SCons.compat
 
 import atexit
@@ -39,7 +41,6 @@ import os
 import re
 import sys
 import traceback
-from typing import Tuple
 
 import SCons.Action
 import SCons.Builder
@@ -265,7 +266,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
             sys.excepthook(*self.exc_info())
         return SCons.Taskmaster.Task.failed(self)
 
-    def collect_node_states(self) -> Tuple[bool, bool, bool]:
+    def collect_node_states(self) -> tuple[bool, bool, bool]:
         # returns (is_up_to_date, cached_error, cachable)
         # where is_up_to_date is True if the node(s) are up_to_date
         #       cached_error  is True if the node(s) are up_to_date, but the

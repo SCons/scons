@@ -26,11 +26,15 @@
 Used to handle internal and user errors in SCons.
 """
 
+from __future__ import annotations
+
 import shutil
-from typing import Optional
+from typing import TYPE_CHECKING
 
 from SCons.Util.sctypes import to_String, is_String
-from SCons.Util.sctyping import ExecutorType
+
+if TYPE_CHECKING:
+    from SCons.Executor import Executor
 
 # Note that not all Errors are defined here, some are at the point of use
 
@@ -75,7 +79,7 @@ class BuildError(Exception):
 
     def __init__(self,
                  node=None, errstr: str="Unknown error", status: int=2, exitstatus: int=2,
-                 filename=None, executor: Optional[ExecutorType] = None, action=None, command=None,
+                 filename=None, executor: Executor | None = None, action=None, command=None,
                  exc_info=(None, None, None)) -> None:
 
         # py3: errstr should be string and not bytes.

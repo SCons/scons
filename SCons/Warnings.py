@@ -61,8 +61,10 @@ Raising directly with an instance of a warning class bypasses the
 framework and it will behave like an ordinary exception.
 """
 
+from __future__ import annotations
+
 import sys
-from typing import Callable, Sequence, Optional
+from typing import Callable, Sequence
 
 import SCons.Errors
 
@@ -75,7 +77,7 @@ _warningAsException: bool = False
 
 # Function to emit the warning. Initialized by SCons/Main.py for regular use;
 # the unit test will set to a capturing version for testing.
-_warningOut: Optional[Callable] = None
+_warningOut: Callable | None = None
 
 
 class SConsWarning(SCons.Errors.UserError):

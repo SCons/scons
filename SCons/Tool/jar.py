@@ -28,8 +28,9 @@ It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
 """
 
+from __future__ import annotations
+
 import os
-from typing import List
 
 import SCons.Node
 import SCons.Node.FS
@@ -41,7 +42,7 @@ from SCons.Node.FS import _my_normcase
 from SCons.Tool.JavaCommon import get_java_install_dirs
 
 
-def jarSources(target, source, env, for_signature) -> List[str]:
+def jarSources(target, source, env, for_signature) -> list[str]:
     """Only include sources that are not a manifest file."""
     try:
         env['JARCHDIR']

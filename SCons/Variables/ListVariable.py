@@ -53,9 +53,11 @@ Usage example::
 # Known Bug: This should behave like a Set-Type, but does not really,
 # since elements can occur twice.
 
+from __future__ import annotations
+
 import collections
 import functools
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable
 
 import SCons.Util
 
@@ -75,7 +77,7 @@ class _ListVariable(collections.UserList):
     """
 
     def __init__(
-        self, initlist: Optional[list] = None, allowedElems: Optional[list] = None
+        self, initlist: list | None = None, allowedElems: list | None = None
     ) -> None:
         if initlist is None:
             initlist = []
@@ -179,11 +181,11 @@ def _validator(key, val, env) -> None:
 def ListVariable(
     key,
     help: str,
-    default: Union[str, List[str]],
-    names: List[str],
-    map: Optional[dict] = None,
-    validator: Optional[Callable] = None,
-) -> Tuple[str, str, str, None, Callable]:
+    default: str | list[str],
+    names: list[str],
+    map: dict | None = None,
+    validator: Callable | None = None,
+) -> tuple[str, str, str, None, Callable]:
     """Return a tuple describing a list variable.
 
     The input parameters describe a list variable, where the values

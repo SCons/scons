@@ -50,9 +50,11 @@ Can be used as a replacement for autoconf's ``--with-xxx=yyy`` ::
         ...  # build with x11 ...
 """
 
+from __future__ import annotations
+
 import os
 import functools
-from typing import Callable, Optional, Tuple, Union
+from typing import Callable
 
 import SCons.Errors
 
@@ -61,7 +63,7 @@ __all__ = ['PackageVariable',]
 ENABLE_STRINGS = ('1', 'yes', 'true',  'on', 'enable', 'search')
 DISABLE_STRINGS = ('0', 'no',  'false', 'off', 'disable')
 
-def _converter(val: Union[str, bool], default: str) -> Union[str, bool]:
+def _converter(val: str | bool, default: str) -> str | bool:
     """Convert a package variable.
 
     Returns *val* if it looks like a path string, and ``False`` if it
@@ -108,8 +110,8 @@ def _validator(key: str, val, env, searchfunc) -> None:
 
 # lint: W0622: Redefining built-in 'help' (redefined-builtin)
 def PackageVariable(
-    key: str, help: str, default, searchfunc: Optional[Callable] = None
-) -> Tuple[str, str, str, Callable, Callable]:
+    key: str, help: str, default, searchfunc: Callable | None = None
+) -> tuple[str, str, str, Callable, Callable]:
     """Return a tuple describing a package list SCons Variable.
 
     The input parameters describe a 'package list' variable. Returns

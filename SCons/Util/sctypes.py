@@ -6,13 +6,13 @@
 
 Routines which check types and do type conversions.
 """
+from __future__ import annotations
 
 import codecs
 import os
 import pprint
 import re
 import sys
-from typing import Optional, Union
 
 from collections import UserDict, UserList, UserString, deque
 from collections.abc import MappingView, Iterable
@@ -56,20 +56,24 @@ BaseStringTypes = str
 if sys.version_info >= (3, 13):
     from typing import TypeAlias, TypeIs
 
-    DictTypeRet: TypeAlias = TypeIs[Union[dict, UserDict]]
-    ListTypeRet: TypeAlias = TypeIs[Union[list, UserList, deque]]
-    SequenceTypeRet: TypeAlias = TypeIs[Union[list, tuple, deque, UserList, MappingView]]
+    DictTypeRet: TypeAlias = TypeIs[dict | UserDict]
+    ListTypeRet: TypeAlias = TypeIs[list | UserList | deque]
+    SequenceTypeRet: TypeAlias = TypeIs[list | tuple | deque | UserList | MappingView]
     TupleTypeRet: TypeAlias = TypeIs[tuple]
-    StringTypeRet: TypeAlias = TypeIs[Union[str, UserString]]
+    StringTypeRet: TypeAlias = TypeIs[str | UserString]
 elif sys.version_info >= (3, 10):
     from typing import TypeAlias, TypeGuard
 
-    DictTypeRet: TypeAlias = TypeGuard[Union[dict, UserDict]]
-    ListTypeRet: TypeAlias = TypeGuard[Union[list, UserList, deque]]
-    SequenceTypeRet: TypeAlias = TypeGuard[Union[list, tuple, deque, UserList, MappingView]]
+    DictTypeRet: TypeAlias = TypeGuard[dict | UserDict]
+    ListTypeRet: TypeAlias = TypeGuard[list | UserList | deque]
+    SequenceTypeRet: TypeAlias = TypeGuard[list | tuple | deque | UserList | MappingView]
     TupleTypeRet: TypeAlias = TypeGuard[tuple]
-    StringTypeRet: TypeAlias = TypeGuard[Union[str, UserString]]
+    StringTypeRet: TypeAlias = TypeGuard[str | UserString]
 else:
+    # Because we have neither `TypeAlias` class nor `type` keyword pre-3.10,
+    # the boolean fallback type has to be wrapped in the legacy `Union` class.
+    from typing import Union
+
     DictTypeRet = Union[bool, bool]
     ListTypeRet = Union[bool, bool]
     SequenceTypeRet = Union[bool, bool]
@@ -354,7 +358,7 @@ def get_os_env_bool(name: str, default: bool=False) -> bool:
 _get_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
 
 
-def get_environment_var(varstr) -> Optional[str]:
+def get_environment_var(varstr) -> str | None:
     """Return undecorated construction variable string.
 
     Determine if *varstr* looks like a reference

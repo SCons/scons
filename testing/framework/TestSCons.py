@@ -34,6 +34,8 @@ from those classes, as well as any overridden or additional methods or
 attributes defined in this subclass.
 """
 
+from __future__ import annotations
+
 import os
 import re
 import shutil
@@ -42,7 +44,6 @@ import time
 import subprocess as sp
 import zipfile
 from collections import namedtuple
-from typing import Optional, Tuple
 
 from TestCommon import *
 from TestCommon import __all__, _python_
@@ -865,7 +866,7 @@ class TestSCons(TestCommon):
             result.append(os.path.join(d, 'linux'))
         return result
 
-    def java_where_java_home(self, version=None) -> Optional[str]:
+    def java_where_java_home(self, version=None) -> str | None:
         """ Find path to what would be JAVA_HOME.
 
         SCons does not read JAVA_HOME from the environment, so deduce it.
@@ -980,7 +981,7 @@ class TestSCons(TestCommon):
 
         return where_java
 
-    def java_where_javac(self, version=None) -> Tuple[str, str]:
+    def java_where_javac(self, version=None) -> tuple[str, str]:
         """ Find java compiler.
 
         Args:

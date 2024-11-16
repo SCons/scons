@@ -31,9 +31,10 @@ It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
 """
 
+from __future__ import annotations
+
 import os.path
 import sys
-from typing import Optional
 
 import SCons.Action
 import SCons.Tool
@@ -95,7 +96,7 @@ def lexEmitter(target, source, env) -> tuple:
     return target, source
 
 
-def get_lex_path(env, append_paths: bool=False) -> Optional[str]:
+def get_lex_path(env, append_paths: bool=False) -> str | None:
     """
     Returns the path to the lex tool, searching several possible names.
 
@@ -162,7 +163,7 @@ def generate(env) -> None:
     env['_LEX_TABLES'] = '${LEX_TABLES_FILE and "--tables-file=" + str(LEX_TABLES_FILE)}'
 
 
-def exists(env) -> Optional[str]:
+def exists(env) -> str | None:
     if sys.platform == 'win32':
         return get_lex_path(env)
     else:
