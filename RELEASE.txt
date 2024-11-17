@@ -176,6 +176,7 @@ DOCUMENTATION
 
 - Many grammatical and spelling fixes in the documentation.
 
+- Update Clean and NoClean documentation.
 
 DEVELOPMENT
 -----------
