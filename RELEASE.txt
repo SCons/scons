@@ -190,6 +190,8 @@ DEVELOPMENT
 - Removed "SCons.Util.sctyping.py", as the functionality can now be substituted
   via top-level `from __future__ import annotations`.
 
+- Implemented type hints for Nodes.
+
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text

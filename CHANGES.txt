@@ -83,6 +83,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       detect and upgrade legacy type-hint syntax.
     - Removed "SCons.Util.sctyping.py", as the functionality can now be substituted
       via top-level `from __future__ import annotations`.
+    - Implemented type hints for Nodes.
 
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access
