@@ -654,41 +654,42 @@ class UnknownVariablesTestCase(unittest.TestCase):
         self.assertEqual('answer', env['ANSWER'])
 
     def test_AddOptionUpdatesUnknown(self) -> None:
-        """Test updating of the 'unknown' dict"""
-        opts = SCons.Variables.Variables()
+        """Test updating of the 'unknown' dict.
 
-        opts.Add('A',
-                 'A test variable',
-                 "1")
-
+        Get one unknown from args, one from a variables file.  Add one
+        of those later, make sure it gets removed from 'unknown' when added.
+        """
+        test = TestSCons.TestSCons()
+        var_file = test.workpath('vars.py')
+        test.write('vars.py', 'FROMFILE="notadded"')
+        opts = SCons.Variables.Variables(files=var_file)
+        opts.Add('A', 'A test variable', "1")
         args = {
             'A'             : 'a',
             'ADDEDLATER'    : 'notaddedyet',
         }
-
         env = Environment()
         opts.Update(env,args)
 
         r = opts.UnknownVariables()
         with self.subTest():
-            self.assertEqual({'ADDEDLATER': 'notaddedyet'}, r)
+            self.assertEqual('notaddedyet', r['ADDEDLATER'])
+            self.assertEqual('notadded', r['FROMFILE'])
             self.assertEqual('a', env['A'])
 
-        opts.Add('ADDEDLATER',
-                 'An option not present initially',
-                 "1")
-
+        opts.Add('ADDEDLATER', 'An option not present initially', "1")
         args = {
             'A'             : 'a',
             'ADDEDLATER'    : 'added',
         }
-
         opts.Update(env, args)
 
         r = opts.UnknownVariables()
         with self.subTest():
-            self.assertEqual(0, len(r))
+            self.assertEqual(1, len(r))  # should still have FROMFILE
+            self.assertNotIn('ADDEDLATER', r)
             self.assertEqual('added', env['ADDEDLATER'])
+            self.assertIn('FROMFILE', r)
 
     def test_AddOptionWithAliasUpdatesUnknown(self) -> None:
         """Test updating of the 'unknown' dict (with aliases)"""
