@@ -95,7 +95,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Keith F Prussing:
     - Added support for tracking beamer themes in the LaTeX scanner.
 
-  From rico-chet:
+  From Alex Thiessen:
     - Many grammatical and spelling fixes in the documentation.
 
   From Mats Wichmann:
