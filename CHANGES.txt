@@ -83,6 +83,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       detect and upgrade legacy type-hint syntax.
     - Removed "SCons.Util.sctyping.py", as the functionality can now be substituted
       via top-level `from __future__ import annotations`.
+    - Implemented type hints for Nodes.
 
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access
@@ -95,7 +96,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Keith F Prussing:
     - Added support for tracking beamer themes in the LaTeX scanner.
 
-  From rico-chet:
+  From Alex Thiessen:
     - Many grammatical and spelling fixes in the documentation.
 
   From Mats Wichmann:
@@ -152,6 +153,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Update Clean and NoClean documentation.
     - Minor modernization: make use of stat object's st_mode, st_mtime
       and other attributes rather than indexing into stat return.
+    - Make sure unknown variables from a Variables file are recognized
+      as such (issue #4645)
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700

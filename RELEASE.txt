@@ -140,6 +140,9 @@ FIXES
 - Minor modernization: make use of stat object's st_mode, st_mtime
   and other attributes rather than indexing into stat return.
 
+- Make sure unknown variables from a Variables file are recognized
+  as such (issue #4645)
+
 IMPROVEMENTS
 ------------
 
@@ -193,6 +196,8 @@ DEVELOPMENT
 
 - Removed "SCons.Util.sctyping.py", as the functionality can now be substituted
   via top-level `from __future__ import annotations`.
+
+- Implemented type hints for Nodes.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

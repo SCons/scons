@@ -461,13 +461,13 @@ class NodeTestCase(unittest.TestCase):
         """Test the base push_to_cache() method"""
         n = SCons.Node.Node()
         r = n.push_to_cache()
-        assert r is None, r
+        assert not r, r
 
     def test_retrieve_from_cache(self) -> None:
         """Test the base retrieve_from_cache() method"""
         n = SCons.Node.Node()
         r = n.retrieve_from_cache()
-        assert r == 0, r
+        assert not r, r
 
     def test_visited(self) -> None:
         """Test the base visited() method
@@ -711,21 +711,21 @@ class NodeTestCase(unittest.TestCase):
         node = SCons.Node.Node()
         node.set_always_build()
         assert node.always_build
-        node.set_always_build(3)
-        assert node.always_build == 3
+        node.set_always_build(3) # type: ignore[arg-type]
+        assert node.always_build
 
     def test_set_noclean(self) -> None:
         """Test setting a Node's noclean value
         """
         node = SCons.Node.Node()
         node.set_noclean()
-        assert node.noclean == 1, node.noclean
-        node.set_noclean(7)
-        assert node.noclean == 1, node.noclean
-        node.set_noclean(0)
-        assert node.noclean == 0, node.noclean
-        node.set_noclean(None)
-        assert node.noclean == 0, node.noclean
+        assert node.noclean, node.noclean
+        node.set_noclean(7) # type: ignore[arg-type]
+        assert node.noclean, node.noclean
+        node.set_noclean(0) # type: ignore[arg-type]
+        assert not node.noclean, node.noclean
+        node.set_noclean(None) # type: ignore[arg-type]
+        assert not node.noclean, node.noclean
 
     def test_set_precious(self) -> None:
         """Test setting a Node's precious value
@@ -733,8 +733,8 @@ class NodeTestCase(unittest.TestCase):
         node = SCons.Node.Node()
         node.set_precious()
         assert node.precious
-        node.set_precious(7)
-        assert node.precious == 7
+        node.set_precious(7) # type: ignore[arg-type]
+        assert node.precious
 
     def test_set_pseudo(self) -> None:
         """Test setting a Node's pseudo value
@@ -750,14 +750,14 @@ class NodeTestCase(unittest.TestCase):
         """
         node = SCons.Node.Node()
         e = node.exists()
-        assert e == 1, e
+        assert e, e
 
     def test_exists_repo(self) -> None:
         """Test evaluating whether a Node exists locally or in a repository.
         """
         node = SCons.Node.Node()
         e = node.rexists()
-        assert e == 1, e
+        assert e, e
 
         class MyNode(SCons.Node.Node):
             def exists(self) -> str:
