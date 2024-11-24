@@ -150,6 +150,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       types depending on whether zero, one, or multiple construction
       variable names are given.
     - Update Clean and NoClean documentation.
+    - Make sure unknown variables from a Variables file are recognized
+      as such (issue #4645)
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700

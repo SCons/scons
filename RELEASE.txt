@@ -137,6 +137,9 @@ FIXES
 - Skip running a few validation tests if the user is root and the test is
   not designed to work for the root user.
 
+- Make sure unknown variables from a Variables file are recognized
+  as such (issue #4645)
+
 IMPROVEMENTS
 ------------
 

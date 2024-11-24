@@ -235,19 +235,30 @@ class Variables:
         for filename in self.files:
             # TODO: issue #816 use Node to access saved-variables file?
             if os.path.exists(filename):
-                # lint: W0622: Redefining built-in 'dir'
-                dir = os.path.split(os.path.abspath(filename))[0]
-                if dir:
-                    sys.path.insert(0, dir)
+                # issue #4645: don't exec directly into values,
+                #   so we can iterate through for unknown variables.
+                temp_values = {}
+                dirname = os.path.split(os.path.abspath(filename))[0]
+                if dirname:
+                    sys.path.insert(0, dirname)
                 try:
-                    values['__name__'] = filename
+                    temp_values['__name__'] = filename
                     with open(filename) as f:
                         contents = f.read()
-                    exec(contents, {}, values)
+                    exec(contents, {}, temp_values)
                 finally:
-                    if dir:
+                    if dirname:
                         del sys.path[0]
-                    del values['__name__']
+                    del temp_values['__name__']
+
+                for arg, value in temp_values.items():
+                    added = False
+                    for option in self.options:
+                        if arg in option.aliases + [option.key,]:
+                            values[option.key] = value
+                            added = True
+                    if not added:
+                        self.unknown[arg] = value
 
         # set the values specified on the command line
         if args is None:
