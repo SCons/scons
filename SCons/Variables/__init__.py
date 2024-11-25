@@ -28,8 +28,9 @@ from __future__ import annotations
 import os.path
 import sys
 from contextlib import suppress
+from dataclasses import dataclass
 from functools import cmp_to_key
-from typing import Callable, Sequence
+from typing import Any, Callable, Sequence
 
 import SCons.Errors
 import SCons.Util
@@ -53,22 +54,18 @@ __all__ = [
     "PathVariable",
 ]
 
+
+@dataclass(order=True)
 class Variable:
     """A Build Variable."""
-
     __slots__ = ('key', 'aliases', 'help', 'default', 'validator', 'converter', 'do_subst')
-
-    def __lt__(self, other):
-        """Comparison fuction so :class:`Variable` instances sort."""
-        return self.key < other.key
-
-    def __str__(self) -> str:
-        """Provide a way to "print" a :class:`Variable` object."""
-        return (
-            f"({self.key!r}, {self.aliases}, "
-            f"help={self.help!r}, default={self.default!r}, "
-            f"validator={self.validator}, converter={self.converter})"
-        )
+    key: str
+    aliases: list[str]
+    help: str
+    default: Any
+    validator: Callable | None
+    converter: Callable | None
+    do_subst: bool
 
 
 class Variables:
@@ -131,7 +128,7 @@ class Variables:
     # lint: W0622: Redefining built-in 'help'
     def _do_add(
         self,
-        key: str | list[str],
+        key: str | Sequence[str],
         help: str = "",
         default=None,
         validator: Callable | None = None,
@@ -146,30 +143,19 @@ class Variables:
         .. versionadded:: 4.8.0
               *subst* keyword argument is now recognized.
         """
-        option = Variable()
-
-        # If we get a list or a tuple, we take the first element as the
-        # option key and store the remaining in aliases.
+        # aliases needs to be a list for later concatenation operations
         if SCons.Util.is_Sequence(key):
-            option.key = key[0]
-            option.aliases = list(key[1:])
+            name, aliases = key[0], list(key[1:])
         else:
-            option.key = key
-            # TODO: normalize to not include key in aliases. Currently breaks tests.
-            option.aliases = [key,]
-        if not option.key.isidentifier():
-            raise SCons.Errors.UserError(f"Illegal Variables key {option.key!r}")
-        option.help = help
-        option.default = default
-        option.validator = validator
-        option.converter = converter
-        option.do_subst = kwargs.pop("subst", True)
-        # TODO should any remaining kwargs be saved in the Variable?
-
+            name, aliases = key, []
+        if not name.isidentifier():
+            raise SCons.Errors.UserError(f"Illegal Variables key {name!r}")
+        do_subst = kwargs.pop("subst", True)
+        option = Variable(name, aliases, help, default, validator, converter, do_subst)
         self.options.append(option)
 
-        # options might be added after the 'unknown' dict has been set up,
-        # so we remove the key and all its aliases from that dict
+        # options might be added after the 'unknown' dict has been set up:
+        # look for and remove the key and all its aliases from that dict
         for alias in option.aliases + [option.key,]:
             if alias in self.unknown:
                 del self.unknown[alias]

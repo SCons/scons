@@ -550,7 +550,7 @@ A: a - alpha test
                  check,
                  lambda x: int(x) + 12)
 
-        opts.Add('B',
+        opts.Add(['B', 'BOPTION'],
                  'b - alpha test',
                  "42",
                  check,
@@ -566,9 +566,9 @@ A: a - alpha test
         opts.Update(env, {})
 
         expect = """\
-ANSWER 42 54 THE answer to THE question ['ANSWER']
-B 42 54 b - alpha test ['B']
-A 42 54 a - alpha test ['A']
+ANSWER 42 54 THE answer to THE question []
+B 42 54 b - alpha test ['BOPTION']
+A 42 54 a - alpha test []
 """
 
         text = opts.GenerateHelpText(env)
@@ -576,9 +576,9 @@ A 42 54 a - alpha test ['A']
             self.assertEqual(expect, text)
 
         expectAlpha = """\
-A 42 54 a - alpha test ['A']
-ANSWER 42 54 THE answer to THE question ['ANSWER']
-B 42 54 b - alpha test ['B']
+A 42 54 a - alpha test []
+ANSWER 42 54 THE answer to THE question []
+B 42 54 b - alpha test ['BOPTION']
 """
         text = opts.GenerateHelpText(env, sort=cmp)
         with self.subTest():
