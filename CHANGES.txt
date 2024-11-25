@@ -85,6 +85,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       via top-level `from __future__ import annotations`.
     - Implemented type hints for Nodes.
 
+  From William Deegan:
+    - Update ninja tool to use ninja.BIN_DIR to find pypi packaged ninja binary.
+      python ninja package version 1.11.1.2 changed the location and previous
+      logic no longer worked.
+    - Added ninja_binary() method to TestSCons to centralize logic to find ninja binary
+
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access
       /etc/paths.d. This may occur if SCons is invoked in a sandboxed

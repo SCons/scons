@@ -140,6 +140,11 @@ FIXES
 - Make sure unknown variables from a Variables file are recognized
   as such (issue #4645)
 
+- Update ninja tool to use ninja.BIN_DIR to find pypi packaged ninja binary.
+  python ninja package version 1.11.1.2 changed the location and previous
+  logic no longer worked.
+
+
 IMPROVEMENTS
 ------------
 
@@ -195,6 +200,8 @@ DEVELOPMENT
   via top-level `from __future__ import annotations`.
 
 - Implemented type hints for Nodes.
+
+- Added ninja_binary() method to TestSCons to centralize logic to find ninja binary
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
