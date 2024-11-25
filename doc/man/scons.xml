@@ -4704,47 +4704,52 @@ env = conf.Finish()
 <refsect2 id='commandline_construction_variables'>
 <title>Command-Line Construction Variables</title>
 
-<para>Often when building software,
-specialized information needs to be conveyed at build time
-to override the defaults in the build scripts.
-Command-line arguments (like <literal>--implcit-cache</literal>)
-and giving names of build targets are two ways to do that.
-Another is to provide variable-assignment arguments
-on the command line.
-For the particular case where you want to specify new
+<para>
+&SCons; depends on information stored in &consvars; to
+control how targets are built.
+It is often necessary to pass
+specialized information at build time
+to override the variables in the build scripts.
+This can be done through variable-assignment arguments
+on the command line and/or in stored variable files.
+</para>
+
+<para>
+For the case where you want to specify new
 values for &consvars;,
 &SCons; provides a <firstterm>&Variables;</firstterm>
 object to simplify collecting those
 and updating a &consenv; with the values.
-The typical calling style looks like:
+This helps processing commands lines like this:
 </para>
 
 <screen>
-<userinput>scons VARIABLE=foo</userinput>
+<userinput>scons VARIABLE=foo OTHERVAR=bar</userinput>
 </screen>
 
 <para>
-Variables specified in the above way
-can be manually processed by accessing the
+Variables supplied on the command line
+can always be manually processed by iterating the
 <link linkend="v-ARGUMENTS">&ARGUMENTS;</link> dictionary
-(or <link linkend="v-ARGLIST">&ARGLIST;</link> list),
-but using a &Variables; object allows you to describe
+or the <link linkend="v-ARGLIST">&ARGLIST;</link> list,
+However, using a &Variables; object allows you to describe
 anticipated variables,
-convert them to a suitable type if necessary,
-validate the values are within defined constraints,
-and define defaults, help messages and aliases.
-This is conceptually similar to the structure of options
+perform necessary type conversion,
+validate that values meet defined constraints,
+and specify default values, help messages and aliases.
+This provides a somewhat similar interface to option handling
 (see &f-link-AddOption;).
-It also allows obtaining values from a saved variables file,
+A &Variables; object also allows
+obtaining values from a saved variables file,
 or from a custom dictionary in an &SConscript; file.
 The processed variables can then be applied to the desired &consenv;.
 </para>
 
 <para>
-Roughly speaking, arguments are used to convey information to the
-&SCons; program about how it should behave;
-variables are used to convey information to the build
-(although &SCons; does not enforce any such constraint).
+Conceptually, command-line targets control what to build,
+command-line variables (and variable files) control how to build,
+and command-line options control how &SCons; operates
+(although &SCons; does not enforce that separation).
 </para>
 
 <para>To obtain an object for manipulating variables,
@@ -4755,23 +4760,23 @@ call the &Variables; factory function:</para>
   <term><function>Variables</function>([<parameter>files, [args]]</parameter>)</term>
   <listitem>
 <para>If <parameter>files</parameter> is a filename or list of filenames,
-they are considered to be &Python; scripts which will
-be executed to set variables when the
+they are executed as &Python; scripts
+to set saved variables when the
 <link linkend='v-Update'><function>Update</function></link>
-method is called -
-this allows the use of &Python; syntax in the assignments.
-A file can be the result of an earlier call to the
+method is called.
+This allows the use of &Python; syntax in the assignments.
+A variables file can be the result of an previous call to the
 <link linkend='v-Save'>&Save;</link> method.
 If <parameter>files</parameter> is not specified,
 or the
 <parameter>files</parameter>
 argument is
 <constant>None</constant>,
-then no files will be read.
+then no files will be processed.
 Supplying <constant>None</constant> is required
 if there are no files but you want to specify
 <parameter>args</parameter> as a positional argument;
-this can be omitted if using the keyword argument style.
+or you can use keyword arguments to avoid that.
 If any of <parameter>files</parameter> is missing,
 it is silently skipped.
 </para>
@@ -4822,25 +4827,42 @@ vars = Variables(files=None, args=ARGUMENTS)
 </variablelist>
 
 <para>
-A &Variables; object serves as a container for
-descriptions of variables,
-which are added by calling methods of the object.
-Each variable consists of a name (which will
-become a &consvar;), aliases for the name,
+A &Variables; object is a container for variable descriptions,
+added by calling the
+<link linkend='v-Add'><function>Add</function></link> or
+<link linkend='v-AddVariables'><function>AddVariables</function></link>
+methods.
+Each variable description consists of a name (which will
+be used as the &consvar; name), aliases for the name,
 a help message, a default value,
 and functions to validate and convert values.
-Once the object is asked to process variables,
-it matches up data from the input
-sources it was given with the definitions,
-and generates key-value pairs which are added
-to the specified &consenv;,
-except that if any variable was described
-to have a default of <literal>None</literal>,
-it is <emphasis>not</emphasis> added to
-the construction environment unless it
-appears in the input sources.
-Otherwise, a variable not in the
-input sources is added using its default value.
+Processing of input sources
+is deferred until the
+<link linkend='v-Update'><function>Update</function></link>
+method is called,
+at which time the variables are added to the
+specified &consenv;.
+Variables from the input sources which do not match any
+names or aliases from the variable descriptions in this object are skipped,
+except that a dictionary of their names and values are made available
+in the <varname>.unknown</varname> attribute of the &Variables; object.
+This list can also be obtained via the
+<link linkend='v-UnknownVariables'><function>UnknownVariables</function></link>
+method.
+If a variable description has a default value
+other than <literal>None</literal> and does not
+appear in the input sources,
+it is added to the &consenv; with its default value.
+A list of variables set from their defaults and
+not supplied a value in the input sources is
+available as the <varname>.defaulted</varname> attribute
+of the &Variables; object.
+The unknown variables and defaulted information is
+not available until the &Update; method has run.
+</para>
+
+<para><emphasis>New in NEXT_RELEASE</emphasis>:
+the <parameter>defaulted</parameter> attribute.
 </para>
 
 <para>
@@ -4848,7 +4870,8 @@ Note that since the variables are eventually added as &consvars;,
 you should choose variable names which do not unintentionally change
 pre-defined &consvars; that your project will make use of
 (see <xref linkend="construction_variables"/> for a reference),
-since variables obtained have values overridden, not merged.
+since the specified values are assigned, not merged,
+to the respective &consvars;.
 </para>
 
 <para>
@@ -5037,7 +5060,9 @@ variables that were specified in the
 <parameter>files</parameter> and/or
 <parameter>args</parameter> parameters
 when <link linkend='v-Variables'>&Variables;</link>
-was called, but the object was not actually configured for.
+was called, but which were not configured in the object.
+The same dictionary is also available as the
+<varname>unknown</varname> attribute of the object.
 This information is not available until the
 <link linkend='v-Update'><function>Update</function></link>
 method has run.
@@ -5148,7 +5173,7 @@ vars.FormatVariableHelpText = my_format
 &SCons; provides five pre-defined variable types,
 accessible through factory functions that generate
 a tuple appropriate for directly passing to the
-<link linkend='v-Add'><function>Add</function></link>
+<link linkend='v-Add'><function>Add</function></link> or
 <link linkend='v-AddVariables'><function>AddVariables</function></link>
 methods.
 </para>
@@ -5191,7 +5216,7 @@ as false.</para>
   <listitem>
 <para>
 Set up a variable named <parameter>key</parameter>
-whose value may only be from
+whose value will be a choice from
 a specified list ("enumeration") of values.
 The variable will have a default value of
 <parameter>default</parameter>
@@ -5234,8 +5259,8 @@ converted to lower case.</para>
   <listitem>
 <para>
 Set up a variable named <parameter>key</parameter>
-whose value may be one or more
-from a specified list of values.
+whose value will be one or more
+choices from a specified list of values.
 The variable will have a default value of
 <parameter>default</parameter>,
 and <parameter>help</parameter>

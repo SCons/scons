@@ -160,7 +160,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       variable names are given.
     - Update Clean and NoClean documentation.
     - Make sure unknown variables from a Variables file are recognized
-      as such (issue #4645)
+      as such. Previously only unknowns from the command line were
+      recognized (issue #4645).
+    - A Variables object now makes available a "defaulted" attribute,
+      a list of variable names that were set in the environment with
+      their values taken from the default in the variable description
+      (if a variable was set to the same value as the default in one
+      of the input sources, it is not included in this list).
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700

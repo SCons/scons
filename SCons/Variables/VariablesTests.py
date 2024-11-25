@@ -659,24 +659,28 @@ class UnknownVariablesTestCase(unittest.TestCase):
         Get one unknown from args and one from a variables file.
         Add these later, making sure they no longer appear in unknowns
         after the subsequent Update().
+
+        While we're here, test the *defaulted* attribute.
         """
         test = TestSCons.TestSCons()
         var_file = test.workpath('vars.py')
         test.write('vars.py', 'FROMFILE="added"')
         opts = SCons.Variables.Variables(files=var_file)
-        opts.Add('A', 'A test variable', "1")
+        opts.Add('A', 'A test variable', default="1")
+        opts.Add('B', 'Test variable B', default="1")
         args = {
             'A'             : 'a',
             'ADDEDLATER'    : 'notaddedyet',
         }
         env = Environment()
-        opts.Update(env,args)
+        opts.Update(env, args)
 
         r = opts.UnknownVariables()
         with self.subTest():
             self.assertEqual('notaddedyet', r['ADDEDLATER'])
             self.assertEqual('added', r['FROMFILE'])
             self.assertEqual('a', env['A'])
+            self.assertEqual(['B'], opts.defaulted)
 
         opts.Add('ADDEDLATER', 'An option not present initially', "1")
         opts.Add('FROMFILE', 'An option from a file also absent', "1")
@@ -693,6 +697,7 @@ class UnknownVariablesTestCase(unittest.TestCase):
             self.assertEqual('added', env['ADDEDLATER'])
             self.assertNotIn('FROMFILE', r)
             self.assertEqual('added', env['FROMFILE'])
+            self.assertEqual(['B'], opts.defaulted)
 
     def test_AddOptionWithAliasUpdatesUnknown(self) -> None:
         """Test updating of the 'unknown' dict (with aliases)"""
