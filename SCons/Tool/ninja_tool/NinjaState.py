@@ -753,7 +753,7 @@ class SConsToNinjaTranslator:
         # Ninja builders out of being sources of ninja builders but I
         # can't fix every DAG problem so we just skip ninja_builders
         # if we find one
-        if SCons.Tool.ninja.NINJA_STATE.ninja_file == str(node):
+        if SCons.Tool.ninja_tool.NINJA_STATE.ninja_file == str(node):
             build = None
         elif isinstance(action, SCons.Action.FunctionAction):
             build = self.handle_func_action(node, action)
