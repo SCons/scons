@@ -89,7 +89,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Update ninja tool to use ninja.BIN_DIR to find pypi packaged ninja binary.
       python ninja package version 1.11.1.2 changed the location and previous
       logic no longer worked.
-    - Added ninja_binary() method to TestSCons to centralize logic to find ninja binary
+    - Added TestSCons.NINJA_BINARY to TestSCons to centralize logic to find ninja binary
+    - Refactored SCons.Tool.ninja -> SCons.Tool.ninja_tool, and added alias so
+      env.Tool('ninja') will still work. This avoids conflicting with the pypi module ninja.
 
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access

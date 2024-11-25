@@ -201,7 +201,10 @@ DEVELOPMENT
 
 - Implemented type hints for Nodes.
 
-- Added ninja_binary() method to TestSCons to centralize logic to find ninja binary
+- Added TestSCons.NINJA_BINARY to TestSCons to centralize logic to find ninja binary
+
+- Refactored SCons.Tool.ninja -> SCons.Tool.ninja_tool, and added alias so env.Tool('ninja')
+  will still work. This avoids conflicting with the pypi module ninja.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
