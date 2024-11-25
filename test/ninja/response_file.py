@@ -42,7 +42,7 @@ _python_ = TestSCons._python_
 _exe = TestSCons._exe
 _obj = TestSCons._obj
 
-ninja_bin = test.ninja_binary()
+ninja_bin = TestSCons.NINJA_BINARY
 
 test.dir_fixture('ninja-fixture')
 

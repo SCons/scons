@@ -34,7 +34,7 @@ try:
 except ImportError:
     test.skip_test("Could not find ninja module. Skipping test.\n")
 
-ninja_bin = test.ninja_binary()
+ninja_bin = TestSCons.NINJA_BINARY
 
 test.dir_fixture('ninja-fixture')
 

@@ -74,7 +74,8 @@ __all__.extend([
     'lib_',
     '_lib',
     'dll_',
-    '_dll'
+    '_dll',
+    'NINJA_BINARY'
 ])
 
 machine_map = {
@@ -102,6 +103,12 @@ _lib = lib_suffix
 lib_ = lib_prefix
 _dll = dll_suffix
 dll_ = dll_prefix
+
+try:
+    import ninja
+    NINJA_BINARY = os.path.abspath(os.path.join(ninja.BIN_DIR, 'ninja' + _exe))
+except ImportError:
+    NINJA_BINARY = None
 
 if sys.platform == 'cygwin':
     # On Cygwin, os.path.normcase() lies, so just report back the
@@ -1086,15 +1093,6 @@ class TestSCons(TestCommon):
                 if fname.endswith('.class'):
                     result.append(os.path.join(dirpath, fname))
         return sorted(result)
-
-    def ninja_binary(self):
-        try:
-            import ninja
-        except ImportError:
-            return False
-
-        return os.path.abspath(os.path.join(ninja.BIN_DIR, 'ninja' + _exe))
-
 
     def Qt_dummy_installation(self, dir: str = 'qt') -> None:
         # create a dummy qt installation
