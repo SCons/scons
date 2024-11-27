@@ -580,7 +580,7 @@ class dictify_CPPDEFINESTestCase(unittest.TestCase):
                     ("RVALUE", "AVALUE"),
                 ]
             )
-            d = SCons.Scanner.C.dictify_CPPDEFINES(env)
+            d = SCons.Scanner.C.dictify_CPPDEFINES(env, replace=True)
             expect = {"STRING": "VALUE", "REPLACEABLE": "AVALUE", "RVALUE": "AVALUE"}
             self.assertEqual(d, expect)
 
