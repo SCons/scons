@@ -31,7 +31,7 @@ def whereis(filename):
                     st = os.stat(f_ext)
                 except:
                     continue
-                if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
+                if stat.S_IMODE(st.st_mode) & stat.S_IXUSR:
                     return f_ext
     return None
 

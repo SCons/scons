@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that specifying a build_dir argument to SConscript still works.
@@ -108,7 +107,7 @@ env.SConscript('src/SConscript', build_dir='../$BUILD/var8', duplicate=0)
 # VariantDir('build/var9', '.')
 # SConscript('build/var9/src/SConscript')
 SConscript('src/SConscript', build_dir='build/var9', src_dir='.')
-""") 
+""")
 
 test.subdir(['test', 'src'], ['test', 'alt'])
 
@@ -152,8 +151,8 @@ import stat
 def equal_stats(x,y):
     x = os.stat(x)
     y = os.stat(y)
-    return (stat.S_IMODE(x[stat.ST_MODE]) == stat.S_IMODE(y[stat.ST_MODE]) and
-            x[stat.ST_MTIME] ==  y[stat.ST_MTIME])
+    return (stat.S_IMODE(x.st_mode) == stat.S_IMODE(y.st_mode) and
+            x.st_mtime ==  y.st_mtime)
 
 # Make sure we did duplicate the source files in build/var1,
 # and that their stats are the same:
@@ -168,12 +167,12 @@ for file in ['aaa.in', 'bbb.in', 'ccc.in']:
     test.must_exist(test.workpath('test', 'build', 'var2', file))
     test.fail_test(not equal_stats(test.workpath('test', 'build', 'var2', file),
                                    test.workpath('test', 'src', file)))
- 
+
 # Make sure we didn't duplicate the source files in build/var3.
 test.must_not_exist(test.workpath('test', 'build', 'var3', 'aaa.in'))
 test.must_not_exist(test.workpath('test', 'build', 'var3', 'bbb.in'))
 test.must_not_exist(test.workpath('test', 'build', 'var3', 'ccc.in'))
- 
+
 #XXX We can't support var4 and var5 yet, because our VariantDir linkage
 #XXX is to an entire source directory.  We haven't yet generalized our
 #XXX infrastructure to be able to take the SConscript file from one source
@@ -200,12 +199,12 @@ for file in ['aaa.in', 'bbb.in', 'ccc.in']:
     test.must_exist(test.workpath('build', 'var6', file))
     test.fail_test(not equal_stats(test.workpath('build', 'var6', file),
                                    test.workpath('test', 'src', file)))
- 
+
 # Make sure we didn't duplicate the source files in build/var7.
 test.must_not_exist(test.workpath('build', 'var7', 'aaa.in'))
 test.must_not_exist(test.workpath('build', 'var7', 'bbb.in'))
 test.must_not_exist(test.workpath('build', 'var7', 'ccc.in'))
- 
+
 # Make sure we didn't duplicate the source files in build/var8.
 test.must_not_exist(test.workpath('build', 'var8', 'aaa.in'))
 test.must_not_exist(test.workpath('build', 'var8', 'bbb.in'))
@@ -219,6 +218,7 @@ SConscript('SConscript', build_dir='Build', src_dir='.', duplicate=0)
 """)
 
 test.write(['test2', 'SConscript'], """\
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
 foo_obj = env.Object('foo.c')
 env.Program('foo', [foo_obj, 'bar.c'])

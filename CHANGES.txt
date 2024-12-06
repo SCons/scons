@@ -159,6 +159,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       types depending on whether zero, one, or multiple construction
       variable names are given.
     - Update Clean and NoClean documentation.
+    - Minor modernization: make use of stat object's st_mode, st_mtime
+      and other attributes rather than indexing into stat return.
     - Make sure unknown variables from a Variables file are recognized
       as such. Previously only unknowns from the command line were
       recognized (issue #4645).

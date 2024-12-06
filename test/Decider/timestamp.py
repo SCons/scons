@@ -55,8 +55,8 @@ test.write('newer2.in', "newer2.in\n")
 test.run(arguments = '.')
 test.up_to_date(arguments = '.')
 
-time_match = os.stat('match2.out')[stat.ST_MTIME]
-time_newer = os.stat('newer2.out')[stat.ST_MTIME]
+time_match = os.stat('match2.out').st_mtime
+time_newer = os.stat('newer2.out').st_mtime
 
 # Now make all the source files newer than (different timestamps from)
 # the last time the targets were built, and touch the target files
