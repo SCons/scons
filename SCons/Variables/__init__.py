@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import os.path
 import sys
+from contextlib import suppress
 from functools import cmp_to_key
 from typing import Callable, Sequence
 
@@ -58,22 +59,30 @@ class Variable:
     __slots__ = ('key', 'aliases', 'help', 'default', 'validator', 'converter', 'do_subst')
 
     def __lt__(self, other):
-        """Comparison fuction so Variable instances sort."""
+        """Comparison fuction so :class:`Variable` instances sort."""
         return self.key < other.key
 
     def __str__(self) -> str:
-        """Provide a way to "print" a Variable object."""
+        """Provide a way to "print" a :class:`Variable` object."""
         return (
-            f"({self.key!r}, {self.aliases}, {self.help!r}, {self.default!r}, "
+            f"({self.key!r}, {self.aliases}, "
+            f"help={self.help!r}, default={self.default!r}, "
             f"validator={self.validator}, converter={self.converter})"
         )
 
 
 class Variables:
-    """A container for multiple Build Variables.
+    """A container for Build Variables.
 
-    Includes methods to updates the environment with the variables,
-    and to render the help text.
+    Includes a method to populate the variables with values into a
+    construction envirionment, and methods to render the help text.
+
+    Note that the pubic API for creating a ``Variables`` object is
+    :func:`SCons.Script.Variables`, a kind of factory function, which
+    defaults to supplying the contents of :attr:`~SCons.Script.ARGUMENTS`
+    as the *args* parameter if it was not otherwise given. That is the
+    behavior documented in the manpage for ``Variables`` - and different
+    from the default if you instantiate this directly.
 
     Arguments:
       files: string or list of strings naming variable config scripts
@@ -83,11 +92,15 @@ class Variables:
          instead of a fresh instance. Currently inoperable (default ``False``)
 
     .. versionchanged:: 4.8.0
-       The default for *is_global* changed to ``False`` (previously
-       ``True`` but it had no effect due to an implementation error).
+       The default for *is_global* changed to ``False`` (the previous
+       default ``True`` had no effect due to an implementation error).
 
     .. deprecated:: 4.8.0
        *is_global* is deprecated.
+
+    .. versionadded:: NEXT_RELEASE
+       The :attr:`defaulted` attribute now lists those variables which
+       were filled in from default values.
     """
 
     def __init__(
@@ -102,15 +115,18 @@ class Variables:
             files = [files] if files else []
         self.files: Sequence[str] = files
         self.unknown: dict[str, str] = {}
+        self.defaulted: list[str] = []
 
     def __str__(self) -> str:
-        """Provide a way to "print" a Variables object."""
-        s = "Variables(\n  options=[\n"
-        for option in self.options:
-            s += f"    {str(option)},\n"
-        s += "  ],\n"
-        s += f"  args={self.args},\n  files={self.files},\n  unknown={self.unknown},\n)"
-        return s
+        """Provide a way to "print" a :class:`Variables` object."""
+        opts = ',\n'.join((f"    {option!s}" for option in self.options))
+        return (
+            f"Variables(\n  options=[\n{opts}\n  ],\n"
+            f"  args={self.args},\n"
+            f"  files={self.files},\n"
+            f"  unknown={self.unknown},\n"
+            f"  defaulted={self.defaulted},\n)"
+        )
 
     # lint: W0622: Redefining built-in 'help'
     def _do_add(
@@ -122,7 +138,7 @@ class Variables:
         converter: Callable | None = None,
         **kwargs,
     ) -> None:
-        """Create a Variable and add it to the list.
+        """Create a :class:`Variable` and add it to the list.
 
         This is the internal implementation for :meth:`Add` and
         :meth:`AddVariables`. Not part of the public API.
@@ -203,9 +219,9 @@ class Variables:
         return self._do_add(key, *args, **kwargs)
 
     def AddVariables(self, *optlist) -> None:
-        """Add a list of Build Variables.
+        """Add Build Variables.
 
-        Each list element is a tuple/list of arguments to be passed on
+        Each *optlist* element is a sequence of arguments to be passed on
         to the underlying method for adding variables.
 
         Example::
@@ -223,13 +239,22 @@ class Variables:
     def Update(self, env, args: dict | None = None) -> None:
         """Update an environment with the Build Variables.
 
+        Collects variables from the input sources which do not match
+        a variable description in this object. These are ignored for
+        purposes of adding to *env*, but can be retrieved using the
+        :meth:`UnknownVariables` method.  Also collects variables which
+        are set in *env* from the default in a variable description and
+        not from the input sources. These are available in the
+        :attr:`defaulted` attribute.
+
         Args:
             env: the environment to update.
             args: a dictionary of keys and values to update in *env*.
                If omitted, uses the saved :attr:`args`
         """
-        # first pull in the defaults
+        # first pull in the defaults, except any which are None.
         values = {opt.key: opt.default for opt in self.options if opt.default is not None}
+        self.defaulted = list(values)
 
         # next set the values specified in any options script(s)
         for filename in self.files:
@@ -256,6 +281,8 @@ class Variables:
                     for option in self.options:
                         if arg in option.aliases + [option.key,]:
                             values[option.key] = value
+                            with suppress(ValueError):
+                                self.defaulted.remove(option.key)
                             added = True
                     if not added:
                         self.unknown[arg] = value
@@ -269,6 +296,8 @@ class Variables:
             for option in self.options:
                 if arg in option.aliases + [option.key,]:
                     values[option.key] = value
+                    with suppress(ValueError):
+                        self.defaulted.remove(option.key)
                     added = True
             if not added:
                 self.unknown[arg] = value

@@ -76,6 +76,12 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   always returns  a dict. The default remains to return different
   types depending on whether zero, one, or multiple construction
 
+- A Variables object now makes available a "defaulted" attribute,
+  a list of variable names that were set in the environment with
+  their values taken from the default in the variable description
+  (if a variable was set to the same value as the default in one
+  of the input sources, it is not included in this list).
+
 FIXES
 -----
 
