@@ -144,12 +144,20 @@ FIXES
   not designed to work for the root user.
 
 - Make sure unknown variables from a Variables file are recognized
-  as such (issue #4645)
+  as such. Previously only unknowns from the command line were
+  recognized (issue #4645).
 
 - Update ninja tool to use ninja.BIN_DIR to find pypi packaged ninja binary.
   python ninja package version 1.11.1.2 changed the location and previous
   logic no longer worked.
 
+- The (optional) C Conditional Scanner now does limited macro
+  replacement on the contents of CPPDEFINES, to improve finding deps
+  that are conditionally included.  Previously replacement was only
+  done on macro definitions found in the file being scanned.
+  Only object-like macros are replaced (not function-like), and
+  only on a whole-word basis; recursion is limited to five levels
+  and does not error out if that limit is reached (issue #4523).
 
 IMPROVEMENTS
 ------------
