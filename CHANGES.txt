@@ -85,6 +85,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       via top-level `from __future__ import annotations`.
     - Implemented type hints for Nodes.
 
+  From William Deegan:
+    - Update ninja tool to use ninja.BIN_DIR to find pypi packaged ninja binary.
+      python ninja package version 1.11.1.2 changed the location and previous
+      logic no longer worked.
+    - Added TestSCons.NINJA_BINARY to TestSCons to centralize logic to find ninja binary
+    - Refactored SCons.Tool.ninja -> SCons.Tool.ninja_tool, and added alias so
+      env.Tool('ninja') will still work. This avoids conflicting with the pypi module ninja.
+
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access
       /etc/paths.d. This may occur if SCons is invoked in a sandboxed
@@ -154,7 +162,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Minor modernization: make use of stat object's st_mode, st_mtime
       and other attributes rather than indexing into stat return.
     - Make sure unknown variables from a Variables file are recognized
-      as such (issue #4645)
+      as such. Previously only unknowns from the command line were
+      recognized (issue #4645).
+    - A Variables object now makes available a "defaulted" attribute,
+      a list of variable names that were set in the environment with
+      their values taken from the default in the variable description
+      (if a variable was set to the same value as the default in one
+      of the input sources, it is not included in this list).
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700

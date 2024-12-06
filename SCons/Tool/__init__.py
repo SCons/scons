@@ -102,6 +102,7 @@ TOOL_ALIASES = {
     'gettext': 'gettext_tool',
     'clang++': 'clangxx',
     'as': 'asm',
+    'ninja' : 'ninja_tool'
 }
 
 

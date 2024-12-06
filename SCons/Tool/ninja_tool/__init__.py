@@ -32,7 +32,7 @@ import sys
 
 import SCons
 import SCons.Script
-import SCons.Tool.ninja.Globals
+from SCons.Tool.ninja_tool.Globals import ninja_builder_initialized
 from SCons.Script import GetOption
 from SCons.Util import sanitize_shell_env
 
@@ -187,13 +187,13 @@ def ninja_emitter(target, source, env):
 
 def generate(env):
     """Generate the NINJA builders."""
-    global NINJA_STATE, NINJA_CMDLINE_TARGETS
+    global NINJA_STATE, NINJA_CMDLINE_TARGETS, ninja_builder_initialized
 
     if 'ninja' not in GetOption('experimental'):
         return
 
-    if not SCons.Tool.ninja.Globals.ninja_builder_initialized:
-        SCons.Tool.ninja.Globals.ninja_builder_initialized = True
+    if not ninja_builder_initialized:
+        ninja_builder_initialized = True
 
         ninja_add_command_line_options()
 
@@ -255,7 +255,7 @@ def generate(env):
         pass
     else:
         env.Append(CCFLAGS='$CCDEPFLAGS')
-    
+
     env.AddMethod(CheckNinjaCompdbExpand, "CheckNinjaCompdbExpand")
 
     # Provide a way for custom rule authors to easily access command

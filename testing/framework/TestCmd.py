@@ -337,6 +337,9 @@ except AttributeError:
     IS_ROOT = False
 NEED_HELPER = os.environ.get('SCONS_NO_DIRECT_SCRIPT')
 
+
+
+
 # sentinel for cases where None won't do
 _Null = object()
 

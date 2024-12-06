@@ -413,14 +413,14 @@ def ninja_stat(_self, path):
     """
 
     try:
-        return SCons.Tool.ninja.Globals.NINJA_STAT_MEMO[path]
+        return SCons.Tool.ninja_tool.Globals.NINJA_STAT_MEMO[path]
     except KeyError:
         try:
             result = os.stat(path)
         except os.error:
             result = None
 
-        SCons.Tool.ninja.Globals.NINJA_STAT_MEMO[path] = result
+        SCons.Tool.ninja_tool.Globals.NINJA_STAT_MEMO[path] = result
         return result
 
 
@@ -430,7 +430,7 @@ def ninja_whereis(thing, *_args, **_kwargs):
     # Optimize for success, this gets called significantly more often
     # when the value is already memoized than when it's not.
     try:
-        return SCons.Tool.ninja.Globals.NINJA_WHEREIS_MEMO[thing]
+        return SCons.Tool.ninja_tool.Globals.NINJA_WHEREIS_MEMO[thing]
     except KeyError:
         # TODO: Fix this to respect env['ENV']['PATH']... WPD
         # We do not honor any env['ENV'] or env[*] variables in the
@@ -443,7 +443,7 @@ def ninja_whereis(thing, *_args, **_kwargs):
         # with shell quoting is nigh impossible. So I've decided to
         # cross that bridge when it's absolutely required.
         path = shutil.which(thing)
-        SCons.Tool.ninja.Globals.NINJA_WHEREIS_MEMO[thing] = path
+        SCons.Tool.ninja_tool.Globals.NINJA_WHEREIS_MEMO[thing] = path
         return path
 
 

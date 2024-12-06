@@ -76,6 +76,12 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   always returns  a dict. The default remains to return different
   types depending on whether zero, one, or multiple construction
 
+- A Variables object now makes available a "defaulted" attribute,
+  a list of variable names that were set in the environment with
+  their values taken from the default in the variable description
+  (if a variable was set to the same value as the default in one
+  of the input sources, it is not included in this list).
+
 FIXES
 -----
 
@@ -143,6 +149,11 @@ FIXES
 - Make sure unknown variables from a Variables file are recognized
   as such (issue #4645)
 
+- Update ninja tool to use ninja.BIN_DIR to find pypi packaged ninja binary.
+  python ninja package version 1.11.1.2 changed the location and previous
+  logic no longer worked.
+
+
 IMPROVEMENTS
 ------------
 
@@ -198,6 +209,11 @@ DEVELOPMENT
   via top-level `from __future__ import annotations`.
 
 - Implemented type hints for Nodes.
+
+- Added TestSCons.NINJA_BINARY to TestSCons to centralize logic to find ninja binary
+
+- Refactored SCons.Tool.ninja -> SCons.Tool.ninja_tool, and added alias so env.Tool('ninja')
+  will still work. This avoids conflicting with the pypi module ninja.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

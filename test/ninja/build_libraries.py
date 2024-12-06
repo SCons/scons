@@ -23,8 +23,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import os
-
 import TestSCons
 from TestCmd import IS_WINDOWS, IS_MACOS
 from TestSCons import _exe, _lib, lib_, _dll, dll_
@@ -36,12 +34,7 @@ try:
 except ImportError:
     test.skip_test("Could not find ninja module. Skipping test.\n")
 
-ninja_bin = os.path.abspath(os.path.join(
-    ninja.__file__,
-    os.pardir,
-    'data',
-    'bin',
-    'ninja' + _exe))
+ninja_bin = TestSCons.NINJA_BINARY
 
 test.dir_fixture('ninja-fixture')
 
