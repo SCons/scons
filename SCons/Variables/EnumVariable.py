@@ -77,19 +77,20 @@ def EnumVariable(
 ) -> tuple[str, str, str, Callable, Callable]:
     """Return a tuple describing an enumaration SCons Variable.
 
-    The input parameters describe a variable with only predefined values
-    allowed.  The value of *ignorecase* defines the behavior of the
+    An Enum Variable is an abstraction that allows choosing one
+    value from a provided list of possibilities (*allowed_values*).
+    The value of *ignorecase* defines the behavior of the
     validator and converter: if ``0``, the validator/converter are
     case-sensitive; if ``1``, the validator/converter are case-insensitive;
     if ``2``, the validator/converter are case-insensitive and the
     converted value will always be lower-case.
 
     Arguments:
-       key: variable name, passed directly through to the return tuple.
-       default: default values, passed directly through to the return tuple.
+       key: the name of the variable.
+       default: default value, passed directly through to the return tuple.
        help: descriptive part of the help text,
           will have the allowed values automatically appended.
-       allowed_values: list of the allowed values for this variable.
+       allowed_values: the values for the choice.
        map: optional dictionary which may be used for converting the
           input value into canonical values (e.g. for aliases).
        ignorecase: defines the behavior of the validator and converter.

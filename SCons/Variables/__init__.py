@@ -225,13 +225,17 @@ class Variables:
     def Update(self, env, args: dict | None = None) -> None:
         """Update an environment with the Build Variables.
 
-        Collects variables from the input sources which do not match
-        a variable description in this object. These are ignored for
-        purposes of adding to *env*, but can be retrieved using the
-        :meth:`UnknownVariables` method.  Also collects variables which
-        are set in *env* from the default in a variable description and
-        not from the input sources. These are available in the
-        :attr:`defaulted` attribute.
+        This is where the work of adding variables to the environment
+        happens, The input sources saved at init time are scanned for
+        variables to add, though if *args* is passed, then it is used
+        instead of the saved one. If any variable description set up
+        a callback for a validator and/or converter, those are called.
+        Variables from the input sources which do not match a variable
+        description in this object are ignored for purposes of adding
+        to *env*, but are saved in the :attr:`unknown` dict attribute.
+        Variables which are set in *env* from the default in a variable
+        description and not from the input sources are saved in the
+        :attr:`defaulted` list attribute.
 
         Args:
             env: the environment to update.
@@ -242,7 +246,7 @@ class Variables:
         values = {opt.key: opt.default for opt in self.options if opt.default is not None}
         self.defaulted = list(values)
 
-        # next set the values specified in any options script(s)
+        # next set the values specified in any saved-variables script(s)
         for filename in self.files:
             # TODO: issue #816 use Node to access saved-variables file?
             if os.path.exists(filename):
@@ -288,8 +292,16 @@ class Variables:
             if not added:
                 self.unknown[arg] = value
 
-        # put the variables in the environment:
+        # put the variables in the environment
         # (don't copy over variables that are not declared as options)
+        #
+        # Nitpicking: in OO terms, this method increases coupling as its
+        #   main work is to update a different object (env), rather than
+        #   the object it's bound to (although it does update self, too).
+        #   It's tricky to decouple because the algorithm counts on directly
+        #   setting a var in *env* first so it can call env.subst() on it
+        #   to transform it.
+
         for option in self.options:
             try:
                 env[option.key] = values[option.key]
@@ -400,9 +412,10 @@ class Variables:
                 (must take two arguments and return ``-1``, ``0`` or ``1``)
                 or a boolean to indicate if it should be sorted.
         """
-        # TODO the 'sort' argument matched the old way Python's sorted()
-        #   worked, taking a comparison function argument. That has been
-        #   removed so now we have to convert to a key.
+        # TODO this interface was designed when Pythin sorted() took an
+        #   optional comparison function (pre-3.0). Since it no longer does,
+        #   we use functools.cmp_to_key() since can't really change the
+        #   documented meaning of the "sort" argument. Maybe someday?
         if callable(sort):
             options = sorted(self.options, key=cmp_to_key(lambda x, y: sort(x.key, y.key)))
         elif sort is True:
