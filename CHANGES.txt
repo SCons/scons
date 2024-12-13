@@ -167,9 +167,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       their values taken from the default in the variable description
       (if a variable was set to the same value as the default in one
       of the input sources, it is not included in this list).
-    - The C scanner now does (limited) macro replacement on the values in
-      CPPDEFINES, to improve results of conditional source file inclusion
-      (issue #4523).
     - The (optional) C Conditional Scanner now does limited macro
       replacement on the contents of CPPDEFINES, to improve finding deps
       that are conditionally included.  Previously replacement was only

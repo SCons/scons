@@ -114,8 +114,19 @@ def dictify_CPPDEFINES(env, replace: bool = False) -> dict:
         old_ns = mapping
         loops = 0
         while loops < 5:  # don't recurse forever in case there's circular data
-            ns = {k: old_ns[v] if v in old_ns else v for k, v in old_ns.items()}
-            if old_ns == ns:
+            # this was originally written as a dict comprehension, but unrolling
+            # lets us add a finer-grained check for whether another loop is
+            # needed, rather than comparing two dicts to see if one changed.
+            again = False
+            ns = {}
+            for k, v in old_ns.items():
+                if v in old_ns:
+                    ns[k] = old_ns[v]
+                    if not again and ns[k] != v:
+                        again = True
+                else:
+                    ns[k] = v
+            if not again:
                 break
             old_ns = ns
             loops += 1
