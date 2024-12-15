@@ -174,6 +174,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - A build Variable is now a dataclass, with initialization moving to
       the automatically provided method; the Variables class no longer
       writes directly to a Variable (makes static checkers happier).
+    - The (optional) C Conditional Scanner now does limited macro
+      replacement on the contents of CPPDEFINES, to improve finding deps
+      that are conditionally included.  Previously replacement was only
+      done on macro definitions found in the file being scanned.
+      Only object-like macros are replaced (not function-like), and
+      only on a whole-word basis; recursion is limited to five levels
+      and does not error out if that limit is reached (issue #4523).
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
