@@ -167,6 +167,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       their values taken from the default in the variable description
       (if a variable was set to the same value as the default in one
       of the input sources, it is not included in this list).
+    - If a build Variable is created with no aliases, the name of the
+      Variable is no longer listed in its aliases. Internally, the name
+      and aliases are considered together anyway so this should not have
+      any effect except for being visible to custom help text formatters.
+    - A build Variable is now a dataclass, with initialization moving to
+      the automatically provided method; the Variables class no longer
+      writes directly to a Variable (makes static checkers happier).
     - The (optional) C Conditional Scanner now does limited macro
       replacement on the contents of CPPDEFINES, to improve finding deps
       that are conditionally included.  Previously replacement was only
