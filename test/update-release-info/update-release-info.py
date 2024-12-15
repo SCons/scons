@@ -53,11 +53,24 @@ test = TestRuntest.TestRuntest(
 if not os.path.exists(test.program):
     test.skip_test("update-release-info.py is not distributed in this package\n")
 
-expected_stderr = """usage: update-release-info.py [-h] [--verbose] [--timestamp TIMESTAMP]
+expected_stderr = """\
+usage: update-release-info.py [-h] [--verbose] [--timestamp TIMESTAMP]
                               [{develop,release,post}]
 update-release-info.py: error: argument mode: invalid choice: 'bad' (choose from 'develop', 'release', 'post')
 """
-test.run(arguments='bad', stderr=expected_stderr, status=2)
+# The way the choices are rendered in help by argparse changed with
+# Python 3.12.8, # 3.13.1, 3.14.0a2. Change the test to accept either.
+expected_stderr_new = """\
+usage: update-release-info.py [-h] [--verbose] [--timestamp TIMESTAMP]
+                              [{develop,release,post}]
+update-release-info.py: error: argument mode: invalid choice: 'bad' (choose from develop, release, post)
+"""
+test.run(arguments='bad', stderr=None, status=2)
+fail_strings = [
+    expected_stderr,
+    expected_stderr_new,
+]
+test.must_contain_any_line(test.stderr(), fail_strings)
 
 # Strings to go in ReleaseConfig
 combo_strings = [
