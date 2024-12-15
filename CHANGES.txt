@@ -181,6 +181,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Only object-like macros are replaced (not function-like), and
       only on a whole-word basis; recursion is limited to five levels
       and does not error out if that limit is reached (issue #4523).
+    - The update-release-info test is adapted to accept changed help output
+      introduced in Python 3.12.8/3.13.1.
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
