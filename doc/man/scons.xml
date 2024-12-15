@@ -5054,7 +5054,7 @@ if omitted defaults to an empty list.
 
 <para>
 <function>FormatVariableHelpText</function>
-is normally not called directy, but by
+is normally not called directly, but by
 &GenerateHelpText;, which does the work of
 obtaining the necessary values.
 You can patch in your own

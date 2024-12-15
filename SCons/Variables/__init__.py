@@ -412,7 +412,7 @@ class Variables:
                 (must take two arguments and return ``-1``, ``0`` or ``1``)
                 or a boolean to indicate if it should be sorted.
         """
-        # TODO this interface was designed when Pythin sorted() took an
+        # TODO this interface was designed when Python's sorted() took an
         #   optional comparison function (pre-3.0). Since it no longer does,
         #   we use functools.cmp_to_key() since can't really change the
         #   documented meaning of the "sort" argument. Maybe someday?
