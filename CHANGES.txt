@@ -182,6 +182,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Only object-like macros are replaced (not function-like), and
       only on a whole-word basis; recursion is limited to five levels
       and does not error out if that limit is reached (issue #4523).
+    - Minor modernization: make use of stat object's st_mode, st_mtime
+      and other attributes rather than indexing into stat return.
     - The update-release-info test is adapted to accept changed help output
       introduced in Python 3.12.8/3.13.1.
 

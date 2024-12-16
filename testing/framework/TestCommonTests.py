@@ -222,7 +222,7 @@ class must_be_writable_TestCase(TestCommonTestCase):
         tc = TestCommon(workdir='')
         tc.write('file1', "file1\\n")
         f1 = tc.workpath('file1')
-        mode = os.stat(f1)[stat.ST_MODE]
+        mode = os.stat(f1).st_mode
         os.chmod(f1, mode | stat.S_IWUSR)
         tc.must_be_writable('file1')
         tc.pass_test()
@@ -244,7 +244,7 @@ class must_be_writable_TestCase(TestCommonTestCase):
         tc = TestCommon(workdir='')
         tc.write('file1', "file1\\n")
         f1 = tc.workpath('file1')
-        mode = os.stat(f1)[stat.ST_MODE]
+        mode = os.stat(f1).st_mode
         os.chmod(f1, mode & ~stat.S_IWUSR)
         tc.must_be_writable('file1')
         tc.pass_test()
@@ -267,7 +267,7 @@ class must_be_writable_TestCase(TestCommonTestCase):
         tc.subdir('sub')
         tc.write(['sub', 'file1'], "sub/file1\\n")
         f1 = tc.workpath('sub', 'file1')
-        mode = os.stat(f1)[stat.ST_MODE]
+        mode = os.stat(f1).st_mode
         os.chmod(f1, mode | stat.S_IWUSR)
         tc.must_be_writable(['sub', 'file1'])
         tc.pass_test()
@@ -1253,7 +1253,7 @@ class must_not_be_writable_TestCase(TestCommonTestCase):
         tc = TestCommon(workdir='')
         tc.write('file1', "file1\\n")
         f1 = tc.workpath('file1')
-        mode = os.stat(f1)[stat.ST_MODE]
+        mode = os.stat(f1).st_mode
         os.chmod(f1, mode | stat.S_IWUSR)
         tc.must_not_be_writable('file1')
         tc.pass_test()
@@ -1275,7 +1275,7 @@ class must_not_be_writable_TestCase(TestCommonTestCase):
         tc = TestCommon(workdir='')
         tc.write('file1', "file1\\n")
         f1 = tc.workpath('file1')
-        mode = os.stat(f1)[stat.ST_MODE]
+        mode = os.stat(f1).st_mode
         os.chmod(f1, mode & ~stat.S_IWUSR)
         tc.must_not_be_writable('file1')
         tc.pass_test()
@@ -1298,7 +1298,7 @@ class must_not_be_writable_TestCase(TestCommonTestCase):
         tc.subdir('sub')
         tc.write(['sub', 'file1'], "sub/file1\\n")
         f1 = tc.workpath('sub', 'file1')
-        mode = os.stat(f1)[stat.ST_MODE]
+        mode = os.stat(f1).st_mode
         os.chmod(f1, mode & ~stat.S_IWUSR)
         tc.must_not_be_writable(['sub', 'file1'])
         tc.pass_test()

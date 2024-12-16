@@ -54,7 +54,7 @@ test.sleep()  # delay for timestamps
 test.write('content1.in', "content1.in 2\n")
 test.touch('content2.in')
 
-time_content = os.stat('content3.in')[stat.ST_MTIME]
+time_content = os.stat('content3.in').st_mtime
 test.write('content3.in', "content3.in 2\n")
 test.touch('content3.in', time_content)
 

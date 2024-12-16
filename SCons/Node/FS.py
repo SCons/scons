@@ -762,6 +762,8 @@ class Base(SCons.Node.Node):
         st = self.stat()
 
         if st:
+            # TODO: switch to st.st_mtime, however this changes granularity
+            #    (ST_MTIME is an int for backwards compat, st_mtime is float)
             return st[stat.ST_MTIME]
         else:
             return None

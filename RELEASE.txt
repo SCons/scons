@@ -164,6 +164,10 @@ FIXES
   only on a whole-word basis; recursion is limited to five levels
   and does not error out if that limit is reached (issue #4523).
 
+- Minor modernization: make use of stat object's st_mode, st_mtime
+  and other attributes rather than indexing into stat return.
+
+
 IMPROVEMENTS
 ------------
 

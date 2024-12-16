@@ -63,7 +63,7 @@ after_exe = test.workpath('after' + _exe)
 
 test.run(arguments='.')
 test.must_match('before.txt', 'Bar\n')
-os.chmod(after_exe, os.stat(after_exe)[stat.ST_MODE] | stat.S_IXUSR)
+os.chmod(after_exe, os.stat(after_exe).st_mode | stat.S_IXUSR)
 test.run(program=after_exe, stdout="Foo\n")
 test.pass_test()
 

@@ -118,9 +118,9 @@ test.fail_test(test.zipfile_files("f2.zip") != ['file13', 'file14', 'file15'])
 
 test.fail_test(test.zipfile_files("f3.xyzzy") != ['file16', 'file17', 'file18'])
 
-f4_size = os.stat('f4.zip')[stat.ST_SIZE]
-f4stored_size = os.stat('f4stored.zip')[stat.ST_SIZE]
-f4deflated_size = os.stat('f4deflated.zip')[stat.ST_SIZE]
+f4_size = os.stat('f4.zip').st_size
+f4stored_size = os.stat('f4stored.zip').st_size
+f4deflated_size = os.stat('f4deflated.zip').st_size
 
 test.fail_test(f4_size != f4deflated_size)
 test.fail_test(f4stored_size == f4deflated_size)
