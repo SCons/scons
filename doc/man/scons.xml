@@ -4832,20 +4832,22 @@ added by calling the
 <link linkend='v-Add'><function>Add</function></link> or
 <link linkend='v-AddVariables'><function>AddVariables</function></link>
 methods.
-Each variable description consists of a name (which will
-be used as the &consvar; name), aliases for the name,
+A variable description consists of a name,
+a list of aliases for the name,
 a help message, a default value,
 and functions to validate and convert values.
-Processing of input sources
-is deferred until the
+Processing of input sources is deferred until the
 <link linkend='v-Update'><function>Update</function></link>
 method is called,
 at which time the variables are added to the
-specified &consenv;.
+specified &consenv;,
+using the name as the &consvar; name;
+any aliases are not added.
 Variables from the input sources which do not match any
 names or aliases from the variable descriptions in this object are skipped,
-except that a dictionary of their names and values are made available
-in the <varname>.unknown</varname> attribute of the &Variables; object.
+except that a dictionary of their names and values are made available in the
+<link linkend='v-unknown'><varname>unknown</varname></link>
+attribute of the &Variables; object.
 This list can also be obtained via the
 <link linkend='v-UnknownVariables'><function>UnknownVariables</function></link>
 method.
@@ -4854,19 +4856,15 @@ other than <literal>None</literal> and does not
 appear in the input sources,
 it is added to the &consenv; with its default value.
 A list of variables set from their defaults and
-not supplied a value in the input sources is
-available as the <varname>.defaulted</varname> attribute
-of the &Variables; object.
+not from the input sources is available as the
+<link linkend='v-defaulted'><varname>defaulted</varname></link>
+attribute of the &Variables; object.
 The unknown variables and defaulted information is
 not available until the &Update; method has run.
 </para>
 
-<para><emphasis>New in NEXT_RELEASE</emphasis>:
-the <parameter>defaulted</parameter> attribute.
-</para>
-
 <para>
-Note that since the variables are eventually added as &consvars;,
+Since the variables are eventually added as &consvars;,
 you should choose variable names which do not unintentionally change
 pre-defined &consvars; that your project will make use of
 (see <xref linkend="construction_variables"/> for a reference),
@@ -4875,16 +4873,16 @@ to the respective &consvars;.
 </para>
 
 <para>
-Also note there is currently no way to use the &Variables;
-mechanism to define a variable which the user is
-<emphasis>required</emphasis> to supply;
-if necessary this can be implemented by accessing
-<link linkend="v-ARGUMENTS">&ARGUMENTS;</link> directly,
-although that only applies to the command line,
-not to any stored-values files.
+The &Variables; subsystem does not directly support a way
+to define a variable the user <emphasis>must</emphasis> supply,
+but this can be simulated by using a validator function,
+and specifying a default value which the validator will reject,
+resulting in an invalid value error message
+(the convenience methods &EnumVariable; and
+&ListVariable; make this relatively straightforward).
 </para>
 
-<para>A Variables object has the following methods:</para>
+<para>A &Variables; object has the following methods:</para>
 
 <variablelist>
   <varlistentry id="v-Add">
@@ -4897,17 +4895,24 @@ or a sequence of strings, in which case
 the first item in the sequence is taken as the variable name,
 and any remaining values are considered aliases for the variable.
 <parameter>key</parameter> is mandatory,
-there is no default.
+the other fields are optional.
 <parameter>help</parameter>
 is the help text for the variable
 (defaults to an empty string).
 <parameter>default</parameter>
 is the default value of the variable
 (defaults to <constant>None</constant>).
+The variable will be set to the value of
+<parameter>default</parameter> if it does
+not appear in the input sources,
+except if <parameter>default</parameter>
+is <literal>None</literal>,
+in which case it is not added to the &consenv;
+unless it has been set in the input sources.
 </para>
 
 <para>
-If the optional <parameter>validator</parameter> argument is supplied,
+If the <parameter>validator</parameter> argument is supplied,
 it is a callback function to validate the value of the variable
 when the variables are processed
 (that is, when the <link linkend='v-Update'>&Update;</link>
@@ -4922,7 +4927,7 @@ No return value is expected from the validator.
 </para>
 
 <para>
-If the optional <parameter>converter</parameter> argument is supplied,
+If the <parameter>converter</parameter> argument is supplied,
 it is a callback function to convert the value into
 one suitable for adding to the &consenv;.
 A converter function must accept the
@@ -4944,7 +4949,7 @@ it can raise a <exceptionname>ValueError</exceptionname>.
 Substitution will be performed on the variable value
 before the converter and validator are called,
 unless the optional <parameter>subst</parameter> parameter
-is false (default <literal>True</literal>).
+is false (the default is <literal>True</literal>).
 Suppressing substitution may be useful if the variable value
 looks like a &consvar; reference (e.g. <literal>$VAR</literal>)
 and the validator and/or converter should see it unexpanded.
@@ -5018,60 +5023,97 @@ opt.AddVariables(
   </listitem>
   </varlistentry>
 
-  <varlistentry id="v-Update">
-  <term><replaceable>vars</replaceable>.<function>Update</function>(<parameter>env, [args]</parameter>)</term>
+  <varlistentry id="v-FormatVariableHelpText">
+  <term><replaceable>vars</replaceable>.<function>FormatVariableHelpText</function>(<parameter>env, opt, help, default, actual, aliases</parameter>)</term>
   <listitem>
-<para>Process the input sources recorded
-when the &Variables; object was initialized
-and update
+<para>Returns a formatted string
+containing the printable help text
+for the single variable <parameter>opt</parameter>.
+All of the arguments must be supplied
+except <parameter>aliases</parameter>, which is optional.
 <parameter>env</parameter>
-with the customized &consvars;.
-The names of any variables in the input sources that are not
-configured in the &Variables; object
-are recorded and may be retrieved using the
-<link linkend='v-UnknownVariables'>&UnknownVariables;</link>
-method.</para>
-
-<para>
-If the optional
-<parameter>args</parameter>
-argument is provided, it is a dictionary of variables
-to use in place of the one saved when
-<link linkend='v-Variables'>&Variables;</link>
-was called.
+is the &consenv; containing the variable values,
+(<parameter>env</parameter> is not used by the standard
+implementation of <function>FormatVariableHelpText</function>);
+<parameter>var</parameter>
+is the name of the variable;
+<parameter>help</parameter>
+is the text of the initial help message when the variable was
+added to the &Variables; object;
+<parameter>default</parameter>
+is the default value assigned when the variable was added
+to the &Variables; object;
+<parameter>actual</parameter>
+is the value as assigned in <parameter>env</parameter>
+(which may be the same as <parameter>default</parameter>,
+if none of the input sources assign to the variable);
+and <parameter>aliases</parameter>
+are any alias names for the variable,
+if omitted defaults to an empty list.
 </para>
 
-<para>Normally, &Update; is not called directly,
-but rather invoked indirectly by passing the &Variables; object to
-the &f-link-Environment; function:</para>
+<para>
+<function>FormatVariableHelpText</function>
+is normally not called directly, but by
+&GenerateHelpText;, which does the work of
+obtaining the necessary values.
+You can patch in your own
+function that takes the same function signature
+in order to customize the appearance of variable help messages.
+Example:
+</para>
 
 <programlisting language="python">
-env = Environment(..., variables=vars)
+def my_format(env, var, help, default, actual):
+    fmt = "\n%s: default=%s actual=%s (%s)\n"
+    return fmt % (var, default, actual, help)
+
+vars.FormatVariableHelpText = my_format
 </programlisting>
 
+<para>
+Note that &GenerateHelpText;
+will not put any blank lines or extra
+characters between the entries,
+so you must add those characters to the returned
+string if you want the entries separated.
+</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry id="v-UnknownVariables">
-  <term><replaceable>vars</replaceable>.<function>UnknownVariables</function>()</term>
+  <varlistentry id="v-GenerateHelpText">
+  <term><replaceable>vars</replaceable>.<function>GenerateHelpText</function>(<parameter>env, [sort]</parameter>)</term>
   <listitem>
-<para>Returns a dictionary containing any
-variables that were specified in the
-<parameter>files</parameter> and/or
-<parameter>args</parameter> parameters
-when <link linkend='v-Variables'>&Variables;</link>
-was called, but which were not configured in the object.
-The same dictionary is also available as the
-<varname>unknown</varname> attribute of the object.
-This information is not available until the
-<link linkend='v-Update'><function>Update</function></link>
-method has run.
+<para>
+Return a formatted string with the help text collected
+from all the variables configured in this &Variables; object.
+This string is suitable for passing in to the &f-link-Help; function.
+The generated string include an indication of the
+actual value in the environment given by <parameter>env</parameter>.
+</para>
+
+<para>
+If the optional
+<parameter>sort</parameter> parameter is set to
+a callable value, it is used as a comparison function to
+determine how to sort the added variables.
+This function must accept two arguments, compare them,
+and return a negative integer if the first is
+less-than the second, zero if equal, or a positive integer
+if greater-than.
+If <parameter>sort</parameter> is not callable,
+but evaluates true,
+an alphabetical sort is performed.
+The default is <constant>False</constant> (unsorted).
 </para>
 
 <programlisting language="python">
-env = Environment(variables=vars)
-for key, value in vars.UnknownVariables():
-    print("unknown variable:  %s=%s" % (key, value))
+Help(vars.GenerateHelpText(env))
+
+def cmp(a, b):
+    return (a &gt; b) - (a &lt; b)
+
+Help(vars.GenerateHelpText(env, sort=cmp))
 </programlisting>
 
   </listitem>
@@ -5101,73 +5143,99 @@ vars.Save('variables.cache', env)
   </listitem>
   </varlistentry>
 
-  <varlistentry id="v-GenerateHelpText">
-  <term><replaceable>vars</replaceable>.<function>GenerateHelpText</function>(<parameter>env, [sort]</parameter>)</term>
+  <varlistentry id="v-UnknownVariables">
+  <term><replaceable>vars</replaceable>.<function>UnknownVariables</function>()</term>
   <listitem>
-<para>
-Return a formatted string with the help text collected
-from all the variables configured in this &Variables; object.
-This string is suitable for passing in to the &f-link-Help; function.
-The generated string include an indication of the
-actual value in the environment given by <parameter>env</parameter>.
-</para>
-
-<para>
-If the optional
-<parameter>sort</parameter> parameter is set to
-a callable value, it is used as a comparison function to
-determine how to sort the added variables.
-This function must accept two arguments, compare them,
-and return a negative integer if the first is
-less-than the second, zero if equal, or a positive integer
-if greater-than.
-If <parameter>sort</parameter> is not callable,
-but is set to <constant>True</constant>,
-an alphabetical sort is performed.
-The default is <constant>False</constant> (unsorted).
+<para>Returns a dictionary containing any
+variables that were specified in the
+<parameter>files</parameter> and/or
+<parameter>args</parameter> parameters
+when <link linkend='v-Variables'>&Variables;</link>
+was called, but the object was not actually configured for.
+This information is not available until the
+<link linkend='v-Update'><function>Update</function></link>
+method has run.
 </para>
 
 <programlisting language="python">
-Help(vars.GenerateHelpText(env))
-
-def cmp(a, b):
-    return (a &gt; b) - (a &lt; b)
-
-Help(vars.GenerateHelpText(env, sort=cmp))
+env = Environment(variables=vars)
+for key, value in vars.UnknownVariables():
+    print("unknown variable:  %s=%s" % (key, value))
 </programlisting>
 
   </listitem>
   </varlistentry>
 
-  <varlistentry id="v-FormatVariableHelpText">
-  <term><replaceable>vars</replaceable>.<function>FormatVariableHelpText</function>(<parameter>env, opt, help, default, actual</parameter>)</term>
+  <varlistentry id="v-Update">
+  <term><replaceable>vars</replaceable>.<function>Update</function>(<parameter>env, [args]</parameter>)</term>
   <listitem>
-<para>Returns a formatted string
-containing the printable help text
-for the single option <parameter>opt</parameter>.
-It is normally not called directly,
-but is called by the &GenerateHelpText;
-method to create the returned help text.
-It may be overridden with your own
-function that takes the arguments specified above
-and returns a string of help text formatted to your liking.
-Note that &GenerateHelpText;
-will not put any blank lines or extra
-characters in between the entries,
-so you must add those characters to the returned
-string if you want the entries separated.</para>
+<para>Process the input sources recorded
+when the &Variables; object was initialized
+and update
+<parameter>env</parameter>
+with the customized &consvars;.
+The names of any variables in the input sources that are not
+configured in the &Variables; object
+are recorded and may be retrieved using the
+<link linkend='v-UnknownVariables'>&UnknownVariables;</link>
+method.</para>
+
+<para>
+If the optional
+<parameter>args</parameter>
+argument is provided, it must be a dictionary of variables,
+which will be used in place of the one saved when the
+<link linkend='v-Variables'>&Variables;</link> object
+was created.
+</para>
+
+<para>Normally, &Update; is not called directly,
+but rather invoked indirectly by passing the &Variables; object to
+the &f-link-Environment; function:</para>
 
 <programlisting language="python">
-def my_format(env, opt, help, default, actual):
-    fmt = "\n%s: default=%s actual=%s (%s)\n"
-    return fmt % (opt, default, actual, help)
-
-vars.FormatVariableHelpText = my_format
+env = Environment(..., variables=vars)
 </programlisting>
+
   </listitem>
   </varlistentry>
 </variablelist>
 
+<para>
+A &Variables; object also makes available two data attributes
+that can be read for further information. These only have
+values if <link linkend='v-Update'><function>Update</function></link>
+has previously run.
+</para>
+
+<variablelist>
+  <varlistentry id="v-defaulted">
+  <term><replaceable>vars</replaceable>.<parameter>defaulted</parameter></term>
+  <listitem>
+<para>
+A list of variable names that were set in the &consenv;
+from the default values in the variable descriptions -
+that is, variables that have a default value and were
+not defined in the input sources.
+</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry id="v-unknown">
+  <term><replaceable>vars</replaceable>.<parameter>unknown</parameter></term>
+  <listitem>
+<para>
+A dictionary of variables that were specified in the input sources,
+but do not have matching variable definitions.
+This is the same information that is returned by the
+<link linkend='v-UnknownVariables'>&UnknownVariables;</link> method.
+</para>
+  </listitem>
+  </varlistentry>
+</variablelist>
+<para><emphasis>Added in NEXT_RELEASE</emphasis>:
+the <parameter>defaulted</parameter> attribute.
+</para>
 
 <para>
 &SCons; provides five pre-defined variable types,
@@ -5216,7 +5284,7 @@ as false.</para>
   <listitem>
 <para>
 Set up a variable named <parameter>key</parameter>
-whose value will be a choice from
+whose value may only be chosen from
 a specified list ("enumeration") of values.
 The variable will have a default value of
 <parameter>default</parameter>
@@ -5231,23 +5299,14 @@ argument is a dictionary
 that can be used to map additional names into
 a particular name in the
 <parameter>allowed_values</parameter> list.
-If the value of optional
-<parameter>ignore_case</parameter>
-is
-<literal>0</literal>
-(the default),
-then the values are case-sensitive.
-If the value of
-<parameter>ignore_case</parameter>
-is
-<literal>1</literal>,
-then values will be matched
+If the optional
+<parameter>ignorecase</parameter> is <literal>0</literal> (the default),
+the values are considered case-sensitive.
+If <parameter>ignorecase</parameter> is <literal>1</literal>,
+values will be matched
 case-insensitively.
-If the value of
-<parameter>ignore_case</parameter>
-is
-<literal>2</literal>,
-then values will be matched
+If <parameter>ignorecase</parameter> is <literal>2</literal>,
+values will be matched
 case-insensitively,
 and all input values will be
 converted to lower case.</para>
@@ -5259,8 +5318,8 @@ converted to lower case.</para>
   <listitem>
 <para>
 Set up a variable named <parameter>key</parameter>
-whose value will be one or more
-choices from a specified list of values.
+whose value may be one or more choices
+from a specified list of values.
 The variable will have a default value of
 <parameter>default</parameter>,
 and <parameter>help</parameter>
@@ -5293,8 +5352,9 @@ can be used to specify a custom validator callback function,
 as described for <link linkend='v-Add'><function>Add</function></link>.
 The default is to use an internal validator routine.
 </para>
-<para><emphasis>New in 4.8.0: <parameter>validator</parameter>.
-</emphasis></para>
+<para><emphasis>Added in 4.8.0</emphasis>:
+the <parameter>validator</parameter> parameter.
+</para>
   </listitem>
   </varlistentry>
 
@@ -5466,7 +5526,8 @@ vars.AddVariables(
     PathVariable(
         "qtdir",
         help="where the root of Qt is installed",
-        default=qtdir),
+        default=qtdir
+    ),
     PathVariable(
         "foopath",
         help="where the foo library is installed",

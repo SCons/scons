@@ -77,7 +77,7 @@ a "live" location in the system.
 </para>
 
 <para>
-See also &FindInstalledFiles;.
+See also &f-link-FindInstalledFiles;.
 For more thoughts on installation, see the User Guide
 (particularly the section on Command-Line Targets
 and the chapters on Installing Files and on Alias Targets).

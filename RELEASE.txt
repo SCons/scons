@@ -209,6 +209,8 @@ DOCUMENTATION
 
 - Update Clean and NoClean documentation.
 
+- Improved Variables documentation.
+
 DEVELOPMENT
 -----------
 
