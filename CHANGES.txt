@@ -98,6 +98,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       /etc/paths.d. This may occur if SCons is invoked in a sandboxed
       environment (such as Nix).
 
+  From Prabhu S. Khalsa:
+    - Fix typo in man page
+
   From Dillan Mills:
     - Fix support for short options (`-x`).
 
