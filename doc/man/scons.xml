@@ -7387,7 +7387,7 @@ changed since the target was last built.</para>
 These names are reserved
 and may not be assigned to or used as &consvars;.
 &SCons; computes them in a context-dependent manner
-and they and are not retrieved from a &consenv;.
+and they are not retrieved from a &consenv;.
 </para>
 
 <para>For example, the following builder call:
