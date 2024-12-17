@@ -231,7 +231,7 @@ class NinjaState:
             "TEMPLATE": {
                 "command": "$PYTHON_BIN $NINJA_TOOL_DIR/ninja_daemon_build.py $PORT $NINJA_DIR_PATH $out",
                 "description": "Defer to SCons to build $out",
-                "pool": "local_pool",
+                "pool": "install_pool",
                 "restat": 1
             },
             "EXIT_SCONS_DAEMON": {

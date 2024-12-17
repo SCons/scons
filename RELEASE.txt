@@ -167,6 +167,10 @@ FIXES
 - Minor modernization: make use of stat object's st_mode, st_mtime
   and other attributes rather than indexing into stat return.
 
+- Ninja's TEMPLATE rule pool changed from `local_pool` to `install_pool``
+  hoping it will fix a race condition that can occurs when Ninja defers
+  to SCons to build.
+
 
 IMPROVEMENTS
 ------------
