@@ -190,6 +190,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - The update-release-info test is adapted to accept changed help output
       introduced in Python 3.12.8/3.13.1.
 
+    From Adam Scott:
+    - Changed the TEMPLATE rule of the Ninja tool to use the `install_pool`
+      instead of `local_pool` in order to curb some race conditions.
+
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
 
