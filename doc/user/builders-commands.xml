@@ -142,37 +142,49 @@ foo.in
 
   <para>
 
-  Note that &cv-link-SOURCE; and &cv-link-TARGET; are expanded
-  in the source and target as well, so you can write:
+  &cv-link-SOURCE; and &cv-link-TARGET; are expanded
+  in the source and target as well:
 
   </para>
 
-  <scons_example name="builderscommands_ex3">
-     <file name="SConstruct" printme="1">
-env.Command('${SOURCE.basename}.out', 'foo.in', build)
-     </file>
-  </scons_example>
+  <!-- NOTE: this used to be an scons_example, but was not complete and
+       didn't have a matching scons_output, which meant problems were not
+       detected. The style of this line is now reused in the last example
+       of the section to make sure it's actually tested
+       (see issue #2905 - which was closed prematurely).
+  -->
+  <sconstruct>
+env.Command('${SOURCE.base}.out', File('foo.in'), build)
+  </sconstruct>
 
   <para>
 
-  which does the same thing as the previous example, but allows you
-  to avoid repeating yourself.
+  Which does the same thing as the previous example, but allows you
+  to write a more generic rule for transforming the source filename
+  to the target filename, since unlike regular Builders,
+  &Command; does not have any built-in rules for that.
 
   </para>
 
-  <para>
+  <tip><para>
 
-  It may be helpful to use the <parameter>action</parameter>
-  keyword to specify the action, is this makes things more clear
-  to the reader:
+  The example uses a <firstterm>Node special attribute</firstterm>
+  (<literal>.base</literal>, the file without its suffix),
+  a concept which has not been introduced yet,
+  but will appear in several subsequent examples
+  (see details in the Reference Manual section
+  <emphasis>Substitution: Special Attributes</emphasis>).
+  Due to the quirks of &SCons;' deferred evaluation scheme,
+  node special attribues do not currently work
+  in source and target arguments <emphasis>if</emphasis> the
+  replacement is a string (like <literal>'foo.in'</literal>).
+  They do work fine in strings describing actions.
+  You can give &SCons; a little help by
+  manually converting the filename string to a Node
+  (see <xref linkend="sect-creating-nodes"/>),
+  which is the approach used in the example.
 
-  </para>
-
-  <scons_example name="builderscommands_ex4">
-     <file name="SConstruct" printme="1">
-env.Command('${SOURCE.basename}.out', 'foo.in', action=build)
-     </file>
-  </scons_example>
+  </para></tip>
 
   <para>
 
@@ -187,11 +199,13 @@ env.Command('${SOURCE.basename}.out', 'foo.in', action=build)
   which include a message based on the type of action.
   However, you can also construct the &Action; object yourself
   to pass to &f-Command;, which gives you much more control.
+  Using the <parameter>action</parameter> keyword can also help
+  make such lines easier to read.
   Here's an evolution of the example from above showing this approach:
 
   </para>
 
-  <scons_example name="builderscommands_ex5">
+  <scons_example name="builderscommands_ex3">
      <file name="SConstruct" printme="1">
 env = Environment()
 
@@ -200,7 +214,7 @@ def build(target, source, env):
     return None
 
 act = Action(build, cmdstr="Building ${TARGET}")
-env.Command('foo.out', 'foo.in', action=act)
+env.Command('${SOURCE.base}.out', File('foo.in'), action=act)
      </file>
      <file name="foo.in">
 foo.in
@@ -213,7 +227,7 @@ foo.in
 
   </para>
 
-  <scons_output example="builderscommands_ex5" suffix="1">
+  <scons_output example="builderscommands_ex3" suffix="1">
     <scons_output_command>scons -Q</scons_output_command>
   </scons_output>
 

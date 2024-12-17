@@ -1876,9 +1876,9 @@ env = Environment()
 env.Command('foo', [], '__ROOT__/usr/bin/printenv.py')
       </file>
       <file name="__ROOT__/usr/bin/printenv.py" chmod="0o755">
-#!/usr/bin/env python
 import os
 import sys
+
 if len(sys.argv) &gt; 1:
     keys = sys.argv[1:]
 else:

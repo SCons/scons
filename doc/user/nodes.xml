@@ -40,7 +40,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   </para>
 
-  <section>
+  <section id="sect-builder-nodelists">
   <title>Builder Methods Return Lists of Target Nodes</title>
 
     <para>
@@ -150,7 +150,7 @@ int main() { printf("Goodbye, world!\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-creating-nodes">
   <title>Explicitly Creating File and Directory Nodes</title>
 
     <para>
@@ -228,7 +228,7 @@ xyzzy = Entry('xyzzy')
 
   </section>
 
-  <section>
+  <section id="sect-printing-nodes">
   <title>Printing &Node; File Names</title>
 
     <para>
@@ -290,7 +290,7 @@ int main() { printf("Hello, world!\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-node-names">
   <title>Using a &Node;'s File Name as a String</title>
 
     <para>
@@ -337,7 +337,7 @@ int main() { printf("Hello, world!\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-node-paths">
   <title>&GetBuildPath;: Getting the Path From a &Node; or String</title>
 
     <para>
@@ -384,7 +384,7 @@ print(env.GetBuildPath([n, "sub/dir/$VAR"]))
 
   <!--
 
-  <section>
+  <section id="sect-node-contents">
   <title>Fetching the Contents of a &Node;</title>
 
     <para>
@@ -422,7 +422,7 @@ int main() { printf("Hello, world!\n"); }
 
   <!--
 
-  <section>
+  <section id="sect-value-nodes">
   <title>Python Value &Node;</title>
 
     <para>
