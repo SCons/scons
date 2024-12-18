@@ -189,6 +189,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and other attributes rather than indexing into stat return.
     - The update-release-info test is adapted to accept changed help output
       introduced in Python 3.12.8/3.13.1.
+    - Test framework reformatted using settings from pyproject.toml.
+      Includes code embedded in docstrings.
 
     From Adam Scott:
     - Changed Ninja's TEMPLATE rule pool to use `install_pool` instead of

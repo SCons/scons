@@ -150,73 +150,78 @@ if sys.platform == 'win32':
     else:
         obj_suffix = '.obj'
         shobj_suffix = '.obj'
-    exe_suffix   = '.exe'
+    exe_suffix = '.exe'
     shobj_prefix = ''
-    lib_prefix   = ''
+    lib_prefix = ''
     # TODO: for mingw, is this .lib or .a?
-    lib_suffix   = '.lib'
-    dll_prefix   = ''
-    dll_suffix   = '.dll'
+    lib_suffix = '.lib'
+    dll_prefix = ''
+    dll_suffix = '.dll'
 elif sys.platform == 'cygwin':
-    exe_suffix   = '.exe'
-    obj_suffix   = '.o'
+    exe_suffix = '.exe'
+    obj_suffix = '.o'
     shobj_suffix = '.os'
     shobj_prefix = ''
-    lib_prefix   = 'lib'
-    lib_suffix   = '.a'
-    dll_prefix   = 'cyg'
-    dll_suffix   = '.dll'
+    lib_prefix = 'lib'
+    lib_suffix = '.a'
+    dll_prefix = 'cyg'
+    dll_suffix = '.dll'
 elif sys.platform.find('irix') != -1:
-    exe_suffix   = ''
-    obj_suffix   = '.o'
+    exe_suffix = ''
+    obj_suffix = '.o'
     shobj_suffix = '.o'
     shobj_prefix = ''
-    lib_prefix   = 'lib'
-    lib_suffix   = '.a'
-    dll_prefix   = 'lib'
-    dll_suffix   = '.so'
+    lib_prefix = 'lib'
+    lib_suffix = '.a'
+    dll_prefix = 'lib'
+    dll_suffix = '.so'
 elif sys.platform.find('darwin') != -1:
-    exe_suffix   = ''
-    obj_suffix   = '.o'
+    exe_suffix = ''
+    obj_suffix = '.o'
     shobj_suffix = '.os'
     shobj_prefix = ''
-    lib_prefix   = 'lib'
-    lib_suffix   = '.a'
-    dll_prefix   = 'lib'
-    dll_suffix   = '.dylib'
+    lib_prefix = 'lib'
+    lib_suffix = '.a'
+    dll_prefix = 'lib'
+    dll_suffix = '.dylib'
 elif sys.platform.find('sunos') != -1:
-    exe_suffix   = ''
-    obj_suffix   = '.o'
+    exe_suffix = ''
+    obj_suffix = '.o'
     shobj_suffix = '.pic.o'
     shobj_prefix = ''
-    lib_prefix   = 'lib'
-    lib_suffix   = '.a'
-    dll_prefix   = 'lib'
-    dll_suffix   = '.so'
+    lib_prefix = 'lib'
+    lib_suffix = '.a'
+    dll_prefix = 'lib'
+    dll_suffix = '.so'
 else:
-    exe_suffix   = ''
-    obj_suffix   = '.o'
+    exe_suffix = ''
+    obj_suffix = '.o'
     shobj_suffix = '.os'
     shobj_prefix = ''
-    lib_prefix   = 'lib'
-    lib_suffix   = '.a'
-    dll_prefix   = 'lib'
-    dll_suffix   = '.so'
+    lib_prefix = 'lib'
+    lib_suffix = '.a'
+    dll_prefix = 'lib'
+    dll_suffix = '.so'
+
 
 def is_List(e):
     return isinstance(e, (list, UserList))
 
+
 def is_Tuple(e):
     return isinstance(e, tuple)
 
+
 def is_Sequence(e):
-    return (not hasattr(e, "strip") and
-            hasattr(e, "__getitem__") or
-            hasattr(e, "__iter__"))
+    return (
+        not hasattr(e, "strip") and hasattr(e, "__getitem__") or hasattr(e, "__iter__")
+    )
+
 
 def is_writable(f):
     mode = os.stat(f).st_mode
     return mode & stat.S_IWUSR
+
 
 def separate_files(flist):
     existing = []
@@ -228,12 +233,14 @@ def separate_files(flist):
             missing.append(f)
     return existing, missing
 
+
 def contains(seq, subseq, find: Callable | None = None) -> bool:
     if find is None:
         return subseq in seq
     else:
         f = find(seq, subseq)
         return f not in (None, -1) and f is not False
+
 
 def find_index(seq, subseq, find: Callable | None = None) -> int | None:
     # Returns either an index of the subseq within the seq, or None.
@@ -250,21 +257,24 @@ def find_index(seq, subseq, find: Callable | None = None) -> int | None:
 
 
 if os.name == 'posix':
+
     def _failed(self, status: int = 0):
         if self.status is None or status is None:
             return None
         return _status(self) != status
+
     def _status(self):
         return self.status
 elif os.name == 'nt':
+
     def _failed(self, status: int = 0):
-        return not (self.status is None or status is None) and \
-               self.status != status
+        return not (self.status is None or status is None) and self.status != status
+
     def _status(self):
         return self.status
 
-class TestCommon(TestCmd):
 
+class TestCommon(TestCmd):
     # Additional methods from the Perl Test::Cmd::Common module
     # that we may wish to add in the future:
     #
@@ -355,7 +365,9 @@ class TestCommon(TestCmd):
             print(file_contents)
             self.fail_test()
 
-    def must_contain_all(self, output, input, title: str = "", find: Callable | None = None)-> None:
+    def must_contain_all(
+        self, output, input, title: str = "", find: Callable | None = None
+    ) -> None:
         """Ensures that the specified output string (first argument)
         contains all of the specified input as a block (second argument).
 
@@ -378,7 +390,9 @@ class TestCommon(TestCmd):
             print(output)
             self.fail_test()
 
-    def must_contain_all_lines(self, output, lines, title: str = "", find: Callable | None = None) -> None:
+    def must_contain_all_lines(
+        self, output, lines, title: str = "", find: Callable | None = None
+    ) -> None:
         """Ensures that the specified output string (first argument)
         contains all of the specified lines (second argument).
 
@@ -429,7 +443,9 @@ class TestCommon(TestCmd):
             sys.stdout.write(output)
             self.fail_test()
 
-    def must_contain_any_line(self, output, lines, title: str = "", find: Callable | None = None) -> None:
+    def must_contain_any_line(
+        self, output, lines, title: str = "", find: Callable | None = None
+    ) -> None:
         """Ensures that the specified output string (first argument)
         contains at least one of the specified lines (second argument).
 
@@ -453,7 +469,9 @@ class TestCommon(TestCmd):
         sys.stdout.write(output)
         self.fail_test()
 
-    def must_contain_exactly_lines(self, output, expect, title: str = "", find: Callable | None = None) -> None:
+    def must_contain_exactly_lines(
+        self, output, expect, title: str = "", find: Callable | None = None
+    ) -> None:
         """Ensures that the specified output string (first argument)
         contains all of the lines in the expected string (second argument)
         with none left over.
@@ -468,7 +486,7 @@ class TestCommon(TestCmd):
         """
         out = output.splitlines()
         if is_List(expect):
-            exp = [ e.rstrip('\n') for e in expect ]
+            exp = [e.rstrip('\n') for e in expect]
         else:
             exp = expect.splitlines()
         if sorted(out) == sorted(exp):
@@ -501,7 +519,9 @@ class TestCommon(TestCmd):
         sys.stdout.flush()
         self.fail_test()
 
-    def must_contain_lines(self, lines, output, title: str = "", find: Callable | None = None) -> None:
+    def must_contain_lines(
+        self, lines, output, title: str = "", find: Callable | None = None
+    ) -> None:
         # Deprecated; retain for backwards compatibility.
         self.must_contain_all_lines(output, lines, title, find)
 
@@ -594,13 +614,12 @@ class TestCommon(TestCmd):
         except KeyboardInterrupt:
             raise
         except:
-            print("Unexpected contents of `%s'" % file)
+            print(f"Unexpected contents of `{file}'")
             self.diff(golden_file_contents, file_contents, 'contents ')
             raise
 
-    def must_not_contain(self, file, banned, mode: str = 'rb', find = None) -> None:
-        """Ensures that the specified file doesn't contain the banned text.
-        """
+    def must_not_contain(self, file, banned, mode: str = 'rb', find=None) -> None:
+        """Ensures that the specified file doesn't contain the banned text."""
         file_contents = self.read(file, mode)
 
         if contains(file_contents, banned, find):
@@ -611,7 +630,9 @@ class TestCommon(TestCmd):
             print(file_contents)
             self.fail_test()
 
-    def must_not_contain_any_line(self, output, lines, title: str = "", find: Callable | None = None) -> None:
+    def must_not_contain_any_line(
+        self, output, lines, title: str = "", find: Callable | None = None
+    ) -> None:
         """Ensures that the specified output string (first argument)
         does not contain any of the specified lines (second argument).
 
@@ -637,7 +658,9 @@ class TestCommon(TestCmd):
             sys.stdout.write(output)
             self.fail_test()
 
-    def must_not_contain_lines(self, lines, output, title: str = "", find: Callable | None = None) -> None:
+    def must_not_contain_lines(
+        self, lines, output, title: str = "", find: Callable | None = None
+    ) -> None:
         self.must_not_contain_any_line(output, lines, title, find)
 
     def must_not_exist(self, *files) -> None:
@@ -705,8 +728,15 @@ class TestCommon(TestCmd):
             print("Writable files: `%s'" % "', `".join(writable))
         self.fail_test(missing + writable)
 
-    def _complete(self, actual_stdout, expected_stdout,
-                        actual_stderr, expected_stderr, status, match) -> None:
+    def _complete(
+        self,
+        actual_stdout,
+        expected_stdout,
+        actual_stderr,
+        expected_stderr,
+        status,
+        match,
+    ) -> None:
         """
         Post-processes running a subcommand, checking for failure
         status and displaying output appropriately.
@@ -721,34 +751,36 @@ class TestCommon(TestCmd):
             print(self.banner('STDERR '))
             print(actual_stderr)
             self.fail_test()
-        if (expected_stdout is not None
-                and not match(actual_stdout, expected_stdout)):
+        if expected_stdout is not None and not match(actual_stdout, expected_stdout):
             self.diff(expected_stdout, actual_stdout, 'STDOUT ')
             if actual_stderr:
                 print(self.banner('STDERR '))
                 print(actual_stderr)
             self.fail_test()
-        if (expected_stderr is not None
-                and not match(actual_stderr, expected_stderr)):
+        if expected_stderr is not None and not match(actual_stderr, expected_stderr):
             print(self.banner('STDOUT '))
             print(actual_stdout)
             self.diff(expected_stderr, actual_stderr, 'STDERR ')
             self.fail_test()
 
-    def start(self, program = None,
-                    interpreter = None,
-                    options = None,
-                    arguments = None,
-                    universal_newlines = None,
-                    **kw):
+    def start(
+        self,
+        program=None,
+        interpreter=None,
+        options=None,
+        arguments=None,
+        universal_newlines=None,
+        **kw,
+    ):
         """
         Starts a program or script for the test environment, handling
         any exceptions.
         """
         arguments = self.options_arguments(options, arguments)
         try:
-            return super().start(program, interpreter, arguments,
-                                 universal_newlines, **kw)
+            return super().start(
+                program, interpreter, arguments, universal_newlines, **kw
+            )
         except KeyboardInterrupt:
             raise
         except Exception as e:
@@ -765,7 +797,6 @@ class TestCommon(TestCmd):
             cmd_args = self.command_args(program, interpreter, arguments)
             sys.stderr.write(f'Exception trying to execute: {cmd_args}\n')
             raise e
-
 
     def finish(
         self,
@@ -796,7 +827,6 @@ class TestCommon(TestCmd):
         super().finish(popen, **kw)
         match = kw.get('match', self.match)
         self._complete(self.stdout(), stdout, self.stderr(), stderr, status, match)
-
 
     def run(
         self,
@@ -834,10 +864,11 @@ class TestCommon(TestCmd):
         except KeyError:
             match = self.match
         super().run(**kw)
-        self._complete(self.stdout(), stdout,
-                       self.stderr(), stderr, status, match)
+        self._complete(self.stdout(), stdout, self.stderr(), stderr, status, match)
 
-    def skip_test(self, message: str="Skipping test.\n", from_fw: bool=False) -> None:
+    def skip_test(
+        self, message: str = "Skipping test.\n", from_fw: bool = False
+    ) -> None:
         """Skips a test.
 
         Proper test-skipping behavior is dependent on the external
@@ -886,9 +917,8 @@ class TestCommon(TestCmd):
         if len(v_split) != len(e_split):
             print(f"different number of lines:{len(v_split)} {len(e_split)}")
 
-        # breakpoint()
         for v, e in zip(v_split, e_split):
-            # print("%s:%s"%(v,e))
+            # print(f"{v}:{e}")
             if v != e:
                 print(f"\n[{v}]\n[{e}]")
 

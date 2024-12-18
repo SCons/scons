@@ -40,6 +40,7 @@ import sys
 import platform
 import traceback
 from xml.etree import ElementTree
+
 try:
     import winreg
 except ImportError:
@@ -50,7 +51,7 @@ from TestSCons import *
 from TestSCons import __all__
 
 
-PROJECT_GUID   = "{00000000-0000-0000-0000-000000000000}"
+PROJECT_GUID = "{00000000-0000-0000-0000-000000000000}"
 PROJECT_GUID_1 = "{11111111-1111-1111-1111-111111111111}"
 PROJECT_GUID_2 = "{22222222-2222-2222-2222-222222222222}"
 
@@ -217,7 +218,6 @@ env.MSVSProject(target = 'Test.dsp',
 """
 
 
-
 expected_slnfile_7_0 = """\
 Microsoft Visual Studio Solution File, Format Version 7.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcproj", "<PROJECT_GUID>"
@@ -339,7 +339,6 @@ env.MSVSProject(target = 'Test.vcproj',
                 buildtarget = 'Test.exe',
                 variant = 'Release')
 """
-
 
 
 expected_slnfile_7_1 = """\
@@ -825,6 +824,7 @@ env.MSVSSolution(
 )
 """
 
+
 def get_tested_proj_file_vc_versions():
     """
     Returns all MSVC versions that we want to test project file creation for.
@@ -837,7 +837,6 @@ class TestSConsMSVS(TestSCons):
 
     def msvs_versions(self):
         if not hasattr(self, '_msvs_versions'):
-
             # Determine the SCons version and the versions of the MSVS
             # environments installed on the test machine.
             #
@@ -846,21 +845,23 @@ class TestSConsMSVS(TestSCons):
             # we can just exec().  We construct the SCons.__"version"__
             # string in the input here so that the SCons build itself
             # doesn't fill it in when packaging SCons.
-            input = """\
+            input = (
+                """\
 import SCons
 import SCons.Tool.MSCommon
 print("self.scons_version =%%s"%%repr(SCons.__%s__))
 print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=None)))
-""" % 'version'
+"""
+                % 'version'
+            )
 
-            self.run(arguments = '-n -q -Q -f -', stdin = input)
+            self.run(arguments='-n -q -Q -f -', stdin=input)
             exec(self.stdout())
 
         return self._msvs_versions
 
     def vcproj_sys_path(self, fname) -> None:
-        """
-        """
+        """ """
         orig = 'sys.path = [ join(sys'
 
         enginepath = repr(os.path.join(self._cwd, '..', 'engine'))
@@ -870,11 +871,17 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         contents = contents.replace(orig, replace)
         self.write(fname, contents)
 
-    def msvs_substitute(self, input, msvs_ver,
-                        subdir=None, sconscript=None,
-                        python=None,
-                        project_guid=None,
-                        vcproj_sccinfo: str='', sln_sccinfo: str=''):
+    def msvs_substitute(
+        self,
+        input,
+        msvs_ver,
+        subdir=None,
+        sconscript=None,
+        python=None,
+        project_guid=None,
+        vcproj_sccinfo: str = '',
+        sln_sccinfo: str = '',
+    ):
         if not hasattr(self, '_msvs_versions'):
             self.msvs_versions()
 
@@ -937,23 +944,23 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         return result
 
     def get_vs_host_arch(self):
-        """ Returns an MSVS, SDK, and/or MSVS acceptable platform arch. """
+        """Returns an MSVS, SDK, and/or MSVS acceptable platform arch."""
 
         # Dict to 'canonicalize' the arch (synchronize with MSCommon\vc.py)
         _ARCH_TO_CANONICAL = {
-            "amd64"     : "amd64",
-            "emt64"     : "amd64",
-            "i386"      : "x86",
-            "i486"      : "x86",
-            "i586"      : "x86",
-            "i686"      : "x86",
-            "ia64"      : "ia64",      # deprecated
-            "itanium"   : "ia64",      # deprecated
-            "x86"       : "x86",
-            "x86_64"    : "amd64",
-            "arm"       : "arm",
-            "arm64"     : "arm64",
-            "aarch64"   : "arm64",
+            "amd64": "amd64",
+            "emt64": "amd64",
+            "i386": "x86",
+            "i486": "x86",
+            "i586": "x86",
+            "i686": "x86",
+            "ia64": "ia64",  # deprecated
+            "itanium": "ia64",  # deprecated
+            "x86": "x86",
+            "x86_64": "amd64",
+            "arm": "arm",
+            "arm64": "arm64",
+            "aarch64": "arm64",
         }
 
         host_platform = None
@@ -962,7 +969,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
             try:
                 winkey = winreg.OpenKeyEx(
                     winreg.HKEY_LOCAL_MACHINE,
-                    r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
+                    r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
                 )
                 host_platform, _ = winreg.QueryValueEx(winkey, 'PROCESSOR_ARCHITECTURE')
             except OSError:
@@ -979,7 +986,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
 
         return host
 
-    def validate_msvs_file(self,  file) -> None:
+    def validate_msvs_file(self, file) -> None:
         try:
             x = ElementTree.parse(file)
         except:
@@ -1125,7 +1132,9 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         }
 
     def msvs_substitute_projects(
-        self, input, *,
+        self,
+        input,
+        *,
         subdir=None,
         sconscript=None,
         python=None,
@@ -1133,8 +1142,8 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         project_guid_2=None,
         solution_guid_1=None,
         solution_guid_2=None,
-        vcproj_sccinfo: str='',
-        sln_sccinfo: str=''
+        vcproj_sccinfo: str = '',
+        sln_sccinfo: str = '',
     ):
         if not hasattr(self, '_msvs_versions'):
             self.msvs_versions()
@@ -1181,7 +1190,9 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         result = result.replace('<SCC_SLN_INFO>\n', sln_sccinfo)
         return result
 
-    def get_expected_projects_proj_file_contents(self, vc_version, dirs, project_file, project_guid):
+    def get_expected_projects_proj_file_contents(
+        self, vc_version, dirs, project_file, project_guid
+    ):
         """Returns the expected .vcxproj file contents"""
         if project_file.endswith('.vcxproj'):
             fmt = expected_vcxprojfile_fmt
@@ -1198,8 +1209,10 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         }
 
     def get_expected_projects_sln_file_contents(
-        self, vc_version,
-        project_file_1, project_file_2, 
+        self,
+        vc_version,
+        project_file_1,
+        project_file_2,
         have_solution_project_nodes=False,
         autofilter_solution_project_nodes=None,
     ):
@@ -1226,13 +1239,15 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         return rval
 
     def get_expected_projects_sconscript_file_contents(
-        self, vc_version,
-        project_file_1, project_file_2, solution_file,
+        self,
+        vc_version,
+        project_file_1,
+        project_file_2,
+        solution_file,
         autobuild_solution=0,
         autofilter_projects=None,
         default_guids=False,
     ):
-
         values = {
             'HOST_ARCH': self.get_vs_host_arch(),
             'MSVS_VERSION': vc_version,
@@ -1248,11 +1263,14 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         else:
             format = SConscript_projects_contents_fmt
 
-            values.update({
-                'PROJECT_GUID_1': PROJECT_GUID_1,
-                'PROJECT_GUID_2': PROJECT_GUID_2,
-            })
+            values.update(
+                {
+                    'PROJECT_GUID_1': PROJECT_GUID_1,
+                    'PROJECT_GUID_2': PROJECT_GUID_2,
+                }
+            )
         return format % values
+
 
 # Local Variables:
 # tab-width:4
