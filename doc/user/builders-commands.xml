@@ -166,7 +166,10 @@ env.Command('${SOURCE.base}.out', File('foo.in'), build)
 
   </para>
 
-  <tip><para>
+  <tip>
+    <title>Sidebar: Node Special Attributes</title>
+
+  <para>
 
   The example uses a <firstterm>Node special attribute</firstterm>
   (<literal>.base</literal>, the file without its suffix),
@@ -184,7 +187,8 @@ env.Command('${SOURCE.base}.out', File('foo.in'), build)
   (see <xref linkend="sect-creating-nodes"/>),
   which is the approach used in the example.
 
-  </para></tip>
+  </para>
+  </tip>
 
   <para>
 
