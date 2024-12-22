@@ -92,6 +92,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added TestSCons.NINJA_BINARY to TestSCons to centralize logic to find ninja binary
     - Refactored SCons.Tool.ninja -> SCons.Tool.ninja_tool, and added alias so
       env.Tool('ninja') will still work. This avoids conflicting with the pypi module ninja.
+    - Renamed env.Help() & Help()'s argument `keep_local` to `local_only`, previously the documentation
+      specified `local_only`, but the code and tests were using `keep_local`. The functionality
+      more closely matches local only.  NOTE: It doesn't seem like any code in the wild was using
+      local_only as we'd not received any reports of such until PR #4606 from hedger.
 
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access
