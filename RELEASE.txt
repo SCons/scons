@@ -167,9 +167,14 @@ FIXES
 - Minor modernization: make use of stat object's st_mode, st_mtime
   and other attributes rather than indexing into stat return.
 
-- Ninja's TEMPLATE rule pool changed from `local_pool` to `install_pool``
+- Ninja's TEMPLATE rule pool changed from `local_pool` to `install_pool`
   hoping it will fix a race condition that can occurs when Ninja defers
   to SCons to build.
+
+- Renamed env.Help() & Help()'s argument `keep_local` to `local_only`, previously the documentation
+  specified `local_only`, but the code and tests were using `keep_local`. The functionality
+  more closely matches local only.  NOTE: It doesn't seem like any code in the wild was using
+  local_only as we'd not received any reports of such until PR #4606 from hedger.
 
 
 IMPROVEMENTS

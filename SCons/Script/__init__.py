@@ -251,19 +251,21 @@ def _Set_Default_Targets(env, tlist) -> None:
 help_text = None
 
 
-def HelpFunction(text, append: bool = False, keep_local: bool = False) -> None:
+def HelpFunction(text, append: bool = False, local_only: bool = False) -> None:
     """The implementaion of the the ``Help`` method.
 
     See :meth:`~SCons.Script.SConscript.Help`.
 
     .. versionchanged:: 4.6.0
        The *keep_local* parameter was added.
+    .. versionchanged:: NEXT_RELEASE
+       The *keep_local* parameter was renamed *local_only* to match manpage
     """
     global help_text
     if help_text is None:
         if append:
             with StringIO() as s:
-                PrintHelp(s, local_only=keep_local)
+                PrintHelp(s, local_only=local_only)
                 help_text = s.getvalue()
         else:
             help_text = ""

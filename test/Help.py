@@ -81,51 +81,19 @@ Use scons -H for help about SCons built-in command-line options.
 
 test.run(arguments = '-h', stdout = expect)
 
+# Use fixturized SConstruct_HELP_AddOption.py for the remaining tests
+# All of which add help with AddOption() and then call Help() various ways
+# to test how the help from the option contributes to the Help()'s output
+
+test.file_fixture('SConstruct_HELP_AddOption.py', 'SConstruct')
+
 # Bug #2831 - append flag to Help doesn't wipe out addoptions and variables used together
-test.write('SConstruct', r"""
-
-AddOption(
-    '--debugging',
-    dest='debugging',
-    action='store_true',
-    default=False,
-    metavar='BDEBUGGING',
-    help='Compile with debugging symbols',
-)
-
-vars = Variables()
-vars.Add(ListVariable('buildmod', 'List of modules to build', 'none', ['python']))
-DefaultEnvironment(tools=[])
-env = Environment()
-Help(vars.GenerateHelpText(env), append=True)
-""")
-
 expect = ".*--debugging.*Compile with debugging symbols.*buildmod: List of modules to build.*"
 test.run(arguments = '-h', stdout = expect, match=TestSCons.match_re_dotall)
 
 # Bug 2831
 # This test checks to verify that append=False doesn't include anything
 # but the expected help for the specified Variable()
-
-test.write('SConstruct', r"""
-AddOption(
-    '--debugging',
-    dest='debugging',
-    action='store_true',
-    default=False,
-    metavar='BDEBUGGING',
-    help='Compile with debugging symbols',
-)
-
-vars = Variables()
-vars.Add(ListVariable('buildmod', 'List of modules to build', 'none', ['python']))
-
-DefaultEnvironment(tools=[])
-env = Environment()
-
-Help(vars.GenerateHelpText(env), append=False)
-""")
-
 expect = """\
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
@@ -139,29 +107,10 @@ buildmod: List of modules to build
 Use scons -H for help about SCons built-in command-line options.
 """
 
-test.run(arguments='-h', stdout=expect)
+test.run(arguments='-h NO_APPEND=1', stdout=expect)
 
-# Enhancement: keep_local flag saves the AddOption help,
+# Enhancement: local_only flag saves the AddOption help,
 # but not SCons' own help.
-test.write('SConstruct', r"""
-AddOption(
-    '--debugging',
-    dest='debugging',
-    action='store_true',
-    default=False,
-    metavar='BDEBUGGING',
-    help='Compile with debugging symbols',
-)
-
-vars = Variables()
-vars.Add(ListVariable('buildmod', 'List of modules to build', 'none', ['python']))
-
-DefaultEnvironment(tools=[])
-env = Environment()
-
-Help(vars.GenerateHelpText(env), append=True, keep_local=True)
-""")
-
 expect = """\
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
@@ -177,7 +126,7 @@ buildmod: List of modules to build
 Use scons -H for help about SCons built-in command-line options.
 """
 
-test.run(arguments='-h', stdout=expect)
+test.run(arguments='-h LOCAL_ONLY=1', stdout=expect)
 
 
 test.pass_test()
