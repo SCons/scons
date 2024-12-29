@@ -220,6 +220,10 @@ DOCUMENTATION
 
 - Improved Variables documentation.
 
+- Update the User Guide Command() example which now shows a target name
+  being created from '${SOURCE.base}.out' to use a valid special
+  attribute and to explain what's being done in the example.
+
 DEVELOPMENT
 -----------
 
