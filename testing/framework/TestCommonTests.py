@@ -181,24 +181,24 @@ class banner_TestCase(TestCommonTestCase):
         """Test banner()"""
         tc = TestCommon.TestCommon(workdir='')
 
-        b = tc.banner('xyzzy ')
-        assert (
-            b
-            == "xyzzy =========================================================================="
-        ), b
+        text = 'xyzzy '
+        b = tc.banner(text)
+        expect = f"{text}{tc.banner_char * (tc.banner_width - len(text))}"
+        assert b == expect, b
 
         tc.banner_width = 10
+        b = tc.banner(text)
+        expect = f"{text}{tc.banner_char * (tc.banner_width - len(text))}"
+        assert b == expect, b
 
-        b = tc.banner('xyzzy ')
-        assert b == "xyzzy ====", b
-
-        b = tc.banner('xyzzy ', 20)
-        assert b == "xyzzy ==============", b
+        b = tc.banner(text, 20)
+        expect = f"{text}{tc.banner_char * (20 - len(text))}"
+        assert b == expect, b
 
         tc.banner_char = '-'
-
-        b = tc.banner('xyzzy ')
-        assert b == "xyzzy ----", b
+        b = tc.banner(text)
+        expect = f"{text}{tc.banner_char * (tc.banner_width - len(text))}"
+        assert b == expect, b
 
 
 class must_be_writable_TestCase(TestCommonTestCase):
