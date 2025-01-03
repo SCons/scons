@@ -53,6 +53,8 @@ DOCUMENTATION
   typo fixes, even if they're mentioned in src/CHANGES.txt to give
   the contributor credit)
 
+- Clarify that pre/post actions on an alias apply to the alias' action.
+
 DEVELOPMENT
 -----------
 
@@ -62,4 +64,4 @@ Thanks to the following contributors listed below for their contributions to thi
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.0.1..HEAD
+    git shortlog --no-merges -ns 4.9.0..HEAD

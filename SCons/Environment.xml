@@ -348,12 +348,15 @@ env.other_method_name('another arg')
 </arguments>
 <summary>
 <para>
-Arranges for the specified
+Arrange for the specified
 <parameter>action</parameter>
 to be performed
 after the specified
 <parameter>target</parameter>
 has been built.
+<parameter>target</parameter>
+may be a string or Node object,
+or a list of strings or Node objects.
 <parameter>action</parameter> may be
 an Action object, or anything that
 can be converted into an Action object.
@@ -374,6 +377,15 @@ foo = Program('foo.c')
 AddPostAction(foo, Chmod('$TARGET', "a-x"))
 </example_commands>
 
+<para>
+If a <parameter>target</parameter> is an Alias target,
+<parameter>action</parameter> is associated with the
+action of the alias,
+not of any targets that alias may refer to.
+Thus, &AddPostAction; will have no effect
+if called on an alias which has no action.
+</para>
+
 </summary>
 </scons_function>
 
@@ -383,12 +395,15 @@ AddPostAction(foo, Chmod('$TARGET', "a-x"))
 </arguments>
 <summary>
 <para>
-Arranges for the specified
+Arrange for the specified
 <parameter>action</parameter>
 to be performed
 before the specified
 <parameter>target</parameter>
 is built.
+<parameter>target</parameter>
+may be a string or Node object,
+or a list of strings or Node objects.
 <parameter>action</parameter> may be
 an Action object, or anything that
 can be converted into an Action object.
@@ -406,31 +421,50 @@ one or more targets in the list.
 <para>
 Note that if any of the targets are built in multiple steps,
 the action will be invoked just
-before the "final" action that specifically
+before the action step that specifically
 generates the specified target(s).
-For example, when building an executable program
-from a specified source
+It may not always be obvious
+if the process is multi-step - for example,
+when building an executable program from a specified source
 <filename>.c</filename>
-file via an intermediate object file:
+file, &scons; will build an intermediate object file first,
+and the pre-action will follow this.
+Example:
 </para>
 
 <example_commands>
 foo = Program('foo.c')
-AddPreAction(foo, 'pre_action')
+AddPreAction(foo, 'echo "Running pre-action"')
 </example_commands>
 
 <para>
-The specified
-<literal>pre_action</literal>
-would be executed before
+The specified pre-action is executed before
 &scons;
 calls the link command that actually
 generates the executable program binary
 <filename>foo</filename>,
-not before compiling the
+but after compiling the
 <filename>foo.c</filename>
-file into an object file.
+file into an object file:
 </para>
+
+<screen>
+$ scons -Q
+gcc -o foo.o -c foo.c
+echo "Running pre-action"
+Running pre-action
+gcc -o foo foo.o
+</screen>
+
+<para>
+If a <parameter>target</parameter> is an Alias target,
+<parameter>action</parameter> is associated with the
+action of the alias,
+not with any targets that alias may refer to.
+Thus, &AddPreAction; will have no effect
+if called on an alias which has no action.
+</para>
+
 </summary>
 </scons_function>
 
@@ -440,7 +474,7 @@ file into an object file.
 </arguments>
 <summary>
 <para>
-Creates an <firstterm>alias</firstterm> target that
+Create an <firstterm>Alias</firstterm> target that
 can be used as a reference to zero or more other targets,
 specified by the optional <parameter>source</parameter> parameter.
 Aliases provide a way to give a shorter or more descriptive
