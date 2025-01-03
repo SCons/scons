@@ -224,6 +224,9 @@ DOCUMENTATION
   being created from '${SOURCE.base}.out' to use a valid special
   attribute and to explain what's being done in the example.
 
+- Improve the descriptive portion of the Builder Methods section in
+  the manpage: reword, reorganize.
+
 DEVELOPMENT
 -----------
 
