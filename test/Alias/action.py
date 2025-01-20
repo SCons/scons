@@ -69,6 +69,19 @@ env.Alias(['build-add2a', 'build-add2b'], action=foo)
 env.Alias('build-add3', f6)
 env.Alias('build-add3', action=foo)
 env.Alias('build-add3', action=bar)
+
+
+f7 = env.Cat('f7.out', 'f6.in')
+def build_it(target, source, env):
+    print("build_it: Goodbye")
+    return 0
+
+def string_it(target, source, env):
+    return("string it: Goodbye")
+
+s = Action(build_it, string_it)
+env.Alias('add_post_action', f7)
+env.AddPostAction('add_post_action', s)
 """)
 
 test.write('f1.in', "f1.in 1\n")
@@ -132,6 +145,9 @@ test.run(arguments = 'build-add3')
 test.must_match('f6.out', "f6.in 1\n")
 test.must_match('foo', "foo(['build-add3'], ['f6.out'])\n")
 test.must_match('bar', "bar(['build-add3'], ['f6.out'])\n")
+
+test.run(arguments = 'add_post_action')
+test.must_contain_all(test.stdout(), 'string it: Goodbye')
 
 test.pass_test()
 
