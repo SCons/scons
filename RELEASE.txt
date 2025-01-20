@@ -176,6 +176,8 @@ FIXES
   more closely matches local only.  NOTE: It doesn't seem like any code in the wild was using
   local_only as we'd not received any reports of such until PR #4606 from hedger.
 
+- Fix Issue #2281, AddPreAction() & AddPostAction() were being ignored if no action
+  was specified when the Alias was initially created.
 
 IMPROVEMENTS
 ------------
