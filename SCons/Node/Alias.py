@@ -111,7 +111,7 @@ class Alias(SCons.Node.Node):
             # pre or post actions.
             # Alias node's will get 1 action and Alias.build()
             # This fixes GH Issue #2281
-            return self.really_build(self,**kw)
+            return self.really_build(**kw)
 
 
     def convert(self) -> None:
