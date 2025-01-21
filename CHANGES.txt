@@ -18,7 +18,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Mats Wichmann:
     - Fix typos in CCFLAGS test. Didn't affect the test itself, but
       didn't correctly apply the DefaultEnvironment speedup.
-    - Clarify that pre/post actions on an alias apply to the alias' action.
+    - Clarify how pre/post actions on an alias work.
 
 
 RELEASE 4.9.0 -  Sun, 02 Mar 2025 17:22:20 -0700

@@ -53,7 +53,7 @@ DOCUMENTATION
   typo fixes, even if they're mentioned in src/CHANGES.txt to give
   the contributor credit)
 
-- Clarify that pre/post actions on an alias apply to the alias' action.
+- Clarify how pre/post actions on an alias work.
 
 DEVELOPMENT
 -----------
