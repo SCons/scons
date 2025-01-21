@@ -96,6 +96,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       specified `local_only`, but the code and tests were using `keep_local`. The functionality
       more closely matches local only.  NOTE: It doesn't seem like any code in the wild was using
       local_only as we'd not received any reports of such until PR #4606 from hedger.
+    - Fix Issue #2281, AddPreAction() & AddPostAction() were being ignored if no action
+      was specified when the Alias was initially created.
 
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access
