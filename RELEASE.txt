@@ -226,8 +226,7 @@ DOCUMENTATION
   being created from '${SOURCE.base}.out' to use a valid special
   attribute and to explain what's being done in the example.
 
-- Clarify that pre/post actions on an alias apply to the alias'
-  action, not to any targets the alias may refer to.
+- Clarify how pre/post actions on an alias work.
 
 DEVELOPMENT
 -----------

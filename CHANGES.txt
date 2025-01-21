@@ -200,8 +200,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       attribute and to explain what's being done in the example.
     - Test framework reformatted using settings from pyproject.toml.
       Includes code embedded in docstrings.
-    - Clarify that pre/post actions on an alias apply to the alias'
-      action, not to any targets the alias may refer to (doc).
+    - Clarify how pre/post actions on an alias work.
 
     From Adam Scott:
     - Changed Ninja's TEMPLATE rule pool to use `install_pool` instead of

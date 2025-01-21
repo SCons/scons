@@ -380,10 +380,7 @@ AddPostAction(foo, Chmod('$TARGET', "a-x"))
 <para>
 If a <parameter>target</parameter> is an Alias target,
 <parameter>action</parameter> is associated with the
-action of the alias,
-not of any targets that alias may refer to.
-Thus, &AddPostAction; will have no effect
-if called on an alias which has no action.
+action of the alias, if specified.
 </para>
 
 </summary>
@@ -425,10 +422,13 @@ before the action step that specifically
 generates the specified target(s).
 It may not always be obvious
 if the process is multi-step - for example,
-when building an executable program from a specified source
-<filename>.c</filename>
-file, &scons; will build an intermediate object file first,
-and the pre-action will follow this.
+if you use the &Program; builder to
+construct an executable program from a
+<filename>.c</filename> source file,
+&scons; builds an intermediate object file first;
+the pre-action is invoked after this step
+and just before the link command to
+generate the executable program binary.
 Example:
 </para>
 
@@ -436,17 +436,6 @@ Example:
 foo = Program('foo.c')
 AddPreAction(foo, 'echo "Running pre-action"')
 </example_commands>
-
-<para>
-The specified pre-action is executed before
-&scons;
-calls the link command that actually
-generates the executable program binary
-<filename>foo</filename>,
-but after compiling the
-<filename>foo.c</filename>
-file into an object file:
-</para>
 
 <screen>
 $ scons -Q
@@ -459,10 +448,7 @@ gcc -o foo foo.o
 <para>
 If a <parameter>target</parameter> is an Alias target,
 <parameter>action</parameter> is associated with the
-action of the alias,
-not with any targets that alias may refer to.
-Thus, &AddPreAction; will have no effect
-if called on an alias which has no action.
+action of the alias, if specified.
 </para>
 
 </summary>
