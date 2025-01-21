@@ -109,7 +109,7 @@ class Alias(SCons.Node.Node):
         if len(self.executor.post_actions) + len(self.executor.pre_actions) > 0:
             # Only actually call Node's build() if there are any
             # pre or post actions.
-            # Alias node's will get 1 action and Alias.build()
+            # Alias nodes will get 1 action and Alias.build()
             # This fixes GH Issue #2281
             return self.really_build(**kw)
 
