@@ -1126,7 +1126,7 @@ def CheckLib(context, library = None, symbol: str = "main",
 # Bram: Can only include one header and can't use #ifdef HAVE_HEADER_H.
 
 def CheckLibWithHeader(context, libs, header, language,
-                       call = None, autoadd: bool=True, append: bool=True, unique: bool=False) -> bool:
+                       extra_libs = None,  call = None, autoadd: bool=True, append: bool=True, unique: bool=False) -> bool:
     # ToDo: accept path for library. Support system header files.
     """
     Another (more sophisticated) test for a library.
@@ -1143,8 +1143,8 @@ def CheckLibWithHeader(context, libs, header, language,
         libs = [libs]
 
     res = SCons.Conftest.CheckLib(context, libs, None, prog_prefix,
-            call = call, language = language, autoadd=autoadd,
-            append=append, unique=unique)
+            extra_libs = extra_libs, call = call, language = language,
+            autoadd=autoadd, append=append, unique=unique)
     context.did_show_result = 1
     return not res
 
