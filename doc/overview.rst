@@ -104,10 +104,11 @@ These entities can be used in the MAN page and the User manual.
 Note that the four type tags themselves (``<tool>``, ``<builder>``,
 ``<cvar>`` and ``<function>``) can only be used in documentation
 sources in the ``SCons`` directory; the build will not scan for these
-in the ``doc`` directory.
+tags in files in the ``doc`` directory.
 
-When you add an XML file in the ``SCons/Tools`` folder, e.g. for
-a tool named ``foobar``, you can use the two entities
+When you add tool documentation using the ``<tool>`` tag,
+let's say for a tool named ``foobar``, you can use the two
+automatically generated entities
 
 *t-foobar*
     which prints the name of the Tool, and
@@ -117,6 +118,10 @@ a tool named ``foobar``, you can use the two entities
 
 The link will be to the appropriate Appendix in the User Guide,
 or to the proper section in the manpage.
+
+The ``<builder>`` tag similarly generates entities with the *b-* prefix,
+the ``<function>`` tag generates entities with the *f-* prefix,
+and the ``<cvar>`` tag generates entities with the *cv-* prefix.
 
 In the case of Functions, there may be pairs of these, depending
 on the value of the signature attribute: this attribute tells
@@ -201,6 +206,47 @@ to write it all in text, as in *See the manpage section
 "Builder Objects"* than to leave a dangling reference in one
 of the docs.
 
+Context
+=======
+While it is very convenient to document related
+things together in one xml file, and this is encouraged
+as it helps writers keep things in sync,
+be aware the information recorded inside the four special tags
+will not be presented together in the output documents.
+For example, when documenting a Tool in
+``SCons/Tool/newtool.xml`` using the ``<tool>`` tag,
+and noting that the tool ``<uses>`` or ``<sets>``
+certain construction variables,
+those construction variables can be documented 
+right there as well using ``<cvar>`` tags.
+When processed with ``SConsDoc`` module,
+this will generate xml from the
+``<tool>`` tag into the ``tools.{gen,mod}`` files,
+and xml from the ``<cvar>`` tag into
+the ``variables.{gen,mod}`` files;
+those files are then included each into their own
+section, so the entries may end up separated by
+hundreds of lines in the final output.
+The special entries will also be sorted in their
+own sections, which might cause two entries using the
+same tag in the same source file to be separated.
+All this to say: do not write your doc text
+with the idea that the locality you see in the xml source file
+will be preserved when consumed in a web browser,
+manpage viewer, PDF file, etc. Provide sufficient context
+so entries can stand on their own.
+
+Another quirk is that ``SConsDoc``
+will take all occurrences of a special tag and
+combine those contents into a single entry in the generated file.
+As such, normally there should be only one definition of
+each element project-wide. This particularly comes up in tool definitions,
+as several tools may refer to the same construction variable.
+It is suggested to pick one file to write the documentation in,
+and then in the other tool documents referencing it,
+place a comment indicating which file the variable is documented in -
+this will keep future editors from having to hunt too far for it.
+
 SCons Examples
 ==============
 
@@ -224,7 +270,7 @@ Before this script starts to generate any output, it checks whether the
 names of all defined examples are unique. Another important prerequisite
 is that for every example all the single ``scons_output`` blocks need
 to have a ``suffix`` attribute defined. These suffixes also have to be
-unique, within each example.
+unique, within each example, as this controls the ordering.
 
 All example output files (``*.xml``) get written to the folder
 ``doc/generated/examples``, together with all files defined via the
@@ -234,6 +280,11 @@ changes in the outputs after editing the docs:
 
 ::
    git diff doc/generated/examples
+
+Some of the changes in example text are phony: despite best
+efforts to eliminate system-specifics, sometimes they leak through.
+There is at least one example that gets the pathname to the
+build directory of the machine the example is generated on.
 
 Note that these output files are not actually needed for editing the
 documents. When loading the User manual into an XML editor, you will
