@@ -4244,6 +4244,7 @@ to serve as the test can be supplied in
 if not supplied,
 the default checks the ability to link against the specified
 <parameter>library</parameter>.
+<parameter>extra_libs</parameter> can be used to add additional libraries to link against.
 If <parameter>autoadd</parameter> is true (the default),
 the first library that passes the check
 is added to the &cv-link-LIBS; &consvar; in the context

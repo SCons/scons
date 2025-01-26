@@ -25,6 +25,7 @@ DEPRECATED FUNCTIONALITY
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
+- Expose the `extra_libs` keyword argument in `CheckLibWithHeader`
 
 - List modifications to existing features, where the previous behavior
   wouldn't actually be considered a bug
