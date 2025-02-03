@@ -35,6 +35,7 @@ import time
 start_time = time.time()
 
 import collections
+import itertools
 import os
 from io import StringIO
 
@@ -53,9 +54,17 @@ import sys
 # to not add the shims.  So we use a special-case, up-front check for
 # the "--debug=memoizer" flag and enable Memoizer before we import any
 # of the other modules that use it.
+# Update: this breaks if the option isn't exactly "--debug=memoizer",
+# like if there is more than one debug option as a csv. Do a bit more work.
 
-_args = sys.argv + os.environ.get('SCONSFLAGS', '').split()
-if "--debug=memoizer" in _args:
+_args = sys.argv + os.environ.get("SCONSFLAGS", "").split()
+_args = (
+    arg[len("--debug=") :].split(",")
+    for arg in _args
+    if arg.startswith("--debug=")
+)
+_args = list(itertools.chain.from_iterable(_args))
+if "memoizer" in _args:
     import SCons.Memoize
     import SCons.Warnings
     try:

@@ -179,6 +179,9 @@ FIXES
 - Fix Issue #2281, AddPreAction() & AddPostAction() were being ignored if no action
   was specified when the Alias was initially created.
 
+- Handle case of "memoizer" as one member of a comma-separated
+  --debug string - this was previously missed.
+
 IMPROVEMENTS
 ------------
 
