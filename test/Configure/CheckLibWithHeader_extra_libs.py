@@ -62,9 +62,9 @@ test.write(
     str(libB_dir / "SConstruct"),
     """\
 SharedLibrary(
-    'libB', 
-    source=['libB.c'], 
-    LIBS=['A'], 
+    'libB',
+    source=['libB.c'],
+    LIBS=['A'],
     LIBPATH='../libA',
     CPPPATH='../libA',
 )
