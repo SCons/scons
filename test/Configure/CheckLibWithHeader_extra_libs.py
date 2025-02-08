@@ -57,7 +57,6 @@ void libA() {
 test.write(
     str(libA_dir / "SConstruct"),
     """\
-DefaultEnvironment(tools=[])
 SharedLibrary('A', source=['libA.c'])
 """,
 )
@@ -87,7 +86,6 @@ void libB () {
 test.write(
     str(libB_dir / "SConstruct"),
     """\
-DefaultEnvironment(tools=[])
 SharedLibrary(
     'B',
     source=['libB.c'],
