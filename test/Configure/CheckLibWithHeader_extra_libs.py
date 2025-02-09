@@ -30,17 +30,36 @@ on another library can be built correctly using CheckLibWithHeader
 
 from pathlib import Path
 
-from TestSCons import TestSCons
+from TestSCons import TestSCons, dll_, _dll
 
 test = TestSCons(match=TestSCons.match_re_dotall)
 
 # This is the first library project
 libA_dir = Path(test.workdir) / "libA"
 libA_dir.mkdir()
+libA = str(libA_dir / (dll_ + 'A' + _dll))  # for existence check
+
 test.write(
     str(libA_dir / "libA.h"),
     """\
-void libA();
+#ifndef _LIBA_H
+#define _LIBA_H
+
+// define BUILDINGSHAREDLIB when building libA as shared lib
+#ifdef _MSC_VER
+# ifdef BUILDINGSHAREDLIB
+#  define LIBA_DECL __declspec(dllexport)
+# else
+#  define LIBA_DECL __declspec(dllimport)
+# endif
+#endif // WIN32
+
+#ifndef LIBA_DECL
+# define LIBA_DECL
+#endif
+
+LIBA_DECL void libA(void);
+#endif // _LIBA_H
 """,
 )
 test.write(
@@ -49,7 +68,7 @@ test.write(
 #include <stdio.h>
 #include "libA.h"
 
-void libA() {
+LIBA_DECL void libA(void) {
     printf("libA\\n");
 }
 """,
@@ -57,18 +76,35 @@ void libA() {
 test.write(
     str(libA_dir / "SConstruct"),
     """\
-SharedLibrary('A', source=['libA.c'])
+SharedLibrary(target='A', source=['libA.c'], CPPDEFINES='BUILDINGSHAREDLIB')
 """,
 )
-test.run(arguments='-C libA')
 
 # This is the second library project, depending on the first
 libB_dir = Path(test.workdir) / "libB"
 libB_dir.mkdir()
+libB = str(libB_dir / (dll_ + 'B' + _dll))  # for existence check
 test.write(
     str(libB_dir / "libB.h"),
     """\
-void libB();
+#ifndef _LIBB_H
+#define _LIBB_H
+
+// define BUILDINGSHAREDLIB when building libB as shared lib
+#ifdef _MSC_VER
+# ifdef BUILDINGSHAREDLIB
+#  define LIBB_DECL __declspec(dllexport)
+# else
+#  define LIBB_DECL __declspec(dllimport)
+# endif
+#endif // WIN32
+
+#ifndef LIBB_DECL
+# define LIBB_DECL
+#endif
+
+LIBB_DECL void libB(void);
+#endif // _LIBB_H
 """,
 )
 test.write(
@@ -78,7 +114,8 @@ test.write(
 #include "libA.h"
 #include "libB.h"
 
-void libB () {
+LIBB_DECL void libB (void) {
+    printf("libB\\n");
     libA();
 }
 """,
@@ -87,34 +124,49 @@ test.write(
     str(libB_dir / "SConstruct"),
     """\
 SharedLibrary(
-    'B',
+    target='B',
     source=['libB.c'],
     LIBS=['A'],
     LIBPATH='../libA',
     CPPPATH='../libA',
+    CPPDEFINES='BUILDINGSHAREDLIB',
 )
 """,
 )
+
+test.run(arguments='-C libA')
+test.must_exist(libA)
 test.run(arguments='-C libB')
+test.must_exist(libB)
 
 # With the two projects built, we can now run the Configure check
 test.write(
     "SConstruct",
     """\
-import os
+env = Environment(
+    CPPPATH=['#'],
+    LIBPATH=['libB', 'libA'],
+    LIBS=['A', 'B'],
+    RPATH=['libA', 'libB'],
+)
 
-env = Environment(ENV=os.environ, CPPPATH=['libB', 'libA'], LIBPATH=['libB', 'libA'])
 conf = Configure(env)
-
-ret = conf.CheckLibWithHeader(
+if not conf.CheckLibWithHeader(
     ['B'],
-    header="libB.h",
+    header="libB/libB.h",
     language='C',
     extra_libs=['A'],
     call='libB();',
     autoadd=False,
-)
-assert ret
+):
+    print("Cannot build against 'B' library, exiting.")
+    Exit(1)
+env = conf.Finish()
+
+# TODO: we should be able to build and run a test program now,
+#   to make sure Configure() didn't lie to us about usability.
+#   Disabled for now, because that's trickier in Windows (no rpath)
+# env.Program(target="testlibs", source="src/test.c")
 """,
 )
 test.run()
