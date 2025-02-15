@@ -43,8 +43,6 @@ test.must_exist(libA)
 test.run(arguments='-C libB')
 test.must_exist(libB)
 
-test.file_fixture(['fixture', 'checklib_extra', 'SConstruct'])
-test.dir_fixture(['fixture', 'checklib_extra', 'src'], 'src')
 test.run()
 
 test.pass_test()
