@@ -33,7 +33,7 @@ from pathlib import Path
 from TestSCons import TestSCons, dll_, _dll
 
 test = TestSCons(match=TestSCons.match_re_dotall)
-test.dir_fixture(['fixture', 'checklib_extra'],)
+test.dir_fixture(['fixture', 'checklib_extra'])
 
 libA = f"libA/{dll_}A{_dll}"
 libB = f"libB/{dll_}B{_dll}"
