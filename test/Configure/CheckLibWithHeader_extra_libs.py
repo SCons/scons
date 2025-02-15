@@ -26,6 +26,8 @@
 """
 Verify that a program which depends on library which in turn depends
 on another library can be built correctly using CheckLibWithHeader
+
+This is a "live" test - requires a configured C compiler/toolchain to run.
 """
 
 from TestSCons import TestSCons, dll_, _dll
