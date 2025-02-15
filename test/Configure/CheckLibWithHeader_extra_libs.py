@@ -28,8 +28,6 @@ Verify that a program which depends on library which in turn depends
 on another library can be built correctly using CheckLibWithHeader
 """
 
-from pathlib import Path
-
 from TestSCons import TestSCons, dll_, _dll
 
 test = TestSCons(match=TestSCons.match_re_dotall)
