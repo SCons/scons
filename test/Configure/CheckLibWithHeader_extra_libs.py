@@ -33,18 +33,10 @@ from pathlib import Path
 from TestSCons import TestSCons, dll_, _dll
 
 test = TestSCons(match=TestSCons.match_re_dotall)
+test.dir_fixture(['fixture', 'checklib_extra'],)
 
-# This is the first library project
-libA_dir = Path(test.workdir) / "libA"
-libA_dir.mkdir()
-libA = str(libA_dir / (dll_ + 'A' + _dll))  # for existence check
-test.dir_fixture(['fixture', 'checklib_extra', 'libA'], 'libA')
-
-# This is the second library project, depending on the first
-libB_dir = Path(test.workdir) / "libB"
-libB_dir.mkdir()
-libB = str(libB_dir / (dll_ + 'B' + _dll))  # for existence check
-test.dir_fixture(['fixture', 'checklib_extra', 'libB'], 'libB')
+libA = f"libA/{dll_}A{_dll}"
+libB = f"libB/{dll_}B{_dll}"
 
 test.run(arguments='-C libA')
 test.must_exist(libA)
