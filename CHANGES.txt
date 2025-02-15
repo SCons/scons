@@ -12,6 +12,10 @@ NOTE: Python 3.6 support is deprecated and will be dropped in a future release.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Ruben Di Battista:
+    - Expose `extra_libs` kwarg in Configure checks `CheckLibWithHeader`
+      and 'CheckLib' and forward it downstream to `CheckLib`
+
   From Joseph Brill:
     - Added error handling when creating MSVC detection debug log file specified by
       SCONS_MSCOMMON_DEBUG.

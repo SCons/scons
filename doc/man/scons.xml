@@ -4163,7 +4163,7 @@ function calls whose arguments are not type compatible with the prototype.
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>CheckLib</methodname>(<parameter>[library, symbol, header, language, autoadd=True, append=True, unique=False]</parameter>) </term>
+  <term><replaceable>context</replaceable>.<methodname>CheckLib</methodname>(<parameter>[library, symbol, header, language, extra_libs=None, autoadd=True, append=True, unique=False]</parameter>) </term>
   <listitem>
 <para>Checks if
 <parameter>library</parameter>
@@ -4173,12 +4173,19 @@ with the compiler selected by <parameter>language</parameter>,
 and optionally adds that library to the context.
 If supplied, the text of <parameter>header</parameter> is included at the
 top of the stub.
+</para>
+<para>
+The remaining arguments should be specified in keyword style.
+If <parameter>extra_libs</parameter> is specified,
+it is a list off additional libraries to include when
+linking the stub program (usually, dependencies of
+the library being checked).
 If <parameter>autoadd</parameter> is true (the default),
 and the library provides the specified
-<parameter>symbol</parameter> (as defined by successfully
-linking the stub program),
+<parameter>symbol</parameter>,
+as defined by successfully linking the stub program,
 it is added to the &cv-link-LIBS; &consvar; in the context.
-if <parameter>append</parameter> is true (the default),
+If <parameter>append</parameter> is true (the default),
 the library is appended, otherwise it is prepended.
 If <parameter>unique</parameter> is true,
 and the library would otherwise be added but is
@@ -4213,23 +4220,29 @@ at least one should be supplied.
 <parameter>append</parameter> and <parameter>unique</parameter>
 parameters.</emphasis>
 </para>
+<para>
+<emphasis>Changed in version NEXT_RELEASE: added the
+<parameter>extra_libs</parameter> parameter.</emphasis>
+</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>CheckLibWithHeader</methodname>(<parameter>library, header, [language, call, autoadd=True, append=True, unique=False]</parameter>)</term>
+  <term><replaceable>context</replaceable>.<methodname>CheckLibWithHeader</methodname>(<parameter>[library, header, language, extra_libs=None, call=None, autoadd=True, append=True, unique=False]</parameter>)</term>
   <listitem>
 
 <para>Provides an alternative to the
 <methodname>CheckLib</methodname> method
-for checking for libraries usable in a build.
+for checking whether libraries are usable in a build.
+The first three arguments can be given as
+positional or keyword style arguments.
 <parameter>library</parameter>
-specifies a library or list of libraries to check.
+specifies a library or list of libraries to check
+(the default is <literal>None</literal>),
 <parameter>header</parameter>
-specifies a header to include in the test program,
-and <parameter>language</parameter> indicates the compiler to use.
+specifies header text to include in the test program.
 <parameter>header</parameter>
-may be a list,
+may also be a list,
 in which case the last item in the list
 is the header file to be checked,
 and the previous list items are
@@ -4237,13 +4250,22 @@ header files whose
 <literal>#include</literal>
 lines should precede the
 header line being checked for.
-A code fragment
-(must be a valid expression, including a trailing semicolon)
-to serve as the test can be supplied in
-<parameter>call</parameter>;
-if not supplied,
+The default is to include no header text.
+<parameter>language</parameter> indicates the compiler to use
+(default "C").
+</para>
+
+<para>
+The remaining parameters should be specified in keyword style.
+If provided, <parameter>call</parameter>
+is a code fragment to compile as the stub test,
+replacing the auto-generated stub.
+The fragment must be a valid expression in <parameter>language</parameter>.
+If not supplied,
 the default checks the ability to link against the specified
 <parameter>library</parameter>.
+<parameter>extra_libs</parameter> can be used to add additional libraries
+to link against (usually, dependencies of the library under test).
 If <parameter>autoadd</parameter> is true (the default),
 the first library that passes the check
 is added to the &cv-link-LIBS; &consvar; in the context
@@ -4255,11 +4277,17 @@ and the library would otherwise be added but is
 already present in &cv-link-LIBS; in the configure context,
 it will not be added again. The default is <literal>False</literal>.
 </para>
+
 <para>Returns a boolean indicating success or failure.</para>
+
 <para>
 <emphasis>Changed in version 4.5.0: added the
 <parameter>append</parameter> and <parameter>unique</parameter>
 parameters.</emphasis>
+</para>
+<para>
+<emphasis>Changed in version NEXT_RELEASE: added the
+<parameter>extra_libs</parameter> parameter.</emphasis>
 </para>
   </listitem>
   </varlistentry>

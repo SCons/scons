@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+SharedLibrary(
+    target='B',
+    source=['libB.c'],
+    LIBS=['A'],
+    LIBPATH='../libA',
+    CPPPATH='../libA',
+    CPPDEFINES='BUILDINGSHAREDLIB',
+)
