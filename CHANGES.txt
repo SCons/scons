@@ -12,6 +12,10 @@ NOTE: Python 3.6 support is deprecated and will be dropped in a future release.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Ruben Di Battista:
+    - Expose `extra_libs` kwarg in Configure checks `CheckLibWithHeader`
+      and 'CheckLib' and forward it downstream to `CheckLib`
+
   From Joseph Brill:
     - Added error handling when creating MSVC detection debug log file specified by
       SCONS_MSCOMMON_DEBUG.
@@ -201,6 +205,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Test framework reformatted using settings from pyproject.toml.
       Includes code embedded in docstrings.
     - Clarify how pre/post actions on an alias work.
+    - Handle case of "memoizer" as one member of a comma-separated
+      --debug string - this was previously missed.
+    - test YACC/live.py fixed - finally started failing on an "old-style"
+      (K&R flavor) function declaration, updated.
 
     From Adam Scott:
     - Changed Ninja's TEMPLATE rule pool to use `install_pool` instead of

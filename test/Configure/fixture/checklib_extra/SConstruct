@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+DefaultEnvironment(tools=[])
+
+env = Environment(
+    CPPPATH=['#'],
+    LIBPATH=['libB', 'libA'],
+    LIBS=['A', 'B'],
+    RPATH=['libA', 'libB'],
+)
+
+conf = Configure(env)
+if not conf.CheckLibWithHeader(
+    ['B'],
+    header="libB/libB.h",
+    language='C',
+    extra_libs=['A'],
+    call='libB();',
+    autoadd=False,
+):
+    print("Cannot build against 'B' library, exiting.")
+    Exit(1)
+env = conf.Finish()
+
+# TODO: we should be able to build and run a test program now,
+#   to make sure Configure() didn't lie to us about usability.
+#   Disabled for now, because that's trickier in Windows (the rpath
+#   only works for Linux)
+# env.Program(target="testlibs", source="src/test.c")
+

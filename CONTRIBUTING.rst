@@ -6,20 +6,22 @@ Introduction
 
 Thanks for taking the time to contribute to SCons!
 
-This will give a brief overview of the development process,
+This is a brief overview of the development process,
 and about the SCons tree (right here, if you're reading this
-in Github, or in a cloned repository).
+in Github, or in a repository clone).
 
 There are lots of places we could use help - please don't
 think we're only interested in contributions to code.
 
 If you're going to contribute, we'd love to get to know you
-a bit and understand and what problems you're looking to solve,
+a bit and understand what problems you're looking to solve,
 or what you are intending to improve, whether that's documentation,
 code, examples, tutorials, etc. A great way to introduce yourself is to
 to hop onto the `SCons Discord Server <https://discord.gg/bXVpWAy>`_
-to chat.  You don't have to be a regular Discord user,
-there is a web interface.
+to chat.  You don't have to use the Discord app,
+as there is a web interface (does require an account).
+You can also use the
+`SCons Users Mailing List <https://pairlist4.pair.net/mailman/listinfo/scons-users>`_.
 
 Resources
 =========
@@ -38,15 +40,20 @@ Reporting Bugs
 
 One of the easiest ways to contribute is by filing bugs.
 The SCons project welcomes bug reports and feature requests,
-but we *do* have a preference for having talked about them first -
-we request you send an email to the
-`SCons Users Mailing List <https://pairlist4.pair.net/mailman/listinfo/scons-users>`_
-or hop on the Discord channel (see link above), and if so
-instructed, then proceed to an issue report.
+but unless they're really trivial (like doc typos),
+we *do* have a preference for having talked about them first.
+This step helps identify possible collaborators and reviewers,
+and pre-screens issues that may already have solutions,
+be in progress, or perhaps are the result of a misunderstanding.
+You can either ask on the Discord channel (see link above),
+or send am email to the mailing list.
+You can also use
+`GitHub Discussions <https://github.com/SCons/scons/discussions>`_.
+If so instructed, please proceed to an issue report.
 
 You can explore the list of existing bugs on GitHub.
 Sometimes there's work in progress which may include temporary
-workarounds for the problem you've run into::
+workarounds for the problem you are running into::
 
     https://github.com/SCons/scons/issues
 
@@ -58,12 +65,12 @@ This tree contains a lot more than just the SCons engine itself.
 Some of it has to do with packaging it in a couple
 of forms: a Python-installable package (source distribution
 and installable wheel file, which get uploaded to the Python
-Package Index), a portable zip (or tar) distribution
+Package Index, PyPI), a portable zip (or tar) distribution
 called "scons-local", and a full source bundle.  You usually
 don't need to worry about the packaging parts when working
 on a source or doc contribution - unless you're adding an entirely
-new file, then the packaging bits may need to know about it. The
-project maintainers can usually help with that part.
+new file, then the packaging bits may need to know about it.
+The project maintainers can help with that part.
 There are also tests and tools in the tree.
 
 The *full* development cycle is not just to test code changes directly,
@@ -111,7 +118,7 @@ on the documentation process at the Documentation Toolchain page:
     https://github.com/SCons/scons/blob/master/doc/overview.rst
 
 
-You can execute SCons directly from this repository. For Linux or UNIX::
+You can execute SCons directly from this repository. For Linux/UNIX/MacOS::
 
     $ python scripts/scons.py [arguments]
 

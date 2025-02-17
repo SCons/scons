@@ -25,6 +25,7 @@ DEPRECATED FUNCTIONALITY
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
+- Expose the `extra_libs` keyword argument in `CheckLibWithHeader` and 'CheckLib'
 
 - List modifications to existing features, where the previous behavior
   wouldn't actually be considered a bug
@@ -178,6 +179,9 @@ FIXES
 
 - Fix Issue #2281, AddPreAction() & AddPostAction() were being ignored if no action
   was specified when the Alias was initially created.
+
+- Handle case of "memoizer" as one member of a comma-separated
+  --debug string - this was previously missed.
 
 IMPROVEMENTS
 ------------
