@@ -204,6 +204,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       attribute and to explain what's being done in the example.
     - Test framework reformatted using settings from pyproject.toml.
       Includes code embedded in docstrings.
+    - Clarify how pre/post actions on an alias work.
     - Handle case of "memoizer" as one member of a comma-separated
       --debug string - this was previously missed.
     - test YACC/live.py fixed - finally started failing on an "old-style"
