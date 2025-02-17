@@ -65,8 +65,7 @@ int main(void)
     return yyparse();
 }
 
-int yyerror(s)
-char *s;
+int yyerror(char *s)
 {
     fprintf(stderr, "%%s\n", s);
     return 0;

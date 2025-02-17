@@ -206,6 +206,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Includes code embedded in docstrings.
     - Handle case of "memoizer" as one member of a comma-separated
       --debug string - this was previously missed.
+    - test YACC/live.py fixed - finally started failing on an "old-style"
+      (K&R flavor) function declaration, updated.
 
     From Adam Scott:
     - Changed Ninja's TEMPLATE rule pool to use `install_pool` instead of
