@@ -27,6 +27,7 @@ import functools
 import hashlib
 import io
 import os
+import subprocess
 import sys
 import unittest
 import unittest.mock
@@ -73,6 +74,7 @@ from SCons.Util import (
     to_String,
     to_bytes,
     to_str,
+    wait_for_process_to_die,
 )
 from SCons.Util.envs import is_valid_construction_var
 from SCons.Util.hashes import (
@@ -846,6 +848,27 @@ bling
         s3 = silent_intern(42)
         s4 = silent_intern("spam")
         assert id(s1) == id(s4)
+
+    def test_wait_for_process_to_die_success(self) -> None:
+        cmd = [sys.executable, "-c", ""]
+        p = subprocess.Popen(cmd)
+        p.wait()
+        wait_for_process_to_die(p.pid, timeout=10.0)
+
+    def test_wait_for_process_to_die_timeout(self) -> None:
+        # Run a python script that will keep running until we close it's stdin
+        cmd = [sys.executable, "-c", "import sys; data = sys.stdin.read()"]
+        p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+
+        # wait_for_process_to_die() should time out while the process is running
+        with self.assertRaises(TimeoutError):
+            wait_for_process_to_die(p.pid, timeout=0.2)
+
+        p.stdin.close()
+        p.wait()
+
+        # wait_for_process_to_die() should complete normally now
+        wait_for_process_to_die(p.pid, timeout=10.0)
 
 
 class HashTestCase(unittest.TestCase):
