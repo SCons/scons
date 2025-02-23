@@ -107,10 +107,17 @@ _dll = dll_suffix
 dll_ = dll_prefix
 
 try:
+    # Note: if the ninja python package is not installed, this import statement can end
+    # up finding the scons/test/ninja directory instead, and successfully importing
+    # that directory as an implicit namespace package. Therefore if ninja is
+    # unavailable, we may not get an ImportError here, but can instead get an
+    # AttributeError when attempting to access ninja.BIN_DIR below.  This happens
+    # when running individual test files in the test/ directory, since the test/
+    # directory will then be listed as the first entry in sys.path
     import ninja
 
     NINJA_BINARY = os.path.abspath(os.path.join(ninja.BIN_DIR, 'ninja' + _exe))
-except ImportError:
+except (ImportError, AttributeError):
     NINJA_BINARY = None
 
 if sys.platform == 'cygwin':
