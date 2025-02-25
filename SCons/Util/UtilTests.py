@@ -33,6 +33,7 @@ import unittest
 import unittest.mock
 import warnings
 from collections import UserDict, UserList, UserString, namedtuple
+from typing import Callable
 
 import TestCmd
 
@@ -75,6 +76,7 @@ from SCons.Util import (
     to_bytes,
     to_str,
     wait_for_process_to_die,
+    _wait_for_process_to_die_non_psutil,
 )
 from SCons.Util.envs import is_valid_construction_var
 from SCons.Util.hashes import (
@@ -83,6 +85,13 @@ from SCons.Util.hashes import (
     _get_hash_object,
     _set_allowed_viable_default_hashes,
 )
+
+try:
+    import psutil
+    has_psutil = True
+except ImportError:
+    has_psutil = False
+
 
 # These Util classes have no unit tests. Some don't make sense to test?
 # DisplayEngine, Delegate, MethodWrapper, UniqueList, Unbuffered, Null, NullSeq
@@ -849,26 +858,20 @@ bling
         s4 = silent_intern("spam")
         assert id(s1) == id(s4)
 
-    def test_wait_for_process_to_die_success(self) -> None:
+    @unittest.skipUnless(has_psutil, "requires psutil")
+    def test_wait_for_process_to_die_success_psutil(self) -> None:
+        self._test_wait_for_process(wait_for_process_to_die)
+
+    def test_wait_for_process_to_die_success_non_psutil(self) -> None:
+        self._test_wait_for_process(_wait_for_process_to_die_non_psutil)
+
+    def _test_wait_for_process(
+        self, wait_fn: Callable[[int], None]
+    ) -> None:
         cmd = [sys.executable, "-c", ""]
         p = subprocess.Popen(cmd)
         p.wait()
-        wait_for_process_to_die(p.pid, timeout=10.0)
-
-    def test_wait_for_process_to_die_timeout(self) -> None:
-        # Run a python script that will keep running until we close it's stdin
-        cmd = [sys.executable, "-c", "import sys; data = sys.stdin.read()"]
-        p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-
-        # wait_for_process_to_die() should time out while the process is running
-        with self.assertRaises(TimeoutError):
-            wait_for_process_to_die(p.pid, timeout=0.2)
-
-        p.stdin.close()
-        p.wait()
-
-        # wait_for_process_to_die() should complete normally now
-        wait_for_process_to_die(p.pid, timeout=10.0)
+        wait_fn(p.pid)
 
 
 class HashTestCase(unittest.TestCase):

@@ -694,8 +694,9 @@ class NinjaState:
                         pass
 
                 # wait for the server process to fully killed
-                # TODO: catch TimeoutException here and possibly do something smart.
-                wait_for_process_to_die(pid, timeout=10)
+                # TODO: update wait_for_process_to_die() to handle timeout and then catch exception
+                #       here and do something smart.
+                wait_for_process_to_die(pid)
 
             if os.path.exists(scons_daemon_dirty):
                 os.unlink(scons_daemon_dirty)

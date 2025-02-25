@@ -1297,14 +1297,28 @@ def print_time():
     return print_time
 
 
-def wait_for_process_to_die(pid: int, timeout: float = 60.0) -> None:
+def wait_for_process_to_die(pid: int) -> None:
     """
     Wait for the specified process to die.
 
-    A TimeoutError will be thrown if the timeout is hit before the process terminates.
-    Specifying a negative timeout will cause wait_for_process_to_die() to wait
-    indefinitely, and never throw TimeoutError.
+    TODO: Add timeout which raises exception
     """
+    # wait for the process to fully killed
+    try:
+        import psutil  # pylint: disable=import-outside-toplevel
+        while True:
+            # TODO: this should use psutil.process_exists() or psutil.Process.wait()
+            # The psutil docs explicitly recommend against using process_iter()/pids()
+            # for checking the existence of a process.
+            if pid not in [proc.pid for proc in psutil.process_iter()]:
+                break
+            time.sleep(0.1)
+    except ImportError:
+        # if psutil is not installed we can do this the hard way
+        _wait_for_process_to_die_non_psutil(pid, timeout=-1.0)
+
+
+def _wait_for_process_to_die_non_psutil(pid: int, timeout: float = 60.0) -> None:
     start_time = time.time()
     while True:
         if not _is_process_alive(pid):
