@@ -8205,34 +8205,36 @@ in &t-link-fortran;; (&consvars; start with <literal>FORTRAN</literal>)
 <para>
 While &SCons; recognizes multiple internal dialects
 based on filename suffixes,
-the convention of various available Fortran compilers is
+the convention of many popular Fortran compilers is
 to assign an actual meaning to only two of these suffixes:
 <filename>.f</filename>
-(as well as <filename>.for</filename> and <filename>.ftn</filename>)
-refers to the fixed-format source
-code that was the only available option in FORTRAN 77 and earlier,
-and <filename>.f90</filename> refers to free-format source code
+(with <filename>.for</filename> and <filename>.ftn</filename>
+usually given the same meaning),
+interpreted as fixed-format source
+code that was the only available option in Fortran 77 and earlier;
+<filename>.f90</filename>,
+interpreted as free-format source code
 which became available as of the Fortran 90 standard.
 Some compilers recognize suffixes which correspond to Fortran
 specifications later than F90 as equivalent to
 <filename>.f90</filename> for this purpose,
 while some do not - check the documentation for your compiler.
-An occasionally suggested policy suggestion is to use only
+An occasionally suggested policy is to use only
 <filename>.f</filename> and <filename>.f90</filename>
 as Fortran filename suffixes.
 The fixed/free form determination can usually be controlled
 explicitly with compiler flags
-(e.g. <option>-ffixed-form</option> for gfortran),
+(e.g. <option>-ffixed-form</option> for GNU Fortran),
 overriding any assumption that may be made based on the source file suffix.
 </para>
 
 <para>
-The source file suffix does not imply conformance
+A source file suffix does not imply conformance
 with the similarly-named Fortran standard - a suffix of
 <filename>.f08</filename> does not mean you are compiling
 specifically for Fortran 2008.  Normally, compilers
 provide command-line options for making this selection
-(e.g. <option>-std=f2008</option> for gfortran).
+(e.g. <option>-std=f2008</option> for GNU Fortran).
 </para>
 
 <para>
@@ -8241,9 +8243,9 @@ a suffix of <filename>.mod</filename> is recognized for Fortran modules.
 These files are a side effect of compiling a Fortran
 source file containing module declarations,
 and must be available when other code which declares
-that it uses the module is processed.
-&SCons; does not currently have integrated support for submodules,
-introduced in the Fortran 2008 standard -
+it uses the module is processed.
+&SCons; does not currently have integrated support for submodules
+(introduced in the Fortran 2008 standard) -
 the invoked compiler will produce results,
 but &SCons; will not recognize
 <filename>.smod</filename> files as tracked objects.
@@ -8259,33 +8261,43 @@ a file with a an upper-cased suffix from the set
 <filename>.F95</filename>,
 <filename>.F03</filename> and
 <filename>.F08</filename>
-is treated as a Fortran source file
-which shall first be run through
-the standard C preprocessor.
-The lower-cased versions of these suffixes do not
-trigger this behavior.
-On systems which do not distinguish between upper
-and lower case in filenames,
-this behavior is not available,
-but files suffixed with either
-<filename>.FPP</filename>
-or <filename>.fpp</filename>
-are always passed to the preprocessor first.
-This matches the convention of <command>gfortran</command>
-from the GNU Compiler Collection,
-and also followed by certain other Fortran compilers.
-For these two suffixes,
-the generic <emphasis>FORTRAN</emphasis> dialect will be selected.
+is assumed to be a Fortran source file
+which may contain macros and conditional compilation directives.
+Most popular Fortran compilers will first pass such
+a source file through a Fortran preprocssor
+(<command>fpp</command>, which in some implementations
+may be the same as the C preprocessor);
+the lower-cased suffixes do not trigger this behavior.
+On systems which do not distinguish between
+upper and lower case in filenames,
+this scheme cannot be used,
+but you can usually use the <filename>.fpp</filename>
+suffix to force this behavior
+(<filename>.FPP</filename> is a synonym).
+Since this suffix-driven behavior is convention,
+not mandated by standards,
+consult the compiler's documentation to be sure.
 </para>
 
 <para>
-&SCons; itself does not invoke the preprocessor,
-that is handled by the compiler,
-but it adds &consvars; which are applicable to the preprocessor run.
-You can see this difference by examining
-&cv-link-FORTRANPPCOM; and &cv-link-FORTRANPPCOMSTR;
+Although &SCons; itself is not responsible for invoking the preprocessor,
+it does add &consvars; which are applicable to the preprocessor.
+You can see this difference by examining, for example,
+&cv-link-FORTRANPPCOM; and &cv-link-FORTRANPPCOMSTR;,
 which are used instead of
-&cv-link-FORTRANCOM; and &cv-link-FORTRANCOMSTR; for that dialect.
+&cv-link-FORTRANCOM; and &cv-link-FORTRANCOMSTR;
+for the generic compiler dialect if a preprocessor suffix is detected.
+The <filename>.fpp</filename> suffix indicates a
+Fortran 90+ (free-form) source file without implying a dialect,
+so &SCons; selects the  generic FORTRAN dialect in this case.
+Otherwise, if the suffix matches one of the dialects,
+&SCons; selects that dialect for the settings.
+Compilers typically also have a flag available
+to indicate preprocessing is required
+(e.g. <option>-cpp</option> for GNU Fortran),
+but using such an option will not trigger &SCons;
+to use the alternate &consvars; in building command lines
+so you are responsible for that setup yourself.
 </para>
 </refsect2>
 

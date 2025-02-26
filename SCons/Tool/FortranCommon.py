@@ -146,6 +146,20 @@ def DialectAddToEnv(
     """
     ComputeFortranSuffixes(suffixes, ppsuffixes)
 
+    defaults = {}
+    # Dialect-specific variables that should fall back to FORTRAN dialect:
+    if dialect == 'FORTRAN':
+        defaults[f'{dialect}FLAGS'] = SCons.Util.CLVar('')
+        defaults[f'SH{dialect}FLAGS'] = SCons.Util.CLVar(f'${dialect}FLAGS')
+    else:
+        defaults[f'{dialect}PATH'] = '$FORTRANPATH'
+        defaults[f'{dialect}FLAGS'] = '$FORTRANFLAGS'
+        defaults[f'SH{dialect}FLAGS'] = '$SHFORTRANFLAGS'
+    # Variables that should fall back to the C version:
+    defaults[f'INC{dialect}PREFIX'] = '$INCPREFIX'
+    defaults[f'INC{dialect}SUFFIX'] = '$INCSUFFIX'
+    env.SetDefault(**defaults)
+
     fscan = SCons.Scanner.Fortran.FortranScan(f"{dialect}PATH")
     for suffix in suffixes + ppsuffixes:
         SCons.Tool.SourceFileScanner.add_scanner(suffix, fscan)
@@ -167,17 +181,6 @@ def DialectAddToEnv(
         shared_obj.add_action(suffix, shcompppaction)
         static_obj.add_emitter(suffix, FortranEmitter)
         shared_obj.add_emitter(suffix, ShFortranEmitter)
-
-    if f'{dialect}FLAGS' not in env:
-        env[f'{dialect}FLAGS'] = SCons.Util.CLVar('')
-    if f'SH{dialect}FLAGS' not in env:
-        env[f'SH{dialect}FLAGS'] = SCons.Util.CLVar(f'${dialect}FLAGS')
-
-    # If a tool does not define fortran prefix/suffix for include path, use C ones
-    if f'INC{dialect}PREFIX' not in env:
-        env[f'INC{dialect}PREFIX'] = '$INCPREFIX'
-    if f'INC{dialect}SUFFIX' not in env:
-        env[f'INC{dialect}SUFFIX'] = '$INCSUFFIX'
 
     env[f'_{dialect}INCFLAGS'] = f'${{_concat(INC{dialect}PREFIX, {dialect}PATH, INC{dialect}SUFFIX, __env__, RDirs, TARGET, SOURCE, affect_signature=False)}}'
 

@@ -183,6 +183,11 @@ FIXES
 - Handle case of "memoizer" as one member of a comma-separated
   --debug string - this was previously missed.
 
+- Fortran dialect *PATH and *FLAGS settings fall back to generic
+  dialect's settings if not explicitly set, bringing the behavior in line
+  with long-standing documentation claims.
+
+
 IMPROVEMENTS
 ------------
 
