@@ -153,8 +153,8 @@ def DialectAddToEnv(
         defaults[f'SH{dialect}FLAGS'] = SCons.Util.CLVar(f'${dialect}FLAGS')
     else:
         defaults[f'{dialect}PATH'] = '$FORTRANPATH'
-        defaults[f'{dialect}FLAGS'] = '$FORTRANFLAGS'
-        defaults[f'SH{dialect}FLAGS'] = '$SHFORTRANFLAGS'
+        defaults[f'{dialect}FLAGS'] = SCons.Util.CLVar('$FORTRANFLAGS')
+        defaults[f'SH{dialect}FLAGS'] = SCons.Util.CLVar('$SHFORTRANFLAGS')
     # Variables that should fall back to the C version:
     defaults[f'INC{dialect}PREFIX'] = '$INCPREFIX'
     defaults[f'INC{dialect}SUFFIX'] = '$INCSUFFIX'
