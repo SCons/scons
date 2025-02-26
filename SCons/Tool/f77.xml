@@ -27,7 +27,13 @@ This file is processed by the bin/SConsDoc.py module.
 <tool name="f77">
 <summary>
 <para>
-Set construction variables for generic POSIX Fortran 77 compilers.
+Set construction variables for the Fortran 77 dialect.
+A Fortran dialect lets you customize the
+compilation environment for certain files,
+as selected by the dialect's <literal>FILESUFFIXES</literal> variable.
+By default, the Fortran 77 dialect is distinguished from the
+the Fortran 90, 95, 03 and 08 dialects by the assumption
+that the source files are fixed-form Fortran, rather than free.
 </para>
 </summary>
 <sets>
@@ -68,12 +74,12 @@ Set construction variables for generic POSIX Fortran 77 compilers.
 <cvar name="F77">
 <summary>
 <para>
-The Fortran 77 compiler.
-You should normally set the &cv-link-FORTRAN; variable,
-which specifies the default Fortran compiler
-for all Fortran versions.
-You only need to set &cv-link-F77; if you need to use a specific compiler
-or compiler version for Fortran 77 files.
+The compiler for the Fortran 77 dialect.
+This dialect is selected when a source file has a suffix
+specified in &cv-link-F77FILESUFFIXES;
+&cv-link-F77PPFILESUFFIXES;.
+You only need to set &cv-F77; if you need to specify
+a compiler different than the one auto-detected for this dialect.
 </para>
 </summary>
 </cvar>
@@ -82,11 +88,12 @@ or compiler version for Fortran 77 files.
 <summary>
 <para>
 The command line used to compile a Fortran 77 source file to an object file.
-You only need to set &cv-link-F77COM; if you need to use a specific
-command line for Fortran 77 files.
-You should normally set the &cv-link-FORTRANCOM; variable,
-which specifies the default command line
-for all Fortran versions.
+You only need to set &cv-F77COM; if you need to use a customized
+command line for this dialect.
+The default setting will be equivalent to
+&cv-link-FORTRANCOM;,
+but using the dialect-specific &consvars; for substitution,
+excepting that Fortran module-related variables are omitted.
 </para>
 </summary>
 </cvar>
@@ -94,8 +101,8 @@ for all Fortran versions.
 <cvar name="F77FILESUFFIXES">
 <summary>
 <para>
-The list of file extensions for which the F77 dialect will be used. By
-default, this is <literal>['.f77']</literal>
+The list of file extensions for which the Fortran 77 dialect will be used.
+By default, this is <literal>['.f77']</literal>
 </para>
 </summary>
 </cvar>
@@ -104,7 +111,7 @@ default, this is <literal>['.f77']</literal>
 <summary>
 <para>
 The list of file extensions for which the compilation + preprocessor pass for
-F77 dialect will be used. By default, this is empty.
+the Fortran 77 dialect will be used. By default, this is empty.
 </para>
 </summary>
 </cvar>
@@ -114,8 +121,8 @@ F77 dialect will be used. By default, this is empty.
 <para>
 If set, the string displayed when a Fortran 77 source file
 is compiled to an object file.
-If not set, then &cv-link-F77COM; or &cv-link-FORTRANCOM;
-(the command line) is displayed.
+If not set, then the actual command line,
+as generated from &cv-link-F77COM;, is displayed.
 </para>
 </summary>
 </cvar>
@@ -137,9 +144,7 @@ for the variable that expands to those options.
 You only need to set &cv-link-F77FLAGS; if you need to define specific
 user options for Fortran 77 files.
 You should normally set the &cv-link-FORTRANFLAGS; variable,
-which specifies the user-specified options
-passed to the default Fortran compiler
-for all Fortran versions.
+which holds user-specified options passed to all Fortran builds.
 </para>
 </summary>
 </cvar>

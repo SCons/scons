@@ -27,7 +27,12 @@ This file is processed by the bin/SConsDoc.py module.
 <tool name="f95">
 <summary>
 <para>
-Set construction variables for generic POSIX Fortran 95 compilers.
+Set construction variables for the Fortran 95 dialect.
+A Fortran dialect lets you customize the
+compilation environment for certain files,
+as selected by the dialect's <literal>FILESUFFIXES</literal> variable.
+By default, the Fortran 95 dialect behaves the same
+as the Fortran 90, 03 and 08 dialects.
 </para>
 </summary>
 <sets>
@@ -53,12 +58,12 @@ Set construction variables for generic POSIX Fortran 95 compilers.
 <cvar name="F95">
 <summary>
 <para>
-The Fortran 95 compiler.
-You should normally set the &cv-link-FORTRAN; variable,
-which specifies the default Fortran compiler
-for all Fortran versions.
-You only need to set &cv-link-F95; if you need to use a specific compiler
-or compiler version for Fortran 95 files.
+The compiler for the Fortran 95 dialect.
+This dialect is selected when a source file has a suffix
+specified in &cv-link-F95FILESUFFIXES; or
+&cv-link-F95PPFILESUFFIXES;.
+You only need to set &cv-F95; if you need to specify
+a compiler different than the one auto-detected for this dialect.
 </para>
 </summary>
 </cvar>
@@ -67,11 +72,11 @@ or compiler version for Fortran 95 files.
 <summary>
 <para>
 The command line used to compile a Fortran 95 source file to an object file.
-You only need to set &cv-link-F95COM; if you need to use a specific
-command line for Fortran 95 files.
-You should normally set the &cv-link-FORTRANCOM; variable,
-which specifies the default command line
-for all Fortran versions.
+You only need to set &cv-F95COM; if you need to use a customized
+command line for this dialect.
+The default setting will be equivalent to
+&cv-link-FORTRANCOM;,
+but using the dialect-specific &consvars; for substitution.
 </para>
 </summary>
 </cvar>
@@ -81,8 +86,8 @@ for all Fortran versions.
 <para>
 If set, the string displayed when a Fortran 95 source file
 is compiled to an object file.
-If not set, then &cv-link-F95COM; or &cv-link-FORTRANCOM;
-(the command line) is displayed.
+If not set, then the actual command line,
+as generated from &cv-link-F95COM;, is displayed.
 </para>
 </summary>
 </cvar>
@@ -90,8 +95,8 @@ If not set, then &cv-link-F95COM; or &cv-link-FORTRANCOM;
 <cvar name="F95FILESUFFIXES">
 <summary>
 <para>
-The list of file extensions for which the F95 dialect will be used. By
-default, this is <literal>['.f95']</literal>
+The list of file extensions for which the Fortran 95 dialect will be used.
+By default, this is <literal>['.f95']</literal>
 </para>
 </summary>
 </cvar>
@@ -100,7 +105,7 @@ default, this is <literal>['.f95']</literal>
 <summary>
 <para>
 The list of file extensions for which the compilation + preprocessor pass for
-F95 dialect will be used. By default, this is empty.
+the Fortran 95 dialect will be used. By default, this is empty.
 </para>
 </summary>
 </cvar>
@@ -121,10 +126,8 @@ below,
 for the variable that expands to those options.
 You only need to set &cv-link-F95FLAGS; if you need to define specific
 user options for Fortran 95 files.
-You should normally set the &cv-link-FORTRANFLAGS; variable,
-which specifies the user-specified options
-passed to the default Fortran compiler
-for all Fortran versions.
+You should normally set the &cv-link-FORTRANCOMMONFLAGS; variable,
+which holds user-specified options passed to all Fortran builds.
 </para>
 </summary>
 </cvar>

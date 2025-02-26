@@ -407,7 +407,6 @@ def _concat(prefix, items_iter, suffix, env, f=lambda x: x, target=None, source=
     list, and finally calling _concat_ixes to concatenate 'prefix' and
     'suffix' onto each element of the list.
     """
-
     if not items_iter:
         return items_iter
 
@@ -415,14 +414,10 @@ def _concat(prefix, items_iter, suffix, env, f=lambda x: x, target=None, source=
     if l is not None:
         items_iter = l
 
+    value = [] if affect_signature else ['$(']
+    value.extend(_concat_ixes(prefix, items_iter, suffix, env))
     if not affect_signature:
-        value = ['$(']
-    else:
-        value = []
-    value += _concat_ixes(prefix, items_iter, suffix, env)
-
-    if not affect_signature:
-        value += ["$)"]
+        value.append("$)")
 
     return value
 # pylint: enable-msg=too-many-arguments
