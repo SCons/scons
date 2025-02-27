@@ -206,8 +206,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Includes code embedded in docstrings.
     - Handle case of "memoizer" as one member of a comma-separated
       --debug string - this was previously missed.
-    - test YACC/live.py fixed - finally started failing on an "old-style"
+    - test YACC/live.py fixed - gcc 15 failed this on an "old-style"
       (K&R flavor) function declaration, updated.
+    - Fortran dialect *PATH and *FLAGS settings fall back to generic
+      dialect's settings if not explicitly set, bringing the behavior in line
+      with long-standing documentation claims.
 
     From Adam Scott:
     - Changed Ninja's TEMPLATE rule pool to use `install_pool` instead of

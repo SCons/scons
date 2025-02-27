@@ -27,7 +27,12 @@ This file is processed by the bin/SConsDoc.py module.
 <tool name="f90">
 <summary>
 <para>
-Set construction variables for generic POSIX Fortran 90 compilers.
+Set &consvars; for the Fortran 90 dialect.
+A Fortran dialect lets you customize the
+compilation environment for certain files,
+as selected by the dialect's <literal>FILESUFFIXES</literal> variables.
+By default, the Fortran 90 dialect behaves the same
+as the Fortran 95, 03 and 08 dialects.
 </para>
 </summary>
 <sets>
@@ -53,12 +58,12 @@ Set construction variables for generic POSIX Fortran 90 compilers.
 <cvar name="F90">
 <summary>
 <para>
-The Fortran 90 compiler.
-You should normally set the &cv-link-FORTRAN; variable,
-which specifies the default Fortran compiler
-for all Fortran versions.
-You only need to set &cv-link-F90; if you need to use a specific compiler
-or compiler version for Fortran 90 files.
+The compiler for the Fortran 90 dialect.
+This dialect is selected when a source file has a suffix
+specified in &cv-link-F90FILESUFFIXES; or
+&cv-link-F90PPFILESUFFIXES;.
+You only need to set &cv-F90; if you need to specify
+a compiler different than the one auto-detected for this dialect.
 </para>
 </summary>
 </cvar>
@@ -67,11 +72,11 @@ or compiler version for Fortran 90 files.
 <summary>
 <para>
 The command line used to compile a Fortran 90 source file to an object file.
-You only need to set &cv-link-F90COM; if you need to use a specific
-command line for Fortran 90 files.
-You should normally set the &cv-link-FORTRANCOM; variable,
-which specifies the default command line
-for all Fortran versions.
+You only need to set &cv-F90COM; if you need to use a customized
+command line for this dialect.
+The default setting will be equivalent to
+&cv-link-FORTRANCOM;,
+but using the dialect-specific &consvars; for substitution.
 </para>
 </summary>
 </cvar>
@@ -81,8 +86,8 @@ for all Fortran versions.
 <para>
 If set, the string displayed when a Fortran 90 source file
 is compiled to an object file.
-If not set, then &cv-link-F90COM; or &cv-link-FORTRANCOM;
-(the command line) is displayed.
+If not set, then the actual command line,
+as generated from &cv-link-F90COM;, is displayed.
 </para>
 </summary>
 </cvar>
@@ -90,8 +95,8 @@ If not set, then &cv-link-F90COM; or &cv-link-FORTRANCOM;
 <cvar name="F90FILESUFFIXES">
 <summary>
 <para>
-The list of file extensions for which the F90 dialect will be used. By
-default, this is <literal>['.f90']</literal>
+The list of file extensions for which the Fortran 90 dialect will be used.
+By default, this is <literal>['.f90']</literal>
 </para>
 </summary>
 </cvar>
@@ -100,7 +105,7 @@ default, this is <literal>['.f90']</literal>
 <summary>
 <para>
 The list of file extensions for which the compilation + preprocessor pass for
-F90 dialect will be used. By default, this is empty.
+the Fortran 90 dialect will be used. By default, this is empty.
 </para>
 </summary>
 </cvar>
@@ -108,23 +113,16 @@ F90 dialect will be used. By default, this is empty.
 <cvar name="F90FLAGS">
 <summary>
 <para>
-General user-specified options that are passed to the Fortran 90 compiler.
-Note that this variable does
-<emphasis>not</emphasis>
-contain
-<option>-I</option>
-(or similar) include search path options
-that scons generates automatically from &cv-link-F90PATH;.
-See
-&cv-link-_F90INCFLAGS;
-below,
-for the variable that expands to those options.
+General user-specified options that are passed to the compiler
+for the Fortran 90 dialect.
 You only need to set &cv-link-F90FLAGS; if you need to define specific
-user options for Fortran 90 files.
-You should normally set the &cv-link-FORTRANFLAGS; variable,
-which specifies the user-specified options
-passed to the default Fortran compiler
-for all Fortran versions.
+user options for Fortran 90 dialect files.
+You should normally set the &cv-link-FORTRANCOMMONFLAGS; variable,
+which holds user-specified options passed to all Fortran builds.
+</para>
+<para><emphasis>Changed in version 4.4</emphasis>:
+&cv-link-FORTRANCOMMONFLAGS; is included by default
+when command lines for this dialect are expanded.
 </para>
 </summary>
 </cvar>
@@ -132,13 +130,13 @@ for all Fortran versions.
 <cvar name="_F90INCFLAGS">
 <summary>
 <para>
-An automatically-generated construction variable
+An automatically-generated &consvar;
 containing the Fortran 90 compiler command-line options
 for specifying directories to be searched for include files.
-The value of &cv-link-_F90INCFLAGS; is created
-by appending &cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
-to the beginning and end
-of each directory in &cv-link-F90PATH;.
+The value of &cv-link-_F90INCFLAGS; is created by
+prepending &cv-link-INCPREFIX;
+and appending &cv-link-INCSUFFIX;
+to each directory in &cv-link-F90PATH;.
 </para>
 </summary>
 </cvar>
@@ -147,20 +145,28 @@ of each directory in &cv-link-F90PATH;.
 <summary>
 <para>
 The list of directories that the Fortran 90 compiler will search for include
-directories. The implicit dependency scanner will search these
-directories for include files. Don't explicitly put include directory
-arguments in &cv-link-F90FLAGS; because the result will be non-portable
-and the directories will not be searched by the dependency scanner. Note:
-directory names in &cv-link-F90PATH; will be looked-up relative to the SConscript
-directory when they are used in a command. To force
-&scons;
-to lookup a directory relative to the root of the source tree, use #:
+files. The implicit dependency scanner will also search these
+directories for include files.
+Do not include compiler search path syntax
+(such as the <option>-I</option> option),
+as this will make the result not portable
+between different systems,
+and will cause the directory not to be searched by the
+dependency scanner.
 You only need to set &cv-link-F90PATH; if you need to define a specific
 include path for Fortran 90 files.
 You should normally set the &cv-link-FORTRANPATH; variable,
 which specifies the include path
 for the default Fortran compiler
 for all Fortran versions.
+</para>
+<para>
+Note:
+directory names in &cv-link-F90PATH; are looked up relative to the SConscript
+directory when they are used in a command. To force
+&scons;
+to look up a directory relative to the root of the source tree,
+use a top-relative path (starts with <literal>#</literal>):
 </para>
 
 <example_commands>
@@ -169,8 +175,7 @@ env = Environment(F90PATH='#/include')
 
 <para>
 The directory lookup can also be forced using the
-&Dir;()
-function:
+&f-link-Dir; function:
 </para>
 
 <example_commands>
@@ -181,17 +186,11 @@ env = Environment(F90PATH=include)
 <para>
 The directory list will be added to command lines
 through the automatically-generated
-&cv-link-_F90INCFLAGS;
-construction variable,
-which is constructed by
-appending the values of the
-&cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
-construction variables
-to the beginning and end
-of each directory in &cv-link-F90PATH;.
+&cv-link-_F90INCFLAGS; &consvar;.
 Any command lines you define that need
-the F90PATH directory list should
-include &cv-link-_F90INCFLAGS;:
+the &cv-F90PATH; directory list should
+include &cv-link-_F90INCFLAGS;,
+for example:
 </para>
 
 <example_commands>
@@ -203,15 +202,14 @@ env = Environment(F90COM="my_compiler $_F90INCFLAGS -c -o $TARGET $SOURCE")
 <cvar name="F90PPCOM">
 <summary>
 <para>
-The command line used to compile a Fortran 90 source file to an object file
-after first running the file through the C preprocessor.
-Any options specified in the &cv-link-F90FLAGS; and &cv-link-CPPFLAGS; construction variables
-are included on this command line.
-You only need to set &cv-link-F90PPCOM; if you need to use a specific
-C-preprocessor command line for Fortran 90 files.
-You should normally set the &cv-link-FORTRANPPCOM; variable,
-which specifies the default C-preprocessor command line
-for all Fortran versions.
+The command line used to compile a Fortran 90 source file to an object file,
+including options such as &cv-link-F90FLAGS; and &cv-link-CPPFLAGS;
+needed for the preprocessor.
+You only need to set &cv-F90PPCOM; if you need to use a customized
+command line for this dialect.
+The default setting will be equivalent to
+&cv-link-FORTRANPPCOM;,
+but using the dialect-specific &consvars; for substitution.
 </para>
 </summary>
 </cvar>
@@ -220,9 +218,9 @@ for all Fortran versions.
 <summary>
 <para>
 If set, the string displayed when a Fortran 90 source file
-is compiled after first running the file through the C preprocessor.
-If not set, then &cv-link-F90PPCOM; or &cv-link-FORTRANPPCOM;
-(the command line) is displayed.
+is compiled to an object file, including preprocessing.
+If not set, then the actual command line,
+as generated from &cv-link-F90PPCOM;, is displayed.
 </para>
 </summary>
 </cvar>
@@ -230,12 +228,12 @@ If not set, then &cv-link-F90PPCOM; or &cv-link-FORTRANPPCOM;
 <cvar name="SHF90">
 <summary>
 <para>
-The Fortran 90 compiler used for generating shared-library objects.
-You should normally set the &cv-link-SHFORTRAN; variable,
-which specifies the default Fortran compiler
-for all Fortran versions.
-You only need to set &cv-link-SHF90; if you need to use a specific compiler
-or compiler version for Fortran 90 files.
+The compiler for the Fortran 90 dialect for generating shared-library objects.
+This dialect is selected when a source file has a suffix
+specified in &cv-link-F90FILESUFFIXES; or
+&cv-link-F90PPFILESUFFIXES; and compiling shared objects.
+You only need to set &cv-SHF90; if you need to specify
+a compiler different than the one auto-detected for this dialect.
 </para>
 </summary>
 </cvar>
@@ -243,13 +241,13 @@ or compiler version for Fortran 90 files.
 <cvar name="SHF90COM">
 <summary>
 <para>
-The command line used to compile a Fortran 90 source file
-to a shared-library object file.
-You only need to set &cv-link-SHF90COM; if you need to use a specific
-command line for Fortran 90 files.
-You should normally set the &cv-link-SHFORTRANCOM; variable,
-which specifies the default command line
-for all Fortran versions.
+The command line used to compile a Fortran 90 source file to a
+shared object file.
+You only need to set &cv-SHF90COM; if you need to use a customized
+command line for this dialect.
+The default setting will be equivalent to
+&cv-link-SHFORTRANCOM;,
+but using the dialect-specific &consvars; for substitution.
 </para>
 </summary>
 </cvar>
@@ -258,9 +256,9 @@ for all Fortran versions.
 <summary>
 <para>
 If set, the string displayed when a Fortran 90 source file
-is compiled to a shared-library object file.
-If not set, then &cv-link-SHF90COM; or &cv-link-SHFORTRANCOM;
-(the command line) is displayed.
+is compiled to a shared object file.
+If not set, then the actual command line,
+as generated from &cv-link-SHF90COM;, is displayed.
 </para>
 </summary>
 </cvar>
@@ -269,13 +267,15 @@ If not set, then &cv-link-SHF90COM; or &cv-link-SHFORTRANCOM;
 <summary>
 <para>
 Options that are passed to the Fortran 90 compiler
-to generated shared-library objects.
+when compiling shared-library objects.
 You only need to set &cv-link-SHF90FLAGS; if you need to define specific
 user options for Fortran 90 files.
 You should normally set the &cv-link-FORTRANCOMMONFLAGS; variable,
-which specifies the user-specified options
-passed to the default Fortran compiler
-for all Fortran versions.
+which holds user-specified options passed to all Fortran builds.
+</para>
+<para><emphasis>Changed in version 4.4</emphasis>:
+&cv-link-FORTRANCOMMONFLAGS; is included by default
+when command lines for this dialect are expanded.
 </para>
 </summary>
 </cvar>
@@ -284,15 +284,14 @@ for all Fortran versions.
 <summary>
 <para>
 The command line used to compile a Fortran 90 source file to a
-shared-library object file
-after first running the file through the C preprocessor.
-Any options specified in the &cv-link-SHF90FLAGS; and &cv-link-CPPFLAGS; construction variables
-are included on this command line.
-You only need to set &cv-link-SHF90PPCOM; if you need to use a specific
-C-preprocessor command line for Fortran 90 files.
-You should normally set the &cv-link-SHFORTRANPPCOM; variable,
-which specifies the default C-preprocessor command line
-for all Fortran versions.
+shared object file,
+including options such as &cv-link-SHF90FLAGS; and &cv-link-CPPFLAGS;
+needed for the preprocessor.
+You only need to set &cv-SHF90PPCOM; if you need to use a customized
+command line for this dialect.
+The default setting will be equivalent to
+&cv-link-SHFORTRANPPCOM;,
+but using the dialect-specific &consvars; for substitution.
 </para>
 </summary>
 </cvar>
@@ -301,10 +300,9 @@ for all Fortran versions.
 <summary>
 <para>
 If set, the string displayed when a Fortran 90 source file
-is compiled to a shared-library object file
-after first running the file through the C preprocessor.
-If not set, then &cv-link-SHF90PPCOM; or &cv-link-SHFORTRANPPCOM;
-(the command line) is displayed.
+is compiled to a shared-library object file, including preprocessing.
+If not set, then the actual command line,
+as generated from &cv-link-SHF90PPCOM;, is displayed.
 </para>
 </summary>
 </cvar>
