@@ -1454,6 +1454,9 @@ class TestCmd:
         """
         if is_List(srcdir):
             srcdir = os.path.join(*srcdir)
+        if is_List(dstdir):
+            dstdir = os.path.join(*dstdir)
+
         spath = srcdir
         if srcdir and self.fixture_dirs and not os.path.isabs(srcdir):
             for dir in self.fixture_dirs:
@@ -1504,6 +1507,8 @@ class TestCmd:
         """
         if is_List(srcfile):
             srcfile = os.path.join(*srcfile)
+        if is_List(dstfile):
+            dstfile = os.path.join(*dstfile)
 
         srcpath, srctail = os.path.split(srcfile)
         spath = srcfile
