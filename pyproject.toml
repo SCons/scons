@@ -60,7 +60,7 @@ namespaces = false
 
 [tool.setuptools.package-data]
 "*" = ["*.txt", "*.rst", "*.1"]
-"scons.tool.docbook" = ["*.*"]
+"SCons.tool.docbook" = ["*.*"]
 
 [tool.distutils.sdist]
 dist-dir = "build/dist"
