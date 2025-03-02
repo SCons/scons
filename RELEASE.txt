@@ -93,6 +93,11 @@ FIXES
 - Fix the tempfile encoding test regex strings to eliminate warnings in
   python 3.12 and 3.13.
 
+- Change the way the changed/unchanged target and source lists are
+  accounted for in interactive mode, to resolve a problem on Windows,
+  where those lists are considered for due to "batch mode" support.
+  Fixes #3029.
+
 IMPROVEMENTS
 ------------
 

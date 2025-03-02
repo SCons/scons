@@ -26,6 +26,7 @@
 from __future__ import annotations
 
 import collections
+from contextlib import suppress
 
 import SCons.Errors
 import SCons.Memoize
@@ -163,10 +164,6 @@ class Executor(metaclass=NoSlotsPyPy):
                  'builder_kw',
                  '_memo',
                  'lvars',
-                 '_changed_sources_list',
-                 '_changed_targets_list',
-                 '_unchanged_sources_list',
-                 '_unchanged_targets_list',
                  'action_list',
                  '_do_execute',
                  '_execute_str')
@@ -193,49 +190,56 @@ class Executor(metaclass=NoSlotsPyPy):
             return self.lvars
         except AttributeError:
             self.lvars = {
-                'CHANGED_SOURCES' : TSList(self._get_changed_sources),
-                'CHANGED_TARGETS' : TSList(self._get_changed_targets),
-                'SOURCE' : TSObject(self._get_source),
-                'SOURCES' : TSList(self._get_sources),
-                'TARGET' : TSObject(self._get_target),
-                'TARGETS' : TSList(self._get_targets),
-                'UNCHANGED_SOURCES' : TSList(self._get_unchanged_sources),
-                'UNCHANGED_TARGETS' : TSList(self._get_unchanged_targets),
+                'CHANGED_SOURCES': TSList(self._get_changed_sources),
+                'CHANGED_TARGETS': TSList(self._get_changed_targets),
+                'SOURCE': TSObject(self._get_source),
+                'SOURCES': TSList(self._get_sources),
+                'TARGET': TSObject(self._get_target),
+                'TARGETS': TSList(self._get_targets),
+                'UNCHANGED_SOURCES': TSList(self._get_unchanged_sources),
+                'UNCHANGED_TARGETS': TSList(self._get_unchanged_targets),
             }
             return self.lvars
 
     def _get_changes(self) -> None:
-        cs = []
-        ct = []
-        us = []
-        ut = []
+        """Populate all the changed/unchanged lists.
+
+        .. versionchanged:: NEXT_RELEASE
+           ``_changed_sources``, ``_changed_targets``, ``_unchanged_sources``
+           and ``_unchanged_targets`` are no longer separate instance
+           attributes, but rather saved in the :attr:`_memo` dict.
+        """
+        changed_sources = []
+        changed_targets = []
+        unchanged_sources = []
+        unchanged_targets = []
         for b in self.batches:
             # don't add targets marked always build to unchanged lists
             # add to changed list as they always need to build
             if not b.targets[0].always_build and b.targets[0].is_up_to_date():
-                us.extend(list(map(rfile, b.sources)))
-                ut.extend(b.targets)
+                unchanged_sources.extend(list(map(rfile, b.sources)))
+                unchanged_targets.extend(b.targets)
             else:
-                cs.extend(list(map(rfile, b.sources)))
-                ct.extend(b.targets)
-        self._changed_sources_list = SCons.Util.NodeList(cs)
-        self._changed_targets_list = SCons.Util.NodeList(ct)
-        self._unchanged_sources_list = SCons.Util.NodeList(us)
-        self._unchanged_targets_list = SCons.Util.NodeList(ut)
+                changed_sources.extend(list(map(rfile, b.sources)))
+                changed_targets.extend(b.targets)
+        self._memo["_get_changed_sources"] = changed_sources
+        self._memo["_get_changed_targets"] = changed_targets
+        self._memo["_get_unchanged_sources"] = unchanged_sources
+        self._memo["_get_unchanged_targets"] = unchanged_targets
 
+    @SCons.Memoize.CountMethodCall
     def _get_changed_sources(self, *args, **kw):
-        try:
-            return self._changed_sources_list
-        except AttributeError:
-            self._get_changes()
-            return self._changed_sources_list
+        with suppress(KeyError):
+            return self._memo["_get_changed_sources"]
+        self._get_changes()  # sets the memo entry
+        return self._memo["_get_changed_sources"]
 
+    @SCons.Memoize.CountMethodCall
     def _get_changed_targets(self, *args, **kw):
-        try:
-            return self._changed_targets_list
-        except AttributeError:
-            self._get_changes()
-            return self._changed_targets_list
+        with suppress(KeyError):
+            return self._memo["_get_changed_targets"]
+        self._get_changes()  # sets the memo entry
+        return self._memo["_get_changed_targets"]
 
     def _get_source(self, *args, **kw):
         return rfile(self.batches[0].sources[0]).get_subst_proxy()
@@ -249,19 +253,19 @@ class Executor(metaclass=NoSlotsPyPy):
     def _get_targets(self, *args, **kw):
         return SCons.Util.NodeList([n.get_subst_proxy() for n in self.get_all_targets()])
 
+    @SCons.Memoize.CountMethodCall
     def _get_unchanged_sources(self, *args, **kw):
-        try:
-            return self._unchanged_sources_list
-        except AttributeError:
-            self._get_changes()
-            return self._unchanged_sources_list
+        with suppress(KeyError):
+            return self._memo["_get_unchanged_sources"]
+        self._get_changes()  # sets the memo entry
+        return self._memo["_get_unchanged_sources"]
 
+    @SCons.Memoize.CountMethodCall
     def _get_unchanged_targets(self, *args, **kw):
-        try:
-            return self._unchanged_targets_list
-        except AttributeError:
-            self._get_changes()
-            return self._unchanged_targets_list
+        with suppress(KeyError):
+            return self._memo["_get_unchanged_targets"]
+        self._get_changes()  # sets the memo entry
+        return self._memo["_get_unchanged_targets"]
 
     def get_action_targets(self):
         if not self.action_list:
@@ -585,6 +589,9 @@ class Null(metaclass=NoSlotsPyPy):
     This might be able to disappear when we refactor things to
     disassociate Builders from Nodes entirely, so we're not
     going to worry about unit tests for this--at least for now.
+
+    Note the slots have to match :class:`Executor` exactly,
+    or the :meth:`_morph` will fail.
     """
 
     __slots__ = ('pre_actions',
@@ -595,10 +602,6 @@ class Null(metaclass=NoSlotsPyPy):
                  'builder_kw',
                  '_memo',
                  'lvars',
-                 '_changed_sources_list',
-                 '_changed_targets_list',
-                 '_unchanged_sources_list',
-                 '_unchanged_targets_list',
                  'action_list',
                  '_do_execute',
                  '_execute_str')

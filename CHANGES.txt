@@ -173,6 +173,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Python binary (for odd Windows setups + Python launcher)
     - Improve the wording of AppendENVPath and PrependENVPath in manpage.
     - Add more unit tests to internal AppendPath, PrependPath functions.
+    - Change the way the changed/unchanged target and source lists are
+      accounted for in interactive mode, to resolve a problem on Windows,
+      where those lists are considered for due to "batch mode" support.
+      Fixes #3029.
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
