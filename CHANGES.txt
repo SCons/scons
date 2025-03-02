@@ -17,13 +17,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
         - Whatever John Doe did.
 
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
-      From John Doe:
-
-        - Whatever John Doe did.
-
-
 RELEASE 4.9.0 -  Sun, 02 Mar 2025 17:22:20 -0700
 
   From Ruben Di Battista:
