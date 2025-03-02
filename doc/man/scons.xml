@@ -105,7 +105,7 @@ The CPython project retired 3.6 in Sept 2021:
 <ulink url="https://peps.python.org/pep-0494"/>.
 </para>
 <para>
-<emphasis>Changed in version NEXT_RELEASE:</emphasis>
+<emphasis>Changed in version 4.9.0:</emphasis>
 support for &Python; 3.6 is removed.
 </para>
 
@@ -4221,7 +4221,7 @@ at least one should be supplied.
 parameters.</emphasis>
 </para>
 <para>
-<emphasis>Changed in version NEXT_RELEASE: added the
+<emphasis>Changed in version 4.9.0: added the
 <parameter>extra_libs</parameter> parameter.</emphasis>
 </para>
   </listitem>
@@ -4286,7 +4286,7 @@ it will not be added again. The default is <literal>False</literal>.
 parameters.</emphasis>
 </para>
 <para>
-<emphasis>Changed in version NEXT_RELEASE: added the
+<emphasis>Changed in version 4.9.0: added the
 <parameter>extra_libs</parameter> parameter.</emphasis>
 </para>
   </listitem>
@@ -5261,7 +5261,7 @@ This is the same information that is returned by the
   </listitem>
   </varlistentry>
 </variablelist>
-<para><emphasis>Added in NEXT_RELEASE</emphasis>:
+<para><emphasis>Added in 4.9.0</emphasis>:
 the <parameter>defaulted</parameter> attribute.
 </para>
 

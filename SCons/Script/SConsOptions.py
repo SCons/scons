@@ -242,7 +242,7 @@ class SConsOption(optparse.Option):
     syntax from :mod:`argparse`, and is added to the ``CHECK_METHODS`` list.
     Overridden :meth:`convert_value` supports this usage.
 
-    .. versionchanged:: NEXT_RELEASE
+    .. versionchanged:: 4.9.0
        The *settable* attribute is added to ``ATTRS``, allowing it to be
        set in the option. A parameter to mark the option settable was added
        in 4.8.0, but was not initially made part of the option object itself.

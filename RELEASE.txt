@@ -1,34 +1,15 @@
-If you are reading this in the git repository, the contents
-refer to *unreleased* changes since the last SCons release.
-Past official release announcements appear at:
-
-    https://scons.org/tag/releases.html
-
-==================================================================
-
-A new SCons release, 4.4.1, is now available on the SCons download page:
+A new SCons release, 4.9.0, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
+Here is a summary of the changes since 4.8.1:
 
-Here is a summary of the changes since 4.4.0:
+NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
 
-NEW FUNCTIONALITY
------------------
-
-- List new features (presumably why a checkpoint is being released)
-
-DEPRECATED FUNCTIONALITY
-------------------------
-
-- List anything that's been deprecated since the last release
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 - Expose the `extra_libs` keyword argument in `CheckLibWithHeader` and 'CheckLib'
-
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
 
 - Removed Python 3.6 support.
 
@@ -186,10 +167,6 @@ FIXES
 IMPROVEMENTS
 ------------
 
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
-
 - For consistency with the optparse "add_option" method, AddOption accepts
   an SConsOption object as a single argument (this failed previously).
   Calling AddOption with the full set of arguments (option names and
@@ -202,17 +179,9 @@ IMPROVEMENTS
   for clang-cl, the version of the frontend that uses cl.exe-compatible
   command line switches.
 
-PACKAGING
----------
-
-- List changes in the way SCons is packaged and/or released
 
 DOCUMENTATION
 -------------
-
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
 
 - Some manpage cleanup for the gettext and pdf/ps builders.
 
@@ -233,8 +202,6 @@ DOCUMENTATION
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is developed
-
 - Ruff/Mypy: Excluded items now synced.
 
 - Ruff: Linter includes new rules - `FA`, `UP006`, `UP007`, and `UP037` - to
@@ -254,4 +221,17 @@ Thanks to the following contributors listed below for their contributions to thi
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.0.1..HEAD
+    git shortlog --no-merges -ns 4.8.1..HEAD
+    50  Mats Wichmann
+    46  William Deegan
+    19  Joseph Brill
+    10  Alex Thiessen
+     4  Thaddeus Crews
+     3  Ruben Di Battista
+     2  Adam Scott
+     2  Keith F. Prussing
+     2  Prabhu Singh Khalsa
+     1  Adam Simpkins
+     1  Alex James
+     1  Yevhen Babiichuk (DustDFG)
+

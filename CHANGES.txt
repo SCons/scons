@@ -7,10 +7,10 @@
 NOTE: The 4.0.0 release of SCons dropped Python 2.7 support. Use 3.1.2 if
   Python 2.7 support is required (but note old SCons releases are unsupported).
 NOTE: Since SCons 4.3.0, Python 3.6.0 or above is required.
-NOTE: Python 3.6 support is deprecated and will be dropped in a future release.
-  python.org no longer supports 3.6 or 3.7, and will drop 3.8 in Oct. 2024.
+NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+RELEASE 4.9.0 -  Sun, 02 Mar 2025 17:22:20 -0700
 
   From Ruben Di Battista:
     - Expose `extra_libs` kwarg in Configure checks `CheckLibWithHeader`

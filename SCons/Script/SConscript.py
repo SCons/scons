@@ -552,7 +552,7 @@ class SConsEnvironment(SCons.Environment.Base):
 
         .. versionchanged:: 4.6.0
            The *keep_local* parameter was added.
-        .. versionchanged:: NEXT_RELEASE
+        .. versionchanged:: 4.9.0
            The *keep_local* parameter was renamed *local_only* to match manpage
         """
         text = self.subst(text, raw=1)

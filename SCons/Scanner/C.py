@@ -89,7 +89,7 @@ def dictify_CPPDEFINES(env, replace: bool = False) -> dict:
     Args:
         replace: if true, simulate macro replacement
 
-    .. versionchanged:: NEXT_RELEASE
+    .. versionchanged:: 4.9.0
        Simple macro replacement added, and *replace* arg to enable it.
     """
     def _replace(mapping: Dict) -> Dict:

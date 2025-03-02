@@ -1108,7 +1108,7 @@ def CheckLib(context, library = None, symbol: str = "main",
     Note that library may also be None to test whether the given symbol
     compiles without flags.
 
-    .. versionchanged:: NEXT_RELEASE
+    .. versionchanged:: 4.9.0
        Added the *extra_libs* keyword parameter. The actual implementation
        is in :func:`SCons.Conftest.CheckLib` which already accepted this
        parameter, so this is only exposing existing functionality.
@@ -1140,7 +1140,7 @@ def CheckLibWithHeader(context, libs, header, language,
     As in :func:`CheckLib`, we support library=None, to test if the call compiles
     without extra link flags.
 
-    .. versionchanged:: NEXT_RELEASE
+    .. versionchanged:: 4.9.0
        Added the *extra_libs* keyword parameter. The actual implementation
        is in :func:`SCons.Conftest.CheckLib` which already accepted this
        parameter, so this is only exposing existing functionality.
