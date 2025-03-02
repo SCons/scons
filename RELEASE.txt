@@ -1,240 +1,65 @@
+If you are reading this in the git repository, the contents
+refer to *unreleased* changes since the last SCons release.
+Past official release announcements appear at:
+
+    https://scons.org/tag/releases.html
+
+==================================================================
+
 A new SCons release, 4.9.0, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
-Here is a summary of the changes since 4.8.1:
 
-NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
+Here is a summary of the changes since 4.4.0:
 
+NEW FUNCTIONALITY
+-----------------
+
+- List new features (presumably why a checkpoint is being released)
+
+DEPRECATED FUNCTIONALITY
+------------------------
+
+- List anything that's been deprecated since the last release
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
-- Expose the `extra_libs` keyword argument in `CheckLibWithHeader` and 'CheckLib'
 
-- Removed Python 3.6 support.
-
-- Override environments, created when giving construction environment
-  keyword arguments to Builder calls (or manually, through the
-  undocumented Override method), were modified not to "leak" on item deletion.
-  The item will now not be deleted from the base environment.
-
-- Added support for tracking beamer themes in the LaTeX scanner.
-
-- MSVS: msvs project files are always generated before the corresponding
-  msvs solution files. This changes the behavior of clean for a project
-  generated with auto_build_solution disabled and explicit solution
-  generation: when the solution files are cleaned, the project files are
-  also cleaned.  The tests for vs 6.0-7.1 were updated accordingly.
-
-- MSVS: Add an optional keyword argument, auto_filter_projects, to
-  MSVSSolution. Accepted values for auto_filter_projects are:
-
-  - None [default]: raise an exception when solution file names or nodes
-    are detected in the projects argument list.
-  - True or evaluates True: automatically remove solution file names and
-    nodes from the project argument list.
-  - False or evaluates False: leave solution file names and nodes in the
-    project argument list.  An exception is not raised.
-
-  Solution file names and/or nodes in the project argument list cause
-  erroneous Project records to be produced in the generated solution file.
-  As a convenience, a user may elect to ignore solution file names and nodes
-  in the projects argument list rather than manually removing solution file
-  names and nodes from the MSVSProject return values.
-
-- SCons C preprocessor:
-
-  - Update the optional integer suffixes to include the z|Z and wb|WB
-    suffixes.
-  - Add support for binary integer constants.
-  - Add support for octal integer constants.  Previously, octal integers
-    were evaluated as decimal integers.  A literal zero (0) is treated as an
-    octal number.
-  - Change the method for attempted conversion of a define expansion value
-    to an integer from a literal to a constant expression evaluation.
-
-- Add a tag to each CacheDir to let systems ignore backing it up
-  (per https://bford.info/cachedir/). Update the way a CacheDir
-  is created, since it now has to create two files.
-
-- The Dictionary method now has an as_dict flag. If true, Dictionary
-  always returns  a dict. The default remains to return different
-  types depending on whether zero, one, or multiple construction
-
-- A Variables object now makes available a "defaulted" attribute,
-  a list of variable names that were set in the environment with
-  their values taken from the default in the variable description
-  (if a variable was set to the same value as the default in one
-  of the input sources, it is not included in this list).
-
-- If a build Variable is created with no aliases, the name of the
-  Variable is no longer listed in its aliases. Internally, the name
-  and aliases are considered together anyway so this should not have
-  any effect except for being visible to custom help text formatters.
+- List modifications to existing features, where the previous behavior
+  wouldn't actually be considered a bug
 
 FIXES
 -----
 
-- PackageVariable now does what the documentation always said it does
-  if the variable is used on the command line with one of the enabling
-  string as the value: the variable's default value is produced (previously
-  it always produced True in this case).
-
-- Temporary files created by TempFileMunge() are now cleaned up on
-  scons exit, instead of at the time they're used.  Fixes #4595.
-
-- AddOption now correctly adds short (single-character) options.
-  Previously an added short option would always report as unknown,
-  while long option names for the same option worked. Short options
-  that take a value require the user to specify the value immediately
-  following the option, with no spaces (e.g. -j5 and not -j 5).
-
-- Fix a problem with compilation_db component initialization - the
-  entries for assembler files were not being set up correctly.
-
-- On Darwin, PermissionErrors are now handled while trying to access
-  /etc/paths.d. This may occur if SCons is invoked in a sandboxed environment
-  (such as Nix).
-
-- Added error handling when creating MSVC detection debug log file specified
-  by SCONS_MSCOMMON_DEBUG.
-
-- MSVS: Modify select msvs test scripts to run on platforms not supported by
-  the msvs/msvc tool implementation via a default host architecture for
-  unsupported platforms.
-
-- MSVS: Fixed early loop exit in select msvs test scripts.  Select msvs test
-  scripts were being invoked for msvc version 8.0 only.  Additional msvs
-  tool and test changes due to the msvs test scripts being run for all msvc
-  versions (i.e., minor test and tool issues went undetected).
-
-- MSVS: for variant build configurations, msvs solution files are
-  generated in the source directory and a placeholder file is generated in
-  the variant build directory.  This mirrors the behavior of generated
-  msvs project files.
-
-- MSVS: msvs project files are generated before the corresponding msvs
-  solution file.  User-specified project GUIDs should now be correctly
-  written to the solution file.
-
-- SCons C preprocessor: Preserve literals that contain valid integer
-  substring specifications.  Previously, the integer suffix could be
-  stripped from a symbol that contained an integer and suffix substring.
-
-- SCons C preprocessor: Update the optional integer suffixes to include
-  support for the alternate orderings of unsigned with long or long long as
-  defined in the c/cpp grammar.
-
-- SCons C preprocessor: Update the optional integer suffixes for case
-  insensitive specifications as defined in the c/cpp grammar.
-
-- Fix nasm test for missing include file, cleanup.
-
-- Skip running a few validation tests if the user is root and the test is
-  not designed to work for the root user.
-
-- Make sure unknown variables from a Variables file are recognized
-  as such. Previously only unknowns from the command line were
-  recognized (issue #4645).
-
-- Update ninja tool to use ninja.BIN_DIR to find pypi packaged ninja binary.
-  python ninja package version 1.11.1.2 changed the location and previous
-  logic no longer worked.
-
-- The (optional) C Conditional Scanner now does limited macro
-  replacement on the contents of CPPDEFINES, to improve finding deps
-  that are conditionally included.  Previously replacement was only
-  done on macro definitions found in the file being scanned.
-  Only object-like macros are replaced (not function-like), and
-  only on a whole-word basis; recursion is limited to five levels
-  and does not error out if that limit is reached (issue #4523).
-
-- Minor modernization: make use of stat object's st_mode, st_mtime
-  and other attributes rather than indexing into stat return.
-
-- Ninja's TEMPLATE rule pool changed from `local_pool` to `install_pool`
-  hoping it will fix a race condition that can occurs when Ninja defers
-  to SCons to build.
-
-- Renamed env.Help() & Help()'s argument `keep_local` to `local_only`, previously the documentation
-  specified `local_only`, but the code and tests were using `keep_local`. The functionality
-  more closely matches local only.  NOTE: It doesn't seem like any code in the wild was using
-  local_only as we'd not received any reports of such until PR #4606 from hedger.
-
-- Fix Issue #2281, AddPreAction() & AddPostAction() were being ignored if no action
-  was specified when the Alias was initially created.
-
-- Handle case of "memoizer" as one member of a comma-separated
-  --debug string - this was previously missed.
+- List fixes of outright bugs
 
 IMPROVEMENTS
 ------------
 
-- For consistency with the optparse "add_option" method, AddOption accepts
-  an SConsOption object as a single argument (this failed previously).
-  Calling AddOption with the full set of arguments (option names and
-  attributes) to set up the option is still the recommended approach.
+- List improvements that wouldn't be visible to the user in the
+  documentation:  performance improvements (describe the circumstances
+  under which they would be observed), or major code cleanups
 
-- Add clang and clang++ to the default tool search orders for POSIX
-  and Windows platforms. These will be searched for after gcc and g++,
-  respectively. Does not affect explicitly requested tool lists.  Note:
-  on Windows, SCons currently only has builtin support for clang, not
-  for clang-cl, the version of the frontend that uses cl.exe-compatible
-  command line switches.
+PACKAGING
+---------
 
+- List changes in the way SCons is packaged and/or released
 
 DOCUMENTATION
 -------------
 
-- Some manpage cleanup for the gettext and pdf/ps builders.
-
-- Some clarifications in the User Guide "Environments" chapter.
-
-- Clarify documentation of Repository() in manpage and user guide.
-
-- Many grammatical and spelling fixes in the documentation.
-
-- Update Clean and NoClean documentation.
-
-- Improved Variables documentation.
-
-- Update the User Guide Command() example which now shows a target name
-  being created from '${SOURCE.base}.out' to use a valid special
-  attribute and to explain what's being done in the example.
+- List any significant changes to the documentation (not individual
+  typo fixes, even if they're mentioned in src/CHANGES.txt to give
+  the contributor credit)
 
 DEVELOPMENT
 -----------
 
-- Ruff/Mypy: Excluded items now synced.
-
-- Ruff: Linter includes new rules - `FA`, `UP006`, `UP007`, and `UP037` - to
-  detect and upgrade legacy type-hint syntax.
-
-- Removed "SCons.Util.sctyping.py", as the functionality can now be substituted
-  via top-level `from __future__ import annotations`.
-
-- Implemented type hints for Nodes.
-
-- Added TestSCons.NINJA_BINARY to TestSCons to centralize logic to find ninja binary
-
-- Refactored SCons.Tool.ninja -> SCons.Tool.ninja_tool, and added alias so env.Tool('ninja')
-  will still work. This avoids conflicting with the pypi module ninja.
+- List visible changes in the way SCons is developed
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.8.1..HEAD
-    50  Mats Wichmann
-    46  William Deegan
-    19  Joseph Brill
-    10  Alex Thiessen
-     4  Thaddeus Crews
-     3  Ruben Di Battista
-     2  Adam Scott
-     2  Keith F. Prussing
-     2  Prabhu Singh Khalsa
-     1  Adam Simpkins
-     1  Alex James
-     1  Yevhen Babiichuk (DustDFG)
-
+    git shortlog --no-merges -ns 4.0.1..HEAD
