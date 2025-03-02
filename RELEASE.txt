@@ -28,12 +28,14 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
 - MSVS: Add an optional keyword argument, auto_filter_projects, to
   MSVSSolution. Accepted values for auto_filter_projects are:
+
   - None [default]: raise an exception when solution file names or nodes
     are detected in the projects argument list.
   - True or evaluates True: automatically remove solution file names and
     nodes from the project argument list.
   - False or evaluates False: leave solution file names and nodes in the
     project argument list.  An exception is not raised.
+    
   Solution file names and/or nodes in the project argument list cause
   erroneous Project records to be produced in the generated solution file.
   As a convenience, a user may elect to ignore solution file names and nodes
@@ -41,6 +43,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   names and nodes from the MSVSProject return values.
 
 - SCons C preprocessor:
+
   - Update the optional integer suffixes to include the z|Z and wb|WB
     suffixes.
   - Add support for binary integer constants.
