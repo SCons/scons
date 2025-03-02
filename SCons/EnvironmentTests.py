@@ -2137,7 +2137,7 @@ def generate(env):
         xxx, zzz = env.Dictionary('XXX', 'ZZZ')
         assert xxx == 'x'
         assert zzz == 'z'
-        # added in NEXT_RELEASE: as_dict flag
+        # added in 4.9.0: as_dict flag
         with self.subTest():
             expect = {'XXX': 'x'}
             self.assertEqual(env.Dictionary('XXX', as_dict=True), expect)
@@ -3211,7 +3211,7 @@ def generate(env):
         """Test the Dump() method"""
         env = self.TestEnvironment(FOO='foo', FOOFLAGS=CLVar('--bar --baz'))
 
-        # changed in NEXT_RELEASE: single arg now displays as a dict,
+        # changed in 4.9.0: single arg now displays as a dict,
         #   not a bare value; more than one arg is allowed.
         with self.subTest():  # one-arg version
             self.assertEqual(env.Dump('FOO'), "{'FOO': 'foo'}")
@@ -3851,7 +3851,7 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         """Test deleting variables from an OverrideEnvironment"""
         env, env2, env3 = self.envs
 
-        # changed in NEXT_RELEASE: delete does not cascade to underlying envs
+        # changed in 4.9.0: delete does not cascade to underlying envs
         # XXX is in all three, del from env3 should affect only it
         del env3['XXX']
         with self.subTest():
@@ -3947,7 +3947,7 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         # test deletion in top override
         del env3['XXX']
         self.assertRaises(KeyError, env3.Dictionary, 'XXX')
-        # changed in NEXT_RELEASE: *not* deleted from underlying envs
+        # changed in 4.9.0: *not* deleted from underlying envs
         assert 'XXX' in env2.Dictionary()
         assert 'XXX' in env.Dictionary()
 

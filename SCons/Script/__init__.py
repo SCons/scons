@@ -267,7 +267,7 @@ def HelpFunction(text, append: bool = False, local_only: bool = False) -> None:
 
     .. versionchanged:: 4.6.0
        The *keep_local* parameter was added.
-    .. versionchanged:: NEXT_RELEASE
+    .. versionchanged:: 4.9.0
        The *keep_local* parameter was renamed *local_only* to match manpage
     """
     global help_text

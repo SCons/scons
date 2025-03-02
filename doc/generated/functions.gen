@@ -1644,7 +1644,7 @@ can be verified.
 </para></note>
 
 <para>
-<emphasis>Changed in NEXT_RELEASE</emphasis>:
+<emphasis>Changed in 4.9.0</emphasis>:
 <parameter>as_dict</parameter> added.
 </para>
 
@@ -1726,7 +1726,7 @@ the JSON equivalent of a &Python; <type>dict</type>..
 </variablelist>
 
 <para>
-<emphasis>Changed in NEXT_RELEASE</emphasis>:
+<emphasis>Changed in 4.9.0</emphasis>:
 More than one <parameter>key</parameter> can be specified.
 The returned string always looks like a <type>dict</type>
 (or equivalent in other formats);

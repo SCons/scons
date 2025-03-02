@@ -95,7 +95,7 @@ class Variables:
     .. deprecated:: 4.8.0
        *is_global* is deprecated.
 
-    .. versionadded:: NEXT_RELEASE
+    .. versionadded:: 4.9.0
        The :attr:`defaulted` attribute now lists those variables which
        were filled in from default values.
     """
