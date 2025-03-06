@@ -12,9 +12,12 @@ NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
+  From John Doe:
+    - Whatever John Doe did.
 
-        - Whatever John Doe did.
+  From Mats Wichmann:
+    - Fix typos in CCFLAGS test. Didn't affect the test itself, but
+      didn't correctly apply the DefaultEnvironment speedup.
 
 
 RELEASE 4.9.0 -  Sun, 02 Mar 2025 17:22:20 -0700
