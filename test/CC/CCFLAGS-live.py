@@ -23,10 +23,17 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+Test behavior of CCFLAGS.
+
+This is a live test, uses the detected C compiler.
+"""
+
 import sys
+
 import TestSCons
 
-_obj = TestSCons._obj
+test = TestSCons.TestSCons()
 
 if sys.platform == 'win32':
     import SCons.Tool.MSCommon as msc
@@ -41,19 +48,17 @@ else:
     fooflags = '-DFOO'
     barflags = '-DBAR'
 
-test = TestSCons.TestSCons()
+test.write('SConstruct', f"""\
+_ = DefaultEnvironment(tools=[])
+foo = Environment(CCFLAGS='{fooflags}')
+bar = Environment(CCFLAGS='{barflags}')
 
-test.write('SConstruct', """
-DefaultEnvironment(tools=[])
-foo = Environment(CCFLAGS = '%s')
-bar = Environment(CCFLAGS = '%s')
-foo.Object(target = 'foo%s', source = 'prog.c')
-bar.Object(target = 'bar%s', source = 'prog.c')
-foo.Program(target = 'foo', source = 'foo%s')
-bar.Program(target = 'bar', source = 'bar%s')
-foo.Program(target = 'prog', source = 'prog.c',
-            CCFLAGS = '$CCFLAGS -DBAR $BAZ', BAZ = '-DBAZ')
-""" % (fooflags, barflags, _obj, _obj, _obj, _obj))
+foo_obj = foo.Object(target='foo', source='prog.c')
+bar_obj = bar.Object(target='bar', source='prog.c')
+foo.Program(target='foo', source=foo_obj)
+bar.Program(target='bar', source=bar_obj)
+foo.Program(target='prog', source='prog.c', CCFLAGS='$CCFLAGS -DBAR $BAZ', BAZ='-DBAZ')
+""")
 
 test.write('prog.c', r"""
 #include <stdio.h>
@@ -76,30 +81,28 @@ main(int argc, char *argv[])
 }
 """)
 
-
-test.run(arguments = '.')
-
-test.run(program = test.workpath('foo'), stdout = "prog.c:  FOO\n")
-test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
-test.run(program = test.workpath('prog'), stdout = """\
+test.run(arguments='.')
+test.run(program=test.workpath('foo'), stdout="prog.c:  FOO\n")
+test.run(program=test.workpath('bar'), stdout="prog.c:  BAR\n")
+test.run(program=test.workpath('prog'), stdout="""\
 prog.c:  FOO
 prog.c:  BAR
 prog.c:  BAZ
 """)
 
-test.write('SConstruct', """
-DefaultEnvironment(tools=[])
-bar = Environment(CCFLAGS = '%s')
-bar.Object(target = 'foo%s', source = 'prog.c')
-bar.Object(target = 'bar%s', source = 'prog.c')
-bar.Program(target = 'foo', source = 'foo%s')
-bar.Program(target = 'bar', source = 'bar%s')
-""" % (barflags, _obj, _obj, _obj, _obj))
+test.write('SConstruct', f"""\
+_ = DefaultEnvironment(tools=[])
+bar = Environment(CCFLAGS='{barflags}')
 
-test.run(arguments = '.')
+foo_obj = bar.Object(target='foo', source='prog.c')
+bar_obj = bar.Object(target='bar', source='prog.c')
+bar.Program(target='foo', source=foo_obj)
+bar.Program(target='bar', source=bar_obj)
+""")
 
-test.run(program = test.workpath('foo'), stdout = "prog.c:  BAR\n")
-test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
+test.run(arguments='.')
+test.run(program=test.workpath('foo'), stdout="prog.c:  BAR\n")
+test.run(program=test.workpath('bar'), stdout="prog.c:  BAR\n")
 
 test.pass_test()
 

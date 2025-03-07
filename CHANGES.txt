@@ -12,9 +12,12 @@ NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
+  From John Doe:
+    - Whatever John Doe did.
 
-        - Whatever John Doe did.
+  From Mats Wichmann:
+    - Clean up C and C++ FLAGS tests. Tests which use a real compiler
+      are now more clearly distinguished (-live.py suffix and docstring).
 
   From Bill Prendergast:
     - Fixed SCons.Variables.PackageVariable to correctly test the default
