@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,11 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+Test handling of the dialect-specific FLAGS variable,
+using a mocked compiler.
+"""
 
 import TestSCons
 
@@ -31,30 +35,35 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 _exe = TestSCons._exe
 
+# ref: test/fixture/mylink.py
 test.file_fixture('mylink.py')
+# ref: test/Fortran/fixture/myfortran_flags.py
 test.file_fixture(['fixture', 'myfortran_flags.py'])
 
-test.write('SConstruct', """
-env = Environment(LINK = r'%(_python_)s mylink.py',
-                  LINKFLAGS = [],
-                  F08 = r'%(_python_)s myfortran_flags.py g08',
-                  F08FLAGS = '-x',
-                  FORTRAN = r'%(_python_)s myfortran_flags.py fortran',
-                  FORTRANFLAGS = '-y')
-env.Program(target = 'test01', source = 'test01.f')
-env.Program(target = 'test02', source = 'test02.F')
-env.Program(target = 'test03', source = 'test03.for')
-env.Program(target = 'test04', source = 'test04.FOR')
-env.Program(target = 'test05', source = 'test05.ftn')
-env.Program(target = 'test06', source = 'test06.FTN')
-env.Program(target = 'test07', source = 'test07.fpp')
-env.Program(target = 'test08', source = 'test08.FPP')
-env.Program(target = 'test09', source = 'test09.f08')
-env.Program(target = 'test10', source = 'test10.F08')
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
+env = Environment(
+    LINK=r'%(_python_)s mylink.py',
+    LINKFLAGS=[],
+    F08=r'%(_python_)s myfortran_flags.py g08',
+    F08FLAGS='-x',
+    FORTRAN=r'%(_python_)s myfortran_flags.py fortran',
+    FORTRANFLAGS='-y',
+)
+env.Program(target='test01', source='test01.f')
+env.Program(target='test02', source='test02.F')
+env.Program(target='test03', source='test03.for')
+env.Program(target='test04', source='test04.FOR')
+env.Program(target='test05', source='test05.ftn')
+env.Program(target='test06', source='test06.FTN')
+env.Program(target='test07', source='test07.fpp')
+env.Program(target='test08', source='test08.FPP')
+env.Program(target='test09', source='test09.f08')
+env.Program(target='test10', source='test10.F08')
 """ % locals())
 
-test.write('test01.f',   "This is a .f file.\n#link\n#fortran\n")
-test.write('test02.F',   "This is a .F file.\n#link\n#fortran\n")
+test.write('test01.f', "This is a .f file.\n#link\n#fortran\n")
+test.write('test02.F', "This is a .F file.\n#link\n#fortran\n")
 test.write('test03.for', "This is a .for file.\n#link\n#fortran\n")
 test.write('test04.FOR', "This is a .FOR file.\n#link\n#fortran\n")
 test.write('test05.ftn', "This is a .ftn file.\n#link\n#fortran\n")
@@ -64,7 +73,7 @@ test.write('test08.FPP', "This is a .FPP file.\n#link\n#fortran\n")
 test.write('test09.f08', "This is a .f08 file.\n#link\n#g08\n")
 test.write('test10.F08', "This is a .F08 file.\n#link\n#g08\n")
 
-test.run(arguments = '.', stderr = None)
+test.run(arguments='.', stderr=None)
 
 test.must_match('test01' + _exe, " -c -y\nThis is a .f file.\n")
 test.must_match('test02' + _exe, " -c -y\nThis is a .F file.\n")
@@ -76,52 +85,6 @@ test.must_match('test07' + _exe, " -c -y\nThis is a .fpp file.\n")
 test.must_match('test08' + _exe, " -c -y\nThis is a .FPP file.\n")
 test.must_match('test09' + _exe, " -c -x\nThis is a .f08 file.\n")
 test.must_match('test10' + _exe, " -c -x\nThis is a .F08 file.\n")
-
-
-fc = 'f08'
-g08 = test.detect_tool(fc)
-
-
-if g08:
-
-    test.file_fixture('wrapper.py')
-
-    test.write('SConstruct', """
-foo = Environment(F08 = '%(fc)s')
-f08 = foo.Dictionary('F08')
-bar = foo.Clone(F08 = r'%(_python_)s wrapper.py ' + f08, F08FLAGS = '-Ix')
-foo.Program(target = 'foo', source = 'foo.f08')
-bar.Program(target = 'bar', source = 'bar.f08')
-""" % locals())
-
-    test.write('foo.f08', r"""
-      PROGRAM FOO
-      PRINT *,'foo.f08'
-      ENDPROGRAM FOO
-""")
-
-    test.write('bar.f08', r"""
-      PROGRAM BAR
-      PRINT *,'bar.f08'
-      ENDPROGRAM FOO
-""")
-
-
-    test.run(arguments = 'foo' + _exe, stderr = None)
-
-    test.run(program = test.workpath('foo'), stdout =  " foo.f08\n")
-
-    test.must_not_exist('wrapper.out')
-
-    import sys
-    if sys.platform[:5] == 'sunos':
-        test.run(arguments = 'bar' + _exe, stderr = None)
-    else:
-        test.run(arguments = 'bar' + _exe)
-
-    test.run(program = test.workpath('bar'), stdout =  " bar.f08\n")
-
-    test.must_match('wrapper.out', "wrapper.py\n")
 
 test.pass_test()
 
