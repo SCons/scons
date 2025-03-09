@@ -24,48 +24,59 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test the C compiler name variable $CC, calling a mocked compiler.
+Test the C compiler name variable $CC.
+This is a live test, calling the detected C compiler via a wrapper.
 """
 
-import os
 import sys
 import TestSCons
 
 _python_ = TestSCons._python_
-_exe = TestSCons._exe
+_exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.dir_fixture('CC-fixture')
-test.file_fixture('mylink.py')
+test.file_fixture('wrapper.py')
 
 test.write('SConstruct', f"""\
 DefaultEnvironment(tools=[])
-env = Environment(
-    tools=['link', 'cc'],
-    LINK=r'{_python_} mylink.py',
-    LINKFLAGS=[],
-    CC=r'{_python_} mycc.py',
-)
-env.Program(target='test1', source='test1.c')
+foo = Environment()
+
+cxx = foo.Dictionary('CXX')
+bar = Environment(CXX=r'{_python_} wrapper.py ' + cxx)
+foo.Program(target='foo', source='foo.cxx')
+bar.Program(target='bar', source='bar.cxx')
+""" % locals())
+
+test.write('foo.cxx', r"""
+#include <stdio.h>
+#include <stdlib.h>
+int
+main(int argc, char *argv[])
+{
+        argv[argc++] = (char *)"--";
+        printf("foo.cxx\n");
+        exit (0);
+}
 """)
 
-test.run(arguments='.', stderr=None)
-test.must_match('test1' + _exe, "This is a .c file.\n", mode='r')
-
-if os.path.normcase('.c') == os.path.normcase('.C'):
-    test.write('SConstruct2', f"""
-DefaultEnvironment(tools=[])
-env = Environment(
-    tools=['link', 'cc'],
-    LINK=r'{_python_} mylink.py',
-    CC=r'{_python_} mycc.py',
-)
-env.Program(target='test2', source='test2.C')
+test.write('bar.cxx', r"""
+#include <stdio.h>
+#include <stdlib.h>
+int
+main(int argc, char *argv[])
+{
+        argv[argc++] = (char *)"--";
+        printf("foo.cxx\n");
+        exit (0);
+}
 """)
 
-    test.run(arguments=['-f', 'SConstruct2', '.'], stderr=None)
-    test.must_match('test2' + _exe, "This is a .C file.\n", mode='r')
+test.run(arguments='foo' + _exe)
+test.must_not_exist(test.workpath('wrapper.out'))
+
+test.run(arguments='bar' + _exe)
+test.must_match('wrapper.out', "wrapper.py\n", mode='r')
 
 test.pass_test()
 

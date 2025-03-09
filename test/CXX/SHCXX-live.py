@@ -24,48 +24,60 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test the C compiler name variable $CC, calling a mocked compiler.
+Test the C++ shared-object compiler name variable $SHCXX.
+This is a live test, calling the detected C++ compiler via a wrapper.
 """
 
 import os
-import sys
+
 import TestSCons
 
 _python_ = TestSCons._python_
-_exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.dir_fixture('CC-fixture')
-test.file_fixture('mylink.py')
+test.file_fixture('wrapper.py')
 
 test.write('SConstruct', f"""\
 DefaultEnvironment(tools=[])
-env = Environment(
-    tools=['link', 'cc'],
-    LINK=r'{_python_} mylink.py',
-    LINKFLAGS=[],
-    CC=r'{_python_} mycc.py',
-)
-env.Program(target='test1', source='test1.c')
+foo = Environment()
+
+shcxx = foo.Dictionary('SHCXX')
+bar = Environment(SHCXX=r'{_python_} wrapper.py ' + shcxx)
+foo.SharedObject(target='foo/foo', source='foo.cpp')
+bar.SharedObject(target='bar/bar', source='bar.cpp')
+""" % locals())
+
+test.write('foo.cpp', r"""
+#include <stdio.h>
+#include <stdlib.h>
+int
+main(int argc, char *argv[])
+{
+        argv[argc++] = (char *)"--";
+        printf("foo.c\n");
+        exit (0);
+}
 """)
 
-test.run(arguments='.', stderr=None)
-test.must_match('test1' + _exe, "This is a .c file.\n", mode='r')
-
-if os.path.normcase('.c') == os.path.normcase('.C'):
-    test.write('SConstruct2', f"""
-DefaultEnvironment(tools=[])
-env = Environment(
-    tools=['link', 'cc'],
-    LINK=r'{_python_} mylink.py',
-    CC=r'{_python_} mycc.py',
-)
-env.Program(target='test2', source='test2.C')
+test.write('bar.cpp', r"""
+#include <stdio.h>
+#include <stdlib.h>
+int
+main(int argc, char *argv[])
+{
+        argv[argc++] = (char *)"--";
+        printf("foo.c\n");
+        exit (0);
+}
 """)
 
-    test.run(arguments=['-f', 'SConstruct2', '.'], stderr=None)
-    test.must_match('test2' + _exe, "This is a .C file.\n", mode='r')
+test.run(arguments='foo')
+test.fail_test(os.path.exists(test.workpath('wrapper.out')))
+
+test.run(arguments='bar')
+test.must_match('wrapper.out', "wrapper.py\n", mode='r')
+# test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
 
 test.pass_test()
 
