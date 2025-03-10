@@ -622,6 +622,9 @@ class Node(metaclass=NoSlotsPyPy):
         # what line in what file created the node, for example).
         Annotate(self)
 
+    def __fspath__(self) -> str:
+        return str(self)
+
     def disambiguate(self, must_exist: bool = False):
         return self
 

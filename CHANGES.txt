@@ -15,6 +15,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From John Doe:
     - Whatever John Doe did.
 
+  From Thaddeus Crews:
+    - Nodes are now treated as PathLike objects.
+
   From Mats Wichmann:
     - Fix typos in CCFLAGS test. Didn't affect the test itself, but
       didn't correctly apply the DefaultEnvironment speedup.

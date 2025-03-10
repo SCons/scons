@@ -46,7 +46,7 @@ import os
 import sys
 
 def buildIt(env, target, source):
-    with open(str(target[0]), 'w') as f, open(str(source[0]), 'r') as infp:
+    with open(target[0], 'w') as f, open(source[0], 'r') as infp:
         xyzzy = env.get('XYZZY', '')
         if xyzzy:
             f.write(xyzzy + '\\n')

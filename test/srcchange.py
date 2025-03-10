@@ -52,7 +52,7 @@ def subrevision(target, source ,env):
     new = re.sub(r'\$REV.*?\$',
                  '$REV: %%s$'%%source[0].get_text_contents().strip(),
                  target[0].get_text_contents())
-    with open(str(target[0]),'w') as outf:
+    with open(target[0], 'w') as outf:
         outf.write(new)
 
 SubRevision = Action(subrevision)

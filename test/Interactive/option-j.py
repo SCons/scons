@@ -40,8 +40,8 @@ def cat(target, source, env):
     t = str(target[0])
     os.mkdir(t + '.started')
     with open(t, 'wb') as ofp:
-        for s in source:
-            with open(str(s), 'rb') as ifp:
+        for src in source:
+            with open(src, 'rb') as ifp:
                 ofp.write(ifp.read())
     os.mkdir(t + '.finished')
 
@@ -64,8 +64,8 @@ def must_wait_for_f2_b_out(target, source, env):
     while not os.path.exists(f2_b_started):
         time.sleep(1)
     with open(t, 'wb') as ofp:
-        for s in source:
-            with open(str(s), 'rb') as ifp:
+        for src in source:
+            with open(src, 'rb') as ifp:
                 ofp.write(ifp.read())
     os.mkdir(t + '.finished')
 

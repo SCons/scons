@@ -1248,7 +1248,7 @@ env.Command(
 
 import os
 def rename(env, target, source):
-    os.rename('.tmp', str(target[0]))
+    os.rename('.tmp', target[0])
 
 
 env.Command(
@@ -3626,7 +3626,7 @@ def create(target, source, env):
 
     Writes 'prefix=$SOURCE' into the file name given as $TARGET.
     """
-    with open(str(target[0]), 'wb') as f:
+    with open(target[0], 'wb') as f:
         f.write(b'prefix=' + source[0].get_contents() + b'\n')
 
 # Fetch the prefix= argument, if any, from the command line.

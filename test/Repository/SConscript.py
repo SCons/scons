@@ -51,10 +51,9 @@ SConscript('src/SConscript')
 
 test.write(['rep1', 'src', 'SConscript'], """\
 def cat(env, source, target):
-    target = str(target[0])
-    with open(target, "w") as ofp:
+    with open(target[0], "w") as ofp:
         for src in source:
-            with open(str(src), "r") as ifp:
+            with open(src, "r") as ifp:
                 ofp.write(ifp.read())
 
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})
@@ -88,10 +87,9 @@ SConscript('src/SConscript')
 
 test.write(['rep2', 'src', 'SConscript'], """\
 def cat(env, source, target):
-    target = str(target[0])
-    with open(target, "w") as ofp:
+    with open(target[0], "w") as ofp:
         for src in source:
-            with open(str(src), "r") as ifp:
+            with open(src, "r") as ifp:
                 ofp.write(ifp.read())
 
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})

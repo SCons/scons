@@ -46,13 +46,12 @@ SetOption('max_drift', 1)
 
 def lister(target, source, env):
     import os
-    with open(str(target[0]), 'w') as ofp:
-        s = str(source[0])
-        if os.path.isdir(s):
-            for l in os.listdir(str(source[0])):
+    with open(target[0], 'w') as ofp:
+        if os.path.isdir(source[0]):
+            for l in os.listdir(source[0]):
                 ofp.write(l + '\\n')
         else:
-            ofp.write(s + '\\n')
+            ofp.write(str(source[0]) + '\\n')
 
 builder = Builder(action=lister,
                   source_factory=Dir,
@@ -82,13 +81,12 @@ SetOption('max_drift', 1)
 
 def lister(target, source, env):
     import os.path
-    with open(str(target[0]), 'w') as ofp:
-        s = str(source[0])
-        if os.path.isdir(s):
-            for l in os.listdir(str(source[0])):
+    with open(target[0], 'w') as ofp:
+        if os.path.isdir(source[0]):
+            for l in os.listdir(source[0]):
                 ofp.write(l + '\\n')
         else:
-            ofp.write(s + '\\n')
+            ofp.write(str(source[0]) + '\\n')
 
 builder = Builder(action=lister,
                   source_factory=File)

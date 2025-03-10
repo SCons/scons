@@ -46,10 +46,9 @@ Execute(Copy('d7.out', ['f10.in', 'f11.in']))
 Execute(Copy('d7.out', Glob('f?.in')))
 
 def cat(env, source, target):
-    target = str(target[0])
-    with open(target, "w") as f:
+    with open(target[0], "w") as f:
         for src in source:
-            with open(str(src), "r") as ifp:
+            with open(src, "r") as ifp:
                 f.write(ifp.read())
 
 Cat = Action(cat)

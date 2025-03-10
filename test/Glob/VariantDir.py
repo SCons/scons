@@ -49,12 +49,12 @@ SConscript('src/sub1/SConscript', src_dir = 'src', variant_dir = 'var3', duplica
 """)
 
 test.write(['src', 'SConscript'], """\
-env = Environment(tools=[]) 
+env = Environment(tools=[])
 
 def concatenate(target, source, env):
-    with open(str(target[0]), 'wb') as ofp:
-        for s in source:
-            with open(str(s), 'rb') as ifp:
+    with open(target[0], 'wb') as ofp:
+        for src in source:
+            with open(src, 'rb') as ifp:
                 ofp.write(ifp.read())
 
 env['BUILDERS']['Concatenate'] = Builder(action=concatenate)
@@ -67,9 +67,9 @@ test.write(['src', 'sub1', 'SConscript'], """\
 env = Environment(tools=[])
 
 def concatenate(target, source, env):
-    with open(str(target[0]), 'wb') as ofp:
-        for s in source:
-            with open(str(s), 'rb') as ifp:
+    with open(target[0], 'wb') as ofp:
+        for src in source:
+            with open(src, 'rb') as ifp:
                 ofp.write(ifp.read())
 
 env['BUILDERS']['Concatenate'] = Builder(action=concatenate)
