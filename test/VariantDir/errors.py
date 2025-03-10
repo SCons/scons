@@ -59,10 +59,9 @@ def fake_scan(node, env, target):
     return []
 
 def cat(env, source, target):
-    target = str(target[0])
-    with open(target, "w") as f:
+    with open(target[0], "w") as f:
         for src in source:
-            with open(str(src), "r") as f2:
+            with open(src, "r") as f2:
                 f.write(f2.read())
 
 DefaultEnvironment(tools=[])  # test speedup

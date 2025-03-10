@@ -52,7 +52,7 @@ L = len(P)
 C = Custom(P)
 
 def create(target, source, env):
-    with open(str(target[0]), 'wb') as f:
+    with open(target[0], 'wb') as f:
         f.write(source[0].get_contents())
 
 DefaultEnvironment(tools=[])  # test speedup
@@ -68,7 +68,7 @@ def create_value(target, source, env):
     target[0].write(source[0].get_contents())
 
 def create_value_file(target, source, env):
-    with open(str(target[0]), 'wb') as f:
+    with open(target[0], 'wb') as f:
         f.write(source[0].read())
 
 env['BUILDERS']['B2'] = Builder(action=create_value)

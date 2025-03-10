@@ -36,9 +36,9 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 def build(env, target, source):
-    with open(str(target[0]), 'wb') as f:
-        for s in source:
-            with open(str(s), 'rb') as infp:
+    with open(target[0], 'wb') as f:
+        for src in source:
+            with open(src, 'rb') as infp:
                 f.write(infp.read())
 
 WARN = ARGUMENTS.get('WARN')

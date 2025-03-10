@@ -46,10 +46,9 @@ import os.path
 
 
 def cat(env, source, target):
-    target = str(target[0])
-    with open(target, 'wb') as ofp:
+    with open(target[0], 'wb') as ofp:
         for src in source:
-            with open(str(src), 'rb') as ifp:
+            with open(src, 'rb') as ifp:
                 ofp.write(ifp.read())
 
 

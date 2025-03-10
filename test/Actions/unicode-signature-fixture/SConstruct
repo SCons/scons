@@ -5,7 +5,7 @@
 fnode = File(u'foo.txt')
 
 def funcact(target, source, env):
-    with open(str(target[0]), 'wb') as f:
+    with open(target[0], 'wb') as f:
         f.write(b"funcact\n")
     for i in range(300):
         pass
