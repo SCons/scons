@@ -27,6 +27,7 @@
 import atexit
 import json
 import os
+import shutil
 import stat
 import sys
 import tempfile
@@ -76,7 +77,6 @@ def CacheRetrieveFunc(target, source, env) -> int:
 
 def CacheRetrieveString(target, source, env) -> str:
     t = target[0]
-    fs = t.fs
     cd = env.get_CacheDir()
     cachedir, cachefile = cd.cachepath(t)
     if t.fs.exists(cachefile):
@@ -209,22 +209,28 @@ class CacheDir:
         if os.path.exists(directory):
             return False
 
+        # TODO: tried to use TemporaryDirectory() here and the result as a
+        #   context manager, but that fails on Python 3.7 (works on 3.8+) after
+        #   the directory has successfully been renamed. Not sure why.
         try:
-            tempdir = tempfile.TemporaryDirectory(dir=os.path.dirname(directory))
+            tempdir = tempfile.mkdtemp(dir=os.path.dirname(directory))
         except OSError as e:
             msg = "Failed to create cache directory " + path
             raise SCons.Errors.SConsEnvironmentError(msg) from e
-        self._add_config(tempdir.name)
-        with tempdir:
-            try:
-                os.rename(tempdir.name, directory)
-                return True
-            except Exception as e:
-                # did someone else get there first?
-                if os.path.isdir(directory):
-                    return False
-                msg = "Failed to create cache directory " + path
-                raise SCons.Errors.SConsEnvironmentError(msg) from e
+        self._add_config(tempdir)
+        try:
+            os.replace(tempdir, directory)
+            return True
+        except OSError as e:
+            # did someone else get there first? attempt cleanup.
+            if os.path.isdir(directory):
+                try:
+                    shutil.rmtree(tempdir)
+                except Exception:  # we tried, don't worry about it
+                    pass
+                return False
+            msg = "Failed to create cache directory " + path
+            raise SCons.Errors.SConsEnvironmentError(msg) from e
 
     def _readconfig(self, path: str) -> None:
         """Read the cache config from *path*.

@@ -34,6 +34,9 @@ FIXES
 
 - List fixes of outright bugs
 
+- New CacheDir initialization code failed on Python 3.7 for unknown
+  reason (worked on 3.8+). Adjusted the approach a bit.  Fixes #4694.
+
 IMPROVEMENTS
 ------------
 
