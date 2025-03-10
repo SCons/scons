@@ -39,7 +39,7 @@ environment:
     - WINPYTHON: "Python312"
     - WINPYTHON: "Python310"
     - WINPYTHON: "Python38"
-    - WINPYTHON: "Python36"
+    - WINPYTHON: "Python37"
 
 # remove sets of build jobs based on criteria below
 # to fine tune the number and platforms tested
@@ -52,7 +52,7 @@ matrix:
     - image: Visual Studio 2017
       WINPYTHON: "Python310"
     - image: Visual Studio 2017
-      WINPYTHON: "Python36"
+      WINPYTHON: "Python37"
 
     # test python 3.10 on Visual Studio 2019 image
     - image: Visual Studio 2019
@@ -60,7 +60,7 @@ matrix:
     - image: Visual Studio 2019
       WINPYTHON: "Python38"
     - image: Visual Studio 2019
-      WINPYTHON: "Python36"
+      WINPYTHON: "Python37"
 
     # test python 3.12 on Visual Studio 2022 image
     - image: Visual Studio 2022
@@ -68,7 +68,7 @@ matrix:
     - image: Visual Studio 2022
       WINPYTHON: "Python38"
     - image: Visual Studio 2022
-      WINPYTHON: "Python36"
+      WINPYTHON: "Python37"
 
 # Remove some binaries we don't want to be found
 # Note this is no longer needed, git-windows bin/ is quite minimal now.
