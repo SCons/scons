@@ -51,8 +51,6 @@ matrix:
       WINPYTHON: "Python312"
     - image: Visual Studio 2017
       WINPYTHON: "Python310"
-    - image: Visual Studio 2017
-      WINPYTHON: "Python37"
 
     # test python 3.10 on Visual Studio 2019 image
     - image: Visual Studio 2019
