@@ -8,7 +8,7 @@ image:
   # linux builds done in Travis CI for now
   - Visual Studio 2017
   - Visual Studio 2019
-  #- Visual Studio 2022  # Temporary disable while failing on 14.40 build tools
+  - Visual Studio 2022
 
 cache:
   - downloads -> appveyor.yml
@@ -35,36 +35,35 @@ environment:
   SCONS_CACHE_MSVC_CONFIG: "true"
   matrix:
     # Test oldest and newest supported Pythons, and a subset in between.
-    # Skipping 3.7 and 3.9 at this time
-    - WINPYTHON: "Python312"
-    - WINPYTHON: "Python310"
-    - WINPYTHON: "Python38"
+    # Skipping 3.8, 3.10, 3.12 at this time
+    - WINPYTHON: "Python313"
+    - WINPYTHON: "Python311"
+    - WINPYTHON: "Python39"
     - WINPYTHON: "Python37"
 
 # remove sets of build jobs based on criteria below
 # to fine tune the number and platforms tested
 matrix:
   exclude:
-    # XXX test python 3.6 on Visual Studio 2017 image
-    # test python 3.8 on Visual Studio 2017 image
+    # test python 3.7 on Visual Studio 2017 image
     - image: Visual Studio 2017
-      WINPYTHON: "Python312"
+      WINPYTHON: "Python313"
     - image: Visual Studio 2017
-      WINPYTHON: "Python310"
+      WINPYTHON: "Python311"
+    - image: Visual Studio 2017
+      WINPYTHON: "Python39"
 
-    # test python 3.10 on Visual Studio 2019 image
+    # test python 3.9 on Visual Studio 2019 image
     - image: Visual Studio 2019
-      WINPYTHON: "Python312"
+      WINPYTHON: "Python313"
     - image: Visual Studio 2019
-      WINPYTHON: "Python38"
+      WINPYTHON: "Python311"
     - image: Visual Studio 2019
       WINPYTHON: "Python37"
 
-    # test python 3.12 on Visual Studio 2022 image
+    # test python 3.11, 3.13 on Visual Studio 2022 image
     - image: Visual Studio 2022
-      WINPYTHON: "Python310"
-    - image: Visual Studio 2022
-      WINPYTHON: "Python38"
+      WINPYTHON: "Python39"
     - image: Visual Studio 2022
       WINPYTHON: "Python37"
 
