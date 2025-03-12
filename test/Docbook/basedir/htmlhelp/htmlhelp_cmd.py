@@ -40,13 +40,13 @@ if not (xsltproc and
 test.dir_fixture('image')
 
 # Normal invocation
-test.run(arguments=['-f','SConstruct.cmd'], stderr=None)
+test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc], stderr=None)
 test.must_not_be_empty(test.workpath('output/index.html'))
 test.must_not_be_empty(test.workpath('htmlhelp.hhp'))
 test.must_not_be_empty(test.workpath('toc.hhc'))
 
 # Cleanup
-test.run(arguments=['-f','SConstruct.cmd','-c'])
+test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])
 test.must_not_exist(test.workpath('output/index.html'))
 test.must_not_exist(test.workpath('htmlhelp.hhp'))
 test.must_not_exist(test.workpath('toc.hhc'))
