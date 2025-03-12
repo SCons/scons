@@ -209,14 +209,31 @@ class CacheDir:
         if os.path.exists(directory):
             return False
 
-        # TODO: tried to use TemporaryDirectory() here and the result as a
-        #   context manager, but that fails on Python 3.7 (works on 3.8+) after
-        #   the directory has successfully been renamed. Not sure why.
         try:
+            # TODO: Python 3.7. See comment below.
+            # tempdir = tempfile.TemporaryDirectory(dir=os.path.dirname(directory))
             tempdir = tempfile.mkdtemp(dir=os.path.dirname(directory))
         except OSError as e:
             msg = "Failed to create cache directory " + path
             raise SCons.Errors.SConsEnvironmentError(msg) from e
+
+        # TODO: Python 3.7: the context manager raises exception on cleanup
+        #    if the temporary was moved successfully (File Not Found).
+        #    Fixed in 3.8+. In the replacement below we manually clean up if
+        #    the move failed as mkdtemp() does not. TemporaryDirectory's
+        #    cleanup is more sophisitcated so prefer when we can use it.
+        # self._add_config(tempdir.name)
+        # with tempdir:
+        #     try:
+        #         os.replace(tempdir.name, directory)
+        #         return True
+        #     except OSError as e:
+        #         # did someone else get there first?
+        #         if os.path.isdir(directory):
+        #             return False  # context manager cleans up
+        #         msg = "Failed to create cache directory " + path
+        #         raise SCons.Errors.SConsEnvironmentError(msg) from e
+
         self._add_config(tempdir)
         try:
             os.replace(tempdir, directory)
