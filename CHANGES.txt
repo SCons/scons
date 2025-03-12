@@ -19,11 +19,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix typos in CCFLAGS test. Didn't affect the test itself, but
       didn't correctly apply the DefaultEnvironment speedup.
     - Try to fix Windows fails on Docbook tests in case xsltproc is found.
-      On both GitHub Actions and AppVeyor, it's found as part of
-      StrawberryPerl, which is part of the default install. Intermittent
-      fails seem caused by network issues, so propagate two xsltproc flags
-      for this that were in three of the "live" (named "cmd" here) tests,
-      but not the others. Also made other parts of the setup more consistent.
+      It's still not certain why this started failing.  On both GitHub
+      Actions and AppVeyor, it's found as part of StrawberryPerl, part of
+      the default install - maybe this wasn't the case before? The xsltproc
+      from choco install is considerably older and may have been more lenient?
+      Anyway, intermittent fails seem caused by something network related,
+      so propagate two xsltproc flags that avoid loading the dtd that were
+      present in three of the 11 "live" tests, but not the other eight.
+      Also, all 11 now pass the test-discovered xslt processor the same
+      way, which was not the case previously.
 
 
 RELEASE 4.9.0 -  Sun, 02 Mar 2025 17:22:20 -0700
