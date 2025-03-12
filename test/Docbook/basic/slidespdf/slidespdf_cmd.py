@@ -44,12 +44,12 @@ if not fop:
 test.dir_fixture('image')
 
 # Normal invocation
-test.run(arguments=['-f','SConstruct.cmd'], stderr=None)
+test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc], stderr=None)
 test.must_not_be_empty(test.workpath('virt.fo'))
 test.must_not_be_empty(test.workpath('virt.pdf'))
 
 # Cleanup
-test.run(arguments=['-f','SConstruct.cmd','-c'], stderr=None)
+test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])
 test.must_not_exist(test.workpath('virt.fo'))
 test.must_not_exist(test.workpath('virt.pdf'))
 
