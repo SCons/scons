@@ -23,33 +23,33 @@
 #
 
 """
-Test the PDF builder while using
+Test the base_dir argument for the HTMLHELP builder while using
 the xsltproc executable, if it exists.
 """
 
+import os
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-fop = test.where_is('fop')
-if not fop:
-    test.skip_test('No fop executable found, skipping test.\n')
-
 xsltproc = test.where_is('xsltproc')
-if not xsltproc:
-    test.skip_test('No xsltproc executable found, skipping test.\n')
+if not (xsltproc and
+        os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl')):
+    test.skip_test('No xsltproc or no stylesheets installed, skipping test.\n')
 
 test.dir_fixture('image')
 
 # Normal invocation
-test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc], stderr=None)
-test.must_not_be_empty(test.workpath('manual.fo'))
-test.must_not_be_empty(test.workpath('manual.pdf'))
+test.run(arguments=['-f','SConstruct.live',f'DOCBOOK_XSLTPROC={xsltproc}'], stderr=None)
+test.must_not_be_empty(test.workpath('output/index.html'))
+test.must_not_be_empty(test.workpath('htmlhelp.hhp'))
+test.must_not_be_empty(test.workpath('toc.hhc'))
 
 # Cleanup
-test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])
-test.must_not_exist(test.workpath('manual.fo'))
-test.must_not_exist(test.workpath('manual.pdf'))
+test.run(arguments=['-f','SConstruct.live','-c',f'DOCBOOK_XSLTPROC={xsltproc}'])
+test.must_not_exist(test.workpath('output/index.html'))
+test.must_not_exist(test.workpath('htmlhelp.hhp'))
+test.must_not_exist(test.workpath('toc.hhc'))
 
 test.pass_test()
 

@@ -23,31 +23,29 @@
 #
 
 """
-Test the EPUB builder while using
+Test the base_dir argument for the chunked HTML builder while using
 the xsltproc executable, if it exists.
 """
 
+import os
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 xsltproc = test.where_is('xsltproc')
-if not xsltproc:
-    test.skip_test('No xsltproc executable found, skipping test.\n')
+if not (xsltproc and
+        os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl')):
+    test.skip_test('No xsltproc or no stylesheets installed, skipping test.\n')
+
 test.dir_fixture('image')
 
 # Normal invocation
-test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc], stderr=None)
-test.must_not_be_empty(test.workpath('manual.epub'))
-test.must_not_be_empty(test.workpath('OEBPS','toc.ncx'))
-test.must_not_be_empty(test.workpath('OEBPS','content.opf'))
-test.must_not_be_empty(test.workpath('META-INF','container.xml'))
+test.run(arguments=['-f','SConstruct.live',f'DOCBOOK_XSLTPROC={xsltproc}'], stderr=None)
+test.must_not_be_empty(test.workpath('output/index.html'))
 
 # Cleanup
-test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])
-test.must_not_exist(test.workpath('manual.epub'))
-test.must_not_exist(test.workpath('OEBPS'))
-test.must_not_exist(test.workpath('META-INF'))
+test.run(arguments=['-f','SConstruct.live','-c',f'DOCBOOK_XSLTPROC={xsltproc}'])
+test.must_not_exist(test.workpath('output/index.html'))
 
 test.pass_test()
 

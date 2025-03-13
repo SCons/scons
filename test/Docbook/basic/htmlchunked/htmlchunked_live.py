@@ -23,7 +23,7 @@
 #
 
 """
-Test the HTMLHELP builder while using
+Test the chunked HTML builder while using
 the xsltproc executable, if it exists.
 """
 
@@ -38,16 +38,12 @@ if not xsltproc:
 test.dir_fixture('image')
 
 # Normal invocation
-test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc], stderr=None)
+test.run(arguments=['-f','SConstruct.live',f'DOCBOOK_XSLTPROC={xsltproc}'], stderr=None)
 test.must_not_be_empty(test.workpath('index.html'))
-test.must_not_be_empty(test.workpath('htmlhelp.hhp'))
-test.must_not_be_empty(test.workpath('toc.hhc'))
 
 # Cleanup
-test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])
+test.run(arguments=['-f','SConstruct.live','-c',f'DOCBOOK_XSLTPROC={xsltproc}'])
 test.must_not_exist(test.workpath('index.html'))
-test.must_not_exist(test.workpath('htmlhelp.hhp'))
-test.must_not_exist(test.workpath('toc.hhc'))
 
 test.pass_test()
 
