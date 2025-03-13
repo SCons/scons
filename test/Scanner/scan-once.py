@@ -36,11 +36,11 @@ test.write('SConstruct', r"""
 import os.path
 
 def scan(node, env, envkey, arg):
-    print('XScanner: node = '+ os.path.split(str(node))[1])
+    print('XScanner: node = '+ os.path.split(node)[1])
     return []
 
 def exists_check(node, env):
-    return os.path.exists(str(node))
+    return os.path.exists(node)
 
 XScanner = Scanner(name = 'XScanner',
                    function = scan,
@@ -49,8 +49,8 @@ XScanner = Scanner(name = 'XScanner',
                    skeys = ['.x'])
 
 def echo(env, target, source):
-    t = os.path.split(str(target[0]))[1]
-    s = os.path.split(str(source[0]))[1]
+    t = os.path.split(target[0])[1]
+    s = os.path.split(source[0])[1]
     print('create %s from %s' % (t, s))
 
 Echo = Builder(action = Action(echo, None),

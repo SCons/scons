@@ -67,10 +67,9 @@ def process(outf, inf):
             outf.write(line)
 
 def cat(env, source, target):
-    target = str(target[0])
-    with open(target, 'wb') as outf:
+    with open(target[0], 'wb') as outf:
         for src in source:
-            with open(str(src), 'rb') as inf:
+            with open(src, 'rb') as inf:
                 process(outf, inf)
 
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})

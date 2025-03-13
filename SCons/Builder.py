@@ -114,6 +114,7 @@ import SCons.Warnings
 from SCons.Debug import logInstanceCreation
 from SCons.Errors import InternalError, UserError
 from SCons.Executor import Executor
+from SCons.Node import Node
 
 class _Null:
     pass
@@ -487,10 +488,11 @@ class BuilderBase:
             # fspath() is to catch PathLike paths. We avoid the simpler
             # str(f) so as not to "lose" files that are already Nodes:
             # TypeError: expected str, bytes or os.PathLike object, not File
-            with suppress(TypeError):
-                f = os.fspath(f)
-            if SCons.Util.is_String(f):
-                f = SCons.Util.adjustixes(f, pre, suf, ensure_suffix)
+            if not isinstance(f, Node):
+                with suppress(TypeError):
+                    f = os.fspath(f)
+                if SCons.Util.is_String(f):
+                    f = SCons.Util.adjustixes(f, pre, suf, ensure_suffix)
             result.append(f)
         return result
 
