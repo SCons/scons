@@ -37,6 +37,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       __all__ in a package and not showing inherited members from optparse.
     - Fix --debug=includes for case of multiple source files.
     - Unify internal "_null" sentinel usage.
+    - Docbook tests: improve skip message, more clearly indicate which test
+      need actual installed system programs (add -live suffix).
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700

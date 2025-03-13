@@ -32,7 +32,7 @@ test = TestSCons.TestSCons()
 
 fop = test.where_is('fop')
 if not fop:
-    test.skip_test('No fop executable found, skipping test.\n')
+    test.skip_test("No 'fop' executable found, skipping test.\n")
 
 try:
     import lxml

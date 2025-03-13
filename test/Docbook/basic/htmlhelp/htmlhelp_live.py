@@ -33,18 +33,20 @@ test = TestSCons.TestSCons()
 
 xsltproc = test.where_is('xsltproc')
 if not xsltproc:
-    test.skip_test('No xsltproc executable found, skipping test.\n')
+    test.skip_test("No 'xsltproc' executable found, skipping test.\n")
 
 test.dir_fixture('image')
 
 # Normal invocation
-test.run(arguments=['-f','SConstruct.live',f'DOCBOOK_XSLTPROC={xsltproc}'], stderr=None)
+test.run(
+    arguments=['-f', 'SConstruct.live', f'DOCBOOK_XSLTPROC={xsltproc}'], stderr=None
+)
 test.must_not_be_empty(test.workpath('index.html'))
 test.must_not_be_empty(test.workpath('htmlhelp.hhp'))
 test.must_not_be_empty(test.workpath('toc.hhc'))
 
 # Cleanup
-test.run(arguments=['-f','SConstruct.live','-c',f'DOCBOOK_XSLTPROC={xsltproc}'])
+test.run(arguments=['-f', 'SConstruct.live', '-c', f'DOCBOOK_XSLTPROC={xsltproc}'])
 test.must_not_exist(test.workpath('index.html'))
 test.must_not_exist(test.workpath('htmlhelp.hhp'))
 test.must_not_exist(test.workpath('toc.hhc'))

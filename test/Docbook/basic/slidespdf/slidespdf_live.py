@@ -33,23 +33,27 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 xsltproc = test.where_is('xsltproc')
-if not (xsltproc and
-        os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl/slides')):
-    test.skip_test('No xsltproc executable or no "slides" stylesheets installed, skipping test.\n')
+if not (
+    xsltproc
+    and os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl/slides')
+):
+    test.skip_test("No 'xsltproc' or no slides stylesheets found, skipping test.\n")
 
 fop = test.where_is('fop')
 if not fop:
-    test.skip_test('No fop executable found, skipping test.\n')
+    test.skip_test("No 'fop' executable found, skipping test.\n")
 
 test.dir_fixture('image')
 
 # Normal invocation
-test.run(arguments=['-f','SConstruct.live',f'DOCBOOK_XSLTPROC={xsltproc}'], stderr=None)
+test.run(
+    arguments=['-f', 'SConstruct.live', f'DOCBOOK_XSLTPROC={xsltproc}'], stderr=None
+)
 test.must_not_be_empty(test.workpath('virt.fo'))
 test.must_not_be_empty(test.workpath('virt.pdf'))
 
 # Cleanup
-test.run(arguments=['-f','SConstruct.live','-c',f'DOCBOOK_XSLTPROC={xsltproc}'])
+test.run(arguments=['-f', 'SConstruct.live', '-c', f'DOCBOOK_XSLTPROC={xsltproc}'])
 test.must_not_exist(test.workpath('virt.fo'))
 test.must_not_exist(test.workpath('virt.pdf'))
 
