@@ -99,6 +99,9 @@ def pch_emitter(target, source, env):
 
     target = [pch, obj] # pch must be first, and obj second for the PCHCOM to work
 
+    if 'PCH' not in env or not env['PCH']:
+        env['PCH'] = pch
+
     return (target, source)
 
 
@@ -121,8 +124,16 @@ def object_emitter(target, source, env, parent_emitter):
     # https://github.com/SCons/scons/issues/2505
     pch=get_pch_node(env, target, source)
     if pch:
-        if str(target[0]) != SCons.Util.splitext(str(pch))[0] + '.obj':
+        pch_basename = SCons.Util.splitext(str(pch))[0]
+        if str(target[0]) != pch_basename + '.obj':
             env.Depends(target, pch)
+        else:
+            src_basename, src_ext = SCons.Util.splitext(str(source[0]))
+            if src_basename == pch_basename and src_ext in CXXSuffixes:
+                # target == PCH.obj and source == PCH.cpp
+                # don't overwrite PCH builder for PCH.obj
+                target = None
+                source = None
 
     return (target, source)
 
