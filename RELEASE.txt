@@ -37,6 +37,9 @@ FIXES
 - New CacheDir initialization code failed on Python 3.7 for unknown
   reason (worked on 3.8+). Adjusted the approach a bit.  Fixes #4694.
 
+- Fixed a hang in `wait_for_process_to_die()` on Windows, affecting
+  clean-up of the SCons daemon used for Ninja builds.
+
 IMPROVEMENTS
 ------------
 
