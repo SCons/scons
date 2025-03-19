@@ -37,11 +37,11 @@ DefaultEnvironment(tools=[])
 
 def batch_build(target, source, env):
     for t, s in zip(target, source):
-        with open(str(t), 'wb') as fp:
+        with open(t, 'wb') as fp:
             if str(t) == 'f3.out':
                 with open('f3.include', 'rb') as f:
                     fp.write(f.read())
-            with open(str(s), 'rb') as f:
+            with open(s, 'rb') as f:
                 fp.write(f.read())
 env = Environment(tools=[])
 bb = Action(batch_build, batch_key=True)

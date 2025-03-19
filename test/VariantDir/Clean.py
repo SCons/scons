@@ -42,8 +42,7 @@ VariantDir('build1', '.', duplicate=1)
 
 def build_sample(target, source, env):
     targetdir = str(target[0].dir)
-    target = str(target[0])
-    with open(target, 'w') as ofd, open(str(source[0]), 'r') as ifd:
+    with open(target[0], 'w') as ofd, open(source[0], 'r') as ifd:
         ofd.write(ifd.read())
     with open(targetdir+'/sample.junk', 'w') as f:
         f.write('Side effect!\\n')

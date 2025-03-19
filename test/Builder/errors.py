@@ -38,7 +38,7 @@ sconstruct = """
 DefaultEnvironment(tools=[])
 
 def buildop(env, source, target):
-    with open(str(target[0]), 'wb') as outf, open(str(source[0]), 'r') as infp:
+    with open(target[0], 'wb') as outf, open(source[0], 'r') as infp:
         for line in inpf.readlines():
             if line.find(str(target[0])) == -1:
                 outf.write(line)

@@ -41,10 +41,9 @@ SConscript(r'%s')
 
 test.write(subdir_SConscript, r"""
 def cat(env, source, target):
-    target = str(target[0])
-    with open(target, "wb") as f:
+    with open(target[0], "wb") as f:
         for src in source:
-            with open(str(src), "rb") as ifp:
+            with open(src, "rb") as ifp:
                 f.write(ifp.read())
 
 b = Builder(action=cat, suffix='.out', src_suffix='.in')
