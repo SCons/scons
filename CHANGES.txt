@@ -238,6 +238,10 @@ RELEASE 4.9.0 -  Sun, 02 Mar 2025 17:22:20 -0700
       `local_pool`, hoping it will fix a race condition that can occurs when
       Ninja defers to SCons to build.
 
+    From Adam Simpkins:
+    - Fixed a hang in `wait_for_process_to_die()` on Windows, affecting
+      clean-up of the SCons daemon used for Ninja builds.
+
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
 

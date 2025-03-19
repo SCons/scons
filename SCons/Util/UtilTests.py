@@ -27,11 +27,13 @@ import functools
 import hashlib
 import io
 import os
+import subprocess
 import sys
 import unittest
 import unittest.mock
 import warnings
 from collections import UserDict, UserList, UserString, namedtuple
+from typing import Callable
 
 import TestCmd
 
@@ -73,6 +75,8 @@ from SCons.Util import (
     to_String,
     to_bytes,
     to_str,
+    wait_for_process_to_die,
+    _wait_for_process_to_die_non_psutil,
 )
 from SCons.Util.envs import is_valid_construction_var
 from SCons.Util.hashes import (
@@ -81,6 +85,13 @@ from SCons.Util.hashes import (
     _get_hash_object,
     _set_allowed_viable_default_hashes,
 )
+
+try:
+    import psutil
+    has_psutil = True
+except ImportError:
+    has_psutil = False
+
 
 # These Util classes have no unit tests. Some don't make sense to test?
 # DisplayEngine, Delegate, MethodWrapper, UniqueList, Unbuffered, Null, NullSeq
@@ -846,6 +857,21 @@ bling
         s3 = silent_intern(42)
         s4 = silent_intern("spam")
         assert id(s1) == id(s4)
+
+    @unittest.skipUnless(has_psutil, "requires psutil")
+    def test_wait_for_process_to_die_success_psutil(self) -> None:
+        self._test_wait_for_process(wait_for_process_to_die)
+
+    def test_wait_for_process_to_die_success_non_psutil(self) -> None:
+        self._test_wait_for_process(_wait_for_process_to_die_non_psutil)
+
+    def _test_wait_for_process(
+        self, wait_fn: Callable[[int], None]
+    ) -> None:
+        cmd = [sys.executable, "-c", ""]
+        p = subprocess.Popen(cmd)
+        p.wait()
+        wait_fn(p.pid)
 
 
 class HashTestCase(unittest.TestCase):
