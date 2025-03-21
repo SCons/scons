@@ -309,9 +309,7 @@ def createAllExampleOutputs(dpath):
 
     for key, value in examples.items():
         # Process all scons_output tags
-        print("%.2f%s (%d/%d) %s" % (float(idx + 1) * 100.0 / float(total),
-                                     perc, idx + 1, total, key))
-
+        print(f"{(idx + 1) / total:7.2%} ({idx + 1}/{total}) {key}")
         create_scons_output(value)
         # Process all scons_example_file tags
         for r in value.files:
