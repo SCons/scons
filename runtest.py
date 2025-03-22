@@ -796,11 +796,9 @@ def run_test(t, io_lock=None, run_async=True):
     t.command_str = " ".join(t.command_args)
     if args.printcommand:
         if args.print_progress:
-            t.headline += "%d/%d (%.2f%s) %s\n" % (
-                t.testno, total_num_tests,
-                float(t.testno) * 100.0 / float(total_num_tests),
-                "%",
-                t.command_str,
+            t.headline += (
+                f"{t.testno}/{total_num_tests} "
+                f"({t.testno / total_num_tests:7.2%}) {t.command_str}\n"
             )
         else:
             t.headline += t.command_str + "\n"

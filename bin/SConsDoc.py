@@ -199,12 +199,11 @@ class DoctypeEntity:
         self.name = name_
         self.uri = uri_
 
-    def getEntityString(self):
-        txt = """    <!ENTITY %(perc)s %(name)s SYSTEM "%(uri)s">
-    %(perc)s%(name)s;
-""" % {'perc': perc, 'name': self.name, 'uri': self.uri}
-
-        return txt
+    def getEntityString(self) -> str:
+        return f"""\
+    <!ENTITY % {self.name} SYSTEM "{self.uri}">
+    %{self.name};
+"""
 
 
 class DoctypeDeclaration:
@@ -417,8 +416,6 @@ class SConsDocTree:
         if self.xpath_context is not None:
             self.xpath_context.xpathFreeContext()
 
-perc = "%"
-
 def validate_all_xml(dpaths, xsdfile=default_xsd):
     xmlschema_context = etree.parse(xsdfile)
 
@@ -438,10 +435,7 @@ def validate_all_xml(dpaths, xsdfile=default_xsd):
     fails = []
     fpaths = sorted(fpaths)
     for idx, fp in enumerate(fpaths):
-        fpath = os.path.join(path, fp)
-        print("%.2f%s (%d/%d) %s" % (float(idx + 1) * 100.0 /float(len(fpaths)),
-                                     perc, idx + 1, len(fpaths), fp))
-
+        print(f"{(idx + 1) / len(fpaths):7.2%} ({idx + 1}/{len(fpaths)}) {fp}")
         if not tf.validateXml(fp, xmlschema_context):
             fails.append(fp)
             continue

@@ -30,6 +30,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       present in three of the 11 "live" tests, but not the other eight.
       Also, all 11 now pass the test-discovered xslt processor the same
       way, which was not the case previously.
+    - Update progress printing on three tools for SCons developers -
+      the test runner and two of the doc generators.
 
 
 RELEASE 4.9.0 -  Sun, 02 Mar 2025 17:22:20 -0700
