@@ -37,7 +37,7 @@ test = TestSCons.TestSCons()
 
 # Make sure CFLAGS is not passed to CXX by just expanding CXXCOM
 test.write('SConstruct', """\
-_ = DefaultEnvironment(tools=[])
+DefaultEnvironment(tools=[])
 env = Environment(CFLAGS='-xyz', CCFLAGS='-abc')
 print(env.subst('$CXXCOM'))
 print(env.subst('$CXXCOMSTR'))
@@ -63,7 +63,7 @@ else:
     barflags = '-DBAR'
 
 test.write('SConstruct', f"""\
-_ = DefaultEnvironment(tools=[])
+DefaultEnvironment(tools=[])
 foo = Environment(CFLAGS="{fooflags}")
 bar = Environment(CFLAGS="{barflags}")
 
@@ -105,7 +105,7 @@ prog.c:  BAZ
 """)
 
 test.write('SConstruct', f"""\
-_ = DefaultEnvironment(tools=[])
+DefaultEnvironment(tools=[])
 bar = Environment(CFLAGS='{barflags}')
 
 foo_obj = bar.Object(target='foo', source='prog.c')

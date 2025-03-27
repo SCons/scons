@@ -45,7 +45,7 @@ if sys.platform.find('irix') > -1:
 e = test.Environment()
 
 test.write('SConstruct', """\
-_ = DefaultEnvironment(tools=[])
+DefaultEnvironment(tools=[])
 foo = Environment(WINDOWS_INSERT_DEF=1)
 foo.Append(CXXFLAGS='-DFOO')
 bar = Environment(WINDOWS_INSERT_DEF=1)
@@ -138,7 +138,7 @@ test.run(program=test.workpath('foo'), stdout="prog.c:  FOO\n")
 test.run(program=test.workpath('bar'), stdout="prog.c:  BAR\n")
 
 test.write('SConstruct', """\
-_ = DefaultEnvironment(tools=[])
+DefaultEnvironment(tools=[])
 bar = Environment(WINDOWS_INSERT_DEF=1)
 bar.Append(CXXFLAGS='-DBAR')
 

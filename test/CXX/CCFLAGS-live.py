@@ -35,7 +35,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-_ = DefaultEnvironment(tools=[])
+DefaultEnvironment(tools=[])
 foo = Environment()
 foo.Append(CCFLAGS='-DFOO', CXXFLAGS='-DCXX')
 bar = Environment()

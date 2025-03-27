@@ -46,7 +46,7 @@ if sys.platform.find('irix') > -1:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
 test.write('SConstruct', f"""\
-_ = DefaultEnvironment(tools=[])
+DefaultEnvironment(tools=[])
 foo = Environment(SHCXXFLAGS='{fooflags}', WINDOWS_INSERT_DEF=1)
 bar = Environment(SHCXXFLAGS='{barflags}', WINDOWS_INSERT_DEF=1)
 
@@ -113,7 +113,7 @@ test.run(program=test.workpath('fooprog'), stdout="prog.cpp:  FOO\n")
 test.run(program=test.workpath('barprog'), stdout="prog.cpp:  BAR\n")
 
 test.write('SConstruct', f"""\
-_ = DefaultEnvironment(tools=[])
+DefaultEnvironment(tools=[])
 bar = Environment(SHCXXFLAGS='{barflags}', WINDOWS_INSERT_DEF=1)
 
 foo_obj = bar.SharedObject(target='foo', source='prog.cpp')
