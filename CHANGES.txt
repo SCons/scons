@@ -22,6 +22,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Extended unittests (crudely) to test for correct/expected response
       when default setting is a boolean string.
 
+  From Mats Wichmann:
+    - runtest.py once again finds "external" tests, such as the tests for
+      tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
+
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
 
