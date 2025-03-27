@@ -49,7 +49,7 @@ else:
     barflags = '-DBAR'
 
 test.write('SConstruct', f"""\
-_ = DefaultEnvironment(tools=[])
+DefaultEnvironment(tools=[])
 foo = Environment(CCFLAGS='{fooflags}')
 bar = Environment(CCFLAGS='{barflags}')
 
@@ -91,7 +91,7 @@ prog.c:  BAZ
 """)
 
 test.write('SConstruct', f"""\
-_ = DefaultEnvironment(tools=[])
+DefaultEnvironment(tools=[])
 bar = Environment(CCFLAGS='{barflags}')
 
 foo_obj = bar.Object(target='foo', source='prog.c')
