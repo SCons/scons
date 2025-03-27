@@ -13,3 +13,5 @@ sphinx-book-theme
 rst2pdf
 
 build
+twine
+packaging
