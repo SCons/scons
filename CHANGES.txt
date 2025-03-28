@@ -10,7 +10,7 @@ NOTE: Since SCons 4.3.0, Python 3.6.0 or above is required.
 NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
 
 
-RELEASE 4.9.0 -  Thu, 27 Mar 2025 11:40:20 -0700
+RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
 
   From Mats Wichmann:
     - Fix typos in CCFLAGS test. Didn't affect the test itself, but
