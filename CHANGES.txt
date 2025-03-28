@@ -19,6 +19,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
 
+
+  From Adam Simpkins:
+    - Fixed a hang in `wait_for_process_to_die()` on Windows, affecting
+      clean-up of the SCons daemon used for Ninja builds.
+
   From Mats Wichmann:
     - Fix typos in CCFLAGS test. Didn't affect the test itself, but
       didn't correctly apply the DefaultEnvironment speedup.
@@ -145,6 +150,11 @@ RELEASE 4.9.0 -  Sun, 02 Mar 2025 17:22:20 -0700
   From Keith F Prussing:
     - Added support for tracking beamer themes in the LaTeX scanner.
 
+  From Adam Scott:
+    - Changed Ninja's TEMPLATE rule pool to use `install_pool` instead of
+      `local_pool`, hoping it will fix a race condition that can occurs when
+      Ninja defers to SCons to build.
+
   From Alex Thiessen:
     - Many grammatical and spelling fixes in the documentation.
 
@@ -238,15 +248,6 @@ RELEASE 4.9.0 -  Sun, 02 Mar 2025 17:22:20 -0700
       (K&R flavor) function declaration, updated.
     - Test framework - add recognizing list-of-path-components for
       the destination of fixtures too (matches docstrings now).
-
-    From Adam Scott:
-    - Changed Ninja's TEMPLATE rule pool to use `install_pool` instead of
-      `local_pool`, hoping it will fix a race condition that can occurs when
-      Ninja defers to SCons to build.
-
-    From Adam Simpkins:
-    - Fixed a hang in `wait_for_process_to_die()` on Windows, affecting
-      clean-up of the SCons daemon used for Ninja builds.
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700
