@@ -32,7 +32,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- List fixes of outright bugs
+- Fixed SCons.Variables.PackageVariable to correctly test the default
+  setting against both enable & disable strings. (Fixes #4702)
 
 IMPROVEMENTS
 ------------
