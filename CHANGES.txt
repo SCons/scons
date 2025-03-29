@@ -18,7 +18,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Bill Prendergast:
     - Fixed SCons.Variables.PackageVariable to correctly test the default
-      setting against both enable & disable strings.
+      setting against both enable & disable strings. (Fixes #4702)
     - Extended unittests (crudely) to test for correct/expected response
       when default setting is a boolean string.
 
