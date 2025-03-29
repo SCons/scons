@@ -547,7 +547,7 @@ def CCCom(target, source, env):
                 elif line[:11] != "STRIP CCCOM":
                     ofp.write(line)
 
-    with open(str(target[0]), "w") as fp:
+    with open(target[0], "w") as fp:
         for src in map(str, source):
             process(src, fp)
             fp.write('debug = ' + ARGUMENTS.get('debug', '0') + '\\n')

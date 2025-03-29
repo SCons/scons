@@ -69,7 +69,7 @@ def toto(header='%(header)s', trailer='%(trailer)s'):
         def foo(b=b):
             return %(nestedfuncexp)s
 
-        with open(str(target[0]), 'wb') as f:
+        with open(target[0], 'wb') as f:
             f.write(bytearray(header, 'utf-8'))
             for d in env['ENVDEPS']:
                 f.write(bytearray(d+'%(separator)s', 'utf-8'))

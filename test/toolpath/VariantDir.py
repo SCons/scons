@@ -50,7 +50,7 @@ test.write(['subdir', 'src', 'tools', 'MyBuilder.py'], """\
 from SCons.Script import Builder
 def generate(env):
     def my_copy(target, source, env):
-        with open(str(target[0]), 'wb') as f, open(str(source[0]), 'rb') as ifp:
+        with open(target[0], 'wb') as f, open(source[0], 'rb') as ifp:
             f.write(ifp.read())
     env['BUILDERS']['MyCopy'] = Builder(action = my_copy)
 

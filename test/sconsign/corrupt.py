@@ -47,7 +47,7 @@ work2_sub__sconsign = test.workpath('work2', 'sub', database_name)
 
 SConstruct_contents = """\
 def build1(target, source, env):
-    with open(str(target[0]), 'wb') as ofp, open(str(source[0]), 'rb') as ifp:
+    with open(target[0], 'wb') as ofp, open(source[0], 'rb') as ifp:
         ofp.write(ifp.read())
     return None
 

@@ -56,7 +56,7 @@ def cat(env, source, target):
         f.write(target + "\\n")
     with open(target, "w") as f:
         for src in source:
-            with open(str(src), "r") as f2:
+            with open(src, "r") as f2:
                 f.write(f2.read())
 env = Environment(tools=[], BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')
