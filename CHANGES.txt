@@ -12,15 +12,18 @@ NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
-
-        - Whatever John Doe did.
+  From John Doe:
+    - Whatever John Doe did.
 
   From Bill Prendergast:
     - Fixed SCons.Variables.PackageVariable to correctly test the default
       setting against both enable & disable strings. (Fixes #4702)
     - Extended unittests (crudely) to test for correct/expected response
       when default setting is a boolean string.
+
+  From Mats Wichmann:
+    - Clean up C and C++ FLAGS tests. Tests which use a real compiler
+      are now more clearly distinguished (-live.py suffix and docstring).
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700

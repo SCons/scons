@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,13 +22,12 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that $CXXFLAGS settings are used to build both static
 and shared object files.
+
+This is a live test, uses the detected C++ compiler.
 """
 
 import os
@@ -34,26 +35,26 @@ import sys
 
 import TestSCons
 
-_obj = TestSCons._obj
+test = TestSCons.TestSCons()
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
 if sys.platform.find('irix') > -1:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
-test = TestSCons.TestSCons()
-
 e = test.Environment()
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 foo = Environment(WINDOWS_INSERT_DEF=1)
-foo.Append(CXXFLAGS = '-DFOO') 
+foo.Append(CXXFLAGS='-DFOO')
 bar = Environment(WINDOWS_INSERT_DEF=1)
-bar.Append(CXXFLAGS = '-DBAR') 
-foo_obj = foo.SharedObject(target = 'fooshared%(_obj)s', source = 'doIt.cpp')
-bar_obj = bar.SharedObject(target = 'barshared%(_obj)s', source = 'doIt.cpp')
-foo.SharedLibrary(target = 'foo', source = foo_obj)
-bar.SharedLibrary(target = 'bar', source = bar_obj)
+bar.Append(CXXFLAGS='-DBAR')
+
+foo_obj = foo.SharedObject(target='fooshared', source='doIt.cpp')
+bar_obj = bar.SharedObject(target='barshared', source='doIt.cpp')
+foo.SharedLibrary(target='foo', source=foo_obj)
+bar.SharedLibrary(target='bar', source=bar_obj)
 
 fooMain = foo.Clone(LIBS='foo', LIBPATH='.')
 foo_obj = fooMain.Object(target='foomain', source='main.c')
@@ -63,11 +64,11 @@ barMain = bar.Clone(LIBS='bar', LIBPATH='.')
 bar_obj = barMain.Object(target='barmain', source='main.c')
 barMain.Program(target='barprog', source=bar_obj)
 
-foo_obj = foo.Object(target = 'foostatic', source = 'prog.cpp')
-bar_obj = bar.Object(target = 'barstatic', source = 'prog.cpp')
-foo.Program(target = 'foo', source = foo_obj)
-bar.Program(target = 'bar', source = bar_obj)
-""" % locals())
+foo_obj = foo.Object(target='foostatic', source='prog.cpp')
+bar_obj = bar.Object(target='barstatic', source='prog.cpp')
+foo.Program(target='foo', source=foo_obj)
+bar.Program(target='bar', source=bar_obj)
+""")
 
 test.write('foo.def', r"""
 LIBRARY        "foo"
@@ -100,8 +101,7 @@ doIt()
 }
 """)
 
-test.write('main.c', r"""
-
+test.write('main.c', """\
 void doIt();
 
 int
@@ -130,36 +130,33 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = '.')
+test.run(arguments='.')
 
-test.run(program = test.workpath('fooprog'), stdout = "doIt.cpp:  FOO\n")
-test.run(program = test.workpath('barprog'), stdout = "doIt.cpp:  BAR\n")
-test.run(program = test.workpath('foo'), stdout = "prog.c:  FOO\n")
-test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
+test.run(program=test.workpath('fooprog'), stdout="doIt.cpp:  FOO\n")
+test.run(program=test.workpath('barprog'), stdout="doIt.cpp:  BAR\n")
+test.run(program=test.workpath('foo'), stdout="prog.c:  FOO\n")
+test.run(program=test.workpath('bar'), stdout="prog.c:  BAR\n")
 
-
-
-test.write('SConstruct', """
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 bar = Environment(WINDOWS_INSERT_DEF=1)
-bar.Append(CXXFLAGS = '-DBAR') 
-foo_obj = bar.SharedObject(target = 'foo%(_obj)s', source = 'doIt.cpp')
-bar_obj = bar.SharedObject(target = 'bar%(_obj)s', source = 'doIt.cpp')
-bar.SharedLibrary(target = 'foo', source = foo_obj)
-bar.SharedLibrary(target = 'bar', source = bar_obj)
+bar.Append(CXXFLAGS='-DBAR')
+
+foo_obj = bar.SharedObject(target='foo', source='doIt.cpp')
+bar_obj = bar.SharedObject(target='bar', source='doIt.cpp')
+bar.SharedLibrary(target='foo', source=foo_obj)
+bar.SharedLibrary(target='bar', source=bar_obj)
 
 barMain = bar.Clone(LIBS='bar', LIBPATH='.')
 foo_obj = barMain.Object(target='foomain', source='main.c')
 bar_obj = barMain.Object(target='barmain', source='main.c')
 barMain.Program(target='barprog', source=foo_obj)
 barMain.Program(target='fooprog', source=bar_obj)
-""" % locals())
+""")
 
-test.run(arguments = '.')
-
-test.run(program = test.workpath('fooprog'), stdout = "doIt.cpp:  BAR\n")
-test.run(program = test.workpath('barprog'), stdout = "doIt.cpp:  BAR\n")
-
-
+test.run(arguments='.')
+test.run(program=test.workpath('fooprog'), stdout="doIt.cpp:  BAR\n")
+test.run(program=test.workpath('barprog'), stdout="doIt.cpp:  BAR\n")
 
 test.pass_test()
 

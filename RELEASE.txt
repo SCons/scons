@@ -6,12 +6,12 @@ Past official release announcements appear at:
 
 ==================================================================
 
-A new SCons release, 4.9.0, is now available on the SCons download page:
+A new SCons release, X.Y.Z, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
+Here is a summary of the changes since 4.9.1:
 
-Here is a summary of the changes since 4.9.0:
 
 NEW FUNCTIONALITY
 -----------------
@@ -63,4 +63,4 @@ Thanks to the following contributors listed below for their contributions to thi
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.0.1..HEAD
+    git shortlog --no-merges -ns 4.9.1..HEAD
