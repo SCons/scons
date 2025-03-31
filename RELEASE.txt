@@ -58,6 +58,8 @@ DOCUMENTATION
 
 - Clarify how pre/post actions on an alias work.
 
+- Improve the description of PackageVariable.
+
 DEVELOPMENT
 -----------
 
