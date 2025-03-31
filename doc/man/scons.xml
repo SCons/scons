@@ -5391,16 +5391,18 @@ the <parameter>validator</parameter> parameter.
   <listitem>
 <para>
 Set up a variable named <parameter>key</parameter>
-to help control a build component,
+to help control the use of a build component,
 such as a software package.
-The variable can be specified to disable, enable,
-or enable with a custom path.
-The resulting &consvar; will have a value of
-<literal>True</literal>, <literal>False</literal>, or a path string.
-Interpretation of this value is up to the consumer,
-but a path string must refer to an existing filesystem entry
-or the <function>PackageVariable</function> validator
-will raise an exception.
+Similar to a
+<link linkend='v-BoolVariable'><function>BoolVariable</function></link>,
+but can also specify a path string
+to provide additional information to the build,
+for example the path to a configuration file describing the package,
+or a directory containing the package headers and libraries.
+The variable will have a default value of
+<parameter>default</parameter>,
+and the <parameter>help</parameter> parameter
+will be used as the descriptive part of the help text.
 </para>
 
 <para>
@@ -5410,30 +5412,42 @@ Any of the (case-insensitive) strings
 <userinput>true</userinput>,
 <userinput>on</userinput>,
 <userinput>enable</userinput>
-and
+or
 <userinput>search</userinput>
-can be used
-to indicate the package is "enabled",
-and the (case-insensitive) strings
+can be used to indicate the package is "enabled",
+and can also be used as the value of <parameter>default</parameter>.
+A value of boolean <constant>True</constant> is
+produced except for the special case described
+for a path string.
+</para>
+
+<para>
+Any of the (case-insensitive) strings
 <userinput>0</userinput>,
 <userinput>no</userinput>,
 <userinput>false</userinput>,
 <userinput>off</userinput>
-and
+or
 <userinput>disable</userinput>
-to indicate the package is "disabled".
+can be used to indicate the package is "disabled",
+and can also be used as the value of <parameter>default</parameter>.
+A value of boolean <constant>False</constant> is
+produced.
 </para>
 
 <para>
-The <parameter>default</parameter> parameter
-can be either a path string or one of the enabling or disabling strings.
-<parameter>default</parameter> is produced if the variable is not specified,
-or if it is specified with one of the enabling strings,
-except that if <parameter>default</parameter> is one
-of the enabling strings, the boolean literal <literal>True</literal>
-is produced instead of the string.
-The <parameter>help</parameter> parameter
-specifies the descriptive part of the help text.
+A string which is neither an enabling or disabling
+string is considered a "path string".
+A path string can be given when specifying the variable,
+and can also be used as the value of <parameter>default</parameter>.
+A path string must refer to an existing filesystem path,
+but any further meaning is left to the build system to decide.
+The path string is produced.
+As a special case,
+if <parameter>default</parameter> is a path string,
+and the variable is specified with an enabling string,
+the default path string is produced,
+rather than <literal>True</literal>.
 </para>
   </listitem>
   </varlistentry>
