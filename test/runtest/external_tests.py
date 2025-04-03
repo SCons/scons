@@ -35,7 +35,7 @@ import os
 import TestRuntest
 
 test = TestRuntest.TestRuntest()
-test.subdir('ext', ['ext', 'test'], ['ext', 'test', 'subdir'])
+test.subdir('ext/test/subdir')
 
 pythonstring = TestRuntest.pythonstring
 pythonflags = TestRuntest.pythonflags
@@ -44,9 +44,9 @@ one = os.path.join('ext', 'test', 'subdir', 'test_one.py')
 two = os.path.join('ext', 'test', 'subdir', 'two.py')
 three = os.path.join('ext', 'test', 'test_three.py')
 
-test.write_passing_test(['ext', 'test', 'subdir', 'test_one.py'])
-test.write_passing_test(['ext', 'test', 'subdir', 'two.py'])
-test.write_passing_test(['ext', 'test', 'test_three.py'])
+test.write_passing_test(one)
+test.write_passing_test(two)
+test.write_passing_test(three)
 
 expect_stderr_noarg = """\
 usage: runtest.py [OPTIONS] [TEST ...]
