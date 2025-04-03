@@ -34,6 +34,9 @@ RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
     - Fixed a hang in `wait_for_process_to_die()` on Windows, affecting
       clean-up of the SCons daemon used for Ninja builds.
 
+  From Thaddeus Crews:
+    - Nodes are now treated as PathLike objects.
+
   From Mats Wichmann:
     - Fix typos in CCFLAGS test. Didn't affect the test itself, but
       didn't correctly apply the DefaultEnvironment speedup.

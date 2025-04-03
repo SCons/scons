@@ -36,7 +36,7 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 def cat(target, source, env):
-    with open(str(target[0]), 'wb') as f, open(str(source[0]), 'rb') as infp:
+    with open(target[0], 'wb') as f, open(source[0], 'rb') as infp:
         f.write(infp.read())
 env = Environment(BUILDERS={'Cat':Builder(action=Action(cat))})
 env.Cat('file.out', 'file.in')

@@ -51,9 +51,9 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
 def cat(target, source, env):
-    with open(str(target[0]), 'wb') as fp:
-        for s in source:
-            with open(str(s), 'rb') as infp:
+    with open(target[0], 'wb') as fp:
+        for src in source:
+            with open(src, 'rb') as infp:
                 fp.write(infp.read())
 env=Environment()
 Export('env')

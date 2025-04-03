@@ -29,6 +29,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - List modifications to existing features, where the previous behavior
   wouldn't actually be considered a bug
 
+- Nodes are now treated as PathLike objects.
+
 FIXES
 -----
 
