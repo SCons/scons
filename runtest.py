@@ -29,7 +29,6 @@ from abc import ABC, abstractmethod
 from io import StringIO
 from pathlib import Path, PurePath, PureWindowsPath
 from queue import Queue
-from typing import TextIO
 
 cwd = os.getcwd()
 debug: str | None = None
@@ -575,38 +574,34 @@ if '_JAVA_OPTIONS' in os.environ:
     del os.environ['_JAVA_OPTIONS']
 
 
-# ---[ test discovery ]------------------------------------
-# This section figures out which tests to run.
+# ---[ Test Discovery ]------------------------------------
+# This section determines which tests to run based on three
+# mutually exclusive options:
+# 1. Reading test paths from a testlist file (--file or --retry option)
+# 2. Using test paths given as command line arguments
+# 3. Automatically finding all tests (--all option)
 #
-# The initial testlist is made by reading from the testlistfile,
-# if supplied, or by looking at the test arguments, if supplied,
-# or by looking for all test files if the "all" argument is supplied.
-# One of the three is required.
+# Test paths can specify either individual test files, or directories to
+# scan for tests. The following test types are recognized:
 #
-# Each test path, whichever of the three sources it comes from,
-# specifies either a test file or a directory to search for
-# SCons tests. SCons code layout assumes that any file under the 'SCons'
-# subdirectory that ends with 'Tests.py' is a unit test, and any Python
-# script (*.py) under the 'test' subdirectory is an end-to-end test.
-# We need to track these because they are invoked differently.
-# find_unit_tests and find_e2e_tests are used for this searching.
+# - Unit tests: Files ending in 'Tests.py' under the 'SCons' directory
+# - End-to-end tests: Python scripts (*.py) under the 'test' directory
+# - External tests: End-to-end tests in paths containing a 'test'
+#   component (not expected to be local)
 #
-# Note that there are some tests under 'SCons' that *begin* with
-# 'test_', but they're packaging and installation tests, not
-# functional tests, so we don't execute them by default.  (They can
-# still be executed by hand, though).
+# find_unit_tests() and find_e2e_tests() perform the directory scanning.
 #
-# Test exclusions, if specified, are then applied.
-
+# After the initial test list is built, any test exclusions specified via
+# --exclude-list are applied to produce the final test set.
 
 def scanlist(testfile):
     """ Process a testlist file """
     data = StringIO(testfile.read_text())
     tests = [t.strip() for t in data.readlines() if not t.startswith('#')]
     # in order to allow scanned lists to work whether they use forward or
-    # backward slashes, first create the object as a PureWindowsPath which
-    # accepts either, then use that to make a Path object to use for
-    # comparisons like "file in scanned_list".
+    # backward slashes, on non-Windows first create the object as a
+    # PureWindowsPath which accepts either, then use that to make a Path
+    # object for use in comparisons like "if file in scanned_list".
     if sys.platform == 'win32':
         return [Path(t) for t in tests if t]
     else:
@@ -635,7 +630,7 @@ def find_e2e_tests(directory):
         if 'sconstest.skip' in filenames:
             continue
 
-        # Slurp in any tests in exclude lists
+        # Gather up the data from any exclude lists
         excludes = []
         if ".exclude_tests" in filenames:
             excludefile = Path(dirpath, ".exclude_tests").resolve()
@@ -648,8 +643,7 @@ def find_e2e_tests(directory):
     return sorted(result)
 
 
-# initial selection:
-# if we have a testlist file read that, else hunt for tests.
+# Initial test selection:
 unittests = []
 endtests = []
 if args.testlistfile:
@@ -668,7 +662,7 @@ else:
         # Clean up path removing leading ./ or .\
         name = str(path)
         if name.startswith('.') and name[1] in (os.sep, os.altsep):
-            path = path.with_name(tn[2:])
+            path = path.with_name(name[2:])
 
         if path.exists():
             if path.is_dir():
@@ -676,7 +670,8 @@ else:
                     unittests.extend(find_unit_tests(path))
                 elif path.parts[0] == 'test':
                     endtests.extend(find_e2e_tests(path))
-                # else: TODO: what if user pointed to a dir outside scons tree?
+                elif args.external and 'test' in path.parts:
+                    endtests.extend(find_e2e_tests(path))
             else:
                 if path.match("*Tests.py"):
                     unittests.append(path)
@@ -703,7 +698,7 @@ error: no tests matching the specification were found.
 """)
     sys.exit(1)
 
-# ---[ test processing ]-----------------------------------
+# ---[ Test Processing ]-----------------------------------
 tests = [Test(t) for t in tests]
 
 if args.list_only:
@@ -826,10 +821,11 @@ def run_test(t, io_lock=None, run_async=True):
 
 
 class RunTest(threading.Thread):
-    """ Test Runner class.
+    """Test Runner thread.
 
-    One instance will be created for each job thread in multi-job mode
+    One will be created for each job in multi-job mode
     """
+
     def __init__(self, queue=None, io_lock=None, group=None, target=None, name=None):
         super().__init__(group=group, target=target, name=name)
         self.queue = queue
