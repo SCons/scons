@@ -35,16 +35,16 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', 
+test.write('SConstruct',
 """
 def copy(source, target):
     with open(target, "wb") as f, open(source, "rb") as f2:
         f.write(f2.read())
 
 def build(env, source, target):
-    copy(str(source[0]), str(target[0]))
+    copy(source[0], target[0])
     if target[0].side_effects:
-        with open(str(target[0].side_effects[0]), "ab") as side_effect:
+        with open(target[0].side_effects[0], "ab") as side_effect:
             side_effect.write(('%s -> %s\\n'%(str(source[0]), str(target[0]))).encode())
 
 Build = Builder(action=build)

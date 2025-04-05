@@ -45,13 +45,13 @@ DefaultEnvironment(tools=[])
 env=Environment()
 
 def before(env, target, source):
-    with open(str(target[0]), "wb") as f:
+    with open(target[0], "wb") as f:
         f.write(b"Foo\\n")
     with open("before.txt", "wb") as f:
         f.write(b"Bar\\n")
 
 def after(env, target, source):
-    with open(str(target[0]), "rb") as fin, open("after%s", "wb") as fout:
+    with open(target[0], "rb") as fin, open("after%s", "wb") as fout:
         fout.write(fin.read())
 
 env.Prepend(LINKCOM=Action(before))

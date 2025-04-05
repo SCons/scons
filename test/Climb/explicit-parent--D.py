@@ -40,7 +40,7 @@ def cat(env, source, target):
     target = str(target[0])
     with open(target, 'wb') as ofp:
         for src in source:
-            with open(str(src), 'rb') as ifp:
+            with open(src, 'rb') as ifp:
                 ofp.write(ifp.read())
 env = Environment(tools=[], BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('f1.out', 'f1.in')

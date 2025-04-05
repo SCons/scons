@@ -117,7 +117,7 @@ def third(env, target, source):
     contents = source[0].get_contents()
     # print("TYPE:"+str(type(contents)))
     contents = contents.replace(b'getfile', b'MISSEDME')
-    with open(str(target[0]), 'wb') as f:
+    with open(target[0], 'wb') as f:
         f.write(contents)
 
 kbld = Builder(action=r'%(_python_)s build.py $SOURCES $TARGET',

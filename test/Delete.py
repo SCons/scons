@@ -43,10 +43,9 @@ Execute(Delete('symlinks/brokenlink'))
 Execute(Delete('symlinks/dirlink'))
 
 def cat(env, source, target):
-    target = str(target[0])
-    with open(target, "wb") as ofp:
+    with open(target[0], "wb") as ofp:
         for src in source:
-            with open(str(src), "rb") as ifp:
+            with open(src, "rb") as ifp:
                 ofp.write(ifp.read())
 Cat = Action(cat)
 env = Environment()
@@ -193,10 +192,9 @@ if sys.platform != 'win32':
 
 test.write("SConstruct", """\
 def cat(env, source, target):
-    target = str(target[0])
-    with open(target, "wb") as ifp:
+    with open(target[0], "wb") as ifp:
         for src in source:
-            with open(str(src), "rb") as ofp:
+            with open(src, "rb") as ofp:
                 ofp.write(ifp.read())
 Cat = Action(cat)
 env = Environment()
