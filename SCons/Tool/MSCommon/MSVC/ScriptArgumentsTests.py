@@ -36,6 +36,10 @@ from SCons.Tool.MSCommon.MSVC import Config
 from SCons.Tool.MSCommon.MSVC import Util
 from SCons.Tool.MSCommon.MSVC import WinSDK
 from SCons.Tool.MSCommon.MSVC import ScriptArguments
+from SCons.Tool.MSCommon.MSVC.Kind import (
+    msvc_version_is_express,
+    msvc_version_is_btdispatch,
+)
 
 from SCons.Tool.MSCommon.MSVC.Exceptions import (
     MSVCInternalError,
@@ -127,7 +131,7 @@ class Data:
 
     for vcver in Config.MSVC_VERSION_SUFFIX.keys():
         version_def = Util.msvc_version_components(vcver)
-        vc_dir = vc.find_vc_pdir(None, vcver)
+        vc_dir = vc.find_vc_pdir(vcver)
         t = (version_def, vc_dir)
         ALL_VERSIONS_PAIRS.append(t)
         if vc_dir:
@@ -147,13 +151,13 @@ class Data:
     )
 
     @classmethod
-    def msvc_sdk_version_list_components(cls, msvc_version, msvc_uwp_app=False):
+    def msvc_sdk_version_list_components(cls, msvc_version, msvc_uwp_app: bool=False):
         comps_dict = cls.SDK_VERSIONS_COMPS_DICT.get(msvc_version, {})
         comps_list = comps_dict.get(msvc_uwp_app, [])
         return comps_list
 
     @classmethod
-    def msvc_sdk_version(cls, msvc_version, msvc_uwp_app=False):
+    def msvc_sdk_version(cls, msvc_version, msvc_uwp_app: bool=False):
         comps_dict = cls.SDK_VERSIONS_COMPS_DICT.get(msvc_version, {})
         comps_list = comps_dict.get(msvc_uwp_app, [])
         if not comps_list:
@@ -163,7 +167,7 @@ class Data:
         return sdk_version
 
     @classmethod
-    def msvc_sdk_notfound_version(cls, msvc_version, msvc_uwp_app=False):
+    def msvc_sdk_notfound_version(cls, msvc_version, msvc_uwp_app: bool=False):
         notfound_dict = cls.SDK_VERSIONS_NOTFOUND_DICT.get(msvc_version, {})
         notfound_list = notfound_dict.get(msvc_uwp_app, [])
         if not notfound_list:
@@ -201,19 +205,19 @@ class Patch:
                 return hook
 
             @classmethod
-            def restore(cls):
+            def restore(cls) -> None:
                 Config.MSVC_SDK_VERSIONS = cls.MSVC_SDK_VERSIONS
 
 class ScriptArgumentsTests(unittest.TestCase):
 
-    def test_verify(self):
+    def test_verify(self) -> None:
         MSVC_SDK_VERSIONS = Patch.Config.MSVC_SDK_VERSIONS.enable_copy()
         MSVC_SDK_VERSIONS.add('99.0')
         with self.assertRaises(MSVCInternalError):
             ScriptArguments.verify()
         Patch.Config.MSVC_SDK_VERSIONS.restore()
 
-    def test_msvc_script_arguments_defaults(self):
+    def test_msvc_script_arguments_defaults(self) -> None:
         func = ScriptArguments.msvc_script_arguments
         env = Environment()
         # disable forcing sdk and toolset versions as arguments
@@ -229,7 +233,13 @@ class ScriptArgumentsTests(unittest.TestCase):
         for version_def, vc_dir in Data.INSTALLED_VERSIONS_PAIRS:
             for arg in ('', 'arch'):
                 scriptargs = func(env, version_def.msvc_version, vc_dir, arg)
-                if version_def.msvc_vernum >= 14.0:
+                sdk_supported = True
+                if version_def.msvc_verstr == '14.0':
+                    if msvc_version_is_express(version_def.msvc_version):
+                        sdk_supported = False
+                    elif msvc_version_is_btdispatch(version_def.msvc_version):
+                        sdk_supported = False
+                if version_def.msvc_vernum >= 14.0 and sdk_supported:
                     if arg and scriptargs.startswith(arg):
                         testargs = scriptargs[len(arg):].lstrip()
                     else:
@@ -244,7 +254,7 @@ class ScriptArgumentsTests(unittest.TestCase):
         # restore forcing sdk and toolset versions as arguments
         ScriptArguments.msvc_force_default_arguments(force=force)
 
-    def test_msvc_toolset_versions_internal(self):
+    def test_msvc_toolset_versions_internal(self) -> None:
         func = ScriptArguments._msvc_toolset_versions_internal
         for version_def, vc_dir in Data.INSTALLED_VERSIONS_PAIRS:
             for full in (True, False):
@@ -267,7 +277,7 @@ class ScriptArgumentsTests(unittest.TestCase):
                             func.__name__, repr(version_def.msvc_version), repr(vc_dir), repr(full), repr(sxs)
                         ))
 
-    def test_msvc_toolset_internal(self):
+    def test_msvc_toolset_internal(self) -> None:
         if not Data.HAVE_MSVC:
             return
         func = ScriptArguments._msvc_toolset_internal
@@ -278,7 +288,7 @@ class ScriptArgumentsTests(unittest.TestCase):
             for toolset_version in toolset_versions:
                 _ = func(version_def.msvc_version, toolset_version, vc_dir)
 
-    def run_msvc_script_args_none(self):
+    def run_msvc_script_args_none(self) -> None:
         func = ScriptArguments.msvc_script_arguments
         for version_def, vc_dir in Data.INSTALLED_VERSIONS_PAIRS:
             for kwargs in [
@@ -289,9 +299,9 @@ class ScriptArgumentsTests(unittest.TestCase):
                 {'MSVC_SCRIPT_ARGS': None, 'MSVC_SPECTRE_LIBS': None},
             ]:
                 env = Environment(**kwargs)
-                _ = func(env, version_def.msvc_version, vc_dir, '')
+                _ = func(env, version_def.msvc_version, vc_dir)
 
-    def run_msvc_script_args(self):
+    def run_msvc_script_args(self) -> None:
         func = ScriptArguments.msvc_script_arguments
         for version_def, vc_dir in Data.INSTALLED_VERSIONS_PAIRS:
             if version_def.msvc_vernum >= 14.1:
@@ -307,12 +317,17 @@ class ScriptArgumentsTests(unittest.TestCase):
 
                 toolset_def = toolset_versions[0] if toolset_versions else Util.msvc_extended_version_components(version_def.msvc_verstr)
 
-                earlier_toolset_versions = [toolset_def for toolset_def in toolset_versions if toolset_def.msvc_vernum != version_def.msvc_vernum]
+                earlier_toolset_versions = [earlier_toolset_def for earlier_toolset_def in toolset_versions if earlier_toolset_def.msvc_vernum != version_def.msvc_vernum]
                 earlier_toolset_def = earlier_toolset_versions[0] if earlier_toolset_versions else None
+
+                vc_buildtools_def = Config.MSVC_BUILDTOOLS_EXTERNAL[toolset_def.msvc_buildtools]
+                vc_buildseries_def = vc_buildtools_def.vc_buildseries_list[0]
+
+                latest_buildseries_major, latest_buildseries_minor = [int(comp) for comp in vc_buildseries_def.vc_version.split('.')]
 
                 # should not raise exception (argument not validated)
                 env = Environment(MSVC_SCRIPT_ARGS='undefinedsymbol')
-                _ = func(env, version_def.msvc_version, vc_dir, '')
+                _ = func(env, version_def.msvc_version, vc_dir)
 
                 for kwargs in [
                     {'MSVC_UWP_APP': False, 'MSVC_SCRIPT_ARGS': None},
@@ -323,7 +338,7 @@ class ScriptArgumentsTests(unittest.TestCase):
                     {'MSVC_SPECTRE_LIBS': 'True', 'MSVC_SCRIPT_ARGS': '-vcvars_spectre_libs=spectre'}, # not boolean ignored
                 ]:
                     env = Environment(**kwargs)
-                    _ = func(env, version_def.msvc_version, vc_dir, '')
+                    _ = func(env, version_def.msvc_version, vc_dir)
 
                 for msvc_uwp_app in (True, False):
 
@@ -362,15 +377,15 @@ class ScriptArgumentsTests(unittest.TestCase):
                                 (expect, {
                                     'MSVC_SDK_VERSION': sdk_def.sdk_version,
                                     'MSVC_UWP_APP': msvc_uwp_app,
-                                    'MSVC_TOOLSET_VERSION': version_def.msvc_verstr
+                                    'MSVC_TOOLSET_VERSION': toolset_def.msvc_toolset_version
                                 }),
                             ] + more_tests:
                                 env = Environment(**kwargs)
                                 if exc:
                                     with self.assertRaises(MSVCArgumentError):
-                                        _ = func(env, version_def.msvc_version, vc_dir, '')
+                                        _ = func(env, version_def.msvc_version, vc_dir)
                                 else:
-                                    _ = func(env, version_def.msvc_version, vc_dir, '')
+                                    _ = func(env, version_def.msvc_version, vc_dir)
 
                         else:
 
@@ -379,14 +394,14 @@ class ScriptArgumentsTests(unittest.TestCase):
                                 {'MSVC_SDK_VERSION': sdk_def.sdk_version, 'MSVC_UWP_APP': msvc_uwp_app},
                             ]:
                                 env = Environment(**kwargs)
-                                _ = func(env, version_def.msvc_version, vc_dir, '')
+                                _ = func(env, version_def.msvc_version, vc_dir)
 
                 for kwargs in [
-                    {'MSVC_SCRIPT_ARGS': '-vcvars_ver={}'.format(version_def.msvc_verstr)},
-                    {'MSVC_TOOLSET_VERSION': version_def.msvc_verstr},
+                    {'MSVC_SCRIPT_ARGS': '-vcvars_ver={}'.format(toolset_def.msvc_toolset_version)},
+                    {'MSVC_TOOLSET_VERSION': toolset_def.msvc_toolset_version},
                 ]:
                     env = Environment(**kwargs)
-                    _ = func(env, version_def.msvc_version, vc_dir, '')
+                    _ = func(env, version_def.msvc_version, vc_dir)
 
                 msvc_toolset_notfound_version = Data.msvc_toolset_notfound_version(version_def.msvc_version)
 
@@ -398,7 +413,7 @@ class ScriptArgumentsTests(unittest.TestCase):
                 ]:
                     env = Environment(**kwargs)
                     with self.assertRaises(MSVCToolsetVersionNotFound):
-                        _ = func(env, version_def.msvc_version, vc_dir, '')
+                        _ = func(env, version_def.msvc_version, vc_dir)
 
                 msvc_sdk_notfound_version = Data.msvc_sdk_notfound_version(version_def.msvc_version)
 
@@ -407,15 +422,15 @@ class ScriptArgumentsTests(unittest.TestCase):
                 ]:
                     env = Environment(**kwargs)
                     with self.assertRaises(MSVCSDKVersionNotFound):
-                        _ = func(env, version_def.msvc_version, vc_dir, '')
+                        _ = func(env, version_def.msvc_version, vc_dir)
 
                 have_spectre = toolset_def.msvc_toolset_version in Data.SPECTRE_TOOLSET_VERSIONS.get(version_def.msvc_version,[])
                 env = Environment(MSVC_SPECTRE_LIBS=True, MSVC_TOOLSET_VERSION=toolset_def.msvc_toolset_version)
                 if not have_spectre:
                     with self.assertRaises(MSVCSpectreLibsNotFound):
-                        _ = func(env, version_def.msvc_version, vc_dir, '')
+                        _ = func(env, version_def.msvc_version, vc_dir)
                 else:
-                    _ = func(env, version_def.msvc_version, vc_dir, '')
+                    _ = func(env, version_def.msvc_version, vc_dir)
 
                 msvc_sdk_version = Data.msvc_sdk_version(version_def.msvc_version)
 
@@ -443,14 +458,14 @@ class ScriptArgumentsTests(unittest.TestCase):
                       }, (MSVCArgumentError, ),
                      ),
                     # multiple definitions
-                    ({'MSVC_TOOLSET_VERSION': version_def.msvc_verstr,
-                      'MSVC_SCRIPT_ARGS': "-vcvars_ver={}".format(version_def.msvc_verstr)
+                    ({'MSVC_TOOLSET_VERSION': toolset_def.msvc_toolset_version,
+                      'MSVC_SCRIPT_ARGS': "-vcvars_ver={}".format(toolset_def.msvc_toolset_version)
                       },
                      (MSVCArgumentError, ),
                      ),
                     # multiple definitions (args)
-                    ({'MSVC_TOOLSET_VERSION': version_def.msvc_verstr,
-                      'MSVC_SCRIPT_ARGS': "-vcvars_ver={0} undefined -vcvars_ver={0}".format(version_def.msvc_verstr)
+                    ({'MSVC_TOOLSET_VERSION': toolset_def.msvc_toolset_version,
+                      'MSVC_SCRIPT_ARGS': "-vcvars_ver={0} undefined -vcvars_ver={0}".format(toolset_def.msvc_toolset_version)
                       },
                      (MSVCArgumentError, ),
                      ),
@@ -484,7 +499,7 @@ class ScriptArgumentsTests(unittest.TestCase):
                      (MSVCArgumentError, ),
                      ),
                     # toolset > msvc_version
-                    ({'MSVC_TOOLSET_VERSION': '{}.{}'.format(version_def.msvc_major, version_def.msvc_minor+1),
+                    ({'MSVC_TOOLSET_VERSION': '{}.{}'.format(latest_buildseries_major, latest_buildseries_minor+1),
                       },
                      (MSVCArgumentError, ),
                      ),
@@ -519,25 +534,90 @@ class ScriptArgumentsTests(unittest.TestCase):
                 ] + more_tests:
                     env = Environment(**kwargs)
                     with self.assertRaises(exc_t):
-                        _ = func(env, version_def.msvc_version, vc_dir, '')
+                        _ = func(env, version_def.msvc_version, vc_dir)
 
             elif version_def.msvc_verstr == '14.0':
-                # VS2015: MSVC_SDK_VERSION and MSVC_UWP_APP
+
+                if msvc_version_is_express(version_def.msvc_version):
+                    sdk_supported = False
+                    uwp_supported = True  # based on target arch
+                elif msvc_version_is_btdispatch(version_def.msvc_version):
+                    sdk_supported = False
+                    uwp_supported = False
+                else:
+                    sdk_supported = True
+                    uwp_supported = True
 
                 env = Environment(MSVC_SCRIPT_ARGS='undefinedsymbol')
-                _ = func(env, version_def.msvc_version, vc_dir, '')
+                _ = func(env, version_def.msvc_version, vc_dir)
 
-                for msvc_uwp_app in (True, False):
+                if sdk_supported:
+                    # VS2015: MSVC_SDK_VERSION
+
+                    if uwp_supported:
+                        # VS2015: MSVC_UWP_APP
+
+                        for msvc_uwp_app in (True, False):
+
+                            sdk_list = WinSDK.get_msvc_sdk_version_list(version_def.msvc_version, msvc_uwp_app=msvc_uwp_app)
+                            for sdk_version in sdk_list:
+
+                                for kwargs in [
+                                    {'MSVC_SCRIPT_ARGS': sdk_version, 'MSVC_UWP_APP': msvc_uwp_app},
+                                    {'MSVC_SDK_VERSION': sdk_version, 'MSVC_UWP_APP': msvc_uwp_app},
+                                ]:
+                                    env = Environment(**kwargs)
+                                    _ = func(env, version_def.msvc_version, vc_dir)
+
+                    else:
+                        # VS2015: MSVC_UWP_APP error
+
+                        for msvc_uwp_app in (True,):
+
+                            sdk_list = WinSDK.get_msvc_sdk_version_list(version_def.msvc_version, msvc_uwp_app=msvc_uwp_app)
+                            for sdk_version in sdk_list:
+
+                                for kwargs in [
+                                    {'MSVC_SCRIPT_ARGS': sdk_version, 'MSVC_UWP_APP': msvc_uwp_app},
+                                    {'MSVC_SDK_VERSION': sdk_version, 'MSVC_UWP_APP': msvc_uwp_app},
+                                ]:
+                                    env = Environment(**kwargs)
+                                    with self.assertRaises(MSVCArgumentError):
+                                        _ = func(env, version_def.msvc_version, vc_dir)
+
+                else:
+                    # VS2015: MSVC_SDK_VERSION error
 
                     sdk_list = WinSDK.get_msvc_sdk_version_list(version_def.msvc_version, msvc_uwp_app=msvc_uwp_app)
                     for sdk_version in sdk_list:
 
-                        for kwargs in [
-                            {'MSVC_SCRIPT_ARGS': sdk_version, 'MSVC_UWP_APP': msvc_uwp_app},
-                            {'MSVC_SDK_VERSION': sdk_version, 'MSVC_UWP_APP': msvc_uwp_app},
-                        ]:
-                            env = Environment(**kwargs)
-                            _ = func(env, version_def.msvc_version, vc_dir, '')
+                        env = Environment(MSVC_SDK_VERSION=sdk_version)
+                        with self.assertRaises(MSVCArgumentError):
+                            _ = func(env, version_def.msvc_version, vc_dir)
+
+                        # MSVC_SCRIPT_ARGS sdk_version not validated
+                        env = Environment(MSVC_SCRIPT_ARGS=sdk_version)
+                        _ = func(env, version_def.msvc_version, vc_dir)
+
+                    if uwp_supported:
+                        # VS2015: MSVC_UWP_APP
+
+                        for msvc_uwp_app in (True, False):
+                            env = Environment(MSVC_UWP_APP=msvc_uwp_app)
+                            _ = func(env, version_def.msvc_version, vc_dir)
+
+                    else:
+                        # VS2015: MSVC_UWP_APP error
+
+                        for msvc_uwp_app in (True,):
+
+                            env = Environment(MSVC_UWP_APP=msvc_uwp_app)
+                            with self.assertRaises(MSVCArgumentError):
+                                _ = func(env, version_def.msvc_version, vc_dir)
+
+                # MSVC_SCRIPT_ARGS store not validated
+                env = Environment(MSVC_SCRIPT_ARGS='store')
+                _ = func(env, version_def.msvc_version, vc_dir)
 
                 for kwargs in [
                     {'MSVC_SPECTRE_LIBS': True, 'MSVC_SCRIPT_ARGS': None},
@@ -545,14 +625,14 @@ class ScriptArgumentsTests(unittest.TestCase):
                 ]:
                     env = Environment(**kwargs)
                     with self.assertRaises(MSVCArgumentError):
-                        _ = func(env, version_def.msvc_version, vc_dir, '')
+                        _ = func(env, version_def.msvc_version, vc_dir)
 
             else:
                 # VS2013 and earlier: no arguments
 
                 env = Environment(MSVC_SCRIPT_ARGS='undefinedsymbol')
                 with self.assertRaises(MSVCArgumentError):
-                    _ = func(env, version_def.msvc_version, vc_dir, '')
+                    _ = func(env, version_def.msvc_version, vc_dir)
 
                 for kwargs in [
                     {'MSVC_UWP_APP': True, 'MSVC_SCRIPT_ARGS': None},
@@ -563,9 +643,9 @@ class ScriptArgumentsTests(unittest.TestCase):
                 ]:
                     env = Environment(**kwargs)
                     with self.assertRaises(MSVCArgumentError):
-                        _ = func(env, version_def.msvc_version, vc_dir, '')
+                        _ = func(env, version_def.msvc_version, vc_dir)
 
-    def test_msvc_script_args_none(self):
+    def test_msvc_script_args_none(self) -> None:
         force = ScriptArguments.msvc_force_default_arguments(force=False)
         self.run_msvc_script_args_none()
         if Data.HAVE_MSVC:
@@ -573,14 +653,14 @@ class ScriptArgumentsTests(unittest.TestCase):
             self.run_msvc_script_args_none()
         ScriptArguments.msvc_force_default_arguments(force=force)
 
-    def test_msvc_script_args(self):
+    def test_msvc_script_args(self) -> None:
         force = ScriptArguments.msvc_force_default_arguments(force=False)
         self.run_msvc_script_args()
         ScriptArguments.msvc_force_default_arguments(force=True)
         self.run_msvc_script_args()
         ScriptArguments.msvc_force_default_arguments(force=force)
 
-    def test_reset(self):
+    def test_reset(self) -> None:
         ScriptArguments.reset()
         self.assertTrue(ScriptArguments._toolset_have140_cache is None, "ScriptArguments._toolset_have140_cache was not reset")
         self.assertFalse(ScriptArguments._toolset_version_cache, "ScriptArguments._toolset_version_cache was not reset")

@@ -33,10 +33,6 @@ import TestSCons
 import SCons.Tool.MSCommon.vc as msvc
 
 test = TestSCons.TestSCons()
-
-if sys.platform != 'win32':
-    test.skip_test("Not win32 platform. Skipping test\n")
-
 test.skip_if_not_msvc()
 
 installed_msvc_versions = msvc.get_installed_vcs()
@@ -71,7 +67,6 @@ test.write('SConstruct', """\
 env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='bad_value')
 """)
 test.run(arguments='-Q -s', status=2, stderr=r"^.* Value specified for MSVC_NOTFOUND_POLICY.+", match=TestSCons.match_re_dotall)
-
 
 test.pass_test()
 

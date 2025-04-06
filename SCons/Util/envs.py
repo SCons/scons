@@ -2,22 +2,30 @@
 #
 # Copyright The SCons Foundation
 
-"""Various SCons utility functions
+"""
+SCons environment utility functions.
 
 Routines for working with environments and construction variables
-that don't need the specifics of Environment.
+that don't need the specifics of the Environment class.
 """
 
+from __future__ import annotations
+
+import re
 import os
 from types import MethodType, FunctionType
-from typing import Union
+from typing import Callable, Any
 
-from .types import is_List, is_Tuple, is_String
+from .sctypes import is_List, is_Tuple, is_String
 
 
 def PrependPath(
-    oldpath, newpath, sep=os.pathsep, delete_existing=True, canonicalize=None
-) -> Union[list, str]:
+    oldpath,
+    newpath,
+    sep=os.pathsep,
+    delete_existing: bool = True,
+    canonicalize: Callable | None = None,
+) -> list | str:
     """Prepend *newpath* path elements to *oldpath*.
 
     Will only add any particular path once (leaving the first one it
@@ -50,10 +58,10 @@ def PrependPath(
 
     if is_String(newpath):
         newpaths = newpath.split(sep)
-    elif not is_List(newpath) and not is_Tuple(newpath):
-        newpaths = [newpath]  # might be a Dir
-    else:
+    elif is_List(newpath) or is_Tuple(newpath):
         newpaths = newpath
+    else:
+        newpaths = [newpath]  # might be a Dir
 
     if canonicalize:
         newpaths = list(map(canonicalize, newpaths))
@@ -102,8 +110,12 @@ def PrependPath(
 
 
 def AppendPath(
-    oldpath, newpath, sep=os.pathsep, delete_existing=True, canonicalize=None
-) -> Union[list, str]:
+    oldpath,
+    newpath,
+    sep=os.pathsep,
+    delete_existing: bool = True,
+    canonicalize: Callable | None = None,
+) -> list | str:
     """Append *newpath* path elements to *oldpath*.
 
     Will only add any particular path once (leaving the last one it
@@ -136,10 +148,10 @@ def AppendPath(
 
     if is_String(newpath):
         newpaths = newpath.split(sep)
-    elif not is_List(newpath) and not is_Tuple(newpath):
-        newpaths = [newpath]  # might be a Dir
-    else:
+    elif is_List(newpath) or is_Tuple(newpath):
         newpaths = newpath
+    else:
+        newpaths = [newpath]  # might be a Dir
 
     if canonicalize:
         newpaths = list(map(canonicalize, newpaths))
@@ -187,7 +199,7 @@ def AppendPath(
     return sep.join(paths)
 
 
-def AddPathIfNotExists(env_dict, key, path, sep=os.pathsep):
+def AddPathIfNotExists(env_dict, key, path, sep: str = os.pathsep) -> None:
     """Add a path element to a construction variable.
 
     `key` is looked up in `env_dict`, and `path` is added to it if it
@@ -229,12 +241,12 @@ class MethodWrapper:
     a new underlying object being copied (without which we wouldn't need
     to save that info).
     """
-    def __init__(self, obj, method, name=None):
+    def __init__(self, obj: Any, method: Callable, name: str | None = None) -> None:
         if name is None:
             name = method.__name__
         self.object = obj
         self.method = method
-        self.name = name
+        self.name: str = name
         setattr(self.object, name, self)
 
     def __call__(self, *args, **kwargs):
@@ -265,7 +277,7 @@ class MethodWrapper:
 #   is not needed, the remaining bit is now used inline in AddMethod.
 
 
-def AddMethod(obj, function, name=None):
+def AddMethod(obj, function: Callable, name: str | None = None) -> None:
     """Add a method to an object.
 
     Adds *function* to *obj* if *obj* is a class object.
@@ -304,6 +316,8 @@ def AddMethod(obj, function, name=None):
             function.__code__, function.__globals__, name, function.__defaults__
         )
 
+    method: MethodType | MethodWrapper | Callable
+
     if hasattr(obj, '__class__') and obj.__class__ is not type:
         # obj is an instance, so it gets a bound method.
         if hasattr(obj, "added_methods"):
@@ -317,6 +331,15 @@ def AddMethod(obj, function, name=None):
 
     setattr(obj, name, method)
 
+
+# This routine is used to validate that a construction var name can be used
+# as a Python identifier, which we require. However, Python 3 introduced an
+# isidentifier() string method so there's really not any need for it now.
+_is_valid_var_re = re.compile(r'[_a-zA-Z]\w*$')
+
+def is_valid_construction_var(varstr: str) -> bool:
+    """Return True if *varstr* is a legitimate name of a construction variable."""
+    return bool(_is_valid_var_re.match(varstr))
 
 # Local Variables:
 # tab-width:4

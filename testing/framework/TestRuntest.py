@@ -43,13 +43,7 @@ import sys
 from TestCommon import *
 from TestCommon import __all__
 
-__all__.extend(
-    [
-        'TestRuntest',
-        'pythonstring',
-        'pythonflags',
-    ]
-)
+__all__.extend(['TestRuntest', 'pythonstring', 'pythonflags'])
 
 pythonstring = python
 pythonflags = ''
@@ -91,6 +85,7 @@ __date__ = 'Dec 31 1999'
 __developer__ = 'John Doe'
 """
 
+
 class TestRuntest(TestCommon):
     """Class for testing the runtest.py script.
 
@@ -99,7 +94,7 @@ class TestRuntest(TestCommon):
     initializations.
     """
 
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         """Initialize a Runtest testing object.
 
         If they're not overridden by keyword arguments, this
@@ -122,10 +117,9 @@ class TestRuntest(TestCommon):
         if 'program' not in kw:
             kw['program'] = 'runtest.py'
         if 'interpreter' not in kw:
-            kw['interpreter'] = [python,]
-            if sys.version_info[0] < 3:
-                kw['interpreter'].append('-tt')
-
+            kw['interpreter'] = [
+                python,
+            ]
         if 'match' not in kw:
             kw['match'] = match_exact
         if 'workdir' not in kw:
@@ -161,7 +155,7 @@ class TestRuntest(TestCommon):
 
         os.environ['PYTHONPATH'] = ''
 
-    def write_fake_scons_source_tree(self):
+    def write_fake_scons_source_tree(self) -> None:
         os.mkdir('scripts')
         self.write('scripts/scons.py', fake_scons_py)
 
@@ -170,14 +164,15 @@ class TestRuntest(TestCommon):
         os.mkdir('SCons/Script')
         self.write('SCons/Script/__init__.py', fake___init___py)
 
-    def write_failing_test(self, name):
+    def write_failing_test(self, name) -> None:
         self.write(name, failing_test_template)
 
-    def write_no_result_test(self, name):
+    def write_no_result_test(self, name) -> None:
         self.write(name, no_result_test_template)
 
-    def write_passing_test(self, name):
+    def write_passing_test(self, name) -> None:
         self.write(name, passing_test_template)
+
 
 # Local Variables:
 # tab-width:4

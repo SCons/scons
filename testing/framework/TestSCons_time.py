@@ -40,10 +40,12 @@ import sys
 
 from TestCommon import *
 from TestCommon import __all__
+from TestCmd import IS_WINDOWS
+
 # some of the scons_time tests may need regex-based matching:
 from TestSCons import search_re, search_re_in_list
 
-__all__.extend(['TestSCons_time',])
+__all__.extend(['TestSCons_time'])
 
 SConstruct = """\
 import os
@@ -103,7 +105,7 @@ Memory after reading SConscript files:  200%(index)s
 Memory before building targets:  300%(index)s
 Memory after building targets:  400%(index)s
 Object counts:
-       pre-   post-    pre-   post-   
+       pre-   post-    pre-   post-
        read    read   build   build   Class
        101%(index)s    102%(index)s    103%(index)s    104%(index)s   Action.CommandAction
        201%(index)s    202%(index)s    203%(index)s    204%(index)s   Action.CommandGeneratorAction
@@ -155,7 +157,7 @@ class TestSCons_time(TestCommon):
     initializations.
     """
 
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         """Initialize an SCons_time testing object.
 
         If they're not overridden by keyword arguments, this
@@ -189,7 +191,9 @@ class TestSCons_time(TestCommon):
             kw['program'] = p
 
         if 'interpreter' not in kw:
-            kw['interpreter'] = [python,]
+            kw['interpreter'] = [
+                python,
+            ]
 
         if 'match' not in kw:
             kw['match'] = match_exact
@@ -205,20 +209,20 @@ class TestSCons_time(TestCommon):
         else:
             return os.path.splitext(path)
 
-    def fake_logfile(self, logfile_name, index=0):
+    def fake_logfile(self, logfile_name, index: int = 0) -> None:
         self.write(self.workpath(logfile_name), logfile_contents % locals())
 
-    def profile_data(self, profile_name, python_name, call, body):
+    def profile_data(self, profile_name, python_name, call, body) -> None:
         profile_name = self.workpath(profile_name)
         python_name = self.workpath(python_name)
         d = {
-            'profile_name'  : profile_name,
-            'python_name'   : python_name,
-            'call'          : call,
-            'body'          : body,
+            'profile_name': profile_name,
+            'python_name': python_name,
+            'call': call,
+            'body': body,
         }
         self.write(python_name, profile_py % d)
-        self.run(program = python_name, interpreter = sys.executable)
+        self.run(program=python_name, interpreter=sys.executable)
 
     def tempdir_re(self, *args):
         """
@@ -236,15 +240,22 @@ class TestSCons_time(TestCommon):
         except AttributeError:
             pass
         else:
-            tempdir = realpath(tempdir)
+            # Don't realpath on Windows, tempdir could contain 8+3 path
+            # E.g. username on GitHub runner is "runneradmin" -> "RUNNER~1"
+            # We don't want to convert that back!
+            if not IS_WINDOWS:
+                tempdir = realpath(tempdir)
 
-        args = (tempdir, 'scons-time-',) + args
+        args = (
+            tempdir,
+            'scons-time-',
+        ) + args
         x = os.path.join(*args)
         x = re.escape(x)
         x = x.replace('time\\-', f'time\\-[^{sep}]*')
         return x
 
-    def write_fake_scons_py(self):
+    def write_fake_scons_py(self) -> None:
         self.subdir('scripts')
         self.write('scripts/scons.py', scons_py)
 
@@ -273,24 +284,21 @@ class TestSCons_time(TestCommon):
 
     def write_sample_tarfile(self, archive, dir, files):
         import shutil
-        try:
-            import tarfile
-        except ImportError:
-            self.skip_test('no tarfile module\n', from_framework=True)
-        else:
-            base, suffix = self.archive_split(archive)
+        import tarfile
 
-            mode = {
-                '.tar'      : 'w',
-                '.tar.gz'   : 'w:gz',
-                '.tgz'      : 'w:gz',
-            }
+        base, suffix = self.archive_split(archive)
 
-            tar = tarfile.open(archive, mode[suffix])
+        mode = {
+            '.tar': 'w',
+            '.tar.gz': 'w:gz',
+            '.tgz': 'w:gz',
+        }
+
+        with tarfile.open(archive, mode[suffix]) as tar:
             for name, content in files:
                 path = os.path.join(dir, name)
                 with open(path, 'wb') as f:
-                    f.write(bytearray(content,'utf-8'))
+                    f.write(bytearray(content, 'utf-8'))
                 tarinfo = tar.gettarinfo(path, path)
                 tarinfo.uid = 111
                 tarinfo.gid = 111
@@ -298,43 +306,34 @@ class TestSCons_time(TestCommon):
                 tarinfo.gname = 'fake_group'
                 with open(path, 'rb') as f:
                     tar.addfile(tarinfo, f)
-            tar.close()
-            shutil.rmtree(dir)
-            return self.workpath(archive)
+        shutil.rmtree(dir)
+        return self.workpath(archive)
 
     def write_sample_zipfile(self, archive, dir, files):
         import shutil
-        try:
-            import zipfile
-        except ImportError:
+        import zipfile
 
-            sys.stderr.write('no zipfile module\n')
-            self.no_result()
-
-        else:
-
-            zip = zipfile.ZipFile(archive, 'w')
+        with zipfile.ZipFile(archive, 'w') as zip:
             for name, content in files:
                 path = os.path.join(dir, name)
                 with open(path, 'w') as f:
                     f.write(content)
                 zip.write(path)
-            zip.close()
-            shutil.rmtree(dir)
-            return self.workpath(archive)
+        shutil.rmtree(dir)
+        return self.workpath(archive)
 
     sample_project_files = [
-        ('SConstruct',  SConstruct),
+        ('SConstruct', SConstruct),
     ]
 
     def write_sample_project(self, archive, dir=None):
         base, suffix = self.archive_split(archive)
 
         write_sample = {
-            '.tar'      : self.write_sample_tarfile,
-            '.tar.gz'   : self.write_sample_tarfile,
-            '.tgz'      : self.write_sample_tarfile,
-            '.zip'      : self.write_sample_zipfile,
+            '.tar': self.write_sample_tarfile,
+            '.tar.gz': self.write_sample_tarfile,
+            '.tgz': self.write_sample_tarfile,
+            '.zip': self.write_sample_zipfile,
         }.get(suffix, self.write_sample_directory)
 
         if not dir:
@@ -344,6 +343,7 @@ class TestSCons_time(TestCommon):
         path = write_sample(archive, dir, self.sample_project_files)
 
         return path
+
 
 # Local Variables:
 # tab-width:4

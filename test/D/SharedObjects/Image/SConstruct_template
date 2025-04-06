@@ -1,4 +1,6 @@
-# -*- mode:python; coding:utf-8; -*-
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
 
 # The core difference between this test and the one of SharedObjectSuffixIssue
 # is that here we explicitly use the relevant D tool and things work.

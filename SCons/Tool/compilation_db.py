@@ -1,12 +1,5 @@
-"""
-Implements the ability for SCons to emit a compilation database for the MongoDB project. See
-http://clang.llvm.org/docs/JSONCompilationDatabase.html for details on what a compilation
-database is, and why you might want one. The only user visible entry point here is
-'env.CompilationDatabase'. This method takes an optional 'target' to name the file that
-should hold the compilation database, otherwise, the file defaults to compile_commands.json,
-which is the name that most clang tools search for by default.
-"""
-
+# MIT License
+#
 # Copyright 2020 MongoDB Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -27,16 +20,30 @@ which is the name that most clang tools search for by default.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
+"""Compilation Database
+
+Implements the ability for SCons to emit a compilation database for a
+project. See https://clang.llvm.org/docs/JSONCompilationDatabase.html
+for details on what a compilation database is, and why you might want one.
+The only user visible entry point here is ``env.CompilationDatabase``.
+This method takes an optional *target* to name the file that should hold
+the compilation database, otherwise, the file defaults to
+``compile_commands.json``, the name that most clang tools search for by default.
+"""
 
 import json
 import itertools
 import fnmatch
 import SCons
 
+from SCons.Platform import TempFileMunge
+
 from .cxx import CXXSuffixes
 from .cc import CSuffixes
 from .asm import ASSuffixes, ASPPSuffixes
+
+DEFAULT_DB_NAME = 'compile_commands.json'
 
 # TODO: Is there a better way to do this than this global? Right now this exists so that the
 # emitter we add can record all of the things it emits, so that the scanner for the top level
@@ -49,11 +56,12 @@ __COMPILATION_DB_ENTRIES = []
 # We make no effort to avoid rebuilding the entries. Someday, perhaps we could and even
 # integrate with the cache, but there doesn't seem to be much call for it.
 class __CompilationDbNode(SCons.Node.Python.Value):
-    def __init__(self, value):
+    def __init__(self, value) -> None:
         SCons.Node.Python.Value.__init__(self, value)
         self.Decider(changed_since_last_build_node)
 
-def changed_since_last_build_node(child, target, prev_ni, node):
+
+def changed_since_last_build_node(child, target, prev_ni, node) -> bool:
     """ Dummy decider to force always building"""
     return True
 
@@ -103,7 +111,12 @@ def make_emit_compilation_DB_entry(comstr):
     return emit_compilation_db_entry
 
 
-def compilation_db_entry_action(target, source, env, **kw):
+class CompDBTEMPFILE(TempFileMunge):
+    def __call__(self, target, source, env, for_signature):
+        return self.cmd
+
+
+def compilation_db_entry_action(target, source, env, **kw) -> None:
     """
     Create a dictionary with evaluated command line, target, source
     and store that info as an attribute on the target
@@ -119,6 +132,7 @@ def compilation_db_entry_action(target, source, env, **kw):
         target=env["__COMPILATIONDB_UOUTPUT"],
         source=env["__COMPILATIONDB_USOURCE"],
         env=env["__COMPILATIONDB_ENV"],
+        overrides={'TEMPFILE': CompDBTEMPFILE}
     )
 
     entry = {
@@ -131,7 +145,7 @@ def compilation_db_entry_action(target, source, env, **kw):
     target[0].write(entry)
 
 
-def write_compilation_db(target, source, env):
+def write_compilation_db(target, source, env) -> None:
     entries = []
 
     use_abspath = env['COMPILATIONDB_USE_ABSPATH'] in [True, 1, 'True', 'true']
@@ -177,9 +191,8 @@ def compilation_db_emitter(target, source, env):
     if not target and len(source) == 1:
         target = source
 
-    # Default target name is compilation_db.json
     if not target:
-        target = ['compile_commands.json', ]
+        target = [DEFAULT_DB_NAME]
 
     # No source should have been passed. Drop it.
     if source:
@@ -188,7 +201,7 @@ def compilation_db_emitter(target, source, env):
     return target, source
 
 
-def generate(env, **kwargs):
+def generate(env, **kwargs) -> None:
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
     env["COMPILATIONDB_COMSTR"] = kwargs.get(
@@ -212,13 +225,17 @@ def generate(env, **kwargs):
         ),
         itertools.product(
             ASSuffixes,
-            [(static_obj, SCons.Defaults.StaticObjectEmitter, "$ASCOM")],
-            [(shared_obj, SCons.Defaults.SharedObjectEmitter, "$ASCOM")],
+            [
+                (static_obj, SCons.Defaults.StaticObjectEmitter, "$ASCOM"),
+                (shared_obj, SCons.Defaults.SharedObjectEmitter, "$ASCOM")
+            ],
         ),
         itertools.product(
             ASPPSuffixes,
-            [(static_obj, SCons.Defaults.StaticObjectEmitter, "$ASPPCOM")],
-            [(shared_obj, SCons.Defaults.SharedObjectEmitter, "$ASPPCOM")],
+            [
+                (static_obj, SCons.Defaults.StaticObjectEmitter, "$ASPPCOM"),
+                (shared_obj, SCons.Defaults.SharedObjectEmitter, "$ASPPCOM")
+            ],
         ),
     )
 
@@ -252,5 +269,5 @@ def generate(env, **kwargs):
     env['COMPILATIONDB_PATH_FILTER'] = ''
 
 
-def exists(env):
+def exists(env) -> bool:
     return True

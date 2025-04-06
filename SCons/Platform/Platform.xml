@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-Copyright The SCons Foundation
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -49,7 +50,8 @@ to reflect the names of the libraries they create.
 <cvar name="LIBPREFIXES">
 <summary>
 <para>
-A list of all legal prefixes for library file names.
+A list of all legal prefixes for library file names
+on the current platform.
 When searching for library dependencies,
 SCons will look for files with these prefixes,
 the base library name,
@@ -75,6 +77,7 @@ to reflect the names of the libraries they create.
 <summary>
 <para>
 A list of all legal suffixes for library file names.
+on the current platform.
 When searching for library dependencies,
 SCons will look for files with prefixes from the &cv-link-LIBPREFIXES; list,
 the base library name,
@@ -129,7 +132,7 @@ else:
       <parameter>platform</parameter> argument to &f-link-Environment;).
     </para>
     <para>
-      Should be considered immutable. 
+      Should be considered immutable.
       &cv-HOST_OS; is not currently used by &SCons;,
       but the option is reserved to do so in future
     </para>
@@ -165,7 +168,7 @@ else:
     </para>
     <para>
       On the <literal>win32</literal> platform,
-      if the Microsoft Visual C++ compiler is available,
+      if the &MSVC; compiler is available,
       &t-link-msvc; tool setup is done using
       &cv-HOST_ARCH; and &cv-link-TARGET_ARCH;.
       Changing the values at any later time will not cause
@@ -173,11 +176,11 @@ else:
       Valid host arch values are
       <literal>x86</literal> and <literal>arm</literal>
       for 32-bit hosts and
-      <literal>amd64</literal> and <literal>x86_64</literal>
-      for 64-bit hosts.
+      <literal>amd64</literal>, <literal>arm64</literal>,
+      and <literal>x86_64</literal> for 64-bit hosts.
     </para>
     <para>
-      Should be considered immutable. 
+      Should be considered immutable.
       &cv-HOST_ARCH; is not currently used by other platforms,
       but the option is reserved to do so in future
     </para>
@@ -194,7 +197,7 @@ else:
     </para>
     <para>
       On the <literal>win32</literal> platform,
-      if the Microsoft Visual C++ compiler is available,
+      if the &MSVC; compiler is available,
       &t-link-msvc; tool setup is done using
       &cv-link-HOST_ARCH; and &cv-TARGET_ARCH;.
       If a value is not specified,
@@ -295,23 +298,53 @@ The suffix used for shared object file names.
 <cvar name="TEMPFILE">
 <summary>
 <para>
-A callable object used to handle overly long command line strings,
-since operations which call out to a shell will fail
-if the line is longer than the shell can accept.
-This tends to particularly impact linking.
-The tempfile object stores the command line in a temporary
-file in the appropriate format, and returns
-an alternate command line so the invoked tool will make
-use of the contents of the temporary file.
-If you need to replace the default tempfile object,
-the callable should take into account the settings of
-&cv-link-MAXLINELENGTH;, 
+Holds a callable object which will be invoked to transform long
+command lines (string or list) into an alternate form.
+Length limits on various operating systems
+may cause long command lines to fail when calling out to
+a shell to run the command.
+Most often affects linking, when there are many object files and/or
+libraries to be linked, but may also affect other
+compilation steps which have many arguments.
+&cv-TEMPFILE; is not called directly,
+but rather is typically embedded in another
+&consvar;, to be expanded when used. Example:
+</para>
+
+<example_commands>
+env["TEMPFILE"] = TempFileMunge
+env["LINKCOM"] = "${TEMPFILE('$LINK $TARGET $SOURCES', '$LINKCOMSTR')}"
+</example_commands>
+
+<para>
+The SCons default value for &cv-TEMPFILE;,
+<classname>TempFileMunge</classname>,
+performs command substitution on the passed command line,
+calculates whether modification is needed,
+then puts all but the first word (assumed to be the command name)
+of the resulting list into a temporary file
+(sometimes called a response file or command file),
+and returns a new command line consisting of the
+the command name and an appropriately formatted reference
+to the temporary file.
+</para>
+
+<para>
+A replacement for the default tempfile object would need
+to do fundamentally the same thing, including taking into account
+the values of
+&cv-link-MAXLINELENGTH;,
 &cv-link-TEMPFILEPREFIX;,
 &cv-link-TEMPFILESUFFIX;,
 &cv-link-TEMPFILEARGJOIN;,
 &cv-link-TEMPFILEDIR;
 and
 &cv-link-TEMPFILEARGESCFUNC;.
+If a particular use case requires a different transformation
+than the default, it is recommended to copy the mechanism and
+define a new &consvar; and rewrite the relevant <literal>*COM</literal>
+variable(s) to use it, to avoid possibly disrupting existing uses
+of &cv-TEMPFILE;.
 </para>
 </summary>
 </cvar>
@@ -321,7 +354,9 @@ and
 <para>
 The prefix for the name of the temporary file used
 to store command lines exceeding &cv-link-MAXLINELENGTH;.
-The default prefix is <literal>'@'</literal>, which works for the Microsoft
+The prefix must include the compiler syntax to actually
+include and process the file.
+The default prefix is <literal>'@'</literal>, which works for the &MSVC;
 and GNU toolchains on Windows.
 Set this appropriately for other toolchains,
 for example <literal>'-@'</literal> for the diab compiler
@@ -335,7 +370,7 @@ or <literal>'-via'</literal> for ARM toolchain.
 <para>
 The suffix for the name of the temporary file used
 to store command lines exceeding &cv-link-MAXLINELENGTH;.
-The suffix should include the dot ('.') if one is wanted as
+The suffix should include the dot ('.') if one is needed as
 it will not be added automatically.
 The default is <filename>.lnk</filename>.
 </para>
@@ -360,6 +395,9 @@ Note this value is used literally and not expanded by the subst logic.
 <summary>
 <para>
 The directory to create the long-lines temporary file in.
+If unset, some suitable default should be chosen.
+The default tempfile object lets the &Python;
+<systemitem>tempfile</systemitem> module choose.
 </para>
 </summary>
 </cvar>
@@ -367,7 +405,7 @@ The directory to create the long-lines temporary file in.
 <cvar name="TEMPFILEARGESCFUNC">
 <summary>
 <para>
-The default argument escape function is 
+The default argument escape function is
 <function>SCons.Subst.quote_spaces</function>.
 If you need to apply extra operations on a command argument
 (to fix Windows slashes, normalize paths, etc.)

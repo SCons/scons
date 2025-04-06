@@ -33,7 +33,7 @@ import SCons.Tool
 import SCons.Tool.bcc32
 import SCons.Util
 
-def generate(env):
+def generate(env) -> None:
     SCons.Tool.bcc32.findIt('tlib', env)
     """Add Builders and construction variables for ar to an Environment."""
     SCons.Tool.createStaticLibBuilder(env)

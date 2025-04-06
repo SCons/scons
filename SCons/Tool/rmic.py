@@ -1,15 +1,6 @@
-"""SCons.Tool.rmic
-
-Tool-specific initialization for rmic.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -29,9 +20,13 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Tool-specific initialization for rmic.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+"""
 
 import os.path
 
@@ -104,7 +99,7 @@ RMICBuilder = SCons.Builder.Builder(action = RMICAction,
                      target_factory = SCons.Node.FS.Dir,
                      source_factory = SCons.Node.FS.File)
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for rmic to an Environment."""
     env['BUILDERS']['RMIC'] = RMICBuilder
 
@@ -123,14 +118,14 @@ def generate(env):
     env['RMICCOM']         = '$RMIC $RMICFLAGS -d ${TARGET.attributes.java_lookupdir} -classpath ${SOURCE.attributes.java_classdir} ${SOURCES.attributes.java_classname}'
     env['JAVACLASSSUFFIX']  = '.class'
 
-def exists(env):
+def exists(env) -> bool:
     # As reported by Jan Nijtmans in issue #2730, the simple
     #    return env.Detect('rmic')
     # doesn't always work during initialization. For now, we
     # stop trying to detect an executable (analogous to the
     # javac Builder).
     # TODO: Come up with a proper detect() routine...and enable it.
-    return 1
+    return True
 
 # Local Variables:
 # tab-width:4

@@ -37,11 +37,12 @@ lib = test.Configure_lib
 LIB = "LIB" + lib.upper()
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment()
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])
 conf = Configure(env, config_h = 'config.h')
-r1 = conf.CheckFunc('printf')
+r1 = conf.CheckFunc('printf', header='#include <stdio.h>', funcargs='""')
 r2 = conf.CheckFunc('noFunctionCall')
 r3 = conf.CheckFunc('memmove')
 r4 = conf.CheckType('int')

@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: MIT
+//
+// Copyright The SCons Foundation
+
 /*
  * Simple D program that links to ncurses via a C wrapping file.
  */

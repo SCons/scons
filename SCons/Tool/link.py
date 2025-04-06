@@ -40,7 +40,7 @@ from SCons.Tool.linkCommon.LoadableModule import setup_loadable_module_logic
 from SCons.Tool.linkCommon.SharedLibrary import setup_shared_lib_logic
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for gnulink to an Environment."""
     createProgBuilder(env)
 
@@ -55,7 +55,7 @@ def generate(env):
     env['LINKCOM'] = '$LINK -o $TARGET $LINKFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     env['LIBDIRPREFIX'] = '-L'
     env['LIBDIRSUFFIX'] = ''
-    env['_LIBFLAGS'] = '${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__)}'
+    env['_LIBFLAGS'] = '${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__, LIBLITERALPREFIX)}'
     env['LIBLINKPREFIX'] = '-l'
     env['LIBLINKSUFFIX'] = ''
 

@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+DefaultEnvironment(tools=[])
 env = Environment(tools=['docbook'])
 env.DocbookHtmlChunked('manual', xsl='html.xsl', base_dir='output/')
 

@@ -29,37 +29,38 @@ import SCons.Variables
 import SCons.Subst
 import SCons.Warnings
 from SCons.Util import cmp
+from SCons.Variables import *
 
 
 class Environment:
-    def __init__(self):
+    def __init__(self) -> None:
         self.dict = {}
     def subst(self, x):
         return SCons.Subst.scons_subst(x, self, gvars=self.dict)
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         self.dict[key] = value
     def __getitem__(self, key):
         return self.dict[key]
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.dict
 
 
-def check(key, value, env):
-    assert int(value) == 6 * 9, "key %s = %s" % (key, repr(value))
+def check(key, value, env) -> None:
+    assert int(value) == 6 * 9, f"key {key!r} = {value!r}"
 
 # Check saved option file by executing and comparing against
 # the expected dictionary
-def checkSave(file, expected):
+def checkSave(file, expected) -> None:
     gdict = {}
     ldict = {}
     with open(file, 'r') as f:
         exec(f.read(), gdict, ldict)
 
-    assert expected == ldict, "%s\n...not equal to...\n%s" % (expected, ldict)
+    assert expected == ldict, f"{expected}\n...not equal to...\n{ldict}"
 
 class VariablesTestCase(unittest.TestCase):
 
-    def test_keys(self):
+    def test_keys(self) -> None:
         """Test the Variables.keys() method"""
         opts = SCons.Variables.Variables()
 
@@ -72,7 +73,7 @@ class VariablesTestCase(unittest.TestCase):
         keys = list(opts.keys())
         assert keys == ['VAR1', 'VAR2'], keys
 
-    def test_Add(self):
+    def test_Add(self) -> None:
         """Test adding to a Variables object"""
         opts = SCons.Variables.Variables()
 
@@ -96,18 +97,15 @@ class VariablesTestCase(unittest.TestCase):
         assert o.default == "42"
         o.validator(o.key, o.converter(o.default), {})
 
-        def test_it(var, opts=opts):
-            exc_caught = None
-            try:
+        def test_it(var, opts=opts) -> None:
+            with self.assertRaises(SCons.Errors.UserError):
                 opts.Add(var)
-            except SCons.Errors.UserError:
-                exc_caught = 1
-            assert exc_caught, "did not catch UserError for '%s'" % var
+
         test_it('foo/bar')
         test_it('foo-bar')
         test_it('foo.bar')
 
-    def test_AddVariables(self):
+    def test_AddVariables(self) -> None:
         """Test adding a list of options to a Variables object"""
         opts = SCons.Variables.Variables()
 
@@ -131,7 +129,7 @@ class VariablesTestCase(unittest.TestCase):
         assert o.default == "42", o.default
         o.validator(o.key, o.converter(o.default), {})
 
-    def test_Update(self):
+    def test_Update(self) -> None:
         """Test updating an Environment"""
 
         # Test that a default value is validated correctly.
@@ -153,6 +151,48 @@ class VariablesTestCase(unittest.TestCase):
         opts.Update(env, {})
         assert env['ANSWER'] == 54
 
+        # Test that the value is not substituted if 'subst' is False
+        # and that it is if 'subst' is True.
+        def check_no_subst(key, value, env) -> None:
+            """Check that variable was not substituted before we get called."""
+            assert value == "$ORIGIN", \
+                f"Validator: '$ORIGIN' was substituted to {value!r}"
+
+        def conv_no_subst(value) -> None:
+            """Check that variable was not substituted before we get called."""
+            assert value == "$ORIGIN", \
+                f"Converter: '$ORIGIN' was substituted to {value!r}"
+            return value
+
+        def check_subst(key, value, env) -> None:
+            """Check that variable was substituted before we get called."""
+            assert value == "Value", \
+                f"Validator: '$SUB' was not substituted {value!r} instead of 'Value'"
+
+        def conv_subst(value) -> None:
+            """Check that variable was not substituted before we get called."""
+            assert value == "Value", \
+                f"Converter: '$SUB' was substituted to {value!r} instead of 'Value'"
+            return value
+
+        opts.Add('NOSUB',
+                 help='Variable whose value will not be substituted',
+                 default='$ORIGIN',
+                 validator=check_no_subst,
+                 converter=conv_no_subst,
+                 subst=False)
+        opts.Add('SUB',
+                 help='Variable whose value will be substituted',
+                 default='$VAR',
+                 validator=check_subst,
+                 converter=conv_subst,
+                 subst=True)
+        env = Environment()
+        env['VAR'] = "Value"
+        opts.Update(env)
+        assert env['NOSUB'] == "$ORIGIN", env['NOSUB']
+        assert env['SUB'] == env['VAR'], env['SUB']
+
         # Test that a bad value from the file is used and
         # validation fails correctly.
         test = TestSCons.TestSCons()
@@ -167,20 +207,12 @@ class VariablesTestCase(unittest.TestCase):
                  lambda x: int(x) + 12)
 
         env = Environment()
-        exc_caught = None
-        try:
+        with self.assertRaises(AssertionError):
             opts.Update(env)
-        except AssertionError:
-            exc_caught = 1
-        assert exc_caught, "did not catch expected assertion"
 
         env = Environment()
-        exc_caught = None
-        try:
+        with self.assertRaises(AssertionError):
             opts.Update(env, {})
-        except AssertionError:
-            exc_caught = 1
-        assert exc_caught, "did not catch expected assertion"
 
         # Test that a good value from the file is used and validated.
         test = TestSCons.TestSCons()
@@ -216,12 +248,8 @@ class VariablesTestCase(unittest.TestCase):
                  lambda x: int(x) + 12)
 
         env = Environment()
-        exc_caught = None
-        try:
+        with self.assertRaises(AssertionError):
             opts.Update(env, {'ANSWER':'54'})
-        except AssertionError:
-            exc_caught = 1
-        assert exc_caught, "did not catch expected assertion"
 
         # Test that a good value from an args dictionary
         # passed to Update() is used and validated.
@@ -270,7 +298,7 @@ class VariablesTestCase(unittest.TestCase):
         opts.Update(env, {})
         assert 'ANSWER' not in env
 
-    def test_noaggregation(self):
+    def test_noaggregation(self) -> None:
         """Test that the 'files' and 'args' attributes of the Variables class
            don't aggregate entries from one instance to another.
            This used to be a bug in SCons version 2.4.1 and earlier.
@@ -286,7 +314,7 @@ class VariablesTestCase(unittest.TestCase):
         assert len(nopts.files) == 0
         assert len(nopts.args) == 0
 
-    def test_args(self):
+    def test_args(self) -> None:
         """Test updating an Environment with arguments overridden"""
 
         # Test that a bad (command-line) argument is used
@@ -303,12 +331,8 @@ class VariablesTestCase(unittest.TestCase):
                  lambda x: int(x) + 12)
 
         env = Environment()
-        exc_caught = None
-        try:
+        with self.assertRaises(AssertionError):
             opts.Update(env)
-        except AssertionError:
-            exc_caught = 1
-        assert exc_caught, "did not catch expected assertion"
 
         # Test that a good (command-line) argument is used and validated.
         test = TestSCons.TestSCons()
@@ -343,7 +367,7 @@ class VariablesTestCase(unittest.TestCase):
         opts.Update(env, {'ANSWER':42})
         assert env['ANSWER'] == 54
 
-    def test_Save(self):
+    def test_Save(self) -> None:
         """Testing saving Variables"""
 
         test = TestSCons.TestSCons()
@@ -351,8 +375,10 @@ class VariablesTestCase(unittest.TestCase):
         opts = SCons.Variables.Variables()
 
         def bool_converter(val):
-            if val in [1, 'y']: val = 1
-            if val in [0, 'n']: val = 0
+            if val in [1, 'y']:
+                val = 1
+            if val in [0, 'n']:
+                val = 0
             return val
 
         # test saving out empty file
@@ -396,9 +422,9 @@ class VariablesTestCase(unittest.TestCase):
 
         # Test against some old bugs
         class Foo:
-            def __init__(self, x):
+            def __init__(self, x) -> None:
                 self.x = x
-            def __str__(self):
+            def __str__(self) -> str:
                 return self.x
 
         test = TestSCons.TestSCons()
@@ -426,7 +452,7 @@ class VariablesTestCase(unittest.TestCase):
                                 'THIS_ALSO_BROKE' : "\\Escape\nSequences\t",
                                 'THIS_SHOULD_WORK' : 'baz' })
 
-    def test_GenerateHelpText(self):
+    def test_GenerateHelpText(self) -> None:
         """Test generating the default format help text"""
         opts = SCons.Variables.Variables()
 
@@ -466,7 +492,8 @@ A: a - alpha test
 """
 
         text = opts.GenerateHelpText(env)
-        assert text == expect, text
+        with self.subTest():
+            self.assertEqual(expect, text)
 
         expectAlpha = """
 A: a - alpha test
@@ -496,25 +523,26 @@ A: a - alpha test
     actual: 54
 """
         text = opts.GenerateHelpText(env, sort=cmp)
-        assert text == expectAlpha, text
+        with self.subTest():
+            self.assertEqual(expectAlpha, text)
 
         textBool = opts.GenerateHelpText(env, sort=True)
-        assert text == expectAlpha, text
+        with self.subTest():
+            self.assertEqual(expectAlpha, textBool)
 
         textBackwards = opts.GenerateHelpText(env, sort=lambda x, y: cmp(y, x))
-        assert textBackwards == expectBackwards, "Expected:\n%s\nGot:\n%s\n" % (
-            textBackwards,
-            expectBackwards,
-        )
+        with self.subTest():
+            self.assertEqual(expectBackwards, textBackwards)
 
-    def test_FormatVariableHelpText(self):
+    def test_FormatVariableHelpText(self) -> None:
         """Test generating custom format help text"""
         opts = SCons.Variables.Variables()
 
-        def my_format(env, opt, help, default, actual, aliases):
-            return '%s %s %s %s %s\n' % (opt, default, actual, help, aliases)
+        def my_format(env, opt, help, default, actual, aliases) -> str:
+            return f'{opt} {default} {actual} {help} {aliases}\n'
 
-        opts.FormatVariableHelpText = my_format
+        _save = opts.FormatVariableHelpText
+        setattr(opts, 'FormatVariableHelpText', my_format)
 
         opts.Add('ANSWER',
                  'THE answer to THE question',
@@ -522,7 +550,7 @@ A: a - alpha test
                  check,
                  lambda x: int(x) + 12)
 
-        opts.Add('B',
+        opts.Add(['B', 'BOPTION'],
                  'b - alpha test',
                  "42",
                  check,
@@ -538,23 +566,27 @@ A: a - alpha test
         opts.Update(env, {})
 
         expect = """\
-ANSWER 42 54 THE answer to THE question ['ANSWER']
-B 42 54 b - alpha test ['B']
-A 42 54 a - alpha test ['A']
+ANSWER 42 54 THE answer to THE question []
+B 42 54 b - alpha test ['BOPTION']
+A 42 54 a - alpha test []
 """
 
         text = opts.GenerateHelpText(env)
-        assert text == expect, text
+        with self.subTest():
+            self.assertEqual(expect, text)
 
         expectAlpha = """\
-A 42 54 a - alpha test ['A']
-ANSWER 42 54 THE answer to THE question ['ANSWER']
-B 42 54 b - alpha test ['B']
+A 42 54 a - alpha test []
+ANSWER 42 54 THE answer to THE question []
+B 42 54 b - alpha test ['BOPTION']
 """
         text = opts.GenerateHelpText(env, sort=cmp)
-        assert text == expectAlpha, text
+        with self.subTest():
+            self.assertEqual(expectAlpha, text)
 
-    def test_Aliases(self):
+        setattr(opts, 'FormatVariableHelpText', _save)
+
+    def test_Aliases(self) -> None:
         """Test option aliases"""
         # test alias as a tuple
         opts = SCons.Variables.Variables()
@@ -567,12 +599,15 @@ B 42 54 b - alpha test ['B']
         env = Environment()
         opts.Update(env, {'ANSWER' : 'answer'})
 
-        assert 'ANSWER' in env
+        with self.subTest():
+            self.assertIn('ANSWER', env)
 
         env = Environment()
         opts.Update(env, {'ANSWERALIAS' : 'answer'})
 
-        assert 'ANSWER' in env and 'ANSWERALIAS' not in env
+        with self.subTest():
+            self.assertIn('ANSWER', env)
+            self.assertNotIn('ANSWERALIAS', env)
 
         # test alias as a list
         opts = SCons.Variables.Variables()
@@ -585,17 +620,20 @@ B 42 54 b - alpha test ['B']
         env = Environment()
         opts.Update(env, {'ANSWER' : 'answer'})
 
-        assert 'ANSWER' in env
+        with self.subTest():
+            self.assertIn('ANSWER', env)
 
         env = Environment()
         opts.Update(env, {'ANSWERALIAS' : 'answer'})
 
-        assert 'ANSWER' in env and 'ANSWERALIAS' not in env
+        with self.subTest():
+            self.assertIn('ANSWER', env)
+            self.assertNotIn('ANSWERALIAS', env)
 
 
 class UnknownVariablesTestCase(unittest.TestCase):
 
-    def test_unknown(self):
+    def test_unknown(self) -> None:
         """Test the UnknownVariables() method"""
         opts = SCons.Variables.Variables()
 
@@ -612,45 +650,56 @@ class UnknownVariablesTestCase(unittest.TestCase):
         opts.Update(env, args)
 
         r = opts.UnknownVariables()
-        assert r == {'UNKNOWN' : 'unknown'}, r
-        assert env['ANSWER'] == 'answer', env['ANSWER']
+        self.assertEqual({'UNKNOWN': 'unknown'}, r)
+        self.assertEqual('answer', env['ANSWER'])
 
-    def test_AddOptionUpdatesUnknown(self):
-        """Test updating of the 'unknown' dict"""
-        opts = SCons.Variables.Variables()
+    def test_AddOptionUpdatesUnknown(self) -> None:
+        """Test updating of the 'unknown' dict.
 
-        opts.Add('A',
-                 'A test variable',
-                 "1")
+        Get one unknown from args and one from a variables file.
+        Add these later, making sure they no longer appear in unknowns
+        after the subsequent Update().
 
+        While we're here, test the *defaulted* attribute.
+        """
+        test = TestSCons.TestSCons()
+        var_file = test.workpath('vars.py')
+        test.write('vars.py', 'FROMFILE="added"')
+        opts = SCons.Variables.Variables(files=var_file)
+        opts.Add('A', 'A test variable', default="1")
+        opts.Add('B', 'Test variable B', default="1")
         args = {
             'A'             : 'a',
             'ADDEDLATER'    : 'notaddedyet',
         }
-
         env = Environment()
-        opts.Update(env,args)
+        opts.Update(env, args)
 
         r = opts.UnknownVariables()
-        assert r == {'ADDEDLATER' : 'notaddedyet'}, r
-        assert env['A'] == 'a', env['A']
+        with self.subTest():
+            self.assertEqual('notaddedyet', r['ADDEDLATER'])
+            self.assertEqual('added', r['FROMFILE'])
+            self.assertEqual('a', env['A'])
+            self.assertEqual(['B'], opts.defaulted)
 
-        opts.Add('ADDEDLATER',
-                 'An option not present initially',
-                 "1")
-
+        opts.Add('ADDEDLATER', 'An option not present initially', "1")
+        opts.Add('FROMFILE', 'An option from a file also absent', "1")
         args = {
             'A'             : 'a',
             'ADDEDLATER'    : 'added',
         }
-
         opts.Update(env, args)
 
         r = opts.UnknownVariables()
-        assert len(r) == 0, r
-        assert env['ADDEDLATER'] == 'added', env['ADDEDLATER']
+        with self.subTest():
+            self.assertEqual(0, len(r))
+            self.assertNotIn('ADDEDLATER', r)
+            self.assertEqual('added', env['ADDEDLATER'])
+            self.assertNotIn('FROMFILE', r)
+            self.assertEqual('added', env['FROMFILE'])
+            self.assertEqual(['B'], opts.defaulted)
 
-    def test_AddOptionWithAliasUpdatesUnknown(self):
+    def test_AddOptionWithAliasUpdatesUnknown(self) -> None:
         """Test updating of the 'unknown' dict (with aliases)"""
         opts = SCons.Variables.Variables()
 
@@ -683,6 +732,27 @@ class UnknownVariablesTestCase(unittest.TestCase):
         r = opts.UnknownVariables()
         assert len(r) == 0, r
         assert env['ADDEDLATER'] == 'added', env['ADDEDLATER']
+
+    def test_VariableTypesImportVisibility(self) -> None:
+        """Test that 'from SCons.Variables import *' will import all types of SCons defined Variables
+            """
+
+        try:
+            x = BoolVariable('test', 'test option help', False)
+            y = EnumVariable('test', 'test option help', 0,
+                                          ['one', 'two', 'three'],
+                                          {})
+            z = ListVariable('test', 'test option help', 'all',
+                                          ['one', 'two', 'three'])
+            o = PackageVariable('test', 'test build variable help', '/default/path')
+            p = PathVariable('test',
+                                          'test build variable help',
+                                          '/default/path')
+        except Exception as e:
+            self.fail(f"Could not import all known Variable types: {e}")
+
+
+
 
 
 if __name__ == "__main__":

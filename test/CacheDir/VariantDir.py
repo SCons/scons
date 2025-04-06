@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,10 +21,7 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE._"
 
 """
 Test retrieving derived files from a CacheDir when a VariantDir is used.
@@ -34,19 +33,21 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('cache', 'src')
+test.subdir('src')
 
 cache = test.workpath('cache')
 cat_out = test.workpath('cat.out')
 
 test.write(['src', 'SConscript'], """\
+DefaultEnvironment(tools=[])
+
 def cat(env, source, target):
     target = str(target[0])
     with open('cat.out', 'a') as f:
         f.write(target + "\\n")
     with open(target, "w") as f:
         for src in source:
-            with open(str(src), "r") as f2:
+            with open(src, "r") as f2:
                 f.write(f2.read())
 env = Environment(tools=[], BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')

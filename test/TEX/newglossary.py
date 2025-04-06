@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,11 +22,8 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-r"""
+"""
 Validate that use of \newglossary in TeX source files causes SCons to
 be aware of the necessary created glossary files.
 
@@ -38,13 +37,16 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 latex = test.where_is('latex')
-
 if not latex:
-    test.skip_test("Could not find 'latex'; skipping test(s).\n")
+    test.skip_test("Could not find 'latex'; skipping test.\n")
+
+makeindex = test.where_is('makeindex')
+if not makeindex:
+    test.skip_test("Could not find 'makeindex'; skipping test.\n")
 
 cp = subprocess.run('kpsewhich glossaries.sty', shell=True)
 if cp.returncode:
-    test.skip_test("glossaries.sty not installed; skipping test(s).\n")
+    test.skip_test("glossaries.sty not installed; skipping test.\n")
 
 test.write('SConstruct', """\
 import os
@@ -87,12 +89,12 @@ Acronyms \gls{gnu} and glossary entries \gls{nix}.
 
 a definition \gls{defPower}
 
-\glossarystyle{index}
+\setglossarystyle{index}
 \printglossary[type=symbol]
 \printglossary[type=acronym]
 \printglossary[type=main]
 \printglossary[type=definition]
-\glossarystyle{super}
+\setglossarystyle{super}
 
 \end{document}""")
 

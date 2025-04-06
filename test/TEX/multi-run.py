@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,11 +22,8 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-r"""
+"""
 Validate that both .tex and .ltx files can handle a LaTeX-style
 bibliography (by calling $BIBTEX to generate a .bbl file) and
 correctly re-run to resolve undefined references.
@@ -130,6 +129,8 @@ bibfile = r"""
 }
 """
 
+# TODO: check is useless: we already bailed at top if tex not found.
+#   Should we split test into plain and -live instead?
 if tex:
 
     test.write(['work1', 'SConstruct'], """\
@@ -165,6 +166,7 @@ env.DVI( "foo3.tex" )
 
 
 
+# TODO: split this test? this check is useless after skip above
 if latex:
 
     test.write(['work2', 'SConstruct'], """\

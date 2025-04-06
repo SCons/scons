@@ -309,9 +309,7 @@ def createAllExampleOutputs(dpath):
 
     for key, value in examples.items():
         # Process all scons_output tags
-        print("%.2f%s (%d/%d) %s" % (float(idx + 1) * 100.0 / float(total),
-                                     perc, idx + 1, total, key))
-
+        print(f"{(idx + 1) / total:7.2%} ({idx + 1}/{total}) {key}")
         create_scons_output(value)
         # Process all scons_example_file tags
         for r in value.files:
@@ -549,12 +547,12 @@ def CCCom(target, source, env):
                 elif line[:11] != "STRIP CCCOM":
                     ofp.write(line)
 
-    with open(str(target[0]), "w") as fp:
+    with open(target[0], "w") as fp:
         for src in map(str, source):
             process(src, fp)
             fp.write('debug = ' + ARGUMENTS.get('debug', '0') + '\\n')
 
-public_class_re = re.compile('^public class (\S+)', re.MULTILINE)
+public_class_re = re.compile(r'^public class (\S+)', re.MULTILINE)
 
 def JavaCCom(target, source, env):
     # This is a fake Java compiler that just looks for

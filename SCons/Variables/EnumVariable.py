@@ -38,12 +38,14 @@ Usage example::
             ignorecase=2,
         )
     )
-    ...
+    env = Environment(variables=opts)
     if env['debug'] == 'full':
-    ...
+        ...
 """
 
-from typing import Tuple, Callable
+from __future__ import annotations
+
+from typing import Callable
 
 import SCons.Errors
 
@@ -51,57 +53,93 @@ __all__ = ['EnumVariable',]
 
 
 def _validator(key, val, env, vals) -> None:
+    """Validate that val is in vals.
+
+    Usable as the base for :class:`EnumVariable` validators.
+    """
     if val not in vals:
-        raise SCons.Errors.UserError(
-            'Invalid value for option %s: %s.  Valid values are: %s' % (key, val, vals))
+        msg = (
+            f"Invalid value for enum variable {key!r}: {val!r}. "
+            f"Valid values are: {vals}"
+        )
+        raise SCons.Errors.UserError(msg) from None
 
 
-def EnumVariable(key, help, default, allowed_values, map={}, ignorecase=0) -> Tuple[str, str, str, Callable, Callable]:
+# lint: W0622: Redefining built-in 'help' (redefined-builtin)
+# lint:  W0622: Redefining built-in 'map' (redefined-builtin)
+def EnumVariable(
+    key,
+    help: str,
+    default: str,
+    allowed_values: list[str],
+    map: dict | None = None,
+    ignorecase: int = 0,
+) -> tuple[str, str, str, Callable, Callable]:
     """Return a tuple describing an enumaration SCons Variable.
 
-    The input parameters describe an option with only certain values
-    allowed. Returns A tuple including an appropriate converter and
-    validator. The result is usable as input to :meth:`Add`.
+    An Enum Variable is an abstraction that allows choosing one
+    value from a provided list of possibilities (*allowed_values*).
+    The value of *ignorecase* defines the behavior of the
+    validator and converter: if ``0``, the validator/converter are
+    case-sensitive; if ``1``, the validator/converter are case-insensitive;
+    if ``2``, the validator/converter are case-insensitive and the
+    converted value will always be lower-case.
 
-    *key* and *default* are passed directly on to :meth:`Add`.
+    Arguments:
+       key: the name of the variable.
+       default: default value, passed directly through to the return tuple.
+       help: descriptive part of the help text,
+          will have the allowed values automatically appended.
+       allowed_values: the values for the choice.
+       map: optional dictionary which may be used for converting the
+          input value into canonical values (e.g. for aliases).
+       ignorecase: defines the behavior of the validator and converter.
 
-    *help* is the descriptive part of the help text,
-    and will have the allowed values automatically appended.
-
-    *allowed_values* is a list of strings, which are the allowed values
-    for this option.
-
-    The *map*-dictionary may be used for converting the input value
-    into canonical values (e.g. for aliases).
-
-    The value of *ignorecase* defines the behaviour of the validator:
-
-        * 0: the validator/converter are case-sensitive.
-        * 1: the validator/converter are case-insensitive.
-        * 2: the validator/converter is case-insensitive and the
-          converted value will always be lower-case.
-
-    The *validator* tests whether the value is in the list of allowed values.
-    The *converter* converts input values according to the given
-    *map*-dictionary (unmapped input values are returned unchanged).
+    Returns:
+       A tuple including an appropriate converter and validator.
+       The result is usable as input to :meth:`~SCons.Variables.Variables.Add`.
+       and :meth:`~SCons.Variables.Variables.AddVariables`.
     """
+    # these are all inner functions so they can access EnumVariable locals.
+    def validator_rcase(key, val, env):
+        """Case-respecting validator."""
+        return _validator(key, val, env, allowed_values)
 
-    help = '%s (%s)' % (help, '|'.join(allowed_values))
+    def validator_icase(key, val, env):
+        """Case-ignoring validator."""
+        return _validator(key, val.lower(), env, allowed_values)
+
+    def converter_rcase(val):
+        """Case-respecting converter."""
+        return map.get(val, val)
+
+    def converter_icase(val):
+        """Case-ignoring converter."""
+        return map.get(val.lower(), val)
+
+    def converter_lcase(val):
+        """Case-lowering converter."""
+        return map.get(val.lower(), val).lower()
+
+    if map is None:
+        map = {}
+    help = f"{help} ({'|'.join(allowed_values)})"
+
     # define validator
     if ignorecase:
-        validator = lambda key, val, env: \
-                    _validator(key, val.lower(), env, allowed_values)
+        validator = validator_icase
     else:
-        validator = lambda key, val, env: \
-                    _validator(key, val, env, allowed_values)
+        validator = validator_rcase
+
     # define converter
     if ignorecase == 2:
-        converter = lambda val: map.get(val.lower(), val).lower()
+        converter = converter_lcase
     elif ignorecase == 1:
-        converter = lambda val: map.get(val.lower(), val)
+        converter = converter_icase
     else:
-        converter = lambda val: map.get(val, val)
-    return (key, help, default, validator, converter)
+        converter = converter_rcase
+
+    return key, help, default, validator, converter
 
 # Local Variables:
 # tab-width:4

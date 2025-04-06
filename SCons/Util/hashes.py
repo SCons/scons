@@ -2,15 +2,19 @@
 #
 # Copyright The SCons Foundation
 
-"""SCons utility functions
+"""
+SCons hash utility routines.
 
-Routines for working with hash formats.
+Routines for working with content and signature hashes.
 """
 
+from __future__ import annotations
+
+import functools
 import hashlib
 import sys
 
-from .types import to_bytes
+from .sctypes import to_bytes
 
 
 # Default hash function and format. SCons-internal.
@@ -97,9 +101,9 @@ def _set_allowed_viable_default_hashes(hashlib_used, sys_used=sys) -> None:
                 continue
 
     if len(ALLOWED_HASH_FORMATS) == 0:
-        from SCons.Errors import (
+        from SCons.Errors import (  # pylint: disable=import-outside-toplevel
             SConsEnvironmentError,
-        )  # pylint: disable=import-outside-toplevel
+        )
 
         # chain the exception thrown with the most recent error from hashlib.
         raise SConsEnvironmentError(
@@ -159,9 +163,9 @@ def set_hash_format(hash_format, hashlib_used=hashlib, sys_used=sys):
     if hash_format:
         hash_format_lower = hash_format.lower()
         if hash_format_lower not in ALLOWED_HASH_FORMATS:
-            from SCons.Errors import (
+            from SCons.Errors import (  # pylint: disable=import-outside-toplevel
                 UserError,
-            )  # pylint: disable=import-outside-toplevel
+            )
 
             # User can select something not supported by their OS but
             # normally supported by SCons, example, selecting MD5 in an
@@ -207,9 +211,9 @@ def set_hash_format(hash_format, hashlib_used=hashlib, sys_used=sys):
         )
 
         if _HASH_FUNCTION is None:
-            from SCons.Errors import (
+            from SCons.Errors import (  # pylint: disable=import-outside-toplevel
                 UserError,
-            )  # pylint: disable=import-outside-toplevel
+            )
 
             raise UserError(
                 f'Hash format "{hash_format_lower}" is not available in your '
@@ -228,9 +232,9 @@ def set_hash_format(hash_format, hashlib_used=hashlib, sys_used=sys):
                 break
         else:
             # This is not expected to happen in practice.
-            from SCons.Errors import (
+            from SCons.Errors import (  # pylint: disable=import-outside-toplevel
                 UserError,
-            )  # pylint: disable=import-outside-toplevel
+            )
 
             raise UserError(
                 'Your Python interpreter does not have MD5, SHA1, or SHA256. '
@@ -270,9 +274,9 @@ def _get_hash_object(hash_format, hashlib_used=hashlib, sys_used=sys):
     """
     if hash_format is None:
         if _HASH_FUNCTION is None:
-            from SCons.Errors import (
+            from SCons.Errors import (  # pylint: disable=import-outside-toplevel
                 UserError,
-            )  # pylint: disable=import-outside-toplevel
+            )
 
             raise UserError(
                 'There is no default hash function. Did you call '
@@ -314,7 +318,7 @@ def hash_signature(s, hash_format=None):
     return m.hexdigest()
 
 
-def hash_file_signature(fname, chunksize=65536, hash_format=None):
+def hash_file_signature(fname, chunksize: int=65536, hash_format=None):
     """
     Generate the md5 signature of a file
 
@@ -334,6 +338,10 @@ def hash_file_signature(fname, chunksize=65536, hash_format=None):
             if not blck:
                 break
             m.update(to_bytes(blck))
+        # TODO: can use this when base is Python 3.8+
+        # while (blk := f.read(chunksize)) != b'':
+        #     m.update(to_bytes(blk))
+
     return m.hexdigest()
 
 
@@ -358,7 +366,7 @@ def hash_collect(signatures, hash_format=None):
 _MD5_WARNING_SHOWN = False
 
 
-def _show_md5_warning(function_name):
+def _show_md5_warning(function_name) -> None:
     """Shows a deprecation warning for various MD5 functions."""
 
     global _MD5_WARNING_SHOWN
@@ -380,7 +388,7 @@ def MD5signature(s):
     return hash_signature(s)
 
 
-def MD5filesignature(fname, chunksize=65536):
+def MD5filesignature(fname, chunksize: int=65536):
     """Deprecated. Use :func:`hash_file_signature` instead."""
 
     _show_md5_warning("MD5filesignature")

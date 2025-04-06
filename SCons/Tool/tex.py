@@ -149,11 +149,11 @@ _null = SCons.Scanner.LaTeX._null
 
 modify_env_var = SCons.Scanner.LaTeX.modify_env_var
 
-def check_file_error_message(utility, filename='log'):
+def check_file_error_message(utility, filename: str='log') -> None:
     msg = '%s returned an error, check the %s file\n' % (utility, filename)
     sys.stdout.write(msg)
 
-def FindFile(name,suffixes,paths,env,requireExt=False):
+def FindFile(name,suffixes,paths,env,requireExt: bool=False):
     if requireExt:
         name,ext = SCons.Util.splitext(name)
         # if the user gave an extension use it.
@@ -253,10 +253,10 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     # .aux files already processed by BibTex
     already_bibtexed = []
 
-    #
-    # routine to update MD5 hash and compare
-    #
-    def check_MD5(filenode, suffix):
+    def check_content_hash(filenode, suffix) -> bool:
+        """
+        Routine to update content hash and compare
+        """
         global must_rerun_latex
         # two calls to clear old csig
         filenode.clear_memoized_values()
@@ -295,13 +295,12 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
             with open(logfilename, "rb") as f:
                 logContent = f.read().decode(errors='replace')
 
-
         # Read the fls file to find all .aux files
         flsfilename = targetbase + '.fls'
         flsContent = ''
         auxfiles = []
         if os.path.isfile(flsfilename):
-            with open(flsfilename, "r") as f:
+            with open(flsfilename) as f:
                 flsContent = f.read()
             auxfiles = openout_aux_re.findall(flsContent)
             # remove duplicates
@@ -312,7 +311,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
 
         bcffiles = []
         if os.path.isfile(flsfilename):
-            with open(flsfilename, "r") as f:
+            with open(flsfilename) as f:
                 flsContent = f.read()
             bcffiles = openout_bcf_re.findall(flsContent)
             # remove duplicates
@@ -336,7 +335,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 already_bibtexed.append(auxfilename)
                 target_aux = os.path.join(targetdir, auxfilename)
                 if os.path.isfile(target_aux):
-                    with open(target_aux, "r") as f:
+                    with open(target_aux) as f:
                         content = f.read()
                     if content.find("bibdata") != -1:
                         if Verbose:
@@ -345,7 +344,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                         result = BibTeXAction(bibfile, bibfile, env)
                         if result != 0:
                             check_file_error_message(env['BIBTEX'], 'blg')
-                        must_rerun_latex = True
+                        check_content_hash(suffix_nodes[".bbl"], ".bbl")
 
         # Now decide if biber will need to be run.
         # When the backend for biblatex is biber (by choice or default) the
@@ -360,7 +359,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 already_bibtexed.append(bcffilename)
                 target_bcf = os.path.join(targetdir, bcffilename)
                 if os.path.isfile(target_bcf):
-                    with open(target_bcf, "r") as f:
+                    with open(target_bcf) as f:
                         content = f.read()
                     if content.find("bibdata") != -1:
                         if Verbose:
@@ -369,10 +368,10 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                         result = BiberAction(bibfile, bibfile, env)
                         if result != 0:
                             check_file_error_message(env['BIBER'], 'blg')
-                        must_rerun_latex = True
+                        check_content_hash(suffix_nodes[".bbl"], ".bbl")
 
         # Now decide if latex will need to be run again due to index.
-        if check_MD5(suffix_nodes['.idx'],'.idx') or (count == 1 and run_makeindex):
+        if check_content_hash(suffix_nodes['.idx'], '.idx') or (count == 1 and run_makeindex):
             # We must run makeindex
             if Verbose:
                 print("Need to run makeindex")
@@ -387,10 +386,10 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         # Harder is case is where an action needs to be called -- that should be rare (I hope?)
 
         for index in check_suffixes:
-            check_MD5(suffix_nodes[index],index)
+            check_content_hash(suffix_nodes[index], index)
 
         # Now decide if latex will need to be run again due to nomenclature.
-        if check_MD5(suffix_nodes['.nlo'],'.nlo') or (count == 1 and run_nomenclature):
+        if check_content_hash(suffix_nodes['.nlo'], '.nlo') or (count == 1 and run_nomenclature):
             # We must run makeindex
             if Verbose:
                 print("Need to run makeindex for nomenclature")
@@ -402,7 +401,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 #return result
 
         # Now decide if latex will need to be run again due to glossary.
-        if check_MD5(suffix_nodes['.glo'],'.glo') or (count == 1 and run_glossaries) or (count == 1 and run_glossary):
+        if check_content_hash(suffix_nodes['.glo'], '.glo') or (count == 1 and run_glossaries) or (count == 1 and run_glossary):
             # We must run makeindex
             if Verbose:
                 print("Need to run makeindex for glossary")
@@ -414,7 +413,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 #return result
 
         # Now decide if latex will need to be run again due to acronyms.
-        if check_MD5(suffix_nodes['.acn'],'.acn') or (count == 1 and run_acronyms):
+        if check_content_hash(suffix_nodes['.acn'], '.acn') or (count == 1 and run_acronyms):
             # We must run makeindex
             if Verbose:
                 print("Need to run makeindex for acronyms")
@@ -427,7 +426,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
 
         # Now decide if latex will need to be run again due to newglossary command.
         for ng in newglossary_suffix:
-            if check_MD5(suffix_nodes[ng[2]], ng[2]) or (count == 1):
+            if check_content_hash(suffix_nodes[ng[2]], ng[2]) or (count == 1):
                 # We must run makeindex
                 if Verbose:
                     print("Need to run makeindex for newglossary")
@@ -824,7 +823,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     # read fls file to get all other files that latex creates and will read on the next pass
     # remove files from list that we explicitly dealt with above
     if os.path.isfile(flsfilename):
-        with open(flsfilename, "r") as f:
+        with open(flsfilename) as f:
             content = f.read()
         out_files = openout_re.findall(content)
         myfiles = [auxfilename, logfilename, flsfilename, targetbase+'.dvi',targetbase+'.pdf']
@@ -841,7 +840,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
 
 TeXLaTeXAction = None
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for TeX to an Environment."""
 
     global TeXLaTeXAction
@@ -860,7 +859,7 @@ def generate(env):
     bld.add_action('.tex', TeXLaTeXAction)
     bld.add_emitter('.tex', tex_eps_emitter)
 
-def generate_darwin(env):
+def generate_darwin(env) -> None:
     try:
         environ = env['ENV']
     except KeyError:
@@ -875,7 +874,7 @@ def generate_darwin(env):
         if ospath:
             env.AppendENVPath('PATH', ospath)
 
-def generate_common(env):
+def generate_common(env) -> None:
     """Add internal Builders and construction variables for LaTeX to an Environment."""
 
     # Add OSX system paths so TeX tools can be found

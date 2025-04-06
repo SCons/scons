@@ -86,6 +86,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-pdftex "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>pdftex</literal>">
 <!ENTITY t-python "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>python</literal>">
 <!ENTITY t-qt "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>qt</literal>">
+<!ENTITY t-qt3 "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>qt3</literal>">
 <!ENTITY t-rmic "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>rmic</literal>">
 <!ENTITY t-rpcgen "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>rpcgen</literal>">
 <!ENTITY t-sgiar "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>sgiar</literal>">
@@ -192,6 +193,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-link-pdftex "<link linkend='t-pdftex' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>pdftex</literal></link>">
 <!ENTITY t-link-python "<link linkend='t-python' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>python</literal></link>">
 <!ENTITY t-link-qt "<link linkend='t-qt' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>qt</literal></link>">
+<!ENTITY t-link-qt3 "<link linkend='t-qt3' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>qt3</literal></link>">
 <!ENTITY t-link-rmic "<link linkend='t-rmic' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>rmic</literal></link>">
 <!ENTITY t-link-rpcgen "<link linkend='t-rpcgen' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>rpcgen</literal></link>">
 <!ENTITY t-link-sgiar "<link linkend='t-sgiar' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>sgiar</literal></link>">

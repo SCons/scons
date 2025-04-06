@@ -250,7 +250,7 @@ def get_all_compiler_versions():
                         print("scons: *** Ignoring "+str(value))
 
                 i = i + 1
-        except EnvironmentError:
+        except OSError:
             # no more subkeys
             pass
     elif is_linux or is_mac:
@@ -384,7 +384,7 @@ def get_intel_compiler_top(version, abi):
     return top
 
 
-def generate(env, version=None, abi=None, topdir=None, verbose=0):
+def generate(env, version=None, abi=None, topdir=None, verbose: int=0):
     r"""Add Builders and construction variables for Intel C/C++ compiler
     to an Environment.
 

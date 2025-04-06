@@ -37,7 +37,7 @@ import SCons.Defaults
 import SCons.Scanner.IDL
 import SCons.Util
 
-from .MSCommon import msvc_setup_env_tool
+from SCons.Tool.MSCommon import msvc_setup_env_tool
 
 tool_name = 'midl'
 
@@ -73,7 +73,7 @@ midl_builder = SCons.Builder.Builder(action=midl_action,
                                      source_scanner=idl_scanner)
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for midl to an Environment."""
 
     env['MIDL'] = 'MIDL.EXE'

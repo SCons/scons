@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,11 +22,8 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-r"""
+"""
 Validate that we can set the LATEX string to our own utility, that
 the produced .dvi, .aux and .log files get removed by the -c option,
 and that we can use this to wrap calls to the real latex utility.
@@ -38,7 +37,13 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
+latex = test.where_is('latex')
+if not latex:
+    test.skip_test("Could not find 'latex'; skipping test.\n")
 
+makeindex = test.where_is('makeindex')
+if not makeindex:
+    test.skip_test("Could not find 'makeindex'; skipping test.\n")
 
 test.write('mylatex.py', r"""
 import sys
@@ -95,8 +100,8 @@ test.must_not_exist('test2.log')
 
 
 
+# TODO: split this test? We already bailed above so check is useless.
 latex = test.where_is('latex')
-
 if latex:
 
     test.file_fixture('wrapper.py')

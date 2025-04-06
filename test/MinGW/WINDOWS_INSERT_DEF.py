@@ -55,7 +55,7 @@ test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 env = Environment(TOOLS=['mingw'])
 hello_dll = env.SharedLibrary(WINDOWS_INSERT_DEF=0, target='hello', source='hello.c')
-""" % locals())
+""")
 
 test.run(arguments = ".")
 

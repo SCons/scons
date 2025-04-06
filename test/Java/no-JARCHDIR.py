@@ -51,10 +51,11 @@ public class b {}
 """)
 
 test.write('SConstruct', """\
-env = Environment(tools    = ['javac', 'jar'])
+_ = DefaultEnvironment(tools=[])
+env = Environment(tools=['javac', 'jar'])
 
 jar = env.Jar('x.jar', env.Java(target = 'classes', source = 'src'))
-""" % locals())
+""")
 
 test.run(arguments = '.')
 test.run(program = where_jar, arguments = 'tf x.jar')
@@ -73,7 +74,7 @@ env = Environment(tools    = ['javac', 'jar'],
                   JARCHDIR = None)
 
 jar = env.Jar('x.jar', env.Java(target = 'classes', source = 'src'))
-""" % locals())
+""")
 
 test.run(arguments = '.')
 

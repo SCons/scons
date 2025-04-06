@@ -1,4 +1,13 @@
 <?xml version='1.0'?>
+
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
+-->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
@@ -20,34 +29,7 @@
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>Extending &SCons;: Writing Your Own Builders</title>
 
-<!--
-
-  MIT License
-
-  Copyright The SCons Foundation
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--->
-
-  <para>
+<para>
 
   Although &SCons; provides many useful methods
   for building common software products
@@ -60,7 +42,7 @@
   for any custom file types you want to build.
   (In fact, the &SCons; interfaces for creating
   &Builder; objects are flexible enough and easy enough to use
-  that all of the the &SCons; built-in &Builder; objects
+  that all of the &SCons; built-in &Builder; objects
   are created using the mechanisms described in this section.)
 
   </para>
@@ -150,7 +132,7 @@ env.Foo('file.foo', 'file.input')
 
     <para>
 
-    Then when we run &SCons; it looks like:
+    Then, when we run &SCons; it looks like:
 
     </para>
 
@@ -222,13 +204,14 @@ hello.c
     To be able to use both our own defined &Builder; objects
     and the default &Builder; objects in the same &consenv;,
     you can either add to the &cv-link-BUILDERS; variable
-    using the &Append; function:
+    using the &f-link-Append; function:
 
     </para>
 
     <scons_example name="builderswriting_ex3">
        <file name="SConstruct">
 import os
+
 env = Environment()
 env.AppendENVPath('PATH', os.getcwd())
 bld = Builder(action='foobuild &lt; $SOURCE &gt; $TARGET')
@@ -836,7 +819,7 @@ cat
     to the file specified by the option's argument.
     If this option is just supplied to the build,
     &SCons; will not consider the link map file a tracked target,
-    which has various undesirable efffects.
+    which has various undesirable effects.
 
     </para>
 
@@ -944,7 +927,7 @@ main()
 
     The <filename>site_scons</filename> directories give you a place to
     put &Python; modules and packages that you can import into your
-    &SConscript; files (at the top level)
+    &SConscript; files (at the top level),
     add-on tools that can integrate into &SCons;
     (in a <filename>site_tools</filename> subdirectory),
     and a <filename>site_scons/site_init.py</filename> file that
@@ -958,9 +941,9 @@ main()
     Each system type (Windows, Mac, Linux, etc.) searches a canonical
     set of directories for <filename>site_scons</filename>;
     see the man page for details.
-    The top-level SConstruct's <filename>site_scons</filename> dir
+    The top-level SConstruct's <filename>site_scons</filename> directory
     (that is, the one in the project) is always searched last,
-    and its dir is placed first in the tool path so it overrides all
+    and its directory is placed first in the tool path so it overrides all
     others.
 
     </para>
@@ -969,7 +952,7 @@ main()
 
     If you get a tool from somewhere (the &SCons; wiki or a third party,
     for instance) and you'd like to use it in your project, a
-    <filename>site_scons</filename> dir is the simplest place to put it.
+    <filename>site_scons</filename> directory is the simplest place to put it.
     Tools come in two flavors; either a &Python; function that operates on
     an &Environment; or a &Python; module or package  containing two functions,
     <function>exists()</function> and <function>generate()</function>.
@@ -1055,7 +1038,7 @@ env.AddHeader('tgt', 'src')
       to include in their &SConscript; files: just put them in
       <filename>site_scons/my_utils.py</filename>
       or any valid &Python; module name of your
-      choice.  For instance you can do something like this in
+      choice.  For instance, you can do something like this in
       <filename>site_scons/my_utils.py</filename> to add
       <function>build_id</function> and <function>MakeWorkDir</function>
       functions:

@@ -64,7 +64,7 @@ import importlib
 PYPY = hasattr(sys, 'pypy_translation_info')
 
 
-def rename_module(new, old):
+def rename_module(new, old) -> bool:
     """
     Attempt to import the old module and load it under the new name.
     Used for purely cosmetic name changes in Python 3.x.
@@ -95,7 +95,7 @@ class NoSlotsPyPy(type):
     def __new__(meta, name, bases, dct):
         if PYPY and '__slots__' in dct:
             dct.pop('__slots__')
-        return super(NoSlotsPyPy, meta).__new__(meta, name, bases, dct)
+        return super().__new__(meta, name, bases, dct)
 
 # Local Variables:
 # tab-width:4

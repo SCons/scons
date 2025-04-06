@@ -28,7 +28,6 @@ MS Compilers: detect Visual Studio and/or Visual C/C++
 import os
 
 import SCons.Errors
-import SCons.Tool.MSCommon.vc
 import SCons.Util
 
 from .common import (
@@ -40,14 +39,30 @@ from .common import (
     read_reg,
 )
 
+from .vc import (
+    find_vc_pdir,
+    get_msvc_version_numeric,
+    reset_installed_vcs,
+    vswhere_freeze_env,
+)
+
+
+# Visual Studio express version policy when unqualified version is not installed:
+#     True:  use express version for unqualified version (e.g., use 12.0Exp for 12.0)
+#     False: do not use express version for unqualified version
+_VSEXPRESS_USE_VERSTR = True
+
 
 class VisualStudio:
     """
     An abstract base class for trying to find installed versions of
     Visual Studio.
     """
-    def __init__(self, version, **kw):
+    def __init__(self, version, **kw) -> None:
         self.version = version
+        self.verstr = get_msvc_version_numeric(version)
+        self.vernum = float(self.verstr)
+        self.is_express = True if self.verstr != self.version else False
         kw['vc_version']  = kw.get('vc_version', version)
         kw['sdk_version'] = kw.get('sdk_version', version)
         self.__dict__.update(kw)
@@ -66,7 +81,7 @@ class VisualStudio:
         return batch_file
 
     def find_vs_dir_by_vc(self, env):
-        dir = SCons.Tool.MSCommon.vc.find_vc_pdir(env, self.vc_version)
+        dir = find_vc_pdir(self.vc_version, env)
         if not dir:
             debug('no installed VC %s', self.vc_version)
             return None
@@ -148,7 +163,7 @@ class VisualStudio:
             self._cache['supported_arch'] = self.supported_arch
             return self.supported_arch
 
-    def reset(self):
+    def reset(self) -> None:
         self._cache = {}
 
 # The list of supported Visual Studio versions we know how to detect.
@@ -207,7 +222,7 @@ SupportedVSList = [
                  executable_path=r'Common7\IDE\devenv.com',
                  # should be a fallback, prefer use vswhere installationPath
                  batch_file_path=r'Common7\Tools\VsDevCmd.bat',
-                 supported_arch=['x86', 'amd64', "arm"],
+                 supported_arch=['x86', 'amd64', "arm", 'arm64'],
                  ),
 
     # Visual Studio 2019
@@ -219,7 +234,7 @@ SupportedVSList = [
                  executable_path=r'Common7\IDE\devenv.com',
                  # should be a fallback, prefer use vswhere installationPath
                  batch_file_path=r'Common7\Tools\VsDevCmd.bat',
-                 supported_arch=['x86', 'amd64', "arm"],
+                 supported_arch=['x86', 'amd64', "arm", 'arm64'],
                  ),
 
     # Visual Studio 2017
@@ -231,7 +246,7 @@ SupportedVSList = [
                  executable_path=r'Common7\IDE\devenv.com',
                  # should be a fallback, prefer use vswhere installationPath
                  batch_file_path=r'Common7\Tools\VsDevCmd.bat',
-                 supported_arch=['x86', 'amd64', "arm"],
+                 supported_arch=['x86', 'amd64', "arm", 'arm64'],
                  ),
 
     # Visual C++ 2017 Express Edition (for Desktop)
@@ -243,7 +258,7 @@ SupportedVSList = [
                  executable_path=r'Common7\IDE\WDExpress.exe',
                  # should be a fallback, prefer use vswhere installationPath
                  batch_file_path=r'Common7\Tools\VsDevCmd.bat',
-                 supported_arch=['x86', 'amd64', "arm"],
+                 supported_arch=['x86', 'amd64', "arm", 'arm64'],
     ),
 
     # Visual Studio 2015
@@ -428,6 +443,7 @@ InstalledVSMap  = None
 def get_installed_visual_studios(env=None):
     global InstalledVSList
     global InstalledVSMap
+    vswhere_freeze_env(env)
     if InstalledVSList is None:
         InstalledVSList = []
         InstalledVSMap = {}
@@ -436,12 +452,21 @@ def get_installed_visual_studios(env=None):
             if vs.get_executable(env):
                 debug('found VS %s', vs.version)
                 InstalledVSList.append(vs)
+                if vs.is_express and vs.verstr not in InstalledVSMap:
+                    if _VSEXPRESS_USE_VERSTR:
+                        InstalledVSMap[vs.verstr] = vs
                 InstalledVSMap[vs.version] = vs
     return InstalledVSList
 
-def reset_installed_visual_studios():
+def _get_installed_vss(env=None):
+    get_installed_visual_studios(env)
+    versions = list(InstalledVSMap.keys())
+    return versions
+
+def reset_installed_visual_studios() -> None:
     global InstalledVSList
     global InstalledVSMap
+    debug('')
     InstalledVSList = None
     InstalledVSMap  = None
     for vs in SupportedVSList:
@@ -449,7 +474,7 @@ def reset_installed_visual_studios():
 
     # Need to clear installed VC's as well as they are used in finding
     # installed VS's
-    SCons.Tool.MSCommon.vc.reset_installed_vcs()
+    reset_installed_vcs()
 
 
 # We may be asked to update multiple construction environments with
@@ -487,7 +512,7 @@ def reset_installed_visual_studios():
 def msvs_exists(env=None) -> bool:
     return len(get_installed_visual_studios(env)) > 0
 
-def get_vs_by_version(msvs):
+def get_vs_by_version(msvs, env=None):
     global InstalledVSMap
     global SupportedVSMap
 
@@ -495,7 +520,7 @@ def get_vs_by_version(msvs):
     if msvs not in SupportedVSMap:
         msg = "Visual Studio version %s is not supported" % repr(msvs)
         raise SCons.Errors.UserError(msg)
-    get_installed_visual_studios()
+    get_installed_visual_studios(env)
     vs = InstalledVSMap.get(msvs)
     debug('InstalledVSMap:%s', InstalledVSMap)
     debug('found vs:%s', vs)
@@ -524,7 +549,7 @@ def get_default_version(env):
     """
     if 'MSVS' not in env or not SCons.Util.is_Dict(env['MSVS']):
         # get all versions, and remember them for speed later
-        versions = [vs.version for vs in get_installed_visual_studios()]
+        versions = _get_installed_vss(env)
         env['MSVS'] = {'VERSIONS' : versions}
     else:
         versions = env['MSVS'].get('VERSIONS', [])
@@ -564,13 +589,13 @@ def get_default_arch(env):
 
     return arch
 
-def merge_default_version(env):
+def merge_default_version(env) -> None:
     version = get_default_version(env)
     arch = get_default_arch(env)
 
 # TODO: refers to versions and arch which aren't defined; called nowhere. Drop?
-def msvs_setup_env(env):
-    msvs = get_vs_by_version(version)
+def msvs_setup_env(env) -> None:
+    msvs = get_vs_by_version(version, env)
     if msvs is None:
         return
     batfilename = msvs.get_batch_file()
@@ -582,7 +607,7 @@ def msvs_setup_env(env):
 
         vars = ('LIB', 'LIBPATH', 'PATH', 'INCLUDE')
 
-        msvs_list = get_installed_visual_studios()
+        msvs_list = get_installed_visual_studios(env)
         vscommonvarnames = [vs.common_tools_var for vs in msvs_list]
         save_ENV = env['ENV']
         nenv = normalize_env(env['ENV'],
@@ -597,11 +622,10 @@ def msvs_setup_env(env):
         for k, v in vars.items():
             env.PrependENVPath(k, v, delete_existing=1)
 
-def query_versions():
+def query_versions(env=None):
     """Query the system to get available versions of VS. A version is
     considered when a batfile is found."""
-    msvs_list = get_installed_visual_studios()
-    versions = [msvs.version for msvs in msvs_list]
+    versions = _get_installed_vss(env)
     return versions
 
 # Local Variables:

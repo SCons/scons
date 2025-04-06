@@ -40,16 +40,26 @@ be able to depend on any other type of "thing."
 
 """
 
+from __future__ import annotations
+
 import collections
 import copy
 from itertools import chain, zip_longest
+from typing import Any, Callable, TYPE_CHECKING
 
 import SCons.Debug
 import SCons.Executor
 import SCons.Memoize
 from SCons.compat import NoSlotsPyPy
 from SCons.Debug import logInstanceCreation, Trace
+from SCons.Executor import Executor
 from SCons.Util import hash_signature, is_List, UniqueList, render_tree
+
+if TYPE_CHECKING:
+    from SCons.Builder import BuilderBase
+    from SCons.Environment import Base as Environment
+    from SCons.Scanner import ScannerBase
+    from SCons.SConsign import SConsignEntry
 
 print_duplicate = 0
 
@@ -94,12 +104,12 @@ implicit_deps_changed = 0
 
 # A variable that can be set to an interface-specific function be called
 # to annotate a Node with information about its creation.
-def do_nothing_node(node): pass
+def do_nothing_node(node) -> None: pass
 
 Annotate = do_nothing_node
 
 # global set for recording all processed SContruct/SConscript nodes
-SConscriptNodes = set()
+SConscriptNodes: set[Node] = set()
 
 # Gets set to 'True' if we're running in interactive mode. Is
 # currently used to release parts of a target's info during
@@ -109,7 +119,7 @@ interactive = False
 def is_derived_none(node):
     raise NotImplementedError
 
-def is_derived_node(node):
+def is_derived_node(node) -> bool:
     """
         Returns true if this node is derived (i.e. built).
     """
@@ -118,16 +128,16 @@ def is_derived_node(node):
 _is_derived_map = {0 : is_derived_none,
                    1 : is_derived_node}
 
-def exists_none(node):
+def exists_none(node) -> bool:
     raise NotImplementedError
 
-def exists_always(node):
-    return 1
+def exists_always(node) -> bool:
+    return True
 
-def exists_base(node):
+def exists_base(node) -> bool:
     return node.stat() is not None
 
-def exists_entry(node):
+def exists_entry(node) -> bool:
     """Return if the Entry exists.  Check the file system to see
     what we should turn into first.  Assume a file if there's no
     directory."""
@@ -135,7 +145,7 @@ def exists_entry(node):
     return _exists_map[node._func_exists](node)
 
 
-def exists_file(node):
+def exists_file(node) -> bool:
     # Duplicate from source path if we are set up to do this.
     if node.duplicate and not node.is_derived() and not node.linked:
         src = node.srcnode()
@@ -186,7 +196,7 @@ def get_contents_entry(node):
     """Fetch the contents of the entry.  Returns the exact binary
     contents of the file."""
     try:
-        node = node.disambiguate(must_exist=1)
+        node = node.disambiguate(must_exist=True)
     except SCons.Errors.UserError:
         # There was nothing on disk with which to disambiguate
         # this entry.  Leave it as an Entry, but return a null
@@ -212,7 +222,7 @@ def get_contents_file(node):
     try:
         with open(fname, "rb") as fp:
             contents = fp.read()
-    except EnvironmentError as e:
+    except OSError as e:
         if not e.filename:
             e.filename = fname
         raise
@@ -245,7 +255,7 @@ _target_from_source_map = {0 : target_from_source_none,
 #
 # First, the single decider functions
 #
-def changed_since_last_build_node(node, target, prev_ni, repo_node=None):
+def changed_since_last_build_node(node, target, prev_ni, repo_node=None) -> bool:
     """
 
     Must be overridden in a specific subclass to return True if this
@@ -266,37 +276,37 @@ def changed_since_last_build_node(node, target, prev_ni, repo_node=None):
     raise NotImplementedError
 
 
-def changed_since_last_build_alias(node, target, prev_ni, repo_node=None):
+def changed_since_last_build_alias(node, target, prev_ni, repo_node=None) -> bool:
     cur_csig = node.get_csig()
     try:
         return cur_csig != prev_ni.csig
     except AttributeError:
-        return 1
+        return True
 
 
-def changed_since_last_build_entry(node, target, prev_ni, repo_node=None):
+def changed_since_last_build_entry(node, target, prev_ni, repo_node=None) -> bool:
     node.disambiguate()
     return _decider_map[node.changed_since_last_build](node, target, prev_ni, repo_node)
 
 
-def changed_since_last_build_state_changed(node, target, prev_ni, repo_node=None):
+def changed_since_last_build_state_changed(node, target, prev_ni, repo_node=None) -> bool:
     return node.state != SCons.Node.up_to_date
 
 
-def decide_source(node, target, prev_ni, repo_node=None):
+def decide_source(node, target, prev_ni, repo_node=None) -> bool:
     return target.get_build_env().decide_source(node, target, prev_ni, repo_node)
 
 
-def decide_target(node, target, prev_ni, repo_node=None):
+def decide_target(node, target, prev_ni, repo_node=None) -> bool:
     return target.get_build_env().decide_target(node, target, prev_ni, repo_node)
 
 
-def changed_since_last_build_python(node, target, prev_ni, repo_node=None):
+def changed_since_last_build_python(node, target, prev_ni, repo_node=None) -> bool:
     cur_csig = node.get_csig()
     try:
         return cur_csig != prev_ni.csig
     except AttributeError:
-        return 1
+        return True
 
 
 #
@@ -326,10 +336,10 @@ do_store_info = True
 # First, the single info functions
 #
 
-def store_info_pass(node):
+def store_info_pass(node) -> None:
     pass
 
-def store_info_file(node):
+def store_info_file(node) -> None:
     # Merge our build information into the already-stored entry.
     # This accommodates "chained builds" where a file that's a target
     # in one build (SConstruct file) is a source in a different build.
@@ -353,7 +363,7 @@ class NodeInfoBase:
     __slots__ = ('__weakref__',)
     current_version_id = 2
 
-    def update(self, node):
+    def update(self, node: Node) -> None:
         try:
             field_list = self.field_list
         except AttributeError:
@@ -370,10 +380,10 @@ class NodeInfoBase:
             else:
                 setattr(self, f, func())
 
-    def convert(self, node, val):
+    def convert(self, node, val) -> None:
         pass
 
-    def merge(self, other):
+    def merge(self, other: NodeInfoBase) -> None:
         """
         Merge the fields of another object into this object. Already existing
         information is overwritten by the other instance's data.
@@ -383,7 +393,7 @@ class NodeInfoBase:
         state = other.__getstate__()
         self.__setstate__(state)
 
-    def format(self, field_list=None, names=0):
+    def format(self, field_list: list[str] | None = None, names: bool = False):
         if field_list is None:
             try:
                 field_list = self.field_list
@@ -406,7 +416,7 @@ class NodeInfoBase:
             fields.append(f)
         return fields
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict[str, Any]:
         """
         Return all fields that shall be pickled. Walk the slots in the class
         hierarchy and add those to the state dictionary. If a '__dict__' slot is
@@ -426,7 +436,7 @@ class NodeInfoBase:
             pass
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: dict[str, Any]) -> None:
         """
         Restore the attributes from a pickled state. The version is discarded.
         """
@@ -452,15 +462,15 @@ class BuildInfoBase:
                  "bsources", "bdepends", "bact", "bimplicit", "__weakref__")
     current_version_id = 2
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Create an object attribute from the class attribute so it ends up
         # in the pickled data in the .sconsign file.
-        self.bsourcesigs = []
-        self.bdependsigs = []
-        self.bimplicitsigs = []
-        self.bactsig = None
+        self.bsourcesigs: list[BuildInfoBase] = []
+        self.bdependsigs: list[BuildInfoBase] = []
+        self.bimplicitsigs: list[BuildInfoBase] = []
+        self.bactsig: str | None = None
 
-    def merge(self, other):
+    def merge(self, other: BuildInfoBase) -> None:
         """
         Merge the fields of another object into this object. Already existing
         information is overwritten by the other instance's data.
@@ -470,7 +480,7 @@ class BuildInfoBase:
         state = other.__getstate__()
         self.__setstate__(state)
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict[str, Any]:
         """
         Return all fields that shall be pickled. Walk the slots in the class
         hierarchy and add those to the state dictionary. If a '__dict__' slot is
@@ -490,7 +500,7 @@ class BuildInfoBase:
             pass
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: dict[str, Any]) -> None:
         """
         Restore the attributes from a pickled state.
         """
@@ -501,7 +511,7 @@ class BuildInfoBase:
                 setattr(self, key, value)
 
 
-class Node(object, metaclass=NoSlotsPyPy):
+class Node(metaclass=NoSlotsPyPy):
     """The base Node class, for entities that we know how to
     build, or use to build other Nodes.
     """
@@ -553,7 +563,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         __slots__ = ('shared', '__dict__')
 
 
-    def __init__(self):
+    def __init__(self) -> None:
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.Node')
         # Note that we no longer explicitly initialize a self.builder
         # attribute to None here.  That's because the self.builder
@@ -568,42 +578,42 @@ class Node(object, metaclass=NoSlotsPyPy):
         # this way, instead of wrapping up each list+dictionary pair in
         # a class.  (Of course, we could always still do that in the
         # future if we had a good reason to...).
-        self.sources = []       # source files used to build node
-        self.sources_set = set()
+        self.sources: list[Node] = []       # source files used to build node
+        self.sources_set: set[Node] = set()
         self._specific_sources = False
-        self.depends = []       # explicit dependencies (from Depends)
-        self.depends_set = set()
-        self.ignore = []        # dependencies to ignore
-        self.ignore_set = set()
-        self.prerequisites = None
-        self.implicit = None    # implicit (scanned) dependencies (None means not scanned yet)
-        self.waiting_parents = set()
-        self.waiting_s_e = set()
+        self.depends: list[Node] = []       # explicit dependencies (from Depends)
+        self.depends_set: set[Node] = set()
+        self.ignore: list[Node] = []        # dependencies to ignore
+        self.ignore_set: set[Node] = set()
+        self.prerequisites: UniqueList | None = None
+        self.implicit: list[Node] | None = None    # implicit (scanned) dependencies (None means not scanned yet)
+        self.waiting_parents: set[Node] = set()
+        self.waiting_s_e: set[Node] = set()
         self.ref_count = 0
-        self.wkids = None       # Kids yet to walk, when it's an array
+        self.wkids: list[Node] | None = None       # Kids yet to walk, when it's an array
 
-        self.env = None
+        self.env: Environment | None = None
         self.state = no_state
-        self.precious = None
+        self.precious = False
         self.pseudo = False
-        self.noclean = 0
-        self.nocache = 0
-        self.cached = 0 # is this node pulled from cache?
-        self.always_build = None
-        self.includes = None
+        self.noclean = False
+        self.nocache = False
+        self.cached = False # is this node pulled from cache?
+        self.always_build = False
+        self.includes: list[str] | None = None
         self.attributes = self.Attrs() # Generic place to stick information about the Node.
-        self.side_effect = 0 # true iff this node is a side effect
-        self.side_effects = [] # the side effects of building this target
-        self.linked = 0 # is this node linked to the variant directory?
-        self.changed_since_last_build = 0
-        self.store_info = 0
-        self._tags = None
-        self._func_is_derived = 1
-        self._func_exists = 1
-        self._func_rexists = 1
-        self._func_get_contents = 0
-        self._func_target_from_source = 0
-        self.ninfo = None
+        self.side_effect = False # true iff this node is a side effect
+        self.side_effects: list[Node] = [] # the side effects of building this target
+        self.linked = False # is this node linked to the variant directory?
+        self.changed_since_last_build = 0 # Index for "_decider_map".
+        self.store_info = 0 # Index for "store_info_map".
+        self._tags: dict[str, Any] | None = None
+        self._func_is_derived = 1 # Index for "_is_derived_map".
+        self._func_exists = 1 # Index for "_exists_map"
+        self._func_rexists = 1 # Index for "_rexists_map"
+        self._func_get_contents = 0 # Index for "_get_contents_map"
+        self._func_target_from_source = 0 # Index for "_target_from_source_map"
+        self.ninfo: NodeInfoBase | None = None
 
         self.clear_memoized_values()
 
@@ -612,14 +622,17 @@ class Node(object, metaclass=NoSlotsPyPy):
         # what line in what file created the node, for example).
         Annotate(self)
 
-    def disambiguate(self, must_exist=None):
+    def __fspath__(self) -> str:
+        return str(self)
+
+    def disambiguate(self, must_exist: bool = False):
         return self
 
-    def get_suffix(self):
+    def get_suffix(self) -> str:
         return ''
 
     @SCons.Memoize.CountMethodCall
-    def get_build_env(self):
+    def get_build_env(self) -> Environment:
         """Fetch the appropriate Environment to build this node.
         """
         try:
@@ -630,15 +643,15 @@ class Node(object, metaclass=NoSlotsPyPy):
         self._memo['get_build_env'] = result
         return result
 
-    def get_build_scanner_path(self, scanner):
+    def get_build_scanner_path(self, scanner: ScannerBase):
         """Fetch the appropriate scanner path for this node."""
         return self.get_executor().get_build_scanner_path(scanner)
 
-    def set_executor(self, executor):
+    def set_executor(self, executor: Executor) -> None:
         """Set the action executor for this node."""
         self.executor = executor
 
-    def get_executor(self, create=1):
+    def get_executor(self, create: bool = True) -> Executor:
         """Fetch the action executor for this node.  Create one if
         there isn't already one, and requested to do so."""
         try:
@@ -649,7 +662,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             try:
                 act = self.builder.action
             except AttributeError:
-                executor = SCons.Executor.Null(targets=[self])
+                executor = SCons.Executor.Null(targets=[self])  # type: ignore[assignment]
             else:
                 executor = SCons.Executor.Executor(act,
                                                    self.env or self.builder.env,
@@ -659,29 +672,29 @@ class Node(object, metaclass=NoSlotsPyPy):
             self.executor = executor
         return executor
 
-    def executor_cleanup(self):
+    def executor_cleanup(self) -> None:
         """Let the executor clean up any cached information."""
         try:
-            executor = self.get_executor(create=None)
+            executor = self.get_executor(create=False)
         except AttributeError:
             pass
         else:
             if executor is not None:
                 executor.cleanup()
 
-    def reset_executor(self):
+    def reset_executor(self) -> None:
         """Remove cached executor; forces recompute when needed."""
         try:
             delattr(self, 'executor')
         except AttributeError:
             pass
 
-    def push_to_cache(self):
+    def push_to_cache(self) -> bool:
         """Try to push a node into a cache
         """
-        pass
+        return False
 
-    def retrieve_from_cache(self):
+    def retrieve_from_cache(self) -> bool:
         """Try to retrieve the node's content from a cache
 
         This method is called from multiple threads in a parallel build,
@@ -690,13 +703,13 @@ class Node(object, metaclass=NoSlotsPyPy):
 
         Returns true if the node was successfully retrieved.
         """
-        return 0
+        return False
 
     #
     # Taskmaster interface subsystem
     #
 
-    def make_ready(self):
+    def make_ready(self) -> None:
         """Get a Node ready for evaluation.
 
         This is called before the Taskmaster decides if the Node is
@@ -706,7 +719,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         """
         pass
 
-    def prepare(self):
+    def prepare(self) -> None:
         """Prepare for this Node to be built.
 
         This is called after the Taskmaster has decided that the Node
@@ -739,7 +752,7 @@ class Node(object, metaclass=NoSlotsPyPy):
                     raise SCons.Errors.StopError(msg % (i, self))
         self.binfo = self.get_binfo()
 
-    def build(self, **kw):
+    def build(self, **kw) -> None:
         """Actually build the node.
 
         This is called by the Taskmaster after it's decided that the
@@ -757,7 +770,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             e.node = self
             raise
 
-    def built(self):
+    def built(self) -> None:
         """Called just after this node is successfully built."""
 
         # Clear the implicit dependency caches of any Nodes
@@ -783,7 +796,6 @@ class Node(object, metaclass=NoSlotsPyPy):
             except AttributeError:
                 pass
 
-
         self.clear()
 
         if self.pseudo:
@@ -795,7 +807,7 @@ class Node(object, metaclass=NoSlotsPyPy):
                                     "Cannot find target " + str(self) + " after building")
         self.ninfo.update(self)
 
-    def visited(self):
+    def visited(self) -> None:
         """Called just after this node has been visited (with or
         without a build)."""
         try:
@@ -808,7 +820,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             self.ninfo.update(self)
             SCons.Node.store_info_map[self.store_info](self)
 
-    def release_target_info(self):
+    def release_target_info(self) -> None:
         """Called just after this node has been marked
         up-to-date or was built completely.
 
@@ -825,10 +837,10 @@ class Node(object, metaclass=NoSlotsPyPy):
         """
         pass
 
-    def add_to_waiting_s_e(self, node):
+    def add_to_waiting_s_e(self, node: Node) -> None:
         self.waiting_s_e.add(node)
 
-    def add_to_waiting_parents(self, node):
+    def add_to_waiting_parents(self, node: Node) -> int:
         """
         Returns the number of nodes added to our waiting parents list:
         1 if we add a unique waiting parent, 0 if not.  (Note that the
@@ -842,13 +854,13 @@ class Node(object, metaclass=NoSlotsPyPy):
         wp.add(node)
         return 1
 
-    def postprocess(self):
+    def postprocess(self) -> None:
         """Clean up anything we don't need to hang onto after we've
         been built."""
         self.executor_cleanup()
         self.waiting_parents = set()
 
-    def clear(self):
+    def clear(self) -> None:
         """Completely clear a Node of all its cached state (so that it
         can be re-evaluated by interfaces that do continuous integration
         builds).
@@ -865,20 +877,20 @@ class Node(object, metaclass=NoSlotsPyPy):
                 delattr(self, attr)
             except AttributeError:
                 pass
-        self.cached = 0
+        self.cached = False
         self.includes = None
 
-    def clear_memoized_values(self):
+    def clear_memoized_values(self) -> None:
         self._memo = {}
 
-    def builder_set(self, builder):
+    def builder_set(self, builder: BuilderBase | None) -> None:
         self.builder = builder
         try:
             del self.executor
         except AttributeError:
             pass
 
-    def has_builder(self):
+    def has_builder(self) -> bool:
         """Return whether this Node has a builder or not.
 
         In Boolean tests, this turns out to be a *lot* more efficient
@@ -897,11 +909,11 @@ class Node(object, metaclass=NoSlotsPyPy):
             b = self.builder = None
         return b is not None
 
-    def set_explicit(self, is_explicit):
+    def set_explicit(self, is_explicit: bool) -> None:
         self.is_explicit = is_explicit
 
-    def has_explicit_builder(self):
-        """Return whether this Node has an explicit builder
+    def has_explicit_builder(self) -> bool:
+        """Return whether this Node has an explicit builder.
 
         This allows an internal Builder created by SCons to be marked
         non-explicit, so that it can be overridden by an explicit
@@ -910,10 +922,10 @@ class Node(object, metaclass=NoSlotsPyPy):
         try:
             return self.is_explicit
         except AttributeError:
-            self.is_explicit = None
-            return self.is_explicit
+            self.is_explicit = False
+            return False
 
-    def get_builder(self, default_builder=None):
+    def get_builder(self, default_builder: BuilderBase | None = None) -> BuilderBase | None:
         """Return the set builder, or a specified default value"""
         try:
             return self.builder
@@ -922,7 +934,7 @@ class Node(object, metaclass=NoSlotsPyPy):
 
     multiple_side_effect_has_builder = has_builder
 
-    def is_derived(self):
+    def is_derived(self) -> bool:
         """
         Returns true if this node is derived (i.e. built).
 
@@ -934,11 +946,11 @@ class Node(object, metaclass=NoSlotsPyPy):
         """
         return _is_derived_map[self._func_is_derived](self)
 
-    def is_sconscript(self):
+    def is_sconscript(self) -> bool:
         """ Returns true if this node is an sconscript """
         return self in SConscriptNodes
 
-    def is_conftest(self):
+    def is_conftest(self) -> bool:
         """ Returns true if this node is an conftest node"""
         try:
             self.attributes.conftest_node
@@ -946,7 +958,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             return False
         return True
 
-    def check_attributes(self, name):
+    def check_attributes(self, name: str) -> Any | None:
         """ Simple API to check if the node.attributes for name has been set"""
         return getattr(getattr(self, "attributes", None), name, None)
 
@@ -956,7 +968,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         """
         return [], None
 
-    def get_found_includes(self, env, scanner, path):
+    def get_found_includes(self, env: Environment, scanner: ScannerBase | None, path) -> list[Node]:
         """Return the scanned include lines (implicit dependencies)
         found in this node.
 
@@ -966,7 +978,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         """
         return []
 
-    def get_implicit_deps(self, env, initial_scanner, path_func, kw = {}):
+    def get_implicit_deps(self, env: Environment, initial_scanner: ScannerBase | None, path_func, kw = {}) -> list[Node]:
         """Return a list of implicit dependencies for this node.
 
         This method exists to handle recursive invocation of the scanner
@@ -1001,7 +1013,7 @@ class Node(object, metaclass=NoSlotsPyPy):
 
         return dependencies
 
-    def _get_scanner(self, env, initial_scanner, root_node_scanner, kw):
+    def _get_scanner(self, env: Environment, initial_scanner: ScannerBase | None, root_node_scanner: ScannerBase | None, kw: dict[str, Any] | None) -> ScannerBase | None:
         if initial_scanner:
             # handle explicit scanner case
             scanner = initial_scanner.select(self)
@@ -1018,13 +1030,13 @@ class Node(object, metaclass=NoSlotsPyPy):
 
         return scanner
 
-    def get_env_scanner(self, env, kw={}):
+    def get_env_scanner(self, env: Environment, kw: dict[str, Any] | None = {}) -> ScannerBase | None:
         return env.get_scanner(self.scanner_key())
 
-    def get_target_scanner(self):
+    def get_target_scanner(self) -> ScannerBase | None:
         return self.builder.target_scanner
 
-    def get_source_scanner(self, node):
+    def get_source_scanner(self, node: Node) -> ScannerBase | None:
         """Fetch the source scanner for the specified node
 
         NOTE:  "self" is the target being built, "node" is
@@ -1050,18 +1062,19 @@ class Node(object, metaclass=NoSlotsPyPy):
             scanner = scanner.select(node)
         return scanner
 
-    def add_to_implicit(self, deps):
+    def add_to_implicit(self, deps: list[Node]) -> None:
         if not hasattr(self, 'implicit') or self.implicit is None:
             self.implicit = []
-            self.implicit_set = set()
+            self.implicit_set: set[Node] = set()
             self._children_reset()
         self._add_child(self.implicit, self.implicit_set, deps)
 
-    def scan(self):
+    def scan(self) -> None:
         """Scan this node's dependents for implicit dependencies."""
         # Don't bother scanning non-derived files, because we don't
         # care what their dependencies are.
         # Don't scan again, if we already have scanned.
+        T = False
         if self.implicit is not None:
             return
         self.implicit = []
@@ -1086,7 +1099,12 @@ class Node(object, metaclass=NoSlotsPyPy):
                 # essentially short-circuits an N*M scan of the
                 # sources for each individual target, which is a hell
                 # of a lot more efficient.
+                def print_nodelist(n):
+                    tgts = [f"{t.path!r}" for t in n]
+                    return f"[{', '.join(tgts)}]"
+
                 for tgt in executor.get_all_targets():
+                    if T: Trace(f"adding implicit {print_nodelist(implicit)} to {tgt!s}\n")
                     tgt.add_to_implicit(implicit)
 
                 if implicit_deps_unchanged or self.is_up_to_date():
@@ -1106,10 +1124,10 @@ class Node(object, metaclass=NoSlotsPyPy):
         if scanner:
             executor.scan_targets(scanner)
 
-    def scanner_key(self):
+    def scanner_key(self) -> str | None:
         return None
 
-    def select_scanner(self, scanner):
+    def select_scanner(self, scanner: ScannerBase) -> ScannerBase | None:
         """Selects a scanner for this Node.
 
         This is a separate method so it can be overridden by Node
@@ -1119,7 +1137,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         """
         return scanner.select(self)
 
-    def env_set(self, env, safe=0):
+    def env_set(self, env: Environment, safe: bool = False) -> None:
         if safe and self.env:
             return
         self.env = env
@@ -1131,21 +1149,21 @@ class Node(object, metaclass=NoSlotsPyPy):
     NodeInfo = NodeInfoBase
     BuildInfo = BuildInfoBase
 
-    def new_ninfo(self):
+    def new_ninfo(self) -> NodeInfoBase:
         ninfo = self.NodeInfo()
         return ninfo
 
-    def get_ninfo(self):
+    def get_ninfo(self) -> NodeInfoBase:
         if self.ninfo is not None:
             return self.ninfo
         self.ninfo = self.new_ninfo()
         return self.ninfo
 
-    def new_binfo(self):
+    def new_binfo(self) -> BuildInfoBase:
         binfo = self.BuildInfo()
         return binfo
 
-    def get_binfo(self):
+    def get_binfo(self) -> BuildInfoBase:
         """
         Fetch a node's build information.
 
@@ -1197,14 +1215,14 @@ class Node(object, metaclass=NoSlotsPyPy):
 
         return binfo
 
-    def del_binfo(self):
+    def del_binfo(self) -> None:
         """Delete the build info from this node."""
         try:
             delattr(self, 'binfo')
         except AttributeError:
             pass
 
-    def get_csig(self):
+    def get_csig(self) -> str:
         try:
             return self.ninfo.csig
         except AttributeError:
@@ -1212,13 +1230,13 @@ class Node(object, metaclass=NoSlotsPyPy):
             ninfo.csig = hash_signature(self.get_contents())
             return self.ninfo.csig
 
-    def get_cachedir_csig(self):
+    def get_cachedir_csig(self) -> str:
         return self.get_csig()
 
-    def get_stored_info(self):
+    def get_stored_info(self) -> SConsignEntry | None:
         return None
 
-    def get_stored_implicit(self):
+    def get_stored_implicit(self) -> list[Node] | None:
         """Fetch the stored implicit dependencies"""
         return None
 
@@ -1226,53 +1244,49 @@ class Node(object, metaclass=NoSlotsPyPy):
     #
     #
 
-    def set_precious(self, precious = 1):
+    def set_precious(self, precious: bool = True) -> None:
         """Set the Node's precious value."""
         self.precious = precious
 
-    def set_pseudo(self, pseudo = True):
-        """Set the Node's precious value."""
+    def set_pseudo(self, pseudo: bool = True) -> None:
+        """Set the Node's pseudo value."""
         self.pseudo = pseudo
 
-    def set_noclean(self, noclean = 1):
+    def set_noclean(self, noclean: bool = True) -> None:
         """Set the Node's noclean value."""
-        # Make sure noclean is an integer so the --debug=stree
-        # output in Util.py can use it as an index.
-        self.noclean = noclean and 1 or 0
+        self.noclean = noclean
 
-    def set_nocache(self, nocache = 1):
+    def set_nocache(self, nocache: bool = True) -> None:
         """Set the Node's nocache value."""
-        # Make sure nocache is an integer so the --debug=stree
-        # output in Util.py can use it as an index.
-        self.nocache = nocache and 1 or 0
+        self.nocache = nocache
 
-    def set_always_build(self, always_build = 1):
+    def set_always_build(self, always_build: bool = True) -> None:
         """Set the Node's always_build value."""
         self.always_build = always_build
 
-    def exists(self):
-        """Does this node exists?"""
+    def exists(self) -> bool:
+        """Reports whether node exists."""
         return _exists_map[self._func_exists](self)
 
-    def rexists(self):
+    def rexists(self) -> bool:
         """Does this node exist locally or in a repository?"""
         # There are no repositories by default:
         return _rexists_map[self._func_rexists](self)
 
-    def get_contents(self):
+    def get_contents(self) -> bytes | str:
         """Fetch the contents of the entry."""
         return _get_contents_map[self._func_get_contents](self)
 
-    def missing(self):
+    def missing(self) -> bool:
         return not self.is_derived() and \
                not self.linked and \
                not self.rexists()
 
-    def remove(self):
+    def remove(self) -> None:
         """Remove this Node:  no-op by default."""
         return None
 
-    def add_dependency(self, depend):
+    def add_dependency(self, depend: list[Node]) -> None:
         """Adds dependencies."""
         try:
             self._add_child(self.depends, self.depends_set, depend)
@@ -1284,14 +1298,14 @@ class Node(object, metaclass=NoSlotsPyPy):
                 s = str(e)
             raise SCons.Errors.UserError("attempted to add a non-Node dependency to %s:\n\t%s is a %s, not a Node" % (str(self), s, type(e)))
 
-    def add_prerequisite(self, prerequisite):
+    def add_prerequisite(self, prerequisite: list[Node]) -> None:
         """Adds prerequisites"""
         if self.prerequisites is None:
             self.prerequisites = UniqueList()
         self.prerequisites.extend(prerequisite)
         self._children_reset()
 
-    def add_ignore(self, depend):
+    def add_ignore(self, depend: list[Node]) -> None:
         """Adds dependencies to ignore."""
         try:
             self._add_child(self.ignore, self.ignore_set, depend)
@@ -1303,7 +1317,7 @@ class Node(object, metaclass=NoSlotsPyPy):
                 s = str(e)
             raise SCons.Errors.UserError("attempted to ignore a non-Node dependency of %s:\n\t%s is a %s, not a Node" % (str(self), s, type(e)))
 
-    def add_source(self, source):
+    def add_source(self, source: list[Node]) -> None:
         """Adds sources."""
         if self._specific_sources:
             return
@@ -1317,7 +1331,7 @@ class Node(object, metaclass=NoSlotsPyPy):
                 s = str(e)
             raise SCons.Errors.UserError("attempted to add a non-Node as source of %s:\n\t%s is a %s, not a Node" % (str(self), s, type(e)))
 
-    def _add_child(self, collection, set, child):
+    def _add_child(self, collection: list[Node], set: set[Node], child: list[Node]) -> None:
         """Adds 'child' to 'collection', first checking 'set' to see if it's
         already present."""
         added = None
@@ -1329,23 +1343,23 @@ class Node(object, metaclass=NoSlotsPyPy):
         if added:
             self._children_reset()
 
-    def set_specific_source(self, source):
+    def set_specific_source(self, source: list[Node]) -> None:
         self.add_source(source)
         self._specific_sources = True
 
-    def add_wkid(self, wkid):
+    def add_wkid(self, wkid: Node) -> None:
         """Add a node to the list of kids waiting to be evaluated"""
         if self.wkids is not None:
             self.wkids.append(wkid)
 
-    def _children_reset(self):
+    def _children_reset(self) -> None:
         self.clear_memoized_values()
         # We need to let the Executor clear out any calculated
         # build info that it's cached so we can re-calculate it.
         self.executor_cleanup()
 
     @SCons.Memoize.CountMethodCall
-    def _children_get(self):
+    def _children_get(self) -> list[Node]:
         try:
             return self._memo['_children_get']
         except KeyError:
@@ -1376,12 +1390,12 @@ class Node(object, metaclass=NoSlotsPyPy):
                 if i not in self.ignore_set:
                     children.append(i)
         else:
-            children = self.all_children(scan=0)
+            children = self.all_children(scan=False)
 
         self._memo['_children_get'] = children
         return children
 
-    def all_children(self, scan=1):
+    def all_children(self, scan: bool = True) -> list[Node]:
         """Return a list of all the node's direct children."""
         if scan:
             self.scan()
@@ -1405,27 +1419,27 @@ class Node(object, metaclass=NoSlotsPyPy):
         # internally anyway...)
         return list(chain.from_iterable([_f for _f in [self.sources, self.depends, self.implicit] if _f]))
 
-    def children(self, scan=1):
+    def children(self, scan: bool = True) -> list[Node]:
         """Return a list of the node's direct children, minus those
         that are ignored by this node."""
         if scan:
             self.scan()
         return self._children_get()
 
-    def set_state(self, state):
+    def set_state(self, state: int) -> None:
         self.state = state
 
-    def get_state(self):
+    def get_state(self) -> int:
         return self.state
 
-    def get_env(self):
+    def get_env(self) -> Environment:
         env = self.env
         if not env:
             import SCons.Defaults
             env = SCons.Defaults.DefaultEnvironment()
         return env
 
-    def Decider(self, function):
+    def Decider(self, function: Callable[[Node, Node, NodeInfoBase, Node | None], bool]) -> None:
         foundkey = None
         for k, v in _decider_map.items():
             if v == function:
@@ -1436,19 +1450,19 @@ class Node(object, metaclass=NoSlotsPyPy):
             _decider_map[foundkey] = function
         self.changed_since_last_build = foundkey
 
-    def Tag(self, key, value):
+    def Tag(self, key: str, value: Any | None) -> None:
         """ Add a user-defined tag. """
         if not self._tags:
             self._tags = {}
         self._tags[key] = value
 
-    def GetTag(self, key):
+    def GetTag(self, key: str) ->  Any | None:
         """ Return a user-defined tag. """
         if not self._tags:
             return None
         return self._tags.get(key, None)
 
-    def changed(self, node=None, allowcache=False):
+    def changed(self, node: Node | None = None, allowcache: bool = False) -> bool:
         """
         Returns if the node is up-to-date with respect to the BuildInfo
         stored last time it was built.  The default behavior is to compare
@@ -1471,8 +1485,8 @@ class Node(object, metaclass=NoSlotsPyPy):
 
         @see: FS.File.changed(), FS.File.release_target_info()
         """
-        t = 0
-        if t: Trace('changed(%s [%s], %s)' % (self, classname(self), node))
+        T = False
+        if T: Trace('changed(%s [%s], %s)' % (self, classname(self), node))
         if node is None:
             node = self
 
@@ -1490,34 +1504,33 @@ class Node(object, metaclass=NoSlotsPyPy):
             # entries to equal the new dependency list, for the benefit
             # of the loop below that updates node information.
             then.extend([None] * diff)
-            if t: Trace(': old %s new %s' % (len(then), len(children)))
+            if T: Trace(': old %s new %s' % (len(then), len(children)))
             result = True
 
         for child, prev_ni in zip(children, then):
             if _decider_map[child.changed_since_last_build](child, self, prev_ni, node):
-                if t: Trace(': %s changed' % child)
+                if T: Trace(f": '{child!s}' changed")
                 result = True
 
         if self.has_builder():
             contents = self.get_executor().get_contents()
             newsig = hash_signature(contents)
             if bi.bactsig != newsig:
-                if t: Trace(': bactsig %s != newsig %s' % (bi.bactsig, newsig))
+                if T: Trace(': bactsig %s != newsig %s' % (bi.bactsig, newsig))
                 result = True
 
         if not result:
-            if t: Trace(': up to date')
-
-        if t: Trace('\n')
+            if T: Trace(': up to date')
+        if T: Trace('\n')
 
         return result
 
-    def is_up_to_date(self):
+    def is_up_to_date(self) -> bool:
         """Default check for whether the Node is current: unknown Node
         subtypes are always out of date, so they will always get built."""
-        return None
+        return False
 
-    def children_are_up_to_date(self):
+    def children_are_up_to_date(self) -> bool:
         """Alternate check for whether the Node is current:  If all of
         our children were up-to-date, then this Node was up-to-date, too.
 
@@ -1526,18 +1539,18 @@ class Node(object, metaclass=NoSlotsPyPy):
         # Allow the children to calculate their signatures.
         self.binfo = self.get_binfo()
         if self.always_build:
-            return None
+            return False
         state = 0
-        for kid in self.children(None):
+        for kid in self.children(False):
             s = kid.get_state()
             if s and (not state or s > state):
                 state = s
         return (state == 0 or state == SCons.Node.up_to_date)
 
-    def is_literal(self):
+    def is_literal(self) -> bool:
         """Always pass the string representation of a Node to
         the command interpreter literally."""
-        return 1
+        return True
 
     def render_include_tree(self):
         """
@@ -1553,13 +1566,13 @@ class Node(object, metaclass=NoSlotsPyPy):
                         path = self.get_build_scanner_path(scanner)
                     else:
                         path = None
-                    def f(node, env=env, scanner=scanner, path=path):
+                    def f(node: Node, env: Environment = env, scanner: ScannerBase = scanner, path=path):
                         return node.get_found_includes(env, scanner, path)
                     return render_tree(s, f, 1)
         else:
             return None
 
-    def get_abspath(self):
+    def get_abspath(self) -> str:
         """
         Return an absolute path to the Node.  This will return simply
         str(Node) by default, but for Node types that have a concept of
@@ -1567,7 +1580,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         """
         return str(self)
 
-    def for_signature(self):
+    def for_signature(self) -> str:
         """
         Return a string representation of the Node that will always
         be the same for this particular Node, no matter what.  This
@@ -1582,7 +1595,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         """
         return str(self)
 
-    def get_string(self, for_signature):
+    def get_string(self, for_signature: bool) -> str:
         """This is a convenience function designed primarily to be
         used in command generators (i.e., CommandGeneratorActions or
         Environment variables that are callable), which are called
@@ -1710,12 +1723,12 @@ class Node(object, metaclass=NoSlotsPyPy):
             return ( ' '*11).join(lines)
 
 class NodeList(collections.UserList):
-    def __str__(self):
+    def __str__(self) -> str:
         return str(list(map(str, self.data)))
 
-def get_children(node, parent): return node.children()
-def ignore_cycle(node, stack): pass
-def do_nothing(node, parent): pass
+def get_children(node: Node, parent: Node | None) -> list[Node]: return node.children()
+def ignore_cycle(node: Node, stack: list[Node]) -> None: pass
+def do_nothing(node: Node, parent: Node | None) -> None: pass
 
 class Walker:
     """An iterator for walking a Node tree.
@@ -1730,15 +1743,19 @@ class Walker:
     This class does not get caught in node cycles caused, for example,
     by C header file include loops.
     """
-    def __init__(self, node, kids_func=get_children,
-                             cycle_func=ignore_cycle,
-                             eval_func=do_nothing):
+    def __init__(
+        self,
+        node: Node,
+        kids_func: Callable[[Node, Node | None], list[Node]] = get_children,
+        cycle_func: Callable[[Node, list[Node]], None] = ignore_cycle,
+        eval_func: Callable[[Node, Node | None], None] = do_nothing,
+    ) -> None:
         self.kids_func = kids_func
         self.cycle_func = cycle_func
         self.eval_func = eval_func
         node.wkids = copy.copy(kids_func(node, None))
         self.stack = [node]
-        self.history = {} # used to efficiently detect and avoid cycles
+        self.history: dict[Node, Any | None] = {} # used to efficiently detect and avoid cycles
         self.history[node] = None
 
     def get_next(self):
@@ -1771,7 +1788,7 @@ class Walker:
                 return node
         return None
 
-    def is_done(self):
+    def is_done(self) -> bool:
         return not self.stack
 
 

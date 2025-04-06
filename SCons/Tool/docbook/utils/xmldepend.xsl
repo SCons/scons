@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-
 <!--
+SPDX-License-Identifier: MIT
+
+Copyright The SCons Foundation
+
 xmldepend.xsl - Find files that an XML document refers to/depends on.
 
 This stylesheet can be used to build Makefile dependency lists.
@@ -126,7 +129,7 @@ TODO:
       </xsl:apply-templates>
     </xsl:for-each>
   </xsl:if>
-</xsl:template> 
+</xsl:template>
 
 <!--
   Several elements have a fileref attribute.  Spit out the file named
@@ -142,7 +145,7 @@ TODO:
   </xsl:if>
   <xsl:value-of select="@fileref"/>
   <xsl:value-of select="$xmldepend.terminator"/>
-</xsl:template> 
+</xsl:template>
 
 <!-- Identity transform, but keep track of current document directory -->
 

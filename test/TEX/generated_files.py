@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 r"""
 Test creation of a Tex document with generated tex files
@@ -87,7 +86,7 @@ test.write(['src','literatura.bib'],r"""
     month = {March},
     publisher = {Morgan Kaufmann},
     title = {The Art of Multiprocessor Programming},
-    url = {http://www.worldcat.org/isbn/0123705916},
+    url = {https://www.worldcat.org/isbn/0123705916},
     year = {2008}
 }
 
@@ -106,7 +105,7 @@ test.write(['src','literatura.bib'],r"""
     keywords = {books, model\_checking},
     publisher = {The MIT Press},
     title = {Principles of Model Checking},
-    url = {http://www.worldcat.org/isbn/026202649X},
+    url = {https://www.worldcat.org/isbn/026202649X},
     year = {2008}
 }
 

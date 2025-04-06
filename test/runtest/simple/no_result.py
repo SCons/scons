@@ -27,35 +27,40 @@
 Test how we handle a no-results test specified on the command line.
 """
 
+import os
+
 import TestRuntest
 
 pythonstring = TestRuntest.pythonstring
 pythonflags = TestRuntest.pythonflags
+test_no_result_py = os.path.join('test', 'no_result.py')
 
 test = TestRuntest.TestRuntest()
-
 test.subdir('test')
-
 test.write_no_result_test(['test', 'no_result.py'])
 
-expect_stdout = """\
-%(pythonstring)s%(pythonflags)s test/no_result.py
+expect_stdout = f"""\
+{pythonstring}{pythonflags} {test_no_result_py}
 NO RESULT TEST STDOUT
-""" % locals()
+"""
 
 expect_stderr = """\
 NO RESULT TEST STDERR
 """
 
-test.run(arguments='--no-ignore-skips -k test/no_result.py',
-         status=2,
-         stdout=expect_stdout,
-         stderr=expect_stderr)
+test.run(
+    arguments='--no-ignore-skips -k test/no_result.py',
+    status=2,
+    stdout=expect_stdout,
+    stderr=expect_stderr,
+)
 
-test.run(arguments='-k test/no_result.py',
-         status=0,
-         stdout=expect_stdout,
-         stderr=expect_stderr)
+test.run(
+    arguments='-k test/no_result.py',
+    status=0,
+    stdout=expect_stdout,
+    stderr=expect_stderr,
+)
 
 
 test.pass_test()

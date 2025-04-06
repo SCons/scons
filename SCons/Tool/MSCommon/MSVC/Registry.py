@@ -46,7 +46,7 @@ Dispatcher.register_modulename(__name__)
 # A null-terminated string that contains unexpanded references to environment variables.
 REG_EXPAND_SZ = 2
 
-def read_value(hkey, subkey_valname, expand=True):
+def read_value(hkey, subkey_valname, expand: bool=True):
     try:
         rval_t = RegGetValue(hkey, subkey_valname)
     except OSError:
@@ -58,11 +58,11 @@ def read_value(hkey, subkey_valname, expand=True):
     debug('hkey=%s, subkey=%s, rval=%s', repr(hkey), repr(subkey_valname), repr(rval))
     return rval
 
-def registry_query_path(key, val, suffix, expand=True):
+def registry_query_path(key, val, suffix, expand: bool=True):
     extval = val + '\\' + suffix if suffix else val
     qpath = read_value(key, extval, expand=expand)
     if qpath and os.path.exists(qpath):
-        qpath = Util.process_path(qpath)
+        qpath = Util.normalize_path(qpath)
     else:
         qpath = None
     return (qpath, key, val, extval)
@@ -74,20 +74,20 @@ REG_SOFTWARE_MICROSOFT = [
     (HKEY_CURRENT_USER,  r'Software\Microsoft'),
 ]
 
-def microsoft_query_paths(suffix, usrval=None, expand=True):
+def microsoft_query_paths(suffix, usrval=None, expand: bool=True):
     paths = []
     records = []
     for key, val in REG_SOFTWARE_MICROSOFT:
         extval = val + '\\' + suffix if suffix else val
         qpath = read_value(key, extval, expand=expand)
         if qpath and os.path.exists(qpath):
-            qpath = Util.process_path(qpath)
+            qpath = Util.normalize_path(qpath)
             if qpath not in paths:
                 paths.append(qpath)
                 records.append((qpath, key, val, extval, usrval))
     return records
 
-def microsoft_query_keys(suffix, usrval=None, expand=True):
+def microsoft_query_keys(suffix, usrval=None, expand: bool=True):
     records = []
     for key, val in REG_SOFTWARE_MICROSOFT:
         extval = val + '\\' + suffix if suffix else val
@@ -109,6 +109,9 @@ def windows_kits(version):
 def windows_kit_query_paths(version):
     q = windows_kits(version)
     return microsoft_query_paths(q)
+
+def vstudio_sxs_vs7(version):
+    return '\\'.join([r'VisualStudio\SxS\VS7', version])
 
 def vstudio_sxs_vc7(version):
     return '\\'.join([r'VisualStudio\SxS\VC7', version])

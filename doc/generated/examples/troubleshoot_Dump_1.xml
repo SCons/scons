@@ -36,6 +36,7 @@ scons: Reading SConscript files ...
   'IDLSUFFIXES': ['.idl', '.IDL'],
   'INSTALL': &lt;function copyFunc at 0x700000&gt;,
   'INSTALLVERSIONEDLIB': &lt;function copyFuncVersionedLib at 0x700000&gt;,
+  'LIBLITERALPREFIX': '',
   'LIBPREFIX': 'lib',
   'LIBPREFIXES': ['$LIBPREFIX'],
   'LIBSUFFIX': '.a',
@@ -61,7 +62,7 @@ scons: Reading SConscript files ...
   'TEMPFILEARGESCFUNC': &lt;function quote_spaces at 0x700000&gt;,
   'TEMPFILEARGJOIN': ' ',
   'TEMPFILEPREFIX': '@',
-  'TOOLS': ['install', 'install'],
+  'TOOLS': ['install'],
   '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__, '
                   'TARGET, SOURCE)}',
   '_CPPINCFLAGS': '${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, '

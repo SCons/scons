@@ -1,4 +1,13 @@
 <?xml version='1.0'?>
+
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
+-->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
@@ -19,31 +28,6 @@
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>Declaring Additional Outputs: the &f-SideEffect; Function </title>
 
-<!--
-
-  __COPYRIGHT__
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--->
-
  <para>
 
  Sometimes the way an action is defined causes effects on files
@@ -63,7 +47,7 @@
  will also put data into <filename>log</filename>, which is used
  as a source for the command to generate <filename>file2</filename>,
  but <filename>log</filename> is unknown to &SCons; on a clean
- build: it neither exists, nor is it a target output by any builder.
+ build: it neither exists nor is it a target output by any builder.
  The <filename>SConscript</filename> uses
  &SideEffect; to inform &SCons; about the additional output file.
 
@@ -130,14 +114,14 @@ f1 = env.Command(
 
  In general, &SideEffect; is not intended for the case when
  a command produces extra target files (that is, files which
- will be used as sources to other build steps). For example, the
- the Microsoft Visual C/C++ compiler is capable of performing
+ will be used as sources to other build steps). For example,
+ the &MSVC; compiler is capable of performing
  incremental linking, for which it uses a status file - such that
  linking <filename>foo.exe</filename> also produces
  a <filename>foo.ilk</filename>, or uses it if it was already present,
  if the <option>/INCREMENTAL</option> option was supplied.
  Specifying <filename>foo.ilk</filename> as a
- side-effect of <filename>foo.exe</filename>
+ side effect of <filename>foo.exe</filename>
  is <emphasis>not</emphasis> a recommended use of &SideEffect;
  since <filename>foo.ilk</filename> is used by the link.
  &SCons; handles side-effect files
@@ -155,9 +139,9 @@ f1 = env.Command(
  <para>
 
  Unfortunately, the tool which sets up the &b-Program; builder
- for the MSVC compiler chain does not come prebuilt
+ for the &MSVC; compiler chain does not come prebuilt
  with an understanding of the details of the <filename>.ilk</filename>
- example - that the target list would need to change 
+ example - that the target list would need to change
  in the presence of that specific option flag. Unlike the trivial
  example above where we could simply tell the &Command; builder
  there were two targets of the action, modifying the
@@ -261,7 +245,7 @@ cat
 
  <para>
 
- This makes sure the the two
+ This makes sure the two
  <application>./build</application> steps are run sequentially,
  even with the <filename>--jobs=2</filename> in the command line:
 

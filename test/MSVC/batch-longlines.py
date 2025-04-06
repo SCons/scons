@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify operation of Visual C/C++ batch builds with long lines.
@@ -33,7 +32,6 @@ Only runs on Windows.
 import TestSCons
 
 test = TestSCons.TestSCons()
-
 test.skip_if_not_msvc()
 
 _python_ = TestSCons._python_
@@ -43,13 +41,13 @@ for i in range(1,200):
                '/* source file %d */\nint var%d;\n'%(i,i))
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(tools=['msvc', 'mslink'],
                   MSVC_BATCH=ARGUMENTS.get('MSVC_BATCH'))
 env.SharedLibrary('mylib', Glob('source*.cxx'))
-""" % locals())
+""")
 
-test.run(arguments = 'MSVC_BATCH=1 .')
-
+test.run(arguments='MSVC_BATCH=1 .')
 test.must_exist('mylib.dll')
 
 test.pass_test()

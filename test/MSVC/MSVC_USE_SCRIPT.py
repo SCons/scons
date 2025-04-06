@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -30,15 +32,14 @@ import TestSCons
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
-
 test.skip_if_not_msvc()
 
 test.write('SConstruct', """
+_ = DefaultEnvironment(tools=[])
 env = Environment(tools=['msvc'], MSVC_USE_SCRIPT='nosuchscriptexists')
-""" % locals())
+""")
 
 test.run(arguments = ".", status=2, stderr=None)
-
 test.must_contain_all(test.stderr(), "Script specified by MSVC_USE_SCRIPT not found")
 
 test.pass_test()

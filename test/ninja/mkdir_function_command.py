@@ -37,12 +37,7 @@ except ImportError:
 _python_ = TestSCons._python_
 _exe = TestSCons._exe
 
-ninja_bin = os.path.abspath(os.path.join(
-    ninja.__file__,
-    os.pardir,
-    'data',
-    'bin',
-    'ninja' + _exe))
+ninja_bin = TestSCons.NINJA_BINARY
 
 test.write('SConstruct', """
 SetOption('experimental','ninja')

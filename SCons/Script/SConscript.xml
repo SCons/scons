@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-Copyright The SCons Foundation
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -136,6 +137,19 @@ EnsureSConsVersion(0,96,90)
 </summary>
 </scons_function>
 
+<scons_function name="GetSConsVersion">
+<arguments signature="global">
+()
+</arguments>
+<summary>
+<para>
+Returns the current SCons version in the form of a Tuple[int, int, int],
+representing the major, minor, and revision values respectively.
+<emphasis>Added in 4.8.0</emphasis>.
+</para>
+</summary>
+</scons_function>
+
 <scons_function name="Exit">
 <arguments signature="global">
 ([value])
@@ -161,23 +175,43 @@ is used if no value is specified.
 </arguments>
 <summary>
 <para>
-Exports variables from the current
-SConscript file to a global collection where they can be
-imported by other SConscript files.
+Exports variables for sharing with other SConscript files.
+The variables are added to a global collection where
+they can be imported by other SConscript files.
 <parameter>vars</parameter> may be one or more
-strings representing variable names to be exported.
-If a string contains whitespace, it is split into
-separate strings, as if multiple string arguments
-had been given.  A <parameter>vars</parameter> argument
-may also be a dictionary, which can be used to map variables
-to different names when exported.
-Keyword arguments can be used to provide names and their values.
+strings, or a list of strings. If any string
+contains whitespace, it is split automatically
+into individual strings. Each string must
+match the name of a variable that is in scope
+during evaluation of the current SConscript file,
+or an exception is raised.
+</para>
+
+<para>
+A <parameter>vars</parameter> argument
+may also be a dictionary or
+individual keyword arguments;
+in accordance with &Python; syntax rules,
+keyword arguments must come after any
+non-keyword arguments.
+The dictionary/keyword form can be used
+to map the local name of a variable to
+a different name to be used for imports.
+See the Examples for an illustration of the syntax.
 </para>
 
 <para>
 &f-Export; calls are cumulative. Specifying a previously
-exported variable will overwrite the earlier value.
+exported variable will replace the previous value in the collection.
 Both local variables and global variables can be exported.
+</para>
+
+<para>
+To use an exported variable, an SConscript must
+call &f-link-Import; to bring it into its own scope.
+Importing creates an additional reference to the object that
+was originally exported, so if that object is mutable,
+changes made will be visible to other users of that object.
 </para>
 
 <para>
@@ -206,10 +240,10 @@ Export({"debug": env})
 <para>
 Note that the
 &f-link-SConscript;
-function supports an &exports;
-argument that allows exporting a variable or
-set of variables to a specific SConscript file or files.
-See the description below.
+function also supports an &exports;
+argument that allows exporting one or more variables
+to the SConscript files invoked by that call (only).
+See the description of that function for details.
 </para>
 </summary>
 </scons_function>
@@ -238,29 +272,42 @@ file is found.
 
 <scons_function name="Help">
 <arguments>
-(text, append=False)
+(text, append=False, local_only=False)
 </arguments>
 <summary>
 <para>
-Specifies a local help message to be printed if the
-<option>-h</option>
-argument is given to
-&scons;.
-Subsequent calls to
-&f-Help;
-append <parameter>text</parameter> to the previously
-defined local help text.
+Adds <parameter>text</parameter> to the help message shown when
+&scons; is called with the
+<option>-h</option> or <option>--help</option>
+argument.
 </para>
 <para>
-For the first call to &f-Help; only,
+On the first call to &f-Help;,
 if <parameter>append</parameter> is <constant>False</constant>
-(the default)
-any local help message generated through
-&f-link-AddOption; calls is replaced.
+(the default), any existing help text is discarded.
+The default help text is the help for the &scons;
+command itself plus help collected from any
+project-local &f-link-AddOption; calls.
+This is the help printed if &f-Help; has never been called.
 If <parameter>append</parameter> is <constant>True</constant>,
 <parameter>text</parameter> is appended to
 the existing help text.
+If <parameter>local_only</parameter> is also <constant>True</constant>
+(the default is <constant>False</constant>),
+the project-local help from &f-AddOption; calls is preserved
+in the help message but the &scons; command help is not.
 </para>
+<para>
+Subsequent calls to
+&f-Help; ignore the keyword arguments
+<parameter>append</parameter> and
+<parameter>local_only</parameter>
+and always append to the existing help text.
+</para>
+<para>
+<emphasis>Changed in 4.6.0</emphasis>: added <parameter>local_only</parameter>.
+</para>
+
 </summary>
 </scons_function>
 
@@ -270,21 +317,29 @@ the existing help text.
 </arguments>
 <summary>
 <para>
-Imports variables into the current SConscript file.
+Imports variables into the scope of the current SConscript file.
 <parameter>vars</parameter>
 must be strings representing names of variables
 which have been previously exported either by the
 &f-link-Export; function or by the
-&exports; argument to
-&f-link-SConscript;.
-Variables exported by
-&f-SConscript;
+&exports; argument to the
+&f-link-SConscript; function.
+Variables exported by the
+&f-SConscript; call
 take precedence.
 Multiple variable names can be passed to
 &f-Import;
-as separate arguments or as words in a space-separated string.
+as separate arguments, as a list of strings,
+or as words in a space-separated string.
 The wildcard <literal>"*"</literal> can be used to import all
 available variables.
+</para>
+
+<para>
+If the imported variable is mutable,
+changes made locally will be reflected in the object the
+variable is bound to. This allows subsidiary SConscript files
+to contribute to building up, for example, a &consenv;.
 </para>
 
 <para>
@@ -309,7 +364,7 @@ Import("*")
 Return to the calling SConscript, optionally
 returning the values of variables named in
 <varname>vars</varname>.
-Multiple strings contaning variable names may be passed to
+Multiple strings containing variable names may be passed to
 &f-Return;. A string containing white space
 is split into individual variable names.
 Returns the value if one variable is specified,
@@ -359,8 +414,8 @@ Return('val1 val2')
 
 <scons_function name="SConscript">
 <arguments>
-(scripts, [exports, variant_dir, duplicate, must_exist])
-<!-- (scripts, [exports, variant_dir, src_dir, duplicate, must_exist]) -->
+(scriptnames, [exports, variant_dir, duplicate, must_exist])
+<!-- (scriptnames, [exports, variant_dir, src_dir, duplicate, must_exist]) -->
 </arguments>
 <arguments>
 (dirs=subdirs, [name=scriptname, exports, variant_dir, duplicate, must_exist])
@@ -368,7 +423,7 @@ Return('val1 val2')
 </arguments>
 <summary>
 <para>
-Executes one or more subsidiary SConscript (configuration) files.
+Executes subsidiary SConscript (build configuration) file(s).
 There are two ways to call the
 &f-SConscript; function.
 </para>
@@ -376,30 +431,31 @@ There are two ways to call the
 <para>
 The first calling style is to supply
 one or more SConscript file names
-as the first (positional) argument.
-A single script may be specified as a string;
-multiple scripts must be specified as a list of strings
-(either explicitly or as created by
-a function like
-&f-link-Split;).
+as the first positional argument,
+which can be a string or a list of strings.
+If there is a second positional argument,
+it is treated as if the
+<varname>exports</varname>
+keyword argument had been given (see below).
 Examples:
 </para>
 <example_commands>
 SConscript('SConscript')  # run SConscript in the current directory
 SConscript('src/SConscript')  # run SConscript in the src directory
 SConscript(['src/SConscript', 'doc/SConscript'])
+SConscript(Split('src/SConscript doc/SConscript'))
 config = SConscript('MyConfig.py')
 </example_commands>
 
 <para>
-The other calling style is to omit the positional argument naming
-scripts and instead specify a list of directory names using the
+The second calling style is to omit the positional argument naming
+the script and instead specify directory names using the
 <varname>dirs</varname> keyword argument.
+The value can be a string or list of strings.
 In this case,
 &scons;
-will
-execute a subsidiary configuration file named
-&SConscript;
+will execute a subsidiary configuration file named
+&SConscript; (by default)
 in each of the specified directories.
 You may specify a name other than
 &SConscript;
@@ -419,22 +475,29 @@ SConscript(dirs=['sub1', 'sub2'], name='MySConscript')
 <para>
 The optional
 <varname>exports</varname>
-keyword argument provides a string or list of strings representing
-variable names, or a dictionary of named values, to export.
-For the first calling style only, a second positional argument
-will be interpreted as <varname>exports</varname>; the
-second calling style must use the keyword argument form
-for <varname>exports</varname>.
+keyword argument specifies variables to make available
+for use by the called SConscripts,
+which are evaluated in an isolated context
+and otherwise do not have access to local variables
+from the calling SConscript.
+The value may be a string or list of strings representing
+variable names, or a dictionary mapping local names to
+the names they can be imported by.
+For the first (scriptnames) calling style,
+a second positional argument will also be interpreted as
+<varname>exports</varname>;
+the second (directory) calling style accepts no
+positional arguments and must use the keyword form.
 These variables are locally exported only to the called
-SConscript file(s)
-and do not affect the global pool of variables managed by the
+SConscript file(s), and take precedence over any same-named
+variables in the global pool managed by the
 &f-link-Export;
 function.
 <!-- If multiple dirs are provided, each script gets a fresh export. -->
 The subsidiary SConscript files
 must use the
 &f-link-Import;
-function to import the variables.
+function to import the variables into their local scope.
 Examples:
 </para>
 <example_commands>
@@ -538,15 +601,18 @@ TODO??? SConscript('build/SConscript', src_dir='src')
 <para>
 If the optional
 <varname>must_exist</varname>
-is <constant>True</constant>,
-causes an exception to be raised if a requested
-SConscript file is not found. The current default is
-<constant>False</constant>,
-causing only a warning to be emitted, but this default is deprecated
-(<emphasis>since 3.1</emphasis>).
-For scripts which truly intend to be optional, transition to
-explicitly supplying
-<literal>must_exist=False</literal> to the &f-SConscript; call.
+is <constant>True</constant> (the default),
+an exception is raised if a requested
+SConscript file is not found.
+To allow missing scripts to be silently ignored
+(the default behavior prior to &SCons; version 3.1),
+pass
+<literal>must_exist=False</literal> in the &f-SConscript; call.
+</para>
+
+<para>
+<emphasis>Changed in 4.6.0</emphasis>: <parameter>must_exist</parameter>
+now defaults to <constant>True</constant>.
 </para>
 
 <para>

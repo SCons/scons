@@ -1,4 +1,13 @@
 <?xml version='1.0'?>
+
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
+-->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
@@ -19,13 +28,7 @@
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>Java Builds</title>
 
-<!--
-SPDX-License-Identifier: MIT
-
-Copyright The SCons Foundation
--->
-
-  <para>
+<para>
 
   So far, we've been using examples of
   building C and C++ programs
@@ -594,11 +597,11 @@ public class Example3
 
     <para>
 
-    Note that the the <command>javah</command> command was
+    Note that the <command>javah</command> command was
     removed from the JDK as of JDK 10, and the approved method
     (available since JDK 8) is to use <command>javac</command>
     to generate native headers at the same time as the Java source
-    code is compiled..  As such the &b-link-JavaH; builder
+    code is compiled.  As such the &b-link-JavaH; builder
     is of limited utility in later Java versions.
 
     </para>

@@ -34,7 +34,8 @@ test = TestSCons.TestSCons()
 # foo1a = test.workpath('foo1a.txt')
 # foo2a = test.workpath('foo2a.txt')
 
-match_mode = 'r'
+# Must be read binary as now we're including unicode characters in our textparts
+match_mode = 'rb'
 
 test.file_fixture('fixture/SConstruct', 'SConstruct')
 
@@ -44,7 +45,8 @@ linesep = '\n'
 
 textparts = ['lalala', '42',
              'Goethe', 'Schiller',
-             'tanteratei']
+             'tanteratei',
+             '×']  # <-- this is unicode /xd7 symbol   
 foo1Text = linesep.join(textparts)
 foo2Text = '|*'.join(textparts)
 foo1aText = foo1Text + linesep

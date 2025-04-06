@@ -1,6 +1,15 @@
 SCons.Script package
 ====================
 
+Module contents
+---------------
+
+.. automodule:: SCons.Script
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Submodules
 ----------
 
@@ -32,15 +41,6 @@ SCons.Script.SConscript module
 ------------------------------
 
 .. automodule:: SCons.Script.SConscript
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: SCons.Script
     :members:
     :undoc-members:
     :show-inheritance:

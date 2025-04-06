@@ -1,3 +1,22 @@
+# Copyright 2000-2024 Steven Knight
+#
+# This module is free software, and you may redistribute it and/or modify
+# it under the same terms as Python itself, so long as this copyright message
+# and disclaimer are retained in their original form.
+#
+# IN NO EVENT SHALL THE AUTHOR BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT,
+# SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF
+# THIS CODE, EVEN IF THE AUTHOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+# DAMAGE.
+#
+# THE AUTHOR SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+# PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
+# AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
+# SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+#
+# Python License: https://docs.python.org/3/license.html#psf-license
+
 """
 A testing framework for commands and scripts.
 
@@ -24,7 +43,7 @@ There are a bunch of keyword arguments available at instantiation:
         interpreter='script_interpreter',
         workdir='prefix',
         subdir='subdir',
-        verbose=Boolean,
+        verbose=int,  # verbosity level
         match=default_match_function,
         match_stdout=default_match_stdout_function,
         match_stderr=default_match_stderr_function,
@@ -276,21 +295,7 @@ version.
     TestCmd.where_is('foo', 'PATH1;PATH2', '.suffix3;.suffix4')
 """
 
-# Copyright 2000-2010 Steven Knight
-# This module is free software, and you may redistribute it and/or modify
-# it under the same terms as Python itself, so long as this copyright message
-# and disclaimer are retained in their original form.
-#
-# IN NO EVENT SHALL THE AUTHOR BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT,
-# SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF
-# THIS CODE, EVEN IF THE AUTHOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
-# DAMAGE.
-#
-# THE AUTHOR SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-# PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
-# AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
-# SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+from __future__ import annotations
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmd.py 1.3.D001 2010/06/03 12:58:27 knight"
@@ -302,6 +307,7 @@ import errno
 import hashlib
 import os
 import re
+
 try:
     import psutil
 except ImportError:
@@ -314,19 +320,23 @@ import stat
 import subprocess
 import sys
 import tempfile
-import threading
 import time
 import traceback
 from collections import UserList, UserString
 from pathlib import Path
 from subprocess import PIPE, STDOUT
-from typing import Optional
+from typing import Callable
 
 IS_WINDOWS = sys.platform == 'win32'
 IS_MACOS = sys.platform == 'darwin'
 IS_64_BIT = sys.maxsize > 2**32
 IS_PYPY = hasattr(sys, 'pypy_translation_info')
+try:
+    IS_ROOT = os.geteuid() == 0
+except AttributeError:
+    IS_ROOT = False
 NEED_HELPER = os.environ.get('SCONS_NO_DIRECT_SCRIPT')
+
 
 # sentinel for cases where None won't do
 _Null = object()
@@ -366,6 +376,7 @@ def to_str(s):
 
 def is_String(e):
     return isinstance(e, (str, UserString))
+
 
 testprefix = 'testcmd.'
 if os.name in ('posix', 'nt'):
@@ -427,7 +438,13 @@ def clean_up_ninja_daemon(self, result_type) -> None:
                 shutil.rmtree(daemon_dir)
 
 
-def fail_test(self=None, condition=True, function=None, skip=0, message=None):
+def fail_test(
+    self=None,
+    condition: bool = True,
+    function: Callable | None = None,
+    skip: int = 0,
+    message: str = "",
+) -> None:
     """Causes a test to exit with a fail.
 
     Reports that the test FAILED and exits with a status of 1, unless
@@ -468,7 +485,7 @@ def fail_test(self=None, condition=True, function=None, skip=0, message=None):
     sys.exit(1)
 
 
-def no_result(self=None, condition=True, function=None, skip=0):
+def no_result(self=None, condition: bool = True, function=None, skip: int = 0) -> None:
     """Causes a test to exit with a no result.
 
     In testing parlance NO RESULT means the test could not be completed
@@ -510,7 +527,7 @@ def no_result(self=None, condition=True, function=None, skip=0):
     sys.exit(2)
 
 
-def pass_test(self=None, condition=True, function=None):
+def pass_test(self=None, condition: bool = True, function=None) -> None:
     """Causes a test to exit with a pass.
 
     Reports that the test PASSED and exits with a status of 0, unless
@@ -605,7 +622,7 @@ def match_re(lines=None, res=None):
         print(f"match_re: expected {len(res)} lines, found {len(lines)}")
         return None
     for i, (line, regex) in enumerate(zip(lines, res)):
-        s = r"^{}$".format(regex)
+        s = rf"^{regex}$"
         try:
             expr = re.compile(s)
         except re.error as e:
@@ -635,7 +652,7 @@ def match_re_dotall(lines=None, res=None):
         lines = "\n".join(lines)
     if not isinstance(res, str):
         res = "\n".join(res)
-    s = r"^{}$".format(res)
+    s = rf"^{res}$"
     try:
         expr = re.compile(s, re.DOTALL)
     except re.error as e:
@@ -644,8 +661,16 @@ def match_re_dotall(lines=None, res=None):
     return expr.match(lines)
 
 
-def simple_diff(a, b, fromfile='', tofile='',
-                fromfiledate='', tofiledate='', n=0, lineterm=''):
+def simple_diff(
+    a,
+    b,
+    fromfile: str = '',
+    tofile: str = '',
+    fromfiledate: str = '',
+    tofiledate: str = '',
+    n: int = 0,
+    lineterm: str = '',
+):
     r"""Compare two sequences of lines; generate the delta as a simple diff.
 
     Similar to difflib.context_diff and difflib.unified_diff but
@@ -694,8 +719,16 @@ def simple_diff(a, b, fromfile='', tofile='',
                 yield f"> {l}"
 
 
-def diff_re(a, b, fromfile='', tofile='',
-            fromfiledate='', tofiledate='', n=3, lineterm='\n'):
+def diff_re(
+    a,
+    b,
+    fromfile: str = '',
+    tofile: str = '',
+    fromfiledate: str = '',
+    tofiledate: str = '',
+    n: int = 3,
+    lineterm: str = '\n',
+):
     """Compare a and b (lists of strings) where a are regular expressions.
 
     A simple "diff" of two sets of lines when the expected lines
@@ -714,7 +747,7 @@ def diff_re(a, b, fromfile='', tofile='',
     elif diff > 0:
         b = b + [''] * diff
     for i, (aline, bline) in enumerate(zip(a, b)):
-        s = r"^{}$".format(aline)
+        s = rf"^{aline}$"
         try:
             expr = re.compile(s)
         except re.error as e:
@@ -722,13 +755,14 @@ def diff_re(a, b, fromfile='', tofile='',
             raise re.error(msg % (repr(s), e.args[0]))
         if not expr.search(bline):
             result.append(f"{i + 1}c{i + 1}")
-            result.append(f"< {repr(a[i])}")
+            result.append(f"< {a[i]!r}")
             result.append('---')
-            result.append(f"> {repr(b[i])}")
+            result.append(f"> {b[i]!r}")
     return result
 
 
 if os.name == 'posix':
+
     def escape(arg):
         """escape shell special characters"""
         slash = '\\'
@@ -748,6 +782,7 @@ else:
             arg = f"\"{arg}\""
         return arg
 
+
 if os.name == 'java':
     python = os.path.join(sys.prefix, 'jython')
 else:
@@ -755,7 +790,6 @@ else:
 _python_ = escape(python)
 
 if sys.platform == 'win32':
-
     default_sleep_seconds = 2
 
     def where_is(file, path=None, pathext=None):
@@ -768,7 +802,7 @@ if sys.platform == 'win32':
         if is_String(pathext):
             pathext = pathext.split(os.pathsep)
         for ext in pathext:
-            if ext.casefold() == file[-len(ext):].casefold():
+            if ext.casefold() == file[-len(ext) :].casefold():
                 pathext = ['']
                 break
         for dir in path:
@@ -793,7 +827,7 @@ else:
                     st = os.stat(f)
                 except OSError:
                     continue
-                if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
+                if stat.S_IMODE(st.st_mode) & stat.S_IXUSR:
                     return f
         return None
 
@@ -802,7 +836,7 @@ else:
 
 # From Josiah Carlson,
 # ASPN : Python Cookbook : Module to allow Asynchronous subprocess use on Windows and Posix platforms
-# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/440554
+# https://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/440554
 
 if sys.platform == 'win32':  # and subprocess.mswindows:
     try:
@@ -819,7 +853,8 @@ if sys.platform == 'win32':  # and subprocess.mswindows:
             lpBuffer = ctypes.create_string_buffer(bufSize)
             bytesRead = DWORD()
             bErr = ctypes.windll.kernel32.ReadFile(
-                hFile, lpBuffer, bufSize, ctypes.byref(bytesRead), ol)
+                hFile, lpBuffer, bufSize, ctypes.byref(bytesRead), ol
+            )
             if not bErr:
                 raise ctypes.WinError()
             return (0, ctypes.string_at(lpBuffer, bytesRead.value))
@@ -828,7 +863,8 @@ if sys.platform == 'win32':  # and subprocess.mswindows:
             assert ol is None
             bytesWritten = DWORD()
             bErr = ctypes.windll.kernel32.WriteFile(
-                hFile, data, len(data), ctypes.byref(bytesWritten), ol)
+                hFile, data, len(data), ctypes.byref(bytesWritten), ol
+            )
             if not bErr:
                 raise ctypes.WinError()
             return (0, bytesWritten.value)
@@ -837,10 +873,12 @@ if sys.platform == 'win32':  # and subprocess.mswindows:
             assert size == 0
             bytesAvail = DWORD()
             bErr = ctypes.windll.kernel32.PeekNamedPipe(
-                hPipe, None, size, None, ctypes.byref(bytesAvail), None)
+                hPipe, None, size, None, ctypes.byref(bytesAvail), None
+            )
             if not bErr:
                 raise ctypes.WinError()
             return ("", bytesAvail.value, None)
+
     import msvcrt
 else:
     import select
@@ -864,7 +902,7 @@ class Popen(subprocess.Popen):
     def recv_err(self, maxsize=None):
         return self._recv('stderr', maxsize)
 
-    def send_recv(self, input='', maxsize=None):
+    def send_recv(self, input: str = '', maxsize=None):
         return self.send(input), self.recv(maxsize), self.recv_err(maxsize)
 
     def get_conn_maxsize(self, which, maxsize):
@@ -874,11 +912,12 @@ class Popen(subprocess.Popen):
             maxsize = 1
         return getattr(self, which), maxsize
 
-    def _close(self, which):
+    def _close(self, which) -> None:
         getattr(self, which).close()
         setattr(self, which, None)
 
     if sys.platform == 'win32':  # and subprocess.mswindows:
+
         def send(self, input):
             input = to_bytes(input)
             if not self.stdin:
@@ -920,6 +959,7 @@ class Popen(subprocess.Popen):
             return read
 
     else:
+
         def send(self, input):
             if not self.stdin:
                 return None
@@ -928,8 +968,7 @@ class Popen(subprocess.Popen):
                 return 0
 
             try:
-                written = os.write(self.stdin.fileno(),
-                                   bytearray(input, 'utf-8'))
+                written = os.write(self.stdin.fileno(), bytearray(input, 'utf-8'))
             except OSError as why:
                 if why.args[0] == errno.EPIPE:  # broken pipe
                     return self._close('stdin')
@@ -969,7 +1008,7 @@ class Popen(subprocess.Popen):
 disconnect_message = "Other end disconnected!"
 
 
-def recv_some(p, t=.1, e=1, tr=5, stderr=0):
+def recv_some(p, t: float = 0.1, e: int = 1, tr: int = 5, stderr: int = 0):
     if tr < 1:
         tr = 1
     x = time.time() + t
@@ -1004,7 +1043,7 @@ _Cleanup = []
 
 
 @atexit.register
-def _clean():
+def _clean() -> None:
     global _Cleanup
     cleanlist = [c for c in _Cleanup if c]
     del _Cleanup[:]
@@ -1023,23 +1062,23 @@ class TestCmd:
         interpreter=None,
         workdir=None,
         subdir=None,
-        verbose=None,
+        verbose: int = -1,
         match=None,
         match_stdout=None,
         match_stderr=None,
         diff=None,
         diff_stdout=None,
         diff_stderr=None,
-        combine=0,
-        universal_newlines=True,
-        timeout=None,
-    ):
+        combine: bool = False,
+        universal_newlines: bool | None = True,
+        timeout: float | None = None,
+    ) -> None:
         self.external = os.environ.get('SCONS_EXTERNAL_TEST', 0)
         self._cwd = os.getcwd()
         self.description_set(description)
         self.program_set(program)
         self.interpreter_set(interpreter)
-        if verbose is None:
+        if verbose == -1:
             try:
                 verbose = max(0, int(os.environ.get('TESTCMD_VERBOSE', 0)))
             except ValueError:
@@ -1047,7 +1086,7 @@ class TestCmd:
         self.verbose_set(verbose)
         self.combine = combine
         self.universal_newlines = universal_newlines
-        self.process = None
+        self.process: Popen | None = None
         # Two layers of timeout: one at the test class instance level,
         # one set on an individual start() call (usually via a run() call)
         self.timeout = timeout
@@ -1055,29 +1094,25 @@ class TestCmd:
         self.set_match_function(match, match_stdout, match_stderr)
         self.set_diff_function(diff, diff_stdout, diff_stderr)
         self._dirlist = []
-        self._preserve = {'pass_test': 0, 'fail_test': 0, 'no_result': 0}
+        self._preserve: dict[str, str | bool] = {
+            'pass_test': False,
+            'fail_test': False,
+            'no_result': False,
+        }
         preserve_value = os.environ.get('PRESERVE', False)
         if preserve_value not in [0, '0', 'False']:
             self._preserve['pass_test'] = os.environ['PRESERVE']
             self._preserve['fail_test'] = os.environ['PRESERVE']
             self._preserve['no_result'] = os.environ['PRESERVE']
         else:
-            try:
-                self._preserve['pass_test'] = os.environ['PRESERVE_PASS']
-            except KeyError:
-                pass
-            try:
-                self._preserve['fail_test'] = os.environ['PRESERVE_FAIL']
-            except KeyError:
-                pass
-            try:
-                self._preserve['no_result'] = os.environ['PRESERVE_NO_RESULT']
-            except KeyError:
-                pass
+            self._preserve['pass_test'] = os.environ.get('PRESERVE_PASS', False)
+            self._preserve['fail_test'] = os.environ.get('PRESERVE_FAIL', False)
+            self._preserve['no_result'] = os.environ.get('PRESERVE_NO_RESULT', False)
         self._stdout = []
         self._stderr = []
-        self.status = None
+        self.status: int | None = None
         self.condition = 'no_result'
+        self.workdir: str | None
         self.workdir_set(workdir)
         self.subdir(subdir)
 
@@ -1086,17 +1121,16 @@ class TestCmd:
         except KeyError:
             self.fixture_dirs = []
 
-
-    def __del__(self):
+    def __del__(self) -> None:
         self.cleanup()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{id(self):x}"
 
     banner_char = '='
     banner_width = 80
 
-    def banner(self, s, width=None):
+    def banner(self, s, width=None) -> str:
         if width is None:
             width = self.banner_width
         return f"{s:{self.banner_char}<{width}}"
@@ -1110,12 +1144,12 @@ class TestCmd:
             path = os.path.join(self.workdir, path)
         return path
 
-    def chmod(self, path, mode):
+    def chmod(self, path, mode) -> None:
         """Changes permissions on the specified file or directory."""
         path = self.canonicalize(path)
         os.chmod(path, mode)
 
-    def cleanup(self, condition=None):
+    def cleanup(self, condition=None) -> None:
         """Removes any temporary working directories.
 
         Cleans the TestCmd instance.  If the environment variable PRESERVE was
@@ -1144,8 +1178,8 @@ class TestCmd:
             list = self._dirlist[:]
             list.reverse()
             for dir in list:
-                self.writable(dir, 1)
-                shutil.rmtree(dir, ignore_errors=1)
+                self.writable(dir, True)
+                shutil.rmtree(dir, ignore_errors=True)
             self._dirlist = []
 
             global _Cleanup
@@ -1178,15 +1212,18 @@ class TestCmd:
                 cmd.extend([f"{k}={v}" for k, v in arguments.items()])
                 return cmd
             if isinstance(arguments, str):
+                # Split into a list for passing to SCons. This *will*
+                # break if the string has embedded spaces as part of a substing -
+                # use a # list to pass those to avoid the problem.
                 arguments = arguments.split()
             cmd.extend(arguments)
         return cmd
 
-    def description_set(self, description):
-        """Set the description of the functionality being tested. """
+    def description_set(self, description) -> None:
+        """Set the description of the functionality being tested."""
         self.description = description
 
-    def set_diff_function(self, diff=_Null, stdout=_Null, stderr=_Null):
+    def set_diff_function(self, diff=_Null, stdout=_Null, stderr=_Null) -> None:
         """Sets the specified diff functions."""
         if diff is not _Null:
             self._diff_function = diff
@@ -1195,7 +1232,7 @@ class TestCmd:
         if stderr is not _Null:
             self._diff_stderr_function = stderr
 
-    def diff(self, a, b, name=None, diff_function=None, *args, **kw):
+    def diff(self, a, b, name=None, diff_function=None, *args, **kw) -> None:
         if diff_function is None:
             try:
                 diff_function = getattr(self, self._diff_function)
@@ -1207,9 +1244,9 @@ class TestCmd:
             print(self.banner(name))
 
         if not is_List(a):
-            a=a.splitlines()
+            a = a.splitlines()
         if not is_List(b):
-            b=b.splitlines()
+            b = b.splitlines()
 
         args = (a, b) + args
         for line in diff_function(*args, **kw):
@@ -1239,25 +1276,33 @@ class TestCmd:
 
     unified_diff = staticmethod(difflib.unified_diff)
 
-    def fail_test(self, condition=True, function=None, skip=0, message=None):
+    def fail_test(
+        self,
+        condition: bool = True,
+        function: Callable | None = None,
+        skip: int = 0,
+        message: str = "",
+    ) -> None:
         """Cause the test to fail."""
         if not condition:
             return
         self.condition = 'fail_test'
-        fail_test(self=self,
-                  condition=condition,
-                  function=function,
-                  skip=skip,
-                  message=message)
+        fail_test(
+            self=self,
+            condition=condition,
+            function=function,
+            skip=skip,
+            message=message,
+        )
 
-    def interpreter_set(self, interpreter):
+    def interpreter_set(self, interpreter) -> None:
         """Set the program to be used to interpret the program
         under test as a script.
         """
         self.interpreter = interpreter
 
-    def set_match_function(self, match=_Null, stdout=_Null, stderr=_Null):
-        """Sets the specified match functions. """
+    def set_match_function(self, match=_Null, stdout=_Null, stderr=_Null) -> None:
+        """Sets the specified match functions."""
         if match is not _Null:
             self._match_function = match
         if stdout is not _Null:
@@ -1306,24 +1351,21 @@ class TestCmd:
 
     match_re_dotall = staticmethod(match_re_dotall)
 
-    def no_result(self, condition=True, function=None, skip=0):
+    def no_result(self, condition: bool = True, function=None, skip: int = 0) -> None:
         """Report that the test could not be run."""
         if not condition:
             return
         self.condition = 'no_result'
-        no_result(self=self,
-                  condition=condition,
-                  function=function,
-                  skip=skip)
+        no_result(self=self, condition=condition, function=function, skip=skip)
 
-    def pass_test(self, condition=True, function=None):
+    def pass_test(self, condition: bool = True, function=None) -> None:
         """Cause the test to pass."""
         if not condition:
             return
         self.condition = 'pass_test'
         pass_test(self=self, condition=condition, function=function)
 
-    def preserve(self, *conditions):
+    def preserve(self, *conditions) -> None:
         """Preserves temporary working directories.
 
         Arrange for the temporary working directories for the
@@ -1335,16 +1377,16 @@ class TestCmd:
         if not conditions:
             conditions = ('pass_test', 'fail_test', 'no_result')
         for cond in conditions:
-            self._preserve[cond] = 1
+            self._preserve[cond] = True
 
-    def program_set(self, program):
+    def program_set(self, program) -> None:
         """Sets the executable program or script to be tested."""
         if not self.external:
             if program and not os.path.isabs(program):
                 program = os.path.join(self._cwd, program)
         self.program = program
 
-    def read(self, file, mode='rb', newline=None):
+    def read(self, file, mode: str = 'rb', newline=None):
         """Reads and returns the contents of the specified file name.
 
         The file name may be a list, in which case the elements are
@@ -1364,7 +1406,7 @@ class TestCmd:
             with open(file, mode) as f:
                 return f.read()
 
-    def rmdir(self, dir):
+    def rmdir(self, dir) -> None:
         """Removes the specified dir name.
 
         The dir name may be a list, in which case the elements are
@@ -1376,8 +1418,7 @@ class TestCmd:
         dir = self.canonicalize(dir)
         os.rmdir(dir)
 
-
-    def parse_path(self, path, suppress_current=False):
+    def parse_path(self, path, suppress_current: bool = False):
         """Return a list with the single path components of path."""
         head, tail = os.path.split(path)
         result = []
@@ -1395,8 +1436,8 @@ class TestCmd:
 
         return result
 
-    def dir_fixture(self, srcdir, dstdir=None):
-        """ Copies the contents of the fixture directory to the test directory.
+    def dir_fixture(self, srcdir, dstdir=None) -> None:
+        """Copies the contents of the fixture directory to the test directory.
 
         If srcdir is an absolute path, it is tried directly, else
         the fixture_dirs are searched in order to find the named fixture
@@ -1413,6 +1454,9 @@ class TestCmd:
         """
         if is_List(srcdir):
             srcdir = os.path.join(*srcdir)
+        if is_List(dstdir):
+            dstdir = os.path.join(*dstdir)
+
         spath = srcdir
         if srcdir and self.fixture_dirs and not os.path.isabs(srcdir):
             for dir in self.fixture_dirs:
@@ -1444,8 +1488,8 @@ class TestCmd:
             else:
                 shutil.copy(epath, dpath)
 
-    def file_fixture(self, srcfile, dstfile=None):
-        """ Copies a fixture file to the test directory, optionally renaming.
+    def file_fixture(self, srcfile, dstfile=None) -> None:
+        """Copies a fixture file to the test directory, optionally renaming.
 
         If srcfile is an absolute path, it is tried directly, else
         the fixture_dirs are searched in order to find the named fixture
@@ -1463,6 +1507,8 @@ class TestCmd:
         """
         if is_List(srcfile):
             srcfile = os.path.join(*srcfile)
+        if is_List(dstfile):
+            dstfile = os.path.join(*dstfile)
 
         srcpath, srctail = os.path.split(srcfile)
         spath = srcfile
@@ -1498,13 +1544,16 @@ class TestCmd:
 
         shutil.copy(spath, dpath)
 
-    def start(self, program=None,
-              interpreter=None,
-              arguments=None,
-              universal_newlines=None,
-              timeout=None,
-              **kw):
-        """ Starts a program or script for the test environment.
+    def start(
+        self,
+        program=None,
+        interpreter=None,
+        arguments=None,
+        universal_newlines=None,
+        timeout=None,
+        **kw,
+    ) -> Popen:
+        """Starts a program or script for the test environment.
 
         The specified program will have the original directory
         prepended unless it is enclosed in a [list].
@@ -1543,40 +1592,42 @@ class TestCmd:
         # It seems that all pythons up to py3.6 still set text mode if you set encoding.
         # TODO: File enhancement request on python to propagate universal_newlines even
         # if encoding is set.hg c
-        p = Popen(cmd,
-                  stdin=stdin,
-                  stdout=PIPE,
-                  stderr=stderr_value,
-                  env=os.environ,
-                  universal_newlines=False)
+        p = Popen(
+            cmd,
+            stdin=stdin,
+            stdout=PIPE,
+            stderr=stderr_value,
+            env=os.environ,
+            universal_newlines=False,
+        )
 
         self.process = p
         return p
 
     @staticmethod
     def fix_binary_stream(stream):
-        """Handle stream from popen when we specify not universal_newlines
+        """Handle stream from popen when universal_newline is not enabled.
 
         This will read from the pipes in binary mode, will not decode the
-        output, and will not convert line endings to \n.
-        We do this because in py3 (3.5) with universal_newlines=True, it will
-        choose the default system locale to decode the output, and this breaks unicode
-        output. Specifically test/option--tree.py which outputs a unicode char.
+        output, and will not convert line endings to \n.  We do this because
+        in py3 (3.5) with universal_newlines=True, it will choose the default
+        system locale to decode the output, and this breaks unicode output.
+        Specifically test/option--tree.py which outputs a unicode char.
 
-        py 3.6 allows us to pass an encoding param to popen thus not requiring the decode
-        nor end of line handling, because we propagate universal_newlines as specified.
+        py 3.6 allows us to pass an encoding param to Popen thus not requiring
+        the decode nor end of line handling, because we propagate
+        universal_newlines as specified.
 
         TODO: Do we need to pass universal newlines into this function?
         """
-
         if not stream:
             return stream
         # It seems that py3.6 still sets text mode if you set encoding.
         stream = stream.decode('utf-8', errors='replace')
         return stream.replace('\r\n', '\n')
 
-    def finish(self, popen=None, **kw):
-        """ Finishes and waits for the process.
+    def finish(self, popen=None, **kw) -> None:
+        """Finishes and waits for the process.
 
         Process being run under control of the specified popen argument
         is waited for, recording the exit status, output and error output.
@@ -1614,23 +1665,26 @@ class TestCmd:
         self._stdout.append(stdout or '')
         self._stderr.append(stderr or '')
 
-    def run(self, program=None,
-            interpreter=None,
-            arguments=None,
-            chdir=None,
-            stdin=None,
-            universal_newlines=None,
-            timeout=None):
+    def run(
+        self,
+        program=None,
+        interpreter=None,
+        arguments=None,
+        chdir=None,
+        stdin=None,
+        universal_newlines=None,
+        timeout=None,
+    ) -> None:
         """Runs a test of the program or script for the test environment.
 
         Output and error output are saved for future retrieval via
         the stdout() and stderr() methods.
 
-        The specified program will have the original directory
+        The specified *program* will have the original directory
         prepended unless it is enclosed in a [list].
 
-        argument: If this is a dict() then will create arguments with KEY+VALUE for
-                  each entry in the dict.
+        If *arguments* is a dict then will create arguments with KEY+VALUE
+        for each entry in the dict.
         """
         if self.external:
             if not program:
@@ -1650,12 +1704,14 @@ class TestCmd:
             os.chdir(chdir)
         if not timeout:
             timeout = self.timeout
-        p = self.start(program=program,
-                       interpreter=interpreter,
-                       arguments=arguments,
-                       universal_newlines=universal_newlines,
-                       timeout=timeout,
-                       stdin=stdin)
+        p = self.start(
+            program=program,
+            interpreter=interpreter,
+            arguments=arguments,
+            universal_newlines=universal_newlines,
+            timeout=timeout,
+            stdin=stdin,
+        )
         if is_List(stdin):
             stdin = ''.join(stdin)
 
@@ -1672,7 +1728,7 @@ class TestCmd:
         except subprocess.TimeoutExpired:
             p.terminate()
             stdout, stderr = p.communicate()
-        
+
         # this is instead of using Popen as a context manager:
         if p.stdout:
             p.stdout.close()
@@ -1683,7 +1739,7 @@ class TestCmd:
                 p.stdin.close()
         finally:
             p.wait()
-       
+
         self.status = p.returncode
         self.process = None
 
@@ -1698,18 +1754,18 @@ class TestCmd:
         if self.verbose >= 2:
             write = sys.stdout.write
             write('============ STATUS: %d\n' % self.status)
-            out = self.stdout()
+            out = self.stdout() or ""
             if out or self.verbose >= 3:
                 write(f'============ BEGIN STDOUT (len={len(out)}):\n')
                 write(out)
                 write('============ END STDOUT\n')
-            err = self.stderr()
+            err = self.stderr() or ""
             if err or self.verbose >= 3:
                 write(f'============ BEGIN STDERR (len={len(err)})\n')
                 write(err)
                 write('============ END STDERR\n')
 
-    def sleep(self, seconds=default_sleep_seconds):
+    def sleep(self, seconds=default_sleep_seconds) -> None:
         """Sleeps at least the specified number of seconds.
 
         If no number is specified, sleeps at least the minimum number of
@@ -1718,7 +1774,7 @@ class TestCmd:
         """
         time.sleep(seconds)
 
-    def stderr(self, run=None) -> Optional[str]:
+    def stderr(self, run=None) -> str | None:
         """Returns the stored standard error output from a given run.
 
         Args:
@@ -1740,7 +1796,7 @@ class TestCmd:
         except IndexError:
             return None
 
-    def stdout(self, run=None) -> Optional[str]:
+    def stdout(self, run=None) -> str | None:
         """Returns the stored standard output from a given run.
 
         Args:
@@ -1788,8 +1844,7 @@ class TestCmd:
 
         return count
 
-
-    def symlink(self, target, link):
+    def symlink(self, target, link) -> None:
         """Creates a symlink to the specified target.
 
         The link name may be a list, in which case the elements are
@@ -1807,7 +1862,7 @@ class TestCmd:
         try:
             os.symlink(target, link)
         except AttributeError:
-            pass                # Windows has no symlink
+            pass  # Windows has no symlink
 
     def tempdir(self, path=None):
         """Creates a temporary directory.
@@ -1818,7 +1873,11 @@ class TestCmd:
         """
         if path is None:
             try:
-                path = tempfile.mkdtemp(prefix=testprefix)
+                # put tests in a subdir of the default, so antivirus
+                # can be given that directory as an "ignore".
+                testdir = Path(tempfile.gettempdir()) / "scons"
+                testdir.mkdir(exist_ok=True)
+                path = tempfile.mkdtemp(prefix=testprefix, dir=testdir)
             except TypeError:
                 path = tempfile.mkdtemp()
         else:
@@ -1849,7 +1908,7 @@ class TestCmd:
 
         return path
 
-    def touch(self, path, mtime=None):
+    def touch(self, path, mtime=None) -> None:
         """Updates the modification time on the specified file or directory.
 
         The default is to update to the
@@ -1861,7 +1920,7 @@ class TestCmd:
             mtime = time.time()
         os.utime(path, (atime, mtime))
 
-    def unlink(self, file):
+    def unlink(self, file) -> None:
         """Unlinks the specified file name.
 
         The file name may be a list, in which case the elements are
@@ -1872,7 +1931,32 @@ class TestCmd:
         file = self.canonicalize(file)
         os.unlink(file)
 
-    def verbose_set(self, verbose):
+    def unlink_files(self, dirpath, files):
+        """Unlinks a list of file names from the specified directory.
+
+        The directory path may be a list, in which case the elements are
+        concatenated with the os.path.join() method.
+
+        A file name may be a list, in which case the elements are
+        concatenated with the os.path.join() method.
+
+        The directory path and file name are concatenated with the
+        os.path.join() method.  The resulting file path is assumed to be
+        under the temporary working directory unless it is an absolute path
+        name.  An attempt to unlink the resulting file is made only when the
+        file exists otherwise the file path is ignored.
+        """
+        if is_List(dirpath):
+            dirpath = os.path.join(*dirpath)
+        for file in files:
+            if is_List(file):
+                file = os.path.join(*file)
+            filepath = os.path.join(dirpath, file)
+            filepath = self.canonicalize(filepath)
+            if os.path.exists(filepath):
+                self.unlink(filepath)
+
+    def verbose_set(self, verbose) -> None:
         """Sets the verbose level."""
         self.verbose = verbose
 
@@ -1884,7 +1968,7 @@ class TestCmd:
             file = where_is(file, path, pathext)
         return file
 
-    def workdir_set(self, path):
+    def workdir_set(self, path) -> None:
         """Creates a temporary working directory with the specified path name.
 
         If the path is a null string (''), a unique directory name is created.
@@ -1903,7 +1987,7 @@ class TestCmd:
         """
         return os.path.join(self.workdir, *args)
 
-    def readable(self, top, read=True):
+    def readable(self, top, read: bool = True) -> None:
         """Makes the specified directory tree readable or unreadable.
 
         Tree is made readable if `read` evaluates True (the default),
@@ -1917,23 +2001,23 @@ class TestCmd:
             return
 
         if read:
-            def do_chmod(fname):
+
+            def do_chmod(fname) -> None:
                 try:
                     st = os.stat(fname)
                 except OSError:
                     pass
                 else:
-                    os.chmod(fname, stat.S_IMODE(
-                        st[stat.ST_MODE] | stat.S_IREAD))
+                    os.chmod(fname, stat.S_IMODE(st.st_mode | stat.S_IREAD))
         else:
-            def do_chmod(fname):
+
+            def do_chmod(fname) -> None:
                 try:
                     st = os.stat(fname)
                 except OSError:
                     pass
                 else:
-                    os.chmod(fname, stat.S_IMODE(
-                        st[stat.ST_MODE] & ~stat.S_IREAD))
+                    os.chmod(fname, stat.S_IMODE(st.st_mode & ~stat.S_IREAD))
 
         if os.path.isfile(top):
             # If it's a file, that's easy, just chmod it.
@@ -1953,62 +2037,67 @@ class TestCmd:
             # in the tree bottom-up, lest disabling read permission from
             # the top down get in the way of being able to get at lower
             # parts of the tree.
-            for dirpath, dirnames, filenames in os.walk(top, topdown=0):
+            for dirpath, dirnames, filenames in os.walk(top, topdown=False):
                 for name in dirnames + filenames:
                     do_chmod(os.path.join(dirpath, name))
             do_chmod(top)
 
-    def writable(self, top, write=True):
+    def writable(self, top, write: bool = True) -> None:
         """Make the specified directory tree writable or unwritable.
 
         Tree is made writable if `write` evaluates True (the default),
         else it is made not writable.
+
+        Note on Windows the only thing we can do is and/remove the
+        "readable" setting without resorting to PyWin32 - and that,
+        only as Administrator, so this is kind of pointless there.
         """
 
         if sys.platform == 'win32':
-
             if write:
-                def do_chmod(fname):
+
+                def do_chmod(fname) -> None:
                     try:
                         os.chmod(fname, stat.S_IWRITE)
                     except OSError:
                         pass
             else:
-                def do_chmod(fname):
+
+                def do_chmod(fname) -> None:
                     try:
                         os.chmod(fname, stat.S_IREAD)
                     except OSError:
                         pass
 
         else:
-
             if write:
-                def do_chmod(fname):
+
+                def do_chmod(fname) -> None:
                     try:
                         st = os.stat(fname)
                     except OSError:
                         pass
                     else:
-                        os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE] | 0o200))
+                        os.chmod(fname, stat.S_IMODE(st.st_mode | stat.S_IWRITE))
             else:
-                def do_chmod(fname):
+
+                def do_chmod(fname) -> None:
                     try:
                         st = os.stat(fname)
                     except OSError:
                         pass
                     else:
-                        os.chmod(fname, stat.S_IMODE(
-                            st[stat.ST_MODE] & ~0o200))
+                        os.chmod(fname, stat.S_IMODE(st.st_mode & ~stat.S_IWRITE))
 
         if os.path.isfile(top):
             do_chmod(top)
         else:
             do_chmod(top)
-            for dirpath, dirnames, filenames in os.walk(top, topdown=0):
+            for dirpath, dirnames, filenames in os.walk(top, topdown=False):
                 for name in dirnames + filenames:
                     do_chmod(os.path.join(dirpath, name))
 
-    def executable(self, top, execute=True):
+    def executable(self, top, execute: bool = True) -> None:
         """Make the specified directory tree executable or not executable.
 
         Tree is made executable if `execute` evaluates True (the default),
@@ -2022,23 +2111,23 @@ class TestCmd:
             return
 
         if execute:
-            def do_chmod(fname):
+
+            def do_chmod(fname) -> None:
                 try:
                     st = os.stat(fname)
                 except OSError:
                     pass
                 else:
-                    os.chmod(fname, stat.S_IMODE(
-                        st[stat.ST_MODE] | stat.S_IEXEC))
+                    os.chmod(fname, stat.S_IMODE(st.st_mode | stat.S_IEXEC))
         else:
-            def do_chmod(fname):
+
+            def do_chmod(fname) -> None:
                 try:
                     st = os.stat(fname)
                 except OSError:
                     pass
                 else:
-                    os.chmod(fname, stat.S_IMODE(
-                        st[stat.ST_MODE] & ~stat.S_IEXEC))
+                    os.chmod(fname, stat.S_IMODE(st.st_mode & ~stat.S_IEXEC))
 
         if os.path.isfile(top):
             # If it's a file, that's easy, just chmod it.
@@ -2058,12 +2147,12 @@ class TestCmd:
             # in the tree bottom-up, lest disabling execute permission from
             # the top down get in the way of being able to get at lower
             # parts of the tree.
-            for dirpath, dirnames, filenames in os.walk(top, topdown=0):
+            for dirpath, dirnames, filenames in os.walk(top, topdown=False):
                 for name in dirnames + filenames:
                     do_chmod(os.path.join(dirpath, name))
             do_chmod(top)
 
-    def write(self, file, content, mode='wb'):
+    def write(self, file, content, mode: str = 'wb'):
         """Writes data to file.
 
         The file is created under the temporary working directory.
@@ -2087,6 +2176,7 @@ class TestCmd:
                 f.write(content)
             except TypeError as e:
                 f.write(bytes(content, 'utf-8'))
+
 
 # Local Variables:
 # tab-width:4

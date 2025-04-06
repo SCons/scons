@@ -37,13 +37,13 @@ str_False = str(False)
 test = TestSCons.TestSCons()
 
 workpath = test.workpath()
-qtpath  = os.path.join(workpath, 'qt')
+qtpath = os.path.join(workpath, 'qt')
 libpath = os.path.join(qtpath, 'lib')
 libdirvar = os.path.join('$qtdir', 'lib')
 
 test.subdir(qtpath)
 test.subdir(libpath)
-         
+
 test.write('SConstruct', """
 from SCons.Variables import (
     BoolVariable,
@@ -92,7 +92,8 @@ opts.AddVariables(
     PathVariable('qt_libraries', 'where the Qt library is installed', r'%(libdirvar)s'),
 )
 
-env = Environment(variables=opts)
+_ = DefaultEnvironment(tools=[])
+env = Environment(variables=opts, tools=[])
 Help(opts.GenerateHelpText(env))
 
 print(env['warnings'])
@@ -100,7 +101,6 @@ print(env['profile'])
 
 Default(env.Alias('dummy', None))
 """ % locals())
-
 
 test.run(arguments='-h',
          stdout = """\
@@ -148,10 +148,8 @@ qt_libraries: where the Qt library is installed ( /path/to/qt_libraries )
     default: %(libdirvar)s
     actual: %(libpath)s
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 """ % locals())
-
-
 
 test.pass_test()
 

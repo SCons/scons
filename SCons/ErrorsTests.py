@@ -46,7 +46,7 @@ class ErrorsTestCase(unittest.TestCase):
             assert e.command == "c"
 
         try:
-            raise SCons.Errors.BuildError("n", "foo", 57, 3, "file", 
+            raise SCons.Errors.BuildError("n", "foo", 57, 3, "file",
                                           "e", "a", "c", (1,2,3))
         except SCons.Errors.BuildError as e:
             assert e.errstr == "foo", e.errstr
@@ -95,27 +95,49 @@ class ErrorsTestCase(unittest.TestCase):
         except SCons.Errors.ExplicitExit as e:
             assert e.node == "node"
 
-    def test_convert_EnvironmentError_to_BuildError(self):
-        """Test the convert_to_BuildError function on SConsEnvironmentError
-        exceptions.
-        """
+    def test_convert_EnvironmentError_to_BuildError(self) -> None:
+        """Test convert_to_BuildError on SConsEnvironmentError."""
         ee = SCons.Errors.SConsEnvironmentError("test env error")
         be = SCons.Errors.convert_to_BuildError(ee)
-        assert be.errstr == "test env error"
-        assert be.status == 2
-        assert be.exitstatus == 2
-        assert be.filename is None
+        with self.subTest():
+            self.assertEqual(be.errstr, "test env error")
+        with self.subTest():
+            self.assertEqual(be.status, 2)
+        with self.subTest():
+            self.assertEqual(be.exitstatus, 2)
+        with self.subTest():
+            self.assertIsNone(be.filename)
 
-    def test_convert_OSError_to_BuildError(self):
-        """Test the convert_to_BuildError function on OSError
-        exceptions.
-        """
+    def test_convert_OSError_to_BuildError(self) -> None:
+        """Test convert_to_BuildError on OSError."""
         ose = OSError(7, 'test oserror')
         be = SCons.Errors.convert_to_BuildError(ose)
-        assert be.errstr == 'test oserror'
-        assert be.status == 7
-        assert be.exitstatus == 2
-        assert be.filename is None
+        with self.subTest():
+            self.assertEqual(be.errstr, 'test oserror')
+        with self.subTest():
+            self.assertEqual(be.status, 7)
+        with self.subTest():
+            self.assertEqual(be.exitstatus, 2)
+        with self.subTest():
+            self.assertIsNone(be.filename)
+
+    def test_convert_phony_OSError_to_BuildError(self) -> None:
+        """Test convert_to_BuildError on OSError with defaults."""
+        class PhonyException(OSError):
+            def __init__(self, name):
+                OSError.__init__(self, name)  # most fields will default to None
+                self.name = name
+
+        ose = PhonyException("test oserror")
+        be = SCons.Errors.convert_to_BuildError(ose)
+        with self.subTest():
+            self.assertEqual(be.errstr, 'test oserror')
+        with self.subTest():
+            self.assertEqual(be.status, 2)
+        with self.subTest():
+            self.assertEqual(be.exitstatus, 2)
+        with self.subTest():
+            self.assertIsNone(be.filename)
 
 
 if __name__ == "__main__":

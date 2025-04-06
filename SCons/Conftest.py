@@ -215,7 +215,7 @@ int main(void)
     _YesNoResult(context, ret, None, text)
     return ret
 
-def _check_empty_program(context, comp, text, language, use_shared = False):
+def _check_empty_program(context, comp, text, language, use_shared: bool = False):
     """Return 0 on success, 1 otherwise."""
     if comp not in context.env or not context.env[comp]:
         # The compiler construction variable is not set or empty
@@ -231,17 +231,22 @@ def _check_empty_program(context, comp, text, language, use_shared = False):
         return context.CompileProg(text, suffix)
 
 
-def CheckFunc(context, function_name, header = None, language = None):
+def CheckFunc(context, function_name, header = None, language = None, funcargs = None):
     """
     Configure check for a function "function_name".
     "language" should be "C" or "C++" and is used to select the compiler.
     Default is "C".
     Optional "header" can be defined to define a function prototype, include a
     header file or anything else that comes before main().
+    Optional "funcargs" can be defined to define an argument list for the
+    generated function invocation.
     Sets HAVE_function_name in context.havedict according to the result.
     Note that this uses the current value of compiler and linker flags, make
     sure $CFLAGS, $CPPFLAGS and $LIBS are set correctly.
     Returns an empty string for success, an error message for failure.
+
+    .. versionchanged:: 4.7.0
+       The ``funcargs`` parameter was added.
     """
 
     # Remarks from autoconf:
@@ -267,12 +272,15 @@ def CheckFunc(context, function_name, header = None, language = None):
 #ifdef __cplusplus
 extern "C"
 #endif
-char %s();""" % function_name
+char %s(void);""" % function_name
 
     lang, suffix, msg = _lang2suffix(language)
     if msg:
         context.Display("Cannot check for %s(): %s\n" % (function_name, msg))
         return msg
+
+    if not funcargs:
+        funcargs = ''
 
     text = """
 %(include)s
@@ -285,16 +293,17 @@ char %s();""" % function_name
 
 int main(void) {
 #if defined (__stub_%(name)s) || defined (__stub___%(name)s)
-  fail fail fail
+  #error "%(name)s has a GNU stub, cannot check"
 #else
-  %(name)s();
+  %(name)s(%(args)s);
 #endif
 
   return 0;
 }
 """ % { 'name': function_name,
         'include': includetext,
-        'hdr': header }
+        'hdr': header,
+        'args': funcargs}
 
     context.Display("Checking for %s function %s()... " % (lang, function_name))
     ret = context.BuildProg(text, suffix)
@@ -626,8 +635,8 @@ int main(void) {
     return ret
 
 def CheckLib(context, libs, func_name = None, header = None,
-             extra_libs = None, call = None, language = None, autoadd = 1,
-             append = True):
+             extra_libs = None, call = None, language = None, autoadd: int = 1,
+             append: bool=True, unique: bool=False):
     """
     Configure check for a C or C++ libraries "libs".  Searches through
     the list of libraries, until one is found where the test succeeds.
@@ -676,8 +685,7 @@ char %s();
 
     # if no function to test, leave main() blank
     text = text + """
-int
-main() {
+int main(void) {
   %s
 return 0;
 }
@@ -713,9 +721,9 @@ return 0;
             if extra_libs:
                 l.extend(extra_libs)
             if append:
-                oldLIBS = context.AppendLIBS(l)
+                oldLIBS = context.AppendLIBS(l, unique)
             else:
-                oldLIBS = context.PrependLIBS(l)
+                oldLIBS = context.PrependLIBS(l, unique)
             sym = "HAVE_LIB" + lib_name
         else:
             oldLIBS = -1
@@ -753,7 +761,7 @@ def CheckProg(context, prog_name):
 # END OF PUBLIC FUNCTIONS
 #
 
-def _YesNoResult(context, ret, key, text, comment = None):
+def _YesNoResult(context, ret, key, text, comment = None) -> None:
     r"""
     Handle the result of a test with a "yes" or "no" result.
 
@@ -772,7 +780,7 @@ def _YesNoResult(context, ret, key, text, comment = None):
         context.Display("yes\n")
 
 
-def _Have(context, key, have, comment = None):
+def _Have(context, key, have, comment = None) -> None:
     r"""
     Store result of a test in context.havedict and context.headerfilename.
 
@@ -815,7 +823,7 @@ def _Have(context, key, have, comment = None):
         context.config_h = context.config_h + lines
 
 
-def _LogFailed(context, text, msg):
+def _LogFailed(context, text, msg) -> None:
     """
     Write to the log about a failed program.
     Add line numbers, so that error messages can be understood.

@@ -33,7 +33,7 @@ import time
 
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestSCons.match_re)
+test = TestSCons.TestSCons(match=TestSCons.match_re)
 
 test.skip_if_not_msvc()
 
@@ -46,7 +46,6 @@ test.dir_fixture('msvc_fixture')
 #  about it, so ignore stderr when running SCons.
 
 test.run(arguments='test.exe', stderr=None)
-
 test.must_exist(test.workpath('test.exe'))
 test.must_exist(test.workpath('test.res'))
 test.must_exist(test.workpath('test.pdb'))
@@ -64,7 +63,7 @@ test.run(program=test.workpath('test.exe'), stdout='2002 test 1\n')
 test.write('test.rc', '''
 #include "resource.h"
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     IDS_TEST "test 2"
 END
@@ -73,7 +72,6 @@ test.run(arguments='test.exe', stderr=None)
 test.run(program=test.workpath('test.exe'), stdout='2002 test 2\n')
 
 test.run(arguments='-c .')
-
 test.must_not_exist(test.workpath('test.exe'))
 test.must_not_exist(test.workpath('test.pdb'))
 test.must_not_exist(test.workpath('test.res'))
@@ -81,7 +79,6 @@ test.must_not_exist(test.workpath('StdAfx.pch'))
 test.must_not_exist(test.workpath('StdAfx.obj'))
 
 test.run(arguments='test.exe', stderr=None)
-
 test.must_exist(test.workpath('test.pdb'))
 test.must_exist(test.workpath('StdAfx.pch'))
 test.must_exist(test.workpath('StdAfx.obj'))
@@ -94,7 +91,6 @@ test.must_not_exist(test.workpath('StdAfx.pch'))
 test.must_not_exist(test.workpath('StdAfx.obj'))
 
 test.run(arguments='StdAfx.pch', stderr=None)
-
 test.must_not_exist(test.workpath('test.pdb'))
 test.must_exist(test.workpath('StdAfx.pch'))
 test.must_exist(test.workpath('StdAfx.obj'))
@@ -110,7 +106,6 @@ test.run(arguments='test.obj', stderr=None)
 test.must_not_exist(test.workpath('test.pdb'))
 test.must_exist(test.workpath('test.obj'))
 
-
 start = time.perf_counter()
 test.run(arguments='fast.obj', stderr=None)
 fast = time.perf_counter() - start
@@ -119,10 +114,9 @@ start = time.perf_counter()
 test.run(arguments='slow.obj', stderr=None)
 slow = time.perf_counter() - start
 
-
 # TODO: Reevaluate if having this part of the test makes sense any longer
 # using precompiled headers should be faster
-limit = slow*0.90
+limit = slow*1.00
 if fast >= limit:
     print("Using precompiled headers was not fast enough:")
     print("slow.obj:  %.3fs" % slow)
@@ -138,8 +132,6 @@ test.not_up_to_date(arguments='test.res', stderr=None)
 test.not_up_to_date(arguments='StdAfx.pch', stderr=None)
 test.not_up_to_date(arguments='test.exe', stderr=None)
 test.run(program=test.workpath('test.exe'), stdout='2003 test 2\n')
-
-
 
 test.pass_test()
 

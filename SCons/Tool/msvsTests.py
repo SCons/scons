@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,8 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import sys
@@ -391,7 +390,7 @@ regdata_cv = r'''[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion]
 regdata_none = []
 
 class DummyEnv:
-    def __init__(self, dict=None):
+    def __init__(self, dict=None) -> None:
         self.fs = SCons.Node.FS.FS()
         if dict:
             self.dict = dict
@@ -403,13 +402,13 @@ class DummyEnv:
             return self.dict
         return self.dict[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         self.dict[key] = value
 
     def __getitem__(self, key):
         return self.dict[key]
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.dict
 
     def get(self, name, value=None):
@@ -421,17 +420,25 @@ class DummyEnv:
     def Dir(self, name):
         return self.fs.Dir(name)
 
+    def File(self, name):
+        return self.fs.File(name)
+
+    def subst(self, key):
+        if key[0] == '$':
+            key = key[1:]
+        return self[key]
+
 
 class RegKey:
     """key class for storing an 'open' registry key"""
-    def __init__(self,key):
+    def __init__(self,key) -> None:
         self.key = key
 
 # Warning: this is NOT case-insensitive, unlike the Windows registry.
 # So e.g. HKLM\Software is NOT the same key as HKLM\SOFTWARE.
 class RegNode:
     """node in the dummy registry"""
-    def __init__(self,name):
+    def __init__(self,name) -> None:
         self.valdict = {}
         self.keydict = {}
         self.keyarray = []
@@ -444,7 +451,7 @@ class RegNode:
         else:
             raise SCons.Util.RegError
 
-    def addValue(self,name,val):
+    def addValue(self,name,val) -> None:
         self.valdict[name] = val
         self.valarray.append(name)
 
@@ -456,7 +463,7 @@ class RegNode:
             raise SCons.Util.RegError
         return rv
 
-    def key(self,key,sep = '\\'):
+    def key(self,key,sep: str = '\\'):
         if key.find(sep) != -1:
             keyname, subkeys = key.split(sep,1)
         else:
@@ -471,7 +478,7 @@ class RegNode:
         except KeyError:
             raise SCons.Util.RegError
 
-    def addKey(self,name,sep = '\\'):
+    def addKey(self,name,sep: str = '\\'):
         if name.find(sep) != -1:
             keyname, subkeys = name.split(sep, 1)
         else:
@@ -491,10 +498,10 @@ class RegNode:
     def keyindex(self,index):
         return self.keydict[self.keyarray[index]]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self._doStr()
 
-    def _doStr(self, indent = ''):
+    def _doStr(self, indent: str = ''):
         rv = ""
         for value in self.valarray:
             rv = rv + '%s"%s" = "%s"\n' % (indent, value, self.valdict[value])
@@ -506,7 +513,7 @@ class RegNode:
 
 class DummyRegistry:
     """registry class for storing fake registry attributes"""
-    def __init__(self,data):
+    def __init__(self,data) -> None:
         """parse input data into the fake registry"""
         self.root = RegNode('REGISTRY')
         self.root.addKey('HKEY_LOCAL_MACHINE')
@@ -516,7 +523,7 @@ class DummyRegistry:
 
         self.parse(data)
 
-    def parse(self, data):
+    def parse(self, data) -> None:
         parents = [None, None]
         parents[0] = self.root
         keymatch = re.compile(r'^\[(.*)\]$')
@@ -577,17 +584,17 @@ def DummyQueryValue(key, value):
     # print "Query Value",key.name+"\\"+value,"=>",rv
     return rv
 
-def DummyExists(path):
-    return 1
+def DummyExists(path) -> bool:
+    return True
 
-def DummyVsWhere(msvc_version, env):
+def DummyVsWhere(msvc_version, vswhere_exe):
     # not testing versions with vswhere, so return none
     return None
 
 class msvsTestCase(unittest.TestCase):
     """This test case is run several times with different defaults.
     See its subclasses below."""
-    def setUp(self):
+    def setUp(self) -> None:
         debug("THIS TYPE :%s"%self)
         global registry
         registry = self.registry
@@ -599,7 +606,7 @@ class msvsTestCase(unittest.TestCase):
         os.chdir(self.test.workpath(""))
         self.fs = SCons.Node.FS.FS()
 
-    def test_get_default_version(self):
+    def test_get_default_version(self) -> None:
         """Test retrieval of the default visual studio version"""
 
         debug("Testing for default version %s"%self.default_version)
@@ -632,22 +639,22 @@ class msvsTestCase(unittest.TestCase):
         assert env['MSVS']['VERSION'] == override, env['MSVS']['VERSION']
         assert v3 == override, v3
 
-    def _TODO_test_merge_default_version(self):
+    def _TODO_test_merge_default_version(self) -> None:
         """Test the merge_default_version() function"""
         pass
 
-    def test_query_versions(self):
+    def test_query_versions(self, env=None) -> None:
         """Test retrieval of the list of visual studio versions"""
-        v1 = query_versions()
+        v1 = query_versions(env)
         assert not v1 or str(v1[0]) == self.highest_version, \
                (v1, self.highest_version)
         assert len(v1) == self.number_of_versions, v1
-        
-    def test_config_generation(self):
+
+    def test_config_generation(self) -> None:
         """Test _DSPGenerator.__init__(...)"""
         if not self.highest_version :
             return
-        
+
         # Initialize 'static' variables
         version_num, suite = msvs_parse_version(self.highest_version)
         if version_num >= 10.0:
@@ -663,16 +670,16 @@ class msvsTestCase(unittest.TestCase):
         # Avoid any race conditions between the test cases when we test
         # actually writing the files.
         dspfile = 'test%s%s' % (hash(self), suffix)
-            
+
         str_function_test = str(function_test.__init__)
         source = 'test.cpp'
-        
+
         # Create the cmdargs test list
         list_variant = ['Debug|Win32','Release|Win32',
                         'Debug|x64', 'Release|x64']
-        list_cmdargs = ['debug=True target_arch=32', 
+        list_cmdargs = ['debug=True target_arch=32',
                         'debug=False target_arch=32',
-                        'debug=True target_arch=x64', 
+                        'debug=True target_arch=x64',
                         'debug=False target_arch=x64']
         list_cppdefines = [['_A', '_B', 'C'], ['_B', '_C_'], ['D'], []]
         list_cpppaths = [[r'C:\test1'], [r'C:\test1;C:\test2'],
@@ -775,15 +782,15 @@ class msvsTestCase(unittest.TestCase):
             class _DummyEnv(DummyEnv):
                 def subst(self, string, *args, **kwargs):
                     return string
-            
+
             env = _DummyEnv(param_dict)
             env['MSVSSCONSCRIPT'] = ''
             env['MSVS_VERSION'] = self.highest_version
             env['MSVSBUILDTARGET'] = 'target'
-           
+
             # Call function to test
             genDSP = function_test(dspfile, source, env)
-        
+
             # Check expected result
             self.assertListEqual(list(genDSP.configs.keys()), list(expected_configs.keys()))
             for key, v in genDSP.configs.items():
@@ -881,9 +888,9 @@ class msvs71TestCase(msvsTestCase):
 class msvs8ExpTestCase(msvsTestCase): # XXX: only one still not working
     """Test MSVS 8 Express Registry"""
     registry = DummyRegistry(regdata_8exp + regdata_cv)
-    default_version = '8.0Exp'
-    highest_version = '8.0Exp'
-    number_of_versions = 1
+    default_version = '8.0'
+    highest_version = '8.0'
+    number_of_versions = 2
     install_locs = {
         '6.0' : {},
         '7.0' : {},
@@ -948,7 +955,7 @@ if __name__ == "__main__":
     SCons.Util.RegEnumKey      = DummyEnumKey
     SCons.Util.RegEnumValue    = DummyEnumValue
     SCons.Util.RegQueryValueEx = DummyQueryValue
-    SCons.Tool.MSCommon.vc.find_vc_pdir_vswhere = DummyVsWhere
+    SCons.Tool.MSCommon.vc._find_vc_pdir_vswhere = DummyVsWhere
 
     os.path.exists = DummyExists # make sure all files exist :-)
     os.path.isfile = DummyExists # make sure all files are files :-)

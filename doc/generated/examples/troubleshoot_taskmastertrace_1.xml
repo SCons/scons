@@ -1,4 +1,8 @@
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q --taskmastertrace=- prog</userinput>
+Job.NewParallel._work(): [Thread:8286867328] Gained exclusive access
+Job.NewParallel._work(): [Thread:8286867328] Starting search
+Job.NewParallel._work(): [Thread:8286867328] Found 0 completed tasks to process
+Job.NewParallel._work(): [Thread:8286867328] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node &lt;no_state   0   'prog'&gt; and its children:
@@ -14,10 +18,12 @@ Taskmaster: Evaluating &lt;pending    0   'prog.c'&gt;
 
 Task.make_ready_current(): node &lt;pending    0   'prog.c'&gt;
 Task.prepare():      node &lt;up_to_date 0   'prog.c'&gt;
+Job.NewParallel._work(): [Thread:8286867328] Found internal task
 Task.executed_with_callbacks(): node &lt;up_to_date 0   'prog.c'&gt;
 Task.postprocess():  node &lt;up_to_date 0   'prog.c'&gt;
 Task.postprocess():  removing &lt;up_to_date 0   'prog.c'&gt;
 Task.postprocess():  adjusted parent ref count &lt;pending    1   'prog.o'&gt;
+Job.NewParallel._work(): [Thread:8286867328] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node &lt;no_state   0   'inc.h'&gt; and its children:
@@ -25,10 +31,12 @@ Taskmaster: Evaluating &lt;pending    0   'inc.h'&gt;
 
 Task.make_ready_current(): node &lt;pending    0   'inc.h'&gt;
 Task.prepare():      node &lt;up_to_date 0   'inc.h'&gt;
+Job.NewParallel._work(): [Thread:8286867328] Found internal task
 Task.executed_with_callbacks(): node &lt;up_to_date 0   'inc.h'&gt;
 Task.postprocess():  node &lt;up_to_date 0   'inc.h'&gt;
 Task.postprocess():  removing &lt;up_to_date 0   'inc.h'&gt;
 Task.postprocess():  adjusted parent ref count &lt;pending    0   'prog.o'&gt;
+Job.NewParallel._work(): [Thread:8286867328] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node &lt;pending    0   'prog.o'&gt; and its children:
@@ -38,12 +46,19 @@ Taskmaster: Evaluating &lt;pending    0   'prog.o'&gt;
 
 Task.make_ready_current(): node &lt;pending    0   'prog.o'&gt;
 Task.prepare():      node &lt;executing  0   'prog.o'&gt;
+Job.NewParallel._work(): [Thread:8286867328] Found task requiring execution
+Job.NewParallel._work(): [Thread:8286867328] Executing task
 Task.execute():      node &lt;executing  0   'prog.o'&gt;
 cc -o prog.o -c -I. prog.c
+Job.NewParallel._work(): [Thread:8286867328] Enqueueing executed task results
+Job.NewParallel._work(): [Thread:8286867328] Gained exclusive access
+Job.NewParallel._work(): [Thread:8286867328] Starting search
+Job.NewParallel._work(): [Thread:8286867328] Found 1 completed tasks to process
 Task.executed_with_callbacks(): node &lt;executing  0   'prog.o'&gt;
 Task.postprocess():  node &lt;executed   0   'prog.o'&gt;
 Task.postprocess():  removing &lt;executed   0   'prog.o'&gt;
 Task.postprocess():  adjusted parent ref count &lt;pending    0   'prog'&gt;
+Job.NewParallel._work(): [Thread:8286867328] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node &lt;pending    0   'prog'&gt; and its children:
@@ -52,11 +67,21 @@ Taskmaster: Evaluating &lt;pending    0   'prog'&gt;
 
 Task.make_ready_current(): node &lt;pending    0   'prog'&gt;
 Task.prepare():      node &lt;executing  0   'prog'&gt;
+Job.NewParallel._work(): [Thread:8286867328] Found task requiring execution
+Job.NewParallel._work(): [Thread:8286867328] Executing task
 Task.execute():      node &lt;executing  0   'prog'&gt;
 cc -o prog prog.o
+Job.NewParallel._work(): [Thread:8286867328] Enqueueing executed task results
+Job.NewParallel._work(): [Thread:8286867328] Gained exclusive access
+Job.NewParallel._work(): [Thread:8286867328] Starting search
+Job.NewParallel._work(): [Thread:8286867328] Found 1 completed tasks to process
 Task.executed_with_callbacks(): node &lt;executing  0   'prog'&gt;
 Task.postprocess():  node &lt;executed   0   'prog'&gt;
+Job.NewParallel._work(): [Thread:8286867328] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster: No candidate anymore.
+Job.NewParallel._work(): [Thread:8286867328] Found no task requiring execution, and have no jobs: marking complete
+Job.NewParallel._work(): [Thread:8286867328] Gained exclusive access
+Job.NewParallel._work(): [Thread:8286867328] Completion detected, breaking from main loop
 </screen>

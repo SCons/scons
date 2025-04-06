@@ -6,27 +6,17 @@ Past official release announcements appear at:
 
 ==================================================================
 
-A new SCons release, 4.4.1, is now available on the SCons download page:
+A new SCons release, X.Y.Z, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
-
-Here is a summary of the changes since 4.4.0:
-
-NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), you may
-      see unexpected rebuilds. This is due to Python internals changing which changed
-      the signature of a Python Action Function.
+Here is a summary of the changes since 4.9.1:
 
 
 NEW FUNCTIONALITY
 -----------------
 
-- Added ValidateOptions() which will check that all command line options are in either
-  those specified by SCons itself, or by AddOption() in SConstruct/SConscript.  It should
-  not be called until all AddOption() calls are completed. Resolves Issue #4187
-- Added --experimental=tm_v2, which enables Andrew Morrow's NewParallel Job implementation.
-  This should scale much better for highly parallel builds.  You can also enable this via SetOption().
-
+- List new features (presumably why a checkpoint is being released)
 
 DEPRECATED FUNCTIONALITY
 ------------------------
@@ -36,96 +26,44 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- Added -fsanitize support to ParseFlags().  This will propagate to CCFLAGS and LINKFLAGS.
-- Calling EnsureSConsVersion() and EnsurePythonVersion() won't initialize
-  DefaultEnvironment anymore.
-- The console message from the Chmod() action function now displays
-  octal modes using the modern Python syntax (0o755 rather than 0755).
-- Migrated logging logic for --taskmastertrace to use Python's logging module. Added logging
-  to NewParallel Job class (Andrew Morrow's new parallel job implementation)
+- List modifications to existing features, where the previous behavior
+  wouldn't actually be considered a bug
 
+- Nodes are now treated as PathLike objects.
 
 FIXES
 -----
 
-- Added missing newline to generated compilation database (compile_commands.json)
-- A list argument as the source to the Copy() action function is now handled.
-  Both the implementation and the strfunction which prints the progress
-  message were adjusted.
-- The Java Scanner processing of JAVACLASSPATH for dependencies (behavior
-  that was introduced in SCons 4.4.0) is adjusted to split on the system's
-  search path separator instead of on a space. The previous behavior meant
-  that a path containing spaces (e.g. r"C:\somepath\My Classes") would
-  lead to unexpected errors. If the split-on-space behavior is desired,
-  pre-split the value: instead of: env["JAVACLASSPATH"] = "foo bar baz"
-  use: env["JAVACLASSPATH"] = env.Split("foo bar baz")
-  There is no change in how JAVACLASSPATH gets turned into the -classpath
-  argument passed to the JDK tools.
-- Ninja: Fix execution environment sanitation for launching ninja. Previously if you set an
-  execution environment variable set to a python list it would crash. Now it
-  will create a string joining the list with os.pathsep
-- Fixed command line argument --diskcheck: previously a value of 'none' was ignored.
-  SetOption('diskcheck','none') is unaffected, as it did not have the problem.
+- Fixed SCons.Variables.PackageVariable to correctly test the default
+  setting against both enable & disable strings. (Fixes #4702)
 
 IMPROVEMENTS
 ------------
 
-- Changed the Taskmaster trace logic to use python's logging module.
-- Add cache-debug messages for push failures.
-- Added error message to handle the case when SCons attempts to retrieve all the targets
-  for a specified builder from the CacheDir, fails to do so, and then runs into an error
-  when deleting the files which were retrieved. Previously if this happened there were no
-  errors or warnings.
+- List improvements that wouldn't be visible to the user in the
+  documentation:  performance improvements (describe the circumstances
+  under which they would be observed), or major code cleanups
 
 PACKAGING
 ---------
 
-- SCons now has three requirements files: requirements.txt describes
-  requirements to run scons; requirements-dev.txt requirements to
-  develop it - mainly things needed to run the testsuite;
-  requirements_pkg.txt are the requirements to do a full build
-  (including docs build) with an intent to create the packages.
-- Moved rpm and debian directories under packaging
-- Added logic to help packagers enable reproducible builds into packaging/etc/. Please
-  read packaging/etc/README.txt if you are interested.
-
+- List changes in the way SCons is packaged and/or released
 
 DOCUMENTATION
 -------------
 
-- Updated the --hash-format manpage entry.
-- EnsureSConsVersion, EnsurePythonVersion, Exit, GetLaunchDir and
-  SConscriptChdir are now listed as Global functions only.
-- Updated the docs for Glob.
-- Updated SHELL_ENV_GENERATORS description and added versionadded indicator.
-- JAVABOOTCLASSPATH, JAVACLASSPATH and JAVASOURCEPATH better document the
-  acceptable syntax for values, and how they will be interpreted,
-  including that JAVACLASSPATH will be scanned for dependencies.
-  Added note on the possibly surprising feature that SCons always passes
-  -sourcepath when calling javac, which affects how the class path is
-  used when finding sources.
-- Updated the User Guide chapter on installation: modernized the notes
-  on Python installs, SCons installs, and having multiple SCons versions
-  present on a single system.
-- Updated the User Guide chapter on variant directories with more
-  explanation, and the introduction of terms like "out of tree" that
-  may help in forming a mental model.
+- List any significant changes to the documentation (not individual
+  typo fixes, even if they're mentioned in src/CHANGES.txt to give
+  the contributor credit)
 
 DEVELOPMENT
 -----------
 
-- Refactored SCons/Taskmaster into a package. Moved SCons/Jobs.py into that package.
-  NOTE: If you hook into SCons.Jobs, you'll have to change that to use SCons.Taskmaster.Jobs
-- Refactored SCons.Util, which had grown quite large, to be a package,
-  not a single-file module. Change should be transparent: the same import
-  of SCons.Util and public symbols from it will continue to work, however
-  code which reaches directly in to grab private symbols (starting with
-  underscore) which moved to a submodule, that code will have to be adjusted,
-  as those are not imported to the package level (new SCons.Util.hashes has
-  some of these, which are used by existing unit tests).
+- runtest.py once again finds "external" tests, such as the tests for
+  tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.4.0..HEAD
+    git shortlog --no-merges -ns 4.9.1..HEAD

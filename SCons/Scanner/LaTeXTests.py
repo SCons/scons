@@ -63,6 +63,18 @@ test.write('test4.latex',r"""
 \only<2>{\includegraphics{inc7.png}}
 """)
 
+test.write('test5.latex',r"""
+\usetheme{scons}
+""")
+test.write('beamerthemescons.sty',r"""
+\usecolortheme[option]{scons}
+\usefonttheme{scons}
+\useinnertheme{scons}
+\useoutertheme{scons}
+""")
+for theme in ('color', 'font', 'inner', 'outer'):
+    test.write('beamer' + theme + 'themescons.sty', "\n")
+
 test.subdir('subdir')
 
 test.write('inc1.tex',"\n")
@@ -81,7 +93,7 @@ test.write('incNO.tex', "\n")
 # define some helpers:
 #   copied from CTest.py
 class DummyEnvironment(collections.UserDict):
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         super().__init__()
         self.data.update(kw)
         self.fs = SCons.Node.FS.FS(test.workpath(''))
@@ -121,7 +133,7 @@ if os.path.normcase('foo') == os.path.normcase('FOO'):
 else:
     my_normpath = os.path.normpath
 
-def deps_match(self, deps, headers):
+def deps_match(self, deps, headers) -> None:
     global my_normpath
     scanned = list(map(my_normpath, list(map(str, deps))))
     expect = list(map(my_normpath, headers))
@@ -129,7 +141,7 @@ def deps_match(self, deps, headers):
 
 
 class LaTeXScannerTestCase1(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(LATEXSUFFIXES = [".tex", ".ltx", ".latex"])
         s = SCons.Scanner.LaTeX.LaTeXScanner()
         path = s.path(env)
@@ -141,7 +153,7 @@ class LaTeXScannerTestCase1(unittest.TestCase):
         deps_match(self, deps, headers)
 
 class LaTeXScannerTestCase2(unittest.TestCase):
-     def runTest(self):
+     def runTest(self) -> None:
          env = DummyEnvironment(TEXINPUTS=[test.workpath("subdir")],LATEXSUFFIXES = [".tex", ".ltx", ".latex"])
          s = SCons.Scanner.LaTeX.LaTeXScanner()
          path = s.path(env)
@@ -150,7 +162,7 @@ class LaTeXScannerTestCase2(unittest.TestCase):
          deps_match(self, deps, headers)
 
 class LaTeXScannerTestCase3(unittest.TestCase):
-     def runTest(self):
+     def runTest(self) -> None:
          env = DummyEnvironment(TEXINPUTS=[test.workpath("subdir")],LATEXSUFFIXES = [".tex", ".ltx", ".latex"])
          s = SCons.Scanner.LaTeX.LaTeXScanner()
          path = s.path(env)
@@ -159,12 +171,22 @@ class LaTeXScannerTestCase3(unittest.TestCase):
          deps_match(self, deps, files)
 
 class LaTeXScannerTestCase4(unittest.TestCase):
-     def runTest(self):
+     def runTest(self) -> None:
          env = DummyEnvironment(TEXINPUTS=[test.workpath("subdir")],LATEXSUFFIXES = [".tex", ".ltx", ".latex"])
          s = SCons.Scanner.LaTeX.LaTeXScanner()
          path = s.path(env)
          deps = s(env.File('test4.latex'), env, path)
          files = ['inc1.tex', 'inc2.tex', 'inc5.xyz', 'inc7.png']
+         deps_match(self, deps, files)
+
+class LaTeXScannerTestCase5(unittest.TestCase):
+     def runTest(self) -> None:
+         env = DummyEnvironment(TEXINPUTS=[test.workpath("subdir")],LATEXSUFFIXES = [".tex", ".ltx", ".latex"])
+         s = SCons.Scanner.LaTeX.LaTeXScanner()
+         path = s.path(env)
+         deps = s(env.File('test5.latex'), env, path)
+         files = ['beamer' + _ + 'themescons.sty' for _ in
+                  ('color', 'font', 'inner', 'outer', '')]
          deps_match(self, deps, files)
 
 if __name__ == "__main__":

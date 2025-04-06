@@ -32,7 +32,7 @@ from . import posix
 import os
 
 
-def generate(env):
+def generate(env) -> None:
     posix.generate(env)
     env['SHLIBSUFFIX'] = '.dylib'
     env['HOST_OS'] = 'darwin'
@@ -46,7 +46,7 @@ def generate(env):
     # make sure this works on Macs with Tiger or earlier
     try:
         dirlist = os.listdir('/etc/paths.d')
-    except FileNotFoundError:
+    except (FileNotFoundError, PermissionError):
         dirlist = []
 
     for file in dirlist:
@@ -54,7 +54,7 @@ def generate(env):
 
     for file in filelist:
         if os.path.isfile(file):
-            with open(file, 'r') as f:
+            with open(file) as f:
                 lines = f.readlines()
                 for line in lines:
                     if line:

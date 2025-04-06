@@ -42,7 +42,6 @@ BUILDING_PACKAGES = [
     
     # additional packages that Bill Deegan's web page suggests
     #'docbook-to-man',
-    #'docbook-xsl',
     #'docbook2x',
     #'tetex-bin',
     #'tetex-latex',
@@ -86,9 +85,13 @@ TESTING_PACKAGES = [
     'openjdk-8-jdk',
     'swig',
     'texlive-base-bin',
+    'texlive-font-utils',
     'texlive-extra-utils',
     'texlive-latex-base',
     'texlive-latex-extra',
+    'texlive-bibtex-extra',
+    'docbook-xsl',
+    'biber',
     'zip',
 ]
 

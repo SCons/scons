@@ -47,22 +47,32 @@ MS_TOOLS_VERSION = '1.1.1'
 
 class VswhereTestCase(unittest.TestCase):
     @staticmethod
-    def _createVSWhere(path):
+    def _createVSWhere(path) -> None:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, 'w') as f:
             f.write("Created:%s" % f)
 
-    def testDefaults(self):
+    def testDefaults(self) -> None:
         """
         Verify that msvc_find_vswhere() find's files in the specified paths
         """
         # import pdb; pdb.set_trace()
-        vswhere_dirs = [os.path.splitdrive(p)[1] for p in SCons.Tool.MSCommon.vc.VSWHERE_PATHS]
-        base_dir = test.workpath('fake_vswhere')
-        test_vswhere_dirs = [os.path.join(base_dir,d[1:]) for d in vswhere_dirs]
+        test_all_dirs = []
 
-        SCons.Tool.MSCommon.vc.VSWHERE_PATHS = test_vswhere_dirs
-        for vsw in test_vswhere_dirs:
+        base_dir = test.workpath('fake_vswhere')
+
+        vswhere_dirs = [os.path.splitdrive(p)[1] for p in SCons.Tool.MSCommon.vc._VSWHERE_EXEGROUP_MSVS]
+        test_vswhere_dirs = [os.path.join(base_dir,d[1:]) for d in vswhere_dirs]
+        SCons.Tool.MSCommon.vc._VSWHERE_EXEGROUP_MSVS = test_vswhere_dirs
+        test_all_dirs += test_vswhere_dirs
+
+        vswhere_dirs = [os.path.splitdrive(p)[1] for p in SCons.Tool.MSCommon.vc._VSWHERE_EXEGROUP_PKGMGR]
+        test_vswhere_dirs = [os.path.join(base_dir,d[1:]) for d in vswhere_dirs]
+        SCons.Tool.MSCommon.vc._VSWHERE_EXEGROUP_PKGMGR = test_vswhere_dirs
+        test_all_dirs += test_vswhere_dirs
+
+        for vsw in test_all_dirs:
+            SCons.Tool.MSCommon.vc._VSWhereExecutable.reset()
             VswhereTestCase._createVSWhere(vsw)
             find_path = SCons.Tool.MSCommon.vc.msvc_find_vswhere()
             self.assertTrue(vsw == find_path, "Didn't find vswhere in %s found in %s" % (vsw, find_path))
@@ -75,7 +85,7 @@ class VswhereTestCase(unittest.TestCase):
 class MSVcTestCase(unittest.TestCase):
 
     @staticmethod
-    def _createDummyCl(path, add_bin=True):
+    def _createDummyFile(path, filename, add_bin: bool=True) -> None:
         """
         Creates a dummy cl.exe in the correct directory.
         It will create all missing parent directories as well
@@ -94,29 +104,21 @@ class MSVcTestCase(unittest.TestCase):
         if create_path and not os.path.isdir(create_path):
             os.makedirs(create_path)
 
-        create_this = os.path.join(create_path,'cl.exe')
+        create_this = os.path.join(create_path, filename)
 
         # print("Creating: %s"%create_this)
         with open(create_this,'w') as ct:
             ct.write('created')
 
 
-    def runTest(self):
+    def runTest(self) -> None:
         """
         Check that all proper HOST_PLATFORM and TARGET_PLATFORM are handled.
         Verify that improper HOST_PLATFORM and/or TARGET_PLATFORM are properly handled.
-        by SCons.Tool.MSCommon.vc._check_cl_exists_in_vc_dir()
+        by SCons.Tool.MSCommon.vc._check_files_exist_in_vc_dir()
         """
 
-        check = SCons.Tool.MSCommon.vc._check_cl_exists_in_vc_dir
-
-        env={'TARGET_ARCH':'x86'}
-        _, clpathcomps = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS[('x86','x86')]
-        path = os.path.join('.', *clpathcomps)
-        MSVcTestCase._createDummyCl(path, add_bin=False)
-
-        # print("retval:%s"%check(env, '.', '8.0'))
-
+        check = SCons.Tool.MSCommon.vc._check_files_exist_in_vc_dir
 
         # Setup for 14.1 (VS2017) and later tests
 
@@ -131,86 +133,70 @@ class MSVcTestCase(unittest.TestCase):
         except IOError as e:
             print("Failed trying to write :%s :%s" % (tools_version_file, e))
 
+        # Test 14.3 (VS2022) and later
+        vc_ge2022_list = SCons.Tool.MSCommon.vc._GE2022_HOST_TARGET_CFG.all_pairs
+        for host, target in vc_ge2022_list:
+            batfile, clpathcomps = SCons.Tool.MSCommon.vc._GE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
+            # print("GE 14.3 Got: (%s, %s) -> (%s, %s)"%(host,target,batfile,clpathcomps))
 
-        # Now walk all the valid combinations of host/target for 14.1 (VS2017) and later
-        vc_ge2017_list = SCons.Tool.MSCommon.vc._GE2017_HOST_TARGET_CFG.all_pairs
+            env={'TARGET_ARCH':target, 'HOST_ARCH':host}
+            path = os.path.join('.', "Auxiliary", "Build", batfile)
+            MSVcTestCase._createDummyFile(path, batfile, add_bin=False)
+            path = os.path.join('.', 'Tools', 'MSVC', MS_TOOLS_VERSION, *clpathcomps)
+            MSVcTestCase._createDummyFile(path, 'cl.exe', add_bin=False)
+            result=check(env, '.', '14.3')
+            # print("for:(%s, %s) got :%s"%(host, target, result))
+            self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
-        for host, target in vc_ge2017_list:
-            batfile, clpathcomps = SCons.Tool.MSCommon.vc._GE2017_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
-            # print("GT 14 Got: (%s, %s) -> (%s, %s)"%(host,target,batfile,clpathcomps))
+        # Test 14.2 (VS2019) to 14.1 (VS2017) versions
+        vc_le2019_list = SCons.Tool.MSCommon.vc._LE2019_HOST_TARGET_CFG.all_pairs
+        for host, target in vc_le2019_list:
+            batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2019_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
+            # print("LE 14.2 Got: (%s, %s) -> (%s, %s)"%(host,target,batfile,clpathcomps))
 
             env={'TARGET_ARCH':target, 'HOST_ARCH':host}
             path = os.path.join('.', 'Tools', 'MSVC', MS_TOOLS_VERSION, *clpathcomps)
-            MSVcTestCase._createDummyCl(path, add_bin=False)
+            MSVcTestCase._createDummyFile(path, 'cl.exe', add_bin=False)
             result=check(env, '.', '14.1')
             # print("for:(%s, %s) got :%s"%(host, target, result))
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
-        # Now test bogus value for HOST_ARCH
-        env={'TARGET_ARCH':'x86', 'HOST_ARCH':'GARBAGE'}
-        try:
-            result=check(env, '.', '14.1')
-            # print("for:%s got :%s"%(env, result))
-            self.assertFalse(result, "Did not fail with bogus HOST_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
-        except MSVCUnsupportedHostArch:
-            pass
-        else:
-            self.fail('Did not fail when HOST_ARCH specified as: %s' % env['HOST_ARCH'])
-
-        # Now test bogus value for TARGET_ARCH
-        env={'TARGET_ARCH':'GARBAGE', 'HOST_ARCH':'x86'}
-        try:
-            result=check(env, '.', '14.1')
-            # print("for:%s got :%s"%(env, result))
-            self.assertFalse(result, "Did not fail with bogus TARGET_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
-        except MSVCUnsupportedTargetArch:
-            pass
-        else:
-            self.fail('Did not fail when TARGET_ARCH specified as: %s' % env['TARGET_ARCH'])
-
-        # Test 14.0 (VS2015) to 8.0 (VS2005) versions
+        # Test 14.0 (VS2015) to 10.0 (VS2010) versions
         vc_le2015_list = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_CFG.all_pairs
-
         for host, target in vc_le2015_list:
-            batarg, clpathcomps = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS[(host, target)]
-            # print("LE 14 Got: (%s, %s) -> (%s, %s)"%(host,target,batarg,clpathcomps))
+            batarg, batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host, target)]
+            # print("LE 14.0 Got: (%s, %s) -> (%s, %s, %s)"%(host,target,batarg,batfile,clpathcomps))
             env={'TARGET_ARCH':target, 'HOST_ARCH':host}
+            MSVcTestCase._createDummyFile('.', 'vcvarsall.bat', add_bin=False)
             path = os.path.join('.', *clpathcomps)
-            MSVcTestCase._createDummyCl(path, add_bin=False)
-            result=check(env, '.', '9.0')
+            MSVcTestCase._createDummyFile(path, batfile, add_bin=False)
+            MSVcTestCase._createDummyFile(path, 'cl.exe', add_bin=False)
+            result=check(env, '.', '10.0')
             # print("for:(%s, %s) got :%s"%(host, target, result))
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
-        # Now test bogus value for HOST_ARCH
-        env={'TARGET_ARCH':'x86', 'HOST_ARCH':'GARBAGE'}
-        try:
-            result=check(env, '.', '9.0')
-            # print("for:%s got :%s"%(env, result))
-            self.assertFalse(result, "Did not fail with bogus HOST_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
-        except MSVCUnsupportedHostArch:
-            pass
-        else:
-            self.fail('Did not fail when HOST_ARCH specified as: %s' % env['HOST_ARCH'])
-
-        # Now test bogus value for TARGET_ARCH
-        env={'TARGET_ARCH':'GARBAGE', 'HOST_ARCH':'x86'}
-        try:
-            result=check(env, '.', '9.0')
-            # print("for:%s got :%s"%(env, result))
-            self.assertFalse(result, "Did not fail with bogus TARGET_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
-        except MSVCUnsupportedTargetArch:
-            pass
-        else:
-            self.fail('Did not fail when TARGET_ARCH specified as: %s' % env['TARGET_ARCH'])
+        # Test 9.0 (VC2008) to 8.0 (VS2005)
+        vc_le2008_list = SCons.Tool.MSCommon.vc._LE2008_HOST_TARGET_CFG.all_pairs
+        for host, target in vc_le2008_list:
+            batarg, batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2008_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host, target)]
+            # print("LE 9.0 Got: (%s, %s) -> (%s, %s, %s)"%(host,target,batarg,batfile,clpathcomps))
+            env={'TARGET_ARCH':target, 'HOST_ARCH':host}
+            MSVcTestCase._createDummyFile('.', 'vcvarsall.bat', add_bin=False)
+            path = os.path.join('.', *clpathcomps)
+            MSVcTestCase._createDummyFile(path, batfile, add_bin=False)
+            MSVcTestCase._createDummyFile(path, 'cl.exe', add_bin=False)
+            # check will fail if '9.0' and VCForPython (layout different)
+            result=check(env, '.', '8.0')
+            # print("for:(%s, %s) got :%s"%(host, target, result))
+            self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
         # Test 7.1 (VS2003) and earlier
         vc_le2003_list = SCons.Tool.MSCommon.vc._LE2003_HOST_TARGET_CFG.all_pairs
-
         for host, target in vc_le2003_list:
             # print("LE 7.1 Got: (%s, %s)"%(host,target))
             env={'TARGET_ARCH':target, 'HOST_ARCH':host}
             path = os.path.join('.')
-            MSVcTestCase._createDummyCl(path)
+            MSVcTestCase._createDummyFile(path, 'cl.exe')
             result=check(env, '.', '6.0')
             # print("for:(%s, %s) got :%s"%(host, target, result))
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
@@ -218,7 +204,7 @@ class MSVcTestCase(unittest.TestCase):
         # Now test bogus value for HOST_ARCH
         env={'TARGET_ARCH':'x86', 'HOST_ARCH':'GARBAGE'}
         try:
-            result=check(env, '.', '6.0')
+            result=check(env, '.', '14.3')
             # print("for:%s got :%s"%(env, result))
             self.assertFalse(result, "Did not fail with bogus HOST_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
         except MSVCUnsupportedHostArch:
@@ -229,7 +215,7 @@ class MSVcTestCase(unittest.TestCase):
         # Now test bogus value for TARGET_ARCH
         env={'TARGET_ARCH':'GARBAGE', 'HOST_ARCH':'x86'}
         try:
-            result=check(env, '.', '6.0')
+            result=check(env, '.', '14.3')
             # print("for:%s got :%s"%(env, result))
             self.assertFalse(result, "Did not fail with bogus TARGET_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
         except MSVCUnsupportedTargetArch:
@@ -237,12 +223,29 @@ class MSVcTestCase(unittest.TestCase):
         else:
             self.fail('Did not fail when TARGET_ARCH specified as: %s' % env['TARGET_ARCH'])
 
-
 class Data:
 
-    HAVE_MSVC = True if MSCommon.vc.msvc_default_version() else False
+    DEFAULT_VERSION = MSCommon.vc.msvc_default_version()
 
+    if DEFAULT_VERSION:
+        HAVE_MSVC = True
+        DEFAULT_VERSION_DEF = MSCommon.msvc_version_components(DEFAULT_VERSION)
+    else:
+        HAVE_MSVC = False
+        DEFAULT_VERSION_DEF = None
+
+    INSTALLED_VCS = MSCommon.vc.get_installed_vcs()
     INSTALLED_VCS_COMPONENTS = MSCommon.vc.get_installed_vcs_components()
+    INSTALLED_VCS_TOOLSETS_COMPONENTS = MSCommon.vc.get_installed_vcs_toolsets_components()
+
+    @classmethod
+    def query_version_list(cls, vcver):
+        # VS 2022 (14.3) can have either/both toolset versions 14.3X and 14.4X
+        if vcver == '14.3' or (vcver is None and cls.DEFAULT_VERSION == '14.3'):
+            vcver_list = ['14.4', '14.3']
+        else:
+            vcver_list = [vcver]
+        return vcver_list
 
     @classmethod
     def _msvc_toolset_notfound_list(cls, toolset_seen, toolset_list):
@@ -255,11 +258,11 @@ class Data:
             if len(comps) != 3:
                 continue
             # full versions only
+            ival = int(comps[-1])
             nloop = 0
             while nloop < 10:
-                ival = int(comps[-1])
                 if ival == 0:
-                    ival = 1000000
+                    ival = 100000
                 ival -= 1
                 version = '{}.{}.{:05d}'.format(comps[0], comps[1], ival)
                 if version not in toolset_seen:
@@ -307,13 +310,13 @@ class Patch:
                     return hook
 
                 @classmethod
-                def restore(cls):
+                def restore(cls) -> None:
                     MSCommon.vc.msvc_default_version = cls.msvc_default_version
 
 class MsvcSdkVersionsTests(unittest.TestCase):
     """Test msvc_sdk_versions"""
 
-    def run_valid_default_msvc(self):
+    def run_valid_default_msvc(self) -> None:
         symbol = MSCommon.vc.msvc_default_version()
         version_def = MSCommon.msvc_version_components(symbol)
         for msvc_uwp_app in (True, False):
@@ -323,24 +326,32 @@ class MsvcSdkVersionsTests(unittest.TestCase):
             else:
                 self.assertFalse(sdk_list, "SDK list is not empty for msvc version {}".format(repr(None)))
 
-    def test_valid_default_msvc(self):
+    def test_valid_default_msvc(self) -> None:
         if Data.HAVE_MSVC:
             Patch.MSCommon.vc.msvc_default_version.enable_none()
             self.run_valid_default_msvc()
             Patch.MSCommon.vc.msvc_default_version.restore()
         self.run_valid_default_msvc()
 
-    def test_valid_vcver(self):
+    def test_valid_vcver(self) -> None:
         for symbol in MSCommon.vc._VCVER:
             version_def = MSCommon.msvc_version_components(symbol)
             for msvc_uwp_app in (True, False):
                 sdk_list = MSCommon.vc.msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
-                if Data.HAVE_MSVC and version_def.msvc_vernum >= 14.0:
+                if version_def.msvc_vernum < 14.0:
+                    # version < VS2015
+                    # does not accept sdk version argument
+                    self.assertFalse(sdk_list, "SDK list is not empty for msvc version {}".format(repr(symbol)))
+                elif Data.HAVE_MSVC and Data.DEFAULT_VERSION_DEF.msvc_vernum >= 14.0:
+                    # version >= VS2015 and default_version >= VS2015
+                    # no guarantee test is valid: compatible sdks may not be installed as version gap grows
                     self.assertTrue(sdk_list, "SDK list is empty for msvc version {}".format(repr(symbol)))
                 else:
-                    self.assertFalse(sdk_list, "SDK list is not empty for msvc version {}".format(repr(symbol)))
+                    # version >= VS2015 and default_version < VS2015
+                    # skip test: version is not installed; compatible windows sdks may not be installed
+                    pass
 
-    def test_valid_vcver_toolsets(self):
+    def test_valid_vcver_toolsets(self) -> None:
         for symbol in MSCommon.vc._VCVER:
             toolset_list = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol, full=True, sxs=True)
             if toolset_list is None:
@@ -354,13 +365,13 @@ class MsvcSdkVersionsTests(unittest.TestCase):
                     )
                     self.assertTrue(sdk_list, "SDK list is empty for msvc toolset version {}".format(repr(toolset)))
 
-    def test_invalid_vcver(self):
+    def test_invalid_vcver(self) -> None:
         for symbol in ['6.0Exp', '14.3Exp', '99', '14.1Bug']:
             for msvc_uwp_app in (True, False):
                 with self.assertRaises(MSCommon.vc.MSVCArgumentError):
                     _ = MSCommon.vc.msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
 
-    def test_invalid_vcver_toolsets(self):
+    def test_invalid_vcver_toolsets(self) -> None:
         for symbol in ['14.31.123456', '14.31.1.1']:
             for msvc_uwp_app in (True, False):
                 with self.assertRaises(MSCommon.vc.MSVCArgumentError):
@@ -369,7 +380,7 @@ class MsvcSdkVersionsTests(unittest.TestCase):
 class MsvcToolsetVersionsTests(unittest.TestCase):
     """Test msvc_toolset_versions"""
 
-    def run_valid_default_msvc(self):
+    def run_valid_default_msvc(self) -> None:
         symbol = MSCommon.vc.msvc_default_version()
         version_def = MSCommon.msvc_version_components(symbol)
         toolset_none_list = MSCommon.vc.msvc_toolset_versions(msvc_version=None, full=False, sxs=False)
@@ -386,14 +397,14 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
             self.assertFalse(toolset_all_list, "Toolset all list is not empty for msvc version {}".format(repr(None)))
         self.assertFalse(toolset_none_list, "Toolset none list is not empty for msvc version {}".format(repr(None)))
 
-    def test_valid_default_msvc(self):
+    def test_valid_default_msvc(self) -> None:
         if Data.HAVE_MSVC:
             Patch.MSCommon.vc.msvc_default_version.enable_none()
             self.run_valid_default_msvc()
             Patch.MSCommon.vc.msvc_default_version.restore()
         self.run_valid_default_msvc()
 
-    def test_valid_vcver(self):
+    def test_valid_vcver(self) -> None:
         for symbol in MSCommon.vc._VCVER:
             version_def = MSCommon.msvc_version_components(symbol)
             toolset_none_list = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol, full=False, sxs=False)
@@ -410,14 +421,14 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
                 self.assertFalse(toolset_all_list, "Toolset all list is not empty for msvc version {}".format(repr(symbol)))
             self.assertFalse(toolset_none_list, "Toolset none list is not empty for msvc version {}".format(repr(symbol)))
 
-    def test_invalid_vcver(self):
+    def test_invalid_vcver(self) -> None:
         for symbol in ['12.9', '6.0Exp', '14.3Exp', '99', '14.1Bug']:
             with self.assertRaises(MSCommon.vc.MSVCArgumentError):
                 _ = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol)
 
 class MsvcToolsetVersionsSpectreTests(unittest.TestCase):
 
-    def run_valid_default_msvc(self):
+    def run_valid_default_msvc(self) -> None:
         symbol = MSCommon.vc.msvc_default_version()
         version_def = MSCommon.msvc_version_components(symbol)
         spectre_toolset_list = MSCommon.vc.msvc_toolset_versions_spectre(msvc_version=None)
@@ -427,14 +438,14 @@ class MsvcToolsetVersionsSpectreTests(unittest.TestCase):
         else:
             self.assertFalse(spectre_toolset_list, "Toolset spectre list is not empty for msvc version {}".format(repr(None)))
 
-    def test_valid_default_msvc(self):
+    def test_valid_default_msvc(self) -> None:
         if Data.HAVE_MSVC:
             Patch.MSCommon.vc.msvc_default_version.enable_none()
             self.run_valid_default_msvc()
             Patch.MSCommon.vc.msvc_default_version.restore()
         self.run_valid_default_msvc()
 
-    def test_valid_vcver(self):
+    def test_valid_vcver(self) -> None:
         for symbol in MSCommon.vc._VCVER:
             version_def = MSCommon.msvc_version_components(symbol)
             spectre_toolset_list = MSCommon.vc.msvc_toolset_versions_spectre(msvc_version=symbol)
@@ -444,7 +455,7 @@ class MsvcToolsetVersionsSpectreTests(unittest.TestCase):
             else:
                 self.assertFalse(spectre_toolset_list, "Toolset spectre list is not empty for msvc version {}".format(repr(symbol)))
 
-    def test_invalid_vcver(self):
+    def test_invalid_vcver(self) -> None:
         for symbol in ['12.9', '6.0Exp', '14.3Exp', '99', '14.1Bug']:
             with self.assertRaises(MSCommon.vc.MSVCArgumentError):
                 _ = MSCommon.vc.msvc_toolset_versions_spectre(msvc_version=symbol)
@@ -452,36 +463,60 @@ class MsvcToolsetVersionsSpectreTests(unittest.TestCase):
 class MsvcQueryVersionToolsetTests(unittest.TestCase):
     """Test msvc_query_toolset_version"""
 
-    def run_valid_default_msvc(self, have_msvc):
+    def run_valid_default_msvc(self, have_msvc) -> None:
         for prefer_newest in (True, False):
-            msvc_version, msvc_toolset_version = MSCommon.vc.msvc_query_version_toolset(
-                version=None, prefer_newest=prefer_newest
-            )
-            expect = (have_msvc and msvc_version) or (not have_msvc and not msvc_version)
-            self.assertTrue(expect, "unexpected msvc_version {} for for msvc version {}".format(
+            if not have_msvc:
+                with self.assertRaises(MSCommon.vc.MSVCToolsetVersionNotFound):
+                    msvc_version, msvc_toolset_version = MSCommon.vc.msvc_query_version_toolset(
+                        version=None, prefer_newest=prefer_newest
+                    )
+                continue
+            msvc_version = msvc_toolset_version = None
+            for vcver in Data.query_version_list(None):
+                try:
+                    msvc_version, msvc_toolset_version = MSCommon.vc.msvc_query_version_toolset(
+                        version=vcver, prefer_newest=prefer_newest
+                    )
+                    break
+                except MSCommon.vc.MSVCToolsetVersionNotFound:
+                    pass
+            self.assertTrue(msvc_version, "unexpected msvc_version {} for for msvc version {}".format(
                 repr(msvc_version), repr(None)
             ))
             version_def = MSCommon.msvc_version_components(msvc_version)
-            if have_msvc and version_def.msvc_vernum > 14.0:
+            if version_def.msvc_vernum > 14.0:
                 # VS2017 and later for toolset version
                 self.assertTrue(msvc_toolset_version, "msvc_toolset_version is undefined for msvc version {}".format(
                     repr(None)
                 ))
 
-    def test_valid_default_msvc(self):
+    def test_valid_default_msvc(self) -> None:
         if Data.HAVE_MSVC:
             Patch.MSCommon.vc.msvc_default_version.enable_none()
             self.run_valid_default_msvc(have_msvc=False)
             Patch.MSCommon.vc.msvc_default_version.restore()
         self.run_valid_default_msvc(have_msvc=Data.HAVE_MSVC)
 
-    def test_valid_vcver(self):
+    def test_valid_vcver(self) -> None:
         for symbol in MSCommon.vc._VCVER:
+            have_msvc = bool(symbol in Data.INSTALLED_VCS_TOOLSETS_COMPONENTS.toolset_vcs)
             version_def = MSCommon.msvc_version_components(symbol)
             for prefer_newest in (True, False):
-                msvc_version, msvc_toolset_version = MSCommon.vc.msvc_query_version_toolset(
-                    version=symbol, prefer_newest=prefer_newest
-                )
+                if not have_msvc:
+                    with self.assertRaises(MSCommon.vc.MSVCToolsetVersionNotFound):
+                        msvc_version, msvc_toolset_version = MSCommon.vc.msvc_query_version_toolset(
+                            version=symbol, prefer_newest=prefer_newest
+                        )
+                    continue
+                msvc_version = msvc_toolset_version = None
+                for vcver in Data.query_version_list(symbol):
+                    try:
+                        msvc_version, msvc_toolset_version = MSCommon.vc.msvc_query_version_toolset(
+                            version=vcver, prefer_newest=prefer_newest
+                        )
+                        break
+                    except:
+                        pass
                 self.assertTrue(msvc_version, "msvc_version is undefined for msvc version {}".format(repr(symbol)))
                 if version_def.msvc_vernum > 14.0:
                     # VS2017 and later for toolset version
@@ -489,7 +524,7 @@ class MsvcQueryVersionToolsetTests(unittest.TestCase):
                         repr(symbol)
                     ))
 
-    def test_valid_vcver_toolsets(self):
+    def test_valid_vcver_toolsets(self) -> None:
         for symbol in MSCommon.vc._VCVER:
             toolset_list = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol, full=True, sxs=True)
             if toolset_list is None:
@@ -508,7 +543,7 @@ class MsvcQueryVersionToolsetTests(unittest.TestCase):
                             repr(toolset)
                         ))
 
-    def test_msvc_query_version_toolset_notfound(self):
+    def test_msvc_query_version_toolset_notfound(self) -> None:
         toolset_notfound_dict = Data.msvc_toolset_notfound_dict()
         for toolset_notfound_list in toolset_notfound_dict.values():
             for toolset in toolset_notfound_list[:1]:
@@ -516,13 +551,13 @@ class MsvcQueryVersionToolsetTests(unittest.TestCase):
                     with self.assertRaises(MSCommon.vc.MSVCToolsetVersionNotFound):
                         _ = MSCommon.vc.msvc_query_version_toolset(version=toolset, prefer_newest=prefer_newest)
 
-    def test_invalid_vcver(self):
+    def test_invalid_vcver(self) -> None:
         for symbol in ['12.9', '6.0Exp', '14.3Exp', '99', '14.1Bug']:
             for prefer_newest in (True, False):
                 with self.assertRaises(MSCommon.vc.MSVCArgumentError):
                     _ = MSCommon.vc.msvc_query_version_toolset(version=symbol, prefer_newest=prefer_newest)
 
-    def test_invalid_vcver_toolsets(self):
+    def test_invalid_vcver_toolsets(self) -> None:
         for symbol in ['14.16.00000Exp', '14.00.00001', '14.31.123456', '14.31.1.1']:
             for prefer_newest in (True, False):
                 with self.assertRaises(MSCommon.vc.MSVCArgumentError):

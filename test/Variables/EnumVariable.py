@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,14 +22,10 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test the EnumVariable canned Variable type.
 """
-
 
 import TestSCons
 
@@ -39,12 +37,8 @@ def check(expect):
     result = test.stdout().split('\n')
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
-
-
 test.write(SConstruct_path, """\
-from SCons.Variables.EnumVariable import EnumVariable
-EV = EnumVariable
-
+from SCons.Variables.EnumVariable import EnumVariable as EV
 from SCons.Variables import EnumVariable
 
 list_of_libs = Split('x11 gl qt ical')
@@ -58,11 +52,12 @@ opts.AddVariables(
                allowed_values=('motif', 'gtk', 'kde'),
                map={}, ignorecase=1), # case insensitive
     EV('some', 'some option', 'xaver',
-       allowed_values=('xaver', 'eins'),
-       map={}, ignorecase=2), # make lowercase
+       allowed_values=('xaver', 'eins', 'zwei wörter'),
+       map={}, ignorecase=2), # case lowering
     )
 
-env = Environment(variables=opts)
+_ = DefaultEnvironment(tools=[])
+env = Environment(variables=opts, tools=[])
 Help(opts.GenerateHelpText(env))
 
 print(env['debug'])
@@ -72,8 +67,8 @@ print(env['some'])
 Default(env.Alias('dummy', None))
 """)
 
-
-test.run(); check(['no', 'gtk', 'xaver'])
+test.run()
+check(['no', 'gtk', 'xaver'])
 
 test.run(arguments='debug=yes guilib=Motif some=xAVER')
 check(['yes', 'Motif', 'xaver'])
@@ -82,23 +77,25 @@ test.run(arguments='debug=full guilib=KdE some=EiNs')
 check(['full', 'KdE', 'eins'])
 
 expect_stderr = """
-scons: *** Invalid value for option debug: FULL.  Valid values are: ('yes', 'no', 'full')
-""" + test.python_file_line(SConstruct_path, 21)
+scons: *** Invalid value for enum variable 'debug': 'FULL'. Valid values are: ('yes', 'no', 'full')
+""" + test.python_file_line(SConstruct_path, 20)
 
 test.run(arguments='debug=FULL', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Invalid value for option guilib: irgendwas.  Valid values are: ('motif', 'gtk', 'kde')
-""" + test.python_file_line(SConstruct_path, 21)
+scons: *** Invalid value for enum variable 'guilib': 'irgendwas'. Valid values are: ('motif', 'gtk', 'kde')
+""" + test.python_file_line(SConstruct_path, 20)
 
 test.run(arguments='guilib=IrGeNdwas', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Invalid value for option some: irgendwas.  Valid values are: ('xaver', 'eins')
-""" + test.python_file_line(SConstruct_path, 21)
+scons: *** Invalid value for enum variable 'some': 'irgendwas'. Valid values are: ('xaver', 'eins', 'zwei wörter')
+""" + test.python_file_line(SConstruct_path, 20)
 
 test.run(arguments='some=IrGeNdwas', stderr=expect_stderr, status=2)
 
+test.run(arguments=['some=zwei Wörter'])
+check(['no', 'gtk', 'zwei wörter'])  # case-lowering converter
 
 test.pass_test()
 

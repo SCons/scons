@@ -4,5 +4,5 @@ RELEASE: Set to 1 to build for release
     default: 0
     actual: 0
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 </screen>

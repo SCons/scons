@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify basic use of CPPPDEFINES with various data types.
@@ -33,11 +32,12 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 test_list = [
     'xyz',
     ['x', 'y', 'z'],
     ['x', ['y', 123], 'z', ('int', '$INTEGER')],
-    { 'c' : 3, 'b': None, 'a' : 1 },
+    {'c': 3, 'b': None, 'a': 1},
     "${TESTDEFS}",
     "${GEN}",
 ]
@@ -48,33 +48,59 @@ def generator(target, source, env, for_signature):
     return 'TARGET_AND_SOURCE_ARE_MISSING'
 
 for i in test_list:
-    env = Environment(CPPDEFPREFIX='-D', CPPDEFSUFFIX='', INTEGER=0, TESTDEFS=["FOO", "BAR=1"], GEN=generator)
+    env = Environment(tools=['cc'],
+        CPPDEFPREFIX='-D',
+        CPPDEFSUFFIX='',
+        INTEGER=0,
+        TESTDEFS=["FOO", "BAR=1"],
+        GEN=generator,
+    )
     ttt = env.Entry('#ttt')
     sss = env.Entry('#sss')
-    print(env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS', target=[ttt], source=[sss]))
+    print(
+        env.Clone(CPPDEFINES=i).subst(
+            '$_CPPDEFFLAGS',
+            target=[ttt],
+            source=[sss],
+        )
+    )
+
 for i in test_list:
-    env = Environment(CPPDEFPREFIX='|', CPPDEFSUFFIX='|', INTEGER=1, TESTDEFS=["FOO", "BAR=1"], GEN=generator)
+    env = Environment(tools=['cc'],
+        CPPDEFPREFIX='|',
+        CPPDEFSUFFIX='|',
+        INTEGER=1,
+        TESTDEFS=["FOO", "BAR=1"],
+        GEN=generator,
+    )
     ttt = env.Entry('#ttt')
     sss = env.Entry('#sss')
-    print(env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS', target=[ttt], source=[sss]))
+    print(
+        env.Clone(CPPDEFINES=i).subst(
+            '$_CPPDEFFLAGS',
+            target=[ttt],
+            source=[sss],
+        )
+    )
 """)
 
-expect = test.wrap_stdout(build_str="scons: `.' is up to date.\n",
-                          read_str = """\
+expect = test.wrap_stdout(
+    build_str="scons: `.' is up to date.\n",
+    read_str="""\
 -Dxyz
 -Dx -Dy -Dz
 -Dx -Dy=123 -Dz -Dint=0
--Da=1 -Db -Dc=3
+-Dc=3 -Db -Da=1
 -DFOO -DBAR=1
 -Dttt_GENERATED_sss
 |xyz|
 |x| |y| |z|
 |x| |y=123| |z| |int=1|
-|a=1| |b| |c=3|
+|c=3| |b| |a=1|
 |FOO| |BAR=1|
 |ttt_GENERATED_sss|
-""")
-
+""",
+)
 test.run(arguments = '.', stdout=expect)
 
 test.pass_test()

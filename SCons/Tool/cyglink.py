@@ -1,6 +1,29 @@
+# MIT License
+#
+# Copyright The SCons Foundation
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 """SCons.Tool.cyglink
 
-Customization of gnulink for Cygwin (http://www.cygwin.com/)
+Customization of gnulink for Cygwin (https://www.cygwin.com/)
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -24,24 +47,24 @@ def cyglink_lib_emitter(target, source, env, **kw):
     no_import_lib = env.get('no_import_lib', False)
 
     if verbose:
-        print("cyglink_lib_emitter: target[0]={!r}".format(target[0].get_path()))
+        print(f"cyglink_lib_emitter: target[0]={target[0].get_path()!r}")
 
     if not no_import_lib:
         # Specify import lib and add to targets
 
         import_lib = env.subst('$%s_IMPLIBNAME' % var_prefix, target=target, source=source)
         import_lib_target = env.fs.File(import_lib)
-        import_lib_target.attributes.shared = 1
+        import_lib_target.attributes.shared = True
         target.append(import_lib_target)
 
         if verbose:
-            print("cyglink_lib_emitter: import_lib={}".format(import_lib))
+            print(f"cyglink_lib_emitter: import_lib={import_lib}")
             print("cyglink_lib_emitter: target=%s" % target)
 
     for tgt in target:
         if is_String(tgt):
             tgt = env.File(tgt)
-        tgt.attributes.shared = 1
+        tgt.attributes.shared = True
 
     return target, source
 
@@ -134,7 +157,7 @@ def cyglink_ldmodule_version(target, source, env, for_signature):
     return "." + version
 
 
-def _implib_pre_flags(target, source, env, for_signature):
+def _implib_pre_flags(target, source, env, for_signature) -> str:
     no_import_lib = env.get('no_import_lib', False)
     if no_import_lib in ['1', 'True', 'true', True]:
         return ''
@@ -142,7 +165,7 @@ def _implib_pre_flags(target, source, env, for_signature):
         return '-Wl,--out-implib=${TARGETS[1]} -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive'
 
 
-def _implib_post_flags(target, source, env, for_signature):
+def _implib_post_flags(target, source, env, for_signature) -> str:
     no_import_lib = env.get('no_import_lib', False)
     if no_import_lib in ['1', 'True', 'true', True]:
         return ''
@@ -150,7 +173,7 @@ def _implib_post_flags(target, source, env, for_signature):
         return '-Wl,--no-whole-archive'
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for cyglink to an Environment."""
     gnulink.generate(env)
 

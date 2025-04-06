@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,11 +22,8 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-r"""
+"""
 Verify execution of custom test case.
 The old code base would not be able to fail the test
 """
@@ -50,6 +49,8 @@ NCR = test.NCR  # non-cached rebuild
 #  misspell package name to ensure failure
 
 test.write('SConstruct', r"""
+import os
+
 lmodern_test_text = r'''
 \documentclass{article}
 \usepackage{lmodernD}
@@ -68,13 +69,13 @@ def CheckLModern(context):
     context.Result(is_ok)
     return is_ok
 
-import os
+_ = DefaultEnvironment(tools=[])
 env = Environment()
 env['TEXINPUTS'] = '.'
 conf = Configure( env, custom_tests={'CheckLModern' : CheckLModern} )
 conf.CheckLModern()
 env = conf.Finish()
-""" % locals())
+""")
 
 test.run()
 

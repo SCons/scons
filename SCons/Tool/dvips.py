@@ -55,7 +55,7 @@ PSAction = None
 DVIPSAction = None
 PSBuilder = None
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for dvips to an Environment."""
     global PSAction
     if PSAction is None:

@@ -23,7 +23,7 @@
 
 """Operations on signature database files (.sconsign). """
 
-import SCons.compat
+import SCons.compat  # pylint: disable=wrong-import-order
 
 import os
 import pickle
@@ -35,7 +35,7 @@ from SCons.compat import PICKLE_PROTOCOL
 from SCons.Util import print_time
 
 
-def corrupt_dblite_warning(filename):
+def corrupt_dblite_warning(filename) -> None:
     SCons.Warnings.warn(
         SCons.Warnings.CorruptSConsignWarning,
         "Ignoring corrupt .sconsign file: %s" % filename,
@@ -69,11 +69,10 @@ def current_sconsign_filename():
     # eg .sconsign_sha1, etc.
     if hash_format is None and current_hash_algorithm == 'md5':
         return ".sconsign"
-    else:
-        return ".sconsign_" + current_hash_algorithm
+    return ".sconsign_" + current_hash_algorithm
 
 def Get_DataBase(dir):
-    global DataBase, DB_Module, DB_Name
+    global DB_Name
 
     if DB_Name is None:
         DB_Name = current_sconsign_filename()
@@ -88,7 +87,7 @@ def Get_DataBase(dir):
                 except KeyError:
                     path = d.entry_abspath(DB_Name)
                     try: db = DataBase[d] = DB_Module.open(path, mode)
-                    except (IOError, OSError):
+                    except OSError:
                         pass
                     else:
                         if mode != "r":
@@ -106,19 +105,18 @@ def Get_DataBase(dir):
         raise
 
 
-def Reset():
+def Reset() -> None:
     """Reset global state.  Used by unit tests that end up using
     SConsign multiple times to get a clean slate for each test."""
     global sig_files, DB_sync_list
     sig_files = []
     DB_sync_list = []
 
+
 normcase = os.path.normcase
 
 
-def write():
-    global sig_files
-
+def write() -> None:
     if print_time():
         start_time = time.perf_counter()
 
@@ -154,16 +152,16 @@ class SConsignEntry:
     __slots__ = ("binfo", "ninfo", "__weakref__")
     current_version_id = 2
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Create an object attribute from the class attribute so it ends up
         # in the pickled data in the .sconsign file.
         #_version_id = self.current_version_id
         pass
 
-    def convert_to_sconsign(self):
+    def convert_to_sconsign(self) -> None:
         self.binfo.convert_to_sconsign()
 
-    def convert_from_sconsign(self, dir, name):
+    def convert_from_sconsign(self, dir, name) -> None:
         self.binfo.convert_from_sconsign(dir, name)
 
     def __getstate__(self):
@@ -180,7 +178,7 @@ class SConsignEntry:
             pass
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state) -> None:
         for key, value in state.items():
             if key not in ('_version_id', '__weakref__'):
                 setattr(self, key, value)
@@ -195,7 +193,7 @@ class Base:
     methods for fetching and storing the individual bits of information
     that make up signature entry.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self.entries = {}
         self.dirty = False
         self.to_be_merged = {}
@@ -206,26 +204,26 @@ class Base:
         """
         return self.entries[filename]
 
-    def set_entry(self, filename, obj):
+    def set_entry(self, filename, obj) -> None:
         """
         Set the entry.
         """
         self.entries[filename] = obj
         self.dirty = True
 
-    def do_not_set_entry(self, filename, obj):
+    def do_not_set_entry(self, filename, obj) -> None:
         pass
 
-    def store_info(self, filename, node):
+    def store_info(self, filename, node) -> None:
         entry = node.get_stored_info()
         entry.binfo.merge(node.get_binfo())
         self.to_be_merged[filename] = node
         self.dirty = True
 
-    def do_not_store_info(self, filename, node):
+    def do_not_store_info(self, filename, node) -> None:
         pass
 
-    def merge(self):
+    def merge(self) -> None:
         for key, node in self.to_be_merged.items():
             entry = node.get_stored_info()
             try:
@@ -247,7 +245,7 @@ class DB(Base):
     from a global .sconsign.db* file--the actual file suffix is
     determined by the database module.
     """
-    def __init__(self, dir):
+    def __init__(self, dir) -> None:
         super().__init__()
 
         self.dir = dir
@@ -284,10 +282,9 @@ class DB(Base):
             self.set_entry = self.do_not_set_entry
             self.store_info = self.do_not_store_info
 
-        global sig_files
         sig_files.append(self)
 
-    def write(self, sync=1):
+    def write(self, sync: int=1) -> None:
         if not self.dirty:
             return
 
@@ -315,10 +312,8 @@ class DB(Base):
 
 
 class Dir(Base):
-    def __init__(self, fp=None, dir=None):
-        """
-        fp - file pointer to read entries from
-        """
+    def __init__(self, fp=None, dir=None) -> None:
+        """fp - file pointer to read entries from."""
         super().__init__()
 
         if not fp:
@@ -335,20 +330,16 @@ class Dir(Base):
 
 
 class DirFile(Dir):
-    """
-    Encapsulates reading and writing a per-directory .sconsign file.
-    """
-    def __init__(self, dir):
-        """
-        dir - the directory for the file
-        """
+    """Encapsulates reading and writing a per-directory .sconsign file."""
+    def __init__(self, dir) -> None:
+        """dir - the directory for the file."""
 
         self.dir = dir
         self.sconsign = os.path.join(dir.get_internal_path(), current_sconsign_filename())
 
         try:
             fp = open(self.sconsign, 'rb')
-        except IOError:
+        except OSError:
             fp = None
 
         try:
@@ -364,12 +355,10 @@ class DirFile(Dir):
         except AttributeError:
             pass
 
-        global sig_files
         sig_files.append(self)
 
-    def write(self, sync=1):
-        """
-        Write the .sconsign file to disk.
+    def write(self, sync: int=1) -> None:
+        """Write the .sconsign file to disk.
 
         Try to write to a temporary file first, and rename it if we
         succeed.  If we can't write to the temporary file, it's
@@ -389,11 +378,11 @@ class DirFile(Dir):
         try:
             file = open(temp, 'wb')
             fname = temp
-        except IOError:
+        except OSError:
             try:
                 file = open(self.sconsign, 'wb')
                 fname = self.sconsign
-            except IOError:
+            except OSError:
                 return
         for key, entry in self.entries.items():
             entry.convert_to_sconsign()
@@ -404,7 +393,7 @@ class DirFile(Dir):
                 mode = os.stat(self.sconsign)[0]
                 os.chmod(self.sconsign, 0o666)
                 os.unlink(self.sconsign)
-            except (IOError, OSError):
+            except OSError:
                 # Try to carry on in the face of either OSError
                 # (things like permission issues) or IOError (disk
                 # or network issues).  If there's a really dangerous
@@ -425,13 +414,13 @@ class DirFile(Dir):
                 os.chmod(self.sconsign, mode)
         try:
             os.unlink(temp)
-        except (IOError, OSError):
+        except OSError:
             pass
 
 ForDirectory = DB
 
 
-def File(name, dbm_module=None):
+def File(name, dbm_module=None) -> None:
     """
     Arrange for all signatures to be stored in a global .sconsign.db*
     file.

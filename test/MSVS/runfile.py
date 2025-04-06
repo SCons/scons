@@ -1,7 +1,8 @@
-
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -21,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test that we can generate Visual Studio 8.0 project (.vcproj) and
@@ -39,6 +37,8 @@ test = TestSConsMSVS.TestSConsMSVS()
 if sys.platform != 'win32':
     msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
+
+sconscript_dict = {'PROJECT_GUID': TestSConsMSVS.PROJECT_GUID}
 
 expected_vcprojfile = """\
 <?xml version="1.0" encoding="Windows-1252"?>
@@ -92,12 +92,11 @@ expected_vcprojfile = """\
 </VisualStudioProject>
 """
 
-
-
 SConscript_contents = """\
 env=Environment(tools=['msvs'], MSVS_VERSION = '8.0')
 
 env.MSVSProject(target = 'Test.vcproj',
+                MSVS_PROJECT_GUID = '%(PROJECT_GUID)s',
                 slnguid = '{SLNGUID}',
                 srcs = ['test.cpp'],
                 buildtarget = 'Test.exe',
@@ -106,11 +105,9 @@ env.MSVSProject(target = 'Test.vcproj',
                 auto_build_solution = 0)
 """
 
-
-
 test.subdir('work1')
 
-test.write(['work1', 'SConstruct'], SConscript_contents)
+test.write(['work1', 'SConstruct'], SConscript_contents % sconscript_dict)
 
 test.run(chdir='work1', arguments="Test.vcproj")
 
@@ -119,8 +116,6 @@ vcproj = test.read(['work1', 'Test.vcproj'], 'r')
 expect = test.msvs_substitute(expected_vcprojfile, '8.0', 'work1', 'SConstruct')
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
-
-
 
 test.pass_test()
 

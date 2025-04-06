@@ -20,6 +20,7 @@ Subpackages
     SCons.Script
     SCons.Taskmaster
     SCons.Tool
+    SCons.Util
     SCons.Variables
     SCons.compat
 
@@ -140,21 +141,15 @@ SCons.Subst module
     :undoc-members:
     :show-inheritance:
 
-SCons.Util module
------------------
-
-.. automodule:: SCons.Util
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 SCons.Warnings module
 ---------------------
+.. Turn off inherited members to quiet fluff from the Python base Exception
 
 .. automodule:: SCons.Warnings
     :members:
     :undoc-members:
     :show-inheritance:
+    :no-inherited-members:
 
 SCons.cpp module
 ----------------

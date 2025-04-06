@@ -1,8 +1,17 @@
 <?xml version='1.0'?>
+
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
+-->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -11,39 +20,16 @@
     %tools-mod;
     <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
     %variables-mod;
-    
+
 ]>
 
 <chapter id="chap-builders-built-in"
          xmlns="http://www.scons.org/dbxsd/v1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<!-- NOTE: this file is incomplete, and main.xml does not currently include it -->
 <title>Built-In Builders</title>
-
-<!--
-
-  __COPYRIGHT__
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--->
 
   <para>
 
@@ -154,8 +140,7 @@ Program(['hello.c', 'goodbye.c'])
 
     <scons_example name="buildersbuiltin_libs">
       <file name="SConstruct" printme="1">
-env = Environment(LIBS = ['foo1', 'foo2'],
-                  LIBPATH = ['/usr/dir1', 'dir2'])
+env = Environment(LIBS=['foo1', 'foo2'], LIBPATH=['/usr/dir1', 'dir2'])
 env.Program(['hello.c', 'goodbye.c'])
       </file>
       <file name="hello.c">
@@ -597,7 +582,7 @@ SharedLibrary(['file.c', 'another.c'])
   </section>
 
   <section>
-  <title>Microsoft Visual C++ Resource Files: the &RES; Builder</title>
+  <title>&MSVC; Resource Files: the &RES; Builder</title>
 
     <para>
 
@@ -805,8 +790,7 @@ directory/file
 
       <scons_example name="buildersbuiltin_ex3">
         <file name="SConstruct" printme="1">
-env = Environment(TARFLAGS = '-c -z',
-                  TARSUFFIX = '.tgz')
+env = Environment(TARFLAGS='-c -z', TARSUFFIX='.tgz')
 env.Tar('out', 'directory')
         </file>
         <file name="directory/file">
@@ -892,7 +876,7 @@ file2
 
       <programlisting>
 env = Environment()
-env.Java(target = 'classes', source = 'src')
+env.Java(target='classes', source='src')
       </programlisting>
 
       <para>
@@ -921,8 +905,8 @@ XXX Java() screen
 
       <programlisting>
 env = Environment()
-env.Java(target = 'classes', source = 'src')
-env.Jar(target = '', source = 'classes')
+env.Java(target='classes', source='src')
+env.Jar(target='', source='classes')
       </programlisting>
 
       <screen>

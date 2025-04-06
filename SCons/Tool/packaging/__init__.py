@@ -86,8 +86,7 @@ def Tag(env, target, source, *more_tags, **kw_tags):
             t.Tag(k, v)
 
 def Package(env, target=None, source=None, **kw):
-    """ Entry point for the package tool.
-    """
+    """Entry point for the package tool."""
     # check if we need to find the source files ourselves
     if not source:
         source = env.FindInstalledFiles()
@@ -96,17 +95,11 @@ def Package(env, target=None, source=None, **kw):
         raise UserError("No source for Package() given")
 
     # decide which types of packages shall be built. Can be defined through
-    # four mechanisms: command line argument, keyword argument,
-    # environment argument and default selection (zip or tar.gz) in that
-    # order.
-    try:
-        kw['PACKAGETYPE'] = env['PACKAGETYPE']
-    except KeyError:
-        pass
-
-    if not kw.get('PACKAGETYPE'):
+    # four mechanisms: command line argument, keyword argument, environment
+    # argument and default selection (zip or tar.gz) in that order.
+    kw.setdefault('PACKAGETYPE', env.get('PACKAGETYPE'))
+    if kw['PACKAGETYPE'] is None:
         kw['PACKAGETYPE'] = GetOption('package_type')
-
     if kw['PACKAGETYPE'] is None:
         if 'Tar' in env['BUILDERS']:
             kw['PACKAGETYPE'] = 'targz'
@@ -199,7 +192,7 @@ def Package(env, target=None, source=None, **kw):
 #
 added = False
 
-def generate(env):
+def generate(env) -> None:
     global added
     if not added:
         added = True
@@ -218,11 +211,11 @@ def generate(env):
         env['BUILDERS']['Tag'] = Tag
 
 
-def exists(env):
-    return 1
+def exists(env) -> bool:
+    return True
 
 
-def options(opts):
+def options(opts) -> None:
     opts.AddVariables(
         EnumVariable('PACKAGETYPE',
                      'the type of package to create.',
@@ -235,7 +228,7 @@ def options(opts):
 # Internal utility functions
 #
 
-def copy_attr(f1, f2):
+def copy_attr(f1, f2) -> None:
     """ Copies the special packaging file attributes from f1 to f2.
     """
     if f1._tags:
@@ -247,7 +240,7 @@ def copy_attr(f1, f2):
         for attr in pattrs:
             f2.Tag(attr, f1.GetTag(attr))
 
-def putintopackageroot(target, source, env, pkgroot, honor_install_location=1):
+def putintopackageroot(target, source, env, pkgroot, honor_install_location: int=1):
     """ Copies all source files to the directory given in pkgroot.
 
     If honor_install_location is set and the copied source file has an
@@ -298,7 +291,7 @@ def stripinstallbuilder(target, source, env):
 
     It also warns about files which have no install builder attached.
     """
-    def has_no_install_location(file):
+    def has_no_install_location(file) -> bool:
         return not (file.has_builder() and hasattr(file.builder, 'name')
                     and file.builder.name in ["InstallBuilder", "InstallAsBuilder"])
 

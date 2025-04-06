@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -68,7 +69,7 @@ Supported versions include
 <literal>6.0A</literal>,
 <literal>6.0</literal>,
 <literal>2003R2</literal>
-and 
+and
 <literal>2003R1</literal>.
 </para>
 </summary>

@@ -30,7 +30,7 @@ selection method.
 
 from . import win32
 
-def generate(env):
+def generate(env) -> None:
     if 'ENV' not in env:
         env['ENV']        = {}
     env['OBJPREFIX']      = ''
@@ -43,8 +43,9 @@ def generate(env):
     env['LIBSUFFIX']      = '.lib'
     env['SHLIBPREFIX']    = ''
     env['SHLIBSUFFIX']    = '.dll'
-    env['LIBPREFIXES']    = '$LIBPREFIX'
-    env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+    env['LIBPREFIXES']    = ['$LIBPREFIX']
+    env['LIBSUFFIXES']    = ['$LIBSUFFIX', '$SHLIBSUFFIX']
+    env['LIBLITERAPPREFIX'] = ''
     env['HOST_OS']        = 'os2'
     env['HOST_ARCH']      = win32.get_architecture().arch
 

@@ -31,6 +31,8 @@ Tests on the build system can detect if compiler sees header files, if
 libraries are installed, if some command line options are supported etc.
 """
 
+from __future__ import annotations
+
 import SCons.compat
 
 import atexit
@@ -61,7 +63,7 @@ SCons.Conftest.LogErrorMessages = 0
 build_type = None
 build_types = ['clean', 'help']
 
-def SetBuildType(buildtype):
+def SetBuildType(buildtype) -> None:
     global build_type
     build_type = buildtype
 
@@ -73,7 +75,7 @@ FORCE=1 # force all tests to be rebuilt
 CACHE=2 # force all tests to be taken from cache (raise an error, if necessary)
 cache_mode = AUTO
 
-def _set_conftest_node(node):
+def _set_conftest_node(node) -> None:
     node.attributes.conftest_node = 1
 
 def SetCacheMode(mode):
@@ -90,7 +92,7 @@ def SetCacheMode(mode):
         raise ValueError("SCons.SConf.SetCacheMode: Unknown mode " + mode)
 
 progress_display = SCons.Util.display # will be overwritten by SCons.Script
-def SetProgressDisplay(display):
+def SetProgressDisplay(display) -> None:
     """Set the progress display to use (called from SCons.Script)"""
     global progress_display
     progress_display = display
@@ -102,7 +104,7 @@ _ac_config_logs = {}  # all config.log files created in this build
 _ac_config_hs   = {}  # all config.h files created in this build
 sconf_global = None   # current sconf object
 
-def _createConfigH(target, source, env):
+def _createConfigH(target, source, env) -> None:
     t = open(str(target[0]), "w")
     defname = re.sub('[^A-Za-z0-9_]', '_', str(target[0]).upper())
     t.write("""#ifndef %(DEFNAME)s_SEEN
@@ -119,13 +121,13 @@ def _stringConfigH(target, source, env):
     return "scons: Configure: creating " + str(target[0])
 
 
-def NeedConfigHBuilder():
+def NeedConfigHBuilder() -> bool:
     if len(_ac_config_hs) == 0:
        return False
     else:
        return True
 
-def CreateConfigHBuilder(env):
+def CreateConfigHBuilder(env) -> None:
     """Called if necessary just before the building targets phase begins."""
     action = SCons.Action.Action(_createConfigH,
                                  _stringConfigH)
@@ -141,13 +143,13 @@ SCons.Warnings.enableWarningClass(SConfWarning)
 
 # some error definitions
 class SConfError(SCons.Errors.UserError):
-    def __init__(self,msg):
+    def __init__(self,msg) -> None:
         super().__init__(msg)
 
 class ConfigureDryRunError(SConfError):
     """Raised when a file or directory needs to be updated during a Configure
     process, but the user requested a dry-run"""
-    def __init__(self,target):
+    def __init__(self,target) -> None:
         if not isinstance(target, SCons.Node.FS.File):
             msg = 'Cannot create configure directory "%s" within a dry-run.' % str(target)
         else:
@@ -157,12 +159,12 @@ class ConfigureDryRunError(SConfError):
 class ConfigureCacheError(SConfError):
     """Raised when a use explicitely requested the cache feature, but the test
     is run the first time."""
-    def __init__(self,target):
+    def __init__(self,target) -> None:
         super().__init__('"%s" is not yet built and cache is forced.' % str(target))
 
 
 # define actions for building text files
-def _createSource(target, source, env):
+def _createSource(target, source, env) -> None:
     fd = open(str(target[0]), "w")
     fd.write(source[0].get_contents().decode())
     fd.close()
@@ -180,11 +182,11 @@ class SConfBuildInfo(SCons.Node.FS.FileBuildInfo):
     """
     __slots__ = ('result', 'string')
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.result = None # -> 0/None -> no error, != 0 error
         self.string = None # the stdout / stderr output when building the target
 
-    def set_build_result(self, result, string):
+    def set_build_result(self, result, string) -> None:
         self.result = result
         self.string = string
 
@@ -193,11 +195,11 @@ class Streamer:
     """
     'Sniffer' for a file-like writable object. Similar to the unix tool tee.
     """
-    def __init__(self, orig):
+    def __init__(self, orig) -> None:
         self.orig = orig
         self.s = io.StringIO()
 
-    def write(self, str):
+    def write(self, str) -> None:
         if self.orig:
             self.orig.write(str)
         try:
@@ -206,7 +208,7 @@ class Streamer:
             # "unicode argument expected" bug in IOStream (python 2.x)
             self.s.write(str.decode())
 
-    def writelines(self, lines):
+    def writelines(self, lines) -> None:
         for l in lines:
             self.write(l + '\n')
 
@@ -216,7 +218,7 @@ class Streamer:
         """
         return self.s.getvalue()
 
-    def flush(self):
+    def flush(self) -> None:
         if self.orig:
             self.orig.flush()
         self.s.flush()
@@ -227,11 +229,13 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
     This is almost the same as SCons.Script.BuildTask. Handles SConfErrors
     correctly and knows about the current cache_mode.
     """
-    def display(self, message):
+    non_sconf_nodes = set()
+
+    def display(self, message) -> None:
         if sconf_global.logstream:
             sconf_global.logstream.write("scons: Configure: " + message + "\n")
 
-    def display_cached_string(self, bi):
+    def display_cached_string(self, bi) -> None:
         """
         Logs the original builder messages, given the SConfBuildInfo instance
         bi.
@@ -248,10 +252,9 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
     def failed(self):
         # check, if the reason was a ConfigureDryRunError or a
         # ConfigureCacheError and if yes, reraise the exception
-        exc_type = self.exc_info()[0]
+        exc_type, exc, _ = self.exc_info()
         if issubclass(exc_type, SConfError):
-            # TODO pylint E0704: bare raise not inside except
-            raise
+            raise exc
         elif issubclass(exc_type, SCons.Errors.BuildError):
             # we ignore Build Errors (occurs, when a test doesn't pass)
             # Clear the exception to prevent the contained traceback
@@ -263,12 +266,12 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
             sys.excepthook(*self.exc_info())
         return SCons.Taskmaster.Task.failed(self)
 
-    def collect_node_states(self):
+    def collect_node_states(self) -> tuple[bool, bool, bool]:
         # returns (is_up_to_date, cached_error, cachable)
-        # where is_up_to_date is 1, if the node(s) are up_to_date
-        #       cached_error  is 1, if the node(s) are up_to_date, but the
-        #                           build will fail
-        #       cachable      is 0, if some nodes are not in our cache
+        # where is_up_to_date is True if the node(s) are up_to_date
+        #       cached_error  is True if the node(s) are up_to_date, but the
+        #                             build will fail
+        #       cachable      is False if some nodes are not in our cache
         T = 0
         changed = False
         cached_error = False
@@ -309,7 +312,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
         if cache_mode == CACHE and not cachable:
             raise ConfigureCacheError(self.targets[0])
         elif cache_mode == FORCE:
-            is_up_to_date = 0
+            is_up_to_date = False
 
         if cached_error and is_up_to_date:
             self.display("Building \"%s\" failed in a previous run and all "
@@ -376,6 +379,25 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                     sconsign.set_entry(t.name, sconsign_entry)
                     sconsign.merge()
 
+    def make_ready_current(self) -> None:
+        # We're overriding make_ready_current() call to add to the list
+        # of nodes used by this task, filtering out any nodes created
+        # by the checker for it's own purpose.
+        self.non_sconf_nodes.update([t for t in self.targets if not t.is_conftest()])
+        super().make_ready_current()
+    make_ready = make_ready_current
+
+    def postprocess(self) -> None:
+        # We're done executing this task, so now we'll go through all the
+        # nodes used by this task which aren't nodes created for
+        # Configure checkers, but rather are existing or built files
+        # and reset their node info.
+        # If we do not reset their node info, any changes in these
+        # nodes will not trigger builds in the normal build process
+        for node in self.non_sconf_nodes:
+            node.ninfo = node.new_ninfo()
+        super().postprocess()
+
 class SConfBase:
     """This is simply a class to represent a configure context. After
     creating a SConf object, you can call any tests. After finished with your
@@ -389,8 +411,8 @@ class SConfBase:
     SConf run, we need to explicitly cache this error.
     """
 
-    def __init__(self, env, custom_tests = {}, conf_dir='$CONFIGUREDIR',
-                 log_file='$CONFIGURELOG', config_h = None, _depth = 0):
+    def __init__(self, env, custom_tests = {}, conf_dir: str='$CONFIGUREDIR',
+                 log_file: str='$CONFIGURELOG', config_h = None, _depth: int = 0) -> None:
         """Constructor. Pass additional tests in the custom_tests-dictionary,
         e.g. custom_tests={'CheckPrivate':MyPrivateTest}, where MyPrivateTest
         defines a custom test.
@@ -411,7 +433,7 @@ class SConfBase:
             # and keep the build state consistent.
             def force_build(dependency, target, prev_ni,
                             repo_node=None,
-                            env_decider=env.decide_source):
+                            env_decider=env.decide_source) -> bool:
                 try:
                     env_decider(dependency, target, prev_ni, repo_node)
                 except Exception as e:
@@ -475,7 +497,7 @@ class SConfBase:
 
         return self.env
 
-    def Define(self, name, value = None, comment = None):
+    def Define(self, name, value = None, comment = None) -> None:
         """
         Define a pre processor symbol name, with the optional given value in the
         current config header.
@@ -581,7 +603,7 @@ class SConfBase:
         """
         return self.pspawn(sh, escape, cmd, args, env, self.logstream, self.logstream)
 
-    def TryBuild(self, builder, text=None, extension=""):
+    def TryBuild(self, builder, text=None, extension: str=""):
         """Low level TryBuild implementation. Normally you don't need to
         call that - you can use TryCompile / TryLink / TryRun instead
         """
@@ -652,7 +674,7 @@ class SConfBase:
 
         return result
 
-    def TryAction(self, action, text = None, extension = ""):
+    def TryAction(self, action, text = None, extension: str = ""):
         """Tries to execute the given action with optional source file
         contents <text> and optional source file extension <extension>,
         Returns the status (0 : failed, 1 : ok) and the contents of the
@@ -693,6 +715,12 @@ class SConfBase:
         if ok:
             prog = self.lastTarget
             pname = prog.get_internal_path()
+            if sys.platform == "win32" and os.sep == "/":
+                # msys might have a Python where os.sep='/' on Windows.
+                # That builds a path in the env.Command below which breaks
+                # if the SHELL used is cmd because 'pname' will always have
+                # an os.sep in it.
+                pname = pname.replace(os.sep, os.altsep)
             output = self.confdir.File(os.path.basename(pname)+'.out')
             node = self.env.Command(output, prog, [ [ pname, ">", "${TARGET}"] ])
             ok = self.BuildNodes(node)
@@ -703,7 +731,7 @@ class SConfBase:
 
     class TestWrapper:
         """A wrapper around Tests (to ensure sanity)"""
-        def __init__(self, test, sconf):
+        def __init__(self, test, sconf) -> None:
             self.test = test
             self.sconf = sconf
         def __call__(self, *args, **kw):
@@ -716,12 +744,12 @@ class SConfBase:
             context.Result("error: no result")
             return ret
 
-    def AddTest(self, test_name, test_instance):
+    def AddTest(self, test_name, test_instance) -> None:
         """Adds test_class to this SConf instance. It can be called with
         self.test_name(...)"""
         setattr(self, test_name, SConfBase.TestWrapper(test_instance, self))
 
-    def AddTests(self, tests):
+    def AddTests(self, tests) -> None:
         """Adds all the tests given in the tests dictionary to this SConf
         instance
         """
@@ -737,7 +765,7 @@ class SConfBase:
             if not os.path.isdir( dirName ):
                 os.makedirs( dirName )
 
-    def _startup(self):
+    def _startup(self) -> None:
         """Private method. Set up logstream, and set the environment
         variables necessary for a piped build
         """
@@ -760,7 +788,7 @@ class SConfBase:
                 log_mode = "w"
             fp = open(str(self.logfile), log_mode)
 
-            def conflog_cleanup(logf):
+            def conflog_cleanup(logf) -> None:
                 logf.close()
 
             atexit.register(conflog_cleanup, fp)
@@ -834,7 +862,7 @@ class CheckContext:
     changed.
     """
 
-    def __init__(self, sconf):
+    def __init__(self, sconf) -> None:
         """Constructor. Pass the corresponding SConf instance."""
         self.sconf = sconf
         self.did_show_result = 0
@@ -852,7 +880,7 @@ class CheckContext:
         # correctly. Note that we can't use Conftest.py's support for config.h,
         # cause we will need to specify a builder for the config.h file ...
 
-    def Message(self, text):
+    def Message(self, text) -> None:
         """Inform about what we are doing right now, e.g.
         'Checking for SOMETHING ... '
         """
@@ -860,7 +888,7 @@ class CheckContext:
         self.sconf.cached = 1
         self.did_show_result = 0
 
-    def Result(self, res):
+    def Result(self, res) -> None:
         """Inform about the result of the test. If res is not a string, displays
         'yes' or 'no' depending on whether res is evaluated as true or false.
         The result is only displayed when self.did_show_result is not set.
@@ -902,17 +930,17 @@ class CheckContext:
 
     #### Stuff used by Conftest.py (look there for explanations).
 
-    def BuildProg(self, text, ext):
+    def BuildProg(self, text, ext) -> bool:
         self.sconf.cached = 1
         # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
         return not self.TryBuild(self.env.Program, text, ext)
 
-    def CompileProg(self, text, ext):
+    def CompileProg(self, text, ext) -> bool:
         self.sconf.cached = 1
         # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
         return not self.TryBuild(self.env.Object, text, ext)
 
-    def CompileSharedObject(self, text, ext):
+    def CompileSharedObject(self, text, ext) -> bool:
         self.sconf.cached = 1
         # TODO: should use self.vardict for $SHCC, $CPPFLAGS, etc.
         return not self.TryBuild(self.env.SharedObject, text, ext)
@@ -923,14 +951,20 @@ class CheckContext:
         st, out = self.TryRun(text, ext)
         return not st, out
 
-    def AppendLIBS(self, lib_name_list):
+    def AppendLIBS(self, lib_name_list, unique: bool=False):
         oldLIBS = self.env.get( 'LIBS', [] )
-        self.env.Append(LIBS = lib_name_list)
+        if unique:
+            self.env.AppendUnique(LIBS = lib_name_list)
+        else:
+            self.env.Append(LIBS = lib_name_list)
         return oldLIBS
 
-    def PrependLIBS(self, lib_name_list):
+    def PrependLIBS(self, lib_name_list, unique: bool=False):
         oldLIBS = self.env.get( 'LIBS', [] )
-        self.env.Prepend(LIBS = lib_name_list)
+        if unique:
+            self.env.PrependUnique(LIBS = lib_name_list)
+        else:
+            self.env.Prepend(LIBS = lib_name_list)
         return oldLIBS
 
     def SetLIBS(self, val):
@@ -938,7 +972,7 @@ class CheckContext:
         self.env.Replace(LIBS = val)
         return oldLIBS
 
-    def Display(self, msg):
+    def Display(self, msg) -> None:
         if self.sconf.cached:
             # We assume that Display is called twice for each test here
             # once for the Checking for ... message and once for the result.
@@ -948,7 +982,7 @@ class CheckContext:
         progress_display(msg, append_newline=0)
         self.Log("scons: Configure: " + msg + "\n")
 
-    def Log(self, msg):
+    def Log(self, msg) -> None:
         if self.sconf.logstream is not None:
             self.sconf.logstream.write(msg)
 
@@ -968,39 +1002,39 @@ def SConf(*args, **kw):
         return SCons.Util.Null()
 
 
-def CheckFunc(context, function_name, header = None, language = None):
-    res = SCons.Conftest.CheckFunc(context, function_name, header = header, language = language)
+def CheckFunc(context, function_name, header = None, language = None, funcargs = None) -> bool:
+    res = SCons.Conftest.CheckFunc(context, function_name, header = header, language = language, funcargs = funcargs)
     context.did_show_result = 1
     return not res
 
-def CheckType(context, type_name, includes = "", language = None):
+def CheckType(context, type_name, includes: str = "", language = None) -> bool:
     res = SCons.Conftest.CheckType(context, type_name,
                                    header = includes, language = language)
     context.did_show_result = 1
     return not res
 
-def CheckTypeSize(context, type_name, includes = "", language = None, expect = None):
+def CheckTypeSize(context, type_name, includes: str = "", language = None, expect = None):
     res = SCons.Conftest.CheckTypeSize(context, type_name,
                                        header = includes, language = language,
                                        expect = expect)
     context.did_show_result = 1
     return res
 
-def CheckDeclaration(context, declaration, includes = "", language = None):
+def CheckDeclaration(context, declaration, includes: str = "", language = None) -> bool:
     res = SCons.Conftest.CheckDeclaration(context, declaration,
                                           includes = includes,
                                           language = language)
     context.did_show_result = 1
     return not res
 
-def CheckMember(context, aggregate_member, header = None, language = None):
+def CheckMember(context, aggregate_member, header = None, language = None) -> bool:
     '''Returns the status (False : failed, True : ok).'''
     res = SCons.Conftest.CheckMember(context, aggregate_member, header=header, language=language)
     context.did_show_result = 1
     return not res
 
 
-def createIncludesFromHeaders(headers, leaveLast, include_quotes = '""'):
+def createIncludesFromHeaders(headers, leaveLast, include_quotes: str = '""'):
     # used by CheckHeader and CheckLibWithHeader to produce C - #include
     # statements from the specified header (list)
     if not SCons.Util.is_List(headers):
@@ -1016,7 +1050,7 @@ def createIncludesFromHeaders(headers, leaveLast, include_quotes = '""'):
                  % (include_quotes[0], s, include_quotes[1]))
     return ''.join(l), lastHeader
 
-def CheckHeader(context, header, include_quotes = '<>', language = None):
+def CheckHeader(context, header, include_quotes: str = '<>', language = None) -> bool:
     """
     A test for a C or C++ header file.
     """
@@ -1028,29 +1062,29 @@ def CheckHeader(context, header, include_quotes = '<>', language = None):
     context.did_show_result = 1
     return not res
 
-def CheckCC(context):
+def CheckCC(context) -> bool:
     res = SCons.Conftest.CheckCC(context)
     context.did_show_result = 1
     return not res
 
-def CheckCXX(context):
+def CheckCXX(context) -> bool:
     res = SCons.Conftest.CheckCXX(context)
     context.did_show_result = 1
     return not res
 
-def CheckSHCC(context):
+def CheckSHCC(context) -> bool:
     res = SCons.Conftest.CheckSHCC(context)
     context.did_show_result = 1
     return not res
 
-def CheckSHCXX(context):
+def CheckSHCXX(context) -> bool:
     res = SCons.Conftest.CheckSHCXX(context)
     context.did_show_result = 1
     return not res
 
 # Bram: Make this function obsolete?  CheckHeader() is more generic.
 
-def CheckCHeader(context, header, include_quotes = '""'):
+def CheckCHeader(context, header, include_quotes: str = '""'):
     """
     A test for a C header file.
     """
@@ -1059,19 +1093,25 @@ def CheckCHeader(context, header, include_quotes = '""'):
 
 # Bram: Make this function obsolete?  CheckHeader() is more generic.
 
-def CheckCXXHeader(context, header, include_quotes = '""'):
+def CheckCXXHeader(context, header, include_quotes: str = '""'):
     """
     A test for a C++ header file.
     """
     return CheckHeader(context, header, include_quotes, language = "C++")
 
 
-def CheckLib(context, library = None, symbol = "main",
-             header = None, language = None, autoadd = 1):
+def CheckLib(context, library = None, symbol: str = "main",
+             header = None, language = None, extra_libs = None,
+             autoadd: bool=True, append: bool=True, unique: bool=False) -> bool:
     """
-    A test for a library. See also CheckLibWithHeader.
+    A test for a library. See also :func:`CheckLibWithHeader`.
     Note that library may also be None to test whether the given symbol
     compiles without flags.
+
+    .. versionchanged:: 4.9.0
+       Added the *extra_libs* keyword parameter. The actual implementation
+       is in :func:`SCons.Conftest.CheckLib` which already accepted this
+       parameter, so this is only exposing existing functionality.
     """
 
     if not library:
@@ -1081,26 +1121,32 @@ def CheckLib(context, library = None, symbol = "main",
         library = [library]
 
     # ToDo: accept path for the library
-    res = SCons.Conftest.CheckLib(context, library, symbol, header = header,
-                                        language = language, autoadd = autoadd)
-    context.did_show_result = 1
+    res = SCons.Conftest.CheckLib(context, library, symbol, header=header,
+                                  language=language, extra_libs=extra_libs,
+                                  autoadd=autoadd, append=append, unique=unique)
+    context.did_show_result = True
     return not res
 
 # XXX
 # Bram: Can only include one header and can't use #ifdef HAVE_HEADER_H.
 
 def CheckLibWithHeader(context, libs, header, language,
-                       call = None, autoadd = 1):
-    # ToDo: accept path for library. Support system header files.
+                       extra_libs = None,  call = None, autoadd: bool=True,
+                       append: bool=True, unique: bool=False) -> bool:
     """
     Another (more sophisticated) test for a library.
     Checks, if library and header is available for language (may be 'C'
     or 'CXX'). Call maybe be a valid expression _with_ a trailing ';'.
-    As in CheckLib, we support library=None, to test if the call compiles
+    As in :func:`CheckLib`, we support library=None, to test if the call compiles
     without extra link flags.
+
+    .. versionchanged:: 4.9.0
+       Added the *extra_libs* keyword parameter. The actual implementation
+       is in :func:`SCons.Conftest.CheckLib` which already accepted this
+       parameter, so this is only exposing existing functionality.
     """
-    prog_prefix, dummy = \
-                 createIncludesFromHeaders(header, 0)
+    # ToDo: accept path for library. Support system header files.
+    prog_prefix, dummy = createIncludesFromHeaders(header, 0)
     if not libs:
         libs = [None]
 
@@ -1108,7 +1154,8 @@ def CheckLibWithHeader(context, libs, header, language,
         libs = [libs]
 
     res = SCons.Conftest.CheckLib(context, libs, None, prog_prefix,
-            call = call, language = language, autoadd = autoadd)
+            extra_libs = extra_libs, call = call, language = language,
+            autoadd=autoadd, append=append, unique=unique)
     context.did_show_result = 1
     return not res
 

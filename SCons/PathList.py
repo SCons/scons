@@ -23,7 +23,7 @@
 
 """Handle lists of directory paths.
 
-These are the path lists that get set as CPPPATH, LIBPATH,
+These are the path lists that get set as ``CPPPATH``, ``LIBPATH``,
 etc.) with as much caching of data and efficiency as we can, while
 still keeping the evaluation delayed so that we Do the Right Thing
 (almost) regardless of how the variable is specified.
@@ -47,10 +47,10 @@ def node_conv(obj):
     """
     This is the "string conversion" routine that we have our substitutions
     use to return Nodes, not strings.  This relies on the fact that an
-    EntryProxy object has a get() method that returns the underlying
-    Node that it wraps, which is a bit of architectural dependence
-    that we might need to break or modify in the future in response to
-    additional requirements.
+    :class:`~SCons.Node.FS.EntryProxy` object has a ``get()`` method that
+    returns the underlying Node that it wraps, which is a bit of
+    architectural dependence that we might need to break or modify in the
+    future in response to additional requirements.
     """
     try:
         get = obj.get
@@ -64,37 +64,40 @@ def node_conv(obj):
     return result
 
 class _PathList:
+    """An actual PathList object.
+
+    Initializes a :class:`PathList` object, canonicalizing the input and
+    pre-processing it for quicker substitution later.
+
+    The stored representation of the :class:`PathList` is a list of tuples
+    containing (type, value), where the "type" is one of the ``TYPE_*``
+    variables defined above.  We distinguish between:
+
+    *   Strings that contain no ``$`` and therefore need no
+        delayed-evaluation string substitution (we expect that there
+        will be many of these and that we therefore get a pretty
+        big win from avoiding string substitution)
+
+    *   Strings that contain ``$`` and therefore need substitution
+        (the hard case is things like ``${TARGET.dir}/include``,
+        which require re-evaluation for every target + source)
+
+    *   Other objects (which may be something like an
+        :class:`~SCons.Node.FS.EntryProxy`
+        that needs a method called to return a Node)
+
+    Pre-identifying the type of each element in the :class:`PathList`
+    up-front and storing the type in the list of tuples is intended to
+    reduce the amount of calculation when we actually do the substitution
+    over and over for each target.
     """
-    An actual PathList object.
-    """
-    def __init__(self, pathlist):
-        """
-        Initializes a PathList object, canonicalizing the input and
-        pre-processing it for quicker substitution later.
 
-        The stored representation of the PathList is a list of tuples
-        containing (type, value), where the "type" is one of the TYPE_*
-        variables defined above.  We distinguish between:
-
-            strings that contain no '$' and therefore need no
-            delayed-evaluation string substitution (we expect that there
-            will be many of these and that we therefore get a pretty
-            big win from avoiding string substitution)
-
-            strings that contain '$' and therefore need substitution
-            (the hard case is things like '${TARGET.dir}/include',
-            which require re-evaluation for every target + source)
-
-            other objects (which may be something like an EntryProxy
-            that needs a method called to return a Node)
-
-        Pre-identifying the type of each element in the PathList up-front
-        and storing the type in the list of tuples is intended to reduce
-        the amount of calculation when we actually do the substitution
-        over and over for each target.
-        """
+    def __init__(self, pathlist, split=True) -> None:
         if SCons.Util.is_String(pathlist):
-            pathlist = pathlist.split(os.pathsep)
+            if split:
+                pathlist = pathlist.split(os.pathsep)
+            else:  # no splitting, but still need a list
+                pathlist = [pathlist]
         elif not SCons.Util.is_Sequence(pathlist):
             pathlist = [pathlist]
 
@@ -113,7 +116,7 @@ class _PathList:
 
         self.pathlist = tuple(pl)
 
-    def __len__(self): return len(self.pathlist)
+    def __len__(self) -> int: return len(self.pathlist)
 
     def __getitem__(self, i): return self.pathlist[i]
 
@@ -141,8 +144,7 @@ class _PathList:
 
 
 class PathListCache:
-    """
-    A class to handle caching of PathList lookups.
+    """A class to handle caching of PathList lookups.
 
     This class gets instantiated once and then deleted from the namespace,
     so it's used as a Singleton (although we don't enforce that in the
@@ -151,34 +153,33 @@ class PathListCache:
     use the same Memoizer pattern that we use elsewhere to count cache
     hits and misses, which is very valuable.
 
-    Lookup keys in the cache are computed by the _PathList_key() method.
+    Lookup keys in the cache are computed by the :meth:`_PathList_key` method.
     Cache lookup should be quick, so we don't spend cycles canonicalizing
-    all forms of the same lookup key.  For example, 'x:y' and ['x',
-    'y'] logically represent the same list, but we don't bother to
+    all forms of the same lookup key.  For example, ``x:y`` and ``['x', 'y']``
+    logically represent the same list, but we don't bother to
     split string representations and treat those two equivalently.
     (Note, however, that we do, treat lists and tuples the same.)
 
     The main type of duplication we're trying to catch will come from
     looking up the same path list from two different clones of the
-    same construction environment.  That is, given
-    
+    same construction environment.  That is, given::
+
         env2 = env1.Clone()
 
-    both env1 and env2 will have the same CPPPATH value, and we can
-    cheaply avoid re-parsing both values of CPPPATH by using the
+    both ``env1`` and ``env2`` will have the same ``CPPPATH`` value, and we can
+    cheaply avoid re-parsing both values of ``CPPPATH`` by using the
     common value from this cache.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self._memo = {}
 
     def _PathList_key(self, pathlist):
-        """
-        Returns the key for memoization of PathLists.
+        """Returns the key for memoization of PathLists.
 
         Note that we want this to be pretty quick, so we don't completely
         canonicalize all forms of the same list.  For example,
-        'dir1:$ROOT/dir2' and ['$ROOT/dir1', 'dir'] may logically
-        represent the same list if you're executing from $ROOT, but
+        ``dir1:$ROOT/dir2`` and ``['$ROOT/dir1', 'dir']`` may logically
+        represent the same list if you're executing from ``$ROOT``, but
         we're not going to bother splitting strings into path elements,
         or massaging strings into Nodes, to identify that equivalence.
         We just want to eliminate obvious redundancy from the normal
@@ -189,10 +190,11 @@ class PathListCache:
         return pathlist
 
     @SCons.Memoize.CountDictCall(_PathList_key)
-    def PathList(self, pathlist):
-        """
-        Returns the cached _PathList object for the specified pathlist,
-        creating and caching a new object as necessary.
+    def PathList(self, pathlist, split=True):
+        """Entry point for getting PathLists.
+
+        Returns the cached :class:`_PathList` object for the specified
+        pathlist, creating and caching a new object as necessary.
         """
         pathlist = self._PathList_key(pathlist)
         try:
@@ -206,7 +208,7 @@ class PathListCache:
             except KeyError:
                 pass
 
-        result = _PathList(pathlist)
+        result = _PathList(pathlist, split)
 
         memo_dict[pathlist] = result
 
@@ -214,7 +216,8 @@ class PathListCache:
 
 PathList = PathListCache().PathList
 
-
+# TODO: removing the class object here means Sphinx doesn't pick up its
+#   docstrings: they're fine for reading here, but are not in API Docs.
 del PathListCache
 
 # Local Variables:

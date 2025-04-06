@@ -1,10 +1,6 @@
-"""SCons.Tool.Packaging.rpm
-
-The rpm packager.
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -25,13 +21,10 @@ The rpm packager.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
+"""The rpm packager."""
 
 import SCons.Builder
 import SCons.Tool.rpmutils
-
-from SCons.Environment import OverrideEnvironment
 from SCons.Tool.packaging import stripinstallbuilder, src_targz
 from SCons.Errors import UserError
 
@@ -73,7 +66,7 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION,
         kw['SOURCE_URL']=(str(target[0])+".tar.gz").replace('.rpm', '')
 
     # mangle the source and target list for the rpmbuild
-    env = OverrideEnvironment(env, kw)
+    env = env.Override(kw)
     target, source = stripinstallbuilder(target, source, env)
     target, source = addspecfile(target, source, env)
     target, source = collectintargz(target, source, env)
@@ -317,14 +310,14 @@ class SimpleTagCompiler:
       "cdef ghij cdef gh ij"
 
     """
-    def __init__(self, tagset, mandatory=1):
+    def __init__(self, tagset, mandatory: int=1) -> None:
         self.tagset = tagset
         self.mandatory = mandatory
 
     def compile(self, values):
         """ Compiles the tagset and returns a str containing the result
         """
-        def is_international(tag):
+        def is_international(tag) -> bool:
             return tag.endswith('_')
 
         def get_country_code(tag):

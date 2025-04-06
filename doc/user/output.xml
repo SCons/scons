@@ -1,4 +1,13 @@
 <?xml version='1.0'?>
+
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
+-->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
@@ -19,35 +28,10 @@
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>Controlling Build Output</title>
 
-<!--
-
-  __COPYRIGHT__
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--->
-
   <para>
 
   A key aspect of creating a usable build configuration
-  is providing useful output from the build
+  is providing useful output from the build,
   so its users can readily understand
   what the build is doing
   and get information about how to control the build.
@@ -58,7 +42,7 @@
 
   </para>
 
-  <section>
+  <section id="sect-build-help">
   <title>Providing Build Help:  the &Help; Function</title>
 
     <para>
@@ -67,7 +51,7 @@
     users some help that describes the
     specific targets, build options, etc.,
     that can be used for your build.
-    &SCons; provides the &Help; function
+    &SCons; provides the &f-link-Help; function
     to allow you to specify this help text:
 
     </para>
@@ -83,7 +67,7 @@ Type: 'scons program' to build the production program,
 
     <para>
 
-    Optionally, one can specify the append flag:
+    Optionally, you can specify the <parameter>append</parameter> flag:
 
     </para>
 
@@ -107,7 +91,7 @@ Type: 'scons program' to build the production program,
     <para>
 
     When the &SConstruct; or &SConscript; files
-    contain such a call to the &Help; function,
+    contain a call to the &Help; function,
     the specified help text will be displayed in response to
     the &SCons; <option>-h</option> option:
 
@@ -120,11 +104,12 @@ Type: 'scons program' to build the production program,
     <para>
 
     The &SConscript; files may contain
-    multiple calls to the &Help; function,
+    multiple calls to the &f-link-Help; function,
     in which case the specified text(s)
     will be concatenated when displayed.
-    This allows you to split up the
-    help text across multiple &SConscript; files.
+    This allows you to define fragments of help text together with
+    the corresponding feature, even if spread
+    across multiple &SConscript; files.
     In this situation, the order in
     which the &SConscript; files are called
     will determine the order in which the &Help; functions are called,
@@ -135,8 +120,18 @@ Type: 'scons program' to build the production program,
 
     <para>
 
-    When used with &AddOption; Help("text", append=False) will clobber any help output associated with AddOption().
-    To preserve the help output from AddOption(), set append=True.
+    Calling <literal>Help("text")</literal> overwrites
+    the help text that otherwise would be collected from any
+    command-line options defined in &f-link-AddOption; calls.
+    To preserve the &AddOption; help text,
+    add the <literal>append=True</literal> keyword argument
+    when calling <literal>Help</literal>.
+    This also preserves the option help for the &scons; command itself.
+    To preserve only the &AddOption; help,
+    also add the <literal>local_only=True</literal> keyword argument.
+    (This only matters the first time you call &Append;,
+    on any subsequent calls the text you passed is added
+    to the existing help text).
 
     </para>
 
@@ -368,7 +363,7 @@ cc -o foo foo.o
 
   </section>
 
-  <section>
+  <section id="sect-build-progress">
   <title>Providing Build Progress Output:  the &Progress; Function</title>
 
     <para>
@@ -601,7 +596,7 @@ Progress(progress_function)
 
   </section>
 
-  <section>
+  <section id="sect-build-status">
   <title>Printing Detailed Build Status:  the &GetBuildFailures; Function</title>
 
     <para>

@@ -65,13 +65,13 @@
     <title>See also</title>
     <para><emphasis remap="B">RefDB</emphasis> (7),
     <emphasis remap="B"><link linkend="refentry-refdbd">refdbd</link></emphasis> (1)
-    <emphasis remap="B"><link linkend="refentry-refdbctl">refdbctl</link></emphasis> (1).</para> 
+    <emphasis remap="B"><link linkend="refentry-refdbctl">refdbctl</link></emphasis> (1).</para>
 
     <para><emphasis remap="I">RefDB manual (local copy) </emphasis> &lt;prefix&gt;/share/doc/refdb-&lt;version&gt;/refdb-manual/index.html</para>
 
-    <para><emphasis remap="I">RefDB manual (web) </emphasis> &lt;<ulink url="http://refdb.sourceforge.net/manual/index.html">http://refdb.sourceforge.net/manual/index.html</ulink>&gt;</para>
+    <para><emphasis remap="I">RefDB manual (web) </emphasis> &lt;<ulink url="https://refdb.sourceforge.net/manual/index.html">https://refdb.sourceforge.net/manual/index.html</ulink>&gt;</para>
 
-    <para><emphasis remap="I">RefDB on the web </emphasis> &lt;<ulink url="http://refdb.sourceforge.net/">http://refdb.sourceforge.net/</ulink>&gt;</para>
+    <para><emphasis remap="I">RefDB on the web </emphasis> &lt;<ulink url="https://refdb.sourceforge.net/">https://refdb.sourceforge.net/</ulink>&gt;</para>
   </refsect1>
 
   <refsect1 id="refdb-author">

@@ -39,9 +39,6 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', r"""
 import re
 
-import SCons.Action
-import SCons.Builder
-
 options = Variables()
 options.AddVariables(
     ('header', 'Header string (default cell argument)', 'Head:'),
@@ -72,7 +69,7 @@ def toto(header='%(header)s', trailer='%(trailer)s'):
         def foo(b=b):
             return %(nestedfuncexp)s
 
-        with open(str(target[0]), 'wb') as f:
+        with open(target[0], 'wb') as f:
             f.write(bytearray(header, 'utf-8'))
             for d in env['ENVDEPS']:
                 f.write(bytearray(d+'%(separator)s', 'utf-8'))
@@ -91,8 +88,8 @@ def toto(header='%(header)s', trailer='%(trailer)s'):
 
 exec(withClosure % optEnv)
 
-genHeaderBld = SCons.Builder.Builder(
-    action=SCons.Action.Action(toto(), 'Generating $TARGET', varlist=['ENVDEPS']),
+genHeaderBld = Builder(
+    action=Action(toto(), 'Generating $TARGET', varlist=['ENVDEPS']),
     suffix='.gen.h',
 )
 

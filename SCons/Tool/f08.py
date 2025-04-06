@@ -32,7 +32,7 @@ from SCons.Tool.FortranCommon import add_all_to_env, add_f08_to_env
 
 compilers = ['f08']
 
-def generate(env):
+def generate(env) -> None:
     add_all_to_env(env)
     add_f08_to_env(env)
 

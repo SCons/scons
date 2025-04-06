@@ -45,7 +45,7 @@ if not IS_WINDOWS:
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 def cat(target, source, env):
-    with open(str(target[0]), 'wb') as f, open(str(source[0]), 'rb') as ifp:
+    with open(target[0], 'wb') as f, open(source[0], 'rb') as ifp:
         f.write(ifp.read())
 env = Environment(tools=[], BUILDERS={'Cat':Builder(action=Action(cat))})
 env.Cat('file.out', 'file.in')

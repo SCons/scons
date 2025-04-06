@@ -39,7 +39,7 @@ import os
 
 import SCons.Builder
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for ipkg to an Environment."""
     try:
         bld = env['BUILDERS']['Ipkg']

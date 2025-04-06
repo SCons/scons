@@ -64,9 +64,9 @@ SConscript('bld/SConscript', ['Nodes'])
 if %(_E)s:
   import os
   derived = [N.is_derived() for N in Nodes]
-  real1 = [os.path.exists(str(N)) for N in Nodes]
+  real1 = [os.path.exists(N) for N in Nodes]
   exists = [N.exists() for N in Nodes]
-  real2 = [os.path.exists(str(N)) for N in Nodes]
+  real2 = [os.path.exists(N) for N in Nodes]
   for N,D,R,E,F in zip(Nodes, derived, real1, exists, real2):
     print('%%s: %%s %%s %%s %%s'%%(N,D,R,E,F))
 foo.SharedLibrary(target = 'foo', source = 'foo%(_obj)s')
@@ -119,13 +119,13 @@ import os
 Import('*')
 
 def mycopy(env, source, target):
-    with open(str(target[0]), 'wt') as fo, open(str(source[0]), 'rt') as fi:
+    with open(target[0], 'wt') as fo, open(source[0], 'rt') as fi:
         fo.write(fi.read())
 
 def exists_test(node):
-    before = os.path.exists(str(node))  # doesn't exist yet in VariantDir
+    before = os.path.exists(node)  # doesn't exist yet in VariantDir
     via_node = node.exists()            # side effect causes copy from src
-    after = os.path.exists(str(node))
+    after = os.path.exists(node)
     node.is_derived()
     import SCons.Script
     if GetOption('no_exec'):

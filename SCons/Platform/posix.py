@@ -74,7 +74,7 @@ def piped_env_spawn(sh, escape, cmd, args, env, stdout, stderr):
                        env, stdout, stderr)
 
 
-def generate(env):
+def generate(env) -> None:
     # Bearing in mind we have python 2.4 as a baseline, we can just do this:
     spawn = subprocess_spawn
     pspawn = piped_env_spawn
@@ -93,8 +93,9 @@ def generate(env):
     env['LIBSUFFIX']      = '.a'
     env['SHLIBPREFIX']    = '$LIBPREFIX'
     env['SHLIBSUFFIX']    = '.so'
-    env['LIBPREFIXES']    = [ '$LIBPREFIX' ]
-    env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+    env['LIBPREFIXES']    = ['$LIBPREFIX']
+    env['LIBSUFFIXES']    = ['$LIBSUFFIX', '$SHLIBSUFFIX']
+    env['LIBLITERALPREFIX'] = ''
     env['HOST_OS']        = 'posix'
     env['HOST_ARCH']      = platform.machine()
     env['PSPAWN']         = pspawn

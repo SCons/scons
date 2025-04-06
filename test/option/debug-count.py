@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -25,8 +27,6 @@
 Test that the --debug=count option works.
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 import re
 import sys
 
@@ -34,15 +34,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-
-test.write('SConstruct', """
-DefaultEnvironment(tools=[])
-def cat(target, source, env):
-    with open(str(target[0]), 'wb') as f, open(str(source[0]), 'rb') as infp:
-        f.write(infp.read())
-env = Environment(BUILDERS={'Cat':Builder(action=Action(cat))})
-env.Cat('file.out', 'file.in')
-""")
+test.file_fixture('fixture/SConstruct_debug_count', 'SConstruct')
 
 test.write('file.in', "file.in\n")
 

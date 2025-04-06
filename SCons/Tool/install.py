@@ -50,8 +50,8 @@ class CopytreeError(OSError):
     pass
 
 
-def scons_copytree(src, dst, symlinks=False, ignore=None, copy_function=copy2,
-                   ignore_dangling_symlinks=False, dirs_exist_ok=False):
+def scons_copytree(src, dst, symlinks: bool=False, ignore=None, copy_function=copy2,
+                   ignore_dangling_symlinks: bool=False, dirs_exist_ok: bool=False):
     """Recursively copy a directory tree, SCons version.
 
     This is a modified copy of the Python 3.7 shutil.copytree function.
@@ -176,7 +176,7 @@ def copyFunc(dest, source, env) -> int:
     else:
         copy2(source, dest)
         st = os.stat(source)
-        os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+        os.chmod(dest, stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
 
     return 0
 
@@ -204,7 +204,7 @@ def copyFuncVersionedLib(dest, source, env) -> int:
             pass
         copy2(source, dest)
         st = os.stat(source)
-        os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+        os.chmod(dest, stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
         installShlibLinks(dest, source, env)
 
     return 0
@@ -225,12 +225,12 @@ def listShlibLinksToInstall(dest, source, env):
                 install_links.append((install_link, install_linktgt))
     return install_links
 
-def installShlibLinks(dest, source, env):
+def installShlibLinks(dest, source, env) -> None:
     """If we are installing a versioned shared library create the required links."""
     Verbose = False
     symlinks = listShlibLinksToInstall(dest, source, env)
     if Verbose:
-        print('installShlibLinks: symlinks={!r}'.format(StringizeLibSymlinks(symlinks)))
+        print(f'installShlibLinks: symlinks={StringizeLibSymlinks(symlinks)!r}')
     if symlinks:
         CreateLibSymlinks(env, symlinks)
     return
@@ -326,7 +326,7 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
     Verbose = False
     _INSTALLED_FILES.extend(target)
     if Verbose:
-        print("add_versioned_targets_to_INSTALLED_FILES: target={!r}".format(list(map(str, target))))
+        print(f"add_versioned_targets_to_INSTALLED_FILES: target={list(map(str, target))!r}")
     symlinks = listShlibLinksToInstall(target[0], source, env)
     if symlinks:
         EmitLibSymlinks(env, symlinks, target[0])
@@ -337,7 +337,7 @@ class DESTDIR_factory:
     """ A node factory, where all files will be relative to the dir supplied
     in the constructor.
     """
-    def __init__(self, env, dir):
+    def __init__(self, env, dir) -> None:
         self.env = env
         self.dir = env.arg2nodes( dir, env.fs.Dir )[0]
 
@@ -429,7 +429,7 @@ def InstallVersionedBuilderWrapper(env, target=None, source=None, dir=None, **kw
 added = None
 
 
-def generate(env):
+def generate(env) -> None:
 
     from SCons.Script import AddOption, GetOption
     global added
@@ -500,8 +500,8 @@ def generate(env):
     except KeyError:
         env['INSTALLVERSIONEDLIB'] = copyFuncVersionedLib
 
-def exists(env):
-    return 1
+def exists(env) -> bool:
+    return True
 
 # Local Variables:
 # tab-width:4

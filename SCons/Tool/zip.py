@@ -57,7 +57,7 @@ def _create_zipinfo_for_file(fname, arcname, date_time, compression):
     return zinfo
 
 
-def zip_builder(target, source, env):
+def zip_builder(target, source, env) -> None:
     compression = env.get('ZIPCOMPRESSION', zipfile.ZIP_STORED)
     zip_root = str(env.get('ZIPROOT', ''))
     date_time = env.get('ZIP_OVERRIDE_TIMESTAMP')
@@ -94,7 +94,7 @@ ZipBuilder = SCons.Builder.Builder(action=SCons.Action.Action('$ZIPCOM', '$ZIPCO
                                    multi=1)
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for zip to an Environment."""
     try:
         bld = env['BUILDERS']['Zip']
@@ -110,7 +110,7 @@ def generate(env):
     env['ZIPROOT'] = SCons.Util.CLVar('')
 
 
-def exists(env):
+def exists(env) -> bool:
     return True
 
 # Local Variables:

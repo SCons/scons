@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-Copyright The SCons Foundation
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -111,9 +112,8 @@ contain
 (or similar) include or module search path options
 that scons generates automatically from &cv-link-FORTRANPATH;.
 See
-&cv-link-_FORTRANINCFLAGS; and &cv-link-_FORTRANMODFLAG;,
-below,
-for the variables that expand those options.
+&cv-link-_FORTRANINCFLAGS; and &cv-link-_FORTRANMODFLAG;
+for the &consvars; that expand those options.
 </para>
 </summary>
 </cvar>
@@ -123,8 +123,9 @@ for the variables that expand those options.
 <para>
 General user-specified options that are passed to the Fortran compiler.
 Similar to &cv-link-FORTRANFLAGS;,
-but this variable is applied to all dialects.
+but this &consvar; is applied to all dialects.
 </para>
+<para><emphasis>New in version 4.4.</emphasis></para>
 </summary>
 </cvar>
 
@@ -238,7 +239,7 @@ non-portable and the directories will not be searched by the dependency
 scanner. Note: directory names in FORTRANPATH will be looked-up relative
 to the SConscript directory when they are used in a command. To force
 &scons;
-to look-up a directory relative to the root of the source tree use #:
+to lookup a directory relative to the root of the source tree, use #:
 </para>
 
 <example_commands>

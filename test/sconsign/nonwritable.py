@@ -52,16 +52,16 @@ work2_sub3__sconsign = test.workpath('work2', 'sub3', database_name)
 
 SConstruct_contents = """\
 def build1(target, source, env):
-    with open(str(target[0]), 'wb') as fo, open(str(source[0]), 'rb') as fi:
+    with open(target[0], 'wb') as fo, open(source[0], 'rb') as fi:
         fo.write(fi.read())
     return None
 
 def build2(target, source, env):
     import os
     import os.path
-    with open(str(target[0]), 'wb') as fo, open(str(source[0]), 'rb') as fi:
+    with open(target[0], 'wb') as fo, open(source[0], 'rb') as fi:
         fo.write(fi.read())
-    dir, file = os.path.split(str(target[0]))
+    dir, file = os.path.split(target[0])
     os.chmod(dir, 0o555)
     return None
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that SWIG include directives produce the correct dependencies
@@ -46,10 +45,9 @@ if not test.where_is('swig'):
 python, python_include, python_libpath, python_lib = \
              test.get_platform_python_info(python_h_required=True)
 
-if sys.platform == 'win32':
-    python_lib = os.path.dirname(sys.executable) + "/libs/" + ('python%d%d'%(sys.version_info[0],sys.version_info[1])) + '.lib'
-    if not os.path.isfile(python_lib):
-        test.skip_test('Can not find python lib at "' + python_lib + '", skipping test.%s' % os.linesep)
+if TestCmd.IS_WINDOWS:
+    if not os.path.isfile(os.path.join(python_libpath, python_lib)):
+        test.skip_test(f"Can not find python lib {python_libh!r}, skipping test.\n")
 
 test.write("recursive.h", """\
 /* An empty header file. */
@@ -79,37 +77,28 @@ if TestCmd.IS_WINDOWS:
         TARGET_ARCH = "TARGET_ARCH = 'x86',"
 else:
     TARGET_ARCH = ""
-test.write('SConstruct', """\
-import sysconfig
-import sys
+test.write('SConstruct', f"""\
 import os
+import sys
+import sysconfig
 
+DefaultEnvironment()
 env = Environment(
-    """ + TARGET_ARCH + """
-    SWIGFLAGS = [
-        '-python'
-    ],
-    CPPPATH = [ 
-        sysconfig.get_config_var("INCLUDEPY")
-    ],
-    SHLIBPREFIX = "",
-    tools = [ 'default', 'swig' ]
+    {TARGET_ARCH}
+    SWIGFLAGS=['-python'],
+    CPPPATH=[sysconfig.get_config_var("INCLUDEPY")],
+    SHLIBPREFIX="",
+    tools=['default', 'swig'],
 )
 
 if sys.platform == 'darwin':
-    env['LIBS']=['python%d.%d'%(sys.version_info[0],sys.version_info[1])]
+    env['LIBS'] = [f'python{sys.version_info.major}.{sys.version_info.minor}']
     env.Append(LIBPATH=[sysconfig.get_config_var("LIBDIR")])
 elif sys.platform == 'win32':
-    env.Append(LIBS=['python%d%d'%(sys.version_info[0],sys.version_info[1])])
+    env.Append(LIBS=[f'python{sys.version_info.major}{sys.version_info.minor}.lib'])
     env.Append(LIBPATH=[os.path.dirname(sys.executable) + "/libs"])
 
-env.SharedLibrary(
-    'mod',
-    [
-        "mod.i",
-        "main.c",
-    ]
-)
+env.SharedLibrary('mod', ["mod.i", "main.c"])
 """)
 
 if sys.platform == 'win32':

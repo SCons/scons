@@ -1,4 +1,13 @@
 <?xml version='1.0'?>
+
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
+-->
+
 <!DOCTYPE sconsdoc [
         <!ENTITY % scons SYSTEM "../scons.mod">
         %scons;
@@ -20,39 +29,12 @@
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
     <title>Using SCons with other build tools</title>
 
-    <!--
-
-     MIT License
-
-     Copyright The SCons Foundation
-
-     Permission is hereby granted, free of charge, to any person obtaining
-     a copy of this software and associated documentation files (the
-     "Software"), to deal in the Software without restriction, including
-     without limitation the rights to use, copy, modify, merge, publish,
-     distribute, sublicense, and/or sell copies of the Software, and to
-     permit persons to whom the Software is furnished to do so, subject to
-     the following conditions:
-
-     The above copyright notice and this permission notice shall be included
-     in all copies or substantial portions of the Software.
-
-     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-     KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-     LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-    -->
-
     <para>
 
         Sometimes a project needs to interact with other projects
         in various ways. For example, many open source projects
         make use of components from other open source projects,
-        and want to use those in their released form, not recode
+        and want to use those in their released form, not rewrite
         their builds into &SCons;. As another example, sometimes
         the flexibility and power of &SCons; is useful for managing the
         overall project, but developers might like faster incremental
@@ -394,7 +376,7 @@ conda install -c conda-forge ninja
         <para>
             When &ninja; runs the generated &ninja; build file, &ninja; will launch &scons; as a daemon and feed commands
             to that &scons; process which &ninja; is unable to build directly.  This daemon will stay alive until
-            explicitly killed, or it times out. The timeout is set by &cv-link-NINJA_SCONS_DAEMON_KEEP_ALIVE; .
+            explicitly killed, or it times out. The timeout is set by &cv-link-NINJA_SCONS_DAEMON_KEEP_ALIVE;.
         </para>
 
         <para>

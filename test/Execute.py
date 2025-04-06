@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,15 +22,13 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test the Execute() function for executing actions directly.
 """
 import sys
 import TestSCons
+from TestCmd import IS_WINDOWS
 
 _python_ = TestSCons._python_
 
@@ -83,7 +83,7 @@ test.write('k.in', "k.in\n")
 test.write('l.in', "l.in\n")
 test.write('m.in', "m.in\n")
 
-if sys.platform == 'win32' and sys.version_info[0] == 3:
+if IS_WINDOWS:
     expect = r"""scons: \*\*\* Error 1
 scons: \*\*\* Error 2
 scons: \*\*\* nonexistent.in: (The system cannot find the path specified|Das System kann den angegebenen Pfad nicht finden)"""

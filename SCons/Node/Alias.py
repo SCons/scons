@@ -57,38 +57,6 @@ class AliasNodeInfo(SCons.Node.NodeInfoBase):
     def str_to_node(self, s):
         return default_ans.Alias(s)
 
-    def __getstate__(self):
-        """
-        Return all fields that shall be pickled. Walk the slots in the class
-        hierarchy and add those to the state dictionary. If a '__dict__' slot is
-        available, copy all entries to the dictionary. Also include the version
-        id, which is fixed for all instances of a class.
-        """
-        state = getattr(self, '__dict__', {}).copy()
-        for obj in type(self).mro():
-            for name in getattr(obj,'__slots__',()):
-                if hasattr(self, name):
-                    state[name] = getattr(self, name)
-
-        state['_version_id'] = self.current_version_id
-        try:
-            del state['__weakref__']
-        except KeyError:
-            pass
-
-        return state
-
-    def __setstate__(self, state):
-        """
-        Restore the attributes from a pickled state.
-        """
-        # TODO check or discard version
-        del state['_version_id']
-        for key, value in state.items():
-            if key not in ('__weakref__',):
-                setattr(self, key, value)
-          
-
 class AliasBuildInfo(SCons.Node.BuildInfoBase):
     __slots__ = ()
     current_version_id = 2
@@ -98,29 +66,29 @@ class Alias(SCons.Node.Node):
     NodeInfo = AliasNodeInfo
     BuildInfo = AliasBuildInfo
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         super().__init__()
         self.name = name
         self.changed_since_last_build = 1
         self.store_info = 0
-        
+
     def str_for_display(self):
         return '"' + self.__str__() + '"'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def make_ready(self):
+    def make_ready(self) -> None:
         self.get_csig()
 
     really_build = SCons.Node.Node.build
     is_up_to_date = SCons.Node.Node.children_are_up_to_date
 
-    def is_under(self, dir):
+    def is_under(self, dir) -> bool:
         # Make Alias nodes get built regardless of
         # what directory scons was run from. Alias nodes
         # are outside the filesystem:
-        return 1
+        return True
 
     def get_contents(self):
         """The contents of an alias is the concatenation
@@ -128,7 +96,7 @@ class Alias(SCons.Node.Node):
         childsigs = [n.get_csig() for n in self.children()]
         return ''.join(childsigs)
 
-    def sconsign(self):
+    def sconsign(self) -> None:
         """An Alias is not recorded in .sconsign files"""
         pass
 
@@ -136,11 +104,17 @@ class Alias(SCons.Node.Node):
     #
     #
 
-    def build(self):
+    def build(self, **kw) -> None:
         """A "builder" for aliases."""
-        pass
+        if len(self.executor.post_actions) + len(self.executor.pre_actions) > 0:
+            # Only actually call Node's build() if there are any
+            # pre or post actions.
+            # Alias nodes will get 1 action and Alias.build()
+            # This fixes GH Issue #2281
+            return self.really_build(**kw)
 
-    def convert(self):
+
+    def convert(self) -> None:
         try: del self.builder
         except AttributeError: pass
         self.reset_executor()

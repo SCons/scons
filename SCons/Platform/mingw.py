@@ -29,5 +29,7 @@ MINGW_DEFAULT_PATHS = []
 if sys.platform == 'win32':
     MINGW_DEFAULT_PATHS = [
         r'C:\msys64',
-        r'C:\msys'
+        r'C:\msys64\usr\bin',
+        r'C:\msys',
+        r'C:\msys\usr\bin'
     ]

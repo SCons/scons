@@ -41,11 +41,14 @@ import SCons.Tool.msvs
 import SCons.Tool.msvc
 import SCons.Util
 
-from .MSCommon import msvc_setup_env_tool, msvc_setup_env_once
+from SCons.Tool.MSCommon import (
+    msvc_setup_env_tool,
+    msvc_setup_env_once,
+)
 
 tool_name = 'mslib'
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for lib to an Environment."""
     SCons.Tool.createStaticLibBuilder(env)
 

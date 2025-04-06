@@ -41,7 +41,8 @@ import os.path
 from TestSCons import *
 from TestSCons import __all__
 
-__all__.extend([ 'TestSConsign', ])
+__all__.extend(['TestSConsign'])
+
 
 class TestSConsign(TestSCons):
     """Class for testing the sconsign.py script.
@@ -55,7 +56,8 @@ class TestSConsign(TestSCons):
     "scons" itself, since we need to run scons to generate the
     .sconsign files that we want the sconsign script to read.
     """
-    def __init__(self, *args, **kw):
+
+    def __init__(self, *args, **kw) -> None:
         try:
             script_dir = os.environ['SCONS_SCRIPT_DIR']
         except KeyError:
@@ -67,7 +69,7 @@ class TestSConsign(TestSCons):
         super().__init__(*args, **kw)
 
         self.my_kw = {
-            'interpreter' : python,     # imported from TestSCons
+            'interpreter': python,  # imported from TestSCons
         }
 
         if 'program' not in kw:
@@ -92,12 +94,13 @@ class TestSConsign(TestSCons):
     def script_path(self, script):
         return os.path.join(self.script_dir, script)
 
-    def set_sconsign(self, sconsign):
+    def set_sconsign(self, sconsign) -> None:
         self.my_kw['program'] = sconsign
 
     def run_sconsign(self, *args, **kw):
         kw.update(self.my_kw)
         return self.run(*args, **kw)
+
 
 # Local Variables:
 # tab-width:4

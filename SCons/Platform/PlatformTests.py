@@ -21,6 +21,15 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# TODO: issue #4376: since Python 3.12, CPython's posixpath.py does a test
+#   import of 'posix', expecting it to fail on win32. However, if
+#   SCons/Platform is in sys.path, it will find our posix module instead.
+#   This happens in this unittest, since it's the script path. Remove
+#   it before the stdlib imports. Better way to handle this problem?
+import sys
+if 'Platform' in sys.path[0]:
+    platpath = sys.path.pop(0)
+# pylint: disable=wrong-import-position
 import collections
 import unittest
 import os
@@ -30,18 +39,19 @@ import SCons.Errors
 import SCons.Platform
 import SCons.Environment
 import SCons.Action
+# pylint: enable=wrong-import-position
 
 
 class Environment(collections.UserDict):
     def Detect(self, cmd):
         return cmd
 
-    def AppendENVPath(self, key, value):
+    def AppendENVPath(self, key, value) -> None:
         pass
 
 
 class PlatformTestCase(unittest.TestCase):
-    def test_Platform(self):
+    def test_Platform(self) -> None:
         """Test the Platform() function"""
         p = SCons.Platform.Platform('cygwin')
         assert str(p) == 'cygwin', p
@@ -130,9 +140,9 @@ class PlatformTestCase(unittest.TestCase):
 
         env = Environment()
         SCons.Platform.Platform()(env)
-        assert env != {}, env
+        assert env, env
 
-    def test_win32_no_arch_shell_variables(self):
+    def test_win32_no_arch_shell_variables(self) -> None:
         """
         Test that a usable HOST_ARCH is available when
         neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE
@@ -143,9 +153,9 @@ class PlatformTestCase(unittest.TestCase):
         PA_6432 = os.environ.get('PROCESSOR_ARCHITEW6432')
         PA = os.environ.get('PROCESSOR_ARCHITECTURE')
         if PA_6432:
-            del(os.environ['PROCESSOR_ARCHITEW6432'])
+            del os.environ['PROCESSOR_ARCHITEW6432']
         if PA:
-            del(os.environ['PROCESSOR_ARCHITECTURE'])
+            del os.environ['PROCESSOR_ARCHITECTURE']
 
         p = SCons.Platform.win32.get_architecture()
 
@@ -160,7 +170,7 @@ class PlatformTestCase(unittest.TestCase):
 
 
 class TempFileMungeTestCase(unittest.TestCase):
-    def test_MAXLINELENGTH(self):
+    def test_MAXLINELENGTH(self) -> None:
         """ Test different values for MAXLINELENGTH with the same
             size command string to ensure that the temp file mechanism
             kicks in only at MAXLINELENGTH+1, or higher
@@ -196,10 +206,8 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = old_actions
         assert cmd != defined_cmd, cmd
 
-    def test_TEMPFILEARGJOINBYTE(self):
-        """
-        Test argument join byte TEMPFILEARGJOINBYTE
-        """
+    def test_TEMPFILEARGJOINBYTE(self) -> None:
+        """Test argument join byte TEMPFILEARGJOINBYTE."""
 
         # Init class with cmd, such that the fully expanded
         # string reads "a test command line".
@@ -222,19 +230,24 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = 0
         env['MAXLINELENGTH'] = len(expanded_cmd)-1
         cmd = t(None, None, env, 0)
-        # print("CMD is:%s"%cmd)
+        # print(f"[CMD is: {cmd}]")
 
-        with open(cmd[-1],'rb') as f:
+        if cmd[-1].startswith('@'):
+            tempfile = cmd[-1][1:]
+        else:
+            tempfile = cmd[-1]
+        with open(tempfile, 'rb') as f:
             file_content = f.read()
-        # print("Content is:[%s]"%file_content)
+        # print(f"[Content of {tempfile} is:{file_content}]")
         # ...and restoring its setting.
         SCons.Action.print_actions = old_actions
-        assert file_content != env['TEMPFILEARGJOINBYTE'].join(['test','command','line'])
+        assert file_content != bytearray(
+            env['TEMPFILEARGJOINBYTE'].join(['test', 'command', 'line']),
+            encoding='utf-8',
+        )
 
-    def test_TEMPFILEARGESCFUNC(self):
-        """
-        Test a custom TEMPFILEARGESCFUNC
-        """
+    def test_TEMPFILEARGESCFUNC(self) -> None:
+        """Test a custom TEMPFILEARGESCFUNC."""
 
         def _tempfile_arg_esc_func(arg):
             return str(arg).replace("line", "newarg")
@@ -252,16 +265,20 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = 0
         env['TEMPFILEARGESCFUNC'] = _tempfile_arg_esc_func
         cmd = t(None, None, env, 0)
-        # print("CMD is: %s"%cmd)
+        # print(f"[CMD is: {cmd}]")
 
-        with open(cmd[-1], 'rb') as f:
+        if cmd[-1].startswith('@'):
+            tempfile = cmd[-1][1:]
+        else:
+            tempfile = cmd[-1]
+        with open(tempfile, 'rb') as f:
             file_content = f.read()
-        # print("Content is:[%s]"%file_content)
-        # # ...and restoring its setting.
+        # print(f"[Content of {tempfile} is:{file_content}]")
+        # ...and restoring its setting.
         SCons.Action.print_actions = old_actions
         assert b"newarg" in file_content
 
-    def test_tempfilecreation_once(self):
+    def test_tempfilecreation_once(self) -> None:
         """
         Init class with cmd, such that the fully expanded
         string reads "a test command line".
@@ -287,7 +304,7 @@ class TempFileMungeTestCase(unittest.TestCase):
             class Attrs:
                 pass
 
-            def __init__(self):
+            def __init__(self) -> None:
                 self.attributes = self.Attrs()
 
         target = [Node()]
@@ -300,18 +317,17 @@ class TempFileMungeTestCase(unittest.TestCase):
 
 
 class PlatformEscapeTestCase(unittest.TestCase):
-    def test_posix_escape(self):
-        """  Check that paths with parens are escaped properly
-        """
-        import SCons.Platform.posix
+    def test_posix_escape(self) -> None:
+        """Check that paths with parens are escaped properly."""
+        from SCons.Platform.posix import escape  # pylint: disable=import-outside-toplevel
 
         test_string = "/my (really) great code/main.cpp"
-        output = SCons.Platform.posix.escape(test_string)
+        output = escape(test_string)
 
         # We expect the escape function to wrap the string
         # in quotes, but not escape any internal characters
         # in the test_string. (Parens doesn't require shell
-        # escaping if their quoted)
+        # escaping if they are quoted)
         assert output[1:-1] == test_string
 
 

@@ -23,6 +23,13 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+Test LIBPREFIXES.
+
+Depends on a live compiler to build library and executable,
+and actually runs the executable.
+"""
+
 import os
 import sys
 
@@ -36,11 +43,10 @@ if sys.platform == 'win32':
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
-env = Environment(LIBPREFIX = 'xxx-',
-                  LIBPREFIXES = ['xxx-'])
-lib = env.Library(target = 'foo', source = 'foo.c')
-env.Program(target = 'prog', source = ['prog.c', lib])
+test.write('SConstruct', """\
+env = Environment(LIBPREFIX='xxx-', LIBPREFIXES=['xxx-'])
+lib = env.Library(target='foo', source='foo.c')
+env.Program(target='prog', source=['prog.c', lib])
 """)
 
 test.write('foo.c', r"""
@@ -67,13 +73,10 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = '.',
-         stderr=TestSCons.noisy_ar,
-         match=TestSCons.match_re_dotall)
-
+test.run(arguments='.', stderr=TestSCons.noisy_ar, match=TestSCons.match_re_dotall)
 test.fail_test(not os.path.exists(test.workpath('xxx-foo' + _lib)))
 
-test.run(program = test.workpath('prog'), stdout = "foo.c\nprog.c\n")
+test.run(program=test.workpath('prog'), stdout="foo.c\nprog.c\n")
 
 test.pass_test()
 

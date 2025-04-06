@@ -40,7 +40,7 @@ from SCons.Tool.GettextCommon import (
     _xgettext_exists,
 )
 
-def generate(env, **kw):
+def generate(env, **kw) -> None:
     for t in tool_list(env['PLATFORM'], env):
         if sys.platform == 'win32':
             tool = SCons.Tool.find_program_path(

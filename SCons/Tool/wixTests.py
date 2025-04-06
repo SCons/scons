@@ -41,7 +41,7 @@ test.write('light.exe', 'rem this is light')
 os.environ['PATH'] += os.pathsep + test.workdir
 
 class WixTestCase(unittest.TestCase):
-    def test_vars(self):
+    def test_vars(self) -> None:
         """Test that WiX tool adds vars"""
         env = Environment(tools=['wix'])
         assert env['WIXCANDLE'] is not None
