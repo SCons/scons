@@ -56,6 +56,8 @@ DOCUMENTATION
   typo fixes, even if they're mentioned in src/CHANGES.txt to give
   the contributor credit)
 
+- Clarify how pre/post actions on an alias work.
+
 DEVELOPMENT
 -----------
 
@@ -65,5 +67,6 @@ DEVELOPMENT
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
+
 
     git shortlog --no-merges -ns 4.9.1..HEAD

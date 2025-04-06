@@ -26,6 +26,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       are now more clearly distinguished (-live.py suffix and docstring).
     - runtest.py once again finds "external" tests, such as the tests for
       tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
+    - Clarify how pre/post actions on an alias work.
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
@@ -41,6 +42,7 @@ RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
   From Mats Wichmann:
     - Fix typos in CCFLAGS test. Didn't affect the test itself, but
       didn't correctly apply the DefaultEnvironment speedup.
+
     - New CacheDir initialization code failed on Python 3.7 for unknown
       reason (worked on 3.8+). Adjusted the approach a bit.  Fixes #4694.
     - Try to fix Windows fails on Docbook tests in case xsltproc is found.
