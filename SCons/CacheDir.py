@@ -27,6 +27,7 @@
 import atexit
 import json
 import os
+import shutil
 import stat
 import sys
 import tempfile
@@ -76,7 +77,6 @@ def CacheRetrieveFunc(target, source, env) -> int:
 
 def CacheRetrieveString(target, source, env) -> str:
     t = target[0]
-    fs = t.fs
     cd = env.get_CacheDir()
     cachedir, cachefile = cd.cachepath(t)
     if t.fs.exists(cachefile):
@@ -210,21 +210,44 @@ class CacheDir:
             return False
 
         try:
-            tempdir = tempfile.TemporaryDirectory(dir=os.path.dirname(directory))
+            # TODO: Python 3.7. See comment below.
+            # tempdir = tempfile.TemporaryDirectory(dir=os.path.dirname(directory))
+            tempdir = tempfile.mkdtemp(dir=os.path.dirname(directory))
         except OSError as e:
             msg = "Failed to create cache directory " + path
             raise SCons.Errors.SConsEnvironmentError(msg) from e
-        self._add_config(tempdir.name)
-        with tempdir:
-            try:
-                os.rename(tempdir.name, directory)
-                return True
-            except Exception as e:
-                # did someone else get there first?
-                if os.path.isdir(directory):
-                    return False
-                msg = "Failed to create cache directory " + path
-                raise SCons.Errors.SConsEnvironmentError(msg) from e
+
+        # TODO: Python 3.7: the context manager raises exception on cleanup
+        #    if the temporary was moved successfully (File Not Found).
+        #    Fixed in 3.8+. In the replacement below we manually clean up if
+        #    the move failed as mkdtemp() does not. TemporaryDirectory's
+        #    cleanup is more sophisitcated so prefer when we can use it.
+        # self._add_config(tempdir.name)
+        # with tempdir:
+        #     try:
+        #         os.replace(tempdir.name, directory)
+        #         return True
+        #     except OSError as e:
+        #         # did someone else get there first?
+        #         if os.path.isdir(directory):
+        #             return False  # context manager cleans up
+        #         msg = "Failed to create cache directory " + path
+        #         raise SCons.Errors.SConsEnvironmentError(msg) from e
+
+        self._add_config(tempdir)
+        try:
+            os.replace(tempdir, directory)
+            return True
+        except OSError as e:
+            # did someone else get there first? attempt cleanup.
+            if os.path.isdir(directory):
+                try:
+                    shutil.rmtree(tempdir)
+                except Exception:  # we tried, don't worry about it
+                    pass
+                return False
+            msg = "Failed to create cache directory " + path
+            raise SCons.Errors.SConsEnvironmentError(msg) from e
 
     def _readconfig(self, path: str) -> None:
         """Read the cache config from *path*.

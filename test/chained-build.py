@@ -37,7 +37,7 @@ test.subdir('w1')
 
 SConstruct1_contents = """\
 def build(env, target, source):
-    with open(str(target[0]), 'wt') as fo, open(str(source[0]), 'rt') as fi:
+    with open(target[0], 'wt') as fo, open(source[0], 'rt') as fi:
         fo.write(fi.read())
 
 env=Environment(BUILDERS={'B' : Builder(action=build)})
@@ -46,7 +46,7 @@ env.B('foo.mid', 'foo.in')
 
 SConstruct2_contents = """\
 def build(env, target, source):
-    with open(str(target[0]), 'wt') as fo, open(str(source[0]), 'rt') as fi:
+    with open(target[0], 'wt') as fo, open(source[0], 'rt') as fi:
         fo.write(fi.read())
 
 env=Environment(BUILDERS={'B' : Builder(action=build)})

@@ -86,7 +86,7 @@ def _converter(val: str | bool, default: str) -> str | bool:
     if lval in ENABLE_STRINGS:
         # Can't return the default if it is one of the enable/disable strings;
         # test code expects a bool.
-        if default in ENABLE_STRINGS:
+        if default in ENABLE_STRINGS + DISABLE_STRINGS:
             return True
         else:
             return default

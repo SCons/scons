@@ -36,7 +36,7 @@ test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 
 def build(env, target, source):
-    with open(str(target[0]), 'w') as f:
+    with open(target[0], 'w') as f:
         f.write('1')
 
 B = Builder(action=build)

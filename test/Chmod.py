@@ -47,7 +47,7 @@ def cat(env, source, target):
     target = str(target[0])
     with open(target, "wb") as f:
         for src in source:
-            with open(str(src), "rb") as infp:
+            with open(src, "rb") as infp:
                 f.write(infp.read())
 
 Cat = Action(cat)

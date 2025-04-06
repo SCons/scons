@@ -24,51 +24,63 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Make sure explicit targets beginning with ../ get built correctly
-by the -D option.
+Test that external subdirs are searched if --external is given:
+
+    python runtest.py --external ext/test/subdir
+
 """
 
-import TestSCons
+import os
 
-test = TestSCons.TestSCons()
+import TestRuntest
 
-test.subdir(['subdir'])
+test = TestRuntest.TestRuntest()
+test.subdir('ext/test/subdir')
 
-test.write('SConstruct', """\
-DefaultEnvironment(tools=[])
-def cat(env, source, target):
-    target = str(target[0])
-    with open(target, 'wb') as ofp:
-        for src in source:
-            with open(src, 'rb') as ifp:
-                ofp.write(ifp.read())
-env = Environment(tools=[], BUILDERS={'Cat':Builder(action=cat)})
-env.Cat('f1.out', 'f1.in')
-f2 = env.Cat('f2.out', 'f2.in')
-Default(f2)
-SConscript('subdir/SConscript', "env")
-""")
+pythonstring = TestRuntest.pythonstring
+pythonflags = TestRuntest.pythonflags
 
-test.write('f1.in', "f1.in\n")
-test.write('f2.in', "f2.in\n")
+one = os.path.join('ext', 'test', 'subdir', 'test_one.py')
+two = os.path.join('ext', 'test', 'subdir', 'two.py')
+three = os.path.join('ext', 'test', 'test_three.py')
 
-test.write(['subdir', 'SConscript'], """\
-Import("env")
-f3 = env.Cat('f3.out', 'f3.in')
-env.Cat('f4.out', 'f4.in')
-Default(f3)
-""")
+test.write_passing_test(one)
+test.write_passing_test(two)
+test.write_passing_test(three)
 
-test.write(['subdir', 'f3.in'], "subdir/f3.in\n")
-test.write(['subdir', 'f4.in'], "subdir/f4.in\n")
+expect_stderr_noarg = """\
+usage: runtest.py [OPTIONS] [TEST ...]
 
-test.run(chdir = 'subdir', arguments = '-D ../f1.out')
+error: no tests matching the specification were found.
+       See "Test selection options" in the help for details on
+       how to specify and/or exclude tests.
+"""
 
-test.must_exist(test.workpath('f1.out'))
-test.must_not_exist(test.workpath('f2.out'))
-test.must_not_exist(test.workpath('dir', 'f3.out'))
-test.must_not_exist(test.workpath('dir', 'f4.out'))
+expect_stdout = f"""\
+{pythonstring}{pythonflags} {one}
+PASSING TEST STDOUT
+{pythonstring}{pythonflags} {two}
+PASSING TEST STDOUT
+"""
 
+expect_stderr = """\
+PASSING TEST STDERR
+PASSING TEST STDERR
+"""
+
+test.run(
+    arguments='--no-progress ext/test/subdir',
+    status=1,
+    stdout=None,
+    stderr=expect_stderr_noarg,
+)
+
+test.run(
+    arguments='--no-progress --external ext/test/subdir',
+    status=0,
+    stdout=expect_stdout,
+    stderr=expect_stderr,
+)
 
 test.pass_test()
 

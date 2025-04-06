@@ -42,12 +42,10 @@ def copy(source, target):
         f.write(f2.read())
 
 def build(env, source, target):
-    s = str(source[0])
-    t = str(target[0])
-    copy(s, t)
+    copy(source[0], target[0])
     if target[0].side_effects:
-        with open(str(target[0].side_effects[0]), "a") as side_effect:
-            side_effect.write(s + ' -> ' + t + '\\n')
+        with open(target[0].side_effects[0], "a") as side_effect:
+            side_effect.write(str(source[0]) + ' -> ' + str(target[0]) + '\\n')
 
 CacheDir(r'%(cache)s')
 

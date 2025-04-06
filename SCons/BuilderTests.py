@@ -702,7 +702,7 @@ class BuilderTestCase(unittest.TestCase):
         """Test Builder with single_source flag set"""
         def func(target, source, env) -> None:
             """create the file"""
-            with open(str(target[0]), "w"):
+            with open(target[0], "w"):
                 pass
             if len(source) == 1 and len(target) == 1:
                 env['CNT'][0] = env['CNT'][0] + 1
@@ -759,7 +759,7 @@ class BuilderTestCase(unittest.TestCase):
         """Testing handling lists of targets and source"""
         def function2(target, source, env, tlist = [outfile, outfile2], **kw) -> int:
             for t in target:
-                with open(str(t), 'w') as f:
+                with open(t, 'w') as f:
                     f.write("function2\n")
             for t in tlist:
                 if t not in list(map(str, target)):
@@ -790,7 +790,7 @@ class BuilderTestCase(unittest.TestCase):
 
         def function3(target, source, env, tlist = [sub1_out, sub2_out]) -> int:
             for t in target:
-                with open(str(t), 'w') as f:
+                with open(t, 'w') as f:
                     f.write("function3\n")
             for t in tlist:
                 if t not in list(map(str, target)):

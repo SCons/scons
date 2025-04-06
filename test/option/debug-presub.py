@@ -40,10 +40,9 @@ sys.exit(0)
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 def cat(env, source, target):
-    target = str(target[0])
-    with open(target, "wb") as f:
+    with open(target[0], "wb") as f:
         for src in source:
-            with open(str(src), "rb") as infp:
+            with open(src, "rb") as infp:
                 f.write(infp.read())
 FILE = Builder(action="$FILECOM")
 TEMP = Builder(action="$TEMPCOM")

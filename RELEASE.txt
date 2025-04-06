@@ -6,12 +6,12 @@ Past official release announcements appear at:
 
 ==================================================================
 
-A new SCons release, 4.9.0, is now available on the SCons download page:
+A new SCons release, X.Y.Z, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
+Here is a summary of the changes since 4.9.1:
 
-Here is a summary of the changes since 4.4.0:
 
 NEW FUNCTIONALITY
 -----------------
@@ -29,10 +29,13 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - List modifications to existing features, where the previous behavior
   wouldn't actually be considered a bug
 
+- Nodes are now treated as PathLike objects.
+
 FIXES
 -----
 
-- List fixes of outright bugs
+- Fixed SCons.Variables.PackageVariable to correctly test the default
+  setting against both enable & disable strings. (Fixes #4702)
 
 IMPROVEMENTS
 ------------
@@ -58,10 +61,12 @@ DOCUMENTATION
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is developed
+- runtest.py once again finds "external" tests, such as the tests for
+  tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.9.0..HEAD
+
+    git shortlog --no-merges -ns 4.9.1..HEAD
