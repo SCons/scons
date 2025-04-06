@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,28 +22,29 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that we can set both $CCFLAGS and $CXXFLAGS and have them
 both show up on the compilation lines for C++ source files.
+
+This is a live test, uses the detected C++ compiler.
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 foo = Environment()
-foo.Append(CCFLAGS = '-DFOO', CXXFLAGS = '-DCXX')
+foo.Append(CCFLAGS='-DFOO', CXXFLAGS='-DCXX')
 bar = Environment()
-bar.Append(CCFLAGS = '-DBAR', CXXFLAGS = '-DCXX')
-foo_obj = foo.Object(target = 'foo', source = 'prog.cpp')
-bar_obj = bar.Object(target = 'bar', source = 'prog.cpp')
-foo.Program(target = 'foo', source = foo_obj)
-bar.Program(target = 'bar', source = bar_obj)
+bar.Append(CCFLAGS='-DBAR', CXXFLAGS='-DCXX')
+
+foo_obj = foo.Object(target='foo', source='prog.cpp')
+bar_obj = bar.Object(target='bar', source='prog.cpp')
+foo.Program(target='foo', source=foo_obj)
+bar.Program(target='bar', source=bar_obj)
 """)
 
 test.write('prog.cpp', r"""
@@ -62,10 +65,10 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = '.')
+test.run(arguments='.')
 
-test.run(program = test.workpath('foo'), stdout = "prog.c:  FOO\n")
-test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
+test.run(program=test.workpath('foo'), stdout="prog.c:  FOO\n")
+test.run(program=test.workpath('bar'), stdout="prog.c:  BAR\n")
 
 test.pass_test()
 
