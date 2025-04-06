@@ -375,7 +375,7 @@ AddPostAction(foo, Chmod('$TARGET', "a-x"))
 </example_commands>
 
 <para>
-If a <parameter>target</parameter> is an &f-Alias,
+If a <parameter>target</parameter> is an &f-Alias;,
 <parameter>action</parameter> is associated with the
 action of the alias, if specified.
 </para>
@@ -440,7 +440,7 @@ gcc -o foo foo.o
 </screen>
 
 <para>
-If a <parameter>target</parameter> is an &f-Alias,
+If a <parameter>target</parameter> is an &f-Alias;,
 <parameter>action</parameter> is associated with the
 action of the alias, if specified.
 </para>
