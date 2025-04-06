@@ -40,7 +40,7 @@ test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 def batch_build(target, source, env):
     for t, s in zip(target, source):
-        with open(str(t), 'wb') as f, open(str(s), 'rb') as infp:
+        with open(t, 'wb') as f, open(s, 'rb') as infp:
             f.write(infp.read())
 if ARGUMENTS.get('BATCH_CALLABLE'):
     def batch_key(action, env, target, source):

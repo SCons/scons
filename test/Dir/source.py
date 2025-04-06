@@ -44,7 +44,7 @@ test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 
 def writeTarget(target, source, env):
-    f = open(str(target[0]), 'w')
+    f = open(target[0], 'w')
     f.write("stuff\\n")
     f.close()
     return 0

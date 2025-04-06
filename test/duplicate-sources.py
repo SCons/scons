@@ -35,9 +35,9 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
 def cat(target, source, env):
-    with open(str(target[0]), 'wb') as t:
-        for s in source:
-            with open(str(s), 'rb') as s:
+    with open(target[0], 'wb') as t:
+        for src in source:
+            with open(src, 'rb') as s:
                 t.write(s.read())
 env = Environment(BUILDERS = {'Cat' : Builder(action = cat)})
 env.Cat('out.txt', ['f1.in', 'f2.in', 'f1.in'])

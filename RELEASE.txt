@@ -29,6 +29,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - List modifications to existing features, where the previous behavior
   wouldn't actually be considered a bug
 
+- Nodes are now treated as PathLike objects.
+
 FIXES
 -----
 
@@ -57,7 +59,8 @@ DOCUMENTATION
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is developed
+- runtest.py once again finds "external" tests, such as the tests for
+  tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

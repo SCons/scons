@@ -38,9 +38,9 @@ DefaultEnvironment(tools=[])
 import os.path
 import string
 def cat(target, source, env):
-    with open(str(target[0]), 'wb') as fp:
-        for s in map(str, source):
-            with open(s, 'rb') as infp:
+    with open(target[0], 'wb') as fp:
+        for src in source:
+            with open(src, 'rb') as infp:
                 fp.write(infp.read())
 Cat = Builder(action=cat)
 def Wrapper(env, target, source):
