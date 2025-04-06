@@ -26,7 +26,7 @@
 """
 Verify that $SHCXXFLAGS settings are used to build shared object files.
 
-This is a live test, uses the detected C compiler.
+This is a live test, uses the detected C and C++ compilers.
 """
 
 import os
