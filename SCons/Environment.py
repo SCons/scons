@@ -30,6 +30,8 @@ Keyword arguments supplied when the construction Environment is created
 are construction variables used to initialize the Environment.
 """
 
+from __future__ import annotations
+
 import copy
 import os
 import sys
@@ -37,7 +39,7 @@ import re
 import shlex
 from collections import UserDict, UserList, deque
 from subprocess import PIPE, DEVNULL
-from typing import Callable, Collection, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Callable, Collection, Sequence
 
 import SCons.Action
 import SCons.Builder
@@ -76,7 +78,9 @@ from SCons.Util import (
     to_String_for_subst,
     uniquer_hashables,
 )
-from SCons.Util.sctyping import ExecutorType
+
+if TYPE_CHECKING:
+    from SCons.Executor import Executor
 
 class _Null:
     pass
@@ -510,13 +514,6 @@ class BuilderDict(UserDict):
             self.__setitem__(i, v)
 
 
-_is_valid_var = re.compile(r'[_a-zA-Z]\w*$')
-
-def is_valid_construction_var(varstr) -> bool:
-    """Return True if *varstr* is a legitimate construction variable."""
-    return _is_valid_var.match(varstr)
-
-
 class SubstitutionEnvironment:
     """Base class for different flavors of construction environments.
 
@@ -541,6 +538,11 @@ class SubstitutionEnvironment:
     Environment.Base to create their own flavors of construction
     environment, we'll save that for a future refactoring when this
     class actually becomes useful.)
+
+    Special note: methods here and in actual child classes might be called
+    via proxy from an :class:`OverrideEnvironment`, which isn't in the
+    class inheritance chain. Take care that methods called with a *self*
+    that's really an ``OverrideEnvironment`` don't make bad assumptions.
     """
 
     def __init__(self, **kw) -> None:
@@ -574,6 +576,20 @@ class SubstitutionEnvironment:
         self._special_set_keys = list(self._special_set.keys())
 
     def __eq__(self, other):
+        """Compare two environments.
+
+        This is used by checks in Builder to determine if duplicate
+        targets have environments that would cause the same result.
+        The more reliable way (respecting the admonition to avoid poking
+        at :attr:`_dict` directly) would be to use ``Dictionary`` so this
+        is sure to work even if one or both are are instances of
+        :class:`OverrideEnvironment`. However an actual
+        ``SubstitutionEnvironment`` doesn't have a ``Dictionary`` method
+        That causes problems for unit tests written to excercise
+        ``SubsitutionEnvironment`` directly, although nobody else seems
+        to ever instantiate one. We count on :class:`OverrideEnvironment`
+        to fake the :attr:`_dict` to make things work.
+        """
         return self._dict == other._dict
 
     def __delitem__(self, key) -> None:
@@ -587,26 +603,20 @@ class SubstitutionEnvironment:
         return self._dict[key]
 
     def __setitem__(self, key, value):
-        # This is heavily used.  This implementation is the best we have
-        # according to the timings in bench/env.__setitem__.py.
-        #
-        # The "key in self._special_set_keys" test here seems to perform
-        # pretty well for the number of keys we have.  A hard-coded
-        # list worked a little better in Python 2.5, but that has the
-        # disadvantage of maybe getting out of sync if we ever add more
-        # variable names.
-        # So right now it seems like a good trade-off, but feel free to
-        # revisit this with bench/env.__setitem__.py as needed (and
-        # as newer versions of Python come out).
         if key in self._special_set_keys:
             self._special_set[key](self, key, value)
         else:
-            # If we already have the entry, then it's obviously a valid
-            # key and we don't need to check.  If we do check, using a
-            # global, pre-compiled regular expression directly is more
-            # efficient than calling another function or a method.
-            if key not in self._dict and not _is_valid_var.match(key):
-                raise UserError("Illegal construction variable `%s'" % key)
+            # Performance: since this is heavily used, try to avoid checking
+            # if the variable is valid unless necessary. bench/__setitem__.py
+            # times a bunch of different approaches. Based the most recent
+            # run, against Python 3.6-3.13(beta), the best we can do across
+            # different combinations of actions is to use a membership test
+            # to see if we already have the variable, if so it must already
+            # have been checked, so skip; if we do check, "isidentifier()"
+            # (new in Python 3 so wasn't in benchmark until recently)
+            # on the key is the best.
+            if key not in self._dict and not key.isidentifier():
+                raise UserError(f"Illegal construction variable {key!r}")
             self._dict[key] = value
 
     def get(self, key, default=None):
@@ -692,7 +702,7 @@ class SubstitutionEnvironment:
     def lvars(self):
         return {}
 
-    def subst(self, string, raw: int=0, target=None, source=None, conv=None, executor: Optional[ExecutorType] = None, overrides: Optional[dict] = None):
+    def subst(self, string, raw: int=0, target=None, source=None, conv=None, executor: Executor | None = None, overrides: dict | None = None):
         """Recursively interpolates construction variables from the
         Environment into the specified string, returning the expanded
         result.  Construction variables are specified by a $ prefix
@@ -718,7 +728,7 @@ class SubstitutionEnvironment:
             nkw[k] = v
         return nkw
 
-    def subst_list(self, string, raw: int=0, target=None, source=None, conv=None, executor: Optional[ExecutorType] = None, overrides: Optional[dict] = None):
+    def subst_list(self, string, raw: int=0, target=None, source=None, conv=None, executor: Executor | None = None, overrides: dict | None = None):
         """Calls through to SCons.Subst.scons_subst_list().
 
         See the documentation for that function.
@@ -824,16 +834,30 @@ class SubstitutionEnvironment:
         self.added_methods = [dm for dm in self.added_methods if dm.method is not function]
 
     def Override(self, overrides):
-        """
-        Produce a modified environment whose variables are overridden by
-        the overrides dictionaries.  "overrides" is a dictionary that
-        will override the variables of this environment.
+        """Create an override environment from the current environment.
 
-        This function is much more efficient than Clone() or creating
-        a new Environment because it doesn't copy the construction
+        Produces a modified environment where the current variables are
+        overridden by any same-named variables from the *overrides* dict.
+
+        An override is much more efficient than doing :meth:`~Base.Clone`
+        or creating a new Environment because it doesn't copy the construction
         environment dictionary, it just wraps the underlying construction
         environment, and doesn't even create a wrapper object if there
         are no overrides.
+
+        Using this method is preferred over directly instantiating an
+        :class:`OverrideEnvirionment` because extra checks are performed,
+        substitution takes place, and there is special handling for a
+        *parse_flags* keyword argument.
+
+        This method is not currently exposed as part of the public API,
+        but is invoked internally when things like builder calls have
+        keyword arguments, which are then passed as *overrides* here.
+        Some tools also call this explicitly.
+
+        Returns:
+           A proxy environment of type :class:`OverrideEnvironment`.
+           or the current environment if *overrides* is empty.
         """
         if not overrides: return self
         o = copy_non_reserved_keywords(overrides)
@@ -881,7 +905,7 @@ class SubstitutionEnvironment:
             'RPATH'         : [],
         }
 
-        def do_parse(arg: Union[str, Sequence]) -> None:
+        def do_parse(arg: str | Sequence) -> None:
             if not arg:
                 return
 
@@ -959,7 +983,7 @@ class SubstitutionEnvironment:
                     else:
                         mapping[append_next_arg_to].append(arg)
                     append_next_arg_to = None
-                elif not arg[0] in ['-', '+']:
+                elif arg[0] not in ['-', '+']:
                     mapping['LIBS'].append(self.fs.File(arg))
                 elif arg == '-dylib_file':
                     mapping['LINKFLAGS'].append(arg)
@@ -1427,7 +1451,6 @@ class Base(SubstitutionEnvironment):
 
         The variable is created if it is not already present.
         """
-
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
             if key == 'CPPDEFINES':
@@ -1525,11 +1548,17 @@ class Base(SubstitutionEnvironment):
 
         self._dict[envname][name] = nv
 
-    def AppendUnique(self, delete_existing: bool=False, **kw) -> None:
-        """Append values to existing construction variables
-        in an Environment, if they're not already there.
-        If delete_existing is True, removes existing values first, so
-        values move to end.
+    def AppendUnique(self, delete_existing: bool = False, **kw) -> None:
+        """Append values uniquely to existing construction variables.
+
+        Similar to :meth:`Append`, but the result may not contain duplicates
+        of any values passed for each given key (construction variable),
+        so an existing list may need to be pruned first, however it may still
+        contain other duplicates.
+
+        If *delete_existing* is true, removes existing values first, so values
+        move to the end; otherwise (the default) values are skipped if
+        already present.
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
@@ -1552,12 +1581,11 @@ class Base(SubstitutionEnvironment):
                     val = [x for x in val if x not in dk]
                 self._dict[key] = dk + val
             else:
+                # val is not a list, so presumably a scalar (likely str).
                 dk = self._dict[key]
                 if is_List(dk):
-                    # By elimination, val is not a list.  Since dk is a
-                    # list, wrap val in a list first.
                     if delete_existing:
-                        dk = list(filter(lambda x, val=val: x not in val, dk))
+                        dk = [x for x in dk if x != val]
                         self._dict[key] = dk + [val]
                     else:
                         if val not in dk:
@@ -1568,16 +1596,28 @@ class Base(SubstitutionEnvironment):
                     self._dict[key] = dk + val
         self.scanner_map_delete(kw)
 
-    def Clone(self, tools=[], toolpath=None, parse_flags = None, **kw):
+    def Clone(self, tools=[], toolpath=None, variables=None, parse_flags=None, **kw):
         """Return a copy of a construction Environment.
 
-        The copy is like a Python "deep copy"--that is, independent
-        copies are made recursively of each objects--except that
-        a reference is copied when an object is not deep-copyable
-        (like a function).  There are no references to any mutable
-        objects in the original Environment.
-        """
+        The copy is like a Python "deep copy": independent copies are made
+        recursively of each object, except that a reference is copied when
+        an object is not deep-copyable (like a function).  There are no
+        references to any mutable objects in the original environment.
 
+        Unrecognized keyword arguments are taken as construction variable
+        assignments.
+
+        Arguments:
+           tools: list of tools to initialize.
+           toolpath: list of paths to search for tools.
+           variables: a :class:`~SCons.Variables.Variables` object to
+              use to populate construction variables from command-line
+              variables.
+           parse_flags: option strings to parse into construction variables.
+
+        .. versionadded:: 4.8.0
+              The optional *variables* parameter was added.
+        """
         builders = self._dict.get('BUILDERS', {})
 
         clone = copy.copy(self)
@@ -1603,6 +1643,8 @@ class Base(SubstitutionEnvironment):
         for key, value in kw.items():
             new[key] = SCons.Subst.scons_subst_once(value, self, key)
         clone.Replace(**new)
+        if variables:
+            variables.Update(clone)
 
         apply_tools(clone, tools, toolpath)
 
@@ -1670,49 +1712,64 @@ class Base(SubstitutionEnvironment):
         return None
 
 
-    def Dictionary(self, *args):
-        r"""Return construction variables from an environment.
+    def Dictionary(self, *args: str, as_dict: bool = False):
+        """Return construction variables from an environment.
 
         Args:
-          \*args (optional): variable names to look up
+          args (optional): construction variable names to select.
+            If omitted, all variables are selected and returned
+            as a dict.
+          as_dict: if true, and *args* is supplied, return the
+            variables and their values in a dict. If false
+            (the default), return a single value as a scalar,
+            or multiple values in a list.
 
         Returns:
-          If `args` omitted, the dictionary of all construction variables.
-          If one arg, the corresponding value is returned.
-          If more than one arg, a list of values is returned.
+          A dictionary of construction variables, or a single value
+          or list of values.
 
         Raises:
-          KeyError: if any of `args` is not in the construction environment.
+          KeyError: if any of *args* is not in the construction environment.
 
+        .. versionchanged:: 4.9.0
+           Added the *as_dict* keyword arg to specify always returning a dict.
         """
         if not args:
             return self._dict
-        dlist = [self._dict[x] for x in args]
+        if as_dict:
+            return {key: self._dict[key] for key in args}
+        dlist = [self._dict[key] for key in args]
         if len(dlist) == 1:
-            dlist = dlist[0]
+            return dlist[0]
         return dlist
 
 
-    def Dump(self, key: Optional[str] = None, format: str = 'pretty') -> str:
-        """ Returns a dump of serialized construction variables.
+    def Dump(self, *key: str, format: str = 'pretty') -> str:
+        """Return string of serialized construction variables.
 
-        The display formats are intended for humaan readers when
-        debugging - none of the supported formats produce a result that
-        SCons itself can directly make use of. Objects that cannot
-        directly be represented get a placeholder like
-        ``<function foo at 0x123456>`` or ``<<non-serializable: function>>``.
+        Produces a "pretty" output of a dictionary of selected
+        construction variables, or all of them. The display *format* is
+        selectable. The result is intended for human consumption (e.g,
+        to print), mainly when debugging.  Objects that cannot directly be
+        represented get a placeholder like ``<function foo at 0x123456>``
+        (pretty-print) or ``<<non-serializable: function>>`` (JSON).
 
         Args:
-           key: if ``None``, format the whole dict of variables,
-              else format just the value of *key*.
+           key: if omitted, format the whole dict of variables,
+              else format *key*(s) with the corresponding values.
            format: specify the format to serialize to. ``"pretty"`` generates
              a pretty-printed string, ``"json"`` a JSON-formatted string.
 
         Raises:
            ValueError: *format* is not a recognized serialization format.
+
+        .. versionchanged:: 4.9.0
+           *key* is no longer limited to a single construction variable name.
+           If *key* is supplied, a formatted dictionary is generated like the
+           no-arg case - previously a single *key* displayed just the value.
         """
-        if key:
-            cvars = self.Dictionary(key)
+        if len(key):
+            cvars = self.Dictionary(*key, as_dict=True)
         else:
             cvars = self.Dictionary()
 
@@ -1734,17 +1791,18 @@ class Base(SubstitutionEnvironment):
 
             class DumpEncoder(json.JSONEncoder):
                 """SCons special json Dump formatter."""
+
                 def default(self, obj):
                     if isinstance(obj, (UserList, UserDict)):
                         return obj.data
                     return f'<<non-serializable: {type(obj).__qualname__}>>'
 
             return json.dumps(cvars, indent=4, cls=DumpEncoder, sort_keys=True)
-        else:
-            raise ValueError("Unsupported serialization format: %s." % fmt)
+
+        raise ValueError("Unsupported serialization format: %s." % fmt)
 
 
-    def FindIxes(self, paths: Sequence[str], prefix: str, suffix: str) -> Optional[str]:
+    def FindIxes(self, paths: Sequence[str], prefix: str, suffix: str) -> str | None:
         """Search *paths* for a path that has *prefix* and *suffix*.
 
         Returns on first match.
@@ -1841,7 +1899,6 @@ class Base(SubstitutionEnvironment):
 
         The variable is created if it is not already present.
         """
-
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
             if key == 'CPPDEFINES':
@@ -1928,11 +1985,17 @@ class Base(SubstitutionEnvironment):
 
         self._dict[envname][name] = nv
 
-    def PrependUnique(self, delete_existing: bool=False, **kw) -> None:
-        """Prepend values to existing construction variables
-        in an Environment, if they're not already there.
-        If delete_existing is True, removes existing values first, so
-        values move to front.
+    def PrependUnique(self, delete_existing: bool = False, **kw) -> None:
+        """Prepend values uniquely to existing construction variables.
+
+        Similar to :meth:`Prepend`, but the result may not contain duplicates
+        of any values passed for each given key (construction variable),
+        so an existing list may need to be pruned first, however it may still
+        contain other duplicates.
+
+        If *delete_existing* is true, removes existing values first, so values
+        move to the front; otherwise (the default) values are skipped if
+        already present.
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
@@ -1955,12 +2018,11 @@ class Base(SubstitutionEnvironment):
                     val = [x for x in val if x not in dk]
                 self._dict[key] = val + dk
             else:
+                # val is not a list, so presumably a scalar (likely str).
                 dk = self._dict[key]
                 if is_List(dk):
-                    # By elimination, val is not a list.  Since dk is a
-                    # list, wrap val in a list first.
                     if delete_existing:
-                        dk = [x for x in dk if x not in val]
+                        dk = [x for x in dk if x != val]
                         self._dict[key] = [val] + dk
                     else:
                         if val not in dk:
@@ -2021,7 +2083,7 @@ class Base(SubstitutionEnvironment):
         return self.fs.Dir(self.subst(tp)).srcnode().get_abspath()
 
     def Tool(
-        self, tool: Union[str, Callable], toolpath: Optional[Collection[str]] = None, **kwargs
+        self, tool: str | Callable, toolpath: Collection[str] | None = None, **kwargs
     ) -> Callable:
         """Find and run tool module *tool*.
 
@@ -2186,6 +2248,16 @@ class Base(SubstitutionEnvironment):
             self.get_CacheDir()
 
     def Clean(self, targets, files) -> None:
+        """Mark additional files for cleaning.
+
+        *files* will be removed if any of *targets* are selected
+        for cleaning - that is, the combination of target selection
+        and -c clean mode.
+
+        Args:
+            targets (files or nodes): targets to associate *files* with.
+            files (files or nodes): items to remove if *targets* are selected.
+        """
         global CleanTargets
         tlist = self.arg2nodes(targets, self.fs.Entry)
         flist = self.arg2nodes(files, self.fs.Entry)
@@ -2208,52 +2280,44 @@ class Base(SubstitutionEnvironment):
         return SCons.SConf.SConf(*nargs, **nkw)
 
     def Command(self, target, source, action, **kw):
-        """Builds the supplied target files from the supplied
-        source files using the supplied action.  Action may
-        be any type that the Builder constructor will accept
-        for an action."""
+        """Set up a one-off build command.
+
+        Builds *target* from *source* using *action*, which may be
+        be any type that the Builder factory will accept for an action.
+        Generates an anonymous builder and calls it, to add the details
+        to the build graph. The builder is not named, added to ``BUILDERS``,
+        or otherwise saved.
+
+        Recognizes the :func:`~SCons.Builder.Builder` keywords
+        ``source_scanner``, ``target_scanner``, ``source_factory`` and
+        ``target_factory``.  All other arguments from *kw* are passed on
+        to the builder when it is called.
+        """
+        # Build a kwarg dict for the builder construction
         bkw = {
             'action': action,
             'target_factory': self.fs.Entry,
             'source_factory': self.fs.Entry,
         }
-        # source scanner
-        try:
-            bkw['source_scanner'] = kw['source_scanner']
-        except KeyError:
-            pass
-        else:
-            del kw['source_scanner']
 
-        # target scanner
-        try:
-            bkw['target_scanner'] = kw['target_scanner']
-        except KeyError:
-            pass
-        else:
-            del kw['target_scanner']
-
-        # source factory
-        try:
-            bkw['source_factory'] = kw['source_factory']
-        except KeyError:
-            pass
-        else:
-            del kw['source_factory']
-
-        # target factory
-        try:
-            bkw['target_factory'] = kw['target_factory']
-        except KeyError:
-            pass
-        else:
-            del kw['target_factory']
+        # Recognize these kwargs for the builder construction and take
+        # them out of the args for the subsequent builder call.
+        for arg in [
+            'source_scanner',
+            'target_scanner',
+            'source_factory',
+            'target_factory',
+        ]:
+            try:
+                bkw[arg] = kw.pop(arg)
+            except KeyError:
+                pass
 
         bld = SCons.Builder.Builder(**bkw)
         return bld(self, target, source, **kw)
 
     def Depends(self, target, dependency):
-        """Explicity specify that 'target's depend on 'dependency'."""
+        """Explicity specify that *target* depends on *dependency*."""
         tlist = self.arg2nodes(target, self.fs.Entry)
         dlist = self.arg2nodes(dependency, self.fs.Entry)
         for t in tlist:
@@ -2280,8 +2344,8 @@ class Base(SubstitutionEnvironment):
             return result
         return self.fs.PyPackageDir(s)
 
-    def NoClean(self, *targets):
-        """Tags a target so that it will not be cleaned by -c"""
+    def NoClean(self, *targets) -> list:
+        """Tag *targets* to not be removed in clean mode."""
         tlist = []
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))
@@ -2290,7 +2354,7 @@ class Base(SubstitutionEnvironment):
         return tlist
 
     def NoCache(self, *targets):
-        """Tags a target so that it will not be cached"""
+        """Tag target(s) so that it will not be cached."""
         tlist = []
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))
@@ -2524,45 +2588,75 @@ class Base(SubstitutionEnvironment):
 
 
 class OverrideEnvironment(Base):
-    """A proxy that overrides variables in a wrapped construction
-    environment by returning values from an overrides dictionary in
-    preference to values from the underlying subject environment.
+    """A proxy that implements override environments.
 
-    This is a lightweight (I hope) proxy that passes through most use of
-    attributes to the underlying Environment.Base class, but has just
-    enough additional methods defined to act like a real construction
-    environment with overridden values.  It can wrap either a Base
-    construction environment, or another OverrideEnvironment, which
-    can in turn nest arbitrary OverrideEnvironments...
+    Returns attributes/methods and construction variables from the
+    base environment *subject*, except that same-named construction
+    variables from *overrides* are returned on read access; assignment
+    to a construction variable creates an override entry - *subject* is
+    not modified. This is a much lighter weight approach for limited-use
+    setups than cloning an environment, for example to handle a builder
+    call with keyword arguments that make a temporary change to the
+    current environment::
 
-    Note that we do *not* call the underlying base class
-    (SubsitutionEnvironment) initialization, because we get most of those
-    from proxying the attributes of the subject construction environment.
-    But because we subclass SubstitutionEnvironment, this class also
-    has inherited arg2nodes() and subst*() methods; those methods can't
-    be proxied because they need *this* object's methods to fetch the
-    values from the overrides dictionary.
+        env.Program(target="foo", source=sources, DEBUG=True)
+
+    While the majority of methods are proxied from the underlying environment
+    class, enough plumbing is defined in this class for it to behave
+    like an ordinary Environment without the caller needing to know it is
+    "special" in some way.  We don't call the initializer of the class
+    we're proxying, rather depend on it already being properly set up.
+
+    Deletion is handled specially, if a variable was explicitly deleted,
+    it should no longer appear to be in the env, but we also don't want to
+    modify the subject environment.
+
+    :class:`OverrideEnvironment` can nest arbitratily, *subject*
+    can be an existing instance. Although instances can be
+    instantiated directly, the expected use is to call the
+    :meth:`~SubstitutionEnvironment.Override` method as a factory.
+
+    Note Python does not give us a way to assure the subject environment
+    is not modified. Assigning to a variable creates a new entry in
+    the override, but moditying a variable will first fetch the one
+    from the subject, and if mutable, it will just be modified in place.
+    For example: ``over_env.Append(CPPDEFINES="-O")``, where ``CPPDEFINES``
+    is an existing list or :class:`~SCons.Util.CLVar`, will successfully
+    append to ``CPPDEFINES`` in the subject env.  To avoid such leakage,
+    clients such as Scanners, Emitters and Action functions called by a
+    Builder using override syntax must take care if modifying an env
+    (which is not advised anyway) in case they were passed an
+    ``OverrideEnvironment``.
     """
 
-    def __init__(self, subject, overrides=None) -> None:
+    def __init__(self, subject, overrides: dict | None = None) -> None:
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.OverrideEnvironment')
+        overrides = {} if overrides is None else overrides
+        # set these directly via __dict__ to avoid trapping by __setattr__
         self.__dict__['__subject'] = subject
-        if overrides is None:
-            self.__dict__['overrides'] = {}
-        else:
-            self.__dict__['overrides'] = overrides
+        self.__dict__['overrides'] = overrides
+        self.__dict__['__deleted'] = []
 
     # Methods that make this class act like a proxy.
+
     def __getattr__(self, name):
+        # Proxied environment methods don't know (nor should they have to) that
+        # they could be called with an OverrideEnvironment as 'self' and may
+        # access the _dict construction variable dict directly, so we need to
+        # pretend to have one, and not serve up the one from the subject, or it
+        # will miss the overridden values (and possibly modify the base). Use
+        # ourselves and hope the dict-like methods below are sufficient.
+        if name == '_dict':
+            return self
+
         attr = getattr(self.__dict__['__subject'], name)
-        # Here we check if attr is one of the Wrapper classes. For
-        # example when a pseudo-builder is being called from an
-        # OverrideEnvironment.
-        #
-        # These wrappers when they're constructed capture the
-        # Environment they are being constructed with and so will not
-        # have access to overrided values. So we rebuild them with the
-        # OverrideEnvironment so they have access to overrided values.
+
+        # Check first if attr is one of the Wrapper classes, for example
+        # when a pseudo-builder is being called from an OverrideEnvironment.
+        # These wrappers, when they're constructed, capture the Environment
+        # they are being constructed with and so will not have access to
+        # overridden values. So we rebuild them with the OverrideEnvironment
+        # so they have access to overridden values.
         if isinstance(attr, MethodWrapper):
             return attr.clone(self)
         else:
@@ -2572,68 +2666,116 @@ class OverrideEnvironment(Base):
         setattr(self.__dict__['__subject'], name, value)
 
     # Methods that make this class act like a dictionary.
+
     def __getitem__(self, key):
+        """Return the visible value of *key*.
+
+        Backfills from the subject env if *key* doesn't have an entry in
+        the override, and is not explicity deleted.
+        """
         try:
             return self.__dict__['overrides'][key]
         except KeyError:
+            if key in self.__dict__['__deleted']:
+                raise
             return self.__dict__['__subject'].__getitem__(key)
 
-    def __setitem__(self, key, value):
-        if not is_valid_construction_var(key):
-            raise UserError("Illegal construction variable `%s'" % key)
+    def __setitem__(self, key, value) -> None:
+        # This doesn't have the same performance equation as a "real"
+        # environment: in an override you're basically just writing
+        # new stuff; it's not a common case to be changing values already
+        # set in the override dict, so don't spend time checking for existance.
+        if not key.isidentifier():
+            raise UserError(f"Illegal construction variable {key!r}")
         self.__dict__['overrides'][key] = value
+        if key in self.__dict__['__deleted']:
+            # it's no longer "deleted" if we set it
+            self.__dict__['__deleted'].remove(key)
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
+        """Delete *key* from override.
+
+        Makes *key* not visible in the override. Previously implemented
+        by deleting from ``overrides`` and from ``__subject``, which
+        keeps :meth:`__getitem__` from filling  it back in next time.
+        However, that approach was a form of leak, as the subject
+        environment was modified. So instead we log that it's deleted
+        and use that to make decisions elsewhere.
+        """
         try:
             del self.__dict__['overrides'][key]
         except KeyError:
-            deleted = 0
+            deleted = False
         else:
-            deleted = 1
-        try:
-            result = self.__dict__['__subject'].__delitem__(key)
-        except KeyError:
-            if not deleted:
-                raise
-            result = None
-        return result
+            deleted = True
+        if not deleted and key not in self.__dict__['__subject']:
+            raise KeyError(key)
+        self.__dict__['__deleted'].append(key)
 
     def get(self, key, default=None):
-        """Emulates the get() method of dictionaries."""
+        """Emulates the ``get`` method of dictionaries.
+
+        Backfills from the subject environment if *key* is not in the override
+        and not deleted.
+        """
         try:
             return self.__dict__['overrides'][key]
         except KeyError:
+            if key in self.__dict__['__deleted']:
+                return default
             return self.__dict__['__subject'].get(key, default)
 
     def __contains__(self, key) -> bool:
+        """Emulates the ``contains`` method of dictionaries.
+
+        Backfills from the subject environment if *key* is not in the override
+        and not deleted.
+        """
         if key in self.__dict__['overrides']:
             return True
+        if key in self.__dict__['__deleted']:
+            return False
         return key in self.__dict__['__subject']
 
-    def Dictionary(self, *args):
-        d = self.__dict__['__subject'].Dictionary().copy()
+    def Dictionary(self, *args, as_dict: bool = False):
+        """Return construction variables from an environment.
+
+        Behavior is as described for :class:`SubstitutionEnvironment.Dictionary`
+        but understanda about the override.
+
+        Raises:
+          KeyError: if any of *args* is not in the construction environment.
+
+        .. versionchanged: 4.9.0
+           Added the *as_dict* keyword arg to always return a dict.
+        """
+        d = {}
+        d.update(self.__dict__['__subject'])
         d.update(self.__dict__['overrides'])
+        d = {k: v for k, v in d.items() if k not in self.__dict__['__deleted']}
         if not args:
             return d
-        dlist = [d[x] for x in args]
+        if as_dict:
+            return {key: d[key] for key in args}
+        dlist = [d[key] for key in args]
         if len(dlist) == 1:
-            dlist = dlist[0]
+            return dlist[0]
         return dlist
 
     def items(self):
-        """Emulates the items() method of dictionaries."""
+        """Emulates the ``items`` method of dictionaries."""
         return self.Dictionary().items()
 
     def keys(self):
-        """Emulates the keys() method of dictionaries."""
+        """Emulates the ``keys`` method of dictionaries."""
         return self.Dictionary().keys()
 
     def values(self):
-        """Emulates the values() method of dictionaries."""
+        """Emulates the ``values`` method of dictionaries."""
         return self.Dictionary().values()
 
     def setdefault(self, key, default=None):
-        """Emulates the setdefault() method of dictionaries."""
+        """Emulates the ``setdefault`` method of dictionaries."""
         try:
             return self.__getitem__(key)
         except KeyError:
@@ -2641,6 +2783,7 @@ class OverrideEnvironment(Base):
             return default
 
     # Overridden private construction environment methods.
+
     def _update(self, other) -> None:
         self.__dict__['overrides'].update(other)
 
@@ -2663,6 +2806,7 @@ class OverrideEnvironment(Base):
         return lvars
 
     # Overridden public construction environment methods.
+
     def Replace(self, **kw) -> None:
         kw = copy_non_reserved_keywords(kw)
         self.__dict__['overrides'].update(semi_deepcopy(kw))

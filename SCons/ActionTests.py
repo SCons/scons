@@ -27,6 +27,8 @@
 # contents, so try to minimize changes by defining them here, before we
 # even import anything.
 
+from __future__ import annotations
+
 def GlobalFunc() -> None:
     pass
 
@@ -43,13 +45,15 @@ import types
 import unittest
 from unittest import mock
 from subprocess import PIPE
-from typing import Optional
+from typing import TYPE_CHECKING
 
 import SCons.Action
 import SCons.Environment
 import SCons.Errors
 from SCons.Action import scons_subproc_run
-from SCons.Util.sctyping import ExecutorType
+
+if TYPE_CHECKING:
+    from SCons.Executor import Executor
 
 import TestCmd
 
@@ -1541,8 +1545,6 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
         # Since the python bytecode has per version differences, we need different expected results per version
         func_matches = {
-            (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
-            (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
@@ -1701,11 +1703,11 @@ class FunctionActionTestCase(unittest.TestCase):
         c = test.read(outfile, 'r')
         assert c == "class1b\n", c
 
-        def build_it(target, source, env, executor: Optional[ExecutorType] = None, self=self) -> int:
+        def build_it(target, source, env, executor: Executor | None = None, self=self) -> int:
             self.build_it = 1
             return 0
 
-        def string_it(target, source, env, executor: Optional[ExecutorType] = None, self=self):
+        def string_it(target, source, env, executor: Executor | None = None, self=self):
             self.string_it = 1
             return None
 
@@ -1723,8 +1725,6 @@ class FunctionActionTestCase(unittest.TestCase):
             pass
 
         func_matches = {
-            (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
-            (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
@@ -1736,8 +1736,6 @@ class FunctionActionTestCase(unittest.TestCase):
         }
 
         meth_matches = {
-            (3, 5): bytearray(b'1, 1, 0, 0,(),(),(d\x00\x00S),(),()'),
-            (3, 6): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
@@ -1978,8 +1976,6 @@ class LazyActionTestCase(unittest.TestCase):
             pass
 
         func_matches = {
-            (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
-            (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
@@ -2042,8 +2038,6 @@ class ActionCallerTestCase(unittest.TestCase):
             pass
 
         matches = {
-            (3, 5): b'd\x00\x00S',
-            (3, 6): b'd\x00S\x00',
             (3, 7): b'd\x00S\x00',
             (3, 8): b'd\x00S\x00',
             (3, 9): b'd\x00S\x00',
@@ -2246,8 +2240,6 @@ class ObjectContentsTestCase(unittest.TestCase):
         # we need different expected results per version
         # Note unlike the others, this result is a tuple, use assertIn
         expected = {
-            (3, 5): (bytearray(b'3, 3, 0, 0,(),(),(|\x00\x00S),(),()'),),
-            (3, 6): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),),
             (3, 7): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),),
             (3, 8): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),),
             (3, 9): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),),
@@ -2275,12 +2267,6 @@ class ObjectContentsTestCase(unittest.TestCase):
         # Since the python bytecode has per version differences,
         # we need different expected results per version
         expected = {
-            (3, 5): bytearray(
-                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01\x00|\x00\x00_\x00\x00d\x02\x00|\x00\x00_\x01\x00d\x00\x00S),(),(),2, 2, 0, 0,(),(),(d\x00\x00S),(),()}}{{{a=a,b=b}}}"
-            ),
-            (3, 6): bytearray(
-                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
-            ),
             (3, 7): bytearray(
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
             ),
@@ -2314,12 +2300,6 @@ class ObjectContentsTestCase(unittest.TestCase):
 
         # Since the python bytecode has per version differences, we need different expected results per version
         expected = {
-            (3, 5): bytearray(
-                b'0, 0, 0, 0,(Hello, World!),(print),(e\x00\x00d\x00\x00\x83\x01\x00\x01d\x01\x00S)'
-            ),
-            (3, 6): bytearray(
-                b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'
-            ),
             (3, 7): bytearray(
                 b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'
             ),
@@ -2387,17 +2367,17 @@ class ObjectContentsTestCase(unittest.TestCase):
                 {"text": True, "check": False},
             )
 
-        # 3.6:
-        sys.version_info = (3, 6, 2)
+        # 3.7:
+        sys.version_info = (3, 7, 2)
         with self.subTest():
             self.assertEqual(
                 scons_subproc_run(env, capture_output=True),
-                {"check": False, "stdout": PIPE, "stderr": PIPE},
+                {"capture_output": True, "check": False},
             )
         with self.subTest():
             self.assertEqual(
                 scons_subproc_run(env, text=True),
-                {"check": False, "universal_newlines": True},
+                {"check": False, "text": True},
             )
         with self.subTest():
             self.assertEqual(

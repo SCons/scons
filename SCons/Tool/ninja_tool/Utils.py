@@ -20,17 +20,22 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+from __future__ import annotations
+
 import os
 import shutil
 from os.path import join as joinpath
 from collections import OrderedDict
-from typing import Optional
+from typing import TYPE_CHECKING
 
 import SCons
 from SCons.Action import get_default_ENV, _string_from_cmd_list
 from SCons.Script import AddOption
 from SCons.Util import is_List, flatten_sequence
-from SCons.Util.sctyping import ExecutorType
+
+if TYPE_CHECKING:
+    from SCons.Executor import Executor
 
 class NinjaExperimentalWarning(SCons.Warnings.WarningOnByDefault):
     pass
@@ -45,6 +50,7 @@ def ninja_add_command_line_options() -> None:
               metavar='BOOL',
               action="store_true",
               default=False,
+              settable=True,
               help='Disable automatically running ninja after scons')
 
     AddOption('--disable-ninja',
@@ -52,6 +58,7 @@ def ninja_add_command_line_options() -> None:
               metavar='BOOL',
               action="store_true",
               default=False,
+              settable=True,
               help='Disable ninja generation and build with scons even if tool is loaded. '+
                    'Also used by ninja to build targets which only scons can build.')
 
@@ -60,6 +67,7 @@ def ninja_add_command_line_options() -> None:
               metavar='BOOL',
               action="store_true",
               default=False,
+              settable=True,
               help='Allow scons to skip regeneration of the ninja file and restarting of the daemon. ' +
                     'Care should be taken in cases where Glob is in use or SCons generated files are used in ' +
                     'command lines.')
@@ -346,7 +354,7 @@ def get_comstr(env, action, targets, sources):
     return action.genstring(targets, sources, env)
 
 
-def generate_command(env, node, action, targets, sources, executor: Optional[ExecutorType] = None):
+def generate_command(env, node, action, targets, sources, executor: Executor | None = None):
     # Actions like CommandAction have a method called process that is
     # used by SCons to generate the cmd_line they need to run. So
     # check if it's a thing like CommandAction and call it if we can.
@@ -405,14 +413,14 @@ def ninja_stat(_self, path):
     """
 
     try:
-        return SCons.Tool.ninja.Globals.NINJA_STAT_MEMO[path]
+        return SCons.Tool.ninja_tool.Globals.NINJA_STAT_MEMO[path]
     except KeyError:
         try:
             result = os.stat(path)
         except os.error:
             result = None
 
-        SCons.Tool.ninja.Globals.NINJA_STAT_MEMO[path] = result
+        SCons.Tool.ninja_tool.Globals.NINJA_STAT_MEMO[path] = result
         return result
 
 
@@ -422,7 +430,7 @@ def ninja_whereis(thing, *_args, **_kwargs):
     # Optimize for success, this gets called significantly more often
     # when the value is already memoized than when it's not.
     try:
-        return SCons.Tool.ninja.Globals.NINJA_WHEREIS_MEMO[thing]
+        return SCons.Tool.ninja_tool.Globals.NINJA_WHEREIS_MEMO[thing]
     except KeyError:
         # TODO: Fix this to respect env['ENV']['PATH']... WPD
         # We do not honor any env['ENV'] or env[*] variables in the
@@ -435,7 +443,7 @@ def ninja_whereis(thing, *_args, **_kwargs):
         # with shell quoting is nigh impossible. So I've decided to
         # cross that bridge when it's absolutely required.
         path = shutil.which(thing)
-        SCons.Tool.ninja.Globals.NINJA_WHEREIS_MEMO[thing] = path
+        SCons.Tool.ninja_tool.Globals.NINJA_WHEREIS_MEMO[thing] = path
         return path
 
 

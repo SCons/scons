@@ -3,6 +3,9 @@
 <!--
 SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -31,14 +34,14 @@ SPDX-License-Identifier: MIT
   There are two occasions when &SCons; will,
   by default, remove target files.
   The first is when &SCons; determines that
-  an target file needs to be rebuilt
+  a target file needs to be rebuilt
   and removes the existing version of the target
   before executing
   The second is when &SCons; is invoked with the
   <literal>-c</literal> option to "clean"
   a tree of its built targets.
 
-  These behaviours can be suppressed with the
+  These behaviors can be suppressed with the
   &Precious; and &NoClean; functions, respectively.
 
   </para>

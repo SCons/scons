@@ -31,12 +31,14 @@ The code that reads the registry to find MSVC components was borrowed
 from distutils.msvccompiler.
 """
 
+from __future__ import annotations
+
 import os
 import shutil
 import stat
 import sys
 import time
-from typing import List, Callable
+from typing import Callable
 
 import SCons.Action
 import SCons.Builder
@@ -467,8 +469,8 @@ def _stripixes(
     prefix: str,
     items,
     suffix: str,
-    stripprefixes: List[str],
-    stripsuffixes: List[str],
+    stripprefixes: list[str],
+    stripsuffixes: list[str],
     env,
     literal_prefix: str = "",
     c: Callable[[list], list] = None,
@@ -547,7 +549,7 @@ def _stripixes(
     return c(prefix, stripped, suffix, env)
 
 
-def processDefines(defs) -> List[str]:
+def processDefines(defs) -> list[str]:
     """Return list of strings for preprocessor defines from *defs*.
 
     Resolves the different forms ``CPPDEFINES`` can be assembled in:

@@ -36,7 +36,7 @@ copyright_years = strftime('2001 - %Y')
 # This gets inserted into the man pages to reflect the month of release.
 month_year = strftime('%B %Y')
 project = 'scons'
-default_version = '4.7.1'
+default_version = '4.9.1'
 copyright = f"Copyright (c) {copyright_years} The SCons Foundation"
 
 # We let the presence or absence of various utilities determine whether
@@ -205,7 +205,7 @@ wheel = env.Command(
         '$DISTDIR/SCons-${VERSION}-py3-none-any.whl',
         '$DISTDIR/SCons-${VERSION}.tar.gz',
     ],
-    source=['setup.cfg', 'setup.py', 'SCons/__init__.py'] + man_pages,
+    source=['pyproject.toml', 'setup.py', 'SCons/__init__.py'] + man_pages,
     action='$PYTHON -m build --outdir $DISTDIR',
 )
 env.Alias("wheel", wheel[0])
@@ -215,7 +215,7 @@ env.Alias("tar-gz", wheel[1])
 # and it deletes its isolated env so we can't just zip that one up.
 zip_file = env.Command(
     target='$DISTDIR/SCons-${VERSION}.zip',
-    source=['setup.cfg', 'setup.py', 'SCons/__init__.py'] + man_pages,
+    source=['pyproject.toml', 'setup.py', 'SCons/__init__.py'] + man_pages,
     action='$PYTHON setup.py sdist --format=zip',
 )
 env.Alias("zip", zip_file)

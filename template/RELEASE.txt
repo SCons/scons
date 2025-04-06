@@ -6,7 +6,7 @@ Past official release announcements appear at:
 
 ==================================================================
 
-A new SCons release, 4.4.1, is now available on the SCons download page:
+A new SCons release, 4.9.0, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 

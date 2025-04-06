@@ -23,8 +23,9 @@
 
 """Execute actions with specific lists of target and source Nodes."""
 
+from __future__ import annotations
+
 import collections
-from typing import Dict
 
 import SCons.Errors
 import SCons.Memoize
@@ -32,7 +33,6 @@ import SCons.Util
 from SCons.compat import NoSlotsPyPy
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
-from SCons.Util.sctyping import ExecutorType
 
 class Batch:
     """Remembers exact association between targets
@@ -550,12 +550,12 @@ class Executor(metaclass=NoSlotsPyPy):
 
 
 
-_batch_executors: Dict[str, ExecutorType] = {}
+_batch_executors: dict[str, Executor] = {}
 
-def GetBatchExecutor(key: str) -> ExecutorType:
+def GetBatchExecutor(key: str) -> Executor:
     return _batch_executors[key]
 
-def AddBatchExecutor(key: str, executor: ExecutorType) -> None:
+def AddBatchExecutor(key: str, executor: Executor) -> None:
     assert key not in _batch_executors
     _batch_executors[key] = executor
 

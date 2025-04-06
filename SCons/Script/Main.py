@@ -31,9 +31,12 @@ some other module.  If it's specific to the "scons" script invocation,
 it goes here.
 """
 
+from __future__ import annotations
+
 import SCons.compat
 
 import importlib.util
+import optparse
 import os
 import re
 import sys
@@ -41,7 +44,6 @@ import time
 import traceback
 import platform
 import threading
-from typing import Optional, List
 
 import SCons.CacheDir
 import SCons.Debug
@@ -59,15 +61,16 @@ import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
 import SCons.Script.Interactive
+from .SConsOptions import SConsOption
 from SCons.Util.stats import count_stats, memory_stats, time_stats, ENABLE_JSON, write_scons_stats_file, JSON_OUTPUT_FILE
 
 from SCons import __version__ as SConsVersion
 
 # these define the range of versions SCons supports
-minimum_python_version = (3, 6, 0)
-deprecated_python_version = (3, 7, 0)  # the first non-deprecated version
+minimum_python_version = (3, 7, 0)
+deprecated_python_version = (3, 7, 0)
 
-# ordered list of SConsctruct names to look for if there is no -f flag
+# ordered list of SConstruct names to look for if there is no -f flag
 KNOWN_SCONSTRUCT_NAMES = [
     'SConstruct',
     'Sconstruct',
@@ -84,7 +87,11 @@ KNOWN_SCONSCRIPTS = [
     "Sconstruct",
     "sconstruct",
     "SConscript",
+    "Sconscript",
     "sconscript",
+    "SCsub",  # Uncommon alternative to SConscript
+    "Scsub",
+    "scsub",
 ]
 
 # Global variables
@@ -174,6 +181,7 @@ class Progressor:
 ProgressObject = SCons.Util.Null()
 
 def Progress(*args, **kw) -> None:
+    """Show progress during building - Public API."""
     global ProgressObject
     ProgressObject = Progressor(*args, **kw)
 
@@ -501,29 +509,59 @@ class FakeOptionParser:
     # TODO: to quiet checkers, FakeOptionParser should also define
     #   raise_exception_on_error, preserve_unknown_options, largs and parse_args
 
-    def add_local_option(self, *args, **kw) -> None:
+    def add_local_option(self, *args, **kw) -> SConsOption:
         pass
 
 
 OptionsParser = FakeOptionParser()
 
-def AddOption(*args, **kw):
+def AddOption(*args, **kw) -> SConsOption:
+    """Add a local option to the option parser - Public API.
+
+    If the SCons-specific *settable* kwarg is true (default ``False``),
+    the option will allow calling :func:``SetOption`.
+
+    .. versionchanged:: 4.8.0
+       The *settable* parameter added to allow including the new option
+       in the table of options eligible to use :func:`SetOption`.
+    """
+    settable = kw.get('settable', False)
+    if len(args) == 1 and isinstance(args[0], SConsOption):
+        # If they passed an SConsOption object, ignore kw - the underlying
+        # add_option method relies on seeing zero kwargs to recognize this.
+        # Since we don't support an omitted default, overrwrite optparse's
+        # marker to get the same effect as setting it in kw otherwise.
+        optobj = args[0]
+        if optobj.default is optparse.NO_DEFAULT:
+            optobj.default = None
+        # make sure settable attribute exists; positive setting wins
+        attr_settable = getattr(optobj, "settable")
+        if attr_settable is None or settable > attr_settable:
+            optobj.settable = settable
+        return OptionsParser.add_local_option(*args)
+
     if 'default' not in kw:
         kw['default'] = None
-    result = OptionsParser.add_local_option(*args, **kw)
-    return result
+    kw['settable'] = settable  # just to make sure it gets set
+    return OptionsParser.add_local_option(*args, **kw)
 
-def GetOption(name):
+def GetOption(name: str):
+    """Get the value from an option - Public API."""
     return getattr(OptionsParser.values, name)
 
-def SetOption(name, value):
+def SetOption(name: str, value):
+    """Set the value of an option - Public API."""
     return OptionsParser.values.set_option(name, value)
 
-def DebugOptions(json=None):
-    """
-    API to allow specifying options to SCons debug logic
-    Currently only json is supported which changes the
-    json file written by --debug=json from the default
+def DebugOptions(json: str | None = None) -> None:
+    """Specify options to SCons debug logic - Public API.
+
+    Currently only *json* is supported, which changes the JSON file
+    written to if the ``--debug=json`` command-line option is specified
+    to the value supplied.
+
+    .. versionadded:: 4.6.0
+
     """
     if json is not None:
         json_node = SCons.Defaults.DefaultEnvironment().arg2nodes(json)
@@ -540,7 +578,7 @@ def DebugOptions(json=None):
             raise SCons.Errors.UserError(f"Unable to create directory for JSON debug output file: {SCons.Util.stats.JSON_OUTPUT_FILE}")
 
 
-def ValidateOptions(throw_exception: bool=False) -> None:
+def ValidateOptions(throw_exception: bool = False) -> None:
     """Validate options passed to SCons on the command line.
 
     Checks that all options given on the command line are known to this
@@ -644,8 +682,8 @@ def _scons_internal_error() -> None:
     sys.exit(2)
 
 def _SConstruct_exists(
-    dirname: str, repositories: List[str], filelist: List[str]
-) -> Optional[str]:
+    dirname: str, repositories: list[str], filelist: list[str]
+) -> str | None:
     """Check that an SConstruct file exists in a directory.
 
     Arguments:
@@ -1319,12 +1357,6 @@ def _build_targets(fs, options, targets, target_top):
     # various print_* settings, tree_printer list, etc.
     BuildTask.options = options
 
-    is_pypy = platform.python_implementation() == 'PyPy'
-    # As of 3.7, python removed support for threadless platforms.
-    # See https://www.python.org/dev/peps/pep-0011/
-    is_37_or_later = sys.version_info >= (3, 7)
-    # python_has_threads = sysconfig.get_config_var('WITH_THREAD') or is_pypy or is_37_or_later
-
     # As of python 3.4 threading has a dummy_threading module for use when there is no threading
     # it's get_ident() will allways return -1, while real threading modules get_ident() will
     # always return a positive integer
@@ -1387,7 +1419,7 @@ def _exec_main(parser, values) -> None:
         class SConsPdb(pdb.Pdb):
             """Specialization of Pdb to help find SConscript files."""
 
-            def lookupmodule(self, filename: str) -> Optional[str]:
+            def lookupmodule(self, filename: str) -> str | None:
                 """Helper function for break/clear parsing -- SCons version.
 
                 Translates (possibly incomplete) file or module name
@@ -1398,6 +1430,10 @@ def _exec_main(parser, values) -> None:
                 sconscript files that don't have the suffix.
 
                 .. versionadded:: 4.6.0
+
+                .. versionchanged:: 4.8.0
+                   The additional name ``SCsub`` (with spelling variants)
+                   is also recognized - Godot uses this name.
                 """
                 if os.path.isabs(filename) and os.path.exists(filename):
                     return filename

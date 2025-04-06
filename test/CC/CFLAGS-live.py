@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,17 +22,22 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+Test behavior of CFLAGS.
+
+This is a live test, uses the detected C compiler.
+"""
 
 import sys
+
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 # Make sure CFLAGS is not passed to CXX by just expanding CXXCOM
-test.write('SConstruct', """
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment(CFLAGS='-xyz', CCFLAGS='-abc')
 print(env.subst('$CXXCOM'))
 print(env.subst('$CXXCOMSTR'))
@@ -40,8 +47,6 @@ print(env.subst('$SHCXXCOMSTR'))
 test.run(arguments = '.')
 test.must_not_contain_any_line(test.stdout(), ["-xyz"])
 test.must_contain_all_lines(test.stdout(), ["-abc"])
-
-_obj = TestSCons._obj
 
 # Test passing CFLAGS to C compiler by actually compiling programs
 if sys.platform == 'win32':
@@ -57,17 +62,17 @@ else:
     fooflags = '-DFOO'
     barflags = '-DBAR'
 
+test.write('SConstruct', f"""\
+DefaultEnvironment(tools=[])
+foo = Environment(CFLAGS="{fooflags}")
+bar = Environment(CFLAGS="{barflags}")
 
-test.write('SConstruct', """
-foo = Environment(CFLAGS = '%s')
-bar = Environment(CFLAGS = '%s')
-foo.Object(target = 'foo%s', source = 'prog.c')
-bar.Object(target = 'bar%s', source = 'prog.c')
-foo.Program(target = 'foo', source = 'foo%s')
-bar.Program(target = 'bar', source = 'bar%s')
-foo.Program(target = 'prog', source = 'prog.c',
-            CFLAGS = '$CFLAGS -DBAR $BAZ', BAZ = '-DBAZ')
-""" % (fooflags, barflags, _obj, _obj, _obj, _obj))
+foo_obj = foo.Object(target='foo', source='prog.c')
+bar_obj = bar.Object(target='bar', source='prog.c')
+foo.Program(target='foo', source=foo_obj)
+bar.Program(target='bar', source=bar_obj)
+foo.Program(target='prog', source='prog.c', CFLAGS='$CFLAGS -DBAR $BAZ', BAZ='-DBAZ')
+""")
 
 test.write('prog.c', r"""
 #include <stdio.h>
@@ -90,30 +95,28 @@ main(int argc, char *argv[])
 }
 """)
 
-
-
-test.run(arguments = '.')
-
-test.run(program = test.workpath('foo'), stdout = "prog.c:  FOO\n")
-test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
-test.run(program = test.workpath('prog'), stdout = """\
+test.run(arguments='.')
+test.run(program=test.workpath('foo'), stdout="prog.c:  FOO\n")
+test.run(program=test.workpath('bar'), stdout="prog.c:  BAR\n")
+test.run(program=test.workpath('prog'), stdout="""\
 prog.c:  FOO
 prog.c:  BAR
 prog.c:  BAZ
 """)
 
-test.write('SConstruct', """
-bar = Environment(CFLAGS = '%s')
-bar.Object(target = 'foo%s', source = 'prog.c')
-bar.Object(target = 'bar%s', source = 'prog.c')
-bar.Program(target = 'foo', source = 'foo%s')
-bar.Program(target = 'bar', source = 'bar%s')
-""" % (barflags, _obj, _obj, _obj, _obj))
+test.write('SConstruct', f"""\
+DefaultEnvironment(tools=[])
+bar = Environment(CFLAGS='{barflags}')
 
-test.run(arguments = '.')
+foo_obj = bar.Object(target='foo', source='prog.c')
+bar_obj = bar.Object(target='bar', source='prog.c')
+bar.Program(target='foo', source=foo_obj)
+bar.Program(target='bar', source=bar_obj)
+""")
 
-test.run(program = test.workpath('foo'), stdout = "prog.c:  BAR\n")
-test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
+test.run(arguments='.')
+test.run(program=test.workpath('foo'), stdout="prog.c:  BAR\n")
+test.run(program=test.workpath('bar'), stdout="prog.c:  BAR\n")
 
 test.pass_test()
 

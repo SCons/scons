@@ -3,6 +3,9 @@
 <!--
 SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -118,7 +121,7 @@ Python 3.9.15
     stating something like <computeroutput>"command not found"</computeroutput>
     (on UNIX or Linux)
     or <computeroutput>"'python' is not recognized as an internal
-    or external command, operable progam or batch file"</computeroutput>
+    or external command, operable program or batch file"</computeroutput>
     (on Windows <command>cmd</command>).
     In that case, you need to either install &Python;
     or fix the search path
@@ -152,7 +155,7 @@ Python 3.9.15
 
     <para>
     Recent versions of the Mac no longer come with &Python;
-    pre-installed; older versions came with a rather out of date
+    pre-installed; older versions came with a rather out-of-date
     version (based on &Python; 2.7) which is insufficient to run
     current &SCons;.
     The python.org installer can be used on the Mac, but there are
@@ -295,7 +298,7 @@ $ <userinput>python <replaceable>/path/to/unpacked</replaceable>/scripts/scons.p
     of &Python; software). There is a <filename>setup.py</filename> file,
     but it is only tested and used for the automated procedure which
     prepares  an &SCons; bundle for making a release on PyPI,
-    and even that is not guaranteed to work in future.
+    and even that is not guaranteed to work in the future.
     </para>
 
   </section>

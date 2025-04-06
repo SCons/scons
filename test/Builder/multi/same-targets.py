@@ -38,9 +38,9 @@ DefaultEnvironment(tools=[])
 
 def build(env, target, source):
     for t in target:
-        with open(str(t), 'wb') as f:
-            for s in source:
-                with open(str(s), 'rb') as infp:
+        with open(t, 'wb') as f:
+            for src in source:
+                with open(src, 'rb') as infp:
                     f.write(infp.read())
 
 B = Builder(action=build, multi=1)

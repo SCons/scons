@@ -62,10 +62,10 @@ Usage:  bench.py OPTIONS file.py
   -h, --help                    Display this help and exit
   -i ITER, --iterations ITER    Run each code snippet ITER times
   --time                        Use the time.time function
-  -r RUNS, --runs RUNS          Average times for RUNS invocations of 
+  -r RUNS, --runs RUNS          Average times for RUNS invocations of
 """
 
-# How many times each snippet of code will be (or should be) run by the 
+# How many times each snippet of code will be (or should be) run by the
 # functions under test to gather the time (the "inner loop").
 
 Iterations = 1000
@@ -191,19 +191,17 @@ py_ver_string = "%d.%d"%(sys.version_info.major, sys.version_info.minor)
 
 
 # pprint(results_dict)
-# breakpoint()
+
 tests = [label for label, args, kw in Data]
-columns = ['Python Version', 'Implementation', 'Test'] + tests
+columns = ['Python Version', 'Implementation'] + tests
 with open(results_filename, 'a') as r:
-    print("Python Version,%s" % ".".join(columns), file=r)
-    # print("Python Version,%s" % ".".join(columns))
+    print(",".join(columns), file=r)
 
-    for implementation in results_dict.keys():
+    for implementation in results_dict:
+        print(f'{py_ver_string},"{implementation}"', file=r, end='')
         for test in tests:
-            print(f'{py_ver_string},"{implementation}","{test}",%8.3f' % results_dict[implementation][test], file=r)
-            # print(f'{py_ver_string},"{implementation}","{test}",%8.3f' % results_dict[implementation][test])
-
-
+            print(',%8.3f' % results_dict[implementation][test], file=r, end='')
+        print(file=r)
 
 # Local Variables:
 # tab-width:4

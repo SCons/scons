@@ -35,7 +35,8 @@ test = TestSCons.TestSCons()
 test.write(
     'SConstruct',
     """\
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 AddOption(
     '--extra',
     nargs=1,

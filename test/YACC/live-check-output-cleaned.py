@@ -42,7 +42,7 @@ test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 foo = Environment(YACCFLAGS='-v -d', tools = ['default', 'yacc'])
 foo.CFile(source = 'foo.y')
-""" % locals())
+""")
 
 yacc = r"""
 %%{

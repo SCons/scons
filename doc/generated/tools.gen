@@ -237,7 +237,7 @@ Sets construction variables for D language compiler DMD.
   </varlistentry>
   <varlistentry id="t-docbook">
     <term>docbook</term>
-    <listitem><para>This tool tries to make working with Docbook in SCons a little easier.
+    <listitem><para>This tool tries to make working with Docbook in &SCons; a little easier.
 It provides several toolchains for creating different output formats,
 like HTML or PDF. Contained in the package is
 a distribution of the Docbook XSL stylesheets as of version 1.76.1.
@@ -465,50 +465,50 @@ Sets construction variables for the D language compiler GDC.
   <varlistentry id="t-gettext">
     <term>gettext</term>
     <listitem><para>
-This is actually a toolset, which supports internationalization and
-localization of software being constructed with SCons. The toolset loads
-following tools:
+A toolset supporting internationalization and
+localization of software being constructed with &SCons;.
+The toolset loads the following tools:
 </para>
 
 <para>
 <itemizedlist mark="opencircle">
   <listitem><para>
-    &t-link-xgettext; - to extract internationalized messages from source code to 
-    <literal>POT</literal> file(s),
+    &t-link-xgettext; - extract internationalized messages from source code to
+    <literal>POT</literal> file(s).
   </para></listitem>
   <listitem><para>
-    &t-link-msginit; - may be optionally used to initialize <literal>PO</literal>
-    files,
+    &t-link-msginit; - initialize <literal>PO</literal>
+    files during initial translation of a project.
   </para></listitem>
   <listitem><para>
-    &t-link-msgmerge; - to update <literal>PO</literal> files, that already contain
+    &t-link-msgmerge; - update <literal>PO</literal> files that already contain
     translated messages,</para></listitem>
   <listitem><para>
-    &t-link-msgfmt; - to compile textual <literal>PO</literal> file to binary
-    installable <literal>MO</literal> file.
+    &t-link-msgfmt; - compile textual <literal>PO</literal> files to binary
+    installable <literal>MO</literal> files.
   </para></listitem>
 </itemizedlist>
 </para>
 
 <para>
-When you enable &t-gettext;, it internally loads all abovementioned tools,
+When you enable &t-gettext;, it internally loads all the above-mentioned tools,
 so you're encouraged to see their individual documentation.
 </para>
 
 <para>
 Each of the above tools provides its own builder(s) which may be used to
 perform particular activities related to software internationalization. You
-may be however interested in <emphasis>top-level</emphasis> 
+may be however interested in <emphasis>top-level</emphasis>
 &b-link-Translate; builder.
 </para>
 
 <para>
-To use &t-gettext; tools add <literal>'gettext'</literal> tool to your
-environment:
+To use the &t-gettext; tools, add the <literal>'gettext'</literal> tool to your
+&consenv;:
 </para>
-<example_commands>
-  env = Environment( tools = ['default', 'gettext'] )
-</example_commands>
+<programlisting language="python">
+env = Environment(tools=['default', 'gettext'])
+</programlisting>
 </listitem>
   </varlistentry>
   <varlistentry id="t-gfortran">
@@ -529,7 +529,7 @@ Set construction variables for GNU linker/loader.
   <varlistentry id="t-gs">
     <term>gs</term>
     <listitem><para>
-This Tool sets the required construction variables for working with
+This &f-Tool; sets the required construction variables for working with
 the Ghostscript software. It also registers an appropriate Action
 with the &b-link-PDF; Builder, such that the conversion from
 PS/EPS to PDF happens automatically for the TeX/LaTeX toolchain.
@@ -665,7 +665,7 @@ Sets construction variables for the D language compiler LDC2.
   <varlistentry id="t-lex">
     <term>lex</term>
     <listitem><para>
-Sets construction variables for the &lex; lexical analyser.
+Sets construction variables for the &lex; lexical analyzer.
 </para>
 <para>Sets: &cv-link-LEX;, &cv-link-LEXCOM;, &cv-link-LEXFLAGS;, &cv-link-LEXUNISTD;.</para><para>Uses: &cv-link-LEXCOMSTR;, &cv-link-LEXFLAGS;, &cv-link-LEX_HEADER_FILE;, &cv-link-LEX_TABLES_FILE;.</para></listitem>
   </varlistentry>
@@ -718,29 +718,36 @@ Sets construction variables for MinGW (Minimal Gnu on Windows).
   <varlistentry id="t-msgfmt">
     <term>msgfmt</term>
     <listitem><para>
-This scons tool is a part of scons &t-link-gettext; toolset. It provides scons
-interface to <command>msgfmt(1)</command> command, which generates binary
-message catalog (<literal>MO</literal>) from a textual translation description
-(<literal>PO</literal>).
+This tool is a part of the &t-link-gettext; toolset.
+It provides &SCons;
+an interface to the <command>msgfmt(1)</command> command
+by setting up the &b-link-MOFiles; builder,
+which generates binary message catalog (<literal>MO</literal>) files
+from a textual translation description
+(<literal>PO</literal> files).
 </para>
 <para>Sets: &cv-link-MOSUFFIX;, &cv-link-MSGFMT;, &cv-link-MSGFMTCOM;, &cv-link-MSGFMTCOMSTR;, &cv-link-MSGFMTFLAGS;, &cv-link-POSUFFIX;.</para><para>Uses: &cv-link-LINGUAS_FILE;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-msginit">
     <term>msginit</term>
     <listitem><para>
-This scons tool is a part of scons &t-link-gettext; toolset. It provides
-scons interface to <command>msginit(1)</command> program, which creates new
+This tool is a part of scons &t-link-gettext; toolset. It provides
+&SCons; an interface to the <command>msginit(1)</command> program,
+by setting up the &b-link-POInit; builder,
+which creates a new
 <literal>PO</literal> file, initializing the meta information with values from
-user's environment (or options).
+the &consenv; (or options).
 </para>
 <para>Sets: &cv-link-MSGINIT;, &cv-link-MSGINITCOM;, &cv-link-MSGINITCOMSTR;, &cv-link-MSGINITFLAGS;, &cv-link-POAUTOINIT;, &cv-link-POCREATE_ALIAS;, &cv-link-POSUFFIX;, &cv-link-POTSUFFIX;, &cv-link-_MSGINITLOCALE;.</para><para>Uses: &cv-link-LINGUAS_FILE;, &cv-link-POAUTOINIT;, &cv-link-POTDOMAIN;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-msgmerge">
     <term>msgmerge</term>
     <listitem><para>
-This scons tool is a part of scons &t-link-gettext; toolset. It provides
-scons interface to <command>msgmerge(1)</command> command, which merges two
-Uniform style <filename>.po</filename> files together. 
+This tool is a part of scons &t-link-gettext; toolset. It provides
+&SCons; an interface to the <command>msgmerge(1)</command> command,
+by setting up the &b-link-POUpdate; builder,
+which merges two
+Uniform style <filename>.po</filename> files together.
 </para>
 <para>Sets: &cv-link-MSGMERGE;, &cv-link-MSGMERGECOM;, &cv-link-MSGMERGECOMSTR;, &cv-link-MSGMERGEFLAGS;, &cv-link-POSUFFIX;, &cv-link-POTSUFFIX;, &cv-link-POUPDATE_ALIAS;.</para><para>Uses: &cv-link-LINGUAS_FILE;, &cv-link-POAUTOINIT;, &cv-link-POTDOMAIN;.</para></listitem>
   </varlistentry>
@@ -921,7 +928,7 @@ The &t-qt3; tool supports the following operations:
 <emphasis role="strong">Automatic moc file generation from header files.</emphasis>
 You do not have to specify moc files explicitly, the tool does it for you.
 However, there are a few preconditions to do so: Your header file must have
-the same filebase as your implementation file and must stay in the same
+the same basename as your implementation file and must stay in the same
 directory. It must have one of the suffixes
 <filename>.h</filename>,
 <filename>.hpp</filename>,
@@ -1085,19 +1092,19 @@ Set &consvars; for the &b-link-Textfile; and &b-link-Substfile; builders.
   <varlistentry id="t-tlib">
     <term>tlib</term>
     <listitem><para>
-Sets construction variables for the Borlan
-<application>tib</application> library archiver.
+Sets construction variables for the Borland
+<application>tlib</application> library archiver.
 </para>
 <para>Sets: &cv-link-AR;, &cv-link-ARCOM;, &cv-link-ARFLAGS;, &cv-link-LIBPREFIX;, &cv-link-LIBSUFFIX;.</para><para>Uses: &cv-link-ARCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-xgettext">
     <term>xgettext</term>
     <listitem><para>
-This scons tool is a part of scons &t-link-gettext; toolset. It provides
-scons interface to <command>xgettext(1)</command>
-program, which extracts internationalized messages from source code. The tool
-provides &b-POTUpdate; builder to make  <literal>PO</literal>
-<emphasis>Template</emphasis> files. 
+This tool is a part of the &t-link-gettext; toolset. It provides
+&SCons; an interface to the <command>xgettext(1)</command>
+program, which extracts internationalized messages from source code.
+The tool sets up the &b-POTUpdate; builder to make  <literal>PO</literal>
+<emphasis>Template</emphasis> files.
 </para>
 <para>Sets: &cv-link-POTSUFFIX;, &cv-link-POTUPDATE_ALIAS;, &cv-link-XGETTEXTCOM;, &cv-link-XGETTEXTCOMSTR;, &cv-link-XGETTEXTFLAGS;, &cv-link-XGETTEXTFROM;, &cv-link-XGETTEXTFROMPREFIX;, &cv-link-XGETTEXTFROMSUFFIX;, &cv-link-XGETTEXTPATH;, &cv-link-XGETTEXTPATHPREFIX;, &cv-link-XGETTEXTPATHSUFFIX;, &cv-link-_XGETTEXTDOMAIN;, &cv-link-_XGETTEXTFROMFLAGS;, &cv-link-_XGETTEXTPATHFLAGS;.</para><para>Uses: &cv-link-POTDOMAIN;.</para></listitem>
   </varlistentry>

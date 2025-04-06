@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,10 +21,7 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE._"_"
 
 """
 Test that use of SideEffect() doesn't interfere with CacheDir.
@@ -32,7 +31,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('cache', 'work')
+test.subdir('work')
 
 cache = test.workpath('cache')
 
@@ -43,12 +42,10 @@ def copy(source, target):
         f.write(f2.read())
 
 def build(env, source, target):
-    s = str(source[0])
-    t = str(target[0])
-    copy(s, t)
+    copy(source[0], target[0])
     if target[0].side_effects:
-        with open(str(target[0].side_effects[0]), "a") as side_effect:
-            side_effect.write(s + ' -> ' + t + '\\n')
+        with open(target[0].side_effects[0], "a") as side_effect:
+            side_effect.write(str(source[0]) + ' -> ' + str(target[0]) + '\\n')
 
 CacheDir(r'%(cache)s')
 

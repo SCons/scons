@@ -49,6 +49,8 @@ in multiple places, rather then being topical only to one module/package.
 #       )
 # (issue filed on this upstream, for now just be aware)
 
+from __future__ import annotations
+
 import copy
 import hashlib
 import logging
@@ -59,7 +61,7 @@ import time
 from collections import UserDict, UserList, deque
 from contextlib import suppress
 from types import MethodType, FunctionType
-from typing import Optional, Union, Any, List
+from typing import Any
 from logging import Formatter
 
 # Util split into a package. Make sure things that used to work
@@ -107,6 +109,7 @@ from .envs import (
     AppendPath,
     AddPathIfNotExists,
     AddMethod,
+    is_valid_construction_var,
 )
 from .filelock import FileLock, SConsLockFailure
 
@@ -202,11 +205,11 @@ class NodeList(UserList):
     def __iter__(self):
         return iter(self.data)
 
-    def __call__(self, *args, **kwargs) -> 'NodeList':
+    def __call__(self, *args, **kwargs) -> NodeList:
         result = [x(*args, **kwargs) for x in self.data]
         return self.__class__(result)
 
-    def __getattr__(self, name) -> 'NodeList':
+    def __getattr__(self, name) -> NodeList:
         """Returns a NodeList of `name` from each member."""
         result = [getattr(x, name) for x in self.data]
         return self.__class__(result)
@@ -253,8 +256,8 @@ def render_tree(
     root,
     child_func,
     prune: bool = False,
-    margin: List[bool] = [False],
-    visited: Optional[dict] = None,
+    margin: list[bool] = [False],
+    visited: dict | None = None,
 ) -> str:
     """Render a tree of nodes into an ASCII tree view.
 
@@ -322,8 +325,8 @@ def print_tree(
     child_func,
     prune: bool = False,
     showtags: int = 0,
-    margin: List[bool] = [False],
-    visited: Optional[dict] = None,
+    margin: list[bool] = [False],
+    visited: dict | None = None,
     lastChild: bool = False,
     singleLineDraw: bool = False,
 ) -> None:
@@ -693,7 +696,7 @@ else:
 
 if sys.platform == 'win32':
 
-    def WhereIs(file, path=None, pathext=None, reject=None) -> Optional[str]:
+    def WhereIs(file, path=None, pathext=None, reject=None) -> str | None:
         if path is None:
             try:
                 path = os.environ['PATH']
@@ -730,7 +733,7 @@ if sys.platform == 'win32':
 
 elif os.name == 'os2':
 
-    def WhereIs(file, path=None, pathext=None, reject=None) -> Optional[str]:
+    def WhereIs(file, path=None, pathext=None, reject=None) -> str | None:
         if path is None:
             try:
                 path = os.environ['PATH']
@@ -762,7 +765,7 @@ elif os.name == 'os2':
 
 else:
 
-    def WhereIs(file, path=None, pathext=None, reject=None) -> Optional[str]:
+    def WhereIs(file, path=None, pathext=None, reject=None) -> str | None:
         import stat  # pylint: disable=import-outside-toplevel
 
         if path is None:
@@ -1294,36 +1297,70 @@ def print_time():
     return print_time
 
 
-def wait_for_process_to_die(pid) -> None:
+def wait_for_process_to_die(pid: int) -> None:
     """
-    Wait for specified process to die, or alternatively kill it
-    NOTE: This function operates best with psutil pypi package
+    Wait for the specified process to die.
+
     TODO: Add timeout which raises exception
     """
     # wait for the process to fully killed
     try:
         import psutil  # pylint: disable=import-outside-toplevel
         while True:
+            # TODO: this should use psutil.process_exists() or psutil.Process.wait()
+            # The psutil docs explicitly recommend against using process_iter()/pids()
+            # for checking the existence of a process.
             if pid not in [proc.pid for proc in psutil.process_iter()]:
                 break
             time.sleep(0.1)
     except ImportError:
         # if psutil is not installed we can do this the hard way
-        while True:
-            if sys.platform == 'win32':
-                import ctypes  # pylint: disable=import-outside-toplevel
-                PROCESS_QUERY_INFORMATION = 0x1000
-                processHandle = ctypes.windll.kernel32.OpenProcess(PROCESS_QUERY_INFORMATION, 0, pid)
-                if processHandle == 0:
-                    break
-                ctypes.windll.kernel32.CloseHandle(processHandle)
-                time.sleep(0.1)
-            else:
-                try:
-                    os.kill(pid, 0)
-                except OSError:
-                    break
-                time.sleep(0.1)
+        _wait_for_process_to_die_non_psutil(pid, timeout=-1.0)
+
+
+def _wait_for_process_to_die_non_psutil(pid: int, timeout: float = 60.0) -> None:
+    start_time = time.time()
+    while True:
+        if not _is_process_alive(pid):
+            break
+        if timeout >= 0.0 and time.time() - start_time > timeout:
+            raise TimeoutError(f"timed out waiting for process {pid}")
+        time.sleep(0.1)
+
+
+if sys.platform == 'win32':
+    def _is_process_alive(pid: int) -> bool:
+        import ctypes  # pylint: disable=import-outside-toplevel
+        PROCESS_QUERY_INFORMATION = 0x1000
+        STILL_ACTIVE = 259
+
+        processHandle = ctypes.windll.kernel32.OpenProcess(PROCESS_QUERY_INFORMATION, 0, pid)
+        if processHandle == 0:
+            return False
+
+        # OpenProcess() may successfully return a handle even for terminated
+        # processes when something else in the system is still holding a
+        # reference to their handle.  Call GetExitCodeProcess() to check if the
+        # process has already exited.
+        try:
+            exit_code = ctypes.c_ulong()
+            success = ctypes.windll.kernel32.GetExitCodeProcess(
+                    processHandle, ctypes.byref(exit_code))
+            if success:
+                return exit_code.value == STILL_ACTIVE
+        finally:
+            ctypes.windll.kernel32.CloseHandle(processHandle)
+
+        return True
+
+else:
+    def _is_process_alive(pid: int) -> bool:
+        try:
+            os.kill(pid, 0)
+            return True
+        except OSError:
+            return False
+
 
 # From: https://stackoverflow.com/questions/1741972/how-to-use-different-formatters-with-the-same-logging-handler-in-python
 class DispatchingFormatter(Formatter):

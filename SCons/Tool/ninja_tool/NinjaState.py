@@ -60,12 +60,11 @@ class NinjaState:
         if not self.ninja_bin_path:
             # default to using ninja installed with python module
             ninja_bin = 'ninja.exe' if env["PLATFORM"] == "win32" else 'ninja'
+
             self.ninja_bin_path = os.path.abspath(os.path.join(
-                ninja.__file__,
-                os.pardir,
-                'data',
-                'bin',
-                ninja_bin))
+                ninja.BIN_DIR, ninja_bin
+            ))
+
             if not os.path.exists(self.ninja_bin_path):
                 # couldn't find it, just give the bin name and hope
                 # its in the path later
@@ -232,7 +231,7 @@ class NinjaState:
             "TEMPLATE": {
                 "command": "$PYTHON_BIN $NINJA_TOOL_DIR/ninja_daemon_build.py $PORT $NINJA_DIR_PATH $out",
                 "description": "Defer to SCons to build $out",
-                "pool": "local_pool",
+                "pool": "install_pool",
                 "restat": 1
             },
             "EXIT_SCONS_DAEMON": {
@@ -398,7 +397,7 @@ class NinjaState:
                 self.rules.update({key: non_rsp_rule})
             else:
                 self.rules.update({key: rule})
-        
+
         self.pools.update(self.env.get(NINJA_POOLS, {}))
 
         content = io.StringIO()
@@ -435,7 +434,7 @@ class NinjaState:
             generated_source_files = sorted(
                 [] if not generated_sources_build else generated_sources_build['implicit']
             )
-            
+
             def check_generated_source_deps(build):
                 return (
                     build != generated_sources_build
@@ -464,7 +463,7 @@ class NinjaState:
                     rule="phony",
                     implicit=generated_source_files
                 )
-                
+
                 def check_generated_source_deps(build):
                     return (
                         not build["rule"] == "INSTALL"
@@ -661,7 +660,7 @@ class NinjaState:
             all_targets = [str(node) for node in NINJA_DEFAULT_TARGETS]
         else:
             all_targets = list(all_targets)
-        
+
         if len(all_targets) == 0:
             all_targets = ["phony_default"]
             ninja_sorted_build(
@@ -669,7 +668,7 @@ class NinjaState:
                 outputs=all_targets,
                 rule="phony",
             )
-        
+
         ninja.default([self.ninja_syntax.escape_path(path) for path in sorted(all_targets)])
 
         with NamedTemporaryFile(delete=False, mode='w') as temp_ninja_file:
@@ -754,7 +753,7 @@ class SConsToNinjaTranslator:
         # Ninja builders out of being sources of ninja builders but I
         # can't fix every DAG problem so we just skip ninja_builders
         # if we find one
-        if SCons.Tool.ninja.NINJA_STATE.ninja_file == str(node):
+        if SCons.Tool.ninja_tool.NINJA_STATE.ninja_file == str(node):
             build = None
         elif isinstance(action, SCons.Action.FunctionAction):
             build = self.handle_func_action(node, action)

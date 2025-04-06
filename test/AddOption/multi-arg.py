@@ -36,7 +36,7 @@ test = TestSCons.TestSCons()
 test.write(
     'SConstruct',
     """\
-env = Environment()
+DefaultEnvironment(tools=[])
 AddOption('--extras',
           nargs=2,
           dest='extras',
@@ -71,7 +71,7 @@ test.run('-Q -q . -- --extras A B', status=1, stdout="()\n")
 test.write(
     'SConstruct',
     """\
-env = Environment()
+DefaultEnvironment(tools=[])
 AddOption(
     '--prefix',
     nargs=1,
@@ -101,7 +101,7 @@ test.run('-Q -q .', stdout="None\n()\n")
 # one single-arg option
 test.run('-Q -q . --prefix=/home/foo', stdout="/home/foo\n()\n")
 # one two-arg option
-test.run('-Q -q . --extras A B', status=1, stdout="None\n('A', 'B')\n")
+test.run('-Q -q . --extras A B', status=2, stdout="None\n('A', 'B')\n")
 # single-arg option followed by two-arg option
 test.run(
     '-Q -q . --prefix=/home/foo --extras A B',

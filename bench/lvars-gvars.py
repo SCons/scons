@@ -23,9 +23,9 @@
 
 """
 Functions and data for timing different idioms for fetching a keyword
-value from a pair of dictionaries for localand global values.  This was
+value from a pair of dictionaries for local and global values.  This was
 used to select how to most efficiently expand single $KEYWORD strings
-in src/engine/SCons/Subst.py.
+in SCons/Subst.py (StringSubber and ListSubber).
 """
 
 def Func1(var, gvars, lvars):
@@ -40,7 +40,7 @@ def Func1(var, gvars, lvars):
                 x = ''
 
 def Func2(var, gvars, lvars):
-    """lvars has_key(), gvars try:-except:"""
+    """lvars membership test, gvars try:-except:"""
     for i in IterationList:
         if var in lvars:
             x = lvars[var]
@@ -51,7 +51,7 @@ def Func2(var, gvars, lvars):
                 x = ''
 
 def Func3(var, gvars, lvars):
-    """lvars has_key(), gvars has_key()"""
+    """lvars membership test, gvars membership test)"""
     for i in IterationList:
         if var in lvars:
             x = lvars[var]
@@ -71,7 +71,7 @@ def Func4(var, gvars, lvars):
 def Func5(var, gvars, lvars):
     """Chained get with default values"""
     for i in IterationList:
-        x = lvars.get(var,gvars.get(var,''))
+        x = lvars.get(var, gvars.get(var, ''))
 
 
 # Data to pass to the functions on each run.  Each entry is a

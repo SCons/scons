@@ -372,7 +372,7 @@ def mssdk_setup_env(env):
             return
         msvs_version = env.subst(msvs_version)
         from . import vs
-        msvs = vs.get_vs_by_version(msvs_version)
+        msvs = vs.get_vs_by_version(msvs_version, env)
         debug('mssdk_setup_env:msvs is :%s', msvs)
         if not msvs:
             debug('mssdk_setup_env: no VS version detected, bailingout:%s', msvs)

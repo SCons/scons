@@ -42,12 +42,7 @@ _python_ = TestSCons._python_
 _exe = TestSCons._exe
 _obj = TestSCons._obj
 
-ninja_bin = os.path.abspath(os.path.join(
-    ninja.__file__,
-    os.pardir,
-    'data',
-    'bin',
-    'ninja' + _exe))
+ninja_bin = TestSCons.NINJA_BINARY
 
 test.dir_fixture('ninja-fixture')
 

@@ -71,10 +71,11 @@ Usage example::
     )
 """
 
+from __future__ import annotations
 
 import os
 import os.path
-from typing import Callable, Optional, Tuple
+from typing import Callable
 
 import SCons.Errors
 import SCons.Util
@@ -93,12 +94,12 @@ class _PathVariableClass:
     """
 
     @staticmethod
-    def PathAccept(key, val, env) -> None:
+    def PathAccept(key: str, val, env) -> None:
         """Validate path with no checking."""
         return
 
     @staticmethod
-    def PathIsDir(key, val, env) -> None:
+    def PathIsDir(key: str, val, env) -> None:
         """Validate path is a directory."""
         if os.path.isdir(val):
             return
@@ -109,7 +110,7 @@ class _PathVariableClass:
         raise SCons.Errors.UserError(msg)
 
     @staticmethod
-    def PathIsDirCreate(key, val, env) -> None:
+    def PathIsDirCreate(key: str, val, env) -> None:
         """Validate path is a directory, creating if needed."""
         if os.path.isdir(val):
             return
@@ -130,7 +131,7 @@ class _PathVariableClass:
                 raise e
 
     @staticmethod
-    def PathIsFile(key, val, env) -> None:
+    def PathIsFile(key: str, val, env) -> None:
         """Validate path is a file."""
         if not os.path.isfile(val):
             if os.path.isdir(val):
@@ -140,7 +141,7 @@ class _PathVariableClass:
             raise SCons.Errors.UserError(msg)
 
     @staticmethod
-    def PathExists(key, val, env) -> None:
+    def PathExists(key: str, val, env) -> None:
         """Validate path exists."""
         if not os.path.exists(val):
             msg = f'Path for variable {key!r} does not exist: {val}'
@@ -148,8 +149,8 @@ class _PathVariableClass:
 
     # lint: W0622: Redefining built-in 'help' (redefined-builtin)
     def __call__(
-        self, key, help: str, default, validator: Optional[Callable] = None
-    ) -> Tuple[str, str, str, Callable, None]:
+        self, key: str, help: str, default, validator: Callable | None = None
+    ) -> tuple[str, str, str, Callable, None]:
         """Return a tuple describing a path list SCons Variable.
 
         The input parameters describe a 'path list' variable. Returns
@@ -168,7 +169,7 @@ class _PathVariableClass:
             helpmsg = f'{help} ( /path/to/{key[0]} )'
         else:
             helpmsg = f'{help} ( /path/to/{key} )'
-        return (key, helpmsg, default, validator, None)
+        return key, helpmsg, default, validator, None
 
 
 PathVariable = _PathVariableClass()

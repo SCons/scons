@@ -295,7 +295,7 @@ int main(void) {
         """Test SConf.TryAction
         """
         def actionOK(target, source, env):
-            with open(str(target[0]), "w") as f:
+            with open(target[0], "w") as f:
                 f.write("RUN OK\n")
             return None
         def actionFAIL(target, source, env) -> int:

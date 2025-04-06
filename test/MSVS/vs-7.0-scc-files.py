@@ -33,22 +33,23 @@ solution (.sln) files that contain SCC information and look correct.
 import TestSConsMSVS
 
 test = TestSConsMSVS.TestSConsMSVS()
+host_arch = test.get_vs_host_arch()
 
 # Make the test infrastructure think we have this version of MSVS installed.
 test._msvs_versions = ['7.0']
 
-
-
 expected_slnfile = TestSConsMSVS.expected_slnfile_7_0
 expected_vcprojfile = TestSConsMSVS.expected_vcprojfile_7_0
 SConscript_contents = \
-r"""env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='7.0',
-                CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
-                CPPPATH=['inc1', 'inc2'],
-                MSVS_SCC_CONNECTION_ROOT='.',
-                MSVS_SCC_PROVIDER='MSSCCI:Perforce SCM',
-                MSVS_SCC_PROJECT_NAME='Perforce Project',
-                MSVS_SCC_AUX_PATH='AUX')
+r"""env=Environment(tools=['msvs'],
+                    MSVS_VERSION='7.0',
+                    CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
+                    CPPPATH=['inc1', 'inc2'],
+                    MSVS_SCC_CONNECTION_ROOT='.',
+                    MSVS_SCC_PROVIDER='MSSCCI:Perforce SCM',
+                    MSVS_SCC_PROJECT_NAME='Perforce Project',
+                    MSVS_SCC_AUX_PATH='AUX',
+                    HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
 testincs = ['sdk.h']
@@ -57,6 +58,7 @@ testresources = ['test.rc']
 testmisc = ['readme.txt']
 
 env.MSVSProject(target = 'Test.vcproj',
+                MSVS_PROJECT_GUID='%(PROJECT_GUID)s',
                 slnguid = '{SLNGUID}',
                 srcs = testsrc,
                 incs = testincs,
@@ -65,7 +67,7 @@ env.MSVSProject(target = 'Test.vcproj',
                 misc = testmisc,
                 buildtarget = 'Test.exe',
                 variant = 'Release')
-"""
+""" % {'HOST_ARCH':host_arch, 'PROJECT_GUID': TestSConsMSVS.PROJECT_GUID}
 
 expected_sln_sccinfo = """\
 \tGlobalSection(SourceCodeControl) = preSolution
@@ -89,7 +91,6 @@ expected_vcproj_sccinfo = """\
 \tSccProvider="MSSCCI:Perforce SCM"
 """
 
-
 test.write('SConstruct', SConscript_contents)
 
 test.run(arguments="Test.vcproj")
@@ -107,7 +108,6 @@ expect = test.msvs_substitute(expected_slnfile, '7.0', None, 'SConstruct',
                               sln_sccinfo=expected_sln_sccinfo)
 # don't compare the pickled data
 assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
-
 
 test.pass_test()
 

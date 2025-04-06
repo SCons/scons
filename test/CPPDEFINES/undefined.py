@@ -32,7 +32,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=['cc'])
 print(env.subst('$_CPPDEFFLAGS'))
 """)
 

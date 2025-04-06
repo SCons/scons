@@ -81,7 +81,7 @@ sys.exit(0)
 
 test.write('SConstruct', """\
 def foo(target, source, env):
-    fp = open(str(target[0]), 'w')
+    fp = open(target[0], 'w')
     for c in sorted(source[0].children(), key=lambda t: t.name):
         fp.write('%s\\n' % c)
     fp.close()

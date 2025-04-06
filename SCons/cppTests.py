@@ -151,7 +151,7 @@ if_defined_input = """
 #include <file18-yes>
 #endif
 
-#if ! (defined (DEFINED_A) || defined (DEFINED_B)
+#if ! (defined (DEFINED_A) || defined (DEFINED_B))
 #include <file19-no>
 #else
 #include <file19-yes>
@@ -236,11 +236,189 @@ expression_input = """
 #include <file30-no>
 #endif
 
-#if	123456789UL || 0x13L
-#include <file301-yes>
+#if	(123456789UL || 0x13L)
+#include <file301or-yes>
 #else
-#include <file301-no>
+#include <file301or-no>
 #endif
+
+#if	(123456789UL && 0x0LU)
+#include <file301and-yes>
+#else
+#include <file301and-no>
+#endif
+
+#if	123456789UL
+#include <file301ul-yes>
+#else
+#include <file301ul-no>
+#endif
+
+#if 1234U
+#include <file301u-yes>
+#else
+#include <file301u-no>
+#endif
+
+#if 1234L
+#include <file301l-yes>
+#else
+#include <file301l-no>
+#endif
+
+#if 1234ULL
+#include <file301ull-yes>
+#else
+#include <file301ull-no>
+#endif
+
+#define X1234UL 1
+#if X1234UL
+#include <file302-yes>
+#else
+#include <file302-no>
+#endif
+
+#define X1234U 1
+#if X1234U
+#include <file303-yes>
+#else
+#include <file303-no>
+#endif
+
+#define X1234L 1
+#if X1234L
+#include <file304-yes>
+#else
+#include <file304-no>
+#endif
+
+#define X1234ULL 1
+#if X1234ULL
+#include <file305-yes>
+#else
+#include <file305-no>
+#endif
+
+#define DEC0 0
+#define HEX0 0x0
+#define HEXF 0xF
+
+#if DEC0
+#include <file401-yes>
+#else
+#include <file401-no>
+#endif
+
+#if ! DEC0
+#include <file402-yes>
+#else
+#include <file402-no>
+#endif
+
+#if (DEC0)
+#include <file403-yes>
+#else
+#include <file403-no>
+#endif
+
+#if !(DEC0)
+#include <file404-yes>
+#else
+#include <file404-no>
+#endif
+
+#if HEX0
+#include <file411-yes>
+#else
+#include <file411-no>
+#endif
+
+#if ! HEX0
+#include <file412-yes>
+#else
+#include <file412-no>
+#endif
+
+#if (HEX0)
+#include <file413-yes>
+#else
+#include <file413-no>
+#endif
+
+#if !(HEX0)
+#include <file414-yes>
+#else
+#include <file414-no>
+#endif
+
+#if HEXF
+#include <file421-yes>
+#else
+#include <file421-no>
+#endif
+
+#if ! HEXF
+#include <file422-yes>
+#else
+#include <file422-no>
+#endif
+
+#if (HEXF)
+#include <file423-yes>
+#else
+#include <file423-no>
+#endif
+
+#if !(HEXF)
+#include <file424-yes>
+#else
+#include <file424-no>
+#endif
+
+#if defined(DEC0) && (DEC0 & 0x1)
+#include <file431-yes>
+#else
+#include <file431-no>
+#endif
+
+#if !(defined(HEXF) && (HEXF & 0x1))
+#include <file432-yes>
+#else
+#include <file432-no>
+#endif
+
+#define X2345ULL 1
+#if !(X2345ULL > 4567ull)
+#include <file501-yes>
+#else
+#include <file501-no>
+#endif
+
+#if !0ull
+#include <file502-yes>
+#else
+#include <file502-no>
+#endif
+
+#define X0U 0U
+#if X0U
+#include <file503-yes>
+#else
+#include <file503-no>
+#endif
+
+#define XF1 (0x0U & 0x1U)
+#if XF1
+#include <file504-yes>
+#else
+#include <file504-no>
+#endif
+
+#define ABC00 0U
+#define ABC01 1U
+#define ABC_(a, b) ABC##a##b
+#define ABC ABC_(ZERO, ZERO)
 """
 
 
@@ -303,8 +481,8 @@ macro_function_input = """
 #define	FUNC39a(x0, y0)	FILE39
 #define	FUNC40a(x0, y0)	FILE40
 
-#define	FUNC39b(x1, y2)	FUNC39a(x1, y1)
-#define	FUNC40b(x1, y2)	FUNC40a(x1, y1)
+#define	FUNC39b(x1, y1)	FUNC39a(x1, y1)
+#define	FUNC40b(x1, y1)	FUNC40a(x1, y1)
 
 #define	FUNC39c(x2, y2)	FUNC39b(x2, y2)
 #define	FUNC40c(x2, y2)	FUNC40b(x2, y2)
@@ -480,7 +658,12 @@ class cppTestCase(unittest.TestCase):
         """Test #if with arithmetic expressions"""
         expect = self.expression_expect
         result = self.cpp.process_contents(expression_input)
-        assert expect == result, (expect, result)
+        if expect != result:
+            for e,r in zip(expect, result):
+                if e != r:
+                    print("ERROR->",end="")
+                print(f"{e}: {r}")
+        assert expect == result, f"\nexpect:{expect}\nresult:{result}"
 
     def test_undef(self) -> None:
         """Test #undef handling"""
@@ -588,7 +771,41 @@ class PreProcessorTestCase(cppAllTestCase):
         ('include', '<', 'file28-yes'),
         ('include', '"', 'file29-yes'),
         ('include', '<', 'file30-yes'),
-        ('include', '<', 'file301-yes'),
+
+        ('include', '<', 'file301or-yes'),
+        ('include', '<', 'file301and-no'),
+        ('include', '<', 'file301ul-yes'),
+        ('include', '<', 'file301u-yes'),
+        ('include', '<', 'file301l-yes'),
+        ('include', '<', 'file301ull-yes'),
+
+        ('include', '<', 'file302-yes'),
+        ('include', '<', 'file303-yes'),
+        ('include', '<', 'file304-yes'),
+        ('include', '<', 'file305-yes'),
+
+        ('include', '<', 'file401-no'),
+        ('include', '<', 'file402-yes'),
+        ('include', '<', 'file403-no'),
+        ('include', '<', 'file404-yes'),
+
+        ('include', '<', 'file411-no'),
+        ('include', '<', 'file412-yes'),
+        ('include', '<', 'file413-no'),
+        ('include', '<', 'file414-yes'),
+
+        ('include', '<', 'file421-yes'),
+        ('include', '<', 'file422-no'),
+        ('include', '<', 'file423-yes'),
+        ('include', '<', 'file424-no'),
+
+        ('include', '<', 'file431-no'),
+        ('include', '<', 'file432-no'),
+
+        ('include', '<', 'file501-yes'),
+        ('include', '<', 'file502-yes'),
+        ('include', '<', 'file503-no'),
+        ('include', '<', 'file504-no'),
     ]
 
     undef_expect = [
@@ -717,8 +934,68 @@ class DumbPreProcessorTestCase(cppAllTestCase):
         ('include', '"', 'file29-yes'),
         ('include', '<', 'file30-yes'),
         ('include', '<', 'file30-no'),
-        ('include', '<', 'file301-yes'),
-        ('include', '<', 'file301-no'),
+
+        ('include', '<', 'file301or-yes'),
+        ('include', '<', 'file301or-no'),
+        ('include', '<', 'file301and-yes'),
+        ('include', '<', 'file301and-no'),
+        ('include', '<', 'file301ul-yes'),
+        ('include', '<', 'file301ul-no'),
+        ('include', '<', 'file301u-yes'),
+        ('include', '<', 'file301u-no'),
+        ('include', '<', 'file301l-yes'),
+        ('include', '<', 'file301l-no'),
+        ('include', '<', 'file301ull-yes'),
+        ('include', '<', 'file301ull-no'),
+
+        ('include', '<', 'file302-yes'),
+        ('include', '<', 'file302-no'),
+        ('include', '<', 'file303-yes'),
+        ('include', '<', 'file303-no'),
+        ('include', '<', 'file304-yes'),
+        ('include', '<', 'file304-no'),
+        ('include', '<', 'file305-yes'),
+        ('include', '<', 'file305-no'),
+
+        ('include', '<', 'file401-yes'),
+        ('include', '<', 'file401-no'),
+        ('include', '<', 'file402-yes'),
+        ('include', '<', 'file402-no'),
+        ('include', '<', 'file403-yes'),
+        ('include', '<', 'file403-no'),
+        ('include', '<', 'file404-yes'),
+        ('include', '<', 'file404-no'),
+
+        ('include', '<', 'file411-yes'),
+        ('include', '<', 'file411-no'),
+        ('include', '<', 'file412-yes'),
+        ('include', '<', 'file412-no'),
+        ('include', '<', 'file413-yes'),
+        ('include', '<', 'file413-no'),
+        ('include', '<', 'file414-yes'),
+        ('include', '<', 'file414-no'),
+
+        ('include', '<', 'file421-yes'),
+        ('include', '<', 'file421-no'),
+        ('include', '<', 'file422-yes'),
+        ('include', '<', 'file422-no'),
+        ('include', '<', 'file423-yes'),
+        ('include', '<', 'file423-no'),
+        ('include', '<', 'file424-yes'),
+        ('include', '<', 'file424-no'),
+        ('include', '<', 'file431-yes'),
+        ('include', '<', 'file431-no'),
+        ('include', '<', 'file432-yes'),
+        ('include', '<', 'file432-no'),
+
+        ('include', '<', 'file501-yes'),
+        ('include', '<', 'file501-no'),
+        ('include', '<', 'file502-yes'),
+        ('include', '<', 'file502-no'),
+        ('include', '<', 'file503-yes'),
+        ('include', '<', 'file503-no'),
+        ('include', '<', 'file504-yes'),
+        ('include', '<', 'file504-no'),
     ]
 
     undef_expect = [

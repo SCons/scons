@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify passing in a batch_key callable for more control over how
@@ -38,16 +37,17 @@ test = TestSCons.TestSCons()
 test.subdir('sub1', 'sub2')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 def batch_build(target, source, env):
     for t, s in zip(target, source):
-        with open(str(t), 'wb') as f, open(str(s), 'rb') as infp:
+        with open(t, 'wb') as f, open(s, 'rb') as infp:
             f.write(infp.read())
 if ARGUMENTS.get('BATCH_CALLABLE'):
     def batch_key(action, env, target, source):
         return (id(action), id(env), target[0].dir)
 else:
     batch_key=True
-env = Environment()
+env = Environment(tools=[])
 bb = Action(batch_build, batch_key=batch_key)
 env['BUILDERS']['Batch'] = Builder(action=bb)
 env1 = env.Clone()

@@ -28,8 +28,6 @@ This tests the --duplicate command line option, and the duplicate
 SConscript settable option.
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 import os
 import sys
 import stat
@@ -85,7 +83,7 @@ description = {
 }
 
 def testLink(file, type):
-    nl = os.stat(file)[stat.ST_NLINK]
+    nl = os.stat(file).st_nlink
     islink = os.path.islink(file)
     assert criterion[type](nl, islink), \
            "Expected %s to be %s (nl %d, islink %d)" \

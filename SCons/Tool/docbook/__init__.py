@@ -157,16 +157,22 @@ xsltproc_com_priority = ['xsltproc', 'saxon', 'saxon-xslt', 'xalan']
 # TODO: Set minimum version of saxon-xslt to be 8.x (lower than this only supports xslt 1.0.
 #       see: https://saxon.sourceforge.net/saxon6.5.5/
 #       see: https://saxon.sourceforge.net/
-xsltproc_com = {'xsltproc' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE',
-                'saxon' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE $DOCBOOK_XSLTPROCPARAMS',
-                # Note if saxon-xslt is version 5.5 the proper arguments are: (swap order of docbook_xsl and source)
-                #  'saxon-xslt' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $SOURCE $DOCBOOK_XSL  $DOCBOOK_XSLTPROCPARAMS',
-                'saxon-xslt' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE $DOCBOOK_XSLTPROCPARAMS',
-                'xalan' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -q -out $TARGET -xsl $DOCBOOK_XSL -in $SOURCE'}
-xmllint_com = {'xmllint' : '$DOCBOOK_XMLLINT $DOCBOOK_XMLLINTFLAGS --xinclude $SOURCE > $TARGET'}
-fop_com = {'fop' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -fo $SOURCE -pdf $TARGET',
-           'xep' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -valid -fo $SOURCE -pdf $TARGET',
-           'jw' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -f docbook -b pdf $SOURCE -o $TARGET'}
+xsltproc_com = {
+    'xsltproc': '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE',
+    'saxon': '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE $DOCBOOK_XSLTPROCPARAMS',
+    # Note if saxon-xslt is version 5.5 the proper arguments are: (swap order of docbook_xsl and source)
+    #  'saxon-xslt' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $SOURCE $DOCBOOK_XSL  $DOCBOOK_XSLTPROCPARAMS',
+    'saxon-xslt': '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE $DOCBOOK_XSLTPROCPARAMS',
+    'xalan': '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -q -out $TARGET -xsl $DOCBOOK_XSL -in $SOURCE',
+}
+xmllint_com = {
+    'xmllint': '$DOCBOOK_XMLLINT $DOCBOOK_XMLLINTFLAGS --xinclude $SOURCE > $TARGET'
+}
+fop_com = {
+    'fop': '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -fo $SOURCE -pdf $TARGET',
+    'xep': '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -valid -fo $SOURCE -pdf $TARGET',
+    'jw': '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -f docbook -b pdf $SOURCE -o $TARGET',
+}
 
 def __detect_cl_tool(env, chainkey, cdict, cpriority=None) -> None:
     """
@@ -180,11 +186,11 @@ def __detect_cl_tool(env, chainkey, cdict, cpriority=None) -> None:
             cpriority = cdict.keys()
         for cltool in cpriority:
             if __debug_tool_location:
-                print("DocBook: Looking for %s"%cltool)
+                print(f"DocBook: Looking for {cltool}")
             clpath = env.WhereIs(cltool)
             if clpath:
                 if __debug_tool_location:
-                    print("DocBook: Found:%s"%cltool)
+                    print(f"DocBook: Found:{cltool}")
                 env[chainkey] = clpath
                 if not env[chainkey + 'COM']:
                     env[chainkey + 'COM'] = cdict[cltool]

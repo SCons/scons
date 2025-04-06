@@ -21,6 +21,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""Test List Variables elements."""
+
 import copy
 import unittest
 
@@ -38,7 +40,7 @@ class ListVariableTestCase(unittest.TestCase):
         assert o.key == 'test', o.key
         assert o.help == 'test option help\n    (all|none|comma-separated list of names)\n    allowed names: one two three', repr(o.help)
         assert o.default == 'all', o.default
-        assert o.validator is None, o.validator
+        assert o.validator is not None, o.validator
         assert o.converter is not None, o.converter
 
         opts = SCons.Variables.Variables()
@@ -50,12 +52,22 @@ class ListVariableTestCase(unittest.TestCase):
         assert o.default == 'one,three'
 
     def test_converter(self) -> None:
-        """Test the ListVariable converter"""
-        opts = SCons.Variables.Variables()
-        opts.Add(SCons.Variables.ListVariable('test', 'test option help', 'all',
-                                          ['one', 'two', 'three'],
-                                          {'ONE':'one', 'TWO':'two'}))
+        """Test the ListVariable converter.
 
+        There is now a separate validator (for a long time validation was
+        in the converter), but it depends on the _ListVariable instance the
+        converter creates, so it's easier to test them in the same function.
+        """
+        opts = SCons.Variables.Variables()
+        opts.Add(
+            SCons.Variables.ListVariable(
+                'test',
+                'test option help',
+                default='all',
+                names=['one', 'two', 'three'],
+                map={'ONE': 'one', 'TWO': 'two'},
+            )
+        )
         o = opts.options[0]
 
         x = o.converter('all')
@@ -101,8 +113,50 @@ class ListVariableTestCase(unittest.TestCase):
         x = o.converter('three,ONE,TWO')
         assert str(x) == 'all', x
 
-        with self.assertRaises(ValueError):
-            x = o.converter('no_match')
+        # invalid value should convert (no change) without error
+        x = o.converter('no_match')
+        assert str(x) == 'no_match', x
+
+        # validator checks
+
+        # first, the one we just set up
+        with self.assertRaises(SCons.Errors.UserError):
+            o.validator('test', 'no_match', {"test": x})
+
+        # now a new option, this time with a name w/ space in it (issue #4585)
+        opts.Add(
+            SCons.Variables.ListVariable(
+                'test2',
+                help='test2 option help',
+                default='two',
+                names=['one', 'two', 'three', 'four space'],
+            )
+        )
+        o = opts.options[1]
+
+        def test_valid(opt, seq):
+            """Validate a ListVariable value.
+
+            Call the converter manually, since we need the _ListVariable
+            object to pass to the validator - this would normally be done
+            by the Variables.Update method.
+            """
+            x = opt.converter(seq)
+            self.assertIsNone(opt.validator(opt.key, x, {opt.key: x}))
+
+        with self.subTest():
+            test_valid(o, 'one')
+        with self.subTest():
+            test_valid(o, 'one,two,three')
+        with self.subTest():
+            test_valid(o, 'all')
+        with self.subTest():
+            test_valid(o, 'none')
+        with self.subTest():
+            test_valid(o, 'four space')
+        with self.subTest():
+            test_valid(o, 'one,four space')
+
 
     def test_copy(self) -> None:
         """Test copying a ListVariable like an Environment would"""
@@ -111,9 +165,8 @@ class ListVariableTestCase(unittest.TestCase):
                                           ['one', 'two', 'three']))
 
         o = opts.options[0]
-
-        l = o.converter('all')
-        n = l.__class__(copy.copy(l))
+        res = o.converter('all')
+        _ = res.__class__(copy.copy(res))
 
 if __name__ == "__main__":
     unittest.main()

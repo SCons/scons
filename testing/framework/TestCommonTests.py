@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-"""
-Unit tests for the TestCommon.py module.
-"""
-
+#
 # Copyright 2000-2010 Steven Knight
+#
 # This module is free software, and you may redistribute it and/or modify
 # it under the same terms as Python itself, so long as this copyright message
 # and disclaimer are retained in their original form.
@@ -18,6 +16,12 @@ Unit tests for the TestCommon.py module.
 # PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+#
+# Python License: https://docs.python.org/3/license.html#psf-license
+
+"""
+Unit tests for the TestCommon.py module.
+"""
 
 import os
 import re
@@ -32,9 +36,11 @@ sys.path = sys.path[1:]
 import TestCmd
 import TestCommon
 
+
 # this used to be a custom function, now use the stdlib equivalent
 def lstrip(s):
     return dedent(s)
+
 
 expected_newline = '\\n'
 
@@ -58,12 +64,13 @@ def assert_display(expect, result, error=None):
 
 class TestCommonTestCase(unittest.TestCase):
     """Base class for TestCommon test cases, fixture and utility methods."""
+
     create_run_env = True
 
     def setUp(self) -> None:
         self.orig_cwd = os.getcwd()
         if self.create_run_env:
-            self.run_env = TestCmd.TestCmd(workdir = '')
+            self.run_env = TestCmd.TestCmd(workdir='')
 
     def tearDown(self) -> None:
         os.chdir(self.orig_cwd)
@@ -109,12 +116,15 @@ class TestCommonTestCase(unittest.TestCase):
 
         run_env.write(self.signal_script, wrapper % signal_body)
 
-        stdin_body = lstrip("""\
+        stdin_body = lstrip(
+            """\
         import sys
         input = sys.stdin.read()[:-1]
         sys.stdout.write(r'%s:  STDOUT:  ' + repr(input) + '\\n')
         sys.stderr.write(r'%s:  STDERR:  ' + repr(input) + '\\n')
-        """ % (self.stdin_script, self.stdin_script))
+        """
+            % (self.stdin_script, self.stdin_script)
+        )
 
         run_env.write(self.stdin_script, wrapper % stdin_body)
 
@@ -134,19 +144,15 @@ class TestCommonTestCase(unittest.TestCase):
         stderr = run_env.stderr()
 
         expect_stdout = expect_stdout % self.__dict__
-        assert stdout == expect_stdout, assert_display(expect_stdout,
-                                                       stdout,
-                                                       stderr)
+        assert stdout == expect_stdout, assert_display(expect_stdout, stdout, stderr)
 
         try:
             match = expect_stderr.match
         except AttributeError:
             expect_stderr = expect_stderr % self.__dict__
-            assert stderr == expect_stderr, assert_display(expect_stderr,
-                                                           stderr)
+            assert stderr == expect_stderr, assert_display(expect_stderr, stderr)
         else:
-            assert expect_stderr.match(stderr), assert_display(expect_stderr,
-                                                               stderr)
+            assert expect_stderr.match(stderr), assert_display(expect_stderr, stderr)
 
 
 class __init__TestCase(TestCommonTestCase):
@@ -170,25 +176,30 @@ class __init__TestCase(TestCommonTestCase):
 
 class banner_TestCase(TestCommonTestCase):
     create_run_env = False
+
     def test_banner(self) -> None:
         """Test banner()"""
         tc = TestCommon.TestCommon(workdir='')
 
-        b = tc.banner('xyzzy ')
-        assert b == "xyzzy ==========================================================================", b
+        text = 'xyzzy '
+        b = tc.banner(text)
+        expect = f"{text}{tc.banner_char * (tc.banner_width - len(text))}"
+        assert b == expect, b
 
         tc.banner_width = 10
+        b = tc.banner(text)
+        expect = f"{text}{tc.banner_char * (tc.banner_width - len(text))}"
+        assert b == expect, b
 
-        b = tc.banner('xyzzy ')
-        assert b == "xyzzy ====", b
-
-        b = tc.banner('xyzzy ', 20)
-        assert b == "xyzzy ==============", b
+        b = tc.banner(text, 20)
+        expect = f"{text}{tc.banner_char * (20 - len(text))}"
+        assert b == expect, b
 
         tc.banner_char = '-'
+        b = tc.banner(text)
+        expect = f"{text}{tc.banner_char * (tc.banner_width - len(text))}"
+        assert b == expect, b
 
-        b = tc.banner('xyzzy ')
-        assert b == "xyzzy ----", b
 
 class must_be_writable_TestCase(TestCommonTestCase):
     def test_file_does_not_exists(self) -> None:
@@ -218,7 +229,7 @@ class must_be_writable_TestCase(TestCommonTestCase):
         tc = TestCommon(workdir='')
         tc.write('file1', "file1\\n")
         f1 = tc.workpath('file1')
-        mode = os.stat(f1)[stat.ST_MODE]
+        mode = os.stat(f1).st_mode
         os.chmod(f1, mode | stat.S_IWUSR)
         tc.must_be_writable('file1')
         tc.pass_test()
@@ -240,7 +251,7 @@ class must_be_writable_TestCase(TestCommonTestCase):
         tc = TestCommon(workdir='')
         tc.write('file1', "file1\\n")
         f1 = tc.workpath('file1')
-        mode = os.stat(f1)[stat.ST_MODE]
+        mode = os.stat(f1).st_mode
         os.chmod(f1, mode & ~stat.S_IWUSR)
         tc.must_be_writable('file1')
         tc.pass_test()
@@ -263,7 +274,7 @@ class must_be_writable_TestCase(TestCommonTestCase):
         tc.subdir('sub')
         tc.write(['sub', 'file1'], "sub/file1\\n")
         f1 = tc.workpath('sub', 'file1')
-        mode = os.stat(f1)[stat.ST_MODE]
+        mode = os.stat(f1).st_mode
         os.chmod(f1, mode | stat.S_IWUSR)
         tc.must_be_writable(['sub', 'file1'])
         tc.pass_test()
@@ -370,7 +381,6 @@ class must_contain_TestCase(TestCommonTestCase):
         assert stderr == "PASSED\n", stderr
 
 
-
 class must_contain_all_lines_TestCase(TestCommonTestCase):
     def test_success(self) -> None:
         """Test must_contain_all_lines():  success"""
@@ -428,14 +438,17 @@ class must_contain_all_lines_TestCase(TestCommonTestCase):
         test.pass_test()
         """)
 
-        expect = lstrip("""\
+        expect = lstrip(
+            """\
         Missing expected lines from output:
             'xxx%(expected_newline)s'
             'yyy%(expected_newline)s'
         output =========================================================================
         www
         zzz
-        """ % globals())
+        """
+            % globals()
+        )
 
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
@@ -466,6 +479,7 @@ class must_contain_all_lines_TestCase(TestCommonTestCase):
 
         def re_search(output, line):
             return re.compile(line, re.S).search(output)
+
         test.must_contain_all_lines(output, lines, find=re_search)
 
         test.pass_test()
@@ -500,21 +514,23 @@ class must_contain_all_lines_TestCase(TestCommonTestCase):
         test.pass_test()
         """)
 
-        expect = lstrip("""\
+        expect = lstrip(
+            """\
         Missing expected lines from STDERR:
             'xxx%(expected_newline)s'
             'yyy%(expected_newline)s'
         STDERR =========================================================================
         www
         zzz
-        """ % globals())
+        """
+            % globals()
+        )
 
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
         assert stderr.find("FAILED") != -1, stderr
-
 
 
 class must_contain_any_line_TestCase(TestCommonTestCase):
@@ -574,14 +590,17 @@ class must_contain_any_line_TestCase(TestCommonTestCase):
         test.pass_test()
         """)
 
-        expect = lstrip("""\
+        expect = lstrip(
+            """\
         Missing any expected line from output:
             'xxx%(expected_newline)s'
             'yyy%(expected_newline)s'
         output =========================================================================
         www
         zzz
-        """ % globals())
+        """
+            % globals()
+        )
 
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
@@ -646,21 +665,23 @@ class must_contain_any_line_TestCase(TestCommonTestCase):
         test.pass_test()
         """)
 
-        expect = lstrip("""\
+        expect = lstrip(
+            """\
         Missing any expected line from STDOUT:
             'xxx%(expected_newline)s'
             'yyy%(expected_newline)s'
         STDOUT =========================================================================
         www
         zzz
-        """ % globals())
+        """
+            % globals()
+        )
 
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
         assert stderr.find("FAILED") != -1, stderr
-
 
 
 class must_contain_exactly_lines_TestCase(TestCommonTestCase):
@@ -762,7 +783,7 @@ class must_contain_exactly_lines_TestCase(TestCommonTestCase):
             'www'
             'zzz'
         Extra output ===================================================================
-        """ % globals())
+        """)
 
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
@@ -848,14 +869,13 @@ class must_contain_exactly_lines_TestCase(TestCommonTestCase):
             'www'
             'zzz'
         Extra STDOUT ===================================================================
-        """ % globals())
+        """)
 
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
         assert stderr.find("FAILED") != -1, stderr
-
 
 
 class must_contain_lines_TestCase(TestCommonTestCase):
@@ -913,21 +933,23 @@ class must_contain_lines_TestCase(TestCommonTestCase):
         test.pass_test()
         """)
 
-        expect = lstrip("""\
+        expect = lstrip(
+            """\
         Missing expected lines from output:
             'xxx%(expected_newline)s'
             'yyy%(expected_newline)s'
         output =========================================================================
         www
         zzz
-        """ % globals())
+        """
+            % globals()
+        )
 
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
         assert stderr.find("FAILED") != -1, stderr
-
 
 
 class must_exist_TestCase(TestCommonTestCase):
@@ -964,6 +986,22 @@ class must_exist_TestCase(TestCommonTestCase):
         stderr = run_env.stderr()
         assert stderr.find("FAILED") != -1, stderr
 
+    def test_failure_message(self) -> None:
+        """Test must_exist():  failure with extra message"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.must_exist('file1', message="Extra Info")
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "Missing files: `file1'\n", stdout
+        stderr = run_env.stderr()
+        assert stderr.find("Extra Info") != -1, stderr
+
     def test_file_specified_as_list(self) -> None:
         """Test must_exist():  file specified as list"""
         run_env = self.run_env
@@ -983,7 +1021,7 @@ class must_exist_TestCase(TestCommonTestCase):
         assert stderr == "PASSED\n", stderr
 
     @unittest.skipIf(sys.platform == 'win32', "Skip symlink test on win32")
-    def test_broken_link(self) -> None :
+    def test_broken_link(self) -> None:
         """Test must_exist():  exists but it is a broken link"""
         run_env = self.run_env
 
@@ -999,6 +1037,7 @@ class must_exist_TestCase(TestCommonTestCase):
         assert stdout == "", stdout
         stderr = run_env.stderr()
         assert stderr == "PASSED\n", stderr
+
 
 class must_exist_one_of_TestCase(TestCommonTestCase):
     def test_success(self) -> None:
@@ -1033,6 +1072,22 @@ class must_exist_one_of_TestCase(TestCommonTestCase):
         assert stdout == "Missing one of: `file1'\n", stdout
         stderr = run_env.stderr()
         assert stderr.find("FAILED") != -1, stderr
+
+    def test_failure_message(self) -> None:
+        """Test must_exist_one_of():  failure with extra message"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.must_exist_one_of(['file1'], message="Extra Info")
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "Missing one of: `file1'\n", stdout
+        stderr = run_env.stderr()
+        assert stderr.find("Extra Info") != -1, stderr
 
     def test_files_specified_as_list(self) -> None:
         """Test must_exist_one_of():  files specified as list"""
@@ -1077,8 +1132,7 @@ class must_exist_one_of_TestCase(TestCommonTestCase):
         tc = TestCommon(workdir='')
         tc.subdir('sub')
         tc.write(['sub', 'file1'], "sub/file1\\n")
-        tc.must_exist_one_of(['file2',
-                              ['sub', 'file1']])
+        tc.must_exist_one_of(['file2', ['sub', 'file1']])
         tc.pass_test()
         """)
         run_env.run(program=sys.executable, stdin=script)
@@ -1096,8 +1150,7 @@ class must_exist_one_of_TestCase(TestCommonTestCase):
         tc = TestCommon(workdir='')
         tc.subdir('sub')
         tc.write(['sub', 'file1'], "sub/file1\\n")
-        tc.must_exist_one_of(['file2',
-                              ('sub', 'file1')])
+        tc.must_exist_one_of(['file2', ('sub', 'file1')])
         tc.pass_test()
         """)
         run_env.run(program=sys.executable, stdin=script)
@@ -1105,6 +1158,7 @@ class must_exist_one_of_TestCase(TestCommonTestCase):
         assert stdout == "", stdout
         stderr = run_env.stderr()
         assert stderr == "PASSED\n", stderr
+
 
 class must_match_TestCase(TestCommonTestCase):
     def test_success(self) -> None:
@@ -1189,7 +1243,6 @@ class must_match_TestCase(TestCommonTestCase):
         assert stderr == "PASSED\n", stderr
 
 
-
 class must_not_be_writable_TestCase(TestCommonTestCase):
     def test_file_does_not_exists(self) -> None:
         """Test must_not_be_writable():  file does not exist"""
@@ -1218,7 +1271,7 @@ class must_not_be_writable_TestCase(TestCommonTestCase):
         tc = TestCommon(workdir='')
         tc.write('file1', "file1\\n")
         f1 = tc.workpath('file1')
-        mode = os.stat(f1)[stat.ST_MODE]
+        mode = os.stat(f1).st_mode
         os.chmod(f1, mode | stat.S_IWUSR)
         tc.must_not_be_writable('file1')
         tc.pass_test()
@@ -1240,7 +1293,7 @@ class must_not_be_writable_TestCase(TestCommonTestCase):
         tc = TestCommon(workdir='')
         tc.write('file1', "file1\\n")
         f1 = tc.workpath('file1')
-        mode = os.stat(f1)[stat.ST_MODE]
+        mode = os.stat(f1).st_mode
         os.chmod(f1, mode & ~stat.S_IWUSR)
         tc.must_not_be_writable('file1')
         tc.pass_test()
@@ -1263,7 +1316,7 @@ class must_not_be_writable_TestCase(TestCommonTestCase):
         tc.subdir('sub')
         tc.write(['sub', 'file1'], "sub/file1\\n")
         f1 = tc.workpath('sub', 'file1')
-        mode = os.stat(f1)[stat.ST_MODE]
+        mode = os.stat(f1).st_mode
         os.chmod(f1, mode & ~stat.S_IWUSR)
         tc.must_not_be_writable(['sub', 'file1'])
         tc.pass_test()
@@ -1273,7 +1326,6 @@ class must_not_be_writable_TestCase(TestCommonTestCase):
         assert stdout == "", stdout
         stderr = run_env.stderr()
         assert stderr == "PASSED\n", stderr
-
 
 
 class must_not_contain_TestCase(TestCommonTestCase):
@@ -1380,7 +1432,6 @@ class must_not_contain_TestCase(TestCommonTestCase):
         assert stderr == "PASSED\n", stderr
 
 
-
 class must_not_contain_any_line_TestCase(TestCommonTestCase):
     def test_failure(self) -> None:
         """Test must_not_contain_any_line():  failure"""
@@ -1408,7 +1459,8 @@ class must_not_contain_any_line_TestCase(TestCommonTestCase):
         test.pass_test()
         """)
 
-        expect = lstrip("""\
+        expect = lstrip(
+            """\
         Unexpected lines in output:
             'xxx%(expected_newline)s'
             'yyy%(expected_newline)s'
@@ -1418,7 +1470,9 @@ class must_not_contain_any_line_TestCase(TestCommonTestCase):
         xxx
         yyy
         zzz
-        """ % globals())
+        """
+            % globals()
+        )
 
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
@@ -1512,7 +1566,8 @@ class must_not_contain_any_line_TestCase(TestCommonTestCase):
         test.pass_test()
         """)
 
-        expect = lstrip("""\
+        expect = lstrip(
+            """\
         Unexpected lines in XYZZY:
             'xxx%(expected_newline)s'
             'yyy%(expected_newline)s'
@@ -1521,14 +1576,15 @@ class must_not_contain_any_line_TestCase(TestCommonTestCase):
         xxx
         yyy
         zzz
-        """ % globals())
+        """
+            % globals()
+        )
 
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
         assert stderr.find("FAILED") != -1, stderr
-
 
 
 class must_not_contain_lines_TestCase(TestCommonTestCase):
@@ -1557,7 +1613,8 @@ class must_not_contain_lines_TestCase(TestCommonTestCase):
         test.pass_test()
         """)
 
-        expect = lstrip("""\
+        expect = lstrip(
+            """\
         Unexpected lines in output:
             'xxx%(expected_newline)s'
             'yyy%(expected_newline)s'
@@ -1566,7 +1623,9 @@ class must_not_contain_lines_TestCase(TestCommonTestCase):
         xxx
         yyy
         zzz
-        """ % globals())
+        """
+            % globals()
+        )
 
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
@@ -1602,7 +1661,6 @@ class must_not_contain_lines_TestCase(TestCommonTestCase):
         assert stdout == "", stdout
         stderr = run_env.stderr()
         assert stderr == "PASSED\n", stderr
-
 
 
 class must_not_exist_TestCase(TestCommonTestCase):
@@ -1673,6 +1731,7 @@ class must_not_exist_TestCase(TestCommonTestCase):
         assert stdout == "Unexpected files exist: `brokenlink'\n", stdout
         stderr = run_env.stderr()
         assert stderr.find("FAILED") != -1, stderr
+
 
 class must_not_exist_any_of_TestCase(TestCommonTestCase):
     def test_success(self) -> None:
@@ -1779,6 +1838,7 @@ class must_not_exist_any_of_TestCase(TestCommonTestCase):
         stderr = run_env.stderr()
         assert stderr == "PASSED\n", stderr
 
+
 class must_not_be_empty_TestCase(TestCommonTestCase):
     def test_failure(self) -> None:
         """Test must_not_be_empty():  failure"""
@@ -1829,6 +1889,7 @@ class must_not_be_empty_TestCase(TestCommonTestCase):
         assert stdout == "File doesn't exist: `file1'\n", stdout
         stderr = run_env.stderr()
         assert stderr.find("FAILED") != -1, stderr
+
 
 class run_TestCase(TestCommonTestCase):
     def test_argument_handling(self) -> None:
@@ -1940,52 +2001,51 @@ class run_TestCase(TestCommonTestCase):
         """)
 
         expect_stderr = lstrip(
-            fr"""Exception trying to execute: \[{re.escape(repr(sys.executable))}, '[^']*pass'\]
+            rf"""Exception trying to execute: \[{re.escape(repr(sys.executable))}, '[^']*pass'\]
 Traceback \(most recent call last\):
   File "<stdin>", line \d+, in (\?|<module>)
-  File "[^"]+TestCommon.py", line \d+, in run
-    super\(\).run\(\*\*kw\)
-  File "[^"]+TestCmd.py", line \d+, in run
-    p = self.start\(program=program,
-(?:\s*\^*\s)?  File \"[^\"]+TestCommon.py\", line \d+, in start
+  File "[^"]+TestCommon\.py", line \d+, in run
+    super\(\)\.run\(\*\*kw\)
+  File "[^"]+TestCmd\.py", line \d+, in run
+    p = self\.start\(
+(?:\s*\^*\s)?  File \"[^\"]+TestCommon\.py\", line \d+, in start
     raise e
-  File "[^"]+TestCommon.py", line \d+, in start
-    return super\(\).start\(program, interpreter, arguments,
+  File "[^"]+TestCommon\.py", line \d+, in start
+    return super\(\)\.start\(
 (?:\s*\^*\s)?  File \"<stdin>\", line \d+, in raise_exception
 TypeError: forced TypeError
-""")
-        expect_stderr = re.compile(expect_stderr, re.M)
+"""
+        )
 
-        # TODO: Python 3.13+ expanded error msgs again. This doesn't work yet.
+        # Python 3.13+ expanded error msgs again, not in a way we can easily
+        # accomodate with the other regex.
+        # TODO: broken again after reformat work
         expect_enhanced_stderr = lstrip(
-            fr"""Exception trying to execute: \[{re.escape(repr(sys.executable))}, '[^']*pass'\]
-Traceback (most recent call last):
+            rf"""Exception trying to execute: \[{re.escape(repr(sys.executable))}, '[^']*pass'\]
+Traceback \(most recent call last\):
   File "<stdin>", line \d+, in (\?|<module>)
-  File "[^"]+TestCommon.py", line \d+, in run
-    super\(\).run\(\*\*kw\)
-    ~~~~~~~~~~~^^^^^^
-  File "[^"]+TestCmd.py", line \d+, in run
-    p = self.start\(program=program,
-        ~~~~~~~~~~^^^^^^^^^^^^^^^^^
-                   interpreter=interpreter,
-                   ^^^^^^^^^^^^^^^^^^^^^^^^
-    ...<2 lines>...
-                   timeout=timeout,
-                   ^^^^^^^^^^^^^^^^
-                   stdin=stdin\)
-                   ^^^^^^^^^^^^
-(?:\s*\^*\s)?  File \"[^\"]+TestCommon.py\", line \d+, in start
+  File "[^"]+TestCommon\.py", line \d+, in run
+    super\(\)\.run\(\*\*kw\)
+(?:\s*[~\^]*\s*)?File "[^"]+TestCmd\.py", line \d+, in run
+    p = self\.start\(
+        program=program,
+    \.\.\.<4 lines>\.\.\.
+        stdin=stdin,
+    \)
+(?:\s*[~\^]*\s*)?File \"[^\"]+TestCommon\.py\", line \d+, in start
     raise e
-  File "[^"]+TestCommon.py", line \d+, in start
-    return super\(\).start\(program, interpreter, arguments,
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                         universal_newlines, \*\*kw\)
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^
-(?:\s*\^*\s)?  File \"<stdin>\", line \d+, in raise_exception
+  File "[^"]+TestCommon\.py", line \d+, in start
+    return super\(\)\.start\(
+(?:\s*[~\^]*\s*)?program, interpreter, arguments, universal_newlines, \*\*kw
+(?:\s*[~\^]*\s*)?\)
+(?:\s*[~\^]*\s*)?File \"<stdin>\", line \d+, in raise_exception
 TypeError: forced TypeError
-""")
-        expect_enhanced_stderr = re.compile(expect_enhanced_stderr, re.M)
-
+"""
+        )
+        if sys.version_info[:2] > (3, 12):
+            expect_stderr = re.compile(expect_enhanced_stderr, re.M)
+        else:
+            expect_stderr = re.compile(expect_stderr, re.M)
         self.run_execution_test(script, expect_stdout, expect_stderr)
 
     def test_ignore_stderr(self) -> None:
@@ -2234,10 +2294,14 @@ TypeError: forced TypeError
         self.run_execution_test(script, "", "")
 
     def test_signal_handling(self) -> None:
-        """Test run():  signal handling"""
+        """Test run(): signal handling.
 
+        Only strange platforms unlikely to support SCons like the
+        webassembly ones don't support kill(), but keep the test
+        in place anyway.
+        """
         try:
-            os.kill
+            _ = os.kill
         except AttributeError:
             sys.stderr.write('can not test, no os.kill ... ')
             return
@@ -2297,7 +2361,6 @@ TypeError: forced TypeError
         self.run_execution_test(script, "", "")
 
 
-
 class start_TestCase(TestCommonTestCase):
     def test_option_handling(self) -> None:
         """Test start():  option handling"""
@@ -2331,7 +2394,6 @@ class start_TestCase(TestCommonTestCase):
         """)
 
         self.run_execution_test(script, "", "")
-
 
 
 class skip_test_TestCase(TestCommonTestCase):
@@ -2370,6 +2432,7 @@ class skip_test_TestCase(TestCommonTestCase):
         assert stderr in expect, repr(stderr)
 
         import os
+
         os.environ['TESTCOMMON_PASS_SKIPS'] = '1'
 
         try:
@@ -2388,7 +2451,6 @@ class skip_test_TestCase(TestCommonTestCase):
             del os.environ['TESTCOMMON_PASS_SKIPS']
 
 
-
 class variables_TestCase(TestCommonTestCase):
     def test_variables(self) -> None:
         """Test global variables"""
@@ -2404,7 +2466,6 @@ class variables_TestCase(TestCommonTestCase):
             'python',
             '_python_',
             'TestCmd',
-
             'TestCommon',
             'exe_suffix',
             'obj_suffix',
@@ -2416,18 +2477,19 @@ class variables_TestCase(TestCommonTestCase):
             'dll_suffix',
         ]
 
-        script = "import TestCommon\n" + \
-                 '\n'.join([f"print(TestCommon.{v})\n" for v in variables])
+        script = "import TestCommon\n" + '\n'.join(
+            [f"print(TestCommon.{v})\n" for v in variables]
+        )
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()
         assert stderr == "", stderr
 
-        script = "from TestCommon import *\n" + \
-                 '\n'.join([f"print({v})" for v in variables])
+        script = "from TestCommon import *\n" + '\n'.join(
+            [f"print({v})" for v in variables]
+        )
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()
         assert stderr == "", stderr
-
 
 
 if __name__ == "__main__":

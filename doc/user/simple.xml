@@ -3,6 +3,9 @@
 <!--
 SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -484,7 +487,7 @@ int main() { printf("Goodbye, world!\n"); }
 
      <para>
 
-     Then when you execute &SCons;,
+     Then, when you execute &SCons;,
      you will see the output from calling the <function>print</function>
      function in between the messages about
      reading the &SConscript; files,

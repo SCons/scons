@@ -23,10 +23,11 @@
 
 """SCons string substitution."""
 
+from __future__ import annotations
+
 import collections
 import re
 from inspect import signature, Parameter
-from typing import Optional
 
 import SCons.Errors
 from SCons.Util import is_String, is_Sequence
@@ -807,7 +808,7 @@ _separate_args = re.compile(r'(%s|\s+|[^\s$]+|\$)' % _dollar_exps_str)
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
 
-def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None, overrides: Optional[dict] = None):
+def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None, overrides: dict | None = None):
     """Expand a string or list containing construction variable
     substitutions.
 
@@ -889,7 +890,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
 
     return result
 
-def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None, overrides: Optional[dict] = None):
+def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None, overrides: dict | None = None):
     """Substitute construction variables in a string (or list or other
     object) and separate the arguments into a command list.
 

@@ -31,6 +31,8 @@ Tests on the build system can detect if compiler sees header files, if
 libraries are installed, if some command line options are supported etc.
 """
 
+from __future__ import annotations
+
 import SCons.compat
 
 import atexit
@@ -39,7 +41,6 @@ import os
 import re
 import sys
 import traceback
-from typing import Tuple
 
 import SCons.Action
 import SCons.Builder
@@ -265,7 +266,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
             sys.excepthook(*self.exc_info())
         return SCons.Taskmaster.Task.failed(self)
 
-    def collect_node_states(self) -> Tuple[bool, bool, bool]:
+    def collect_node_states(self) -> tuple[bool, bool, bool]:
         # returns (is_up_to_date, cached_error, cachable)
         # where is_up_to_date is True if the node(s) are up_to_date
         #       cached_error  is True if the node(s) are up_to_date, but the
@@ -1100,12 +1101,17 @@ def CheckCXXHeader(context, header, include_quotes: str = '""'):
 
 
 def CheckLib(context, library = None, symbol: str = "main",
-             header = None, language = None, autoadd: bool=True,
-             append: bool=True, unique: bool=False) -> bool:
+             header = None, language = None, extra_libs = None,
+             autoadd: bool=True, append: bool=True, unique: bool=False) -> bool:
     """
-    A test for a library. See also CheckLibWithHeader.
+    A test for a library. See also :func:`CheckLibWithHeader`.
     Note that library may also be None to test whether the given symbol
     compiles without flags.
+
+    .. versionchanged:: 4.9.0
+       Added the *extra_libs* keyword parameter. The actual implementation
+       is in :func:`SCons.Conftest.CheckLib` which already accepted this
+       parameter, so this is only exposing existing functionality.
     """
 
     if not library:
@@ -1115,9 +1121,9 @@ def CheckLib(context, library = None, symbol: str = "main",
         library = [library]
 
     # ToDo: accept path for the library
-    res = SCons.Conftest.CheckLib(context, library, symbol, header = header,
-                                        language = language, autoadd = autoadd,
-                                        append=append, unique=unique)
+    res = SCons.Conftest.CheckLib(context, library, symbol, header=header,
+                                  language=language, extra_libs=extra_libs,
+                                  autoadd=autoadd, append=append, unique=unique)
     context.did_show_result = True
     return not res
 
@@ -1125,15 +1131,21 @@ def CheckLib(context, library = None, symbol: str = "main",
 # Bram: Can only include one header and can't use #ifdef HAVE_HEADER_H.
 
 def CheckLibWithHeader(context, libs, header, language,
-                       call = None, autoadd: bool=True, append: bool=True, unique: bool=False) -> bool:
-    # ToDo: accept path for library. Support system header files.
+                       extra_libs = None,  call = None, autoadd: bool=True,
+                       append: bool=True, unique: bool=False) -> bool:
     """
     Another (more sophisticated) test for a library.
     Checks, if library and header is available for language (may be 'C'
     or 'CXX'). Call maybe be a valid expression _with_ a trailing ';'.
-    As in CheckLib, we support library=None, to test if the call compiles
+    As in :func:`CheckLib`, we support library=None, to test if the call compiles
     without extra link flags.
+
+    .. versionchanged:: 4.9.0
+       Added the *extra_libs* keyword parameter. The actual implementation
+       is in :func:`SCons.Conftest.CheckLib` which already accepted this
+       parameter, so this is only exposing existing functionality.
     """
+    # ToDo: accept path for library. Support system header files.
     prog_prefix, dummy = createIncludesFromHeaders(header, 0)
     if not libs:
         libs = [None]
@@ -1142,8 +1154,8 @@ def CheckLibWithHeader(context, libs, header, language,
         libs = [libs]
 
     res = SCons.Conftest.CheckLib(context, libs, None, prog_prefix,
-            call = call, language = language, autoadd=autoadd,
-            append=append, unique=unique)
+            extra_libs = extra_libs, call = call, language = language,
+            autoadd=autoadd, append=append, unique=unique)
     context.did_show_result = 1
     return not res
 

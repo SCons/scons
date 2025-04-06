@@ -296,9 +296,6 @@ def generate(env) -> None:
     # without it for lex generation
     env["LEXUNISTD"] = SCons.Util.CLVar("--nounistd")
 
-    # Get user specified vswhere location or locate.
-    env['VSWHERE'] = env.get('VSWHERE', msvc_find_vswhere()) 
-
     # Set-up ms tools paths
     msvc_setup_env_once(env, tool=tool_name)
 

@@ -21,6 +21,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
+
 import SCons.compat
 
 # Define a null function for use as a builder action.
@@ -31,6 +33,7 @@ def Func() -> None:
     pass
 
 from collections import UserList
+from typing import TYPE_CHECKING
 import io
 import os.path
 import re
@@ -45,7 +48,9 @@ import SCons.Environment
 import SCons.Errors
 import SCons.Subst
 import SCons.Util
-from SCons.Util.sctyping import ExecutorType
+
+if TYPE_CHECKING:
+    from SCons.Executor import Executor
 
 sys.stdout = io.StringIO()
 
@@ -185,9 +190,9 @@ class MyNode_without_target_from_source:
         return env
     def get_build_env(self):
         return self.executor.get_build_env()
-    def set_executor(self, executor: ExecutorType) -> None:
+    def set_executor(self, executor: Executor) -> None:
         self.executor = executor
-    def get_executor(self, create: int=1) -> ExecutorType:
+    def get_executor(self, create: int=1) -> Executor:
         return self.executor
 
 class MyNode(MyNode_without_target_from_source):
@@ -697,7 +702,7 @@ class BuilderTestCase(unittest.TestCase):
         """Test Builder with single_source flag set"""
         def func(target, source, env) -> None:
             """create the file"""
-            with open(str(target[0]), "w"):
+            with open(target[0], "w"):
                 pass
             if len(source) == 1 and len(target) == 1:
                 env['CNT'][0] = env['CNT'][0] + 1
@@ -754,7 +759,7 @@ class BuilderTestCase(unittest.TestCase):
         """Testing handling lists of targets and source"""
         def function2(target, source, env, tlist = [outfile, outfile2], **kw) -> int:
             for t in target:
-                with open(str(t), 'w') as f:
+                with open(t, 'w') as f:
                     f.write("function2\n")
             for t in tlist:
                 if t not in list(map(str, target)):
@@ -785,7 +790,7 @@ class BuilderTestCase(unittest.TestCase):
 
         def function3(target, source, env, tlist = [sub1_out, sub2_out]) -> int:
             for t in target:
-                with open(str(t), 'w') as f:
+                with open(t, 'w') as f:
                     f.write("function3\n")
             for t in tlist:
                 if t not in list(map(str, target)):

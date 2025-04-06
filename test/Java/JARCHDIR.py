@@ -32,7 +32,6 @@ Includes logic to make sure that expansions of $JARCHDIR that include
 ${TARGET} or ${SOURCE} work.
 """
 
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -60,7 +59,7 @@ source_env = env.Clone(JARCHDIR='${SOURCE.dir}')
 source_env.Jar('out/s.jar', 'in/s.class')
 
 Default(bin, jar, inner)
-""" % locals())
+""")
 
 test.subdir('in')
 

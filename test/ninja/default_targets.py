@@ -20,7 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 import os
 
@@ -32,45 +31,40 @@ test = TestSCons.TestSCons()
 try:
     import ninja
 except ImportError:
-    test.skip_test("Could not find module in python")
+    test.skip_test("Could not find 'ninja'; skipping test.\n")
 
 _python_ = TestSCons._python_
 _exe = TestSCons._exe
 
-ninja_bin = os.path.abspath(os.path.join(
-    ninja.__file__,
-    os.pardir,
-    'data',
-    'bin',
-    'ninja' + _exe))
+ninja_bin = TestSCons.NINJA_BINARY
 
 test.dir_fixture('ninja-fixture')
 
 test.file_fixture('ninja_test_sconscripts/sconstruct_default_targets', 'SConstruct')
 
+# this test has had some hangs on the GitHut Windows runner, add timeout.
+
 # generate simple build
-test.run(stdout=None)
+test.run(stdout=None, timeout=120)
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
 test.must_contain_all(test.stdout(), 'Executing:')
-test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
+test.must_contain_all(test.stdout(), f'ninja{_exe} -f')
 test.must_not_exist([test.workpath('out1.txt')])
 test.must_exist([test.workpath('out2.txt')])
 
 # clean build and ninja files
-test.run(arguments='-c', stdout=None)
-test.must_contain_all_lines(test.stdout(), [
-    'Removed out2.txt',
-    'Removed build.ninja'])
+test.run(arguments='-c', stdout=None, timeout=120)
+test.must_contain_all_lines(test.stdout(), ['Removed out2.txt', 'Removed build.ninja'])
 
 # only generate the ninja file
-test.run(arguments='--disable-execute-ninja', stdout=None)
+test.run(arguments='--disable-execute-ninja', stdout=None, timeout=120)
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
 test.must_not_exist(test.workpath('out1.txt'))
 test.must_not_exist(test.workpath('out2.txt'))
 
 # run ninja independently
 program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
-test.run(program=program, stdout=None)
+test.run(program=program, stdout=None, timeout=120)
 test.must_not_exist([test.workpath('out1.txt')])
 test.must_exist(test.workpath('out2.txt'))
 

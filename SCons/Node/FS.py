@@ -30,6 +30,8 @@ This holds a "default_fs" variable that should be initialized with an FS
 that can be used by scripts or modules looking for the canonical default.
 """
 
+from __future__ import annotations
+
 import codecs
 import fnmatch
 import importlib.util
@@ -40,7 +42,6 @@ import stat
 import sys
 import time
 from itertools import chain
-from typing import Optional
 
 import SCons.Action
 import SCons.Debug
@@ -761,6 +762,8 @@ class Base(SCons.Node.Node):
         st = self.stat()
 
         if st:
+            # TODO: switch to st.st_mtime, however this changes granularity
+            #    (ST_MTIME is an int for backwards compat, st_mtime is float)
             return st[stat.ST_MTIME]
         else:
             return None
@@ -1492,7 +1495,7 @@ class FS(LocalFS):
                 d = self.Dir(d)
             self.Top.addRepository(d)
 
-    def PyPackageDir(self, modulename) -> Optional[Dir]:
+    def PyPackageDir(self, modulename) -> Dir | None:
         r"""Locate the directory of Python module *modulename*.
 
         For example 'SCons' might resolve to
@@ -3190,7 +3193,7 @@ class File(Base):
     # SIGNATURE SUBSYSTEM
     #
 
-    def get_max_drift_csig(self) -> Optional[str]:
+    def get_max_drift_csig(self) -> str | None:
         """
         Returns the content signature currently stored for this node
         if it's been unmodified longer than the max_drift value, or the

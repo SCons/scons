@@ -169,6 +169,11 @@ class LaTeX(ScannerBase):
                      'addsectionbib': 'BIBINPUTS',
                      'makeindex': 'INDEXSTYLE',
                      'usepackage': 'TEXINPUTS',
+                     'usetheme': 'TEXINPUTS',
+                     'usecolortheme': 'TEXINPUTS',
+                     'usefonttheme': 'TEXINPUTS',
+                     'useinnertheme': 'TEXINPUTS',
+                     'useoutertheme': 'TEXINPUTS',
                      'lstinputlisting': 'TEXINPUTS'}
     env_variables = SCons.Util.unique(list(keyword_paths.values()))
     two_arg_commands = ['import', 'subimport',
@@ -193,6 +198,7 @@ class LaTeX(ScannerBase):
               | addglobalbib
               | addsectionbib
               | usepackage
+              | use(?:|color|font|inner|outer)theme(?:\s*\[[^\]]+\])?
               )
                   \s*{([^}]*)}       # first arg
               (?: \s*{([^}]*)} )?    # maybe another arg
@@ -362,6 +368,9 @@ class LaTeX(ScannerBase):
                 if inc_type in self.two_arg_commands:
                     inc_subdir = os.path.join(subdir, include[1])
                     inc_list = include[2].split(',')
+                elif re.match('use(|color|font|inner|outer)theme', inc_type):
+                    inc_list = [re.sub('use', 'beamer', inc_type) + _ + '.sty' for _ in
+                                include[1].split(',')]
                 else:
                     inc_list = include[1].split(',')
                 for inc in inc_list:
@@ -411,7 +420,7 @@ class LaTeX(ScannerBase):
             if n is None:
                 # Do not bother with 'usepackage' warnings, as they most
                 # likely refer to system-level files
-                if inc_type != 'usepackage':
+                if inc_type != 'usepackage' or re.match("use(|color|font|inner|outer)theme", inc_type):
                     SCons.Warnings.warn(
                         SCons.Warnings.DependencyWarning,
                         "No dependency generated for file: %s "

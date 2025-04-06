@@ -3,6 +3,9 @@
 <!--
 SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -83,16 +86,16 @@ hello = Program(["hello.c"])
     </para>
 
     <para>
-    Now we'll convert the project to a multi-lingual one. If you don't
+    Now we'll convert the project to a multilingual one. If you don't
     already have <ulink
     url="http://www.gnu.org/software/gettext/manual/gettext.html">GNU gettext
-    utilities</ulink> installed, install them from your preffered
+    utilities</ulink> installed, install them from your preferred
     package repository, or download from <ulink
     url="http://ftp.gnu.org/gnu/gettext/">
     http://ftp.gnu.org/gnu/gettext/</ulink>. For the purpose of this example,
     you should have following three locales installed on your system:
     <literal>en_US</literal>, <literal>de_DE</literal> and
-    <literal>pl_PL</literal>. On debian, for example, you may enable certain
+    <literal>pl_PL</literal>. On Debian, for example, you may enable certain
     locales through <command>dpkg-reconfigure locales</command>.
     </para>
 
@@ -160,7 +163,7 @@ InstallAs(["locale/de/LC_MESSAGES/hello.mo"], ["de.mo"])
     </para>
     <para>
     Generate the translation files with <command>scons po-update</command>.
-    You should see the output from SCons simillar to this:
+    You should see the output from SCons similar to this:
     <screen>
 user@host:$ scons po-update
 scons: Reading SConscript files ...
@@ -228,7 +231,7 @@ scons: done building targets.
     these files under <filename>locale</filename> folder.
     </para>
     <para>
-    Your program should be now ready. You may try it as follows (linux):
+    Your program should be now ready. You may try it as follows (Linux):
     <screen>
 user@host:$ LANG=en_US.UTF-8 ./hello
 Welcome to beautiful world
@@ -347,7 +350,7 @@ gcc -o hello.o -c hello.c
 gcc -o hello hello.o
 scons: done building targets.
     </screen>
-    As you see, the internationalized messages ditn't change, so the
+    As you see, the internationalized messages didn't change, so the
     <literal>POT</literal> and the rest of translation files have not
     even been touched.
     </para>

@@ -3,6 +3,9 @@
 <!--
 SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -31,7 +34,7 @@ SPDX-License-Identifier: MIT
         Sometimes a project needs to interact with other projects
         in various ways. For example, many open source projects
         make use of components from other open source projects,
-        and want to use those in their released form, not recode
+        and want to use those in their released form, not rewrite
         their builds into &SCons;. As another example, sometimes
         the flexibility and power of &SCons; is useful for managing the
         overall project, but developers might like faster incremental
@@ -373,7 +376,7 @@ conda install -c conda-forge ninja
         <para>
             When &ninja; runs the generated &ninja; build file, &ninja; will launch &scons; as a daemon and feed commands
             to that &scons; process which &ninja; is unable to build directly.  This daemon will stay alive until
-            explicitly killed, or it times out. The timeout is set by &cv-link-NINJA_SCONS_DAEMON_KEEP_ALIVE; .
+            explicitly killed, or it times out. The timeout is set by &cv-link-NINJA_SCONS_DAEMON_KEEP_ALIVE;.
         </para>
 
         <para>

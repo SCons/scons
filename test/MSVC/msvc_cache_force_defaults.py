@@ -30,6 +30,10 @@ Test SCONS_CACHE_MSVC_FORCE_DEFAULTS system environment variable.
 import textwrap
 
 from SCons.Tool.MSCommon.vc import get_installed_vcs_components
+from SCons.Tool.MSCommon.MSVC.Kind import (
+    msvc_version_is_express,
+    msvc_version_is_btdispatch,
+)
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -68,8 +72,15 @@ test.write('SConstruct', textwrap.dedent(
 test.run(arguments="-Q -s", status=0, stdout=None)
 cache_arg = test.stdout().strip()
 if default_version.msvc_verstr == '14.0':
-    # VS2015: target_arch msvc_sdk_version
-    expect = r'^SCRIPT_ARGS: .* [0-9.]+$'
+    if msvc_version_is_express(default_version.msvc_version):
+        # VS2015 Express: target_arch
+        expect = r'^SCRIPT_ARGS: [a-zA-Z0-9_]+$'
+    elif msvc_version_is_btdispatch(default_version.msvc_version):
+        # VS2015 BTDispatch: target_arch
+        expect = r'^SCRIPT_ARGS: [a-zA-Z0-9_]+$'
+    else:
+        # VS2015: target_arch msvc_sdk_version
+        expect = r'^SCRIPT_ARGS: [a-zA-Z0-9_]+ [0-9.]+$'
 else:
     # VS2017+ msvc_sdk_version msvc_toolset_version
     expect = r'^SCRIPT_ARGS: [0-9.]+ -vcvars_ver=[0-9.]+$'

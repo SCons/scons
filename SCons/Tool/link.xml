@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -65,7 +66,7 @@ based on the types of source files.
 <summary>
 <para>
 This construction variable automatically introduces &cv-link-_LDMODULEVERSIONFLAGS;
-if &cv-link-LDMODULEVERSION; is set. Othervise it evaluates to an empty string.
+if &cv-link-LDMODULEVERSION; is set. Otherwise, it evaluates to an empty string.
 </para>
 </summary>
 </cvar>
@@ -74,7 +75,7 @@ if &cv-link-LDMODULEVERSION; is set. Othervise it evaluates to an empty string.
 <summary>
 <para>
 This construction variable automatically introduces &cv-link-_SHLIBVERSIONFLAGS;
-if &cv-link-SHLIBVERSION; is set. Othervise it evaluates to an empty string.
+if &cv-link-SHLIBVERSION; is set. Otherwise, it evaluates to an empty string.
 </para>
 </summary>
 </cvar>
@@ -152,7 +153,7 @@ to <literal>'.dll'</literal>.
 <cvar name="IMPLIBNOVERSIONSYMLINKS">
 <summary>
 <para>
-Used to override &cv-link-SHLIBNOVERSIONSYMLINKS;/&cv-link-LDMODULENOVERSIONSYMLINKS; when 
+Used to override &cv-link-SHLIBNOVERSIONSYMLINKS;/&cv-link-LDMODULENOVERSIONSYMLINKS; when
 creating versioned import library for a shared library/loadable module. If not defined,
 then &cv-link-SHLIBNOVERSIONSYMLINKS;/&cv-link-LDMODULENOVERSIONSYMLINKS; is used to determine
 whether to disable symlink generation or not.
@@ -410,7 +411,7 @@ The variable is used, for example, by &t-link-gnulink; linker tool.
 <cvar name="SOVERSION">
 <summary>
 <para>
-This will construct the <varname>SONAME</varname> using on the base library name 
+This will construct the <varname>SONAME</varname> using on the base library name
 (<parameter>test</parameter> in the example below) and use specified <varname>SOVERSION</varname>
 to create <varname>SONAME</varname>.
 <example_commands>
@@ -419,7 +420,7 @@ env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SOVERSION='2')
 The variable is used, for example, by &t-link-gnulink; linker tool.
 </para>
 <para>
-In the example above <varname>SONAME</varname> would be <filename>libtest.so.2</filename> 
+In the example above <varname>SONAME</varname> would be <filename>libtest.so.2</filename>
 which would be a symlink and point to <filename>libtest.so.0.1.2</filename>
 </para>
 </summary>

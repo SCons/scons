@@ -420,6 +420,14 @@ class DummyEnv:
     def Dir(self, name):
         return self.fs.Dir(name)
 
+    def File(self, name):
+        return self.fs.File(name)
+
+    def subst(self, key):
+        if key[0] == '$':
+            key = key[1:]
+        return self[key]
+
 
 class RegKey:
     """key class for storing an 'open' registry key"""
@@ -579,7 +587,7 @@ def DummyQueryValue(key, value):
 def DummyExists(path) -> bool:
     return True
 
-def DummyVsWhere(msvc_version, env):
+def DummyVsWhere(msvc_version, vswhere_exe):
     # not testing versions with vswhere, so return none
     return None
 
@@ -635,9 +643,9 @@ class msvsTestCase(unittest.TestCase):
         """Test the merge_default_version() function"""
         pass
 
-    def test_query_versions(self) -> None:
+    def test_query_versions(self, env=None) -> None:
         """Test retrieval of the list of visual studio versions"""
-        v1 = query_versions()
+        v1 = query_versions(env)
         assert not v1 or str(v1[0]) == self.highest_version, \
                (v1, self.highest_version)
         assert len(v1) == self.number_of_versions, v1
@@ -880,9 +888,9 @@ class msvs71TestCase(msvsTestCase):
 class msvs8ExpTestCase(msvsTestCase): # XXX: only one still not working
     """Test MSVS 8 Express Registry"""
     registry = DummyRegistry(regdata_8exp + regdata_cv)
-    default_version = '8.0Exp'
-    highest_version = '8.0Exp'
-    number_of_versions = 1
+    default_version = '8.0'
+    highest_version = '8.0'
+    number_of_versions = 2
     install_locs = {
         '6.0' : {},
         '7.0' : {},
@@ -947,7 +955,7 @@ if __name__ == "__main__":
     SCons.Util.RegEnumKey      = DummyEnumKey
     SCons.Util.RegEnumValue    = DummyEnumValue
     SCons.Util.RegQueryValueEx = DummyQueryValue
-    SCons.Tool.MSCommon.vc.find_vc_pdir_vswhere = DummyVsWhere
+    SCons.Tool.MSCommon.vc._find_vc_pdir_vswhere = DummyVsWhere
 
     os.path.exists = DummyExists # make sure all files exist :-)
     os.path.isfile = DummyExists # make sure all files are files :-)

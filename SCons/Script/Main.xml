@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-Copyright The SCons Foundation
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -26,18 +27,25 @@ See its __doc__ string for a discussion of the format.
 
 <scons_function name="AddOption">
 <arguments signature="global">
-(arguments)
+(opt_str, ..., attr=value, ...)
 </arguments>
 <summary>
 <para>
 Adds a local (project-specific) command-line option.
-<parameter>arguments</parameter>
-are the same as those supported by the <function>add_option</function>
-method in the standard Python library module <systemitem>optparse</systemitem>,
-with a few additional capabilities noted below.
-See the documentation for
-<systemitem>optparse</systemitem>
-for a thorough discussion of its option-processing capabities.
+One or more <parameter>opt_str</parameter> values are
+the strings representing how the option can be called,
+while the keyword arguments define attributes of the option.
+For the most part these are the same as for the
+<function>OptionParser.add_option</function>
+method in the standard Python library module
+<systemitem>optparse</systemitem>,
+but with a few additional capabilities noted below.
+See the
+<ulink url="https://docs.python.org/3/library/optparse.html">
+optparse documentation</ulink>
+for a thorough discussion of its option-processing capabilities.
+All options added through &f-AddOption; are placed
+in a special "Local Options" option group.
 </para>
 
 <para>
@@ -48,10 +56,9 @@ method, &f-AddOption;
 allows setting the
 <parameter>nargs</parameter>
 keyword value to
-a string consisting of a question mark
-(<literal>'?'</literal>)
+a string <literal>'?'</literal> (question mark)
 to indicate that the option argument for
-that option string is optional.
+that option string may be omitted.
 If the option string is present on the
 command line but has no matching option
 argument, the value of the
@@ -93,21 +100,25 @@ the option value may be accessed using
 &f-link-GetOption;
 or
 &f-link-env-GetOption;.
-&f-link-SetOption; is not currently supported for
-options added with &f-AddOption;.
-<!-- was:
-The value may also be set using
-&f-SetOption;
+If the <parameter>settable=True</parameter> argument
+was supplied in the &AddOption; call,
+the value may also be set later using
+&f-link-SetOption;
 or
-&f-env.SetOption;,
-if conditions in a
-&SConscript;
+&f-link-env-SetOption;,
+if conditions in an
+&SConscript; file
 require overriding any default value.
 Note however that a
 value specified on the command line will
 <emphasis>always</emphasis>
-override a value set by any SConscript file.
--->
+override a value set in an SConscript file.
+</para>
+
+<para>
+<emphasis>Changed in 4.8.0</emphasis>: added the
+<parameter>settable</parameter> keyword argument
+to enable an added option to be settable via &SetOption;.
 </para>
 
 <para>
@@ -189,13 +200,14 @@ Future versions of &SCons; will likely forbid such usage.
 </arguments>
 <summary>
 <para>
-Allows setting options for SCons debug options. Currently the only supported value is
-  <emphasis>json</emphasis> which sets the path to the json file created when
+Allows setting options for SCons debug options. Currently, the only supported value is
+  <emphasis>json</emphasis> which sets the path to the JSON file created when
   <literal>--debug=json</literal> is set.
 </para>
   <example_commands>
 DebugOptions(json='#/build/output/scons_stats.json')
 </example_commands>
+<para><emphasis>New in version 4.6.0.</emphasis></para>
 </summary>
 </scons_function>
 
@@ -334,9 +346,10 @@ atexit.register(print_build_failures)
 <summary>
 <para>
 Query the value of settable options which may have been set
-on the command line, or by using the &f-link-SetOption; function.
+on the command line, via option defaults,
+or by using the &f-link-SetOption; function.
 The value of the option is returned in a type matching how the
-option was declared - see the documentation for the
+option was declared - see the documentation of the
 corresponding command line option for information about each specific
 option.
 </para>
@@ -687,7 +700,7 @@ If the string contains the verbatim substring
 it will be replaced with the Node.
 Note that, for performance reasons, this is
 <emphasis>not</emphasis>
-a regular SCons variable substition,
+a regular SCons variable substitution,
 so you can not use other variables
 or use curly braces.
 The following example will print the name of
@@ -799,6 +812,16 @@ which evaluates to true (e.g. <constant>True</constant>,
 Options which affect the reading and processing of SConscript files
 are not settable using &f-SetOption; since those files must
 be read in order to find the &f-SetOption; call in the first place.
+</para>
+
+<para>
+For project-specific options (sometimes called
+<firstterm>local options</firstterm>)
+added via an &f-link-AddOption; call,
+&f-SetOption; is available only after the
+&f-AddOption; call has completed successfully,
+and only if that call included the
+<parameter>settable=True</parameter> argument.
 </para>
 
 <para>

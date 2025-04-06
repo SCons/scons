@@ -32,6 +32,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 foo = Environment(CPPDEFINES=['FOO', ('VAL', '$VALUE')], VALUE=7)
 bar = Environment(CPPDEFINES={'BAR': None, 'VAL': 8})
 baz = Environment(CPPDEFINES=['BAZ', ('VAL', 9)])

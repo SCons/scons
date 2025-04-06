@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
-Copyright The SCons Foundation
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
 
 This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -146,7 +147,7 @@ and the second is the macro definition.
 If the definition is not omitted or <literal>None</literal>,
 the name and definition are combined into a single
 <literal>name=definition</literal> item
-before the preending/appending.
+before the prepending/appending.
 </para>
 
 <example_commands>
@@ -260,7 +261,7 @@ to each directory in &cv-link-CPPPATH;.
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
 directories for include files.
-In general it's not advised to put include directory directives
+In general, it's not advised to put include directory directives
 directly into &cv-link-CCFLAGS; or &cv-link-CXXFLAGS;
 as the result will be non-portable
 and the directories will not be searched by the dependency scanner.
@@ -275,7 +276,7 @@ directory names in &cv-CPPPATH;
 will be looked-up relative to the directory of the SConscript file
 when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree use
+to lookup a directory relative to the root of the source tree, use
 the <literal>#</literal> prefix:
 </para>
 
@@ -284,7 +285,7 @@ env = Environment(CPPPATH='#/include')
 </example_commands>
 
 <para>
-The directory look-up can also be forced using the
+The directory lookup can also be forced using the
 &f-link-Dir;
 function:
 </para>
@@ -547,7 +548,7 @@ directory names in &cv-LIBPATH; will be looked-up relative to the
 directory of the SConscript file
 when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree use
+to lookup a directory relative to the root of the source tree, use
 the <literal>#</literal> prefix:
 </para>
 
@@ -556,7 +557,7 @@ env = Environment(LIBPATH='#/libs')
 </example_commands>
 
 <para>
-The directory look-up can also be forced using the
+The directory lookup can also be forced using the
 &f-link-Dir; function:
 </para>
 
@@ -617,7 +618,7 @@ If &cv-link-LIBLITERALPREFIX; is set to a non-empty string,
 then a string-valued &cv-LIBS; entry
 that starts with &cv-link-LIBLITERALPREFIX;
 will cause the rest of the entry
-to be searched for for unmodified,
+to be searched for unmodified,
 but respecting normal library search paths
 (this is an exception to the guideline above
 about leaving off the prefix/suffix from the library name).
@@ -648,12 +649,12 @@ env.Append(LIBS=File('/tmp/mylib.so'))
 <!-- is this actually true? -->
 For each &Builder; call that causes linking with libraries,
 &SCons; will add the libraries in the setting of &cv-LIBS;
-in effect at that moment to the dependecy graph
+in effect at that moment to the dependency graph
 as dependencies of the target being generated.
 </para>
 
 <para>
-The library list will transformed to command line
+The library list will be transformed to command-line
 arguments through the automatically-generated
 &cv-link-_LIBFLAGS; &consvar;
 which is constructed by
@@ -728,43 +729,53 @@ searching the repositories.
 
 <scons_function name="DefaultEnvironment">
 <arguments signature="global">
-([**kwargs])
+([key=value, ...])
 </arguments>
 <summary>
 <para>
 Instantiates and returns the global &consenv; object.
-This environment is used internally by SCons
-when it executes many of the global functions listed in this section
-(that is, those not called as methods of a specific &consenv;).
-The &defenv; is a singleton:
-the keyword arguments are used only on the first call;
-on subsequent calls the already-constructed object is returned
-and any keyword arguments are silently ignored.
-The &defenv; can still be modified after instantiation
-in the same way as any other &consenv;.
-The &defenv; is independent:
-modifying it has no effect on any other &consenv;
-constructed by an &f-link-Environment; or &f-link-Clone; call.
+The <firstterm>&DefEnv;</firstterm> is used internally by &SCons;
+when executing a global function
+or the global form of a Builder method
+that requires access to a &consenv;.
 </para>
 
 <para>
-It is not mandatory to call &f-DefaultEnvironment;:
-the &defenv; is instantiated automatically when the
-build phase begins if this function has not been called;
-however calling it explicitly gives the opportunity to
-affect and examine the contents of the &defenv;.
-Instantiation happens even if no build instructions
-appar to use it, as there are internal uses.
-If there are no uses in the project &SConscript; files,
-a small performance gain may be seen by calling
-&f-DefaultEnvironment; with an empty tools list,
-thus avoiding that part of the initialization cost.
-This is mainly of interest in testing when &scons; is
-launched repeatedly in a short time period:
+On the first call,
+arguments are interpreted as for the &f-link-Environment; function.
+The &DefEnv; is a singleton;
+subsequent calls to &f-DefaultEnvironment; return
+the already-constructed object,
+and any keyword arguments are silently ignored.
 </para>
-<example_commands>
-DefaultEnvironment(tools=[])
-</example_commands>
+
+<para>
+The &DefEnv; can be modified after instantiation,
+similar to other &consenvs;,
+although some &consenv; methods may be unavailable.
+Modifying the &DefEnv; has no effect on any other &consenv;,
+either existing or newly constructed.
+</para>
+
+<para>
+It is not necessary to explicitly call &f-DefaultEnvironment;.
+&SCons; instantiates the &defenv; automatically when the
+build phase begins, if has not already been done.
+However, calling it explicitly provides the opportunity to
+affect and examine its contents.
+Instantiation occurs even if nothing in the build system
+appears to use it, due to internal uses.
+</para>
+
+<para>
+If the project &SConscript; files do not use global functions or Builders,
+a small performance gain may be achieved by calling
+&f-DefaultEnvironment; with an empty tools list
+(<userinput>DefaultEnvironment(tools=[])</userinput>).
+This avoids the tool initialization cost for the &DefEnv;,
+which is mainly of interest in the test suite
+where &scons; is launched repeatedly in a short time period.
+</para>
 </summary>
 </scons_function>
 

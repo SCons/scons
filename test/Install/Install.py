@@ -31,6 +31,7 @@ import os.path
 import time
 
 import TestSCons
+from TestCmd import IS_ROOT
 
 test = TestSCons.TestSCons()
 
@@ -49,10 +50,9 @@ _SUBDIR_f4_out = os.path.join('$SUBDIR', 'f4.out')
 test.write(['work', 'SConstruct'], """\
 DefaultEnvironment(tools=[])
 def cat(env, source, target):
-    target = str(target[0])
-    with open(target, 'wb') as ofp:
+    with open(target[0], 'wb') as ofp:
         for src in source:
-            with open(str(src), 'rb') as ifp:
+            with open(src, 'rb') as ifp:
                 ofp.write(ifp.read())
 
 def my_install(dest, source, env):
@@ -131,17 +131,17 @@ test.must_match(['work', 'f2.out'], "f2.in\n", mode='r')
 # if a target can not be unlinked before building it:
 test.write(['work', 'f1.in'], "f1.in again again\n")
 
-os.chmod(test.workpath('work', 'export'), 0o555)
-with open(f1_out, 'rb'):
-    expect = [
-        "Permission denied",
-        "The process cannot access the file because it is being used by another process",
-        "Der Prozess kann nicht auf die Datei zugreifen, da sie von einem anderen Prozess verwendet wird",
-    ]
-
-    test.run(chdir='work', arguments=f1_out, stderr=None, status=2)
-
-    test.must_contain_any_line(test.stderr(), expect)
+# This test is not designed to work if running as root
+if not IS_ROOT:
+    os.chmod(test.workpath('work', 'export'), 0o555)
+    with open(f1_out, 'rb'):
+        expect = [
+            "Permission denied",
+            "The process cannot access the file because it is being used by another process",
+            "Der Prozess kann nicht auf die Datei zugreifen, da sie von einem anderen Prozess verwendet wird",
+        ]
+        test.run(chdir='work', arguments=f1_out, stderr=None, status=2)
+        test.must_contain_any_line(test.stderr(), expect)
 
 test.pass_test()
 

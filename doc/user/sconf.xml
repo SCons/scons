@@ -3,6 +3,9 @@
 <!--
 SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -285,7 +288,7 @@ env = conf.Finish()
     You can also add a string that will be
     placed at the beginning of the test file
     that will be used to check for the &typedef;.
-    This provide a way to specify
+    This provides a way to specify
     files that must be included to find the &typedef;:
 
     </para>

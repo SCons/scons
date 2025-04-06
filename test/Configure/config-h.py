@@ -37,6 +37,7 @@ lib = test.Configure_lib
 LIB = "LIB" + lib.upper()
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment()
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])

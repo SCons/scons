@@ -3,6 +3,9 @@
 <!--
 SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -367,8 +370,8 @@ x
     in one pass, interpreting each in its local context,
     building up a tree of information, before starting to
     execute the needed builds in a second pass.
-    This is quite different than some other build tools
-    which implement a heirarcical build by recursing.
+    This is quite different from some other build tools
+    which implement a hierarchical build by recursing.
 
     </para>
 
@@ -890,7 +893,7 @@ void bar(void) { printf("bar/bar.c\n"); }
       (The corresponding
       <filename>bar/SConscript</filename>
       file should be pretty obvious.)
-      Then when we run &SCons;,
+      Then, when we run &SCons;,
       the object files from the subsidiary subdirectories
       are all correctly archived in the desired library:
 

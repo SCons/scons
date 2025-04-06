@@ -27,6 +27,9 @@
 Test the PackageVariable canned Variable type.
 """
 
+from __future__ import annotations
+
+import os
 
 import TestSCons
 
@@ -34,25 +37,23 @@ test = TestSCons.TestSCons()
 
 SConstruct_path = test.workpath('SConstruct')
 
-def check(expect):
+def check(expect: list[str]) -> None:
     result = test.stdout().split('\n')
+    # skip first line and any lines beyond the length of expect
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
 test.write(SConstruct_path, """\
-from SCons.Variables.PackageVariable import PackageVariable
-PV = PackageVariable
-
+from SCons.Variables.PackageVariable import PackageVariable as PV
 from SCons.Variables import PackageVariable
 
 opts = Variables(args=ARGUMENTS)
 opts.AddVariables(
-    PackageVariable('x11',
-                  'use X11 installed here (yes = search some places',
-                  'yes'),
+    PackageVariable('x11', 'use X11 installed here (yes = search some places', 'yes'),
     PV('package', 'help for package', 'yes'),
-    )
+)
 
-env = Environment(variables=opts)
+_ = DefaultEnvironment(tools=[])
+env = Environment(variables=opts, tools=[])
 Help(opts.GenerateHelpText(env))
 
 print(env['x11'])
@@ -71,11 +72,43 @@ check([str(False)])
 test.run(arguments=['x11=%s' % test.workpath()])
 check([test.workpath()])
 
+space_subdir = test.workpath('space subdir')
+test.subdir(space_subdir)
+test.run(arguments=[f'x11={space_subdir}'])
+check([space_subdir])
+
 expect_stderr = """
 scons: *** Path does not exist for variable 'x11': '/non/existing/path/'
-""" + test.python_file_line(SConstruct_path, 14)
+""" + test.python_file_line(SConstruct_path, 11)
 
 test.run(arguments='x11=/non/existing/path/', stderr=expect_stderr, status=2)
+
+# test that an enabling value produces the default value
+# as long as that's a path string
+tinycbor_path = test.workpath('path', 'to', 'tinycbor')
+test.subdir(tinycbor_path)
+SConstruct_pathstr = test.workpath('SConstruct.path')
+test.write(SConstruct_pathstr, f"""\
+from SCons.Variables import PackageVariable
+
+vars = Variables(args=ARGUMENTS)
+vars.Add(
+    PackageVariable(
+        'tinycbor',
+        help="use 'tinycbor' at <path>",
+        default=r'{tinycbor_path}'
+    )
+)
+
+_ = DefaultEnvironment(tools=[])
+env = Environment(variables=vars, tools=[])
+
+print(env['tinycbor'])
+Default(env.Alias('dummy', None))
+""")
+
+test.run(arguments=['-f', 'SConstruct.path', 'tinycbor=yes'])
+check([tinycbor_path])
 
 test.pass_test()
 

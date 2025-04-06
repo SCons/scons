@@ -99,10 +99,11 @@ There are the following methods for internal use within this module:
 
 """
 
+from __future__ import annotations
+
 import os
 from collections import UserDict, UserList
 from contextlib import suppress
-from typing import Optional
 
 import SCons.Action
 import SCons.Debug
@@ -112,7 +113,8 @@ import SCons.Util
 import SCons.Warnings
 from SCons.Debug import logInstanceCreation
 from SCons.Errors import InternalError, UserError
-from SCons.Util.sctyping import ExecutorType
+from SCons.Executor import Executor
+from SCons.Node import Node
 
 class _Null:
     pass
@@ -387,7 +389,7 @@ class BuilderBase:
                         target_scanner = None,
                         source_scanner = None,
                         emitter = None,
-                        multi: int = 0,
+                        multi: bool = False,
                         env = None,
                         single_source: bool = False,
                         name = None,
@@ -486,10 +488,11 @@ class BuilderBase:
             # fspath() is to catch PathLike paths. We avoid the simpler
             # str(f) so as not to "lose" files that are already Nodes:
             # TypeError: expected str, bytes or os.PathLike object, not File
-            with suppress(TypeError):
-                f = os.fspath(f)
-            if SCons.Util.is_String(f):
-                f = SCons.Util.adjustixes(f, pre, suf, ensure_suffix)
+            if not isinstance(f, Node):
+                with suppress(TypeError):
+                    f = os.fspath(f)
+                if SCons.Util.is_String(f):
+                    f = SCons.Util.adjustixes(f, pre, suf, ensure_suffix)
             result.append(f)
         return result
 
@@ -591,7 +594,7 @@ class BuilderBase:
         # build this particular list of targets from this particular list of
         # sources.
 
-        executor: Optional[ExecutorType] = None
+        executor: Executor | None = None
         key = None
 
         if self.multi:

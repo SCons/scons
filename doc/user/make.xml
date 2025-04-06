@@ -3,6 +3,9 @@
 <!--
 SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -40,7 +43,7 @@ original make utility and its derivatives have contributed to this tendency
 in a number of ways. Make is not good at dealing with systems that are
 spread over multiple directories. Various work-arounds are used to overcome
 this difficulty; the usual choice is for make to invoke itself recursively
-for each sub-directory of a build. This leads to complicated code, in which
+for each subdirectory of a build. This leads to complicated code, in which
 it is often unclear how a variable is set, or what effect the setting of a
 variable will have on the build as a whole. The make scripting language has
 gradually been extended to provide more possibilities, but these have
@@ -57,7 +60,7 @@ dependencies. Most often, an attempt is made to do a reasonable job of
 dependencies within a single directory, but no serious attempt is made to do
 the job between directories. Even when dependencies are working correctly,
 make's reliance on a simple time stamp comparison to determine whether a
-file is out of date with respect to its dependents is not, in general,
+file is out-of-date with respect to its dependents is not, in general,
 adequate for determining when a file should be rederived. If an external
 library, for example, is rebuilt and then ``snapped'' into place, the
 timestamps on its newly created files may well be earlier than the last

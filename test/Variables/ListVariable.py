@@ -35,34 +35,38 @@ test = TestSCons.TestSCons()
 
 SConstruct_path = test.workpath('SConstruct')
 
-def check(expect):
+def check(expected):
     result = test.stdout().split('\n')
-    r = result[1:len(expect)+1]
-    assert r == expect, (r, expect)
-
+    r = result[1 : len(expected) + 1]
+    assert r == expected, (r, expected)
 
 
 test.write(SConstruct_path, """\
-from SCons.Variables.ListVariable import ListVariable
-LV = ListVariable
-
+from SCons.Variables.ListVariable import ListVariable as LV
 from SCons.Variables import ListVariable
 
-list_of_libs = Split('x11 gl qt ical')
+list_of_libs = Split('x11 gl qt ical') + ["with space"]
 
 optsfile = 'scons.variables'
 opts = Variables(optsfile, args=ARGUMENTS)
 opts.AddVariables(
-    ListVariable('shared',
-               'libraries to build as shared libraries',
-               'all',
-               names = list_of_libs,
-               map = {'GL':'gl', 'QT':'qt'}),
-    LV('listvariable', 'listvariable help', 'all', names=['l1', 'l2', 'l3'])
-    )
+    ListVariable(
+        'shared',
+        'libraries to build as shared libraries',
+        default='all',
+        names=list_of_libs,
+        map={'GL': 'gl', 'QT': 'qt'},
+    ),
+    LV(
+        'listvariable',
+        'listvariable help',
+        default='all',
+        names=['l1', 'l2', 'l3'],
+    ),
+)
 
-DefaultEnvironment(tools=[])  # test speedup
-env = Environment(variables=opts)
+_ = DefaultEnvironment(tools=[])  # test speedup
+env = Environment(variables=opts, tools=[])
 opts.Save(optsfile, env)
 Help(opts.GenerateHelpText(env))
 
@@ -73,7 +77,7 @@ if 'ical' in env['shared']:
 else:
     print('0')
 
-print(" ".join(env['shared']))
+print(",".join(env['shared']))
 
 print(env.subst('$shared'))
 # Test subst_path() because it's used in $CPPDEFINES expansions.
@@ -82,14 +86,27 @@ Default(env.Alias('dummy', None))
 """)
 
 test.run()
-check(['all', '1', 'gl ical qt x11', 'gl ical qt x11',
-       "['gl ical qt x11']"])
+check(
+    [
+        'all',
+        '1',
+        'gl,ical,qt,with space,x11',
+        'gl ical qt with space x11',
+        "['gl ical qt with space x11']",
+    ]
+)
 
-expect = "shared = 'all'"+os.linesep+"listvariable = 'all'"+os.linesep
+expect = "shared = 'all'" + os.linesep + "listvariable = 'all'" + os.linesep
 test.must_match(test.workpath('scons.variables'), expect)
-
-check(['all', '1', 'gl ical qt x11', 'gl ical qt x11',
-       "['gl ical qt x11']"])
+check(
+    [
+        'all',
+        '1',
+        'gl,ical,qt,with space,x11',
+        'gl ical qt with space x11',
+        "['gl ical qt with space x11']",
+    ]
+)
 
 test.run(arguments='shared=none')
 check(['none', '0', '', '', "['']"])
@@ -98,79 +115,80 @@ test.run(arguments='shared=')
 check(['none', '0', '', '', "['']"])
 
 test.run(arguments='shared=x11,ical')
-check(['ical,x11', '1', 'ical x11', 'ical x11',
-       "['ical x11']"])
+check(['ical,x11', '1', 'ical,x11', 'ical x11', "['ical x11']"])
 
 test.run(arguments='shared=x11,,ical,,')
-check(['ical,x11', '1', 'ical x11', 'ical x11',
-       "['ical x11']"])
+check(['ical,x11', '1', 'ical,x11', 'ical x11', "['ical x11']"])
 
 test.run(arguments='shared=GL')
 check(['gl', '0', 'gl', 'gl'])
 
 test.run(arguments='shared=QT,GL')
-check(['gl,qt', '0', 'gl qt', 'gl qt', "['gl qt']"])
+check(['gl,qt', '0', 'gl,qt', 'gl qt', "['gl qt']"])
 
+#test.run(arguments='shared="with space"')
+#check(['with space', '0', 'with space', 'with space', "['with space']"])
 
 expect_stderr = """
-scons: *** Error converting option: shared
-Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 20)
+scons: *** Invalid value(s) for variable 'shared': 'foo'. Valid values are: gl,ical,qt,with space,x11,all,none
+""" + test.python_file_line(SConstruct_path, 25)
 
 test.run(arguments='shared=foo', stderr=expect_stderr, status=2)
 
 # be paranoid in testing some more combinations
 
 expect_stderr = """
-scons: *** Error converting option: shared
-Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 20)
+scons: *** Invalid value(s) for variable 'shared': 'foo'. Valid values are: gl,ical,qt,with space,x11,all,none
+""" + test.python_file_line(SConstruct_path, 25)
 
 test.run(arguments='shared=foo,ical', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Error converting option: shared
-Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 20)
+scons: *** Invalid value(s) for variable 'shared': 'foo'. Valid values are: gl,ical,qt,with space,x11,all,none
+""" + test.python_file_line(SConstruct_path, 25)
 
 test.run(arguments='shared=ical,foo', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Error converting option: shared
-Invalid value(s) for option: foo
-""" + test.python_file_line(SConstruct_path, 20)
+scons: *** Invalid value(s) for variable 'shared': 'foo'. Valid values are: gl,ical,qt,with space,x11,all,none
+""" + test.python_file_line(SConstruct_path, 25)
 
 test.run(arguments='shared=ical,foo,x11', stderr=expect_stderr, status=2)
 
 expect_stderr = """
-scons: *** Error converting option: shared
-Invalid value(s) for option: foo,bar
-""" + test.python_file_line(SConstruct_path, 20)
+scons: *** Invalid value(s) for variable 'shared': 'foo,bar'. Valid values are: gl,ical,qt,with space,x11,all,none
+""" + test.python_file_line(SConstruct_path, 25)
 
 test.run(arguments='shared=foo,x11,,,bar', stderr=expect_stderr, status=2)
 
-test.write('SConstruct', """
+test.write('SConstruct2', """\
 from SCons.Variables import ListVariable
 
 opts = Variables(args=ARGUMENTS)
 opts.AddVariables(
-    ListVariable('gpib',
-               'comment',
-               ['ENET', 'GPIB'],
-               names = ['ENET', 'GPIB', 'LINUX_GPIB', 'NO_GPIB']),
-    )
+    ListVariable(
+        'gpib',
+        'comment',
+        default=['ENET', 'GPIB'],
+        names=['ENET', 'GPIB', 'LINUX_GPIB', 'NO_GPIB'],
+    ),
+)
 
 DefaultEnvironment(tools=[])  # test speedup
-env = Environment(variables=opts)
+env = Environment(tools=[], variables=opts)
 Help(opts.GenerateHelpText(env))
 
 print(env['gpib'])
 Default(env.Alias('dummy', None))
 """)
 
-test.run(stdout=test.wrap_stdout(read_str="ENET,GPIB\n", build_str="""\
+test.run(
+    arguments="-f SConstruct2",
+    stdout=test.wrap_stdout(read_str="ENET,GPIB\n",
+    build_str="""\
 scons: Nothing to be done for `dummy'.
-"""))
+""")
+)
 
 test.pass_test()
 

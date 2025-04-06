@@ -1,2 +1,6 @@
 # files reformatted from DOS line-endings
 1277d8e5ab6457ed18d291100539f31d1bdb2d7c
+# enforced .editorconfig eol settings
+fbb026ef1145fe29e0ec3c1b66a3e99cac51e18d
+# Black/Ruff'd test framework code.
+c9d9fa58b796532320a2248ddc5be07b7280adf3

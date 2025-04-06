@@ -9,9 +9,12 @@ Routines for working with environments and construction variables
 that don't need the specifics of the Environment class.
 """
 
+from __future__ import annotations
+
+import re
 import os
 from types import MethodType, FunctionType
-from typing import Union, Callable, Optional, Any
+from typing import Callable, Any
 
 from .sctypes import is_List, is_Tuple, is_String
 
@@ -21,8 +24,8 @@ def PrependPath(
     newpath,
     sep=os.pathsep,
     delete_existing: bool = True,
-    canonicalize: Optional[Callable] = None,
-) -> Union[list, str]:
+    canonicalize: Callable | None = None,
+) -> list | str:
     """Prepend *newpath* path elements to *oldpath*.
 
     Will only add any particular path once (leaving the first one it
@@ -111,8 +114,8 @@ def AppendPath(
     newpath,
     sep=os.pathsep,
     delete_existing: bool = True,
-    canonicalize: Optional[Callable] = None,
-) -> Union[list, str]:
+    canonicalize: Callable | None = None,
+) -> list | str:
     """Append *newpath* path elements to *oldpath*.
 
     Will only add any particular path once (leaving the last one it
@@ -238,7 +241,7 @@ class MethodWrapper:
     a new underlying object being copied (without which we wouldn't need
     to save that info).
     """
-    def __init__(self, obj: Any, method: Callable, name: Optional[str] = None) -> None:
+    def __init__(self, obj: Any, method: Callable, name: str | None = None) -> None:
         if name is None:
             name = method.__name__
         self.object = obj
@@ -274,7 +277,7 @@ class MethodWrapper:
 #   is not needed, the remaining bit is now used inline in AddMethod.
 
 
-def AddMethod(obj, function: Callable, name: Optional[str] = None) -> None:
+def AddMethod(obj, function: Callable, name: str | None = None) -> None:
     """Add a method to an object.
 
     Adds *function* to *obj* if *obj* is a class object.
@@ -313,7 +316,7 @@ def AddMethod(obj, function: Callable, name: Optional[str] = None) -> None:
             function.__code__, function.__globals__, name, function.__defaults__
         )
 
-    method: Union[MethodType, MethodWrapper, Callable]
+    method: MethodType | MethodWrapper | Callable
 
     if hasattr(obj, '__class__') and obj.__class__ is not type:
         # obj is an instance, so it gets a bound method.
@@ -328,6 +331,15 @@ def AddMethod(obj, function: Callable, name: Optional[str] = None) -> None:
 
     setattr(obj, name, method)
 
+
+# This routine is used to validate that a construction var name can be used
+# as a Python identifier, which we require. However, Python 3 introduced an
+# isidentifier() string method so there's really not any need for it now.
+_is_valid_var_re = re.compile(r'[_a-zA-Z]\w*$')
+
+def is_valid_construction_var(varstr: str) -> bool:
+    """Return True if *varstr* is a legitimate name of a construction variable."""
+    return bool(_is_valid_var_re.match(varstr))
 
 # Local Variables:
 # tab-width:4

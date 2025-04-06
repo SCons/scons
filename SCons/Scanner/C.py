@@ -28,6 +28,8 @@ CConditionalScanner, which must be explicitly selected by calling
 add_scanner() for each affected suffix.
 """
 
+from typing import Dict
+
 import SCons.Node.FS
 import SCons.cpp
 import SCons.Util
@@ -65,32 +67,85 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
             self.missing.append((file, self.current_file))
             return ''
 
-def dictify_CPPDEFINES(env) -> dict:
-    """Returns CPPDEFINES converted to a dict.
+def dictify_CPPDEFINES(env, replace: bool = False) -> dict:
+    """Return CPPDEFINES converted to a dict for preprocessor emulation.
 
-    This should be similar to :func:`~SCons.Defaults.processDefines`.
-    Unfortunately, we can't do the simple thing of calling that routine and
-    passing the result to the dict() constructor, because it turns the defines
-    into a list of "name=value" pairs, which the dict constructor won't
-    consume correctly.  Also cannot just call dict on CPPDEFINES itself - it's
-    fine if it's stored in the converted form (currently deque of tuples), but
-    CPPDEFINES could be in other formats too.
+    The concept is similar to :func:`~SCons.Defaults.processDefines`:
+    turn the values stored in an internal form in ``env['CPPDEFINES']``
+    into one needed for a specific context - in this case the cpp-like
+    work the C/C++ scanner will do. We can't reuse ``processDefines``
+    output as that's a list of strings for the command line. We also can't
+    pass the ``CPPDEFINES`` variable directly to the ``dict`` constructor,
+    as SCons allows it to be stored in several different ways - it's only
+    after ``Append`` and relatives has been called we know for sure it will
+    be a deque of tuples.
 
-    So we have to do all the work here - keep concepts in sync with
-    ``processDefines``.
+    If requested (*replace* is true), simulate some of the macro
+    replacement that would take place if an actual preprocessor ran,
+    to avoid some conditional inclusions comeing out wrong.  A bit
+    of an edge case, but does happen (GH #4623). See 6.10.5 in the C
+    standard and 15.6 in the C++ standard).
+
+    Args:
+        replace: if true, simulate macro replacement
+
+    .. versionchanged:: 4.9.0
+       Simple macro replacement added, and *replace* arg to enable it.
     """
+    def _replace(mapping: Dict) -> Dict:
+        """Simplistic macro replacer for dictify_CPPDEFINES.
+
+        Scan *mapping* for a value that is the same as a key in the dict,
+        and replace with the value of that key; the process is repeated a few
+        times, but not forever in case someone left a case that can't be
+        fully resolved.  This is a cheap approximation of the preprocessor's
+        macro replacement rules with no smarts - it doesn't "look inside"
+        the values, so only triggers on object-like macros, not on
+        function-like macros, and will not work on complex values, e.g.
+        a value like ``(1UL << PR_MTE_TCF_SHIFT)`` would not have
+        ``PR_MTE_TCF_SHIFT`` replaced if that was also a key in ``CPPDEFINES``.
+
+        Args:
+            mapping: a dictionary representing macro names and replacements.
+
+        Returns:
+            a dictionary with replacements made.
+        """
+        old_ns = mapping
+        loops = 0
+        while loops < 5:  # don't recurse forever in case there's circular data
+            # this was originally written as a dict comprehension, but unrolling
+            # lets us add a finer-grained check for whether another loop is
+            # needed, rather than comparing two dicts to see if one changed.
+            again = False
+            ns = {}
+            for k, v in old_ns.items():
+                if v in old_ns:
+                    ns[k] = old_ns[v]
+                    if not again and ns[k] != v:
+                        again = True
+                else:
+                    ns[k] = v
+            if not again:
+                break
+            old_ns = ns
+            loops += 1
+        return ns
+
     cppdefines = env.get('CPPDEFINES', {})
-    result = {}
-    if cppdefines is None:
-        return result
+    if not cppdefines:
+        return {}
 
     if SCons.Util.is_Tuple(cppdefines):
+        # single macro defined in a tuple
         try:
             return {cppdefines[0]: cppdefines[1]}
         except IndexError:
             return {cppdefines[0]: None}
 
     if SCons.Util.is_Sequence(cppdefines):
+        # multiple (presumably) macro defines in a deque, list, etc.
+        result = {}
         for c in cppdefines:
             if SCons.Util.is_Sequence(c):
                 try:
@@ -107,9 +162,12 @@ def dictify_CPPDEFINES(env) -> dict:
             else:
                 # don't really know what to do here
                 result[c] = None
-        return result
+        if replace:
+            return _replace(result)
+        return(result)
 
     if SCons.Util.is_String(cppdefines):
+        # single macro define in a string
         try:
             name, value = cppdefines.split('=')
             return {name: value}
@@ -117,6 +175,9 @@ def dictify_CPPDEFINES(env) -> dict:
             return {cppdefines: None}
 
     if SCons.Util.is_Dict(cppdefines):
+        # already in the desired form
+        if replace:
+            return _replace(cppdefines)
         return cppdefines
 
     return {cppdefines: None}
@@ -136,7 +197,9 @@ class SConsCPPScannerWrapper:
 
     def __call__(self, node, env, path=()):
         cpp = SConsCPPScanner(
-            current=node.get_dir(), cpppath=path, dict=dictify_CPPDEFINES(env)
+            current=node.get_dir(),
+            cpppath=path,
+            dict=dictify_CPPDEFINES(env, replace=True),
         )
         result = cpp(node)
         for included, includer in cpp.missing:
@@ -149,6 +212,7 @@ class SConsCPPScannerWrapper:
 
     def recurse_nodes(self, nodes):
         return nodes
+
     def select(self, node):
         return self
 

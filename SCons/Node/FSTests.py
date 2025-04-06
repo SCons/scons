@@ -21,6 +21,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
+
 import SCons.compat
 import os
 import os.path
@@ -29,21 +31,22 @@ import time
 import unittest
 import shutil
 import stat
-from typing import Optional
+from typing import TYPE_CHECKING
 
-from TestCmd import TestCmd, IS_WINDOWS
+from TestCmd import TestCmd, IS_WINDOWS, IS_ROOT
 
 import SCons.Errors
 import SCons.Node.FS
 import SCons.Util
 import SCons.Warnings
 import SCons.Environment
-from SCons.Util.sctyping import ExecutorType
+
+if TYPE_CHECKING:
+    from SCons.Executor import Executor
 
 built_it = None
 
 scanner_count = 0
-
 
 class Scanner:
     def __init__(self, node=None) -> None:
@@ -321,7 +324,7 @@ class VariantDirTestCase(unittest.TestCase):
             def __init__(self, dir_made) -> None:
                 self.dir_made = dir_made
 
-            def __call__(self, target, source, env, executor: Optional[ExecutorType] = None) -> None:
+            def __call__(self, target, source, env, executor: Executor | None = None) -> None:
                 if executor:
                     target = executor.get_all_targets()
                     source = executor.get_all_sources()
@@ -513,7 +516,7 @@ class VariantDirTestCase(unittest.TestCase):
             # Disable symlink and link for now in win32.
             # We don't have a consistant plan to make these work as yet
             # They are only supported with PY3
-            if sys.platform == 'win32':
+            if IS_WINDOWS:
                 real_symlink = None
                 real_link = None
 
@@ -706,7 +709,7 @@ class BaseTestCase(_tempdirTestCase):
         nonexistent = fs.Entry('nonexistent')
         assert not nonexistent.isfile()
 
-    @unittest.skipUnless(sys.platform != 'win32' and hasattr(os, 'symlink'),
+    @unittest.skipIf(IS_WINDOWS or not hasattr(os, 'symlink'),
                          "symlink is not used on Windows")
     def test_islink(self) -> None:
         """Test the Base.islink() method"""
@@ -771,6 +774,7 @@ class FileNodeInfoTestCase(_tempdirTestCase):
 
         ni.update(fff)
 
+        # TODO: flip this to st.st_mtime when Node/FS.py does
         mtime = st[stat.ST_MTIME]
         assert ni.timestamp == mtime, (ni.timestamp, mtime)
         size = st.st_size
@@ -783,6 +787,7 @@ class FileNodeInfoTestCase(_tempdirTestCase):
 
         st = os.stat('fff')
 
+        # TODO: flip this to st.st_mtime when Node/FS.py does
         mtime = st[stat.ST_MTIME]
         assert ni.timestamp != mtime, (ni.timestamp, mtime)
         size = st.st_size
@@ -958,6 +963,8 @@ class FSTestCase(_tempdirTestCase):
         This test case handles all of the file system node
         tests in one environment, so we don't have to set up a
         complicated directory structure for each test individually.
+        This isn't ideal: normally you want to separate tests a bit
+        more to make it easier to debug and not fail too fast.
         """
         test = self.test
 
@@ -1449,7 +1456,7 @@ class FSTestCase(_tempdirTestCase):
         except SyntaxError:
             assert c == ""
 
-        if sys.platform != 'win32' and hasattr(os, 'symlink'):
+        if not IS_WINDOWS and hasattr(os, 'symlink'):
             os.symlink('nonexistent', test.workpath('dangling_symlink'))
             e = fs.Entry('dangling_symlink')
             c = e.get_contents()
@@ -1541,7 +1548,7 @@ class FSTestCase(_tempdirTestCase):
         assert r, r
         assert not os.path.exists(test.workpath('exists')), "exists was not removed"
 
-        if sys.platform != 'win32' and hasattr(os, 'symlink'):
+        if not IS_WINDOWS and hasattr(os, 'symlink'):
             symlink = test.workpath('symlink')
             os.symlink(test.workpath('does_not_exist'), symlink)
             assert os.path.islink(symlink)
@@ -1550,26 +1557,29 @@ class FSTestCase(_tempdirTestCase):
             assert r, r
             assert not os.path.islink(symlink), "symlink was not removed"
 
-        test.write('can_not_remove', "can_not_remove\n")
-        test.writable(test.workpath('.'), 0)
-        fp = open(test.workpath('can_not_remove'))
-
-        f = fs.File('can_not_remove')
-        exc_caught = 0
-        try:
-            r = f.remove()
-        except OSError:
-            exc_caught = 1
-
-        fp.close()
-
-        assert exc_caught, "Should have caught an OSError, r = " + str(r)
-
         f = fs.Entry('foo/bar/baz')
         assert f.for_signature() == 'baz', f.for_signature()
         assert f.get_string(0) == os.path.normpath('foo/bar/baz'), \
             f.get_string(0)
         assert f.get_string(1) == 'baz', f.get_string(1)
+
+
+    @unittest.skipIf(IS_ROOT, "Skip file removal in protected dir if running as root.")
+    def test_remove_fail(self) -> None:
+        """Test failure when removing a file where permissions don't allow.
+
+        Split from :math:`test_runTest` to be able to skip on root.
+        We want to be able to skip only this one testcase and run the rest.
+        """
+        test = self.test
+        fs = SCons.Node.FS.FS()
+        test.write('can_not_remove', "can_not_remove\n")
+        test.writable(test.workpath('.'), False)
+        with open(test.workpath('can_not_remove')):
+            f = fs.File('can_not_remove')
+            with self.assertRaises(OSError, msg="Should have caught an OSError"):
+                r = f.remove()
+
 
     def test_drive_letters(self) -> None:
         """Test drive-letter look-ups"""
@@ -1847,7 +1857,7 @@ class FSTestCase(_tempdirTestCase):
         d = root._lookup_abs('/tmp/foo-nonexistent/nonexistent-dir', SCons.Node.FS.Dir)
         assert d.__class__ == SCons.Node.FS.Dir, str(d.__class__)
 
-    @unittest.skipUnless(sys.platform == "win32", "requires Windows")
+    @unittest.skipUnless(IS_WINDOWS, "requires Windows")
     def test_lookup_uncpath(self) -> None:
         """Testing looking up a UNC path on Windows"""
         test = self.test
@@ -1859,13 +1869,13 @@ class FSTestCase(_tempdirTestCase):
         assert str(f) == r'\\servername\C$\foo', \
             'UNC path %s got looked up as %s' % (path, f)
 
-    @unittest.skipUnless(sys.platform.startswith == "win32", "requires Windows")
+    @unittest.skipUnless(IS_WINDOWS, "requires Windows")
     def test_unc_drive_letter(self) -> None:
         """Test drive-letter lookup for windows UNC-style directories"""
         share = self.fs.Dir(r'\\SERVER\SHARE\Directory')
         assert str(share) == r'\\SERVER\SHARE\Directory', str(share)
 
-    @unittest.skipUnless(sys.platform == "win32", "requires Windows")
+    @unittest.skipUnless(IS_WINDOWS, "requires Windows")
     def test_UNC_dirs_2689(self) -> None:
         """Test some UNC dirs that printed incorrectly and/or caused
         infinite recursion errors prior to r5180 (SCons 2.1)."""
@@ -1928,7 +1938,7 @@ class FSTestCase(_tempdirTestCase):
             d1_d2_f, d3_d4_f, '../../d3/d4/f',
         ]
 
-        if sys.platform in ('win32',):
+        if IS_WINDOWS:
             x_d1 = fs.Dir(r'X:\d1')
             x_d1_d2 = x_d1.Dir('d2')
             y_d1 = fs.Dir(r'Y:\d1')
@@ -2487,7 +2497,7 @@ class EntryTestCase(_tempdirTestCase):
                             result += a
                         return result
 
-                    def signature(self, executor: ExecutorType):
+                    def signature(self, executor: Executor):
                         return self.val + 222
 
                 self.module = M(val)
@@ -3578,7 +3588,7 @@ class prepareTestCase(unittest.TestCase):
             def __init__(self, dir_made) -> None:
                 self.dir_made = dir_made
 
-            def __call__(self, target, source, env, executor: Optional[ExecutorType] = None) -> None:
+            def __call__(self, target, source, env, executor: Executor | None = None) -> None:
                 if executor:
                     target = executor.get_all_targets()
                     source = executor.get_all_sources()

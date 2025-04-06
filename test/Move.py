@@ -36,10 +36,9 @@ test.write('SConstruct', """
 Execute(Move('f1.out', 'f1.in'))
 Execute(Move('File-f1.out', File('f1.in-File')))
 def cat(env, source, target):
-    target = str(target[0])
-    with open(target, "wb") as f:
+    with open(target[0], "wb") as f:
         for src in source:
-            with open(str(src), "rb") as ifp:
+            with open(src, "rb") as ifp:
                 f.write(ifp.read())
 Cat = Action(cat)
 env = Environment()

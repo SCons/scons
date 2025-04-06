@@ -37,10 +37,10 @@ _python_ = TestSCons._python_
 test.write('build.py', r"""\
 import sys
 def build(num, target, source):
-    with open(str(target), 'wb') as f:
+    with open(target, 'wb') as f:
         f.write(bytearray('%s\n'% num,'utf-8'))
-        for s in source:
-            with open(str(s), 'rb') as infp:
+        for src in source:
+            with open(src, 'rb') as infp:
                 f.write(infp.read())
 build(sys.argv[1], sys.argv[2], sys.argv[3:])
 """)

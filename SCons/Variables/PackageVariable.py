@@ -50,8 +50,11 @@ Can be used as a replacement for autoconf's ``--with-xxx=yyy`` ::
         ...  # build with x11 ...
 """
 
+from __future__ import annotations
+
 import os
-from typing import Callable, Optional, Tuple
+import functools
+from typing import Callable
 
 import SCons.Errors
 
@@ -60,28 +63,43 @@ __all__ = ['PackageVariable',]
 ENABLE_STRINGS = ('1', 'yes', 'true',  'on', 'enable', 'search')
 DISABLE_STRINGS = ('0', 'no',  'false', 'off', 'disable')
 
-def _converter(val):
-    """Convert package variables.
+def _converter(val: str | bool, default: str) -> str | bool:
+    """Convert a package variable.
 
-    Returns True or False if one of the recognized truthy or falsy
-    values is seen, else return the value unchanged (expected to
-    be a path string).
+    Returns *val* if it looks like a path string, and ``False`` if it
+    is a disabling string. If *val* is an enabling string, returns
+    *default* unless *default* is an enabling or disabling string,
+    in which case ignore *default* and return ``True``.
+
+    .. versionchanged: 4.9.0
+       Now returns the default in case of a truthy value, matching what the
+       public documentation always claimed, except if the default looks
+       like one of the true/false strings.
     """
-    lval = val.lower()
-    if lval in ENABLE_STRINGS:
-        return True
+    if isinstance(val, bool):
+        # check for non-subst case, so we don't lower() a bool.
+        lval = str(val).lower()
+    else:
+        lval = val.lower()
     if lval in DISABLE_STRINGS:
         return False
+    if lval in ENABLE_STRINGS:
+        # Can't return the default if it is one of the enable/disable strings;
+        # test code expects a bool.
+        if default in ENABLE_STRINGS + DISABLE_STRINGS:
+            return True
+        else:
+            return default
     return val
 
 
-def _validator(key, val, env, searchfunc) -> None:
+def _validator(key: str, val, env, searchfunc) -> None:
     """Validate package variable for valid path.
 
     Checks that if a path is given as the value, that pathname actually exists.
     """
-    # NOTE: searchfunc is currently undocumented and unsupported
     if env[key] is True:
+        # NOTE: searchfunc is not in the documentation.
         if searchfunc:
             env[key] = searchfunc(key, val)
             # TODO: need to check path, or be sure searchfunc raises.
@@ -92,29 +110,24 @@ def _validator(key, val, env, searchfunc) -> None:
 
 # lint: W0622: Redefining built-in 'help' (redefined-builtin)
 def PackageVariable(
-    key: str, help: str, default, searchfunc: Optional[Callable] = None
-) -> Tuple[str, str, str, Callable, Callable]:
+    key: str, help: str, default, searchfunc: Callable | None = None
+) -> tuple[str, str, str, Callable, Callable]:
     """Return a tuple describing a package list SCons Variable.
 
     The input parameters describe a 'package list' variable. Returns
     a tuple with the correct converter and validator appended.
     The result is usable as input to :meth:`~SCons.Variables.Variables.Add`.
 
-    A 'package list' variable may either be a truthy string from
+    A 'package list' variable may be specified as a truthy string from
     :const:`ENABLE_STRINGS`, a falsy string from
-    :const:`DISABLE_STRINGS`, or a pathname string.
+    :const:`DISABLE_STRINGS`, or as a pathname string.
     This information is appended to *help* using only one string
     each for truthy/falsy.
     """
-    # NB: searchfunc is currently undocumented and unsupported
     help = '\n    '.join((help, f'( yes | no | /path/to/{key} )'))
-    return (
-        key,
-        help,
-        default,
-        lambda k, v, e: _validator(k, v, e, searchfunc),
-        _converter,
-    )
+    validator = functools.partial(_validator, searchfunc=searchfunc)
+    converter = functools.partial(_converter, default=default)
+    return key, help, default, validator, converter
 
 # Local Variables:
 # tab-width:4

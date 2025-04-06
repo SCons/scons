@@ -32,17 +32,19 @@ Usage example::
         ...
 """
 
-from typing import Tuple, Callable
+from __future__ import annotations
+
+from typing import Callable
 
 import SCons.Errors
 
 __all__ = ['BoolVariable',]
 
-TRUE_STRINGS = ('y', 'yes', 'true', 't', '1', 'on' , 'all')
+TRUE_STRINGS = ('y', 'yes', 'true', 't', '1', 'on', 'all')
 FALSE_STRINGS = ('n', 'no', 'false', 'f', '0', 'off', 'none')
 
 
-def _text2bool(val: str) -> bool:
+def _text2bool(val: str | bool) -> bool:
     """Convert boolean-like string to boolean.
 
     If *val* looks like it expresses a bool-like value, based on
@@ -54,6 +56,9 @@ def _text2bool(val: str) -> bool:
     Raises:
         ValueError: if *val* cannot be converted to boolean.
     """
+    if isinstance(val, bool):
+        # mainly for the subst=False case: default might be a bool
+        return val
     lval = val.lower()
     if lval in TRUE_STRINGS:
         return True
@@ -63,10 +68,10 @@ def _text2bool(val: str) -> bool:
     raise ValueError(f"Invalid value for boolean variable: {val!r}")
 
 
-def _validator(key, val, env) -> None:
+def _validator(key: str, val, env) -> None:
     """Validate that the value of *key* in *env* is a boolean.
 
-    Parmaeter *val* is not used in the check.
+    Parameter *val* is not used in the check.
 
     Usable as a validator function for SCons Variables.
 
@@ -80,7 +85,7 @@ def _validator(key, val, env) -> None:
         raise SCons.Errors.UserError(msg) from None
 
 # lint: W0622: Redefining built-in 'help' (redefined-builtin)
-def BoolVariable(key, help: str, default) -> Tuple[str, str, str, Callable, Callable]:
+def BoolVariable(key, help: str, default) -> tuple[str, str, str, Callable, Callable]:
     """Return a tuple describing a boolean SCons Variable.
 
     The input parameters describe a boolean variable, using a string

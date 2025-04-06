@@ -41,7 +41,7 @@
 </refnamediv>
 <refsynopsisdiv id='synopsis'>
 <cmdsynopsis>
-  <command>scons-time</command>    
+  <command>scons-time</command>
     <arg choice='plain'><replaceable>subcommand</replaceable></arg>
     <arg choice='opt' rep='repeat'><replaceable>options</replaceable></arg>
     <arg choice='opt' rep='repeat'><replaceable>arguments</replaceable></arg>
@@ -129,7 +129,7 @@
 </refsect1>
 
 <refsect1 id='description'><title>DESCRIPTION</title>
-<para>The 
+<para>The
 <command>scons-time</command>
 command runs an SCons configuration
 through a standard set of profiled timings
@@ -703,7 +703,7 @@ and processing the SConscript files.</para>
   <term>Full build</term>
   <listitem>
 <para>SCons is run to build everything specified in the configuration.
-Specific targets to be passed in on the command l ine
+Specific targets to be passed in on the command line
 may be specified by the
 <emphasis role="bold">targets</emphasis>
 keyword in a configuration file; see below for details.</para>
@@ -800,7 +800,7 @@ if the first argument is a directory,
 the default prefix is the name of the directory;
 if the first argument is an archive
 (tar or zip file),
-the default prefix is the the base name of the archive,
+the default prefix is the base name of the archive,
 that is, what remains after stripping the archive suffix
 (<markup>.tgz</markup>, <markup>.tar.gz</markup> or <markup>.zip</markup>).</para>
   </listitem>
@@ -984,7 +984,7 @@ value:
 <emphasis role="bold">SConscripts</emphasis>
 (total execution time for the SConscript files themselves),
 <emphasis role="bold">SCons</emphasis>
-(exectuion time in SCons code itself)
+(execution time in SCons code itself)
 or
 <emphasis role="bold">commands</emphasis>
 (execution time of the commands and other actions
@@ -1169,7 +1169,7 @@ arguments = ['project-1.2.tgz', 'project-SConscripts.tar']
 # so tell scons-time to chdir there before building.
 subdir = 'project-1.2'
 
-# Set the prefix so output log files and profiles are named:
+# Set the prefix, so output log files and profiles are named:
 #     project-000-[012].{log,prof}
 #     project-001-[012].{log,prof}
 # etc.

@@ -6,7 +6,7 @@ DefaultEnvironment(tools=[])
 env = Environment()
 
 def make_file(target, source, env):
-    with open(str(target[0]), 'w') as f:
+    with open(target[0], 'w') as f:
         f.write('gobldygook')
     with open(str(target[0]) + '_side_effect', 'w') as side_effect:
         side_effect.write('anything')
@@ -23,4 +23,3 @@ SConscript(
     exports={'env':env},
     duplicate=0
 )
-

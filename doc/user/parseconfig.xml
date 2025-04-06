@@ -3,6 +3,9 @@
 <!--
 SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -31,7 +34,7 @@ SPDX-License-Identifier: MIT
  libraries--especially shared libraries--that are available
  on POSIX systems can be complex.
  To help this situation,
- various utilies with names that end in <filename>config</filename>
+ various utilities with names that end in <filename>config</filename>
  return the command-line options for the GNU Compiler Collection (GCC)
  that are needed to build and link against those libraries;
  for example, the command-line options
@@ -52,7 +55,7 @@ SPDX-License-Identifier: MIT
 
  <para>
 
- &SCons; &consvars; have a &f-link-ParseConfig;
+ &SCons; &consenvs; have a &f-link-ParseConfig;
  method that asks the host system to execute a command
  and then configures the appropriate &consvars; based on
  the output of that command.
@@ -99,7 +102,7 @@ scons: `.' is up to date.
 
  In the example above, &SCons; has added the include directory to
  &cv-link-CPPPATH;
- (Depending upon what other flags are emitted by the
+ (depending on what other flags are emitted by the
  <filename>pkg-config</filename> command,
  other variables may have been extended as well.)
 

@@ -6,90 +6,64 @@ Past official release announcements appear at:
 
 ==================================================================
 
-A new SCons release, 4.7.1, is now available on the SCons download page:
+A new SCons release, X.Y.Z, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
+Here is a summary of the changes since 4.9.1:
 
-Here is a summary of the changes since 4.7.0:
 
 NEW FUNCTIONALITY
 -----------------
 
-- GetSConsVersion() added to retrieve the SCons version.
+- List new features (presumably why a checkpoint is being released)
 
 DEPRECATED FUNCTIONALITY
 ------------------------
 
-- Mark Python 3.6 support as deprecated. Use --warn=no-python-version
-  to quiet the warning.
+- List anything that's been deprecated since the last release
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- Dump() with json format selected now recognizes additional compound types
-  (UserDict and UserList), which improves the detail of the display.
-  json output is also sorted, to match the default display.
-- Python 3.13 changes the behavior of isabs() on Windows. Adjust SCons
-  usage of this in NodeInfo classes to avoid test problems.
-- Drop duplicated __getstate__ and __setstate__ methods in AliasNodeInfo,
-  FileNodeInfo and ValueNodeInfo classes, as they are identical to the
-  ones in parent NodeInfoBase and can just be inherited.
-- All exceptions during the execution of an Action are now returned by value
-  rather than by raising an exception, for more consistent behavior.
-  NOTE: With this change, user created Actions should now catch and handle
-  expected exceptions (whereas previously many of these were silently caught
-  and suppressed by the SCons Action exection code).
-- ParseFlags now sorts a --stdlib=libname argument into CXXFLAGS instead
-  of CCFLAGS; the latter variable could cause a compiler warning.
-- The implementation of Variables was slightly refactored, there should
-  not be user-visible changes.
+- List modifications to existing features, where the previous behavior
+  wouldn't actually be considered a bug
+
+- Nodes are now treated as PathLike objects.
 
 FIXES
 -----
 
-- OSErrors are now no longer hidden during the execution of Actions.
-- Improved the conversion of a "foreign" exception from an action
-  into BuildError by making sure our defaults get applied even in
-  corner cases. Fixes Issue #4530
+- Fixed SCons.Variables.PackageVariable to correctly test the default
+  setting against both enable & disable strings. (Fixes #4702)
 
 IMPROVEMENTS
 ------------
 
-- Make the testing framework a little more resilient: the temporary
-  directory for tests now includes a component named "scons" which can
-  be given to antivirus software to exclude.
+- List improvements that wouldn't be visible to the user in the
+  documentation:  performance improvements (describe the circumstances
+  under which they would be observed), or major code cleanups
 
 PACKAGING
 ---------
 
 - List changes in the way SCons is packaged and/or released
 
-
 DOCUMENTATION
 -------------
 
-- Updated Value Node docs.
-- Update manpage for Tools, and for the TOOL variable.
-- Update manpage and user guide for Variables usage.
-- Restructured API Docs build so main package contents are listed
-  before contents of package submodules.
-
-
+- List any significant changes to the documentation (not individual
+  typo fixes, even if they're mentioned in src/CHANGES.txt to give
+  the contributor credit)
 
 DEVELOPMENT
 -----------
 
-- Documentation build now properly passes through skipping the PDF
-  (and EPUB) builds of manpage and user guide; this can also be done
-  manually if directly calling doc/man/SConstruct and doc/user/SConstruct
-  by adding SKIP_PDF=1. This should help with distro packaging of SCons,
-  which now does not need "fop" and other tools to be set up in order to
-  build pdf versions which are then ignored.
-
+- runtest.py once again finds "external" tests, such as the tests for
+  tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.0.1..HEAD
+    git shortlog --no-merges -ns 4.9.1..HEAD

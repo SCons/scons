@@ -3,6 +3,9 @@
 <!--
 SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE sconsdoc [
@@ -459,7 +462,7 @@ kscan = Scanner(
 
     <para>
     One approach for introducing a &Scanner; into the build is in
-    conjunction with a &Builder;.  There are two relvant optional
+    conjunction with a &Builder;.  There are two relevant optional
     parameters we can use when creating a Builder:
     <parameter>source_scanner</parameter> and
     <parameter>target_scanner</parameter>.
@@ -520,7 +523,7 @@ text to include
     <para>
     Running this example would only show that the stub
     <function>build_function</function> is getting called,
-    so some debug prints were added to the scaner function,
+    so some debug prints were added to the scanner function,
     just to show the scanner is being invoked.
     </para>
 
