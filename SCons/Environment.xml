@@ -354,9 +354,6 @@ to be performed
 after the specified
 <parameter>target</parameter>
 has been built.
-<parameter>target</parameter>
-may be a string or Node object,
-or a list of strings or Node objects.
 <parameter>action</parameter> may be
 an Action object, or anything that
 can be converted into an Action object.
@@ -378,7 +375,7 @@ AddPostAction(foo, Chmod('$TARGET', "a-x"))
 </example_commands>
 
 <para>
-If a <parameter>target</parameter> is an Alias target,
+If a <parameter>target</parameter> is an Alias,
 <parameter>action</parameter> is associated with the
 action of the alias, if specified.
 </para>
@@ -398,9 +395,6 @@ to be performed
 before the specified
 <parameter>target</parameter>
 is built.
-<parameter>target</parameter>
-may be a string or Node object,
-or a list of strings or Node objects.
 <parameter>action</parameter> may be
 an Action object, or anything that
 can be converted into an Action object.
@@ -446,7 +440,7 @@ gcc -o foo foo.o
 </screen>
 
 <para>
-If a <parameter>target</parameter> is an Alias target,
+If a <parameter>target</parameter> is an Alias,
 <parameter>action</parameter> is associated with the
 action of the alias, if specified.
 </para>
@@ -460,7 +454,7 @@ action of the alias, if specified.
 </arguments>
 <summary>
 <para>
-Create an <firstterm>Alias</firstterm> target that
+Create an <firstterm>Alias</firstterm> node that
 can be used as a reference to zero or more other targets,
 specified by the optional <parameter>source</parameter> parameter.
 Aliases provide a way to give a shorter or more descriptive
