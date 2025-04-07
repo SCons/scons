@@ -408,7 +408,7 @@ def createObjBuilders(env):
                                            suffix='$OBJSUFFIX',
                                            src_builder=['CFile', 'CXXFile'],
                                            source_scanner=SourceFileScanner,
-                                           single_source=1)
+                                           single_source=True)
         env['BUILDERS']['StaticObject'] = static_obj
         env['BUILDERS']['Object'] = static_obj
 
@@ -421,7 +421,7 @@ def createObjBuilders(env):
                                            suffix='$SHOBJSUFFIX',
                                            src_builder=['CFile', 'CXXFile'],
                                            source_scanner=SourceFileScanner,
-                                           single_source=1)
+                                           single_source=True)
         env['BUILDERS']['SharedObject'] = shared_obj
 
     return (static_obj, shared_obj)

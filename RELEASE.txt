@@ -61,12 +61,16 @@ DOCUMENTATION
 DEVELOPMENT
 -----------
 
+- List visible changes in the way SCons is developed
+
 - runtest.py once again finds "external" tests, such as the tests for
   tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
+
+- Improve the descriptive portion of the Builder Methods section in
+  the manpage: reword, reorganize.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
-
 
     git shortlog --no-merges -ns 4.9.1..HEAD
