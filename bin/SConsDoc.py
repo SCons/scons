@@ -3,7 +3,9 @@
 # SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 # SPDX-License-Identifier: MIT
 
-"""Module for handling SCons documentation processing.
+"""
+SCons Documentation Processing module
+=====================================
 
 This module parses home-brew XML files that document important SCons
 components.  Currently it handles Builders, Environment functions/methods,
@@ -18,6 +20,8 @@ little easier.
 
 Builder example:
 
+.. code-block:: xml
+
     <builder name="BUILDER">
     <summary>
     <para>This is the summary description of an SCons Builder.
@@ -29,7 +33,7 @@ Builder example:
     interpolated by specifying the &b-link-BUILDER; element.
     </para>
 
-    Unlike normal XML, blank lines are significant in these
+    Unlike vanilla DocBook, blank lines are significant in these
     descriptions and serve to separate paragraphs.
     They'll get replaced in DocBook output with appropriate tags
     to indicate a new paragraph.
@@ -41,6 +45,8 @@ Builder example:
     </builder>
 
 Function example:
+
+.. code-block:: xml
 
     <scons_function name="FUNCTION">
     <arguments signature="SIGTYPE">
@@ -74,6 +80,8 @@ Function example:
 
 Construction variable example:
 
+.. code-block:: xml
+
     <cvar name="VARIABLE">
     <summary>
     <para>This is the summary description of a construction variable.
@@ -92,6 +100,8 @@ Construction variable example:
     </cvar>
 
 Tool example:
+
+.. code-block:: xml
 
     <tool name="TOOL">
     <summary>
@@ -223,7 +233,7 @@ class DoctypeDeclaration:
         self.entries.append(DoctypeEntity(name, uri))
 
     def createDoctype(self):
-        content = '<!DOCTYPE %s [\n' % self.name
+        content = f'<!DOCTYPE {self.name} [\n'
         for e in self.entries:
             content += e.getEntityString()
         content += ']>\n'
@@ -318,7 +328,7 @@ class TreeFactory:
 
     @staticmethod
     def decorateWithHeader(root):
-        root.attrib["{"+xsi+"}schemaLocation"] = "%s %s/scons.xsd" % (dbxsd, dbxsd)
+        root.attrib["{"+xsi+"}schemaLocation"] = f"{dbxsd} {dbxsd}/scons.xsd"
         return root
 
     def newXmlTree(self, root):
@@ -340,22 +350,22 @@ class TreeFactory:
         try:
             doc = etree.parse(fpath)
         except Exception as e:
-            print("ERROR: %s fails to parse:"%fpath)
+            print(f"ERROR: {fpath} fails to parse:")
             print(e)
             return False
         doc.xinclude()
         try:
             TreeFactory.xmlschema.assertValid(doc)
         except etree.XMLSchemaValidateError as e:
-            print("ERROR: %s fails to validate:" % fpath)
+            print(f"ERROR: {fpath} fails to validate:")
             print(e)
             print(e.error_log.last_error.message)
-            print("In file: [%s]" % e.error_log.last_error.filename)
+            print(f"In file: [{e.error_log.last_error.filename}]")
             print("Line   : %d" % e.error_log.last_error.line)
             return False
 
         except Exception as e:
-            print("ERROR: %s fails to validate:" % fpath)
+            print(f"ERROR: {fpath} fails to validate:")
             print(e)
 
             return False
@@ -365,14 +375,14 @@ class TreeFactory:
     def findAll(root, tag, ns=None, xp_ctxt=None, nsmap=None):
         expression = ".//{%s}%s" % (nsmap[ns], tag)
         if not ns or not nsmap:
-            expression = ".//%s" % tag
+            expression = f".//{tag}"
         return root.findall(expression)
 
     @staticmethod
     def findAllChildrenOf(root, tag, ns=None, xp_ctxt=None, nsmap=None):
         expression = "./{%s}%s/*" % (nsmap[ns], tag)
         if not ns or not nsmap:
-            expression = "./%s/*" % tag
+            expression = f"./{tag}/*"
         return root.findall(expression)
 
     @staticmethod
@@ -495,7 +505,7 @@ class Arguments:
         result = []
         for m in re.findall(r'([a-zA-Z/_]+|[^a-zA-Z/_]+)', s):
             if ' ' in m:
-                m = '"%s"' % m
+                m = f'"{m}"'
             result.append(m)
         return ' '.join(result)
     def append(self, data):
