@@ -104,7 +104,7 @@ class BuildCommandLine:
         NEW DATE WILL BE INSERTED HERE
         """
 
-        min = (time.daylight and time.altzone or time.timezone) // 60
+        min = (time.altzone if time.daylight else time.timezone) // 60
         hr = min // 60
         min = -(min % 60 + hr * 100)
         # TODO: is it better to take the date of last rev? Externally:

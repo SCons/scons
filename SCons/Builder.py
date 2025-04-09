@@ -701,7 +701,7 @@ class BuilderBase:
             src_suffix = []
         elif not SCons.Util.is_List(src_suffix):
             src_suffix = [ src_suffix ]
-        self.src_suffix = [callable(suf) and suf or self.adjust_suffix(suf) for suf in src_suffix]
+        self.src_suffix = [suf if callable(suf) else self.adjust_suffix(suf) for suf in src_suffix]
 
     def get_src_suffix(self, env):
         """Get the first src_suffix in the list of src_suffixes."""

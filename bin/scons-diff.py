@@ -90,8 +90,10 @@ def simple_diff(a, b, fromfile='', tofile='',
     output like the simple, unadorned 'diff" command.
     """
     sm = difflib.SequenceMatcher(None, a, b)
+
     def comma(x1, x2):
-        return x1+1 == x2 and str(x2) or '%s,%s' % (x1+1, x2)
+        return x1 + 1 == str(x2) if x2 else '%s,%s' % (x1 + 1, x2)
+
     result = []
     for op, a1, a2, b1, b2 in sm.get_opcodes():
         if op == 'delete':
