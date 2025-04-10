@@ -64,6 +64,10 @@ DEVELOPMENT
 - runtest.py once again finds "external" tests, such as the tests for
   tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
 
+- Fix a couple of unit tests to not fail with Python 3.14. These involve
+  expectations for bytecode and error message contents; there was no problem
+  with SCons itself using 3.14 in its current (just-before-freeze) state.
+
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
