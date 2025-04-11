@@ -2255,7 +2255,11 @@ class ObjectContentsTestCase(unittest.TestCase):
             (3, 11): (bytearray(b'3, 3, 0, 0,(),(),(\x97\x00|\x00S\x00),(),()'),),
             (3, 12): (bytearray(b'3, 3, 0, 0,(),(),(\x97\x00|\x00S\x00),(),()'),),
             (3, 13): (bytearray(b'3, 3, 0, 0,(),(),(\x95\x00U\x00$\x00),(),()'),),
-            (3, 14): (bytearray(b'3, 3, 0, 0,(),(),(\x80\x00R\x00"\x00),(),()'),),
+            (3, 14): (bytearray(
+                b'3, 3, 0, 0,(),(),(\x80\x00T\x00"\x00),(),()'
+                if sys.platform == 'win32'
+                else b'3, 3, 0, 0,(),(),(\x80\x00R\x00"\x00),(),()'
+            ),),
         }
 
         c = SCons.Action._function_contents(func1)
@@ -2295,12 +2299,12 @@ class ObjectContentsTestCase(unittest.TestCase):
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x95\x00S\x01U\x00l\x00\x00\x00\x00\x00\x00\x00\x00\x00S\x02U\x00l\x01\x00\x00\x00\x00\x00\x00\x00\x00g\x00),(),(),2, 2, 0, 0,(),(),(\x95\x00g\x00),(),()}}{{{a=a,b=b}}}"
             ),
             (3, 14): bytearray(
-                b'{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x80\x00P\x00R\x00j\x00\x00\x00\x00\x00\x00\x00\x00\x00P\x01R\x00j\x01\x00\x00\x00\x00\x00\x00\x00\x00P\x02"\x00),(),(),2, 2, 0, 0,(),(),(\x80\x00P\x00"\x00),(),()}}{{{a=a,b=b}}}'
+                b'{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x80\x00P\x00T\x00l\x00\x00\x00\x00\x00\x00\x00\x00\x00P\x01T\x00l\x01\x00\x00\x00\x00\x00\x00\x00\x00P\x02"\x00),(),(),2, 2, 0, 0,(),(),(\x80\x00P\x00"\x00),(),()}}{{{a=a,b=b}}}'
+                if sys.platform == 'win32'
+                else b'{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x80\x00P\x00R\x00j\x00\x00\x00\x00\x00\x00\x00\x00\x00P\x01R\x00j\x01\x00\x00\x00\x00\x00\x00\x00\x00P\x02"\x00),(),(),2, 2, 0, 0,(),(),(\x80\x00P\x00"\x00),(),()}}{{{a=a,b=b}}}'
             ),
         }
-
-        # self.assertEqual(c, expected[sys.version_info[:2]])
-        assert c == expected[sys.version_info[:2]], c
+        self.assertEqual(c, expected[sys.version_info[:2]])
 
     def test_code_contents(self) -> None:
         """Test that Action._code_contents works"""
@@ -2332,7 +2336,9 @@ class ObjectContentsTestCase(unittest.TestCase):
                 b'0, 0, 0, 0,(Hello, World!),(print),(\x95\x00\\\x00"\x00S\x005\x01\x00\x00\x00\x00\x00\x00 \x00g\x01)'
             ),
             (3, 14): bytearray(
-                b'0, 0, 0, 0,(Hello, World!),(print),(\x80\x00Y\x00 \x00P\x002\x01\x00\x00\x00\x00\x00\x00\x1e\x00P\x01"\x00)'
+                b'0, 0, 0, 0,(Hello, World!),(print),(\x80\x00[\x00 \x00P\x002\x01\x00\x00\x00\x00\x00\x00\x1e\x00P\x01"\x00)'
+                if sys.platform == 'win32'
+                else b'0, 0, 0, 0,(Hello, World!),(print),(\x80\x00Y\x00 \x00P\x002\x01\x00\x00\x00\x00\x00\x00\x1e\x00P\x01"\x00)'
             ),
         }
 
