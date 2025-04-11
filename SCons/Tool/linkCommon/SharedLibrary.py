@@ -202,7 +202,7 @@ def setup_shared_lib_logic(env) -> None:
 
     # Note this is gnu style
     env["SHLIBSONAMEFLAGS"] = "-Wl,-soname=$_SHLIBSONAME"
-    env["_SHLIBVERSION"] = "${SHLIBVERSION and '.'+SHLIBVERSION or ''}"
+    env["_SHLIBVERSION"] = "${'.' + SHLIBVERSION  if SHLIBVERSION else ''}"
     env["_SHLIBVERSIONFLAGS"] = "$SHLIBVERSIONFLAGS -Wl,-soname=$_SHLIBSONAME"
 
     env["SHLIBEMITTER"] = [lib_emitter, shlib_symlink_emitter]

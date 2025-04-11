@@ -31,6 +31,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
 - Nodes are now treated as PathLike objects.
 
+- Replace use of old conditional expression idioms with the official
+  one from PEP 308 introduced in Python 2.5 (2006). The idiom being
+  replaced (using and/or) is regarded as error prone.
+
 FIXES
 -----
 
