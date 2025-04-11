@@ -72,12 +72,12 @@ def msvc_set_PCHPDBFLAGS(env) -> None:
     if env.get('MSVC_VERSION',False):
         maj, min = msvc_version_to_maj_min(env['MSVC_VERSION'])
         if maj < 8:
-            env['PCHPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Yd") or ""}'])
+            env['PCHPDBFLAGS'] = SCons.Util.CLVar(['${"/Yd" if PDB else ""}'])
         else:
             env['PCHPDBFLAGS'] = ''
     else:
         # Default if we can't determine which version of MSVC we're using
-        env['PCHPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Yd") or ""}'])
+        env['PCHPDBFLAGS'] = SCons.Util.CLVar(['${"/Yd" if PDB else ""}'])
 
 
 def pch_emitter(target, source, env):
@@ -143,7 +143,7 @@ def gen_ccpchflags(env, target, source, for_signature):
     pch_node = get_pch_node(env, target, source)
     if not pch_node:
         return ''
-        
+
     return SCons.Util.CLVar(["/Yu$PCHSTOP", "/Fp%s" % pch_node])
 
 pch_action = SCons.Action.Action('$PCHCOM', '$PCHCOMSTR')
@@ -256,7 +256,7 @@ def generate(env) -> None:
         static_obj.add_emitter(suffix, static_object_emitter)
         shared_obj.add_emitter(suffix, shared_object_emitter)
 
-    env['CCPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Z7") or ""}'])
+    env['CCPDBFLAGS'] = SCons.Util.CLVar(['${"/Z7" if PDB else ""}'])
     env['CCPCHFLAGS'] = gen_ccpchflags
     env['_MSVC_OUTPUT_FLAG'] = msvc_output_flag
     env['_CCCOMCOM']  = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $CCPCHFLAGS $CCPDBFLAGS'

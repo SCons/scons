@@ -122,7 +122,7 @@ scons: done building targets.
 def runtest(arguments, expectedOutFile, expectedRebuild=True, stderr=""):
     test.run(
         arguments=arguments,
-        stdout=expectedRebuild and rebuildstr or nobuildstr,
+        stdout=rebuildstr if expectedRebuild else nobuildstr,
         stderr="",
     )
 
