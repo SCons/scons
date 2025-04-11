@@ -27,6 +27,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - runtest.py once again finds "external" tests, such as the tests for
       tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
     - Clarify how pre/post actions on an alias work.
+    - Tweak the two doc-generation modules. The significant change is
+      turning the introductory comment in bin/SConsExamples into a docstring
+      that can be rendered by Sphinx, and updating that text. The rest is
+      minor fiddling like switching to f-strings small doc changes.
     - Fix a couple of unit tests to not fail with Python 3.14. These involve
       bytecode and error message contents, and there was no problem with
       SCons itself using 3.14 in its current (just-before-freeze) state.
