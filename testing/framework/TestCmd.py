@@ -699,7 +699,7 @@ def simple_diff(
     sm = difflib.SequenceMatcher(None, a, b)
 
     def comma(x1, x2):
-        return x1 + 1 == x2 and str(x2) or f'{x1 + 1},{x2}'
+        return str(x2) if x1 + 1 == x2 else f'{x1 + 1},{x2}'
 
     for op, a1, a2, b1, b2 in sm.get_opcodes():
         if op == 'delete':
