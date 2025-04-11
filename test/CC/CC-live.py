@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,61 +22,41 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+Test the C compiler name variable $CC.
+This is a live test, calling the detected C compiler via a wrapper.
+"""
 
 import os
-
+import sys
 import TestSCons
 
 _python_ = TestSCons._python_
+_exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
+test.dir_fixture('CC-fixture')
 test.file_fixture('wrapper.py')
 
-test.write('SConstruct', """
+test.write('SConstruct', f"""\
+DefaultEnvironment(tools=[])
 foo = Environment()
-shcxx = foo.Dictionary('SHCXX')
-bar = Environment(SHCXX = r'%(_python_)s wrapper.py ' + shcxx)
-foo.SharedObject(target = 'foo/foo', source = 'foo.cpp')
-bar.SharedObject(target = 'bar/bar', source = 'bar.cpp')
-""" % locals())
+bar = Environment()
 
-test.write('foo.cpp', r"""
-#include <stdio.h>
-#include <stdlib.h>
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = (char *)"--";
-        printf("foo.c\n");
-        exit (0);
-}
+bar['CC'] = r'{_python_} wrapper.py ' + foo['CC']
+foo.Program(target='foo', source='foo.c')
+bar.Program(target='bar', source='bar.c')
 """)
 
-test.write('bar.cpp', r"""
-#include <stdio.h>
-#include <stdlib.h>
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = (char *)"--";
-        printf("foo.c\n");
-        exit (0);
-}
-""")
+test.run(arguments='foo' + _exe)
+test.must_not_exist(test.workpath('wrapper.out'))
+test.up_to_date(arguments='foo' + _exe)
 
-
-test.run(arguments = 'foo')
-
-test.fail_test(os.path.exists(test.workpath('wrapper.out')))
-
-test.run(arguments = 'bar')
-
+test.run(arguments='bar' + _exe)
 test.must_match('wrapper.out', "wrapper.py\n", mode='r')
-# test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+test.up_to_date(arguments='bar' + _exe)
 
 test.pass_test()
 

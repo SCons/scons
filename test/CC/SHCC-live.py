@@ -23,6 +23,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+Test the C shared-object compiler name variable $SHCC.
+This is a live test, calling the detected C compiler via a wrapper.
+"""
 
 import TestSCons
 
@@ -31,49 +35,23 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 test.file_fixture('wrapper.py')
+test.file_fixture('CC-fixture/foo.c')
+test.file_fixture('CC-fixture/bar.c')
 
-test.write('SConstruct', """
+test.write('SConstruct', f"""\
 DefaultEnvironment(tools=[])
 foo = Environment()
+
 shcc = foo['SHCC']
-bar = Environment(SHCC = r'%(_python_)s wrapper.py ' + shcc)
-foo.SharedObject(target = 'foo/foo', source = 'foo.c')
-bar.SharedObject(target = 'bar/bar', source = 'bar.c')
-""" % locals())
-
-test.write('foo.c', r"""
-#include <stdio.h>
-#include <stdlib.h>
-
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("foo.c\n");
-        exit (0);
-}
+bar = Environment(SHCC=r'{_python_} wrapper.py ' + shcc)
+foo.SharedObject(target='foo/foo', source='foo.c')
+bar.SharedObject(target='bar/bar', source='bar.c')
 """)
 
-test.write('bar.c', r"""
-#include <stdio.h>
-#include <stdlib.h>
-
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("foo.c\n");
-        exit (0);
-}
-""")
-
-
-test.run(arguments = 'foo')
-
+test.run(arguments='foo')
 test.must_not_exist(test.workpath('wrapper.out'))
 
-test.run(arguments = 'bar')
-
+test.run(arguments='bar')
 test.must_match('wrapper.out', "wrapper.py\n", mode='r')
 
 test.pass_test()
