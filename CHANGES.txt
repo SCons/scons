@@ -27,6 +27,18 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - runtest.py once again finds "external" tests, such as the tests for
       tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
     - Clarify how pre/post actions on an alias work.
+    - Rearrange Fortran e2e tests - "live" tests now live in a separate
+      test file and don't share with flags-only mocked tests.
+    - Tweak the two doc-generation modules. The significant change is
+      turning the introductory comment in bin/SConsExamples into a docstring
+      that can be rendered by Sphinx, and updating that text. The rest is
+      minor fiddling like switching to f-strings small doc changes.
+    - Fix a couple of unit tests to not fail with Python 3.14. These involve
+      bytecode and error message contents, and there was no problem with
+      SCons itself using 3.14 in its current (just-before-freeze) state.
+    - Replace use of old conditional expression idioms with the official
+      one from PEP 308 introduced in Python 2.5 (2006). The idiom being
+      replaced (using and/or) is regarded as error prone.
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700

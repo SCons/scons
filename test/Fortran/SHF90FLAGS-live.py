@@ -25,7 +25,7 @@
 
 """
 Test handling of the dialect-specific FLAGS variable for shared objects,
-using a mocked compiler.
+using a live compiler.
 """
 
 import sys
@@ -33,27 +33,56 @@ import sys
 import TestSCons
 
 _python_ = TestSCons._python_
-_obj = TestSCons._shobj
-obj_ = TestSCons.shobj_
-
 test = TestSCons.TestSCons()
+
 # ref: test/Fortran/fixture/myfortran_flags.py
 test.file_fixture(['fixture', 'myfortran_flags.py'])
 
+fc = 'f90'
+if not test.detect_tool(fc):
+    fc = 'gfortran'
+    if not test.detect_tool(fc):
+        test.skip_test('Could not find a f90 tool; skipping test.\n')
+
+test.subdir('x')
+test.write(['x', 'dummy.i'], """\
+# Exists only such that -Ix finds the directory...
+""")
+# ref: test/fixture/wrapper.py
+test.file_fixture('wrapper.py')
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
-env = Environment(SHF77=r'%(_python_)s myfortran_flags.py g77')
-env.Append(SHF77FLAGS='-x')
-env.SharedObject(target='test09', source='test09.f77')
-env.SharedObject(target='test10', source='test10.F77')
+# foo = Environment(SHF90='%(fc)s')
+foo = Environment()
+shf90 = foo.Dictionary('SHF90')
+bar = foo.Clone(SHF90=r'%(_python_)s wrapper.py ' + shf90)
+bar.Append(SHF90FLAGS='-Ix')
+foo.SharedLibrary(target='foo/foo', source='foo.f90')
+bar.SharedLibrary(target='bar/bar', source='bar.f90')
 """ % locals())
 
-test.write('test09.f77', "This is a .f77 file.\n#g77\n")
-test.write('test10.F77', "This is a .F77 file.\n#g77\n")
+test.write('foo.f90', r"""
+      PROGRAM FOO
+      PRINT *,'foo.f90'
+      STOP
+      END
+""")
 
-test.run(arguments='.', stderr=None)
-test.must_match(obj_ + 'test09' + _obj, " -c -x\nThis is a .f77 file.\n")
-test.must_match(obj_ + 'test10' + _obj, " -c -x\nThis is a .F77 file.\n")
+test.write('bar.f90', r"""
+      PROGRAM BAR
+      PRINT *,'bar.f90'
+      STOP
+      END
+""")
+
+test.run(arguments='foo', stderr=None)
+test.must_not_exist('wrapper.out')
+
+if sys.platform.startswith('sunos'):
+    test.run(arguments='bar', stderr=None)
+else:
+    test.run(arguments='bar')
+test.must_match('wrapper.out', "wrapper.py\n")
 
 test.pass_test()
 
