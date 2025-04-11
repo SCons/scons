@@ -54,9 +54,9 @@ stdout = ignored_re.sub('', test.stdout())
 lines = stdout.split('\n')
 lines = [x for x in lines if x[:3] == '  -']
 lines = [x[3:] for x in lines]
-lines = [x[0] == '-' and x[1:] or x for x in lines]
+lines = [x[1:] if x.startswith('-') else x for x in lines]
 options = [x.split()[0] for x in lines]
-options = [x[-1] == ',' and x[:-1] or x for x in options]
+options = [x[:-1] if x.endswith(',') else x for x in options]
 lowered = [x.lower() for x in options]
 ordered = sorted(lowered)
 if lowered != ordered:
@@ -65,7 +65,7 @@ if lowered != ordered:
     test.fail_test()
 
 test.pass_test()
- 
+
 
 # Local Variables:
 # tab-width:4

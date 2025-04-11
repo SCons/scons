@@ -173,7 +173,7 @@ class ReleaseInfo:
         Mon, 05 Jun 2010 21:17:15 -0700
         NEW DATE WILL BE INSERTED HERE
         """
-        min = (time.daylight and time.altzone or time.timezone) // 60
+        min = (time.altzone if time.daylight else time.timezone) // 60
         hr = min // 60
         min = -(min % 60 + hr * 100)
         self.new_date = (time.strftime('%a, %d %b %Y %X', self.release_date + (0, 0, 0))

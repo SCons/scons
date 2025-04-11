@@ -465,19 +465,28 @@ class TreePrinter:
         self.prune = prune
         self.status = status
         self.sLineDraw = sLineDraw
+
     def get_all_children(self, node):
         return node.all_children()
+
     def get_derived_children(self, node):
         children = node.all_children(None)
         return [x for x in children if x.has_builder()]
+
     def display(self, t) -> None:
         if self.derived:
             func = self.get_derived_children
         else:
             func = self.get_all_children
-        s = self.status and 2 or 0
-        SCons.Util.print_tree(t, func, prune=self.prune, showtags=s, lastChild=True, singleLineDraw=self.sLineDraw)
-
+        s = 2 if self.status else 0
+        SCons.Util.print_tree(
+            t,
+            func,
+            prune=self.prune,
+            showtags=s,
+            lastChild=True,
+            singleLineDraw=self.sLineDraw,
+        )
 
 def python_version_string():
     return sys.version.split()[0]

@@ -321,7 +321,7 @@ class TestCommon(TestCmd):
         them.  Exits FAILED if any of the files does not exist or is
         not writable.
         """
-        flist = [is_List(x) and os.path.join(*x) or x for x in files]
+        flist = [os.path.join(*x) if is_List(x) else x for x in files]
         existing, missing = separate_files(flist)
         unwritable = [x for x in existing if not is_writable(x)]
         if missing:
@@ -531,7 +531,7 @@ class TestCommon(TestCmd):
         pathname will be constructed by concatenating them.  Exits FAILED
         if any of the files does not exist.
         """
-        flist = [is_List(x) and os.path.join(*x) or x for x in files]
+        flist = [os.path.join(*x) if is_List(x) else x for x in files]
         missing = [x for x in flist if not os.path.exists(x) and not os.path.islink(x)]
         if missing:
             print("Missing files: `%s'" % "', `".join(missing))
@@ -550,7 +550,7 @@ class TestCommon(TestCmd):
             if is_List(x) or is_Tuple(x):
                 xpath = os.path.join(*x)
             else:
-                xpath = is_Sequence(x) and os.path.join(x) or x
+                xpath = os.path.join(x) if is_Sequence(x) else x
             if glob.glob(xpath):
                 return
             missing.append(xpath)
@@ -669,7 +669,7 @@ class TestCommon(TestCmd):
         which case the pathname will be constructed by concatenating them.
         Exits FAILED if any of the files exists.
         """
-        flist = [is_List(x) and os.path.join(*x) or x for x in files]
+        flist = [os.path.join(*x) if is_List(x) else x for x in files]
         existing = [x for x in flist if os.path.exists(x) or os.path.islink(x)]
         if existing:
             print("Unexpected files exist: `%s'" % "', `".join(existing))
@@ -688,7 +688,7 @@ class TestCommon(TestCmd):
             if is_List(x) or is_Tuple(x):
                 xpath = os.path.join(*x)
             else:
-                xpath = is_Sequence(x) and os.path.join(x) or x
+                xpath = os.path.join(x) if is_Sequence(x) else x
             if glob.glob(xpath):
                 existing.append(xpath)
         if existing:
@@ -719,7 +719,7 @@ class TestCommon(TestCmd):
         them.  Exits FAILED if any of the files does not exist or is
         writable.
         """
-        flist = [is_List(x) and os.path.join(*x) or x for x in files]
+        flist = [os.path.join(*x) if is_List(x) else x for x in files]
         existing, missing = separate_files(flist)
         writable = [file for file in existing if is_writable(file)]
         if missing:

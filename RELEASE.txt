@@ -31,6 +31,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
 - Nodes are now treated as PathLike objects.
 
+- Replace use of old conditional expression idioms with the official
+  one from PEP 308 introduced in Python 2.5 (2006). The idiom being
+  replaced (using and/or) is regarded as error prone.
+
 FIXES
 -----
 
@@ -63,6 +67,10 @@ DEVELOPMENT
 
 - runtest.py once again finds "external" tests, such as the tests for
   tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
+
+- Fix a couple of unit tests to not fail with Python 3.14. These involve
+  expectations for bytecode and error message contents; there was no problem
+  with SCons itself using 3.14 in its current (just-before-freeze) state.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
