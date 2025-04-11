@@ -27,6 +27,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - runtest.py once again finds "external" tests, such as the tests for
       tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
     - Clarify how pre/post actions on an alias work.
+    - Rearrange Fortran e2e tests - "live" tests now live in a separate
+      test file and don't share with flags-only mocked tests.
     - Tweak the two doc-generation modules. The significant change is
       turning the introductory comment in bin/SConsExamples into a docstring
       that can be rendered by Sphinx, and updating that text. The rest is
