@@ -5391,7 +5391,7 @@ the <parameter>validator</parameter> parameter.
   <listitem>
 <para>
 Set up a variable named <parameter>key</parameter>
-to help control the use of a build component,
+to help control a build component,
 such as a software package.
 Similar to a
 <link linkend='v-BoolVariable'><function>BoolVariable</function></link>,
