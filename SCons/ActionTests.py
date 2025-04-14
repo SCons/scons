@@ -2245,17 +2245,24 @@ class ObjectContentsTestCase(unittest.TestCase):
         # we need different expected results per version
         # Note unlike the others, this result is a tuple, use assertIn
         expected = {
-            (3, 7): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),),
-            (3, 8): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),),
-            (3, 9): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),),
+            (3, 7): (bytearray(b"3, 3, 0, 0,(),(),(|\x00S\x00),(),()"),),
+            (3, 8): (bytearray(b"3, 3, 0, 0,(),(),(|\x00S\x00),(),()"),),
+            (3, 9): (bytearray(b"3, 3, 0, 0,(),(),(|\x00S\x00),(),()"),),
             (3, 10): (  # 3.10.1, 3.10.2
-                bytearray(b'3, 3, 0, 0,(N.),(),(|\x00S\x00),(),()'),
-                bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
+                bytearray(b"3, 3, 0, 0,(N.),(),(|\x00S\x00),(),()"),
+                bytearray(b"3, 3, 0, 0,(),(),(|\x00S\x00),(),()"),
             ),
-            (3, 11): (bytearray(b'3, 3, 0, 0,(),(),(\x97\x00|\x00S\x00),(),()'),),
-            (3, 12): (bytearray(b'3, 3, 0, 0,(),(),(\x97\x00|\x00S\x00),(),()'),),
-            (3, 13): (bytearray(b'3, 3, 0, 0,(),(),(\x95\x00U\x00$\x00),(),()'),),
-            (3, 14): (bytearray(b'3, 3, 0, 0,(),(),(\x80\x00R\x00"\x00),(),()'),),
+            (3, 11): (bytearray(b"3, 3, 0, 0,(),(),(\x97\x00|\x00S\x00),(),()"),),
+            (3, 12): (bytearray(b"3, 3, 0, 0,(),(),(\x97\x00|\x00S\x00),(),()"),),
+            (3, 13): (bytearray(b"3, 3, 0, 0,(),(),(\x95\x00U\x00$\x00),(),()"),),
+            (3, 14): (
+                bytearray(
+                    b'3, 3, 0, 0,(),(),(\x80\x00T\x00"\x00),(),()'
+                ),  # win32 has different bytecodes
+                bytearray(
+                    b'3, 3, 0, 0,(),(),(\x80\x00R\x00"\x00),(),()'
+                ),  # every other OS?
+            ),
         }
 
         c = SCons.Action._function_contents(func1)
@@ -2274,33 +2281,36 @@ class ObjectContentsTestCase(unittest.TestCase):
         # we need different expected results per version
         expected = {
             (3, 7): bytearray(
-                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
+                b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
             ),
             (3, 8): bytearray(
-                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
+                b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
             ),
             (3, 9): bytearray(
-                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
+                b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
             ),
             (3, 10): bytearray(
-                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
+                b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
             ),
             (3, 11): bytearray(
-                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x97\x00d\x01|\x00_\x00\x00\x00\x00\x00\x00\x00\x00\x00d\x02|\x00_\x01\x00\x00\x00\x00\x00\x00\x00\x00d\x00S\x00),(),(),2, 2, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()}}{{{a=a,b=b}}}"
+                b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x97\x00d\x01|\x00_\x00\x00\x00\x00\x00\x00\x00\x00\x00d\x02|\x00_\x01\x00\x00\x00\x00\x00\x00\x00\x00d\x00S\x00),(),(),2, 2, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()}}{{{a=a,b=b}}}"
             ),
             (3, 12): bytearray(
-                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x97\x00d\x01|\x00_\x00\x00\x00\x00\x00\x00\x00\x00\x00d\x02|\x00_\x01\x00\x00\x00\x00\x00\x00\x00\x00y\x00),(),(),2, 2, 0, 0,(),(),(\x97\x00y\x00),(),()}}{{{a=a,b=b}}}"
+                b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x97\x00d\x01|\x00_\x00\x00\x00\x00\x00\x00\x00\x00\x00d\x02|\x00_\x01\x00\x00\x00\x00\x00\x00\x00\x00y\x00),(),(),2, 2, 0, 0,(),(),(\x97\x00y\x00),(),()}}{{{a=a,b=b}}}"
             ),
             (3, 13): bytearray(
-                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x95\x00S\x01U\x00l\x00\x00\x00\x00\x00\x00\x00\x00\x00S\x02U\x00l\x01\x00\x00\x00\x00\x00\x00\x00\x00g\x00),(),(),2, 2, 0, 0,(),(),(\x95\x00g\x00),(),()}}{{{a=a,b=b}}}"
+                b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x95\x00S\x01U\x00l\x00\x00\x00\x00\x00\x00\x00\x00\x00S\x02U\x00l\x01\x00\x00\x00\x00\x00\x00\x00\x00g\x00),(),(),2, 2, 0, 0,(),(),(\x95\x00g\x00),(),()}}{{{a=a,b=b}}}"
             ),
-            (3, 14): bytearray(
-                b'{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x80\x00P\x00R\x00j\x00\x00\x00\x00\x00\x00\x00\x00\x00P\x01R\x00j\x01\x00\x00\x00\x00\x00\x00\x00\x00P\x02"\x00),(),(),2, 2, 0, 0,(),(),(\x80\x00P\x00"\x00),(),()}}{{{a=a,b=b}}}'
+            (3, 14): (
+                bytearray(
+                    b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x80\x00P\x00T\x00l\x00\x00\x00\x00\x00\x00\x00\x00\x00P\x01T\x00l\x01\x00\x00\x00\x00\x00\x00\x00\x00P\x02\"\x00),(),(),2, 2, 0, 0,(),(),(\x80\x00P\x00\"\x00),(),()}}{{{a=a,b=b}}}"
+                ),  # win32
+                bytearray(
+                    b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x80\x00P\x00R\x00j\x00\x00\x00\x00\x00\x00\x00\x00\x00P\x01R\x00j\x01\x00\x00\x00\x00\x00\x00\x00\x00P\x02\"\x00),(),(),2, 2, 0, 0,(),(),(\x80\x00P\x00\"\x00),(),()}}{{{a=a,b=b}}}"
+                ),
             ),
         }
-
-        # self.assertEqual(c, expected[sys.version_info[:2]])
-        assert c == expected[sys.version_info[:2]], c
+        self.assertTrue(c in  expected[sys.version_info[:2]])
 
     def test_code_contents(self) -> None:
         """Test that Action._code_contents works"""
@@ -2311,32 +2321,37 @@ class ObjectContentsTestCase(unittest.TestCase):
         # Since the python bytecode has per version differences, we need different expected results per version
         expected = {
             (3, 7): bytearray(
-                b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'
+                b"0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)"
             ),
             (3, 8): bytearray(
-                b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'
+                b"0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)"
             ),
             (3, 9): bytearray(
-                b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'
+                b"0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)"
             ),
             (3, 10): bytearray(
-                b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'
+                b"0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)"
             ),
             (3, 11): bytearray(
-                b'0, 0, 0, 0,(Hello, World!),(print),(\x97\x00\x02\x00e\x00d\x00\xa6\x01\x00\x00\xab\x01\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00d\x01S\x00)'
+                b"0, 0, 0, 0,(Hello, World!),(print),(\x97\x00\x02\x00e\x00d\x00\xa6\x01\x00\x00\xab\x01\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00d\x01S\x00)"
             ),
             (3, 12): bytearray(
-                b'0, 0, 0, 0,(Hello, World!),(print),(\x97\x00\x02\x00e\x00d\x00\xab\x01\x00\x00\x00\x00\x00\x00\x01\x00y\x01)'
+                b"0, 0, 0, 0,(Hello, World!),(print),(\x97\x00\x02\x00e\x00d\x00\xab\x01\x00\x00\x00\x00\x00\x00\x01\x00y\x01)"
             ),
             (3, 13): bytearray(
                 b'0, 0, 0, 0,(Hello, World!),(print),(\x95\x00\\\x00"\x00S\x005\x01\x00\x00\x00\x00\x00\x00 \x00g\x01)'
             ),
-            (3, 14): bytearray(
-                b'0, 0, 0, 0,(Hello, World!),(print),(\x80\x00Y\x00 \x00P\x002\x01\x00\x00\x00\x00\x00\x00\x1e\x00P\x01"\x00)'
+            (3, 14): (
+                bytearray(
+                    b'0, 0, 0, 0,(Hello, World!),(print),(\x80\x00[\x00 \x00P\x002\x01\x00\x00\x00\x00\x00\x00\x1e\x00P\x01"\x00)'
+                ),  # win32
+                bytearray(
+                    b'0, 0, 0, 0,(Hello, World!),(print),(\x80\x00Y\x00 \x00P\x002\x01\x00\x00\x00\x00\x00\x00\x1e\x00P\x01"\x00)'
+                ),
             ),
         }
 
-        self.assertEqual(c, expected[sys.version_info[:2]])
+        self.assertTrue(c in  expected[sys.version_info[:2]],f"\nExpected:{expected[sys.version_info[:2]]}\nGot     :{c}")
 
     def test_uncaught_exception_bubbles(self):
         """Test that scons_subproc_run bubbles uncaught exceptions"""
@@ -2349,7 +2364,6 @@ class ObjectContentsTestCase(unittest.TestCase):
             return
 
         raise Exception("expected a non-EnvironmentError exception")
-
 
     def mock_subprocess_run(*args, **kwargs):
         """Replacement subprocess.run: return kwargs for checking."""
