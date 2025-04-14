@@ -1,0 +1,36 @@
+RELEASE 1.2.0.d20100306 - Sat, 06 Mar 2010 16:18:33 -0800
+
+  From Luca Falavigna:
+
+    - Fix typos in the man page.
+
+  From Gottfried Ganssauge:
+
+    - Support execution when SCons is installed via easy_install.
+
+  From Steven Knight:
+
+    - Make the messages for Configure checks of compilers consistent.
+
+    - Issue an error message if a BUILDERS entry is not a Builder
+      object or a callable wrapper.
+
+  From Rob Managan:
+
+    - Update tex builder to handle the case where a \input{foo}
+      command tries to work with a directory named foo instead of the
+      file foo.tex. The builder now ignores a directory and continues
+      searching to find the correct file. Thanks to Lennart Sauerbeck
+      for the test case and initial patch
+
+      Also allow the \include of files in subdirectories when variantDir
+      is used with duplicate=0. Previously latex would crash since
+      the directory in which the .aux file is written was not created.
+      Thanks to Stefan Hepp for finding this and part of the solution.
+
+  From James Teh:
+    - Patches to fix some issues using MS SDK V7.0
+
+  From William Deegan:
+    - Lots of testing and minor patches to handle mixed MS VC and SDK
+      installations, as well as having only the SDK installed.
