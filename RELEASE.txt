@@ -59,6 +59,9 @@ IMPROVEMENTS
   in 3.3; now looks for the official approach first. This in an internal
   detail, the API is unchanged.
 
+- Add internal routines to maniplutate publicly visible argument and
+  target lists. These interfaces are not part of the public API.
+
 PACKAGING
 ---------
 
