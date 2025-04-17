@@ -48,6 +48,9 @@ IMPROVEMENTS
   documentation:  performance improvements (describe the circumstances
   under which they would be observed), or major code cleanups
 
+- Add internal routines to maniplutate publicly visible argument and
+  target lists. These interfaces are not part of the public API.
+
 PACKAGING
 ---------
 
