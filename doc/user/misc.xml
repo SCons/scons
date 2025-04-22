@@ -673,7 +673,7 @@ env.Command('directory_build_info',
       variables to all created construction environment <literal>env['ENV']</literal>,
       and modifies SCons PATH appropriately to prefer virtualenv's executables.
       Setting environment variable <envar>SCONS_ENABLE_VIRTUALENV=1</envar>
-      will have same effect. If virtualenv support is enabled system-vide
+      will have same effect. If virtualenv support is enabled system-wide
       by the environment variable, it may be suppressed with the
       <option>--ignore-virtualenv</option> option.
     </para>
