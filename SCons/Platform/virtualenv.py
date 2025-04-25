@@ -21,7 +21,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""'Platform" support for a Python virtualenv."""
+"""Platform support for a Python virtualenv.
+
+This is support code, not a loadable Platform module.
+"""
 
 import os
 import sys
@@ -41,70 +44,85 @@ def _ignore_virtualenv_default():
 
 enable_virtualenv = _enable_virtualenv_default()
 ignore_virtualenv = _ignore_virtualenv_default()
-virtualenv_variables = ['VIRTUAL_ENV', 'PIPENV_ACTIVE']
+
+# Variables to export:
+# - Python docs:
+#   When a virtual environment has been activated, the VIRTUAL_ENV environment
+#   variable is set to the path of the environment.  Since explicitly
+#   activating a virtual environment is not required to use it, VIRTUAL_ENV
+#   cannot be relied upon to determine whether a virtual environment is being
+#   used.
+# - pipenv: shell sets PIPENV_ACTIVE, cannot find it documented.
+# Any others we should include?
+VIRTUALENV_VARIABLES = ['VIRTUAL_ENV', 'PIPENV_ACTIVE']
 
 
-def _running_in_virtualenv():
-    """Returns True if scons is executed within a virtualenv"""
-    # see https://stackoverflow.com/a/42580137
-    return (hasattr(sys, 'real_prefix') or
-            (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix))
+def _running_in_virtualenv() -> bool:
+    """Check whether scons is running in a virtualenv."""
+    # TODO: the virtualenv command used to inject a sys.real_prefix before
+    #   Python started officially tracking virtualenvs with the venv module.
+    #   All Pythons since 3.3 use sys.base_prefix for tracking (PEP 405);
+    #   virtualenv has retired their old behavior and now only makes
+    #   venv-style virtualenvs. We're now using the detection suggested in
+    #   PEP 668, and should be able to drop the real_prefix check soon.
+    return sys.base_prefix != sys.prefix or hasattr(sys, 'real_prefix')
 
 
-def _is_path_in(path, base) -> bool:
-    """Returns true if **path** is located under the **base** directory."""
-    if not path or not base: # empty path may happen, base too
+def _is_path_in(path: str, base: str) -> bool:
+    """Check if *path* is located under the *base* directory."""
+    if not path or not base:  # empty path or base are possible
         return False
     rp = os.path.relpath(path, base)
     return (not rp.startswith(os.path.pardir)) and (not rp == os.path.curdir)
 
 
 def _inject_venv_variables(env) -> None:
+    """Copy any set virtualenv variables from ``os.environ`` to *env*."""
     if 'ENV' not in env:
         env['ENV'] = {}
     ENV = env['ENV']
-    for name in virtualenv_variables:
+    for name in VIRTUALENV_VARIABLES:
         try:
             ENV[name] = os.environ[name]
         except KeyError:
             pass
 
 def _inject_venv_path(env, path_list=None) -> None:
-    """Modify environment such that SCons will take into account its virtualenv
-    when running external tools."""
+    """Insert virtualenv-related paths from ``os.environe`` to *env*."""
     if path_list is None:
         path_list = os.getenv('PATH')
     env.PrependENVPath('PATH', select_paths_in_venv(path_list))
 
 
-def select_paths_in_venv(path_list):
-    """Returns a list of paths from **path_list** which are under virtualenv's
-    home directory."""
+def select_paths_in_venv(path_list: str | list[str]) -> list[str]:
+    """Filter *path_list*, returning values under the virtualenv."""
     if SCons.Util.is_String(path_list):
         path_list = path_list.split(os.path.pathsep)
-    # Find in path_list the paths under the virtualenv's home
     return [path for path in path_list if IsInVirtualenv(path)]
 
 
 def ImportVirtualenv(env) -> None:
-    """Copies virtualenv-related environment variables from OS environment
-    to ``env['ENV']`` and prepends virtualenv's PATH to ``env['ENV']['PATH']``.
-    """
+    """Add virtualenv information to *env*."""
     _inject_venv_variables(env)
     _inject_venv_path(env)
 
 
-def Virtualenv():
-    """Returns path to the virtualenv home if scons is executing within a
-    virtualenv or None, if not."""
+def Virtualenv() -> str | None:
+    """Return whether operating in a virtualenv.
+
+    Returns the path to the virtualenv home if scons is executing
+    within a virtualenv, else ``None``.
+    """
     if _running_in_virtualenv():
         return sys.prefix
     return None
 
 
-def IsInVirtualenv(path):
-    """Returns True, if **path** is under virtualenv's home directory. If not,
-    or if we don't use virtualenv, returns False."""
+def IsInVirtualenv(path: str) -> bool:
+    """Check whether *path* is under the virtualenv's directory.
+
+    Returns ``False`` if not using a virtualenv.
+    """
     return _is_path_in(path, Virtualenv())
 
 

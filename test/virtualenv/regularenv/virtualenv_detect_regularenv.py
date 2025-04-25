@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Check if SCons.Platform.virtualenv.Virtualenv() works in SConscript.
@@ -36,8 +35,9 @@ test = TestSCons.TestSCons()
 if SCons.Platform.virtualenv.Virtualenv():
     test.skip_test("Virtualenv is active, skipping\n")
 
-test.write('SConstruct', """
-print("virtualenv: %r" % Virtualenv())
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
+print(f"virtualenv: {Virtualenv()!r}")
 """)
 
 if SCons.Platform.virtualenv.virtualenv_enabled_by_default:
@@ -45,7 +45,7 @@ if SCons.Platform.virtualenv.virtualenv_enabled_by_default:
 else:
     test.run(['-Q', '--enable-virtualenv'])
 
-test.must_contain_all_lines(test.stdout(), ['virtualenv: %r' % None])
+test.must_contain_all_lines(test.stdout(), ["virtualenv: None"])
 
 test.pass_test()
 
