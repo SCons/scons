@@ -528,7 +528,7 @@ def AddOption(*args, **kw) -> SConsOption:
     """Add a local option to the option parser - Public API.
 
     If the SCons-specific *settable* kwarg is true (default ``False``),
-    the option will allow calling :func:``SetOption`.
+    the option will allow calling :func:`SetOption`.
 
     .. versionchanged:: 4.8.0
        The *settable* parameter added to allow including the new option
