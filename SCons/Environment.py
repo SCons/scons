@@ -649,7 +649,7 @@ class SubstitutionEnvironment:
            args - filename strings or nodes to convert; nodes are just
               added to the list without further processing.
            node_factory - optional factory to create the nodes; if not
-              specified, will use this environment's ``fs.File method.
+              specified, will use this environment's ``fs.File`` method.
            lookup_list - optional list of lookup functions to call to
               attempt to find the file referenced by each *args*.
            kw - keyword arguments that represent additional nodes to add.
@@ -1755,8 +1755,8 @@ class Base(SubstitutionEnvironment):
         (pretty-print) or ``<<non-serializable: function>>`` (JSON).
 
         Args:
-           key: if omitted, format the whole dict of variables,
-              else format *key*(s) with the corresponding values.
+           key: variables to format together with their values.
+             If omitted, format the whole dict of variables,
            format: specify the format to serialize to. ``"pretty"`` generates
              a pretty-printed string, ``"json"`` a JSON-formatted string.
 
