@@ -1,0 +1,11 @@
+RELEASE 2.4.0 - Mon, 21 Sep 2015 08:56:00 -0700
+
+  From Dirk Baechle:
+    - Switched several core classes to use "slots", to
+      reduce the overall memory consumption in large
+      projects (fixes #2180, #2178, #2198)
+    - Memoizer counting uses decorators now, instead of
+      the old metaclasses approach.
+
+  From Andrew Featherstone
+    - Fixed typo in SWIGPATH description
