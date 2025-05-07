@@ -362,11 +362,6 @@ def normalize_env(env, keys, force: bool=False):
     if sys32_ps_dir not in normenv['PATH']:
         normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_ps_dir
 
-    debug("PATH: %s", normenv['PATH'])
-
-    if sys32_dir not in normenv["PATH"]:
-        normenv["PATH"] = normenv["PATH"] + os.pathsep + sys32_dir
-
     psmodulepath_dirs = [
         # Powershell 7 paths
         os.path.join(progfiles_dir, r"PowerShell\Modules"),
@@ -378,6 +373,7 @@ def normalize_env(env, keys, force: bool=False):
 
     normenv["PSModulePath"] = os.pathsep.join(psmodulepath_dirs)
 
+    debug("PATH: %s", normenv['PATH'])
     debug("PSModulePath: %s", normenv['PSModulePath'])
     return normenv
 
