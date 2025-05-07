@@ -342,6 +342,19 @@ def normalize_env(env, keys, force: bool=False):
     if sys32_wbem_dir not in normenv['PATH']:
         normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_wbem_dir
 
+    # ProgramFiles for PowerShell 7 Path and PSModulePath
+    progfiles_dir = os.environ.get("ProgramFiles")
+    if not progfiles_dir:
+        sysroot_drive, _ = os.path.splitdrive(sys32_dir)
+        sysroot_path = sysroot_drive + os.sep
+        progfiles_dir = os.path.join(sysroot_path, "Program Files")
+
+    # Powershell 7
+    progfiles_ps_dir = os.path.join(progfiles_dir, r"PowerShell\7")
+    if progfiles_ps_dir not in normenv["PATH"]:
+        normenv["PATH"] = normenv["PATH"] + os.pathsep + progfiles_ps_dir
+
+    # Powershell 5
     # Without Powershell in PATH, an internal call to a telemetry
     # function (starting with a VS2019 update) can fail
     # Note can also set VSCMD_SKIP_SENDTELEMETRY to avoid this.
@@ -350,6 +363,22 @@ def normalize_env(env, keys, force: bool=False):
         normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_ps_dir
 
     debug("PATH: %s", normenv['PATH'])
+
+    if sys32_dir not in normenv["PATH"]:
+        normenv["PATH"] = normenv["PATH"] + os.pathsep + sys32_dir
+
+    psmodulepath_dirs = [
+        # Powershell 7 paths
+        os.path.join(progfiles_dir, r"PowerShell\Modules"),
+        os.path.join(progfiles_dir, r"PowerShell\7\Modules"),
+        # Powershell 5 paths
+        os.path.join(progfiles_dir, r"WindowsPowerShell\Modules"),
+        os.path.join(sys32_dir, r"WindowsPowerShell\v1.0\Modules"),
+    ]
+
+    normenv["PSModulePath"] = os.pathsep.join(psmodulepath_dirs)
+
+    debug("PSModulePath: %s", normenv['PSModulePath'])
     return normenv
 
 
@@ -386,6 +415,8 @@ def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
         'VS71COMNTOOLS',
         'VSCOMNTOOLS',
         'MSDevDir',
+        'VCPKG_DISABLE_METRICS',
+        'VCPKG_ROOT',
         'VSCMD_DEBUG',   # enable logging and other debug aids
         'VSCMD_SKIP_SENDTELEMETRY',
         'windir', # windows directory (SystemRoot not available in 95/98/ME)
@@ -394,6 +425,8 @@ def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
 
     if skip_sendtelemetry:
         _force_vscmd_skip_sendtelemetry(env)
+
+    # debug("ENV=%r", env['ENV'])
 
     if args:
         debug("Calling '%s %s'", vcbat, args)
