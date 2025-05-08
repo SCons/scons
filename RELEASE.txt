@@ -53,6 +53,13 @@ PACKAGING
 
 - List changes in the way SCons is packaged and/or released
 
+- The generated roff (.1) manpages are now included in the
+  scons-doc tarball that is built at part of the release process,
+  in addition to the html and txt versions. For distribution
+  packaging, the manpages can be extracted from here (downloadable
+  from https://scons.org/doc/ using a a version-specific URL,
+  e.g. https://scons.org/doc/4.9.1/scons-doc-4.9.1.tar.gz).
+
 DOCUMENTATION
 -------------
 
