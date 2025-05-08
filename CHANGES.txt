@@ -46,6 +46,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       interesting to developers working on SCons (needed to write docs),
       even if not part of "The SCons API" itself.
       Reworded the API Docs intro sectios a bit.
+    - Include the roff (.1) manpages in the scons-doc tarball as a better
+      long-term home than in the sdist.
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
