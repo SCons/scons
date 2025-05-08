@@ -107,15 +107,15 @@ def ImportVirtualenv(env) -> None:
     _inject_venv_path(env)
 
 
-def Virtualenv() -> str | None:
+def Virtualenv() -> str:
     """Return whether operating in a virtualenv.
 
     Returns the path to the virtualenv home if scons is executing
-    within a virtualenv, else ``None``.
+    within a virtualenv, else and empty string.
     """
     if _running_in_virtualenv():
         return sys.prefix
-    return None
+    return ""
 
 
 def IsInVirtualenv(path: str) -> bool:

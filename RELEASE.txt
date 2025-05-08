@@ -48,6 +48,11 @@ IMPROVEMENTS
   documentation:  performance improvements (describe the circumstances
   under which they would be observed), or major code cleanups
 
+- Virtualenv support module modernized: previously looked first for an
+  unofficial approach from before venv support was made part of Python
+  in 3.3; now looks for the official approach first. This in an internal
+  detail, the API is unchanged.
+
 PACKAGING
 ---------
 
@@ -75,6 +80,11 @@ DOCUMENTATION
   SConsDoc and SConsExample are now included - their API is
   interesting to developers working on SCons (needed to write docs),
   even if not part of "The SCons API" itself.
+
+- Missing documentation for the Virtualen() function is added.
+  Note that the User Guide previously described a negative outcomee
+  as returning None.  It is now explicit that the path is returned if
+  running in a virtualenv, and an empty (falsy) string if not.
 
 DEVELOPMENT
 -----------

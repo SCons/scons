@@ -30,8 +30,9 @@ This file is processed by the bin/SConsDoc.py module.
 <para>
 If the &SCons; process is running inside a &Python;
 virtual environment,
-return the path to the directory where that environment is stored.
-Otherwise, return <literal>None</literal>.
+return the path to the directory where that environment is stored,
+else an empty string.
+The result can be treated as a boolean value if the path is unneeded.
 </para>
 </summary>
 </scons_function>

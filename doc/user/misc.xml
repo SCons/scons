@@ -709,8 +709,8 @@ env.Command('directory_build_info',
     <para>
       You can query the state at runtime by calling
       the &f-link-Virtualenv; global function.
-      It returns either a path to the virtualenv's home directory,
-      or <literal>None</literal> if &SCons; is not running in a virtualenv.
+      It returns a path to the virtualenv's home directory,
+      or an empty string if &SCons; is not running in a virtualenv.
     </para>
 
     <note><para>

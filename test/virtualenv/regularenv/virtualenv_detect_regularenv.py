@@ -45,7 +45,7 @@ if SCons.Platform.virtualenv.virtualenv_enabled_by_default:
 else:
     test.run(['-Q', '--enable-virtualenv'])
 
-test.must_contain_all_lines(test.stdout(), ["virtualenv: None"])
+test.must_contain_all_lines(test.stdout(), ["virtualenv: ''"])
 
 test.pass_test()
 

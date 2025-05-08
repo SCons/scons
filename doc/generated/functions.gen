@@ -251,7 +251,7 @@ Future versions of &SCons; will likely forbid such usage.
     <term><function>AddPostAction</function>(<parameter>target, action</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>AddPostAction</methodname>(<parameter>target, action</parameter>)</term>
     <listitem><para>
-Arranges for the specified
+Arrange for the specified
 <parameter>action</parameter>
 to be performed
 after the specified
@@ -277,13 +277,19 @@ foo = Program('foo.c')
 AddPostAction(foo, Chmod('$TARGET', "a-x"))
 </example_commands>
 
+<para>
+If a <parameter>target</parameter> is an &f-Alias;,
+<parameter>action</parameter> is associated with the
+action of the alias, if specified.
+</para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="f-AddPreAction">
     <term><function>AddPreAction</function>(<parameter>target, action</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>AddPreAction</methodname>(<parameter>target, action</parameter>)</term>
     <listitem><para>
-Arranges for the specified
+Arrange for the specified
 <parameter>action</parameter>
 to be performed
 before the specified
@@ -306,38 +312,46 @@ one or more targets in the list.
 <para>
 Note that if any of the targets are built in multiple steps,
 the action will be invoked just
-before the "final" action that specifically
+before the action step that specifically
 generates the specified target(s).
-For example, when building an executable program
-from a specified source
-<filename>.c</filename>
-file via an intermediate object file:
+It may not always be obvious
+if the process is multi-step - for example,
+if you use the &Program; builder to
+construct an executable program from a
+<filename>.c</filename> source file,
+&scons; builds an intermediate object file first;
+the pre-action is invoked after this step
+and just before the link command to
+generate the executable program binary.
+Example:
 </para>
 
 <example_commands>
 foo = Program('foo.c')
-AddPreAction(foo, 'pre_action')
+AddPreAction(foo, 'echo "Running pre-action"')
 </example_commands>
 
+<screen>
+$ scons -Q
+gcc -o foo.o -c foo.c
+echo "Running pre-action"
+Running pre-action
+gcc -o foo foo.o
+</screen>
+
 <para>
-The specified
-<literal>pre_action</literal>
-would be executed before
-&scons;
-calls the link command that actually
-generates the executable program binary
-<filename>foo</filename>,
-not before compiling the
-<filename>foo.c</filename>
-file into an object file.
+If a <parameter>target</parameter> is an &f-Alias;,
+<parameter>action</parameter> is associated with the
+action of the alias, if specified.
 </para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="f-Alias">
     <term><function>Alias</function>(<parameter>alias, [source, [action]]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Alias</methodname>(<parameter>alias, [source, [action]]</parameter>)</term>
     <listitem><para>
-Creates an <firstterm>alias</firstterm> target that
+Create an <firstterm>Alias</firstterm> node that
 can be used as a reference to zero or more other targets,
 specified by the optional <parameter>source</parameter> parameter.
 Aliases provide a way to give a shorter or more descriptive
@@ -1139,7 +1153,7 @@ env.Command(
 
 import os
 def rename(env, target, source):
-    os.rename('.tmp', str(target[0]))
+    os.rename('.tmp', target[0])
 
 
 env.Command(
@@ -4859,7 +4873,7 @@ def create(target, source, env):
 
     Writes 'prefix=$SOURCE' into the file name given as $TARGET.
     """
-    with open(str(target[0]), 'wb') as f:
+    with open(target[0], 'wb') as f:
         f.write(b'prefix=' + source[0].get_contents() + b'\n')
 
 # Fetch the prefix= argument, if any, from the command line.
@@ -5000,6 +5014,16 @@ SConscript(dirs=['build/src','build/doc'])
 SConscript(dirs='src', variant_dir='build/src', duplicate=0)
 SConscript(dirs='doc', variant_dir='build/doc', duplicate=0)
 </example_commands>
+</listitem>
+  </varlistentry>
+  <varlistentry id="f-Virtualenv">
+    <term><function>Virtualenv</function>()</term>
+    <listitem><para>
+If the &SCons; process is running inside a &Python;
+virtual environment,
+return the path to the directory where that environment is stored.
+Otherwise, return <literal>None</literal>.
+</para>
 </listitem>
   </varlistentry>
   <varlistentry id="f-WhereIs">

@@ -262,23 +262,25 @@ class _inject_venv_pathTestCase(unittest.TestCase):
 
 
 class VirtualenvTestCase(unittest.TestCase):
-    def test_none(self) -> None:
+    """Test the Virtualenv() function."""
+
+    def test_no_venv(self) -> None:
         def _msg(given) -> str:
-            return f"Virtualenv() should be None, not {given!r}"
+            return f"Virtualenv() should be empty, not {given!r}"
 
         with self.subTest(), SysPrefixes(_p('/prefix')):
             ve = SCons.Platform.virtualenv.Virtualenv()
-            assert ve is None, _msg(ve)
+            self.assertEqual(ve, "", msg=_msg(ve))
 
         with self.subTest(), SysPrefixes(
             _p('/base/prefix'), base_prefix=_p('/base/prefix')
         ):
             ve = SCons.Platform.virtualenv.Virtualenv()
-            assert ve is None, _msg(ve)
+            self.assertEqual(ve, "", msg=_msg(ve))
 
-    def test_not_none(self) -> None:
+    def test_virtualenv(self) -> None:
         def _msg(expected, given) -> str:
-            return f"Virtualenv() should == {_p(expected)!r}, not {repr(given)}"
+            return f"Virtualenv() should == {_p(expected)!r}, not {given!r}"
 
         with self.subTest(), SysPrefixes(
             _p('/virtualenv/prefix'), real_prefix=_p('/real/prefix')
