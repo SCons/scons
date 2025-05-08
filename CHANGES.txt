@@ -40,6 +40,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       one from PEP 308 introduced in Python 2.5 (2006). The idiom being
       replaced (using and/or) is regarded as error prone.
     - Improve the description of PackageVariable.
+    - Add internal routines _Remove_Targets and _Remove_Arguments to
+      allow taking away values placed the public attributes BUILD_TARGETS,
+      COMMAND_LINE_TARGETS, ARGUMENTS and ARGLIST. This is a step towards
+      fixing the handling of option-arguments specified with a space
+      separator (multiple issues, harvested from #3799).  These interfaces
+      are not part of the public API.
     - Tweak the "API Docs" build (Sphinx) configuration a bit. Some
       one-file modules were reported as duplicated, this is fixed.
       SConsDoc and SConsExample are now included - their API is

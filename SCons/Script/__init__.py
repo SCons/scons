@@ -30,16 +30,16 @@ something that we expect other software to want to use, it should go in
 some other module.  If it's specific to the "scons" script invocation,
 it goes here.
 """
-
-import time
-start_time = time.time()
+from __future__ import annotations
 
 import collections
 import itertools
 import os
+import sys
+import time
 from io import StringIO
 
-import sys
+start_time = time.time()
 
 # Special chicken-and-egg handling of the "--debug=memoizer" flag:
 #
@@ -135,7 +135,7 @@ DebugOptions            = Main.DebugOptions
 #profiling               = Main.profiling
 #repositories            = Main.repositories
 
-from . import SConscript as _SConscript
+from . import SConscript as _SConscript  # pylint: disable=import-outside-toplevel
 
 call_stack              = _SConscript.call_stack
 
@@ -208,13 +208,15 @@ DEFAULT_TARGETS         = []
 # own targets to BUILD_TARGETS.
 _build_plus_default = TargetList()
 
-def _Add_Arguments(alist) -> None:
+def _Add_Arguments(alist: list[str]) -> None:
+    """Add value(s) to ``ARGLIST`` and ``ARGUMENTS``."""
     for arg in alist:
         a, b = arg.split('=', 1)
         ARGUMENTS[a] = b
         ARGLIST.append((a, b))
 
-def _Add_Targets(tlist) -> None:
+def _Add_Targets(tlist: list[str]) -> None:
+    """Add value(s) to ``COMMAND_LINE_TARGETS`` and ``BUILD_TARGETS``."""
     if tlist:
         COMMAND_LINE_TARGETS.extend(tlist)
         BUILD_TARGETS.extend(tlist)
@@ -223,6 +225,56 @@ def _Add_Targets(tlist) -> None:
         _build_plus_default.extend(tlist)
         _build_plus_default._add_Default = _build_plus_default._do_nothing
         _build_plus_default._clear = _build_plus_default._do_nothing
+
+def _Remove_Argument(aarg: str) -> None:
+    """Remove *aarg* from ``ARGLIST`` and ``ARGUMENTS``.
+
+    Used to remove a variables-style argument that is no longer valid.
+    This can happpen because the command line is processed once early,
+    before we see any :func:`SCons.Script.Main.AddOption` calls, so we
+    could not recognize it belongs to an option and is not a standalone
+    variable=value argument.
+
+    .. versionadded:: NEXT_RELEASE
+
+    """
+    if aarg:
+        a, b = aarg.split('=', 1)
+
+        # remove from ARGLIST first which would contain duplicates if
+        # -x A=B A=B was specified on the CL
+        if (a, b) in ARGLIST:
+            ARGLIST.remove((a, b))
+
+            # Remove first in case no matching values left in ARGLIST
+            ARGUMENTS.pop(a, None)
+            # Set ARGUMENTS[A] back to latest value in ARGLIST
+            # (assuming order matches CL order)
+            for item in ARGLIST:
+                if item[0] == a:
+                    ARGUMENTS[a] = item[1]
+
+def _Remove_Target(targ: str) -> None:
+    """Remove *targ* from ``BUILD_TARGETS`` and ``COMMAND_LINE_TARGETS``.
+
+    Used to remove a target that is no longer valid. This can happpen
+    because the command line is processed once early, before we see any
+    :func:`SCons.Script.Main.AddOption` calls, so we could not recognize
+    it belongs to an option and is not a standalone target argument.
+
+    Since we are "correcting an error", we also have to fix up the internal
+    :data:`_build_plus_default` list.
+
+    .. versionadded:: NEXT_RELEASE
+
+    """
+    if targ:
+        if targ in COMMAND_LINE_TARGETS:
+            COMMAND_LINE_TARGETS.remove(targ)
+        if targ in BUILD_TARGETS:
+            BUILD_TARGETS.remove(targ)
+        if targ in _build_plus_default:
+            _build_plus_default.remove(targ)
 
 def _Set_Default_Targets_Has_Been_Called(d, fs):
     return DEFAULT_TARGETS
