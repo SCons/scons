@@ -26,6 +26,8 @@
 This is support code, not a loadable Platform module.
 """
 
+from __future__ import annotations
+
 import os
 import sys
 import SCons.Util
