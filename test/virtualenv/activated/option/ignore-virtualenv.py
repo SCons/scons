@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Ensure that the --ignore-virtualenv flag works.
@@ -38,15 +37,16 @@ test = TestSCons.TestSCons()
 if not SCons.Platform.virtualenv.Virtualenv():
     test.skip_test("No virtualenv detected, skipping\n")
 
-if not SCons.Platform.virtualenv.select_paths_in_venv(os.getenv('PATH','')):
-    test.skip_test("Virtualenv detected but looks like unactivated, skipping\n")
+if not SCons.Platform.virtualenv.select_paths_in_venv(os.getenv('PATH', '')):
+    test.skip_test("Virtualenv detected but looks unactivated, skipping\n")
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 import sys
 import SCons.Platform.virtualenv
+
 env = DefaultEnvironment(tools=[])
-print("sys.executable: %s" % repr(sys.executable))
-print("env.WhereIs('python'): %s" % repr(env.WhereIs('python')))
+print(f"sys.executable: {sys.executable!r}")
+print(f"env.WhereIs('python'): {env.WhereIs('python')!r}")
 """)
 
 os.environ['SCONS_ENABLE_VIRTUALENV'] = '1'
@@ -55,30 +55,36 @@ test.run(['-Q', '--ignore-virtualenv'])
 s = test.stdout()
 m = re.search(r"""^sys\.executable:\s*(?P<py>["']?[^"']+["']?)\s*$""", s, re.MULTILINE)
 if not m:
-    test.fail_test(message="""\
-can't determine sys.executable from stdout:
+    test.fail_test(
+        message=f"""can't determine sys.executable from stdout:
 ========= STDOUT =========
-%s
+{s}
 ==========================
-""" % s)
+""")
 
 interpreter = eval(m.group('py'))
 
-m = re.search(r"""^\s*env.WhereIs\('python'\):\s*(?P<py>["']?[^"']+["']?)\s*$""", s, re.MULTILINE)
+m = re.search(
+    r"""\s*env.WhereIs\('python'\):\s*(?P<py>["']?[^"']+["']?)\s*$""", s, re.MULTILINE
+)
 if not m:
-    test.fail_test(message="""
+    test.fail_test(message=f"""
 can't determine env.WhereIs('python') from stdout:
 ========= STDOUT =========
-%s
+{s}
 ==========================
-""" % s)
+""")
 
 python = eval(m.group('py'))
 
-test.fail_test(not SCons.Platform.virtualenv.IsInVirtualenv(interpreter),
-               message="sys.executable points outside of virtualenv")
-test.fail_test(SCons.Platform.virtualenv.IsInVirtualenv(python),
-               message="env.WhereIs('python') points to virtualenv")
+test.fail_test(
+    not SCons.Platform.virtualenv.IsInVirtualenv(interpreter),
+    message="sys.executable points outside of virtualenv",
+)
+test.fail_test(
+    SCons.Platform.virtualenv.IsInVirtualenv(python),
+    message="env.WhereIs('python') points to virtualenv",
+)
 
 test.pass_test()
 
