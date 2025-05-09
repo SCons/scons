@@ -325,6 +325,9 @@ def normalize_env(env, keys, force: bool=False):
         for k in keys:
             if k in os.environ and (force or k not in normenv):
                 normenv[k] = os.environ[k]
+                debug("keys: normenv[%s]=%s", k, normenv[k])
+            else:
+                debug("keys: skipped[%s]", k)
 
     # add some things to PATH to prevent problems:
     # Shouldn't be necessary to add system32, since the default environment
@@ -376,7 +379,7 @@ def normalize_env(env, keys, force: bool=False):
 # control execution in interesting ways.
 # Note these really should be unified - either controlled by vs.py,
 # or synced with the the common_tools_var # settings in vs.py.
-_VS_VC_VARS = [
+VS_VC_VARS = [
     'COMSPEC',  # path to "shell"
     'OS', # name of OS family: Windows_NT or undefined (95/98/ME)
     'VS170COMNTOOLS',  # path to common tools for given version
@@ -405,7 +408,7 @@ def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
         # Create a blank environment, for use in launching the tools
         env = SCons.Environment.Environment(tools=[])
 
-    env['ENV'] = normalize_env(env['ENV'], _VS_VC_VARS, force=False)
+    env['ENV'] = normalize_env(env['ENV'], VS_VC_VARS, force=False)
 
     if skip_sendtelemetry:
         _force_vscmd_skip_sendtelemetry(env)
