@@ -480,6 +480,7 @@ def parse_output(output, keep=KEEPLIST):
                 # it.
                 path = path.strip('"')
                 dkeep[key].append(str(path))
+                debug("dkeep[%s].append(%r)", key, path)
 
     for line in output.splitlines():
         for k, value in rdk.items():

@@ -15,6 +15,18 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From John Doe:
     - Whatever John Doe did.
 
+  From Joseph Brill:
+    - The default Windows powershell 7 path is added before the default
+      Windows powershell 5 path in the limited environment in which the
+      MSVC batch files are run.  This appears to fix a runtime issue in
+      the windows runner environment when the embedded Visual Studio vcpkg
+      component initializes without a PSModulePath defined. The OS
+      environment variables and values for VCPKG_DISABLE_METRICS and
+      VCPKG_ROOT are added to the limited MSVC environment when defined.
+      At present, the VCPKG_DISABLE_METRICS and VCPKG_ROOT variables and
+      values are not propagated to the SCons environment after running
+      the MSVC batch files.
+
   From Bill Prendergast:
     - Fixed SCons.Variables.PackageVariable to correctly test the default
       setting against both enable & disable strings. (Fixes #4702)
