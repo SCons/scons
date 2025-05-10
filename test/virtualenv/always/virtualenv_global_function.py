@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,13 +22,10 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Check which python executable is running scons and which python executable
-would be used by scons, when we run under activated virtualenv (i.e. PATH
+would be used by scons when we run in an activated virtualenv (i.e., PATH
 contains the virtualenv's bin path).
 """
 
@@ -36,28 +35,32 @@ import re
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
-print("Virtualenv(): %r" % Virtualenv())
-""")
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
+print(f"Virtualenv(): {Virtualenv()!r}")
+""",
+)
 
 test.run(['-Q'])
 
 s = test.stdout()
 m = re.search(r"^Virtualenv\(\):\s*(?P<ve>.+\S)\s*$", s, re.MULTILINE)
 if not m:
-    test.fail_test(message="""\
+    test.fail_test(message=f"""\
 can't determine Virtualenv() result from stdout:
 ========= STDOUT =========
-%s
+{s}
 ==========================
-""" % s)
+""")
 
 scons_ve = m.group('ve')
-our_ve = "%r" % SCons.Platform.virtualenv.Virtualenv()
+our_ve = f"{SCons.Platform.virtualenv.Virtualenv()!r}"
 
-# runing in activated virtualenv (after "activate") - PATH includes virtualenv's bin directory
-test.fail_test(scons_ve != our_ve,
-               message="Virtualenv() from SCons != Virtualenv() from caller script (%r != %r)" % (scons_ve, our_ve))
+# running in activated virtualenv (after "activate") - PATH includes virtualenv's bin directory
+test.fail_test(
+    scons_ve != our_ve,
+    message=f"Virtualenv() from SCons != Virtualenv() from caller script ({scons_ve!r} != {our_ve!r})",
+)
 
 test.pass_test()
 

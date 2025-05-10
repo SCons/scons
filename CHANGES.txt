@@ -61,6 +61,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Reworded the API Docs intro sectios a bit.
     - Include the roff (.1) manpages in the scons-doc tarball as a better
       long-term home than in the sdist.
+    - Virtualenv support module modernized: previously looked first for an
+      obsolete mechanism the external virtualenv tool used to use, now checks
+      first for the official approach introduced in PEP 405.
+    - Add missing manpage entry for Virtualenv(). Return type is documented
+      as an empty string in case of a negative result (rather than None),
+      and the code adjusted.  All internal usage, including tests,
+      was dont boolean-style anyway ("if Virtualenv():").
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
