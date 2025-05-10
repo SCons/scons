@@ -81,8 +81,8 @@ DOCUMENTATION
   interesting to developers working on SCons (needed to write docs),
   even if not part of "The SCons API" itself.
 
-- Missing documentation for the Virtualen() function is added.
-  Note that the User Guide previously described a negative outcomee
+- Missing documentation for the Virtualenv() function is added.
+  Note that the User Guide previously described a negative outcome
   as returning None.  It is now explicit that the path is returned if
   running in a virtualenv, and an empty (falsy) string if not.
 
