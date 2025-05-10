@@ -35,7 +35,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   one from PEP 308 introduced in Python 2.5 (2006). The idiom being
   replaced (using and/or) is regarded as error prone.
 
-- The default Windows powershell 7 path is added before the default
+- MSVS: The default Windows powershell 7 path is added before the default
   Windows powershell 5 path in the limited environment in which the
   MSVC batch files are run.
 
@@ -44,6 +44,8 @@ FIXES
 
 - Fixed SCons.Variables.PackageVariable to correctly test the default
   setting against both enable & disable strings. (Fixes #4702)
+- MSVS: Fix significant slowdown initializing MSVC tools when vcpkg has
+  been installed on the system.
 
 IMPROVEMENTS
 ------------

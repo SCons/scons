@@ -38,6 +38,40 @@ import SCons.Errors
 import SCons.Util
 import SCons.Warnings
 
+
+# TODO:  Hard-coded list of the variables that (may) need to be
+# imported from os.environ[] for the chain of development batch
+# files to execute correctly. One call to vcvars*.bat may
+# end up running a dozen or more scripts, changes not only with
+# each release but with what is installed at the time. We think
+# in modern installations most are set along the way and don't
+# need to be picked from the env, but include these for safety's sake.
+# Any VSCMD variables definitely are picked from the env and
+# control execution in interesting ways.
+# Note these really should be unified - either controlled by vs.py,
+# or synced with the the common_tools_var # settings in vs.py.
+VS_VC_VARS = [
+    'COMSPEC',  # path to "shell"
+    'OS', # name of OS family: Windows_NT or undefined (95/98/ME)
+    'VS170COMNTOOLS',  # path to common tools for given version
+    'VS160COMNTOOLS',
+    'VS150COMNTOOLS',
+    'VS140COMNTOOLS',
+    'VS120COMNTOOLS',
+    'VS110COMNTOOLS',
+    'VS100COMNTOOLS',
+    'VS90COMNTOOLS',
+    'VS80COMNTOOLS',
+    'VS71COMNTOOLS',
+    'VSCOMNTOOLS',
+    'MSDevDir',
+    'VSCMD_DEBUG',   # enable logging and other debug aids
+    'VSCMD_SKIP_SENDTELEMETRY',
+    'windir', # windows directory (SystemRoot not available in 95/98/ME)
+    'VCPKG_DISABLE_METRICS',
+    'VCPKG_ROOT',
+]
+
 class MSVCCacheInvalidWarning(SCons.Warnings.WarningOnByDefault):
     pass
 
@@ -368,38 +402,7 @@ def normalize_env(env, keys, force: bool=False):
     return normenv
 
 
-# TODO:  Hard-coded list of the variables that (may) need to be
-# imported from os.environ[] for the chain of development batch
-# files to execute correctly. One call to vcvars*.bat may
-# end up running a dozen or more scripts, changes not only with
-# each release but with what is installed at the time. We think
-# in modern installations most are set along the way and don't
-# need to be picked from the env, but include these for safety's sake.
-# Any VSCMD variables definitely are picked from the env and
-# control execution in interesting ways.
-# Note these really should be unified - either controlled by vs.py,
-# or synced with the the common_tools_var # settings in vs.py.
-VS_VC_VARS = [
-    'COMSPEC',  # path to "shell"
-    'OS', # name of OS family: Windows_NT or undefined (95/98/ME)
-    'VS170COMNTOOLS',  # path to common tools for given version
-    'VS160COMNTOOLS',
-    'VS150COMNTOOLS',
-    'VS140COMNTOOLS',
-    'VS120COMNTOOLS',
-    'VS110COMNTOOLS',
-    'VS100COMNTOOLS',
-    'VS90COMNTOOLS',
-    'VS80COMNTOOLS',
-    'VS71COMNTOOLS',
-    'VSCOMNTOOLS',
-    'MSDevDir',
-    'VSCMD_DEBUG',   # enable logging and other debug aids
-    'VSCMD_SKIP_SENDTELEMETRY',
-    'windir', # windows directory (SystemRoot not available in 95/98/ME)
-    'VCPKG_DISABLE_METRICS',
-    'VCPKG_ROOT',
-]
+
 
 def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
     """Parse the output of given bat file, with given args."""
