@@ -240,16 +240,12 @@ def _Remove_Argument(aarg: str) -> None:
     """
     if aarg:
         a, b = aarg.split('=', 1)
-
-        # remove from ARGLIST first which would contain duplicates if
-        # -x A=B A=B was specified on the CL
         if (a, b) in ARGLIST:
             ARGLIST.remove((a, b))
-
-            # Remove first in case no matching values left in ARGLIST
             ARGUMENTS.pop(a, None)
-            # Set ARGUMENTS[A] back to latest value in ARGLIST
-            # (assuming order matches CL order)
+            # ARGLIST might have had multiple values for 'a'. If there
+            # are any left, put that in ARGUMENTS, keeping the last one
+            # (retaining cmdline order)
             for item in ARGLIST:
                 if item[0] == a:
                     ARGUMENTS[a] = item[1]
