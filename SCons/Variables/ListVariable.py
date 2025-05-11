@@ -25,8 +25,8 @@
 
 A list variable allows selecting one or more from a supplied set of
 allowable values, as well as from an optional mapping of alternate names
-(such as aliases and abbreviations) and the special names ``'all'`` and
-``'none'``.  Specified values are converted during processing into values
+(such as aliases and abbreviations) and the special names "all" and
+"none".  Specified values are converted during processing into values
 only from the allowable values set.
 
 Usage example::
@@ -123,7 +123,7 @@ def _converter(val, allowedElems, mapdict) -> _ListVariable:
     for a :class:`Variables` converter: the lambda in the
     :func:`ListVariable` function arranges for us to be called correctly.
 
-    Incoming values ``all`` and ``none`` are recognized and converted
+    Incoming values "all" and "none" are recognized and converted
     into their expanded form.
     """
     if val == 'none':
@@ -185,26 +185,27 @@ def ListVariable(
     names: list[str],
     map: dict | None = None,
     validator: Callable | None = None,
-) -> tuple[str, str, str, None, Callable]:
+) -> tuple[str, str, str, Callable, Callable]:
     """Return a tuple describing a list variable.
 
-    The input parameters describe a list variable, where the values
-    can be one or more from *names* plus the special values ``all``
-    and ``none``.
+    A List Variable is an abstraction that allows choosing one or more
+    values from a provided list of possibilities (*names*). The special terms
+    "all" and "none" are also provided to help make the selection.
 
     Arguments:
        key: the name of the list variable.
        help: the basic help message.  Will have text appended indicating
-          the allowable values (not including any extra names from *map*).
-       default: the default value(s) for the list variable. Can be
-          given as string (possibly comma-separated), or as a list of strings.
-          ``all`` or ``none`` are allowed as *default*. You can also simulate
-          a must-specify ListVariable by giving a *default* that is not part
-          of *names*, it will fail validation if not supplied.
-       names: the allowable values. Must be a list of strings.
+          the allowed values (not including any extra names from *map*).
+       default: the default value(s) for the list variable. Can be given
+          as string (use commas to -separated multiple values), or as a list
+          of strings.  "all" or "none" are allowed as *default*.
+          A must-specify list variable can be simulated by giving a value
+          that is not part of *names*, which will cause validation to fail
+          if the variable is not supplied in the input sources.
+       names: the values to choose from. Must be a list of strings.
        map: optional dictionary to map alternative names to the ones in
-          *names*, providing a form of alias. The converter will make
-          the replacement, names from *map* are not stored and will
+          *names*, providing a form of alias. The converter will perform
+          the replacement. Names from *map* are not stored, and will
           not appear in the help message.
        validator: optional callback to validate supplied values.
           The default validator is used if not specified.

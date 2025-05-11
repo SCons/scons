@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,52 +22,41 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that we can set both $CCFLAGS and $CXXFLAGS and have them
-both show up on the compilation lines for C++ source files.
+Test the C compiler name variable $CC.
+This is a live test, calling the detected C compiler via a wrapper.
 """
 
+import os
+import sys
 import TestSCons
+
+_python_ = TestSCons._python_
+_exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
+test.dir_fixture('CC-fixture')
+test.file_fixture('wrapper.py')
+
+test.write('SConstruct', f"""\
+DefaultEnvironment(tools=[])
 foo = Environment()
-foo.Append(CCFLAGS = '-DFOO', CXXFLAGS = '-DCXX')
 bar = Environment()
-bar.Append(CCFLAGS = '-DBAR', CXXFLAGS = '-DCXX')
-foo_obj = foo.Object(target = 'foo', source = 'prog.cpp')
-bar_obj = bar.Object(target = 'bar', source = 'prog.cpp')
-foo.Program(target = 'foo', source = foo_obj)
-bar.Program(target = 'bar', source = bar_obj)
+
+bar['CC'] = r'{_python_} wrapper.py ' + foo['CC']
+foo.Program(target='foo', source='foo.c')
+bar.Program(target='bar', source='bar.c')
 """)
 
-test.write('prog.cpp', r"""
-#include <stdio.h>
-#include <stdlib.h>
+test.run(arguments='foo' + _exe)
+test.must_not_exist(test.workpath('wrapper.out'))
+test.up_to_date(arguments='foo' + _exe)
 
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = (char *)"--";
-#ifdef FOO
-        printf("prog.c:  FOO\n");
-#endif
-#ifdef BAR
-        printf("prog.c:  BAR\n");
-#endif
-        exit (0);
-}
-""")
-
-test.run(arguments = '.')
-
-test.run(program = test.workpath('foo'), stdout = "prog.c:  FOO\n")
-test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
+test.run(arguments='bar' + _exe)
+test.must_match('wrapper.out', "wrapper.py\n", mode='r')
+test.up_to_date(arguments='bar' + _exe)
 
 test.pass_test()
 

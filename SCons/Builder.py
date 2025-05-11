@@ -114,6 +114,7 @@ import SCons.Warnings
 from SCons.Debug import logInstanceCreation
 from SCons.Errors import InternalError, UserError
 from SCons.Executor import Executor
+from SCons.Node import Node
 
 class _Null:
     pass
@@ -487,10 +488,11 @@ class BuilderBase:
             # fspath() is to catch PathLike paths. We avoid the simpler
             # str(f) so as not to "lose" files that are already Nodes:
             # TypeError: expected str, bytes or os.PathLike object, not File
-            with suppress(TypeError):
-                f = os.fspath(f)
-            if SCons.Util.is_String(f):
-                f = SCons.Util.adjustixes(f, pre, suf, ensure_suffix)
+            if not isinstance(f, Node):
+                with suppress(TypeError):
+                    f = os.fspath(f)
+                if SCons.Util.is_String(f):
+                    f = SCons.Util.adjustixes(f, pre, suf, ensure_suffix)
             result.append(f)
         return result
 
@@ -699,7 +701,7 @@ class BuilderBase:
             src_suffix = []
         elif not SCons.Util.is_List(src_suffix):
             src_suffix = [ src_suffix ]
-        self.src_suffix = [callable(suf) and suf or self.adjust_suffix(suf) for suf in src_suffix]
+        self.src_suffix = [suf if callable(suf) else self.adjust_suffix(suf) for suf in src_suffix]
 
     def get_src_suffix(self, env):
         """Get the first src_suffix in the list of src_suffixes."""

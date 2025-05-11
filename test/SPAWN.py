@@ -42,7 +42,7 @@ with open(sys.argv[1], 'wb') as ofp:
             ofp.write(ifp.read())
 """)
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 import subprocess
 import sys
 
@@ -56,16 +56,19 @@ def my_spawn2(sh, escape, cmd, args, env):
     cp = subprocess.run(s, shell=True)
     return cp.returncode
 
-env = Environment(MY_SPAWN1 = my_spawn1,
-                  MY_SPAWN2 = my_spawn2,
-                  COMMAND = r'%(_python_)s cat.py $TARGET $SOURCES')
-env1 = env.Clone(SPAWN = my_spawn1)
+DefaultEnvironment()
+env = Environment(
+    MY_SPAWN1=my_spawn1,
+    MY_SPAWN2=my_spawn2,
+    COMMAND=r'%(_python_)s cat.py $TARGET $SOURCES',
+)
+env1 = env.Clone(SPAWN=my_spawn1)
 env1.Command('file1.out', 'file1.in', '$COMMAND')
 
-env2 = env.Clone(SPAWN = '$MY_SPAWN2')
+env2 = env.Clone(SPAWN='$MY_SPAWN2')
 env2.Command('file2.out', 'file2.in', '$COMMAND')
 
-env3 = env.Clone(SPAWN = '${USE_TWO and MY_SPAWN2 or MY_SPAWN1}')
+env3 = env.Clone(SPAWN='${MY_SPAWN2 if USE_TWO else MY_SPAWN1}')
 env3.Command('file3.out', 'file3.in', '$COMMAND', USE_TWO=0)
 env3.Command('file4.out', 'file4.in', '$COMMAND', USE_TWO=1)
 """ % locals())

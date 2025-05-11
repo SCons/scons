@@ -23,58 +23,66 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+Test handling of the dialect-specific FLAGS variable, using a live compiler.
+"""
+
+import sys
 
 import TestSCons
 
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
+_exe = TestSCons._exe
 
+# ref: test/Fortran/fixture/myfortran_flags.py
+test.file_fixture(['fixture', 'myfortran_flags.py'])
+
+fc = 'f77'
+if not test.detect_tool(fc):
+    # gfortran names all variants the same, try it too
+    fc = 'gfortran'
+    if not test.detect_tool(fc):
+        test.skip_test('Could not find an f77 tool; skipping test.\n')
+
+directory = 'x'
+test.subdir(directory)
+# ref: test/fixture/wrapper.py
 test.file_fixture('wrapper.py')
-
-test.write('SConstruct', """
+test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
-foo = Environment()
-shcc = foo['SHCC']
-bar = Environment(SHCC = r'%(_python_)s wrapper.py ' + shcc)
-foo.SharedObject(target = 'foo/foo', source = 'foo.c')
-bar.SharedObject(target = 'bar/bar', source = 'bar.c')
+foo = Environment(F77='%(fc)s', tools=['default', 'f77'], F77FILESUFFIXES=[".f"])
+f77 = foo.Dictionary('F77')
+bar = foo.Clone(F77=r'%(_python_)s wrapper.py ' + f77, F77FLAGS='-I%(directory)s')
+foo.Program(target='foo', source='foo.f')
+bar.Program(target='bar', source='bar.f')
 """ % locals())
 
-test.write('foo.c', r"""
-#include <stdio.h>
-#include <stdlib.h>
-
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("foo.c\n");
-        exit (0);
-}
+test.write('foo.f', r"""
+      PROGRAM FOO
+      PRINT *,'foo.f'
+      STOP
+      END
 """)
 
-test.write('bar.c', r"""
-#include <stdio.h>
-#include <stdlib.h>
-
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("foo.c\n");
-        exit (0);
-}
+test.write('bar.f', r"""
+      PROGRAM BAR
+      PRINT *,'bar.f'
+      STOP
+      END
 """)
 
+test.run(arguments='foo' + _exe, stderr=None)
+test.run(program=test.workpath('foo'), stdout=" foo.f\n")
+test.must_not_exist('wrapper.out')
 
-test.run(arguments = 'foo')
-
-test.must_not_exist(test.workpath('wrapper.out'))
-
-test.run(arguments = 'bar')
-
-test.must_match('wrapper.out', "wrapper.py\n", mode='r')
+if sys.platform[:5] == 'sunos':
+    test.run(arguments='bar' + _exe, stderr=None)
+else:
+    test.run(arguments='bar' + _exe)
+test.run(program=test.workpath('bar'), stdout=" bar.f\n")
+test.must_match('wrapper.out', "wrapper.py\n")
 
 test.pass_test()
 

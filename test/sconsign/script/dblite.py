@@ -116,24 +116,24 @@ else:
     manifest = ''
 
 expect = r"""=== sub1:
-hello%(_exe)s: %(sig_re)s \d+ \d+
-        %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
-        %(LINK)s: None \d+ \d+
+hello%(_exe)s: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub1_hello_obj)s: %(sig_re)s \d+(\.\d*)? \d+
+        %(LINK)s: None \d+(\.\d*)? \d+
         %(sig_re)s \[.*%(manifest)s\]
-hello%(_obj)s: %(sig_re)s \d+ \d+
-        %(sub1_hello_c)s: None \d+ \d+
-        %(CC)s: None \d+ \d+
+hello%(_obj)s: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub1_hello_c)s: None \d+(\.\d*)? \d+
+        %(CC)s: None \d+(\.\d*)? \d+
         %(sig_re)s \[.*\]
 """ % locals()
 
 expect_r = r"""=== sub1:
-hello%(_exe)s: %(sig_re)s '%(date_re)s' \d+
-        %(sub1_hello_obj)s: %(sig_re)s '%(date_re)s' \d+
-        %(LINK)s: None '%(date_re)s' \d+
+hello%(_exe)s: %(sig_re)s '%(date_re)s' \d+(\.\d*)?
+        %(sub1_hello_obj)s: %(sig_re)s '%(date_re)s' \d+(\.\d*)?
+        %(LINK)s: None '%(date_re)s' \d+(\.\d*)?
         %(sig_re)s \[.*%(manifest)s\]
-hello%(_obj)s: %(sig_re)s '%(date_re)s' \d+
-        %(sub1_hello_c)s: None '%(date_re)s' \d+
-        %(CC)s: None '%(date_re)s' \d+
+hello%(_obj)s: %(sig_re)s '%(date_re)s' \d+(\.\d*)?
+        %(sub1_hello_c)s: None '%(date_re)s' \d+(\.\d*)?
+        %(CC)s: None '%(date_re)s' \d+(\.\d*)?
         %(sig_re)s \[.*\]
 """ % locals()
 

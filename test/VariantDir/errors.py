@@ -59,12 +59,12 @@ def fake_scan(node, env, target):
     return []
 
 def cat(env, source, target):
-    target = str(target[0])
-    with open(target, "w") as f:
+    with open(target[0], "w") as f:
         for src in source:
-            with open(str(src), "r") as f2:
+            with open(src, "r") as f2:
                 f.write(f2.read())
 
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS={'Build':Builder(action=cat)},
                   SCANNERS=[Scanner(fake_scan, skeys = ['.in'])])
 
@@ -88,7 +88,7 @@ test.must_match(['normal', 'build', 'file.out'], "normal/src/file.in\n", mode='r
 if sys.platform != 'win32':
     dir = os.path.join('ro-dir', 'build')
     test.subdir(dir)
-    os.chmod(dir, os.stat(dir)[stat.ST_MODE] & ~stat.S_IWUSR)
+    os.chmod(dir, os.stat(dir).st_mode & ~stat.S_IWUSR)
 
     test.run(chdir = 'ro-dir',
              arguments = ".",
@@ -103,16 +103,16 @@ dir = os.path.join('ro-SConscript', 'build')
 test.subdir(dir)
 SConscript = test.workpath(dir, 'SConscript')
 test.write(SConscript, '')
-os.chmod(SConscript, os.stat(SConscript)[stat.ST_MODE] & ~stat.S_IWUSR)
+os.chmod(SConscript, os.stat(SConscript).st_mode & ~stat.S_IWUSR)
 with open(SConscript, 'r'):
-    os.chmod(dir, os.stat(dir)[stat.ST_MODE] & ~stat.S_IWUSR)
+    os.chmod(dir, os.stat(dir).st_mode & ~stat.S_IWUSR)
 
     test.run(chdir = 'ro-SConscript',
              arguments = ".",
              status = 2,
              stderr = "scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.\n" % os.path.join('src', 'SConscript'))
 
-    os.chmod('ro-SConscript', os.stat('ro-SConscript')[stat.ST_MODE] | stat.S_IWUSR)
+    os.chmod('ro-SConscript', os.stat('ro-SConscript').st_mode | stat.S_IWUSR)
 
 test.run(chdir = 'ro-SConscript',
          arguments = ".",
@@ -130,9 +130,9 @@ test.subdir(dir)
 test.write([dir, 'SConscript'], '')
 file_in = test.workpath(dir, 'file.in')
 test.write(file_in, '')
-os.chmod(file_in, os.stat(file_in)[stat.ST_MODE] & ~stat.S_IWUSR)
+os.chmod(file_in, os.stat(file_in).st_mode & ~stat.S_IWUSR)
 with open(file_in, 'r'):
-    os.chmod(dir, os.stat(dir)[stat.ST_MODE] & ~stat.S_IWUSR)
+    os.chmod(dir, os.stat(dir).st_mode & ~stat.S_IWUSR)
 
     test.run(chdir = 'ro-src',
              arguments = ".",

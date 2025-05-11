@@ -7,10 +7,104 @@
 NOTE: The 4.0.0 release of SCons dropped Python 2.7 support. Use 3.1.2 if
   Python 2.7 support is required (but note old SCons releases are unsupported).
 NOTE: Since SCons 4.3.0, Python 3.6.0 or above is required.
-NOTE: Python 3.6 support is deprecated and will be dropped in a future release.
-  python.org no longer supports 3.6 or 3.7, and will drop 3.8 in Oct. 2024.
+NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
+
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From John Doe:
+    - Whatever John Doe did.
+
+  From Joseph Brill:
+    - MSVS: Fix a significant MSVC/MSVC tool initialization slowdown when
+      vcpkg has been installed and the PSModulePath is not initialized
+      or propagated from the user's shell environment. To resolve this
+      The default Windows Powershell 7 path is added before the default
+      Windows Powershell 5 path in the carefully constructed
+      environment in which the MSVC batch files are run.   The shell
+      environment variables and values for VCPKG_DISABLE_METRICS and
+      VCPKG_ROOT are added to the limited MSVC environment when defined.
+      At present, the VCPKG_DISABLE_METRICS and VCPKG_ROOT variables and
+      values are not propagated to the SCons environment after running
+      the MSVC batch files.
+
+  From Bill Prendergast:
+    - Fixed SCons.Variables.PackageVariable to correctly test the default
+      setting against both enable & disable strings. (Fixes #4702)
+    - Extended unittests (crudely) to test for correct/expected response
+      when default setting is a boolean string.
+
+  From Mats Wichmann:
+    - Clean up C and C++ FLAGS tests. Tests which use a real compiler
+      are now more clearly distinguished (-live.py suffix and docstring).
+    - runtest.py once again finds "external" tests, such as the tests for
+      tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
+    - Clarify how pre/post actions on an alias work.
+    - Rearrange Fortran e2e tests - "live" tests now live in a separate
+      test file and don't share with flags-only mocked tests.
+    - Tweak the two doc-generation modules. The significant change is
+      turning the introductory comment in bin/SConsExamples into a docstring
+      that can be rendered by Sphinx, and updating that text. The rest is
+      minor fiddling like switching to f-strings small doc changes.
+    - Fix a couple of unit tests to not fail with Python 3.14. These involve
+      bytecode and error message contents, and there was no problem with
+      SCons itself using 3.14 in its current (just-before-freeze) state.
+    - Replace use of old conditional expression idioms with the official
+      one from PEP 308 introduced in Python 2.5 (2006). The idiom being
+      replaced (using and/or) is regarded as error prone.
+    - Improve the description of PackageVariable.
+    - Tweak the "API Docs" build (Sphinx) configuration a bit. Some
+      one-file modules were reported as duplicated, this is fixed.
+      SConsDoc and SConsExample are now included - their API is
+      interesting to developers working on SCons (needed to write docs),
+      even if not part of "The SCons API" itself.
+      Reworded the API Docs intro sectios a bit.
+    - Include the roff (.1) manpages in the scons-doc tarball as a better
+      long-term home than in the sdist.
+    - Virtualenv support module modernized: previously looked first for an
+      obsolete mechanism the external virtualenv tool used to use, now checks
+      first for the official approach introduced in PEP 405.
+    - Add missing manpage entry for Virtualenv(). Return type is documented
+      as an empty string in case of a negative result (rather than None),
+      and the code adjusted.  All internal usage, including tests,
+      was dont boolean-style anyway ("if Virtualenv():").
+
+
+RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
+
+
+  From Adam Simpkins:
+    - Fixed a hang in `wait_for_process_to_die()` on Windows, affecting
+      clean-up of the SCons daemon used for Ninja builds.
+
+  From Thaddeus Crews:
+    - Nodes are now treated as PathLike objects.
+
+  From Mats Wichmann:
+    - Fix typos in CCFLAGS test. Didn't affect the test itself, but
+      didn't correctly apply the DefaultEnvironment speedup.
+
+    - New CacheDir initialization code failed on Python 3.7 for unknown
+      reason (worked on 3.8+). Adjusted the approach a bit.  Fixes #4694.
+    - Try to fix Windows fails on Docbook tests in case xsltproc is found.
+      It's still not certain why this started failing.  On both GitHub
+      Actions and AppVeyor, it's found as part of StrawberryPerl, part of
+      the default install - maybe this wasn't the case before? The xsltproc
+      from choco install is considerably older and may have been more lenient?
+      Anyway, intermittent fails seem caused by something network related,
+      so propagate two xsltproc flags that avoid loading the dtd that were
+      present in three of the 11 "live" tests, but not the other eight.
+      Also, all 11 now pass the test-discovered xslt processor the same
+      way, which was not the case previously.
+    - Update progress printing on three tools for SCons developers -
+      the test runner and two of the doc generators.
+
+
+RELEASE 4.9.0 -  Sun, 02 Mar 2025 17:22:20 -0700
+
+  From Ruben Di Battista:
+    - Expose `extra_libs` kwarg in Configure checks `CheckLibWithHeader`
+      and 'CheckLib' and forward it downstream to `CheckLib`
 
   From Joseph Brill:
     - Added error handling when creating MSVC detection debug log file specified by
@@ -83,11 +177,29 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       detect and upgrade legacy type-hint syntax.
     - Removed "SCons.Util.sctyping.py", as the functionality can now be substituted
       via top-level `from __future__ import annotations`.
+    - Implemented type hints for Nodes.
+
+  From William Deegan:
+    - Update ninja tool to use ninja.BIN_DIR to find pypi packaged ninja binary.
+      python ninja package version 1.11.1.2 changed the location and previous
+      logic no longer worked.
+    - Added TestSCons.NINJA_BINARY to TestSCons to centralize logic to find ninja binary
+    - Refactored SCons.Tool.ninja -> SCons.Tool.ninja_tool, and added alias so
+      env.Tool('ninja') will still work. This avoids conflicting with the pypi module ninja.
+    - Renamed env.Help() & Help()'s argument `keep_local` to `local_only`, previously the documentation
+      specified `local_only`, but the code and tests were using `keep_local`. The functionality
+      more closely matches local only.  NOTE: It doesn't seem like any code in the wild was using
+      local_only as we'd not received any reports of such until PR #4606 from hedger.
+    - Fix Issue #2281, AddPreAction() & AddPostAction() were being ignored if no action
+      was specified when the Alias was initially created.
 
   From Alex James:
     - On Darwin, PermissionErrors are now handled while trying to access
       /etc/paths.d. This may occur if SCons is invoked in a sandboxed
       environment (such as Nix).
+
+  From Prabhu S. Khalsa:
+    - Fix typo in man page
 
   From Dillan Mills:
     - Fix support for short options (`-x`).
@@ -95,7 +207,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Keith F Prussing:
     - Added support for tracking beamer themes in the LaTeX scanner.
 
-  From rico-chet:
+  From Adam Scott:
+    - Changed Ninja's TEMPLATE rule pool to use `install_pool` instead of
+      `local_pool`, hoping it will fix a race condition that can occurs when
+      Ninja defers to SCons to build.
+
+  From Alex Thiessen:
     - Many grammatical and spelling fixes in the documentation.
 
   From Mats Wichmann:
@@ -149,6 +266,45 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       always returns  a dict. The default remains to return different
       types depending on whether zero, one, or multiple construction
       variable names are given.
+    - Update Clean and NoClean documentation.
+    - Make sure unknown variables from a Variables file are recognized
+      as such. Previously only unknowns from the command line were
+      recognized (issue #4645).
+    - A Variables object now makes available a "defaulted" attribute,
+      a list of variable names that were set in the environment with
+      their values taken from the default in the variable description
+      (if a variable was set to the same value as the default in one
+      of the input sources, it is not included in this list).
+    - If a build Variable is created with no aliases, the name of the
+      Variable is no longer listed in its aliases. Internally, the name
+      and aliases are considered together anyway so this should not have
+      any effect except for being visible to custom help text formatters.
+    - A build Variable is now a dataclass, with initialization moving to
+      the automatically provided method; the Variables class no longer
+      writes directly to a Variable (makes static checkers happier).
+    - Improved Variables documentation.
+    - The (optional) C Conditional Scanner now does limited macro
+      replacement on the contents of CPPDEFINES, to improve finding deps
+      that are conditionally included.  Previously replacement was only
+      done on macro definitions found in the file being scanned.
+      Only object-like macros are replaced (not function-like), and
+      only on a whole-word basis; recursion is limited to five levels
+      and does not error out if that limit is reached (issue #4523).
+    - Minor modernization: make use of stat object's st_mode, st_mtime
+      and other attributes rather than indexing into stat return.
+    - The update-release-info test is adapted to accept changed help output
+      introduced in Python 3.12.8/3.13.1.
+    - Update the User Guide Command() example which now shows a target name
+      being created from '${SOURCE.base}.out' to use a valid special
+      attribute and to explain what's being done in the example.
+    - Test framework reformatted using settings from pyproject.toml.
+      Includes code embedded in docstrings.
+    - Handle case of "memoizer" as one member of a comma-separated
+      --debug string - this was previously missed.
+    - test YACC/live.py fixed - finally started failing on an "old-style"
+      (K&R flavor) function declaration, updated.
+    - Test framework - add recognizing list-of-path-components for
+      the destination of fixtures too (matches docstrings now).
 
 
 RELEASE 4.8.1 -  Tue, 03 Sep 2024 17:22:20 -0700

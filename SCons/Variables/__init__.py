@@ -27,8 +27,10 @@ from __future__ import annotations
 
 import os.path
 import sys
+from contextlib import suppress
+from dataclasses import dataclass
 from functools import cmp_to_key
-from typing import Callable, Sequence
+from typing import Any, Callable, Sequence
 
 import SCons.Errors
 import SCons.Util
@@ -52,28 +54,32 @@ __all__ = [
     "PathVariable",
 ]
 
+
+@dataclass(order=True)
 class Variable:
     """A Build Variable."""
-
     __slots__ = ('key', 'aliases', 'help', 'default', 'validator', 'converter', 'do_subst')
-
-    def __lt__(self, other):
-        """Comparison fuction so Variable instances sort."""
-        return self.key < other.key
-
-    def __str__(self) -> str:
-        """Provide a way to "print" a Variable object."""
-        return (
-            f"({self.key!r}, {self.aliases}, {self.help!r}, {self.default!r}, "
-            f"validator={self.validator}, converter={self.converter})"
-        )
+    key: str
+    aliases: list[str]
+    help: str
+    default: Any
+    validator: Callable | None
+    converter: Callable | None
+    do_subst: bool
 
 
 class Variables:
-    """A container for multiple Build Variables.
+    """A container for Build Variables.
 
-    Includes methods to updates the environment with the variables,
-    and to render the help text.
+    Includes a method to populate the variables with values into a
+    construction envirionment, and methods to render the help text.
+
+    Note that the pubic API for creating a ``Variables`` object is
+    :func:`SCons.Script.Variables`, a kind of factory function, which
+    defaults to supplying the contents of :attr:`~SCons.Script.ARGUMENTS`
+    as the *args* parameter if it was not otherwise given. That is the
+    behavior documented in the manpage for ``Variables`` - and different
+    from the default if you instantiate this directly.
 
     Arguments:
       files: string or list of strings naming variable config scripts
@@ -83,11 +89,15 @@ class Variables:
          instead of a fresh instance. Currently inoperable (default ``False``)
 
     .. versionchanged:: 4.8.0
-       The default for *is_global* changed to ``False`` (previously
-       ``True`` but it had no effect due to an implementation error).
+       The default for *is_global* changed to ``False`` (the previous
+       default ``True`` had no effect due to an implementation error).
 
     .. deprecated:: 4.8.0
        *is_global* is deprecated.
+
+    .. versionadded:: 4.9.0
+       The :attr:`defaulted` attribute now lists those variables which
+       were filled in from default values.
     """
 
     def __init__(
@@ -102,27 +112,30 @@ class Variables:
             files = [files] if files else []
         self.files: Sequence[str] = files
         self.unknown: dict[str, str] = {}
+        self.defaulted: list[str] = []
 
     def __str__(self) -> str:
-        """Provide a way to "print" a Variables object."""
-        s = "Variables(\n  options=[\n"
-        for option in self.options:
-            s += f"    {str(option)},\n"
-        s += "  ],\n"
-        s += f"  args={self.args},\n  files={self.files},\n  unknown={self.unknown},\n)"
-        return s
+        """Provide a way to "print" a :class:`Variables` object."""
+        opts = ',\n'.join((f"    {option!s}" for option in self.options))
+        return (
+            f"Variables(\n  options=[\n{opts}\n  ],\n"
+            f"  args={self.args},\n"
+            f"  files={self.files},\n"
+            f"  unknown={self.unknown},\n"
+            f"  defaulted={self.defaulted},\n)"
+        )
 
     # lint: W0622: Redefining built-in 'help'
     def _do_add(
         self,
-        key: str | list[str],
+        key: str | Sequence[str],
         help: str = "",
         default=None,
         validator: Callable | None = None,
         converter: Callable | None = None,
         **kwargs,
     ) -> None:
-        """Create a Variable and add it to the list.
+        """Create a :class:`Variable` and add it to the list.
 
         This is the internal implementation for :meth:`Add` and
         :meth:`AddVariables`. Not part of the public API.
@@ -130,30 +143,19 @@ class Variables:
         .. versionadded:: 4.8.0
               *subst* keyword argument is now recognized.
         """
-        option = Variable()
-
-        # If we get a list or a tuple, we take the first element as the
-        # option key and store the remaining in aliases.
+        # aliases needs to be a list for later concatenation operations
         if SCons.Util.is_Sequence(key):
-            option.key = key[0]
-            option.aliases = list(key[1:])
+            name, aliases = key[0], list(key[1:])
         else:
-            option.key = key
-            # TODO: normalize to not include key in aliases. Currently breaks tests.
-            option.aliases = [key,]
-        if not option.key.isidentifier():
-            raise SCons.Errors.UserError(f"Illegal Variables key {option.key!r}")
-        option.help = help
-        option.default = default
-        option.validator = validator
-        option.converter = converter
-        option.do_subst = kwargs.pop("subst", True)
-        # TODO should any remaining kwargs be saved in the Variable?
-
+            name, aliases = key, []
+        if not name.isidentifier():
+            raise SCons.Errors.UserError(f"Illegal Variables key {name!r}")
+        do_subst = kwargs.pop("subst", True)
+        option = Variable(name, aliases, help, default, validator, converter, do_subst)
         self.options.append(option)
 
-        # options might be added after the 'unknown' dict has been set up,
-        # so we remove the key and all its aliases from that dict
+        # options might be added after the 'unknown' dict has been set up:
+        # look for and remove the key and all its aliases from that dict
         for alias in option.aliases + [option.key,]:
             if alias in self.unknown:
                 del self.unknown[alias]
@@ -203,9 +205,9 @@ class Variables:
         return self._do_add(key, *args, **kwargs)
 
     def AddVariables(self, *optlist) -> None:
-        """Add a list of Build Variables.
+        """Add Build Variables.
 
-        Each list element is a tuple/list of arguments to be passed on
+        Each *optlist* element is a sequence of arguments to be passed on
         to the underlying method for adding variables.
 
         Example::
@@ -223,31 +225,57 @@ class Variables:
     def Update(self, env, args: dict | None = None) -> None:
         """Update an environment with the Build Variables.
 
+        This is where the work of adding variables to the environment
+        happens, The input sources saved at init time are scanned for
+        variables to add, though if *args* is passed, then it is used
+        instead of the saved one. If any variable description set up
+        a callback for a validator and/or converter, those are called.
+        Variables from the input sources which do not match a variable
+        description in this object are ignored for purposes of adding
+        to *env*, but are saved in the :attr:`unknown` dict attribute.
+        Variables which are set in *env* from the default in a variable
+        description and not from the input sources are saved in the
+        :attr:`defaulted` list attribute.
+
         Args:
             env: the environment to update.
             args: a dictionary of keys and values to update in *env*.
                If omitted, uses the saved :attr:`args`
         """
-        # first pull in the defaults
+        # first pull in the defaults, except any which are None.
         values = {opt.key: opt.default for opt in self.options if opt.default is not None}
+        self.defaulted = list(values)
 
-        # next set the values specified in any options script(s)
+        # next set the values specified in any saved-variables script(s)
         for filename in self.files:
             # TODO: issue #816 use Node to access saved-variables file?
             if os.path.exists(filename):
-                # lint: W0622: Redefining built-in 'dir'
-                dir = os.path.split(os.path.abspath(filename))[0]
-                if dir:
-                    sys.path.insert(0, dir)
+                # issue #4645: don't exec directly into values,
+                #   so we can iterate through for unknown variables.
+                temp_values = {}
+                dirname = os.path.split(os.path.abspath(filename))[0]
+                if dirname:
+                    sys.path.insert(0, dirname)
                 try:
-                    values['__name__'] = filename
+                    temp_values['__name__'] = filename
                     with open(filename) as f:
                         contents = f.read()
-                    exec(contents, {}, values)
+                    exec(contents, {}, temp_values)
                 finally:
-                    if dir:
+                    if dirname:
                         del sys.path[0]
-                    del values['__name__']
+                    del temp_values['__name__']
+
+                for arg, value in temp_values.items():
+                    added = False
+                    for option in self.options:
+                        if arg in option.aliases + [option.key,]:
+                            values[option.key] = value
+                            with suppress(ValueError):
+                                self.defaulted.remove(option.key)
+                            added = True
+                    if not added:
+                        self.unknown[arg] = value
 
         # set the values specified on the command line
         if args is None:
@@ -258,12 +286,22 @@ class Variables:
             for option in self.options:
                 if arg in option.aliases + [option.key,]:
                     values[option.key] = value
+                    with suppress(ValueError):
+                        self.defaulted.remove(option.key)
                     added = True
             if not added:
                 self.unknown[arg] = value
 
-        # put the variables in the environment:
+        # put the variables in the environment
         # (don't copy over variables that are not declared as options)
+        #
+        # Nitpicking: in OO terms, this method increases coupling as its
+        #   main work is to update a different object (env), rather than
+        #   the object it's bound to (although it does update self, too).
+        #   It's tricky to decouple because the algorithm counts on directly
+        #   setting a var in *env* first so it can call env.subst() on it
+        #   to transform it.
+
         for option in self.options:
             try:
                 env[option.key] = values[option.key]
@@ -374,9 +412,10 @@ class Variables:
                 (must take two arguments and return ``-1``, ``0`` or ``1``)
                 or a boolean to indicate if it should be sorted.
         """
-        # TODO the 'sort' argument matched the old way Python's sorted()
-        #   worked, taking a comparison function argument. That has been
-        #   removed so now we have to convert to a key.
+        # TODO this interface was designed when Python's sorted() took an
+        #   optional comparison function (pre-3.0). Since it no longer does,
+        #   we use functools.cmp_to_key() since can't really change the
+        #   documented meaning of the "sort" argument. Maybe someday?
         if callable(sort):
             options = sorted(self.options, key=cmp_to_key(lambda x, y: sort(x.key, y.key)))
         elif sort is True:

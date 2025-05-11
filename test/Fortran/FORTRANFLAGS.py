@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
@@ -31,26 +30,31 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 _exe = TestSCons._exe
 
+# ref: test/fixture/mylink.py
 test.file_fixture('mylink.py')
+# ref: test/Fortran/fixture/myfortran_flags.py
 test.file_fixture(['fixture', 'myfortran_flags.py'])
 
-test.write('SConstruct', """
-env = Environment(LINK = r'%(_python_)s mylink.py',
-                  LINKFLAGS = [],
-                  FORTRAN = r'%(_python_)s myfortran_flags.py fortran',
-                  FORTRANFLAGS = '-x')
-env.Program(target = 'test01', source = 'test01.f')
-env.Program(target = 'test02', source = 'test02.F')
-env.Program(target = 'test03', source = 'test03.for')
-env.Program(target = 'test04', source = 'test04.FOR')
-env.Program(target = 'test05', source = 'test05.ftn')
-env.Program(target = 'test06', source = 'test06.FTN')
-env.Program(target = 'test07', source = 'test07.fpp')
-env.Program(target = 'test08', source = 'test08.FPP')
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
+env = Environment(
+    LINK=r'%(_python_)s mylink.py',
+    LINKFLAGS=[],
+    FORTRAN=r'%(_python_)s myfortran_flags.py fortran',
+    FORTRANFLAGS='-x',
+)
+env.Program(target='test01', source='test01.f')
+env.Program(target='test02', source='test02.F')
+env.Program(target='test03', source='test03.for')
+env.Program(target='test04', source='test04.FOR')
+env.Program(target='test05', source='test05.ftn')
+env.Program(target='test06', source='test06.FTN')
+env.Program(target='test07', source='test07.fpp')
+env.Program(target='test08', source='test08.FPP')
 """ % locals())
 
-test.write('test01.f',   "This is a .f file.\n#link\n#fortran\n")
-test.write('test02.F',   "This is a .F file.\n#link\n#fortran\n")
+test.write('test01.f', "This is a .f file.\n#link\n#fortran\n")
+test.write('test02.F', "This is a .F file.\n#link\n#fortran\n")
 test.write('test03.for', "This is a .for file.\n#link\n#fortran\n")
 test.write('test04.FOR', "This is a .FOR file.\n#link\n#fortran\n")
 test.write('test05.ftn', "This is a .ftn file.\n#link\n#fortran\n")
@@ -58,7 +62,7 @@ test.write('test06.FTN', "This is a .FTN file.\n#link\n#fortran\n")
 test.write('test07.fpp', "This is a .fpp file.\n#link\n#fortran\n")
 test.write('test08.FPP', "This is a .FPP file.\n#link\n#fortran\n")
 
-test.run(arguments = '.', stderr = None)
+test.run(arguments='.', stderr=None)
 
 test.must_match('test01' + _exe, " -c -x\nThis is a .f file.\n")
 test.must_match('test02' + _exe, " -c -x\nThis is a .F file.\n")
@@ -68,56 +72,6 @@ test.must_match('test05' + _exe, " -c -x\nThis is a .ftn file.\n")
 test.must_match('test06' + _exe, " -c -x\nThis is a .FTN file.\n")
 test.must_match('test07' + _exe, " -c -x\nThis is a .fpp file.\n")
 test.must_match('test08' + _exe, " -c -x\nThis is a .FPP file.\n")
-
-
-fc = 'f77'
-g77 = test.detect_tool(fc)
-
-if g77:
-
-    directory = 'x'
-    test.subdir(directory)
-
-    test.file_fixture('wrapper.py')
-
-    test.write('SConstruct', """
-foo = Environment(FORTRAN = '%(fc)s')
-f77 = foo.Dictionary('FORTRAN')
-bar = foo.Clone(FORTRAN = r'%(_python_)s wrapper.py ' + f77, FORTRANFLAGS = '-I%(directory)s')
-foo.Program(target = 'foo', source = 'foo.f')
-bar.Program(target = 'bar', source = 'bar.f')
-""" % locals())
-
-    test.write('foo.f', r"""
-      PROGRAM FOO
-      PRINT *,'foo.f'
-      STOP
-      END
-""")
-
-    test.write('bar.f', r"""
-      PROGRAM BAR
-      PRINT *,'bar.f'
-      STOP
-      END
-""")
-
-
-    test.run(arguments = 'foo' + _exe, stderr = None)
-
-    test.run(program = test.workpath('foo'), stdout =  " foo.f\n")
-
-    test.must_not_exist('wrapper.out')
-
-    import sys
-    if sys.platform[:5] == 'sunos':
-        test.run(arguments = 'bar' + _exe, stderr = None)
-    else:
-        test.run(arguments = 'bar' + _exe)
-
-    test.run(program = test.workpath('bar'), stdout =  " bar.f\n")
-
-    test.must_match('wrapper.out', "wrapper.py\n")
 
 test.pass_test()
 

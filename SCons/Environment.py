@@ -649,7 +649,7 @@ class SubstitutionEnvironment:
            args - filename strings or nodes to convert; nodes are just
               added to the list without further processing.
            node_factory - optional factory to create the nodes; if not
-              specified, will use this environment's ``fs.File method.
+              specified, will use this environment's ``fs.File`` method.
            lookup_list - optional list of lookup functions to call to
               attempt to find the file referenced by each *args*.
            kw - keyword arguments that represent additional nodes to add.
@@ -1731,7 +1731,7 @@ class Base(SubstitutionEnvironment):
         Raises:
           KeyError: if any of *args* is not in the construction environment.
 
-        .. versionchanged:: NEXT_RELEASE
+        .. versionchanged:: 4.9.0
            Added the *as_dict* keyword arg to specify always returning a dict.
         """
         if not args:
@@ -1755,15 +1755,15 @@ class Base(SubstitutionEnvironment):
         (pretty-print) or ``<<non-serializable: function>>`` (JSON).
 
         Args:
-           key: if omitted, format the whole dict of variables,
-              else format *key*(s) with the corresponding values.
+           key: variables to format together with their values.
+             If omitted, format the whole dict of variables,
            format: specify the format to serialize to. ``"pretty"`` generates
              a pretty-printed string, ``"json"`` a JSON-formatted string.
 
         Raises:
            ValueError: *format* is not a recognized serialization format.
 
-        .. versionchanged:: NEXT_RELEASE
+        .. versionchanged:: 4.9.0
            *key* is no longer limited to a single construction variable name.
            If *key* is supplied, a formatted dictionary is generated like the
            no-arg case - previously a single *key* displayed just the value.
@@ -2248,6 +2248,16 @@ class Base(SubstitutionEnvironment):
             self.get_CacheDir()
 
     def Clean(self, targets, files) -> None:
+        """Mark additional files for cleaning.
+
+        *files* will be removed if any of *targets* are selected
+        for cleaning - that is, the combination of target selection
+        and -c clean mode.
+
+        Args:
+            targets (files or nodes): targets to associate *files* with.
+            files (files or nodes): items to remove if *targets* are selected.
+        """
         global CleanTargets
         tlist = self.arg2nodes(targets, self.fs.Entry)
         flist = self.arg2nodes(files, self.fs.Entry)
@@ -2334,8 +2344,8 @@ class Base(SubstitutionEnvironment):
             return result
         return self.fs.PyPackageDir(s)
 
-    def NoClean(self, *targets):
-        """Tag target(s) so that it will not be cleaned by -c."""
+    def NoClean(self, *targets) -> list:
+        """Tag *targets* to not be removed in clean mode."""
         tlist = []
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))
@@ -2736,7 +2746,7 @@ class OverrideEnvironment(Base):
         Raises:
           KeyError: if any of *args* is not in the construction environment.
 
-        .. versionchanged: NEXT_RELEASE
+        .. versionchanged: 4.9.0
            Added the *as_dict* keyword arg to always return a dict.
         """
         d = {}

@@ -57,7 +57,7 @@ test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 
 def build(env, target, source):
-    with open(str(target[0]), 'wt') as ofp, open(str(source[0]), 'rt') as ifp:
+    with open(target[0], 'wt') as ofp, open(source[0], 'rt') as ifp:
         ofp.write(ifp.read())
 
 B = Builder(action = build)

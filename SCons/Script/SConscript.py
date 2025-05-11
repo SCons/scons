@@ -536,25 +536,27 @@ class SConsEnvironment(SCons.Environment.Base):
         name = self.subst(name)
         return SCons.Script.Main.GetOption(name)
 
-    def Help(self, text, append: bool = False, keep_local: bool = False) -> None:
+    def Help(self, text, append: bool = False, local_only: bool = False) -> None:
         """Update the help text.
 
         The previous help text has *text* appended to it, except on the
-        first call. On first call, the values of *append* and *keep_local*
+        first call. On first call, the values of *append* and *local_only*
         are considered to determine what is appended to.
 
         Arguments:
            text: string to add to the help text.
            append: on first call, if true, keep the existing help text
               (default False).
-           keep_local: on first call, if true and *append* is also true,
+           local_only: on first call, if true and *append* is also true,
               keep only the help text from AddOption calls.
 
         .. versionchanged:: 4.6.0
            The *keep_local* parameter was added.
+        .. versionchanged:: 4.9.0
+           The *keep_local* parameter was renamed *local_only* to match manpage
         """
         text = self.subst(text, raw=1)
-        SCons.Script.HelpFunction(text, append=append, keep_local=keep_local)
+        SCons.Script.HelpFunction(text, append=append, local_only=local_only)
 
     def Import(self, *vars):
         try:

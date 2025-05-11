@@ -34,12 +34,12 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
-env = Environment(tools=[]) 
+env = Environment(tools=[])
 
 def concatenate(target, source, env):
-    with open(str(target[0]), 'wb') as ofp:
-        for s in source:
-            with open(str(s), 'rb') as ifp:
+    with open(target[0], 'wb') as ofp:
+        for src in source:
+            with open(src, 'rb') as ifp:
                 ofp.write(ifp.read())
 
 env['BUILDERS']['Concatenate'] = Builder(action=concatenate)

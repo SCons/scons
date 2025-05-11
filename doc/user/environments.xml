@@ -1877,8 +1877,10 @@ env.Command('foo', [], '__ROOT__/usr/bin/printenv.py')
       </file>
       <file name="__ROOT__/usr/bin/printenv.py" chmod="0o755">
 #!/usr/bin/env python
+
 import os
 import sys
+
 if len(sys.argv) &gt; 1:
     keys = sys.argv[1:]
 else:
@@ -2133,7 +2135,7 @@ env.SomeTool(targets, sources)
       </para>
 
 <sconstruct>
-# For Windows based on the python version and install directory, this may be something like
+# For Windows based on the Python version and install directory, this may be something like
 C:\Python35\Lib\site-packages\someinstalledpackage\SomeTool.py
 C:\Python35\Lib\site-packages\someinstalledpackage\SomeTool\__init__.py
 
@@ -2172,10 +2174,10 @@ env.SomeTool(targets, sources)
       To avoid the use of a prefix within the name of the tool or filtering
       <varname>sys.path</varname> for directories,
       we can use &f-link-PyPackageDir; function to locate the directory of
-      the python package.
+      the &Python; package.
       &f-PyPackageDir; returns a Dir object which represents the path of the
       directory
-      for the python package / module specified as a parameter.
+      for the &Python; package / module specified as a parameter.
       </para>
 
       <sconstruct>

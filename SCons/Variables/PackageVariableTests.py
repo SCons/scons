@@ -92,6 +92,34 @@ class PackageVariableTestCase(unittest.TestCase):
             x = o.converter(False)
             assert not x, f"converter returned False for {t!r}"
 
+        # When the variable is created with boolean string make sure the converter
+        # returns the correct result i.e. a bool or a passed path
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.PackageVariable('test', 'test build variable help', 'yes'))
+        o = opts.options[0]
+
+        x = o.converter(str(True))
+        assert not isinstance(x, str), "converter with default str(yes) returned a string when given str(True)"
+        assert x, "converter with default str(yes) returned False for str(True)"
+        x = o.converter(str(False))
+        assert not isinstance(x, str), "converter with default str(yes) returned a string when given str(False)"
+        assert not x, "converter with default str(yes) returned True for str(False)"
+        x = o.converter('/explicit/path')
+        assert x == '/explicit/path', "converter with default str(yes) did not return path"
+
+        opts = SCons.Variables.Variables()
+        opts.Add(SCons.Variables.PackageVariable('test', 'test build variable help', 'no'))
+        o = opts.options[0]
+
+        x = o.converter(str(True))
+        assert not isinstance(x, str), "converter with default str(no) returned a string when given str(True)"
+        assert x, "converter with default str(no) returned False for str(True)"
+        x = o.converter(str(False))
+        assert not isinstance(x, str), "converter with default str(no) returned a string when given str(False)"
+        assert not x, "converter with default str(no) returned True for str(False)"
+        x = o.converter('/explicit/path')
+        assert x == '/explicit/path', "converter with default str(no) did not return path"
+
     def test_validator(self) -> None:
         """Test the PackageVariable validator"""
         opts = SCons.Variables.Variables()

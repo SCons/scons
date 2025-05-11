@@ -168,62 +168,62 @@ test.run(arguments = '--implicit-cache --tree=prune .')
 
 sig_re = r'[0-9a-fA-F]{32,64}'
 
-expect = r"""hello.c: %(sig_re)s \d+ \d+
-hello.exe: %(sig_re)s \d+ \d+
-        %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
-        fake_link\.py: %(sig_re)s \d+ \d+
+expect = r"""hello.c: %(sig_re)s \d+(\.\d*)? \d+
+hello.exe: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub1_hello_obj)s: %(sig_re)s \d+(\.\d*)? \d+
+        fake_link\.py: %(sig_re)s \d+(\.\d*)? \d+
         %(sig_re)s \[.*\]
-hello.obj: %(sig_re)s \d+ \d+
-        %(sub1_hello_c)s: %(sig_re)s \d+ \d+
-        fake_cc\.py: %(sig_re)s \d+ \d+
+hello.obj: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub1_hello_c)s: %(sig_re)s \d+(\.\d*)? \d+
+        fake_cc\.py: %(sig_re)s \d+(\.\d*)? \d+
         %(sig_re)s \[.*\]
 """ % locals()
 
 test.run_sconsign(arguments = f"sub1/{database_name}", stdout=expect)
 
 test.run_sconsign(arguments = f"--raw sub1/{database_name}",
-         stdout = r"""hello.c: {'csig': '%(sig_re)s', 'timestamp': \d+L?, 'size': \d+L?, '_version_id': 2}
-hello.exe: {'csig': '%(sig_re)s', 'timestamp': \d+L?, 'size': \d+L?, '_version_id': 2}
-        %(sub1_hello_obj)s: {'csig': '%(sig_re)s', 'timestamp': \d+L?, 'size': \d+L?, '_version_id': 2}
-        fake_link\.py: {'csig': '%(sig_re)s', 'timestamp': \d+L?, 'size': \d+L?, '_version_id': 2}
+         stdout = r"""hello.c: {'csig': '%(sig_re)s', 'timestamp': \d+(\.\d*)?L?, 'size': \d+L?, '_version_id': 2}
+hello.exe: {'csig': '%(sig_re)s', 'timestamp': \d+(\.\d*)?L?, 'size': \d+L?, '_version_id': 2}
+        %(sub1_hello_obj)s: {'csig': '%(sig_re)s', 'timestamp': \d+(\.\d*)?L?, 'size': \d+L?, '_version_id': 2}
+        fake_link\.py: {'csig': '%(sig_re)s', 'timestamp': \d+(\.\d*)?L?, 'size': \d+L?, '_version_id': 2}
         %(sig_re)s \[.*\]
-hello.obj: {'csig': '%(sig_re)s', 'timestamp': \d+L?, 'size': \d+L?, '_version_id': 2}
-        %(sub1_hello_c)s: {'csig': '%(sig_re)s', 'timestamp': \d+L?, 'size': \d+L?, '_version_id': 2}
-        fake_cc\.py: {'csig': '%(sig_re)s', 'timestamp': \d+L?, 'size': \d+L?, '_version_id': 2}
+hello.obj: {'csig': '%(sig_re)s', 'timestamp': \d+(\.\d*)?L?, 'size': \d+L?, '_version_id': 2}
+        %(sub1_hello_c)s: {'csig': '%(sig_re)s', 'timestamp': \d+(\.\d*)?L?, 'size': \d+L?, '_version_id': 2}
+        fake_cc\.py: {'csig': '%(sig_re)s', 'timestamp': \d+(\.\d*)?L?, 'size': \d+L?, '_version_id': 2}
         %(sig_re)s \[.*\]
 """ % locals())
 
 test.run_sconsign(arguments = f"-v sub1/{database_name}",
          stdout = r"""hello.c:
     csig: %(sig_re)s
-    timestamp: \d+
+    timestamp: \d+(\.\d*)?
     size: \d+
 hello.exe:
     csig: %(sig_re)s
-    timestamp: \d+
+    timestamp: \d+(\.\d*)?
     size: \d+
     implicit:
         %(sub1_hello_obj)s:
             csig: %(sig_re)s
-            timestamp: \d+
+            timestamp: \d+(\.\d*)?
             size: \d+
         fake_link\.py:
             csig: %(sig_re)s
-            timestamp: \d+
+            timestamp: \d+(\.\d*)?
             size: \d+
     action: %(sig_re)s \[.*\]
 hello.obj:
     csig: %(sig_re)s
-    timestamp: \d+
+    timestamp: \d+(\.\d*)?
     size: \d+
     implicit:
         %(sub1_hello_c)s:
             csig: %(sig_re)s
-            timestamp: \d+
+            timestamp: \d+(\.\d*)?
             size: \d+
         fake_cc\.py:
             csig: %(sig_re)s
-            timestamp: \d+
+            timestamp: \d+(\.\d*)?
             size: \d+
     action: %(sig_re)s \[.*\]
 """ % locals())
@@ -248,73 +248,73 @@ hello.obj:
 
 test.run_sconsign(arguments = f"-t -v sub1/{database_name}",
          stdout = r"""hello.c:
-    timestamp: \d+
+    timestamp: \d+(\.\d*)?
 hello.exe:
-    timestamp: \d+
+    timestamp: \d+(\.\d*)?
 hello.obj:
-    timestamp: \d+
+    timestamp: \d+(\.\d*)?
 """ % locals())
 
 test.run_sconsign(arguments = f"-e hello.obj sub1/{database_name}",
-         stdout = r"""hello.obj: %(sig_re)s \d+ \d+
-        %(sub1_hello_c)s: %(sig_re)s \d+ \d+
-        fake_cc\.py: %(sig_re)s \d+ \d+
+         stdout = r"""hello.obj: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub1_hello_c)s: %(sig_re)s \d+(\.\d*)? \d+
+        fake_cc\.py: %(sig_re)s \d+(\.\d*)? \d+
         %(sig_re)s \[.*\]
 """ % locals())
 
 test.run_sconsign(arguments = f"-e hello.obj -e hello.exe -e hello.obj sub1/{database_name}",
-         stdout = r"""hello.obj: %(sig_re)s \d+ \d+
-        %(sub1_hello_c)s: %(sig_re)s \d+ \d+
-        fake_cc\.py: %(sig_re)s \d+ \d+
+         stdout = r"""hello.obj: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub1_hello_c)s: %(sig_re)s \d+(\.\d*)? \d+
+        fake_cc\.py: %(sig_re)s \d+(\.\d*)? \d+
         %(sig_re)s \[.*\]
-hello.exe: %(sig_re)s \d+ \d+
-        %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
-        fake_link\.py: %(sig_re)s \d+ \d+
+hello.exe: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub1_hello_obj)s: %(sig_re)s \d+(\.\d*)? \d+
+        fake_link\.py: %(sig_re)s \d+(\.\d*)? \d+
         %(sig_re)s \[.*\]
-hello.obj: %(sig_re)s \d+ \d+
-        %(sub1_hello_c)s: %(sig_re)s \d+ \d+
-        fake_cc\.py: %(sig_re)s \d+ \d+
+hello.obj: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub1_hello_c)s: %(sig_re)s \d+(\.\d*)? \d+
+        fake_cc\.py: %(sig_re)s \d+(\.\d*)? \d+
         %(sig_re)s \[.*\]
 """ % locals())
 
 test.run_sconsign(arguments = f"sub2/{database_name}",
-         stdout = r"""hello.c: %(sig_re)s \d+ \d+
-hello.exe: %(sig_re)s \d+ \d+
-        %(sub2_hello_obj)s: %(sig_re)s \d+ \d+
-        fake_link\.py: %(sig_re)s \d+ \d+
+         stdout = r"""hello.c: %(sig_re)s \d+(\.\d*)? \d+
+hello.exe: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub2_hello_obj)s: %(sig_re)s \d+(\.\d*)? \d+
+        fake_link\.py: %(sig_re)s \d+(\.\d*)? \d+
         %(sig_re)s \[.*\]
-hello.obj: %(sig_re)s \d+ \d+
-        %(sub2_hello_c)s: %(sig_re)s \d+ \d+
-        %(sub2_inc1_h)s: %(sig_re)s \d+ \d+
-        %(sub2_inc2_h)s: %(sig_re)s \d+ \d+
-        fake_cc\.py: %(sig_re)s \d+ \d+
+hello.obj: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub2_hello_c)s: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub2_inc1_h)s: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub2_inc2_h)s: %(sig_re)s \d+(\.\d*)? \d+
+        fake_cc\.py: %(sig_re)s \d+(\.\d*)? \d+
         %(sig_re)s \[.*\]
-inc1.h: %(sig_re)s \d+ \d+
-inc2.h: %(sig_re)s \d+ \d+
+inc1.h: %(sig_re)s \d+(\.\d*)? \d+
+inc2.h: %(sig_re)s \d+(\.\d*)? \d+
 """ % locals())
 
 #test.run_sconsign(arguments = "-i -v sub2/{}".format(database_name),
-#         stdout = r"""hello.c: %(sig_re)s \d+ \d+
-#hello.exe: %(sig_re)s \d+ \d+
+#         stdout = r"""hello.c: %(sig_re)s \d+(\.\d*)? \d+
+#hello.exe: %(sig_re)s \d+(\.\d*)? \d+
 #    implicit:
-#        hello.obj: %(sig_re)s \d+ \d+
-#hello.obj: %(sig_re)s \d+ \d+
+#        hello.obj: %(sig_re)s \d+(\.\d*)? \d+
+#hello.obj: %(sig_re)s \d+(\.\d*)? \d+
 #    implicit:
-#        hello.c: %(sig_re)s \d+ \d+
-#        inc1.h: %(sig_re)s \d+ \d+
-#        inc2.h: %(sig_re)s \d+ \d+
+#        hello.c: %(sig_re)s \d+(\.\d*)? \d+
+#        inc1.h: %(sig_re)s \d+(\.\d*)? \d+
+#        inc2.h: %(sig_re)s \d+(\.\d*)? \d+
 #""" % locals())
 
 test.run_sconsign(arguments = f"-e hello.obj sub2/{database_name} sub1/{database_name}",
-         stdout = r"""hello.obj: %(sig_re)s \d+ \d+
-        %(sub2_hello_c)s: %(sig_re)s \d+ \d+
-        %(sub2_inc1_h)s: %(sig_re)s \d+ \d+
-        %(sub2_inc2_h)s: %(sig_re)s \d+ \d+
-        fake_cc\.py: %(sig_re)s \d+ \d+
+         stdout = r"""hello.obj: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub2_hello_c)s: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub2_inc1_h)s: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub2_inc2_h)s: %(sig_re)s \d+(\.\d*)? \d+
+        fake_cc\.py: %(sig_re)s \d+(\.\d*)? \d+
         %(sig_re)s \[.*\]
-hello.obj: %(sig_re)s \d+ \d+
-        %(sub1_hello_c)s: %(sig_re)s \d+ \d+
-        fake_cc\.py: %(sig_re)s \d+ \d+
+hello.obj: %(sig_re)s \d+(\.\d*)? \d+
+        %(sub1_hello_c)s: %(sig_re)s \d+(\.\d*)? \d+
+        fake_cc\.py: %(sig_re)s \d+(\.\d*)? \d+
         %(sig_re)s \[.*\]
 """ % locals())
 

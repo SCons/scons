@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,61 +22,67 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+Test handling of the dialect-specific FLAGS variable for shared objects,
+using a live compiler.
+"""
 
-import os
+import sys
 
 import TestSCons
 
 _python_ = TestSCons._python_
-
 test = TestSCons.TestSCons()
 
-test.file_fixture('wrapper.py')
+# ref: test/Fortran/fixture/myfortran_flags.py
+test.file_fixture(['fixture', 'myfortran_flags.py'])
 
-test.write('SConstruct', """
+fc = 'f90'
+if not test.detect_tool(fc):
+    fc = 'gfortran'
+    if not test.detect_tool(fc):
+        test.skip_test('Could not find a f90 tool; skipping test.\n')
+
+test.subdir('x')
+test.write(['x', 'dummy.i'], """\
+# Exists only such that -Ix finds the directory...
+""")
+# ref: test/fixture/wrapper.py
+test.file_fixture('wrapper.py')
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
+# foo = Environment(SHF90='%(fc)s')
 foo = Environment()
-shcxx = foo.Dictionary('SHCXX')
-bar = Environment(SHCXX = r'%(_python_)s wrapper.py ' + shcxx)
-foo.SharedObject(target = 'foo/foo', source = 'foo.cpp')
-bar.SharedObject(target = 'bar/bar', source = 'bar.cpp')
+shf90 = foo.Dictionary('SHF90')
+bar = foo.Clone(SHF90=r'%(_python_)s wrapper.py ' + shf90)
+bar.Append(SHF90FLAGS='-Ix')
+foo.SharedLibrary(target='foo/foo', source='foo.f90')
+bar.SharedLibrary(target='bar/bar', source='bar.f90')
 """ % locals())
 
-test.write('foo.cpp', r"""
-#include <stdio.h>
-#include <stdlib.h>
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = (char *)"--";
-        printf("foo.c\n");
-        exit (0);
-}
+test.write('foo.f90', r"""
+      PROGRAM FOO
+      PRINT *,'foo.f90'
+      STOP
+      END
 """)
 
-test.write('bar.cpp', r"""
-#include <stdio.h>
-#include <stdlib.h>
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = (char *)"--";
-        printf("foo.c\n");
-        exit (0);
-}
+test.write('bar.f90', r"""
+      PROGRAM BAR
+      PRINT *,'bar.f90'
+      STOP
+      END
 """)
 
+test.run(arguments='foo', stderr=None)
+test.must_not_exist('wrapper.out')
 
-test.run(arguments = 'foo')
-
-test.fail_test(os.path.exists(test.workpath('wrapper.out')))
-
-test.run(arguments = 'bar')
-
-test.must_match('wrapper.out', "wrapper.py\n", mode='r')
-# test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+if sys.platform.startswith('sunos'):
+    test.run(arguments='bar', stderr=None)
+else:
+    test.run(arguments='bar')
+test.must_match('wrapper.out', "wrapper.py\n")
 
 test.pass_test()
 

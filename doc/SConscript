@@ -582,6 +582,9 @@ else:
 
         if 'man' in targets:
             for m in man_page_list:
+                manpage = os.path.join(build, 'man', m)
+                tar_deps.append(manpage)
+                tar_list.append(manpage)
                 man, _1 = os.path.splitext(m)
 
                 pdf = os.path.join(build, 'PDF', f'{man}-man.pdf')

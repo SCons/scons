@@ -71,7 +71,7 @@ def _converter(val: str | bool, default: str) -> str | bool:
     *default* unless *default* is an enabling or disabling string,
     in which case ignore *default* and return ``True``.
 
-    .. versionchanged: NEXT_RELEASE
+    .. versionchanged: 4.9.0
        Now returns the default in case of a truthy value, matching what the
        public documentation always claimed, except if the default looks
        like one of the true/false strings.
@@ -86,7 +86,7 @@ def _converter(val: str | bool, default: str) -> str | bool:
     if lval in ENABLE_STRINGS:
         # Can't return the default if it is one of the enable/disable strings;
         # test code expects a bool.
-        if default in ENABLE_STRINGS:
+        if default in ENABLE_STRINGS + DISABLE_STRINGS:
             return True
         else:
             return default

@@ -35,7 +35,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
 def writeFile(target, contents):
-    with open(str(target[0]), 'w') as f:
+    with open(target[0], 'w') as f:
         f.write(contents)
     return 0
 
@@ -59,7 +59,7 @@ test.write('SConstruct', """\
 env = Environment()
 
 def gen_a_h(target, source, env):
-    with open(str(target[0]), 'w') as t, open(str(source[0]), 'r') as s:
+    with open(target[0], 'w') as t, open(source[0], 'r') as s:
         s.readline()
         t.write(s.readline()[:-1] + ';\\n')
 

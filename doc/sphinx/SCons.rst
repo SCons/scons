@@ -9,21 +9,6 @@ Module contents
     :undoc-members:
     :show-inheritance:
 
-Subpackages
------------
-
-.. toctree::
-
-    SCons.Node
-    SCons.Platform
-    SCons.Scanner
-    SCons.Script
-    SCons.Taskmaster
-    SCons.Tool
-    SCons.Util
-    SCons.Variables
-    SCons.compat
-
 Submodules
 ----------
 
@@ -171,6 +156,30 @@ SCons.exitfuncs module
 ----------------------
 
 .. automodule:: SCons.exitfuncs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+SConsDoc documentation module
+-----------------------------
+
+This module is NOT part of the SCons build tool itself.
+It is supporting tooling, invoked by tools used to build
+documentation components.
+
+.. automodule:: bin.SConsDoc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+SConsExamples documentation module
+----------------------------------
+
+This module is NOT part of the SCons build tool itself.
+It is supporting tooling, invoked by tools used to build
+documentation components.
+
+.. automodule:: bin.SConsExamples
     :members:
     :undoc-members:
     :show-inheritance:

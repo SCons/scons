@@ -104,9 +104,15 @@ class Alias(SCons.Node.Node):
     #
     #
 
-    def build(self) -> None:
+    def build(self, **kw) -> None:
         """A "builder" for aliases."""
-        pass
+        if len(self.executor.post_actions) + len(self.executor.pre_actions) > 0:
+            # Only actually call Node's build() if there are any
+            # pre or post actions.
+            # Alias nodes will get 1 action and Alias.build()
+            # This fixes GH Issue #2281
+            return self.really_build(**kw)
+
 
     def convert(self) -> None:
         try: del self.builder

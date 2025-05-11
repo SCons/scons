@@ -76,16 +76,16 @@ _sconf_temp_conftest_0_c = '.sconf_temp/conftest_%(sig_re)s_0.c'%locals()
 # Value node being printed actually begins with a newline.  It would
 # probably be good to change that to a repr() of the contents.
 expect = r"""=== .:
-SConstruct: None \d+ \d+
+SConstruct: None \d+(\.\d*)? \d+
 === .sconf_temp:
 conftest_%(sig_re)s_0.c:
-        '.*': 
+        '.*':\s
 #include "math.h"
 
 
         %(sig_re)s \[.*\]
 conftest_%(sig_re)s_0_%(sig_re)s%(_obj)s:
-        %(_sconf_temp_conftest_0_c)s: %(sig_re)s \d+ \d+
+        %(_sconf_temp_conftest_0_c)s: %(sig_re)s \d+(\.\d*)? \d+
         %(CC)s: %(sig_re)s None None
         %(sig_re)s \[.*\]
 === %(CC_dir)s:

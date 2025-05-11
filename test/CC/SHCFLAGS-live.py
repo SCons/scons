@@ -23,31 +23,38 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import sys
-import TestSCons
+"""
+Test behavior of SHCFLAGS.
+
+This is a live test, uses the detected C compiler.
+"""
+
 import os
-    
+import sys
+
+import TestSCons
+
 test = TestSCons.TestSCons()
 
 e = test.Environment()
-fooflags = e['SHCCFLAGS'] + ' -DFOO'
-barflags = e['SHCCFLAGS'] + ' -DBAR'
+fooflags = e['SHCFLAGS'] + ' -DFOO'
+barflags = e['SHCFLAGS'] + ' -DBAR'
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
 if sys.platform.find('irix') > -1:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
-test.write('SConstruct', """
+test.write('SConstruct', f"""\
 DefaultEnvironment(tools=[])
-foo = Environment(SHCCFLAGS = '%s', WINDOWS_INSERT_DEF=1)
-bar = Environment(SHCCFLAGS = '%s', WINDOWS_INSERT_DEF=1)
+foo = Environment(SHCFLAGS='{fooflags}', WINDOWS_INSERT_DEF=1)
+bar = Environment(SHCFLAGS='{barflags}', WINDOWS_INSERT_DEF=1)
 
-foo_obj = foo.SharedObject(target = 'foo', source = 'prog.c')
-foo.SharedLibrary(target = 'foo', source = foo_obj)
+foo_obj = foo.SharedObject(target='foo', source='prog.c')
+foo.SharedLibrary(target='foo', source=foo_obj)
 
-bar_obj = bar.SharedObject(target = 'bar', source = 'prog.c')
-bar.SharedLibrary(target = 'bar', source = bar_obj)
+bar_obj = bar.SharedObject(target='bar', source='prog.c')
+bar.SharedLibrary(target='bar', source=bar_obj)
 
 fooMain = foo.Clone(LIBS='foo', LIBPATH='.')
 foomain_obj = fooMain.Object(target='foomain', source='main.c')
@@ -56,7 +63,7 @@ fooMain.Program(target='fooprog', source=foomain_obj)
 barMain = bar.Clone(LIBS='bar', LIBPATH='.')
 barmain_obj = barMain.Object(target='barmain', source='main.c')
 barMain.Program(target='barprog', source=barmain_obj)
-""" % (fooflags, barflags))
+""")
 
 test.write('foo.def', r"""
 LIBRARY        "foo"
@@ -101,31 +108,30 @@ main(int argc, char* argv[])
 }
 """)
 
-test.run(arguments = '.')
+test.run(arguments='.')
+test.run(program=test.workpath('fooprog'), stdout="prog.c:  FOO\n")
+test.run(program=test.workpath('barprog'), stdout="prog.c:  BAR\n")
 
-test.run(program = test.workpath('fooprog'), stdout = "prog.c:  FOO\n")
-test.run(program = test.workpath('barprog'), stdout = "prog.c:  BAR\n")
+test.write('SConstruct', f"""\
+DefaultEnvironment(tools=[])
+bar = Environment(SHCFLAGS='{barflags}', WINDOWS_INSERT_DEF=1)
 
-test.write('SConstruct', """
-bar = Environment(SHCCFLAGS = '%s', WINDOWS_INSERT_DEF=1)
+foo_obj = bar.SharedObject(target='foo', source='prog.c')
+bar.SharedLibrary(target='foo', source=foo_obj)
 
-foo_obj = bar.SharedObject(target = 'foo', source = 'prog.c')
-bar.SharedLibrary(target = 'foo', source = foo_obj)
-
-bar_obj = bar.SharedObject(target = 'bar', source = 'prog.c')
-bar.SharedLibrary(target = 'bar', source = bar_obj)
+bar_obj = bar.SharedObject(target='bar', source='prog.c')
+bar.SharedLibrary(target='bar', source=bar_obj)
 
 barMain = bar.Clone(LIBS='bar', LIBPATH='.')
 foomain_obj = barMain.Object(target='foomain', source='main.c')
 barmain_obj = barMain.Object(target='barmain', source='main.c')
 barMain.Program(target='barprog', source=foomain_obj)
 barMain.Program(target='fooprog', source=barmain_obj)
-""" % barflags)
+""")
 
-test.run(arguments = '.')
-
-test.run(program = test.workpath('fooprog'), stdout = "prog.c:  BAR\n")
-test.run(program = test.workpath('barprog'), stdout = "prog.c:  BAR\n")
+test.run(arguments='.')
+test.run(program=test.workpath('fooprog'), stdout="prog.c:  BAR\n")
+test.run(program=test.workpath('barprog'), stdout="prog.c:  BAR\n")
 
 test.pass_test()
 

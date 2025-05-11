@@ -23,6 +23,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+Test the C compiler name variable $CC, calling a mocked compiler.
+"""
+
 import os
 import sys
 import TestSCons
@@ -35,60 +39,33 @@ test = TestSCons.TestSCons()
 test.dir_fixture('CC-fixture')
 test.file_fixture('mylink.py')
 
-test.write('SConstruct', """
+test.write('SConstruct', f"""\
 DefaultEnvironment(tools=[])
 env = Environment(
-    tools=['link','cc'],
-    LINK=r'%(_python_)s mylink.py',
+    tools=['link', 'cc'],
+    LINK=r'{_python_} mylink.py',
     LINKFLAGS=[],
-    CC=r'%(_python_)s mycc.py',
+    CC=r'{_python_} mycc.py',
 )
 env.Program(target='test1', source='test1.c')
-""" % locals())
+""")
 
-test.run(arguments = '.', stderr = None)
-
+test.run(arguments='.', stderr=None)
 test.must_match('test1' + _exe, "This is a .c file.\n", mode='r')
 
 if os.path.normcase('.c') == os.path.normcase('.C'):
-
-    test.write('SConstruct', """
+    test.write('SConstruct2', f"""
 DefaultEnvironment(tools=[])
-
 env = Environment(
-    tools=['link','cc'],
-    LINK=r'%(_python_)s mylink.py',
-    CC=r'%(_python_)s mycc.py',
+    tools=['link', 'cc'],
+    LINK=r'{_python_} mylink.py',
+    CC=r'{_python_} mycc.py',
 )
 env.Program(target='test2', source='test2.C')
-""" % locals())
+""")
 
-    test.run(arguments = '.', stderr = None)
+    test.run(arguments=['-f', 'SConstruct2', '.'], stderr=None)
     test.must_match('test2' + _exe, "This is a .C file.\n", mode='r')
-
-test.file_fixture('wrapper.py')
-
-test.write('SConstruct', """
-DefaultEnvironment(tools=[])
-
-foo = Environment()
-bar = Environment()
-bar['CC'] = r'%(_python_)s wrapper.py ' + foo['CC']
-foo.Program(target='foo', source='foo.c')
-bar.Program(target='bar', source='bar.c')
-""" % locals())
-
-test.run(arguments = 'foo' + _exe)
-
-test.must_not_exist(test.workpath('wrapper.out'))
-
-test.up_to_date(arguments = 'foo' + _exe)
-
-test.run(arguments = 'bar' + _exe)
-
-test.must_match('wrapper.out', "wrapper.py\n", mode='r')
-
-test.up_to_date(arguments = 'bar' + _exe)
 
 test.pass_test()
 

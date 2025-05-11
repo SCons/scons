@@ -10,8 +10,11 @@ import sys
 
 def get_runner():
     parser = optparse.OptionParser()
-    parser.add_option('--runner', default='unittest.TextTestRunner',
-                                  help='name of test runner class to use')
+    parser.add_option(
+        '--runner',
+        default='unittest.TextTestRunner',
+        help='name of test runner class to use',
+    )
     opts, args = parser.parse_args()
 
     fromsplit = opts.runner.rsplit('.', 1)

@@ -94,8 +94,8 @@ import sys
 def buildIt(target, source, env):
     if not os.path.exists('build'):
         os.mkdir('build')
-    f1=open(str(source[0]), 'r')
-    f2=open(str(target[0]), 'w')
+    f1=open(source[0], 'r')
+    f2=open(target[0], 'w')
     f2.write(f1.read())
     f2.close()
     f1.close()
@@ -119,7 +119,7 @@ except:
 
 if fortran and env.Detect(fortran):
     if sys.platform =='win32':
-        env_prog = Environment(tools=['mingw'], 
+        env_prog = Environment(tools=['mingw'],
         # BUILD = env['BUILD'], SRC = ENV['src'],
         CPPPATH=env['CPPPATH'], FORTRANPATH=env['FORTRANPATH'] )
     else:
@@ -276,8 +276,8 @@ import stat
 def equal_stats(x,y):
     x = os.stat(x)
     y = os.stat(y)
-    return (stat.S_IMODE(x[stat.ST_MODE]) == stat.S_IMODE(y[stat.ST_MODE]) and
-            x[stat.ST_MTIME] ==  y[stat.ST_MTIME])
+    return (stat.S_IMODE(x.st_mode) == stat.S_IMODE(y.st_mode) and
+            x.st_mtime ==  y.st_mtime)
 
 # Make sure we did duplicate the source files in build/var2,
 # and that their stats are the same:
@@ -285,7 +285,7 @@ test.must_exist(['work1', 'build', 'var2', 'f1.c'])
 test.must_exist(['work1', 'build', 'var2', 'f2.in'])
 test.fail_test(not equal_stats(test.workpath('work1', 'build', 'var2', 'f1.c'), test.workpath('work1', 'src', 'f1.c')))
 test.fail_test(not equal_stats(test.workpath('work1', 'build', 'var2', 'f2.in'), test.workpath('work1', 'src', 'f2.in')))
- 
+
 # Make sure we didn't duplicate the source files in build/var3.
 test.must_not_exist(['work1', 'build', 'var3', 'f1.c'])
 test.must_not_exist(['work1', 'build', 'var3', 'f2.in'])
@@ -381,7 +381,7 @@ scons: `.' is up to date.
 
 test.write( ['work3', 'SConstruct'], """\
 SConscriptChdir(0)
-VariantDir('build', '.', duplicate=1 ) 
+VariantDir('build', '.', duplicate=1 )
 SConscript( 'build/SConscript' )
 """)
 

@@ -550,7 +550,7 @@ A: a - alpha test
                  check,
                  lambda x: int(x) + 12)
 
-        opts.Add('B',
+        opts.Add(['B', 'BOPTION'],
                  'b - alpha test',
                  "42",
                  check,
@@ -566,9 +566,9 @@ A: a - alpha test
         opts.Update(env, {})
 
         expect = """\
-ANSWER 42 54 THE answer to THE question ['ANSWER']
-B 42 54 b - alpha test ['B']
-A 42 54 a - alpha test ['A']
+ANSWER 42 54 THE answer to THE question []
+B 42 54 b - alpha test ['BOPTION']
+A 42 54 a - alpha test []
 """
 
         text = opts.GenerateHelpText(env)
@@ -576,9 +576,9 @@ A 42 54 a - alpha test ['A']
             self.assertEqual(expect, text)
 
         expectAlpha = """\
-A 42 54 a - alpha test ['A']
-ANSWER 42 54 THE answer to THE question ['ANSWER']
-B 42 54 b - alpha test ['B']
+A 42 54 a - alpha test []
+ANSWER 42 54 THE answer to THE question []
+B 42 54 b - alpha test ['BOPTION']
 """
         text = opts.GenerateHelpText(env, sort=cmp)
         with self.subTest():
@@ -654,41 +654,50 @@ class UnknownVariablesTestCase(unittest.TestCase):
         self.assertEqual('answer', env['ANSWER'])
 
     def test_AddOptionUpdatesUnknown(self) -> None:
-        """Test updating of the 'unknown' dict"""
-        opts = SCons.Variables.Variables()
+        """Test updating of the 'unknown' dict.
 
-        opts.Add('A',
-                 'A test variable',
-                 "1")
+        Get one unknown from args and one from a variables file.
+        Add these later, making sure they no longer appear in unknowns
+        after the subsequent Update().
 
+        While we're here, test the *defaulted* attribute.
+        """
+        test = TestSCons.TestSCons()
+        var_file = test.workpath('vars.py')
+        test.write('vars.py', 'FROMFILE="added"')
+        opts = SCons.Variables.Variables(files=var_file)
+        opts.Add('A', 'A test variable', default="1")
+        opts.Add('B', 'Test variable B', default="1")
         args = {
             'A'             : 'a',
             'ADDEDLATER'    : 'notaddedyet',
         }
-
         env = Environment()
-        opts.Update(env,args)
+        opts.Update(env, args)
 
         r = opts.UnknownVariables()
         with self.subTest():
-            self.assertEqual({'ADDEDLATER': 'notaddedyet'}, r)
+            self.assertEqual('notaddedyet', r['ADDEDLATER'])
+            self.assertEqual('added', r['FROMFILE'])
             self.assertEqual('a', env['A'])
+            self.assertEqual(['B'], opts.defaulted)
 
-        opts.Add('ADDEDLATER',
-                 'An option not present initially',
-                 "1")
-
+        opts.Add('ADDEDLATER', 'An option not present initially', "1")
+        opts.Add('FROMFILE', 'An option from a file also absent', "1")
         args = {
             'A'             : 'a',
             'ADDEDLATER'    : 'added',
         }
-
         opts.Update(env, args)
 
         r = opts.UnknownVariables()
         with self.subTest():
             self.assertEqual(0, len(r))
+            self.assertNotIn('ADDEDLATER', r)
             self.assertEqual('added', env['ADDEDLATER'])
+            self.assertNotIn('FROMFILE', r)
+            self.assertEqual('added', env['FROMFILE'])
+            self.assertEqual(['B'], opts.defaulted)
 
     def test_AddOptionWithAliasUpdatesUnknown(self) -> None:
         """Test updating of the 'unknown' dict (with aliases)"""

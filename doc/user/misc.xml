@@ -35,24 +35,25 @@ This file is processed by the bin/SConsDoc.py module.
 
   </para>
 
-  <section>
+  <section id="sect-ensure-python">
   <title>Verifying the Python Version:  the &EnsurePythonVersion; Function</title>
 
     <para>
 
     Although the &SCons; code itself will run
-    on any 2.x Python version 2.7 or later,
-    you are perfectly free to make use of
-    Python syntax and modules from later versions
+    on any 3.x Python version
+    (check the release notes for the precise minimum supported release),
+    you are free to make use of
+    &Python; syntax and modules from later versions
     when writing your &SConscript; files
     or your own local modules.
     If you do this, it's usually helpful to
     configure &SCons; to exit gracefully with an error message
-    if it's being run with a version of Python
+    if it's being run with a version of &Python;
     that simply won't work with your code.
     This is especially true if you're going to use &SCons;
     to build source code that you plan to distribute publicly,
-    where you can't be sure of the Python version
+    where you can't be sure of the &Python; version
     that an anonymous remote user might use
     to try to build your software.
 
@@ -62,7 +63,7 @@ This file is processed by the bin/SConsDoc.py module.
 
     &SCons; provides an &EnsurePythonVersion; function for this.
     You simply pass it the major and minor versions
-    numbers of the version of Python you require:
+    numbers of the version of &Python; you require:
 
     </para>
 
@@ -74,21 +75,21 @@ This file is processed by the bin/SConsDoc.py module.
 
     <scons_example name="misc_EnsurePythonVersion">
       <file name="SConstruct" printme="1">
-EnsurePythonVersion(2, 5)
+EnsurePythonVersion(3, 8)
       </file>
     </scons_example>
 
     -->
 
     <sconstruct>
-EnsurePythonVersion(2, 5)
+EnsurePythonVersion(3, 8)
     </sconstruct>
 
     <para>
 
     And then &SCons; will exit with the following error
     message when a user runs it with an unsupported
-    earlier version of Python:
+    earlier version of &Python;:
 
     </para>
 
@@ -106,12 +107,12 @@ EnsurePythonVersion(2, 5)
 
     <screen>
 % <userinput>scons -Q</userinput>
-Python 2.5 or greater required, but you have Python 2.3.6
+Python 3.7 or greater required, but you have Python 3.6.5
     </screen>
 
   </section>
 
-  <section>
+  <section id="sect-ensure-scons">
   <title>Verifying the SCons Version:  the &EnsureSConsVersion; Function</title>
 
     <para>
@@ -129,7 +130,7 @@ Python 2.5 or greater required, but you have Python 2.3.6
     that verifies the version of &SCons;
     in the same
     the &EnsurePythonVersion; function
-    verifies the version of Python,
+    verifies the version of &Python;,
     by passing in the major and minor versions
     numbers of the version of SCons you require:
 
@@ -180,7 +181,7 @@ SCons 1.0 or greater required, but you have SCons 0.98.5
 
   </section>
 
-  <section>
+  <section id="sect-get-scons-version">
   <title>Accessing SCons Version:  the &GetSConsVersion; Function</title>
 
     <para>
@@ -206,7 +207,7 @@ else:
 
   </section>
 
-  <section>
+  <section id="sect-scons-exit">
   <title>Explicitly Terminating &SCons; While Reading &SConscript; Files:  the &Exit; Function</title>
 
     <para>
@@ -250,18 +251,18 @@ hello.c
     <para>
 
     Note that the &Exit; function
-    is equivalent to calling the Python
+    is equivalent to calling the &Python;
     <function>sys.exit</function> function
     (which it actually calls),
     but because &Exit; is a &SCons; function,
-    you don't have to import the Python
+    you don't have to import the &Python;
     <literal>sys</literal> module to use it.
 
     </para>
 
   </section>
 
-  <section>
+  <section id="sect-find-file">
   <title>Searching for Files:  the &FindFile; Function</title>
 
     <para>
@@ -446,13 +447,13 @@ leaf
 
   </section>
 
-  <section>
+  <section id="sect-flatten-sequence">
   <title>Handling Nested Lists:  the &Flatten; Function</title>
 
     <para>
 
     &SCons; supports a &Flatten; function
-    which takes an input Python sequence
+    which takes an input &Python; sequence
     (list or tuple)
     and returns a flattened list
     containing just the individual elements of
@@ -589,7 +590,7 @@ cc -o prog1 prog1.o prog2.o
 
   </section>
 
-  <section>
+  <section id="sect-get-launch-dir">
   <title>Finding the Invocation Directory:  the &GetLaunchDir; Function</title>
 
     <para>
@@ -613,7 +614,7 @@ env.Command('directory_build_info',
 
     Because &SCons; is usually invoked from the top-level
     directory in which the &SConstruct; file lives,
-    the Python <function>os.getcwd()</function>
+    the &Python; <function>os.getcwd()</function>
     is often equivalent.
     However, the &SCons;
     <literal>-u</literal>,
@@ -638,53 +639,89 @@ env.Command('directory_build_info',
   <!-- Former unpublished chapter now included as a section here: -->
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="sideeffect.xml"/>
 
-  <section>
-  <title>Virtual environments (virtualenvs)</title>
+  <section id="sect-virtualenv">
+  <title>Using Python Virtual Environments</title>
 
     <para>
 
-      Virtualenv is a tool to create isolated Python environments.
-      A python application (such as SCons) may be executed within
-      an activated virtualenv. The activation of virtualenv modifies
-      current environment by defining some virtualenv-specific variables
-      and modifying search PATH, such that executables installed within
-      virtualenv's home directory are preferred over the ones installed
-      outside of it.
+      &Python; supports lightweight "virtual environments" (usually
+      abbreviated <firstterm>virtualenv</firstterm>) which allow
+      encapsulation / isolation of package dependencies for a project.
+      When a &Python; program is executed in the context of a
+      virtualenv, the paths for package imports are amended so the
+      modules in the virtualenv are preferred. Depending on how the
+      virtualenv was configured, system paths may or may not be used
+      as a fallback (the default is not).
 
     </para>
 
     <para>
-
-      Normally, SCons uses hard-coded PATH when searching for external
-      executables, so it always picks-up executables from these pre-defined
-      locations. This applies also to python interpreter, which is invoked
-      by some custom SCons tools or test suites. This means, when running
-      SCons in a virtualenv, an eventual invocation of python interpreter from
-      SCons script will most probably jump out of virtualenv and execute
-      python executable found in hard-coded SCons PATH, not the one which is
-      executing SCons. Some users may consider this as an inconsistency.
-
+      &SCons; itself works as expected when executed within a virtualenv.
+      However, there may be issues if the project needs
+      to build using external commands written in &Python;
+      which are installed in the virtualenv,
+      or calls the &Python; interpreter to run a script.
+      &SCons; launches command actions using a special restricted
+      <envar>PATH</envar> setting which the new process uses
+      to find executables.
+      This path is part of the execution environment
+      (see  <xref linkend="sect-execution-environments"/>),
+      and by default,
+      does not contain any information about the virtualenv.
+      The result can be commands not found,
+      or scripts executed with the system default copy of &Python;
+      rather than the virtualenv one, possibly causing incorrect imports.
+      If you encounter this problem, &SCons; provides a mechanism
+      to more fully integrate with a virtualenv.
     </para>
 
     <para>
-      This issue may be overcome by using the
-      <option>--enable-virtualenv</option>
-      option. The option automatically imports virtualenv-related environment
-      variables to all created construction environment <literal>env['ENV']</literal>,
-      and modifies SCons PATH appropriately to prefer virtualenv's executables.
-      Setting environment variable <envar>SCONS_ENABLE_VIRTUALENV=1</envar>
-      will have same effect. If virtualenv support is enabled system-vide
-      by the environment variable, it may be suppressed with the
-      <option>--ignore-virtualenv</option> option.
+      Use the <option>--enable-virtualenv</option>
+      to import virtualenv-related environment variables to the
+      execution environment (&cv-link-ENV;)
+      and to modify the execution environment's <envar>PATH</envar>
+      appropriately to prefer the virtualenv executables and
+      &Python; interpreter.
     </para>
 
     <para>
-      Inside of &SConscript;, a global function <literal>Virtualenv</literal> is
-      available. It returns a path to virtualenv's home directory, or
-      <literal>None</literal> if &scons; is not running from virtualenv. Note
-      that this function returns a path even if &scons; is run from an
-      unactivated virtualenv.
+      To make this setting permanent, you can either:
     </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Add it to the <envar>SCONSFLAGS</envar> environment variable , or</para>
+      </listitem>
+      <listitem>
+        <para>Set <envar>SCONS_ENABLE_VIRTUALENV=1</envar> in your environment.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      <envar>SCONSFLAGS</envar> is the preferred approach,
+      as it's easier to manage a single variable controlling &SCons;
+      behavior than multiples.
+      If enabled by environment variable,
+      the special virtualenv behavior can be disabled for the current
+      run using the <option>--ignore-virtualenv</option> option.
+    </para>
+
+    <para>
+      You can query the state at runtime by calling
+      the &f-link-Virtualenv; global function.
+      It returns a path to the virtualenv's home directory,
+      or an empty string if &SCons; is not running in a virtualenv.
+    </para>
+
+    <note><para>
+      &f-Virtualenv; returns a path even if &SCons;
+      is run from an unactivated virtualenv.
+      A virtualenv does not have to be activated to be used,
+      you only need to use the path to its &Python; interpreter,
+      but only an activated virtualenv makes available the
+      suitable <envar>PATH</envar> elements for &SCons; to
+      copy in when <option>--enable-virtualenv</option> is used.
+    </para></note>
 
   </section>
 

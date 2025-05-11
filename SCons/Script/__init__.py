@@ -35,6 +35,7 @@ import time
 start_time = time.time()
 
 import collections
+import itertools
 import os
 from io import StringIO
 
@@ -53,9 +54,17 @@ import sys
 # to not add the shims.  So we use a special-case, up-front check for
 # the "--debug=memoizer" flag and enable Memoizer before we import any
 # of the other modules that use it.
+# Update: this breaks if the option isn't exactly "--debug=memoizer",
+# like if there is more than one debug option as a csv. Do a bit more work.
 
-_args = sys.argv + os.environ.get('SCONSFLAGS', '').split()
-if "--debug=memoizer" in _args:
+_args = sys.argv + os.environ.get("SCONSFLAGS", "").split()
+_args = (
+    arg[len("--debug=") :].split(",")
+    for arg in _args
+    if arg.startswith("--debug=")
+)
+_args = list(itertools.chain.from_iterable(_args))
+if "memoizer" in _args:
     import SCons.Memoize
     import SCons.Warnings
     try:
@@ -251,19 +260,21 @@ def _Set_Default_Targets(env, tlist) -> None:
 help_text = None
 
 
-def HelpFunction(text, append: bool = False, keep_local: bool = False) -> None:
+def HelpFunction(text, append: bool = False, local_only: bool = False) -> None:
     """The implementaion of the the ``Help`` method.
 
     See :meth:`~SCons.Script.SConscript.Help`.
 
     .. versionchanged:: 4.6.0
        The *keep_local* parameter was added.
+    .. versionchanged:: 4.9.0
+       The *keep_local* parameter was renamed *local_only* to match manpage
     """
     global help_text
     if help_text is None:
         if append:
             with StringIO() as s:
-                PrintHelp(s, local_only=keep_local)
+                PrintHelp(s, local_only=local_only)
                 help_text = s.getvalue()
         else:
             help_text = ""

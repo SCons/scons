@@ -1,90 +1,136 @@
-# !/usr/bin/env python
+#!/usr/bin/env python
 #
-# Copyright (c) 2010 The SCons Foundation
-#
-# Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
-#
-# The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+# SPDX-License-Identifier: MIT
 
-#
-#
-# This script looks for some XML tags that describe SCons example
-# configurations and commands to execute in those configurations, and
-# uses TestCmd.py to execute the commands and insert the output from
-# those commands into the XML that we output.  This way, we can run a
-# script and update all of our example documentation output without
-# a lot of laborious by-hand checking.
-#
-# An "SCons example" looks like this, and essentially describes a set of
-# input files (program source files as well as SConscript files):
-#
-#       <scons_example name="ex1">
-#         <file name="SConstruct" printme="1">
-#           env = Environment()
-#           env.Program('foo')
-#         </file>
-#         <file name="foo.c">
-#           int main(void) { printf("foo.c\n"); }
-#         </file>
-#       </scons_example>
-#
-# The <file> contents within the <scons_example> tag will get written
-# into a temporary directory whenever example output needs to be
-# generated.  By default, the <file> contents are not inserted into text
-# directly, unless you set the "printme" attribute on one or more files,
-# in which case they will get inserted within a <programlisting> tag.
-# This makes it easy to define the example at the appropriate
-# point in the text where you intend to show the SConstruct file.
-#
-# Note that you should usually give the <scons_example> a "name"
-# attribute so that you can refer to the example configuration later to
-# run SCons and generate output.
-#
-# If you just want to show a file's contents without worry about running
-# SCons, there's a shorter <sconstruct> tag:
-#
-#       <sconstruct>
-#         env = Environment()
-#         env.Program('foo')
-#       </sconstruct>
-#
-# This is essentially equivalent to <scons_example><file printme="1">,
-# but it's more straightforward.
-#
-# SCons output is generated from the following sort of tag:
-#
-#       <scons_output example="ex1" os="posix">
-#         <scons_output_command suffix="1">scons -Q foo</scons_output_command>
-#         <scons_output_command suffix="2">scons -Q foo</scons_output_command>
-#       </scons_output>
-#
-# You tell it which example to use with the "example" attribute, and then
-# give it a list of <scons_output_command> tags to execute.  You can also
-# supply an "os" tag, which specifies the type of operating system this
-# example is intended to show; if you omit this, default value is "posix".
-#
-# The generated XML will show the command line (with the appropriate
-# command-line prompt for the operating system), execute the command in
-# a temporary directory with the example files, capture the standard
-# output from SCons, and insert it into the text as appropriate.
-# Error output gets passed through to your error output so you
-# can see if there are any problems executing the command.
-#
+"""
+SCons Example Generator
+=======================
+
+Generate example outputs for the SCons documentation (primarily
+the User Guide) by processing custom XML tags that describe example SCons
+projects.  The generator automates tasks that would otherwise require
+considerable manual effort: verifying that example projects run correctly,
+and capturing their output for documentation.  Conceptually this is a
+bit like Python ``doctest``, but file-based rather than snippet-based.
+
+An example consists of three parts:
+
+#. Project files (``scons_example`` tag)
+#. Build commands (``scons_output_command`` tag)
+#. Generated output (``scons_output`` tag)
+
+Here's a minimal example project:
+
+.. code-block:: xml
+
+   <scons_example name="ex1">
+      <file name="SConstruct" printme="1">
+         env = Environment()
+         env.Program('foo')
+      </file>
+      <file name="foo.c">
+         int main(void) { printf("foo.c\\n"); }
+      </file>
+   </scons_example>
+
+The example project's ``name`` attribute provides a handle for later
+associating the output with this project.
+
+Each ``file`` tag describes the contents of a file to be
+created when setting up the project, and each ``directory`` tag
+describes a directory to be created.
+Both take a ``name`` attribute.
+The optional ``chmod`` attribute can be used if the created file
+or directory needs something other than default permissions,
+usually to make a file executable.
+The ``printme`` attribute indicates whether a file's contents
+should be shown in the documentation.
+Any file with a ``printme`` value of ``1`` will have contents
+generated for inclusion; ``SConstruct`` and other SConscript
+files will normally set this.
+The default is to not show, since often the contents of the
+source files is needed to make the build work,
+but is not often not that interesting when illustrating an SCons concept.
+
+To show just an SConstruct file, use the shorthand ``sconstruct`` tag:
+
+.. code-block:: xml
+
+   <sconstruct>
+      env = Environment()
+      env.Program('foo')
+   </sconstruct>
+
+This is equivalent to:
+
+.. code-block:: xml
+
+   <scons_example>
+      <file name="SConstruct" printme="1">
+         ...contents...
+      </file>
+   </scons_example>
+
+The ``scons_example_file`` tag allows you to display the contents
+of a file outside the context of its definition in ``scons_example``.
+This looks like:
+
+.. code-block:: xml
+
+   <scons_example_file example="example1" name="hello.h"/>
+
+Link an example project to its output using the ``scons_output`` tag:
+
+.. code-block:: xml
+
+   <scons_output example="ex1" os="posix">
+     <scons_output_command>scons -Q foo</scons_output_command>
+   </scons_output>
+
+The ``example`` attribute associates the project of that name with the output.
+The ``os`` attribute can be used to indicate a specific platform
+(for example, to display a suitable shell prompt). The default is ``posix``.
+The ``suffix`` attribute allows tracking outputs from multiple
+ways of running a project. The optional ``tools`` attribute gives a
+non-default tool list for this run.
+
+An ``scons_output_command`` tag inside an ``scons_output`` contains
+the instructions to build the project. There can be several build
+commands defined for a given example project:
+
+.. code-block:: xml
+
+   <scons_output example="ex1" os="posix" suffix="1">
+      <scons_output_command>scons -Q foo</scons_output_command>
+   </scons_output>
+   <scons_output example="ex1" os="posix" suffix="2">
+      <scons_output_command>scons -Q --option foo</scons_output_command>
+   </scons_output>
+
+The command's ``environment`` attribute can be used to set environment
+variables before the command is run.  The ``output`` attribute can be
+used to emit commentary in the output display that is not produced
+by the command itself, for example:
+
+.. code-block:: xml
+
+   <scons_output_command output="[CHANGE THE CONTENTS OF hello.h]">edit hello.h</scons_output_command>
+
+The actual command text has some special recognized values:
+
+* ``scons`` - to run scons
+* ``touch`` - to update the file change time
+* ``edit`` - to change a file's contents without changing its behavior (works for C / C++)
+* ``ls`` - generate a directory listing
+* ``sleep`` - delay for a while
+
+The generator will:
+1. Show the OS-appropriate command prompt
+2. Execute the command in a temporary directory
+3. Capture SCons standard output for the documentation
+4. Pass through error output for troubleshooting
+"""
 
 import os
 import re
@@ -286,7 +332,7 @@ def ensureExampleOutputsExist(dpath):
                                      key + '_' + r.name.replace("/", "_"))
                 # Write file
                 with open(fpath, 'w') as f:
-                    f.write("%s\n" % content)
+                    f.write(f"{content}\n")
 
 perc = "%"
 
@@ -309,9 +355,7 @@ def createAllExampleOutputs(dpath):
 
     for key, value in examples.items():
         # Process all scons_output tags
-        print("%.2f%s (%d/%d) %s" % (float(idx + 1) * 100.0 / float(total),
-                                     perc, idx + 1, total, key))
-
+        print(f"{(idx + 1) / total:7.2%} ({idx + 1}/{total}) {key}")
         create_scons_output(value)
         # Process all scons_example_file tags
         for r in value.files:
@@ -322,7 +366,7 @@ def createAllExampleOutputs(dpath):
                                      key + '_' + r.name.replace("/", "_"))
                 # Write file
                 with open(fpath, 'w') as f:
-                    f.write("%s\n" % content)
+                    f.write(f"{content}\n")
         idx += 1
 
 def collectSConsExampleNames(fpath):
@@ -347,7 +391,7 @@ def collectSConsExampleNames(fpath):
             if n not in suffixes:
                 suffixes[n] = []
         else:
-            print("Error: Example in file '%s' is missing a name!" % fpath)
+            print(f"Error: Example in file '{fpath}' is missing a name.")
             failed_suffixes = True
 
     for o in stf.findAll(t.root, "scons_output", SConsDoc.dbxid,
@@ -356,11 +400,11 @@ def collectSConsExampleNames(fpath):
         if stf.hasAttribute(o, 'example'):
             n = stf.getAttribute(o, 'example')
         else:
-            print("Error: scons_output in file '%s' is missing an example name!" % fpath)
+            print(f"Error: scons_output in file '{fpath}' is missing an example name.")
             failed_suffixes = True
 
         if n not in suffixes:
-            print("Error: scons_output in file '%s' is referencing non-existent example '%s'!" % (fpath, n))
+            print(f"Error: scons_output in file '{fpath}' is referencing non-existent example '{n}'.")
             failed_suffixes = True
             continue
 
@@ -368,13 +412,13 @@ def collectSConsExampleNames(fpath):
         if stf.hasAttribute(o, 'suffix'):
             s = stf.getAttribute(o, 'suffix')
         else:
-            print("Error: scons_output in file '%s' (example '%s') is missing a suffix!" % (fpath, n))
+            print(f"Error: scons_output in file '{fpath}' (example '{n}') is missing a suffix.")
             failed_suffixes = True
 
         if s not in suffixes[n]:
             suffixes[n].append(s)
         else:
-            print("Error: scons_output in file '%s' (example '%s') is using a duplicate suffix '%s'!" % (fpath, n, s))
+            print(f"Error: scons_output in file '{fpath}' (example '{n}') is using a duplicate suffix '{s}'.")
             failed_suffixes = True
 
     return names, failed_suffixes
@@ -395,7 +439,7 @@ def exampleNamesAreUnique(dpath):
                         unique = False
                     i = allnames.intersection(names)
                     if i:
-                        print("Not unique in %s are: %s" % (fpath, ', '.join(i)))
+                        print(f"Not unique in {fpath} are: {', '.join(i)}")
                         unique = False
 
                     allnames |= names
@@ -549,7 +593,7 @@ def CCCom(target, source, env):
                 elif line[:11] != "STRIP CCCOM":
                     ofp.write(line)
 
-    with open(str(target[0]), "w") as fp:
+    with open(target[0], "w") as fp:
         for src in map(str, source):
             process(src, fp)
             fp.write('debug = ' + ARGUMENTS.get('debug', '0') + '\\n')

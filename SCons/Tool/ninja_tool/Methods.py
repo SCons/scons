@@ -30,9 +30,9 @@ from typing import TYPE_CHECKING
 
 import SCons
 from SCons.Subst import SUBST_CMD
-from SCons.Tool.ninja import NINJA_CUSTOM_HANDLERS, NINJA_RULES, NINJA_POOLS
-from SCons.Tool.ninja.Globals import __NINJA_RULE_MAPPING
-from SCons.Tool.ninja.Utils import get_targets_sources, get_dependencies, get_order_only, get_outputs, get_inputs, \
+from SCons.Tool.ninja_tool import NINJA_CUSTOM_HANDLERS, NINJA_RULES, NINJA_POOLS
+from SCons.Tool.ninja_tool.Globals import __NINJA_RULE_MAPPING
+from SCons.Tool.ninja_tool.Utils import get_targets_sources, get_dependencies, get_order_only, get_outputs, get_inputs, \
     get_rule, get_path, generate_command, get_command_env, get_comstr
 
 if TYPE_CHECKING:
@@ -46,7 +46,7 @@ def register_custom_handler(env, name, handler) -> None:
 
 def register_custom_rule_mapping(env, pre_subst_string, rule) -> None:
     """Register a function to call for a given rule."""
-    SCons.Tool.ninja.Globals.__NINJA_RULE_MAPPING[pre_subst_string] = rule
+    __NINJA_RULE_MAPPING[pre_subst_string] = rule
 
 
 def register_custom_rule(env, rule, command, description: str="", deps=None, pool=None, use_depfile: bool=False, use_response_file: bool=False, response_file_content: str="$rspc") -> None:

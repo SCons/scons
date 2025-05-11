@@ -774,6 +774,7 @@ class FileNodeInfoTestCase(_tempdirTestCase):
 
         ni.update(fff)
 
+        # TODO: flip this to st.st_mtime when Node/FS.py does
         mtime = st[stat.ST_MTIME]
         assert ni.timestamp == mtime, (ni.timestamp, mtime)
         size = st.st_size
@@ -786,6 +787,7 @@ class FileNodeInfoTestCase(_tempdirTestCase):
 
         st = os.stat('fff')
 
+        # TODO: flip this to st.st_mtime when Node/FS.py does
         mtime = st[stat.ST_MTIME]
         assert ni.timestamp != mtime, (ni.timestamp, mtime)
         size = st.st_size

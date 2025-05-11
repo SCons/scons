@@ -45,13 +45,13 @@ DefaultEnvironment(tools=[])
 env=Environment()
 
 def before(env, target, source):
-    with open(str(target[0]), "wb") as f:
+    with open(target[0], "wb") as f:
         f.write(b"Foo\\n")
     with open("before.txt", "wb") as f:
         f.write(b"Bar\\n")
 
 def after(env, target, source):
-    with open(str(target[0]), "rb") as fin, open("after%s", "wb") as fout:
+    with open(target[0], "rb") as fin, open("after%s", "wb") as fout:
         fout.write(fin.read())
 
 env.Prepend(LINKCOM=Action(before))
@@ -63,7 +63,7 @@ after_exe = test.workpath('after' + _exe)
 
 test.run(arguments='.')
 test.must_match('before.txt', 'Bar\n')
-os.chmod(after_exe, os.stat(after_exe)[stat.ST_MODE] | stat.S_IXUSR)
+os.chmod(after_exe, os.stat(after_exe).st_mode | stat.S_IXUSR)
 test.run(program=after_exe, stdout="Foo\n")
 test.pass_test()
 
