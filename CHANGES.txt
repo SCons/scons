@@ -16,16 +16,22 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Whatever John Doe did.
 
   From Joseph Brill:
-    - MSVC: The default Windows powershell 7 path is added before the
-      default Windows powershell 5 path in the limited environment in
-      which the MSVC batch files are run.  This appears to fix a runtime
-      issue in the windows runner environment when the embedded Visual
-      Studio vcpkg component initializes without a PSModulePath defined.
-      The shell environment variables and values for VCPKG_DISABLE_METRICS
-      and VCPKG_ROOT are added to the limited MSVC environment when defined.
-      At present, the VCPKG_DISABLE_METRICS and VCPKG_ROOT variables and
-      values are not propagated to the SCons environment after running
-      the MSVC batch files.
+
+    - MSVC: A significant delay was experienced in the windows 2022
+      runner and the windows 2025 runner when the MSVC batch files are
+      called during tool initialization due to the vcpkg component
+      installed with Visual Studio 2022. The vcpkg initialization delay
+      was significantly reduced in the windows 2022 and 2025 runner
+      environments by adding the default windows powershell 7 path
+      before the default powershell 5 path in the minimal environment in
+      which the MSVC batch files are run. Powershell 7 is known to be
+      installed in the windows runners. The Visual Studio vcpkg component
+      is not installed in the windows 2019 runner. The shell environment
+      variables and values for VCPKG_DISABLE_METRICS and VCPKG_ROOT are
+      added to the minimal environment in which the the MSVC batch files
+      are run. At present, the VCPKG_DISABLE_METRICS and VCPKG_ROOT
+      variables and values are not propagated to the SCons environment
+      after running the MSVC batch files.
 
   From Bill Prendergast:
     - Fixed SCons.Variables.PackageVariable to correctly test the default
