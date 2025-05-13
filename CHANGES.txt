@@ -16,7 +16,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Whatever John Doe did.
 
   From Joseph Brill:
-
     - MSVC: A significant delay was experienced in the windows 2022
       runner and the windows 2025 runner when the MSVC batch files are
       called during tool initialization due to the vcpkg component
