@@ -14,10 +14,11 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v4.1.6
+    - uses: actions/checkout@v4
 
+    # We can't build with > 3.12 for now: no usable lxml wheel from 3.13 on
     - name: Set up Python 3.12
-      uses: actions/setup-python@v5.1.0
+      uses: actions/setup-python@v5
       with:
         python-version: '3.12'
         cache: 'pip'
