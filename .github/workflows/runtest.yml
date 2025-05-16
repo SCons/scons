@@ -26,7 +26,7 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4.1.6
+      - uses: actions/checkout@v4
 
       - name: Install Ubuntu packages $${matrix.os}}
         run: |
@@ -34,7 +34,7 @@ jobs:
           sudo apt-get install libtirpc-dev
 
       - name: Set up Python 3.12 ${{ matrix.os }}
-        uses: actions/setup-python@v5.1.0
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
@@ -50,7 +50,7 @@ jobs:
           python runtest.py --all --time --jobs=4
 
       - name: Archive Failed tests ${{ matrix.os }}
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-failed-tests
           path: |

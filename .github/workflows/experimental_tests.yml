@@ -25,10 +25,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # note: in the 2nd half of 2022 the setup-mingw was often failing on
-        # windows-latest. revisit someday (perhaps when there's an @v3)
-        #os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
-        os: ['ubuntu-latest', 'windows-2019', 'macos-latest']
+        # In the 2nd half of 2022 the setup-mingw was often failing on
+        # windows-latest, when 2022 became the latest. Now 2025 is out,
+        # and 2019 is being retired, we need some kind of a solution.
+        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        # os: ['ubuntu-latest', 'windows-2019', 'macos-latest']
 
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
@@ -36,19 +37,27 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4.1.6
+      - uses: actions/checkout@v4
 
       # experiment: maybe don't need this?
       # update: looks like we do: with this commented out, the build hung
-      - name: Set up MinGW
-        uses: egor-tensin/setup-mingw@v2.2.0
-        if: matrix.os == 'windows-2019'
+      # - name: Set up MinGW
+      #   uses: egor-tensin/setup-mingw@v2.2.0
+      #   if: matrix.os == 'windows-2019'
+      #   with:
+      #     platform: x64
+      #     static: 0
+
+      - name: Set up MSYS2
+        uses: msys2/setup-msys2@v2
+        if: matrix.os == 'windows-latest'
         with:
-          platform: x64
-          static: 0
+          msystem: UCRT64
+          update: false
+          install: git mingw-w64-ucrt-x86_64-gcc
 
       - name: Set up Python 3.11 ${{ matrix.os }}
-        uses: actions/setup-python@v5.1.0
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
