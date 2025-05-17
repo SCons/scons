@@ -402,8 +402,6 @@ def normalize_env(env, keys, force: bool=False):
     return normenv
 
 
-
-
 def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
     """Parse the output of given bat file, with given args."""
 
