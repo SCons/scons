@@ -20,10 +20,10 @@ jobs:
   runtest-win32:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4.1.6
+      - uses: actions/checkout@v4
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v5.1.0
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
@@ -42,7 +42,7 @@ jobs:
           python runtest.py --all --exclude-list=windows_ci_skip.txt --time --jobs=4
 
       - name: Archive Failed tests
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-failed-tests
           path: |
