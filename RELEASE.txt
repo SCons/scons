@@ -46,6 +46,8 @@ FIXES
   setting against both enable & disable strings. (Fixes #4702)
 - MSVS: Fix significant slowdown initializing MSVC tools when vcpkg has
   been installed on the system.
+- Fix the variant dir component being missing from generated source file
+  paths with CompilationDatabase() builder (Fixes #4003).
 
 IMPROVEMENTS
 ------------

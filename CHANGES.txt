@@ -69,6 +69,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and the code adjusted.  All internal usage, including tests,
       was dont boolean-style anyway ("if Virtualenv():").
 
+  From Edward Peek:
+    - Fix the variant dir component being missing from generated source file
+      paths with CompilationDatabase() builder (Fixes #4003).
+
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
 

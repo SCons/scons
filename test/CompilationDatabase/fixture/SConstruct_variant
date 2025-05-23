@@ -46,3 +46,6 @@ env.Program('build/main', 'build/test_main.c')
 env.VariantDir('build2','src', duplicate=0)
 env.Program('build2/main', 'build2/test_main.c')
 
+env.VariantDir('build3','src', duplicate=0)
+env.InstallAs('build3/test_main_copy.c', 'src/test_main.c')
+env.Program('build3/main', 'build3/test_main_copy.c')
