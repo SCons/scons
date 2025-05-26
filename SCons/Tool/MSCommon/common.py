@@ -30,6 +30,7 @@ import json
 import os
 import re
 import sys
+import time
 from contextlib import suppress
 from subprocess import DEVNULL, PIPE
 from pathlib import Path
@@ -70,6 +71,9 @@ VS_VC_VARS = [
     'windir', # windows directory (SystemRoot not available in 95/98/ME)
     'VCPKG_DISABLE_METRICS',
     'VCPKG_ROOT',
+    'POWERSHELL_TELEMETRY_OPTOUT',
+    'PSDisableModuleAnalysisCacheCleanup',
+    'PSModuleAnalysisCachePath',
 ]
 
 class MSVCCacheInvalidWarning(SCons.Warnings.WarningOnByDefault):
@@ -379,6 +383,13 @@ def normalize_env(env, keys, force: bool=False):
     if sys32_wbem_dir not in normenv['PATH']:
         normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_wbem_dir
 
+    # Without Powershell in PATH, an internal call to a telemetry
+    # function (starting with a VS2019 update) can fail
+    # Note can also set VSCMD_SKIP_SENDTELEMETRY to avoid this.
+    sys32_ps_dir = os.path.join(sys32_dir, r'WindowsPowerShell\v1.0')
+    if sys32_ps_dir not in normenv['PATH']:
+        normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_ps_dir
+
     # ProgramFiles for PowerShell 7 Path and PSModulePath
     progfiles_dir = os.environ.get("ProgramFiles")
     if not progfiles_dir:
@@ -390,13 +401,6 @@ def normalize_env(env, keys, force: bool=False):
     progfiles_ps_dir = os.path.join(progfiles_dir, "PowerShell", "7")
     if progfiles_ps_dir not in normenv["PATH"]:
         normenv["PATH"] = normenv["PATH"] + os.pathsep + progfiles_ps_dir
-
-    # Without Powershell in PATH, an internal call to a telemetry
-    # function (starting with a VS2019 update) can fail
-    # Note can also set VSCMD_SKIP_SENDTELEMETRY to avoid this.
-    sys32_ps_dir = os.path.join(sys32_dir, r'WindowsPowerShell\v1.0')
-    if sys32_ps_dir not in normenv['PATH']:
-        normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_ps_dir
 
     debug("PATH: %s", normenv['PATH'])
     return normenv
@@ -423,9 +427,14 @@ def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
         debug("Calling '%s'", vcbat)
         cmd_str = '"%s" & set' % vcbat
 
+    beg_time = time.time()
+
     cp = SCons.Action.scons_subproc_run(
         env, cmd_str, stdin=DEVNULL, stdout=PIPE, stderr=PIPE,
     )
+
+    end_time = time.time()
+    debug("Elapsed %.2fs", end_time - beg_time)
 
     # Extra debug logic, uncomment if necessary
     # debug('stdout:%s', cp.stdout)
