@@ -173,7 +173,7 @@ Python 3.9.15
     </para>
 
     <para>
-    &SCons; will work with &Python; 3.6 or later.
+    &SCons; will work with &Python; 3.7 or later.
     If you need to install &Python; and have a choice,
     we recommend using the most recent &Python; version available.
     Newer &Python; versions have significant improvements
