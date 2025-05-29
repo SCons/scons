@@ -343,6 +343,89 @@ def _force_vscmd_skip_sendtelemetry(env):
     return True
 
 
+class _Powershell:
+
+    _PSEXECUTABLES = (
+        "pwsh.exe",
+        "powershell.exe",
+    )
+
+    _PSMODULEPATH_MAP = {os.path.normcase(os.path.abspath(p)): p for p in [
+        # os.path.expandvars(r"%USERPROFILE%\Documents\PowerShell\Modules"),  # current user
+        os.path.expandvars(r"%ProgramFiles%\PowerShell\Modules"),  # all users
+        os.path.expandvars(r"%ProgramFiles%\PowerShell\7\Modules"),  # installation location
+        # os.path.expandvars(r"%USERPROFILE%\Documents\WindowsPowerShell\Modules"),  # current user
+        os.path.expandvars(r"%ProgramFiles%\WindowsPowerShell\Modules"),  # all users
+        os.path.expandvars(r"%windir%\System32\WindowsPowerShell\v1.0\Modules"),  # installation location
+    ]}
+
+    _cache_norm_path = {}
+
+    @classmethod
+    def _get_norm_path(cls, p):
+        norm_path = cls._cache_norm_path.get(p)
+        if norm_path is None:
+            norm_path = os.path.normcase(os.path.abspath(p))
+            cls._cache_norm_path[p] = norm_path
+            cls._cache_norm_path[norm_path] = norm_path
+        return norm_path
+
+    _cache_is_psmodulepath = {}
+
+    @classmethod
+    def _is_psmodulepath(cls, p):
+        is_psmodulepath = cls._cache_is_psmodulepath.get(p)
+        if is_psmodulepath is None:
+            norm_path = cls._get_norm_path(p)
+            is_psmodulepath = bool(norm_path in cls._PSMODULEPATH_MAP)
+            cls._cache_is_psmodulepath[p] = is_psmodulepath
+            cls._cache_is_psmodulepath[norm_path] = is_psmodulepath
+        return is_psmodulepath
+
+    _cache_psmodulepath = {}
+
+    @classmethod
+    def get_psmodulepath(cls, pathspec):
+        psmodulepath = cls._cache_psmodulepath.get(pathspec)
+        if psmodulepath is None:
+            psmodulepath_paths = []
+            for p in pathspec.split(os.pathsep):
+                p = p.strip()
+                if not p:
+                    continue
+                if not cls._is_psmodulepath(p):
+                    continue
+                psmodulepath_paths.append(p)
+            psmodulepath = os.pathsep.join(psmodulepath_paths)
+            cls._cache_psmodulepath[pathspec] = psmodulepath
+        return psmodulepath
+
+    _cache_psexe_paths = {}
+
+    @classmethod
+    def get_psexe_paths(cls, pathspec):
+        psexe_paths = cls._cache_psexe_paths.get(pathspec)
+        if psexe_paths is None:
+            psexe_set = set(cls._PSEXECUTABLES)
+            psexe_paths = []
+            for p in pathspec.split(os.pathsep):
+                p = p.strip()
+                if not p:
+                    continue
+                for psexe in psexe_set:
+                    psexe_path = os.path.join(p, psexe)
+                    if not os.path.exists(psexe_path):
+                        continue
+                    psexe_paths.append(p)
+                    psexe_set.remove(psexe)
+                    break
+                if psexe_set:
+                    continue
+                break
+            cls._cache_psexe_paths[pathspec] = tuple(psexe_paths)
+        return psexe_paths
+
+
 def normalize_env(env, keys, force: bool=False):
     """Given a dictionary representing a shell environment, add the variables
     from os.environ needed for the processing of .bat files; the keys are
@@ -386,23 +469,27 @@ def normalize_env(env, keys, force: bool=False):
     # Without Powershell in PATH, an internal call to a telemetry
     # function (starting with a VS2019 update) can fail
     # Note can also set VSCMD_SKIP_SENDTELEMETRY to avoid this.
-    sys32_ps_dir = os.path.join(sys32_dir, r'WindowsPowerShell\v1.0')
-    if sys32_ps_dir not in normenv['PATH']:
-        normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_ps_dir
 
-    # ProgramFiles for PowerShell 7 Path and PSModulePath
-    progfiles_dir = os.environ.get("ProgramFiles")
-    if not progfiles_dir:
-        sysroot_drive, _ = os.path.splitdrive(sys32_dir)
-        sysroot_path = sysroot_drive + os.sep
-        progfiles_dir = os.path.join(sysroot_path, "Program Files")
+    # Find the powershell executable paths.  Add the known powershell.exe
+    # path to the end of the shell system path (just in case).
+    # The VS vcpkg component prefers pwsh.exe if it's on the path.
+    sys32_ps_dir = os.path.join(sys32_dir, 'WindowsPowerShell', 'v1.0')
+    psexe_searchlist = os.pathsep.join([os.environ.get("PATH", ""), sys32_ps_dir])
+    psexe_pathlist = _Powershell.get_psexe_paths(psexe_searchlist)
 
-    # Powershell 7
-    progfiles_ps_dir = os.path.join(progfiles_dir, "PowerShell", "7")
-    if progfiles_ps_dir not in normenv["PATH"]:
-        normenv["PATH"] = normenv["PATH"] + os.pathsep + progfiles_ps_dir
+    # Add powershell executable paths in the order discovered.
+    for psexe_path in psexe_pathlist:
+        if psexe_path not in normenv['PATH']:
+            normenv['PATH'] = normenv['PATH'] + os.pathsep + psexe_path
 
     debug("PATH: %s", normenv['PATH'])
+
+    # Add psmodulepath paths in the order discovered.
+    psmodulepath = _Powershell.get_psmodulepath(os.environ.get("PSModulePath", ""))
+    if psmodulepath:
+        normenv["PSModulePath"] = psmodulepath
+
+    debug("PSModulePath: %s", normenv.get('PSModulePath',''))
     return normenv
 
 
