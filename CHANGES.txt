@@ -17,20 +17,31 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Joseph Brill:
     - MSVC: A significant delay was experienced in the windows 2022
-      runner and the windows 2025 runner when the MSVC batch files are
-      called during tool initialization due to the vcpkg component
-      installed with Visual Studio 2022. The vcpkg initialization delay
-      was significantly reduced in the windows 2022 and 2025 runner
-      environments by adding the default windows powershell 7 path
-      before the default powershell 5 path in the minimal environment in
-      which the MSVC batch files are run. Powershell 7 is known to be
-      installed in the windows runners. The Visual Studio vcpkg component
-      is not installed in the windows 2019 runner. The shell environment
-      variables and values for VCPKG_DISABLE_METRICS and VCPKG_ROOT are
-      added to the minimal environment in which the the MSVC batch files
-      are run. At present, the VCPKG_DISABLE_METRICS and VCPKG_ROOT
-      variables and values are not propagated to the SCons environment
-      after running the MSVC batch files.
+      and 2025 runners due to the limited environment in which the MSVC
+      batch files are invoked.  The vcpkg component installed in Visual
+      Studio invokes a powershell script when the MSVC batch files are
+      called. The limited MSVC environment 1) did not have the preferred
+      pwsh executable on the system path, 2) did not include the powershell
+      module analysis cache location (PSModuleAnalysisCachePath), and 3) did
+      not include the powershell module path (PSModulePath) which appears to
+      be responsible for the performance degradation in the windows 2022 and
+      2025 runners. The VS vcpkg component is not installed in the windows
+      2019 runner. Adding the pwsh and powershell executable paths in the
+      order discovered on the shell environment path, passing the powershell
+      module analysis cache location, and adding a limited subset of the
+      powershell module path appears to have eliminated the significant
+      delays.  In the windows runners, any one of the these three changes
+      appears to eliminite the significant delays. It is hoped that the
+      combination of all three changes will guard against significant
+      delays in other environment configurations as well.
+    - MSVC: The following shell variables and values are passed to the
+      environment in which the MSVC batch files are invoked:
+      VCPKG_DISABLE_METRICS, VCPKG_ROOT, POWERSHELL_TELEMETRY_OPTOUT,
+      PSDisableModuleAnalysisCacheCleanup, and PSModuleAnalysisCachePath.
+      A limited subset of the shell PSModulePath environment variable value
+      is passed to the MSVC environment. None of these variables and values
+      are propagated to the SCons environment after running the MSVC batch
+      files.
 
   From Bill Prendergast:
     - Fixed SCons.Variables.PackageVariable to correctly test the default

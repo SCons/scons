@@ -35,9 +35,13 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   one from PEP 308 introduced in Python 2.5 (2006). The idiom being
   replaced (using and/or) is regarded as error prone.
 
-- MSVC: The default Windows powershell 7 path is added before the default
-  Windows powershell 5 path in the limited environment in which the
-  MSVC batch files are run.
+- MSVC: The following shell environment variables are now included in
+  the environment in which the MSVC batch files are invoked when defined:
+  VCPKG_DISABLE_METRICS, VCPKG_ROOT, POWERSHELL_TELEMETRY_OPTOUT,
+  PSDisableModuleAnalysisCacheCleanup, and PSModuleAnalysisCachePath.
+  A subset of the shell environment PSModulePath path elements is
+  included in the limited environment in which the MSVC batch files
+  are invoked.
 
 FIXES
 -----
@@ -45,8 +49,9 @@ FIXES
 - Fixed SCons.Variables.PackageVariable to correctly test the default
   setting against both enable & disable strings. (Fixes #4702)
 
-- MSVC: Fix significant slowdown initializing MSVC tools when vcpkg has
-  been installed on the system.
+- MSVC: Fixed a significant delay that was experienced in the windows
+  2022 and 2025 runners due to the limited environment in which the MSVC
+  batch files are invoked.  The windows 2019 runner was not affected.
 
 IMPROVEMENTS
 ------------
