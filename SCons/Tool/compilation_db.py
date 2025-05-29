@@ -156,11 +156,14 @@ def write_compilation_db(target, source, env) -> None:
         source_file = entry['file']
         output_file = entry['output']
 
+        if not source_file.is_derived():
+            source_file = source_file.srcnode()
+
         if use_abspath:
-            source_file = source_file.srcnode().abspath
+            source_file = source_file.abspath
             output_file = output_file.abspath
         else:
-            source_file = source_file.srcnode().path
+            source_file = source_file.path
             output_file = output_file.path
 
         if use_path_filter and not fnmatch.fnmatch(output_file, use_path_filter):

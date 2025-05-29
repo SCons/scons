@@ -88,8 +88,10 @@ is the latest version at the
 Execution Requirements
 ======================
 
-Running SCons requires Python 3.6 or higher. There should be no other
+Running SCons requires Python 3.7 or higher. There should be no other
 dependencies or requirements to run standard SCons.
+
+The last release to support Python 3.6 was 4.8.1.
 The last release to support Python 3.5 was 4.2.0.
 
 Some experimental features may require additional Python packages

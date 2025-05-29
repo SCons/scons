@@ -53,6 +53,9 @@ FIXES
   2022 and 2025 runners due to the limited environment in which the MSVC
   batch files are invoked.  The windows 2019 runner was not affected.
 
+- Fix the variant dir component being missing from generated source file
+  paths with CompilationDatabase() builder (Fixes #4003).
+
 IMPROVEMENTS
 ------------
 
@@ -64,6 +67,9 @@ IMPROVEMENTS
   unofficial approach from before venv support was made part of Python
   in 3.3; now looks for the official approach first. This in an internal
   detail, the API is unchanged.
+
+- Add internal routines to maniplutate publicly visible argument and
+  target lists. These interfaces are not part of the public API.
 
 PACKAGING
 ---------

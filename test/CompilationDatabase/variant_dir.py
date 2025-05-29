@@ -78,6 +78,12 @@ example_rel_file = """[
         "directory": "%(workdir)s",
         "file": "%(src_file)s",
         "output": "%(output2_file)s"
+    },
+    {
+        "command": "%(exe)s mygcc.py cc -o %(output3_file)s -c %(variant3_src_file)s",
+        "directory": "%(workdir)s",
+        "file": "%(variant3_src_file)s",
+        "output": "%(output3_file)s"
     }
 ]
 """ % {'exe': sys.executable,
@@ -85,7 +91,9 @@ example_rel_file = """[
         'src_file': os.path.join('src', 'test_main.c'),
         'output_file': os.path.join('build', 'test_main.o'),
         'output2_file': os.path.join('build2', 'test_main.o'),
-        'variant_src_file': os.path.join('build', 'test_main.c')
+        'output3_file': os.path.join('build3', 'test_main_copy.o'),
+        'variant_src_file': os.path.join('build', 'test_main.c'),
+        'variant3_src_file': os.path.join('build3', 'test_main_copy.c')
         }
 
 if sys.platform == 'win32':
@@ -108,6 +116,12 @@ example_abs_file = """[
         "directory": "%(workdir)s",
         "file": "%(abs_src_file)s",
         "output": "%(abs_output2_file)s"
+    },
+    {
+        "command": "%(exe)s mygcc.py cc -o %(output3_file)s -c %(variant3_src_file)s",
+        "directory": "%(workdir)s",
+        "file": "%(abs_variant3_src_file)s",
+        "output": "%(abs_output3_file)s"
     }
 ]
 """ % {'exe': sys.executable,
@@ -116,9 +130,14 @@ example_abs_file = """[
         'abs_src_file': os.path.join(test.workdir, 'src', 'test_main.c'),
         'abs_output_file': os.path.join(test.workdir, 'build', 'test_main.o'),
         'abs_output2_file': os.path.join(test.workdir, 'build2', 'test_main.o'),
+        'abs_output3_file': os.path.join(test.workdir, 'build3', 'test_main_copy.o'),
         'output_file': os.path.join('build', 'test_main.o'),
         'output2_file': os.path.join('build2', 'test_main.o'),
-        'variant_src_file': os.path.join('build', 'test_main.c')}
+        'output3_file': os.path.join('build3', 'test_main_copy.o'),
+        'abs_variant3_src_file': os.path.join(test.workdir, 'build3', 'test_main_copy.c'),
+        'variant_src_file': os.path.join('build', 'test_main.c'),
+        'variant3_src_file': os.path.join('build3', 'test_main_copy.c')
+        }
 
 if sys.platform == 'win32':
     example_abs_file = example_abs_file.replace('\\', '\\\\')
