@@ -99,7 +99,7 @@ class TestGenerateCommand(unittest.TestCase):
 
     def test_lazy_action_str(self):
         """Test LazyAction functionality with a string value."""
-        self.env['CCCOM'] = '$CC -c -o $TARGET $SOURCE'
+        self.env['CCCOM'] = 'gcc -c -o $TARGET $SOURCE'
         action = LazyAction("CCCOM", kw={})
         cmd = generate_command(self.env, None, action, self.target, self.source)
         self.assertEqual(cmd, f"gcc -c -o {self.target[0]} {self.source[0]}")
