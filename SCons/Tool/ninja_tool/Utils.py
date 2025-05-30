@@ -363,14 +363,13 @@ def generate_command(env, node, action, targets, sources, executor: Executor | N
         cmd = _string_from_cmd_list(cmd_list[0])
     else:
         # Anything else works with genstring, this is most commonly hit by
-        # ListActions which essentially call process on all of their
-        # commands and concatenate it for us.
+        # ListActions which essentially call process() on all of their
+        # commands and concatenate the result for us.
         genstring = action.genstring(targets, sources, env)
         if executor is not None:
             cmd = env.subst(genstring, executor=executor)
         else:
-            cmd = env.subst(genstring, targets, sources)
-
+            cmd = env.subst(genstring, target=targets, source=sources)
         cmd = cmd.replace("\n", " && ").strip()
         if cmd.endswith("&&"):
             cmd = cmd[0:-2].strip()
