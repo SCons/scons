@@ -30,6 +30,7 @@ import json
 import os
 import re
 import sys
+import time
 from contextlib import suppress
 from subprocess import DEVNULL, PIPE
 from pathlib import Path
@@ -70,6 +71,9 @@ VS_VC_VARS = [
     'windir', # windows directory (SystemRoot not available in 95/98/ME)
     'VCPKG_DISABLE_METRICS',
     'VCPKG_ROOT',
+    'POWERSHELL_TELEMETRY_OPTOUT',
+    'PSDisableModuleAnalysisCacheCleanup',
+    'PSModuleAnalysisCachePath',
 ]
 
 class MSVCCacheInvalidWarning(SCons.Warnings.WarningOnByDefault):
@@ -339,6 +343,112 @@ def _force_vscmd_skip_sendtelemetry(env):
     return True
 
 
+class _PathManager:
+
+    _PSEXECUTABLES = (
+        "pwsh.exe",
+        "powershell.exe",
+    )
+
+    _PSMODULEPATH_MAP = {os.path.normcase(os.path.abspath(p)): p for p in [
+        # os.path.expandvars(r"%USERPROFILE%\Documents\PowerShell\Modules"),  # current user
+        os.path.expandvars(r"%ProgramFiles%\PowerShell\Modules"),  # all users
+        os.path.expandvars(r"%ProgramFiles%\PowerShell\7\Modules"),  # installation location
+        # os.path.expandvars(r"%USERPROFILE%\Documents\WindowsPowerShell\Modules"),  # current user
+        os.path.expandvars(r"%ProgramFiles%\WindowsPowerShell\Modules"),  # all users
+        os.path.expandvars(r"%windir%\System32\WindowsPowerShell\v1.0\Modules"),  # installation location
+    ]}
+
+    _cache_norm_path = {}
+
+    @classmethod
+    def _get_norm_path(cls, p):
+        norm_path = cls._cache_norm_path.get(p)
+        if norm_path is None:
+            norm_path = os.path.normcase(os.path.abspath(p))
+            cls._cache_norm_path[p] = norm_path
+            cls._cache_norm_path[norm_path] = norm_path
+        return norm_path
+
+    _cache_is_psmodulepath = {}
+
+    @classmethod
+    def _is_psmodulepath(cls, p):
+        is_psmodulepath = cls._cache_is_psmodulepath.get(p)
+        if is_psmodulepath is None:
+            norm_path = cls._get_norm_path(p)
+            is_psmodulepath = bool(norm_path in cls._PSMODULEPATH_MAP)
+            cls._cache_is_psmodulepath[p] = is_psmodulepath
+            cls._cache_is_psmodulepath[norm_path] = is_psmodulepath
+        return is_psmodulepath
+
+    _cache_psmodulepath_paths = {}
+
+    @classmethod
+    def get_psmodulepath_paths(cls, pathspec):
+        psmodulepath_paths = cls._cache_psmodulepath_paths.get(pathspec)
+        if psmodulepath_paths is None:
+            psmodulepath_paths = []
+            for p in pathspec.split(os.pathsep):
+                p = p.strip()
+                if not p:
+                    continue
+                if not cls._is_psmodulepath(p):
+                    continue
+                psmodulepath_paths.append(p)
+            psmodulepath_paths = tuple(psmodulepath_paths)
+            cls._cache_psmodulepath_paths[pathspec] = psmodulepath_paths
+        return psmodulepath_paths
+
+    _cache_psexe_paths = {}
+
+    @classmethod
+    def get_psexe_paths(cls, pathspec):
+        psexe_paths = cls._cache_psexe_paths.get(pathspec)
+        if psexe_paths is None:
+            psexe_set = set(cls._PSEXECUTABLES)
+            psexe_paths = []
+            for p in pathspec.split(os.pathsep):
+                p = p.strip()
+                if not p:
+                    continue
+                for psexe in psexe_set:
+                    psexe_path = os.path.join(p, psexe)
+                    if not os.path.exists(psexe_path):
+                        continue
+                    psexe_paths.append(p)
+                    psexe_set.remove(psexe)
+                    break
+                if psexe_set:
+                    continue
+                break
+            psexe_paths = tuple(psexe_paths)
+            cls._cache_psexe_paths[pathspec] = psexe_paths
+        return psexe_paths
+
+    _cache_minimal_pathspec = {}
+
+    @classmethod
+    def get_minimal_pathspec(cls, pathlist):
+        pathlist_t = tuple(pathlist)
+        minimal_pathspec = cls._cache_minimal_pathspec.get(pathlist_t)
+        if minimal_pathspec is None:
+            minimal_paths = []
+            seen = set()
+            for p in pathlist:
+                p = p.strip()
+                if not p:
+                    continue
+                norm_path = cls._get_norm_path(p)
+                if norm_path in seen:
+                    continue
+                seen.add(norm_path)
+                minimal_paths.append(p)
+            minimal_pathspec = os.pathsep.join(minimal_paths)
+            cls._cache_minimal_pathspec[pathlist_t] = minimal_pathspec
+        return minimal_pathspec
+
+
 def normalize_env(env, keys, force: bool=False):
     """Given a dictionary representing a shell environment, add the variables
     from os.environ needed for the processing of .bat files; the keys are
@@ -363,45 +473,46 @@ def normalize_env(env, keys, force: bool=False):
             else:
                 debug("keys: skipped[%s]", k)
 
+    syspath_pathlist = normenv.get("PATH", "").split(os.pathsep)
+
     # add some things to PATH to prevent problems:
     # Shouldn't be necessary to add system32, since the default environment
     # should include it, but keep this here to be safe (needed for reg.exe)
     sys32_dir = os.path.join(
         os.environ.get("SystemRoot", os.environ.get("windir", r"C:\Windows")), "System32"
     )
-    if sys32_dir not in normenv["PATH"]:
-        normenv["PATH"] = normenv["PATH"] + os.pathsep + sys32_dir
+    syspath_pathlist.append(sys32_dir)
 
     # Without Wbem in PATH, vcvarsall.bat has a "'wmic' is not recognized"
     # error starting with Visual Studio 2017, although the script still
     # seems to work anyway.
     sys32_wbem_dir = os.path.join(sys32_dir, 'Wbem')
-    if sys32_wbem_dir not in normenv['PATH']:
-        normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_wbem_dir
-
-    # ProgramFiles for PowerShell 7 Path and PSModulePath
-    progfiles_dir = os.environ.get("ProgramFiles")
-    if not progfiles_dir:
-        sysroot_drive, _ = os.path.splitdrive(sys32_dir)
-        sysroot_path = sysroot_drive + os.sep
-        progfiles_dir = os.path.join(sysroot_path, "Program Files")
-
-    # Powershell 7
-    progfiles_ps_dir = os.path.join(progfiles_dir, "PowerShell", "7")
-    if progfiles_ps_dir not in normenv["PATH"]:
-        normenv["PATH"] = normenv["PATH"] + os.pathsep + progfiles_ps_dir
+    syspath_pathlist.append(sys32_wbem_dir)
 
     # Without Powershell in PATH, an internal call to a telemetry
     # function (starting with a VS2019 update) can fail
     # Note can also set VSCMD_SKIP_SENDTELEMETRY to avoid this.
-    sys32_ps_dir = os.path.join(sys32_dir, r'WindowsPowerShell\v1.0')
-    if sys32_ps_dir not in normenv['PATH']:
-        normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_ps_dir
 
+    # Find the powershell executable paths.  Add the known powershell.exe
+    # path to the end of the shell system path (just in case).
+    # The VS vcpkg component prefers pwsh.exe if it's on the path.
+    sys32_ps_dir = os.path.join(sys32_dir, 'WindowsPowerShell', 'v1.0')
+    psexe_searchlist = os.pathsep.join([os.environ.get("PATH", ""), sys32_ps_dir])
+    psexe_pathlist = _PathManager.get_psexe_paths(psexe_searchlist)
+
+    # Add powershell executable paths in the order discovered.
+    syspath_pathlist.extend(psexe_pathlist)
+
+    normenv['PATH'] = _PathManager.get_minimal_pathspec(syspath_pathlist)
     debug("PATH: %s", normenv['PATH'])
+
+    # Add psmodulepath paths in the order discovered.
+    psmodulepath_pathlist = _PathManager.get_psmodulepath_paths(os.environ.get("PSModulePath", ""))
+    if psmodulepath_pathlist:
+        normenv["PSModulePath"] = _PathManager.get_minimal_pathspec(psmodulepath_pathlist)
+
+    debug("PSModulePath: %s", normenv.get('PSModulePath',''))
     return normenv
-
-
 
 
 def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
@@ -425,9 +536,14 @@ def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
         debug("Calling '%s'", vcbat)
         cmd_str = '"%s" & set' % vcbat
 
+    beg_time = time.time()
+
     cp = SCons.Action.scons_subproc_run(
         env, cmd_str, stdin=DEVNULL, stdout=PIPE, stderr=PIPE,
     )
+
+    end_time = time.time()
+    debug("Elapsed %.2fs", end_time - beg_time)
 
     # Extra debug logic, uncomment if necessary
     # debug('stdout:%s', cp.stdout)
