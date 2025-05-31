@@ -343,7 +343,7 @@ def _force_vscmd_skip_sendtelemetry(env):
     return True
 
 
-class _Powershell:
+class _PathManager:
 
     _PSEXECUTABLES = (
         "pwsh.exe",
@@ -382,12 +382,12 @@ class _Powershell:
             cls._cache_is_psmodulepath[norm_path] = is_psmodulepath
         return is_psmodulepath
 
-    _cache_psmodulepath = {}
+    _cache_psmodulepath_paths = {}
 
     @classmethod
-    def get_psmodulepath(cls, pathspec):
-        psmodulepath = cls._cache_psmodulepath.get(pathspec)
-        if psmodulepath is None:
+    def get_psmodulepath_paths(cls, pathspec):
+        psmodulepath_paths = cls._cache_psmodulepath_paths.get(pathspec)
+        if psmodulepath_paths is None:
             psmodulepath_paths = []
             for p in pathspec.split(os.pathsep):
                 p = p.strip()
@@ -396,9 +396,9 @@ class _Powershell:
                 if not cls._is_psmodulepath(p):
                     continue
                 psmodulepath_paths.append(p)
-            psmodulepath = os.pathsep.join(psmodulepath_paths)
-            cls._cache_psmodulepath[pathspec] = psmodulepath
-        return psmodulepath
+            psmodulepath_paths = tuple(psmodulepath_paths)
+            cls._cache_psmodulepath_paths[pathspec] = psmodulepath_paths
+        return psmodulepath_paths
 
     _cache_psexe_paths = {}
 
@@ -422,8 +422,31 @@ class _Powershell:
                 if psexe_set:
                     continue
                 break
-            cls._cache_psexe_paths[pathspec] = tuple(psexe_paths)
+            psexe_paths = tuple(psexe_paths)
+            cls._cache_psexe_paths[pathspec] = psexe_paths
         return psexe_paths
+
+    _cache_minimal_pathspec = {}
+
+    @classmethod
+    def get_minimal_pathspec(cls, pathlist):
+        pathlist_t = tuple(pathlist)
+        minimal_pathspec = cls._cache_minimal_pathspec.get(pathlist_t)
+        if minimal_pathspec is None:
+            minimal_paths = []
+            seen = set()
+            for p in pathlist:
+                p = p.strip()
+                if not p:
+                    continue
+                norm_path = cls._get_norm_path(p)
+                if norm_path in seen:
+                    continue
+                seen.add(norm_path)
+                minimal_paths.append(p)
+            minimal_pathspec = os.pathsep.join(minimal_paths)
+            cls._cache_minimal_pathspec[pathlist_t] = minimal_pathspec
+        return minimal_pathspec
 
 
 def normalize_env(env, keys, force: bool=False):
@@ -450,21 +473,21 @@ def normalize_env(env, keys, force: bool=False):
             else:
                 debug("keys: skipped[%s]", k)
 
+    syspath_pathlist = normenv.get("PATH", "").split(os.pathsep)
+
     # add some things to PATH to prevent problems:
     # Shouldn't be necessary to add system32, since the default environment
     # should include it, but keep this here to be safe (needed for reg.exe)
     sys32_dir = os.path.join(
         os.environ.get("SystemRoot", os.environ.get("windir", r"C:\Windows")), "System32"
     )
-    if sys32_dir not in normenv["PATH"]:
-        normenv["PATH"] = normenv["PATH"] + os.pathsep + sys32_dir
+    syspath_pathlist.append(sys32_dir)
 
     # Without Wbem in PATH, vcvarsall.bat has a "'wmic' is not recognized"
     # error starting with Visual Studio 2017, although the script still
     # seems to work anyway.
     sys32_wbem_dir = os.path.join(sys32_dir, 'Wbem')
-    if sys32_wbem_dir not in normenv['PATH']:
-        normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_wbem_dir
+    syspath_pathlist.append(sys32_wbem_dir)
 
     # Without Powershell in PATH, an internal call to a telemetry
     # function (starting with a VS2019 update) can fail
@@ -475,19 +498,18 @@ def normalize_env(env, keys, force: bool=False):
     # The VS vcpkg component prefers pwsh.exe if it's on the path.
     sys32_ps_dir = os.path.join(sys32_dir, 'WindowsPowerShell', 'v1.0')
     psexe_searchlist = os.pathsep.join([os.environ.get("PATH", ""), sys32_ps_dir])
-    psexe_pathlist = _Powershell.get_psexe_paths(psexe_searchlist)
+    psexe_pathlist = _PathManager.get_psexe_paths(psexe_searchlist)
 
     # Add powershell executable paths in the order discovered.
-    for psexe_path in psexe_pathlist:
-        if psexe_path not in normenv['PATH']:
-            normenv['PATH'] = normenv['PATH'] + os.pathsep + psexe_path
+    syspath_pathlist.extend(psexe_pathlist)
 
+    normenv['PATH'] = _PathManager.get_minimal_pathspec(syspath_pathlist)
     debug("PATH: %s", normenv['PATH'])
 
     # Add psmodulepath paths in the order discovered.
-    psmodulepath = _Powershell.get_psmodulepath(os.environ.get("PSModulePath", ""))
-    if psmodulepath:
-        normenv["PSModulePath"] = psmodulepath
+    psmodulepath_pathlist = _PathManager.get_psmodulepath_paths(os.environ.get("PSModulePath", ""))
+    if psmodulepath_pathlist:
+        normenv["PSModulePath"] = _PathManager.get_minimal_pathspec(psmodulepath_pathlist)
 
     debug("PSModulePath: %s", normenv.get('PSModulePath',''))
     return normenv
