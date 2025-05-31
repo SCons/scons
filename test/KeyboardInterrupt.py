@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that we handle keyboard interrupts (CTRL-C) correctly.
@@ -62,7 +61,7 @@ if 'killpg' not in dir(os) or 'setpgrp' not in dir(os) or sys.platform == 'cygwi
     def explode(env, target, source):
         handler = signal.getsignal(signal.SIGINT)
         handler(signal.SIGINT, None)
-        return 0        
+        return 0
 else:
     # The platform does support process group so we use killpg to send
     # a SIGINT to everyone.
@@ -77,11 +76,11 @@ else:
 all = []
 
 for i in range(40):
-    all.extend(Object('toto%5d' % i, 'toto.c'))
+    all.extend(Object(f'toto{i:05}', 'toto.c'))
 
-all.extend(Command( 'broken', 'toto.c', explode))
+all.extend(Command('broken', 'toto.c', explode))
 
-Default( Alias('all', all))
+Default(Alias('all', all))
 """
 )
 
@@ -95,10 +94,14 @@ scons: writing .sconsign file\\.
 
 def runtest(arguments):
     test.run(arguments='-c')
-    test.run(arguments=arguments, status=2,
-             stdout=interruptedStr,
-             stderr='.*scons: Build interrupted\\.',
-             match=TestSCons.match_re_dotall)
+    test.run(
+        arguments=arguments,
+        status=2,
+        stdout=interruptedStr,
+        stderr='.*scons: Build interrupted\\.',
+        match=TestSCons.match_re_dotall,
+    )
+
 
 for i in range(2):
     runtest('-j1')

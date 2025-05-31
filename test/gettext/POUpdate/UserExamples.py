@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,13 +22,16 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Make sure, that the examples given in user guide all work.
+Make sure the gettext examples given in the user guide all work.
 """
+
+# Note the layout here is not ideal, there are three different checks
+# for an external program, if missing the test is skipped. Normally
+# that means we should be three separate tests, so everyone can run
+# the tests they're able to.  Let it go this time: msgmerge,
+# msginit and gettext are pretty likely to all be installed if one is.
 
 import TestSCons
 
@@ -166,10 +171,10 @@ msgstr "Un ancien message du a.cpp"
 # POUpdate: Example 1
 #############################################################################
 test.subdir(['ex1'])
-test.write( ['ex1', 'SConstruct'],
-"""
-env = Environment( tools = ["default", "msgmerge"] )
-env.POUpdate(['en','pl']) # messages.pot --&gt; [en.po, pl.po]
+test.write(['ex1', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
+env = Environment(tools=["default", "msgmerge"])
+env.POUpdate(['en', 'pl'])  # messages.pot --&gt; [en.po, pl.po]
 """)
 test.write(['ex1', 'messages.pot'], pot_contents)
 test.write(['ex1', 'en.po'], en_po_contents)
@@ -178,20 +183,20 @@ test.write(['ex1', 'pl.po'], pl_po_contents)
 # NOTE: msgmerge(1) prints its messages to stderr, we must ignore them,
 # So, stderr=None is crucial here. It is no point to match stderr to some
 # specific valuse; the messages are internationalized :) ).
-test.run(arguments = 'po-update', chdir = 'ex1', stderr = None)
-test.must_exist(    ['ex1', 'en.po'] )
-test.must_exist(    ['ex1', 'pl.po'] )
-test.must_contain(  ['ex1', 'en.po'], "Hello from a.cpp", mode='r' )
-test.must_contain(  ['ex1', 'pl.po'], "Hello from a.cpp", mode='r' )
+test.run(arguments='po-update', chdir='ex1', stderr=None)
+test.must_exist(['ex1', 'en.po'])
+test.must_exist(['ex1', 'pl.po'])
+test.must_contain(['ex1', 'en.po'], "Hello from a.cpp", mode='r')
+test.must_contain(['ex1', 'pl.po'], "Hello from a.cpp", mode='r')
 
 #############################################################################
 # POUpdate: Example 2
 #############################################################################
 test.subdir(['ex2'])
-test.write( ['ex2', 'SConstruct'],
-"""
-env = Environment( tools = ["default", "msgmerge"] )
-env.POUpdate(['en','pl'], ['foo']) # foo.pot --&gt; [en.po, pl.po]
+test.write(['ex2', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
+env = Environment(tools=["default", "msgmerge"])
+env.POUpdate(['en', 'pl'], ['foo'])  # foo.pot --&gt; [en.po, pl.po]
 """)
 #
 test.write(['ex2', 'foo.pot'], pot_contents)
@@ -201,20 +206,20 @@ test.write(['ex2', 'pl.po'], pl_po_contents)
 # NOTE: msgmerge(1) prints all messages to stderr, we must ignore them,
 # So, stderr=None is crucial here. It is no point to match stderr to some
 # specific valuse; the messages are internationalized :) ).
-test.run(arguments = 'po-update', chdir = 'ex2', stderr = None)
-test.must_exist(    ['ex2', 'en.po'] )
-test.must_exist(    ['ex2', 'pl.po'] )
-test.must_contain(  ['ex2', 'en.po'], "Hello from a.cpp", mode='r' )
-test.must_contain(  ['ex2', 'pl.po'], "Hello from a.cpp", mode='r' )
+test.run(arguments='po-update', chdir='ex2', stderr=None)
+test.must_exist(['ex2', 'en.po'])
+test.must_exist(['ex2', 'pl.po'])
+test.must_contain(['ex2', 'en.po'], "Hello from a.cpp", mode='r')
+test.must_contain(['ex2', 'pl.po'], "Hello from a.cpp", mode='r')
 
 #############################################################################
 # POUpdate: Example 3
 #############################################################################
 test.subdir(['ex3'])
-test.write( ['ex3', 'SConstruct'],
-"""
-env = Environment( tools = ["default", "msgmerge"] )
-env.POUpdate(['en','pl'], POTDOMAIN='foo') # foo.pot --&gt; [en.po, pl.po]
+test.write(['ex3', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
+env = Environment(tools=["default", "msgmerge"])
+env.POUpdate(['en', 'pl'], POTDOMAIN='foo')  # foo.pot --&gt; [en.po, pl.po]
 """)
 #
 test.write(['ex3', 'foo.pot'], pot_contents)
@@ -224,24 +229,23 @@ test.write(['ex3', 'pl.po'], pl_po_contents)
 # NOTE: msgmerge(1) prints its messages to stderr, we must ignore them,
 # So, stderr=None is crucial here. It is no point to match stderr to some
 # specific valuse; the messages are internationalized :) ).
-test.run(arguments = 'po-update', chdir = 'ex3', stderr = None)
-test.must_exist(    ['ex3', 'en.po'] )
-test.must_exist(    ['ex3', 'pl.po'] )
-test.must_contain(  ['ex3', 'en.po'], "Hello from a.cpp", mode='r' )
-test.must_contain(  ['ex3', 'pl.po'], "Hello from a.cpp", mode='r' )
+test.run(arguments='po-update', chdir='ex3', stderr=None)
+test.must_exist(['ex3', 'en.po'])
+test.must_exist(['ex3', 'pl.po'])
+test.must_contain(['ex3', 'en.po'], "Hello from a.cpp", mode='r')
+test.must_contain(['ex3', 'pl.po'], "Hello from a.cpp", mode='r')
 
 #############################################################################
 # POUpdate: Example 4
 #############################################################################
 test.subdir(['ex4'])
-test.write( ['ex4', 'SConstruct'],
-"""
-env = Environment( tools = ["default", "msgmerge"] )
-env.POUpdate(LINGUAS_FILE = 1) # needs 'LINGUAS' file
+test.write(['ex4', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
+env = Environment(tools=["default", "msgmerge"])
+env.POUpdate(LINGUAS_FILE=1)  # needs 'LINGUAS' file
 """)
 #
-test.write(['ex4', 'LINGUAS'],
-"""
+test.write(['ex4', 'LINGUAS'], """\
 en
 pl
 """)
@@ -253,24 +257,23 @@ test.write(['ex4', 'pl.po'], pl_po_contents)
 # NOTE: msgmerge(1) prints all messages to stderr, we must ignore them,
 # So, stderr=None is crucial here. It is no point to match stderr to some
 # specific valuse; the messages are internationalized :) ).
-test.run(arguments = 'po-update', chdir = 'ex4', stderr = None)
-test.must_exist(    ['ex4', 'messages.pot'] )
-test.must_exist(    ['ex4', 'en.po'] )
-test.must_exist(    ['ex4', 'pl.po'] )
-test.must_contain(  ['ex4', 'en.po'], "Hello from a.cpp", mode='r' )
-test.must_contain(  ['ex4', 'pl.po'], "Hello from a.cpp", mode='r' )
+test.run(arguments='po-update', chdir='ex4', stderr=None)
+test.must_exist(['ex4', 'messages.pot'])
+test.must_exist(['ex4', 'en.po'])
+test.must_exist(['ex4', 'pl.po'])
+test.must_contain(['ex4', 'en.po'], "Hello from a.cpp", mode='r')
+test.must_contain(['ex4', 'pl.po'], "Hello from a.cpp", mode='r')
 
 #############################################################################
 # POUpdate: Example 5
 #############################################################################
 test.subdir(['ex5'])
-test.write( ['ex5', 'SConstruct'],
-"""
-env = Environment( tools = ["default", "msgmerge"] )
-env.POUpdate(LINGUAS_FILE = 1, source = ['foo']) 
+test.write(['ex5', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
+env = Environment(tools=["default", "msgmerge"])
+env.POUpdate(LINGUAS_FILE=1, source=['foo'])
 """)
-test.write(['ex5', 'LINGUAS'],
-"""
+test.write(['ex5', 'LINGUAS'], """\
 en
 pl
 """)
@@ -282,23 +285,22 @@ test.write(['ex5', 'pl.po'], pl_po_contents)
 # NOTE: msgmerge(1) prints its messages to stderr, we must ignore them,
 # So, stderr=None is crucial here. It is no point to match stderr to some
 # specific valuse; the messages are internationalized :) ).
-test.run(arguments = 'po-update', chdir=  'ex5', stderr = None)
-test.must_exist(    ['ex5', 'en.po'] )
-test.must_exist(    ['ex5', 'pl.po'] )
-test.must_contain(  ['ex5', 'en.po'], "Hello from a.cpp", mode='r' )
-test.must_contain(  ['ex5', 'pl.po'], "Hello from a.cpp", mode='r' )
+test.run(arguments='po-update', chdir='ex5', stderr=None)
+test.must_exist(['ex5', 'en.po'])
+test.must_exist(['ex5', 'pl.po'])
+test.must_contain(['ex5', 'en.po'], "Hello from a.cpp", mode='r')
+test.must_contain(['ex5', 'pl.po'], "Hello from a.cpp", mode='r')
 
 #############################################################################
 # POUpdate: Example 6
 #############################################################################
 test.subdir(['ex6'])
-test.write( ['ex6', 'SConstruct'],
-"""
-env = Environment( tools = ["default", "msgmerge"] )
-env.POUpdate(['en', 'pl'], LINGUAS_FILE = 1)
+test.write(['ex6', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
+env = Environment(tools=["default", "msgmerge"])
+env.POUpdate(['en', 'pl'], LINGUAS_FILE=1)
 """)
-test.write(['ex6', 'LINGUAS'],
-"""
+test.write(['ex6', 'LINGUAS'], """\
 de
 fr
 """)
@@ -311,15 +313,15 @@ test.write(['ex6', 'fr.po'], fr_po_contents)
 # Note: msgmerge(1) prints its messages to stderr, we must ignore them,
 # So, stderr=None is crucial here. It is no point to match stderr to some
 # specific valuse; the messages are internationalized :) ).
-test.run(arguments = 'po-update', chdir = 'ex6', stderr = None)
-test.must_exist(    ['ex6', 'en.po'] )
-test.must_exist(    ['ex6', 'pl.po'] )
-test.must_exist(    ['ex6', 'de.po'] )
-test.must_exist(    ['ex6', 'fr.po'] )
-test.must_contain(  ['ex6', 'en.po'], "Hello from a.cpp", mode='r' )
-test.must_contain(  ['ex6', 'pl.po'], "Hello from a.cpp", mode='r' )
-test.must_contain(  ['ex6', 'de.po'], "Hello from a.cpp", mode='r' )
-test.must_contain(  ['ex6', 'fr.po'], "Hello from a.cpp", mode='r' )
+test.run(arguments='po-update', chdir='ex6', stderr=None)
+test.must_exist(['ex6', 'en.po'])
+test.must_exist(['ex6', 'pl.po'])
+test.must_exist(['ex6', 'de.po'])
+test.must_exist(['ex6', 'fr.po'])
+test.must_contain(['ex6', 'en.po'], "Hello from a.cpp", mode='r')
+test.must_contain(['ex6', 'pl.po'], "Hello from a.cpp", mode='r')
+test.must_contain(['ex6', 'de.po'], "Hello from a.cpp", mode='r')
+test.must_contain(['ex6', 'fr.po'], "Hello from a.cpp", mode='r')
 
 #############################################################################
 # POUpdate: Example 7
@@ -331,13 +333,12 @@ if not test.where_is('msginit'):
     test.skip_test("could not find 'msginit'; skipping test(s)\n")
 ###
 test.subdir(['ex7'])
-test.write( ['ex7', 'SConstruct'],
-"""
-env = Environment( tools = ["default", "msginit", "msgmerge"] )
-env.POUpdate(LINGUAS_FILE = 1, POAUTOINIT = 1) 
+test.write(['ex7', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
+env = Environment(tools=["default", "msginit", "msgmerge"])
+env.POUpdate(LINGUAS_FILE=1, POAUTOINIT=1)
 """)
-test.write(['ex7', 'LINGUAS'],
-"""
+test.write(['ex7', 'LINGUAS'], """\
 en
 pl
 """)
@@ -347,11 +348,11 @@ test.write(['ex7', 'messages.pot'], pot_contents)
 # NOTE: msgmerge(1) prints its messages to stderr, we must ignore them,
 # So, stderr=None is crucial here. It is no point to match stderr to some
 # specific valuse; the messages are internationalized :) ).
-test.run(arguments = 'po-update', chdir=  'ex7', stderr = None)
-test.must_exist(    ['ex7', 'en.po'] )
-test.must_exist(    ['ex7', 'pl.po'] )
-test.must_contain(  ['ex7', 'en.po'], "Hello from a.cpp", mode='r' )
-test.must_contain(  ['ex7', 'pl.po'], "Hello from a.cpp", mode='r' )
+test.run(arguments='po-update', chdir='ex7', stderr=None)
+test.must_exist(['ex7', 'en.po'])
+test.must_exist(['ex7', 'pl.po'])
+test.must_contain(['ex7', 'en.po'], "Hello from a.cpp", mode='r')
+test.must_contain(['ex7', 'pl.po'], "Hello from a.cpp", mode='r')
 
 #############################################################################
 # POUpdate: Example 8
@@ -363,19 +364,18 @@ if not test.where_is('xgettext'):
     test.skip_test("could not find 'xgettext'; skipping test(s)\n")
 ###
 test.subdir(['ex8'])
-test.write( ['ex8', 'SConstruct'],
-"""
-env = Environment( tools = ["default", "xgettext", "msginit", "msgmerge"] )
+test.write(['ex8', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
+env = Environment(tools=["default", "xgettext", "msginit", "msgmerge"])
 
 # script-wise settings
 env['POAUTOINIT'] = 1
 env['LINGUAS_FILE'] = 1
 env['POTDOMAIN'] = 'foo'
-env.POTUpdate(source = 'a.cpp')
+env.POTUpdate(source='a.cpp')
 env.POUpdate()
 """)
-test.write(['ex8', 'LINGUAS'],
-"""
+test.write(['ex8', 'LINGUAS'], """\
 en
 pl
 """)
@@ -384,12 +384,12 @@ test.write(['ex8', 'a.cpp'], """ gettext("Hello from a.cpp") """)
 # Note: msgmerge(1) prints its messages to stderr, we must ignore them,
 # So, stderr=None is crucial here. It is no point to match stderr to some
 # specific valuse; the messages are internationalized :) ).
-test.run(arguments = 'po-update', chdir = 'ex8', stderr = None)
-test.must_exist(    ['ex8', 'foo.pot'] )
-test.must_exist(    ['ex8', 'en.po'] )
-test.must_exist(    ['ex8', 'pl.po'] )
-test.must_contain(  ['ex8', 'en.po'], "Hello from a.cpp", mode='r' )
-test.must_contain(  ['ex8', 'pl.po'], "Hello from a.cpp", mode='r' )
+test.run(arguments='po-update', chdir='ex8', stderr=None)
+test.must_exist(['ex8', 'foo.pot'])
+test.must_exist(['ex8', 'en.po'])
+test.must_exist(['ex8', 'pl.po'])
+test.must_contain(['ex8', 'en.po'], "Hello from a.cpp", mode='r')
+test.must_contain(['ex8', 'pl.po'], "Hello from a.cpp", mode='r')
 
 test.pass_test()
 

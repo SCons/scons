@@ -74,6 +74,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       fixing the handling of option-arguments specified with a space
       separator (multiple issues, harvested from PR #3799 created by Dillan Mills).
       These interfaces are not part of the public API.
+    - Minor test tweaks to clean up and add DefaultEnvironment call.
 
   From Edward Peek:
     - Fix the variant dir component being missing from generated source file

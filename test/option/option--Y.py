@@ -36,9 +36,10 @@ repository_foo_c = test.workpath('repository', 'foo.c')
 work1_foo = test.workpath('work1', 'foo' + _exe)
 work1_foo_c = test.workpath('work1', 'foo.c')
 
-test.write(['repository', 'SConstruct'], r"""
+test.write(['repository', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
 env = Environment()
-env.Program(target= 'foo', source = Split('aaa.c bbb.c foo.c'))
+env.Program(target='foo', source=Split('aaa.c bbb.c foo.c'))
 """)
 
 test.write(['repository', 'aaa.c'], r"""
@@ -81,16 +82,16 @@ opts = '-Y ' + repository
 # if we try to write into it accidentally.
 test.writable('repository', 0)
 
-test.run(chdir = 'work1', options = opts, arguments = '.')
+test.run(chdir='work1', options=opts, arguments='.')
 
-test.run(program = work1_foo, stdout = """repository/aaa.c
+test.run(program=work1_foo, stdout="""\
+repository/aaa.c
 repository/bbb.c
 repository/foo.c
 """)
 
-test.up_to_date(chdir = 'work1', options = opts, arguments = '.')
+test.up_to_date(chdir='work1', options=opts, arguments='.')
 
-#
 test.write(['work1', 'bbb.c'], r"""
 #include <stdio.h>
 #include <stdlib.h>
@@ -101,14 +102,15 @@ bbb(void)
 }
 """)
 
-test.run(chdir = 'work1', options = opts, arguments = '.')
+test.run(chdir='work1', options=opts, arguments='.')
 
-test.run(program = work1_foo, stdout = """repository/aaa.c
+test.run(program=work1_foo, stdout="""\
+repository/aaa.c
 work1/bbb.c
 repository/foo.c
 """)
 
-test.up_to_date(chdir = 'work1', options = opts, arguments = '.')
+test.up_to_date(chdir='work1', options=opts, arguments='.')
 
 #
 test.write(['work1', 'aaa.c'], r"""
@@ -137,47 +139,43 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(chdir = 'work1', options = opts, arguments = '.')
+test.run(chdir='work1', options=opts, arguments='.')
 
-test.run(program = work1_foo, stdout = """work1/aaa.c
+test.run(program=work1_foo, stdout="""\
+work1/aaa.c
 work1/bbb.c
 work1/foo.c
 """)
 
-test.up_to_date(chdir = 'work1', options = opts, arguments = '.')
+test.up_to_date(chdir='work1', options=opts, arguments='.')
 
-#
 test.unlink(['work1', 'bbb.c'])
 test.unlink(['work1', 'foo.c'])
 
-test.run(chdir = 'work1', options = opts, arguments = '.')
+test.run(chdir='work1', options=opts, arguments='.')
 
-test.run(program = work1_foo, stdout = """work1/aaa.c
+test.run(program=work1_foo, stdout="""\
+work1/aaa.c
 repository/bbb.c
 repository/foo.c
 """)
 
-test.up_to_date(chdir = 'work1', options = opts, arguments = '.')
+test.up_to_date(chdir='work1', options=opts, arguments='.')
 
-
-
-#
 test.subdir('r.NEW', 'r.OLD', 'work2')
 
 workpath_r_NEW = test.workpath('r.NEW')
 workpath_r_OLD = test.workpath('r.OLD')
 work2_foo = test.workpath('work2', 'foo' + _exe)
 
-SConstruct = """
+SConstruct = """\
 DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
-env.Program(target = 'foo', source = 'foo.c')
+env.Program(target='foo', source='foo.c')
 """
 
 test.write(['r.OLD', 'SConstruct'], SConstruct)
-
 test.write(['r.NEW', 'SConstruct'], SConstruct)
-
 test.write(['r.OLD', 'foo.c'], r"""
 #include <stdio.h>
 #include <stdlib.h>
@@ -197,13 +195,11 @@ opts = '-Y %s -Y %s' % (workpath_r_NEW, workpath_r_OLD)
 test.writable('r.OLD', 0)
 test.writable('r.NEW', 0)
 
-test.run(chdir = 'work2', options = opts, arguments = '.')
+test.run(chdir='work2', options=opts, arguments='.')
 
-test.run(program = work2_foo, stdout = "r.OLD/foo.c\n")
+test.run(program=work2_foo, stdout="r.OLD/foo.c\n")
+test.up_to_date(chdir='work2', options=opts, arguments='.')
 
-test.up_to_date(chdir = 'work2', options = opts, arguments = '.')
-
-#
 test.writable('r.NEW', 1)
 
 test.write(['r.NEW', 'foo.c'], r"""
@@ -219,14 +215,11 @@ main(int argc, char *argv[])
 """)
 
 test.writable('r.NEW', 0)
+test.run(chdir='work2', options=opts, arguments='.')
 
-test.run(chdir = 'work2', options = opts, arguments = '.')
+test.run(program=work2_foo, stdout="r.NEW/foo.c\n")
+test.up_to_date(chdir='work2', options=opts, arguments='.')
 
-test.run(program = work2_foo, stdout = "r.NEW/foo.c\n")
-
-test.up_to_date(chdir = 'work2', options = opts, arguments = '.')
-
-#
 test.write(['work2', 'foo.c'], r"""
 #include <stdio.h>
 #include <stdlib.h>
@@ -239,13 +232,11 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(chdir = 'work2', options = opts, arguments = '.')
+test.run(chdir='work2', options=opts, arguments='.')
 
-test.run(program = work2_foo, stdout = "work2/foo.c\n")
+test.run(program=work2_foo, stdout="work2/foo.c\n")
+test.up_to_date(chdir='work2', options=opts, arguments='.')
 
-test.up_to_date(chdir = 'work2', options = opts, arguments = '.')
-
-#
 test.writable('r.OLD', 1)
 test.writable('r.NEW', 1)
 
@@ -276,33 +267,22 @@ main(int argc, char *argv[])
 test.writable('r.OLD', 0)
 test.writable('r.NEW', 0)
 
-test.up_to_date(chdir = 'work2', options = opts, arguments = '.')
+test.up_to_date(chdir='work2', options=opts, arguments='.')
 
-#
 test.unlink(['work2', 'foo.c'])
+test.run(chdir='work2', options=opts, arguments='.')
 
-test.run(chdir = 'work2', options = opts, arguments = '.')
+test.run(program=work2_foo, stdout="r.NEW/foo.c 2\n")
+test.up_to_date(chdir='work2', options=opts, arguments='.')
 
-test.run(program = work2_foo, stdout = "r.NEW/foo.c 2\n")
-
-test.up_to_date(chdir = 'work2', options = opts, arguments = '.')
-
-#
 test.writable('r.NEW', 1)
-
 test.unlink(['r.NEW', 'foo.c'])
-
 test.writable('r.NEW', 0)
+test.run(chdir='work2', options=opts, arguments='.')
 
-test.run(chdir = 'work2', options = opts, arguments = '.')
+test.run(program=work2_foo, stdout="r.OLD/foo.c 2\n")
+test.up_to_date(chdir='work2', options=opts, arguments='.')
 
-test.run(program = work2_foo, stdout = "r.OLD/foo.c 2\n")
-
-test.up_to_date(chdir = 'work2', options = opts, arguments = '.')
-
-
-
-#
 test.pass_test()
 
 # Local Variables:
