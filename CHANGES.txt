@@ -16,32 +16,35 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Whatever John Doe did.
 
   From Joseph Brill:
-    - MSVC: A significant delay was experienced in the windows 2022
-      and 2025 runners due to the limited environment in which the MSVC
-      batch files are invoked.  The vcpkg component installed in Visual
-      Studio invokes a powershell script when the MSVC batch files are
-      called. The limited MSVC environment 1) did not have the preferred
-      pwsh executable on the system path, 2) did not include the powershell
-      module analysis cache location (PSModuleAnalysisCachePath), and 3) did
-      not include the powershell module path (PSModulePath) which appears to
-      be responsible for the performance degradation in the windows 2022 and
-      2025 runners. The VS vcpkg component is not installed in the windows
-      2019 runner. Adding the pwsh and powershell executable paths in the
-      order discovered on the shell environment path, passing the powershell
-      module analysis cache location, and adding a limited subset of the
-      powershell module path appears to have eliminated the significant
-      delays.  In the windows runners, any one of the these three changes
-      appears to eliminite the significant delays. It is hoped that the
-      combination of all three changes will guard against significant
-      delays in other environment configurations as well.
-    - MSVC: The following shell variables and values are passed to the
-      environment in which the MSVC batch files are invoked:
+    - MSVC: A significant delay was experienced in the Github Actions windows
+      2022 and 2025 runners due to the environment used by SCons to initialize
+      MSVC when the Visual Studio vcpkg component is installed. The Visual
+      Studio vcpkg component is not installed in the Github Actions windows
+      2019 runner.
+      The Visual Studio vcpkg component invokes a powershell script when the
+      MSVC batch files are called.  The significant delay in the Github
+      Actions windows 2022 and 2025 runners appears due to the environment
+      used by SCons to initialize MSVC not including the pwsh executable on
+      the system path, not including the powershell module analysis cache
+      location, and not including the powershell module path.
+      Adding the pwsh and powershell executable paths in the order discovered
+      on the shell environment path, passing the powershell module analysis
+      cache location, and adding a subset of the powershell module path to the
+      environment used by SCons to initialize MSVC appears to have eliminated
+      the significant delays in the Github Actions windows 2022 and 2025
+      runners.
+      In the Github Actions windows 2022 and 2025 runners, any one of the
+      three additions appears to eliminate the significant delays. It is hoped
+      that the combination of all three additions will guard against
+      significant delays in other environment configurations as well.
+    - MSVC: The following shell environment variables are now included in the
+      environment used by SCons to initialize MSVC when defined:
       VCPKG_DISABLE_METRICS, VCPKG_ROOT, POWERSHELL_TELEMETRY_OPTOUT,
-      PSDisableModuleAnalysisCacheCleanup, and PSModuleAnalysisCachePath.
-      A limited subset of the shell PSModulePath environment variable value
-      is passed to the MSVC environment. None of these variables and values
-      are propagated to the SCons environment after running the MSVC batch
-      files.
+      PSDisableModuleAnalysisCacheCleanup, and PSModuleAnalysisCachePath. A
+      subset of the shell environment PSModulePath is included in the
+      environment used by SCons to initialize MSVC when defined.  None of
+      these variables and values are propagated to the user's SCons
+      environment after running the MSVC batch files.
 
   From Edward Peek:
     - Fix the variant dir component being missing from generated source file
@@ -97,7 +100,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Ninja tool generate_command() fixed to call subst() with correct
       arguments in ListAction case. Unit tests added for generate_command.
       Fixes #4580.
-      
+
   From Edward Peek:
     - Fix the variant dir component being missing from generated source file
       paths with CompilationDatabase() builder (Fixes #4003).

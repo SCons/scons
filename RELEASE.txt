@@ -36,12 +36,13 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   replaced (using and/or) is regarded as error prone.
 
 - MSVC: The following shell environment variables are now included in
-  the environment in which the MSVC batch files are invoked when defined:
+  the environment used by SCons to initialize MSVC when defined:
   VCPKG_DISABLE_METRICS, VCPKG_ROOT, POWERSHELL_TELEMETRY_OPTOUT,
   PSDisableModuleAnalysisCacheCleanup, and PSModuleAnalysisCachePath.
-  A subset of the shell environment PSModulePath path elements is
-  included in the limited environment in which the MSVC batch files
-  are invoked.
+  A subset of the shell environment PSModulePath is included in the
+  environment used by SCons to initialize MSVC when defined.  None of
+  these variables and values are propagated to the user's SCons
+  environment after running the MSVC batch files.
 
 FIXES
 -----
@@ -49,9 +50,10 @@ FIXES
 - Fixed SCons.Variables.PackageVariable to correctly test the default
   setting against both enable & disable strings. (Fixes #4702)
 
-- MSVC: Fixed a significant delay that was experienced in the windows
-  2022 and 2025 runners due to the limited environment in which the MSVC
-  batch files are invoked.  The windows 2019 runner was not affected.
+- MSVC: Fixed a significant delay experienced in the Github Actions
+  windows 2022 and 2025 runners due to the environment used by SCons
+  to initialize MSVC when the Visual Studio vcpkg component is
+  installed. The Github Actions windows 2019 runner was not affected.
 
 - Fix the variant dir component being missing from generated source file
   paths with CompilationDatabase() builder (Fixes #4003).
