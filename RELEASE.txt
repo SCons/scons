@@ -56,6 +56,9 @@ FIXES
 - Fix the variant dir component being missing from generated source file
   paths with CompilationDatabase() builder (Fixes #4003).
 
+- Ninja tool generate_command() fixed to call subst() with correct
+  arguments in ListAction case. Unit tests added for generate_command.
+
 IMPROVEMENTS
 ------------
 
