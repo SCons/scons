@@ -28,6 +28,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       values are not propagated to the SCons environment after running
       the MSVC batch files.
 
+  From Edward Peek:
+    - Fix the variant dir component being missing from generated source file
+      paths with CompilationDatabase() builder (Fixes #4003).
+
   From Bill Prendergast:
     - Fixed SCons.Variables.PackageVariable to correctly test the default
       setting against both enable & disable strings. (Fixes #4702)
@@ -75,7 +79,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       separator (multiple issues, harvested from PR #3799 created by Dillan Mills).
       These interfaces are not part of the public API.
     - Minor test tweaks to clean up and add DefaultEnvironment call.
-
+    - Ninja tool generate_command() fixed to call subst() with correct
+      arguments in ListAction case. Unit tests added for generate_command.
+      Fixes #4580.
+      
   From Edward Peek:
     - Fix the variant dir component being missing from generated source file
       paths with CompilationDatabase() builder (Fixes #4003).
