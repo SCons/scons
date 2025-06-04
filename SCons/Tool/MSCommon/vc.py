@@ -61,6 +61,7 @@ from . import common
 from .common import (
     CONFIG_CACHE,
     debug,
+    msvc_environ_cache_key,
 )
 from .sdk import get_installed_sdks
 
@@ -2112,7 +2113,7 @@ def script_env(env, script, args=None):
 
     if script_env_cache is None:
         script_env_cache = common.read_script_env_cache()
-    cache_key = (script, args if args else None)
+    cache_key = (script, args if args else None, msvc_environ_cache_key())
     cache_data = script_env_cache.get(cache_key, None)
 
     # Brief sanity check: if we got a value for the key,

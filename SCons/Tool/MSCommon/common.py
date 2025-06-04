@@ -25,12 +25,15 @@
 Common helper functions for working with the Microsoft tool chain.
 """
 
+import base64
 import copy
+import hashlib
 import json
 import os
 import re
 import sys
 import time
+from collections import namedtuple
 from contextlib import suppress
 from subprocess import DEVNULL, PIPE
 from pathlib import Path
@@ -51,7 +54,7 @@ import SCons.Warnings
 # control execution in interesting ways.
 # Note these really should be unified - either controlled by vs.py,
 # or synced with the the common_tools_var # settings in vs.py.
-VS_VC_VARS = [
+MSVC_ENVIRON_SHELLVARS = (
     'COMSPEC',  # path to "shell"
     'OS', # name of OS family: Windows_NT or undefined (95/98/ME)
     'VS170COMNTOOLS',  # path to common tools for given version
@@ -74,7 +77,23 @@ VS_VC_VARS = [
     'POWERSHELL_TELEMETRY_OPTOUT',
     'PSDisableModuleAnalysisCacheCleanup',
     'PSModuleAnalysisCachePath',
-]
+)
+
+# Hard-coded list of the variables that are imported from the msvc
+# environment and added to the calling environment.  Currently, this
+# list does not contain any variables that are in the shell variables
+# list above.  Due to the existing implementation, variables in both
+# lists may not work as expected (e.g., overwites, adding empty values,
+# etc.).
+MSVC_ENVIRON_KEEPVARS = (
+    "INCLUDE",
+    "LIB",
+    "LIBPATH",
+    "PATH",
+    "VSCMD_ARG_app_plat",
+    "VCINSTALLDIR",  # needed by clang -VS 2017 and newer
+    "VCToolsInstallDir",  # needed by clang - VS 2015 and older
+)
 
 class MSVCCacheInvalidWarning(SCons.Warnings.WarningOnByDefault):
     pass
@@ -329,6 +348,95 @@ def has_reg(value) -> bool:
         ret = False
     return ret
 
+# Functions for shell variables and keep variables cache key.
+
+class _EnvVarsUtil:
+
+    _VARLIST_ENCODE = namedtuple('VarListEncode', [
+        'n_elem',
+        'n_char',
+        'digest',
+        'keystr',
+    ])
+
+    _cache_varlist_unique = {}
+
+    @classmethod
+    def varlist_unique_t(cls, varlist):
+        key = tuple(varlist)
+        unique = cls._cache_varlist_unique.get(key)
+        if unique is None:
+            seen = set()
+            unique = []
+            for var in varlist:
+                var_key = var.lower()
+                if var_key in seen:
+                    continue
+                seen.add(var_key)
+                unique.append(var)
+            unique = tuple(sorted(unique, key=str.lower))
+            cls._cache_varlist_unique[key] = unique
+        return unique
+
+    _cache_varlist_norm = {}
+
+    @classmethod
+    def varlist_norm_t(cls, varlist):
+        unique_t = cls.varlist_unique_t(varlist)
+        norm_t = cls._cache_varlist_norm.get(unique_t)
+        if norm_t is None:
+            norm_t = tuple(var.lower() for var in unique_t)
+            cls._cache_varlist_norm[unique_t] = norm_t
+        return norm_t
+
+    _cache_varlist_encode = {}
+
+    @classmethod
+    def varlist_encode(cls, varlist):
+        norm_t = cls.varlist_norm_t(varlist)
+        encode_t = cls._cache_varlist_encode.get(norm_t)
+        if encode_t is None:
+            message = ":".join(norm_t)
+            hash_object = hashlib.sha224()
+            hash_object.update(message.encode())
+            digest = base64.b85encode(hash_object.digest()).decode("ascii")
+            n_elem = len(norm_t)
+            n_char = len(message)
+            if n_elem > 1:
+                n_char -= n_elem - 1
+            encode_t = cls._VARLIST_ENCODE(
+                n_elem=n_elem,
+                n_char=n_char,
+                digest=digest,
+                keystr=f'{n_elem}:{n_char}:{digest}',
+
+            )
+            cls._cache_varlist_encode[norm_t] = encode_t
+        return encode_t
+
+    _cache_msvc_environ_keystr = {}
+
+    @classmethod
+    def msvc_environ_keystr(cls):
+        shell_encode_t = cls.varlist_encode(MSVC_ENVIRON_SHELLVARS)
+        keep_encode_t = cls.varlist_encode(MSVC_ENVIRON_KEEPVARS)
+        key = (shell_encode_t, keep_encode_t)
+        keystr = cls._cache_msvc_environ_keystr.get(key)
+        if keystr is None:
+            keystr = ":".join([shell_encode_t.keystr, keep_encode_t.keystr])
+            cls._cache_msvc_environ_keystr[key] = keystr
+        return keystr
+
+def msvc_environ_cache_key():
+    keystr = _EnvVarsUtil.msvc_environ_keystr()
+    debug("keystr=%r", keystr)
+    return keystr
+
+# Populate cache with default variable lists.
+# Useful when logging to detect user modifications of default variable lists.
+_ = msvc_environ_cache_key()
+
+
 # Functions for fetching environment variable settings from batch files.
 
 
@@ -522,7 +630,9 @@ def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
         # Create a blank environment, for use in launching the tools
         env = SCons.Environment.Environment(tools=[])
 
-    env['ENV'] = normalize_env(env['ENV'], VS_VC_VARS, force=False)
+    shellvars_t = _EnvVarsUtil.varlist_unique_t(MSVC_ENVIRON_SHELLVARS)
+
+    env['ENV'] = normalize_env(env['ENV'], shellvars_t, force=False)
 
     if skip_sendtelemetry:
         _force_vscmd_skip_sendtelemetry(env)
@@ -563,22 +673,16 @@ def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
     return cp.stdout.decode(OEM)
 
 
-KEEPLIST = (
-    "INCLUDE",
-    "LIB",
-    "LIBPATH",
-    "PATH",
-    "VSCMD_ARG_app_plat",
-    "VCINSTALLDIR",  # needed by clang -VS 2017 and newer
-    "VCToolsInstallDir",  # needed by clang - VS 2015 and older
-)
-
-
-def parse_output(output, keep=KEEPLIST):
+def parse_output(output, keep=None):
     """
     Parse output from running visual c++/studios vcvarsall.bat and running set
     To capture the values listed in keep
     """
+
+    if keep is None:
+        keep = MSVC_ENVIRON_KEEPVARS
+
+    keep = _EnvVarsUtil.varlist_unique_t(keep)
 
     # dkeep is a dict associating key: path_list, where key is one item from
     # keep, and path_list the associated list of paths
