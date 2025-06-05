@@ -391,7 +391,6 @@ class LaTeX(ScannerBase):
 
         queue = []
         queue.extend( self.scan(node) )
-        seen = {}
 
         # This is a hand-coded DSU (decorate-sort-undecorate, or
         # Schwartzian transform) pattern.  The sort key is the raw name
@@ -407,12 +406,6 @@ class LaTeX(ScannerBase):
 
             include = queue.pop()
             inc_type, inc_subdir, inc_filename = include
-
-            try:
-                if seen[inc_filename]:
-                    continue
-            except KeyError:
-                seen[inc_filename] = True
 
             #
             # Handle multiple filenames in include[1]
