@@ -75,6 +75,12 @@ test.write('beamerthemescons.sty',r"""
 for theme in ('color', 'font', 'inner', 'outer'):
     test.write('beamer' + theme + 'themescons.sty', "\n")
 
+test.write('test6.latex',r"""
+\include{inc1}
+\subimport{subdir}{inc3}
+\subimport{subdir2}{inc3}
+""")
+
 test.subdir('subdir')
 
 test.write('inc1.tex',"\n")
@@ -89,6 +95,10 @@ test.write('inc5.xyz', "\n")
 test.write('inc6.tex', "\n")
 test.write('inc7.png', "\n")
 test.write('incNO.tex', "\n")
+
+test.subdir('subdir2')
+
+test.write(['subdir2', 'inc3.tex'], "\\input{inc2}\n")
 
 # define some helpers:
 #   copied from CTest.py
@@ -187,6 +197,15 @@ class LaTeXScannerTestCase5(unittest.TestCase):
          deps = s(env.File('test5.latex'), env, path)
          files = ['beamer' + _ + 'themescons.sty' for _ in
                   ('color', 'font', 'inner', 'outer', '')]
+         deps_match(self, deps, files)
+
+class LaTeXScannerTestCase5(unittest.TestCase):
+     def runTest(self) -> None:
+         env = DummyEnvironment(TEXINPUTS=[test.workpath("subdir")],LATEXSUFFIXES = [".tex", ".ltx", ".latex"])
+         s = SCons.Scanner.LaTeX.LaTeXScanner()
+         path = s.path(env)
+         deps = s(env.File('test6.latex'), env, path)
+         files = ['inc1.tex', 'inc2.tex', 'subdir/inc3.tex', 'subdir2/inc3.tex']
          deps_match(self, deps, files)
 
 if __name__ == "__main__":
