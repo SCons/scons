@@ -352,7 +352,7 @@ def has_reg(value) -> bool:
 
 class _EnvVarsUtil:
 
-    _VARLIST_ENCODE = namedtuple('VarListEncode', [
+    _VarListEncode = namedtuple('_VarListEncode', [
         'n_elem',
         'n_char',
         'digest',
@@ -404,7 +404,7 @@ class _EnvVarsUtil:
             n_char = len(message)
             if n_elem > 1:
                 n_char -= n_elem - 1
-            encode_t = cls._VARLIST_ENCODE(
+            encode_t = cls._VarListEncode(
                 n_elem=n_elem,
                 n_char=n_char,
                 digest=digest,
