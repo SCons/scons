@@ -315,7 +315,8 @@ class LaTeX(ScannerBase):
 
         for n in try_names:
             for search_path in search_paths:
-                paths = tuple([d.Dir(inc_subdir) for d in search_path])
+                paths = tuple([d.Dir(inc_subdir) for d in search_path] +
+                              list(search_path))
                 i = SCons.Node.FS.find_file(n, paths)
                 if i:
                     return i, include
