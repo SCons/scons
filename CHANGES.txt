@@ -56,6 +56,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Extended unittests (crudely) to test for correct/expected response
       when default setting is a boolean string.
 
+  From Keith Prussing:
+    - Fixed LaTeX SCanner to mimic LaTeX's search behavior for included files.
+
   From Mats Wichmann:
     - Clean up C and C++ FLAGS tests. Tests which use a real compiler
       are now more clearly distinguished (-live.py suffix and docstring).

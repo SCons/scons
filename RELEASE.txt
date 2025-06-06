@@ -61,6 +61,8 @@ FIXES
 - Ninja tool generate_command() fixed to call subst() with correct
   arguments in ListAction case. Unit tests added for generate_command.
 
+- Fix the SCons.Scanner.LaTeX to mimic LaTeX's search method.
+
 IMPROVEMENTS
 ------------
 
