@@ -391,6 +391,7 @@ class LaTeX(ScannerBase):
 
         queue = []
         queue.extend( self.scan(node) )
+        seen = {}
 
         # This is a hand-coded DSU (decorate-sort-undecorate, or
         # Schwartzian transform) pattern.  The sort key is the raw name
@@ -411,6 +412,12 @@ class LaTeX(ScannerBase):
             # Handle multiple filenames in include[1]
             #
             n, i = self.find_include(include, source_dir, path_dict)
+            try:
+                if seen[str(n)]:
+                    continue
+            except KeyError:
+                seen[str(n)] = True
+
             if n is None:
                 # Do not bother with 'usepackage' warnings, as they most
                 # likely refer to system-level files
