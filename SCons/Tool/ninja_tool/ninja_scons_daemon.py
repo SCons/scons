@@ -34,36 +34,30 @@ itself down after the passed timeout of no activity. Any time the server receive
 the keep alive time will be reset.
 """
 
-import http.server
-import socketserver
-from urllib.parse import urlparse, parse_qs
-import time
-from threading import Condition
-from subprocess import PIPE, Popen
-import sys
-import os
-import threading
-import queue
-import pathlib
-import logging
-from timeit import default_timer as timer
-import traceback
-import tempfile
 import hashlib
+import http.server
+import logging
+import os
+import pathlib
+import queue
 import signal
+import socketserver
+import sys
+import tempfile
+import threading
+import time
+import traceback
+from subprocess import PIPE, Popen
+from threading import Condition
+from timeit import default_timer as timer
+from urllib.parse import urlparse, parse_qs
+
+from SCons.Subst import quote_spaces
 
 port = int(sys.argv[1])
 ninja_builddir = pathlib.Path(sys.argv[2])
 daemon_keep_alive = int(sys.argv[3])
 args = sys.argv[4:]
-
-# TODO: Remove the following when Python3.6 support is dropped.
-# Windows and Python36 passed nothing for the std handles because of issues with popen
-# and its handles so we have to make some fake ones to prevent exceptions.
-if sys.platform == 'win32' and sys.version_info[0] == 3 and sys.version_info[1] == 6:
-    from io import StringIO
-    sys.stderr = StringIO()
-    sys.stdout = StringIO()
 
 daemon_dir = pathlib.Path(tempfile.gettempdir()) / (
     "scons_daemon_" + str(hashlib.md5(str(ninja_builddir).encode()).hexdigest())
@@ -168,7 +162,7 @@ def daemon_thread_func():
         te.start()
 
         daemon_ready = False
-        
+
         building_node = None
         startup_complete = False
 
@@ -229,7 +223,7 @@ def daemon_thread_func():
                     break
 
                 else:
-                    input_command = "build " + building_node + "\n"
+                    input_command = f'build {quote_spaces(building_node)}\n'
                     daemon_log("input: " + input_command.strip())
 
                     p.stdin.write(input_command.encode("utf-8"))
@@ -272,8 +266,8 @@ def server_thread_func() -> None:
             global keep_alive_timer
             try:
                 gets = parse_qs(urlparse(self.path).query)
-                
-                # process a request from ninja for a node for scons to build. 
+
+                # process a request from ninja for a node for scons to build.
                 # Currently this is a serial process because scons interactive is serial
                 # is it was originally meant for a real human user to be providing input
                 # parallel input was never implemented.
@@ -341,8 +335,8 @@ server_thread = threading.Thread(target=server_thread_func)
 server_thread.daemon = True
 server_thread.start()
 
-while (timer() - keep_alive_timer < daemon_keep_alive 
-        and not shared_state.thread_error 
+while (timer() - keep_alive_timer < daemon_keep_alive
+        and not shared_state.thread_error
         and not shared_state.daemon_needs_to_shutdown):
     time.sleep(1)
 
