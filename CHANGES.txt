@@ -111,10 +111,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       action is first in the list.  Initial suggestion from Julien Pommier.
       Fixes #4731.
 
-Fixes #4731
-
-
-
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
 
