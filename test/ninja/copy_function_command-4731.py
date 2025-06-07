@@ -21,6 +21,12 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+Regression test for issue #4731: almost the same as copy_function_command,
+but uses a list action where the first command is Copy,
+as opposed to a simple function action. This was failing.
+"""
+
 import os
 
 import TestSCons
@@ -45,7 +51,7 @@ SetOption('experimental', 'ninja')
 DefaultEnvironment(tools=[])
 env = Environment()
 env.Tool('ninja')
-env.Command('foo2.c', ['foo.c'], Copy('$TARGET','$SOURCE'))
+env.Command('foo2.c', ['foo.c'], [Copy('$TARGET', '$SOURCE'), Chmod('$TARGET', 0x755)])
 env.Program(target='foo', source='foo2.c')
 """,
 )

@@ -21,6 +21,12 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+Regression test for issue #4730: almost the same as force_scons_callback
+function, but uses a target name with a space in it, to make sure
+quoting is handled correctly all the way through.
+"""
+
 import os
 
 import TestSCons
@@ -41,7 +47,7 @@ ninja_bin = TestSCons.NINJA_BINARY
 test.dir_fixture("ninja-fixture")
 
 test.file_fixture(
-    "ninja_test_sconscripts/sconstruct_force_scons_callback", "SConstruct"
+    "ninja_test_sconscripts/sconstruct_force_scons_callback-4730", "SConstruct"
 )
 
 # generate simple build
@@ -55,20 +61,20 @@ if not defers:
 if defers > 1:
     test.fail_test(message=f"Too many 'Defer to SCons' messages {defers}).")
 test.must_match("out.txt", "foo.c" + os.linesep)
-test.must_match("out2.txt", "test2.cpp" + os.linesep)
+test.must_match("out words.txt", "test2.cpp" + os.linesep)
 
 # clean build and ninja files
 test.run(arguments="-c", stdout=None)
 test.must_contain_all_lines(
     test.stdout(),
-    ["Removed out.txt", "Removed out2.txt", "Removed build.ninja"]
+    ["Removed out.txt", "Removed out words.txt", "Removed build.ninja"]
 )
 
 # only generate the ninja file
 test.run(arguments="--disable-execute-ninja", stdout=None)
 test.must_contain_all_lines(test.stdout(), ["Generating: build.ninja"])
 test.must_not_exist(test.workpath("out.txt"))
-test.must_not_exist(test.workpath("out2.txt"))
+test.must_not_exist(test.workpath("out words.txt"))
 
 # run ninja independently
 program = test.workpath("run_ninja_env.bat") if IS_WINDOWS else ninja_bin
@@ -79,7 +85,7 @@ if not defers:
 if defers > 1:
     test.fail_test(message="Too many 'Defer to SCons' messages.")
 test.must_match("out.txt", "foo.c" + os.linesep)
-test.must_match("out2.txt", "test2.cpp" + os.linesep)
+test.must_match("out words.txt", "test2.cpp" + os.linesep)
 
 # only generate the ninja file with specific NINJA_SCONS_DAEMON_PORT
 test.run(arguments="PORT=9999 --disable-execute-ninja", stdout=None)

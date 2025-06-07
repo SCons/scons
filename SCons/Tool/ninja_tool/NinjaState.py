@@ -824,15 +824,18 @@ class SConsToNinjaTranslator:
 
     # pylint: disable=too-many-branches
     def handle_list_action(self, node, action):
-        """TODO write this comment"""
-        results = [
-            self.action_to_ninja_build(node, action=act)
-            for act in action.list
-            if act is not None
-        ]
-        results = [
-            result for result in results if result is not None and result["outputs"]
-        ]
+        """Handle a ListAction and return a ninja build object."""
+        results = []
+        for act in action.list:
+            if act is None:
+                continue
+            if isinstance(act, SCons.Action.FunctionAction):
+                result = self.handle_func_action(node, act)
+            else:
+                result = self.action_to_ninja_build(node, action=act)
+            if result:
+                results.append(result)
+        results = [result for result in results if "outputs" in result]
         if not results:
             return None
 
@@ -843,17 +846,16 @@ class SConsToNinjaTranslator:
         all_outputs = list({output for build in results for output in build["outputs"]})
         dependencies = list({dep for build in results for dep in build.get("implicit", [])})
 
-        if results[0]["rule"] == "CMD" or results[0]["rule"] == "GENERATED_CMD":
+        if results[0]["rule"] in ('CMD', 'GENERATED_CMD'):
             cmdline = ""
             for cmd in results:
-
                 # Occasionally a command line will expand to a
                 # whitespace only string (i.e. '  '). Which is not a
                 # valid command but does not trigger the empty command
                 # condition if not cmdstr. So here we strip preceding
                 # and proceeding whitespace to make strings like the
                 # above become empty strings and so will be skipped.
-                if not cmd.get("variables") or not cmd["variables"].get("cmd"):
+                if "variables" not in cmd or not cmd["variables"].get("cmd"):
                     continue
 
                 cmdstr = cmd["variables"]["cmd"].strip()
@@ -885,7 +887,8 @@ class SConsToNinjaTranslator:
             if cmdline:
                 ninja_build = {
                     "outputs": all_outputs,
-                    "rule": get_rule(node, "GENERATED_CMD"),
+                    "rule": get_rule(node, results[0]["rule"]),
+                    "inputs": get_inputs(node),
                     "variables": {
                         "cmd": cmdline,
                         "env": get_command_env(env, targets, node.sources),

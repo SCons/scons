@@ -40,6 +40,7 @@ import tempfile
 import hashlib
 import traceback
 import socket
+from urllib.parse import quote
 
 ninja_builddir = pathlib.Path(sys.argv[2])
 daemon_dir = pathlib.Path(tempfile.gettempdir()) / (
@@ -77,7 +78,7 @@ while True:
         if sys.argv[3] == '--exit':
             conn.request("GET", "/?exit=1")
         else:
-            conn.request("GET", "/?build=" + sys.argv[3])
+            conn.request("GET", "/?build=" + quote(sys.argv[3]))
         response = None
 
         while not response:
@@ -94,7 +95,7 @@ while True:
                 if status != 200:
                     log_error(msg.decode("utf-8"))
                     exit(1)
-                    
+
                 logging.debug(f"Request Done: {sys.argv[3]}")
                 exit(0)
 
