@@ -52,8 +52,6 @@ from threading import Condition
 from timeit import default_timer as timer
 from urllib.parse import urlparse, parse_qs
 
-from SCons.Subst import quote_spaces
-
 port = int(sys.argv[1])
 ninja_builddir = pathlib.Path(sys.argv[2])
 daemon_keep_alive = int(sys.argv[3])
@@ -223,6 +221,17 @@ def daemon_thread_func():
                     break
 
                 else:
+                    def quote_spaces(arg):
+                        """This is the same as SCons.Subst.quote_spaces
+
+                        Copied here because the daemon doesn't have
+                        the right context when running.
+                        """
+                        if ' ' in arg or '\t' in arg:
+                            return '"%s"' % arg
+                        else:
+                            return str(arg)
+
                     input_command = f'build {quote_spaces(building_node)}\n'
                     daemon_log("input: " + input_command.strip())
 
