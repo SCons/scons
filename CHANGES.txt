@@ -103,10 +103,16 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Ninja tool generate_command() fixed to call subst() with correct
       arguments in ListAction case. Unit tests added for generate_command.
       Fixes #4580.
-
-  From Edward Peek:
-    - Fix the variant dir component being missing from generated source file
-      paths with CompilationDatabase() builder (Fixes #4003).
+    - Ninja tool now quotes targets (if necessary) when calling back to
+      SCons - both in the POST request constructed to contact the
+      daemon, and in the command eventually issued from the deamon.
+      Initial suggestion from Julien Pommier. Fixes #4730.
+    - Ninja tool is adjusted to recognize and emit the right rule in
+      the case of special actions that the tool recognizes, like Copy.
+      This was working in the case of single commands, but not when part
+      of a list of actions. Recognition only happens if the special
+      action is first in the list.  Initial suggestion from Julien Pommier.
+      Fixes #4731.
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
