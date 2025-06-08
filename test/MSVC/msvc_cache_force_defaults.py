@@ -61,11 +61,12 @@ test.write('SConstruct', textwrap.dedent(
 
     envcache_keys = []
     with open(cache_file, 'r') as file:
-        envcache_list = json.load(file)
+        envcache_dict = json.load(file)
+        envcache_list = envcache_dict['records']
         envcache_keys = [tuple(d['key']) for d in envcache_list]
 
     if envcache_keys:
-        # key = (script, arguments, envkeystr)
+        # key = (script, arguments, envkeystr, envkeystr)
         print("SCRIPT_ARGS: {}".format(envcache_keys[0][1]))
     """
 ))
