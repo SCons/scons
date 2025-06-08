@@ -14,8 +14,12 @@ on:
   workflow_dispatch:
 
 env:
+    POWERSHELL_TELEMETRY_OPTOUT: 1
+    PSDisableModuleAnalysisCacheCleanup: 1
     # for use by the Windows runner (ignored by the others):
     SCONS_CACHE_MSVC_CONFIG: 1
+    VCPKG_DISABLE_METRICS: 1
+    VSCMD_SKIP_SENDTELEMETRY: 1
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
