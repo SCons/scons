@@ -242,12 +242,30 @@ if CONFIG_CACHE:
     if os.environ.get('SCONS_CACHE_MSVC_FORCE_DEFAULTS') in ('1', 'true', 'True'):
         CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS = True
 
+# Cache file version number:
+# * bump the file version up every time the structure of the file changes
+#   so that exising cache files are reconstructed.
+_CACHE_FILE_VERSION = 1
+_CACHE_RECORD_VERSION = 0
+
+def register_cache_record_version(record_version) -> None:
+    global _CACHE_RECORD_VERSION
+    _CACHE_RECORD_VERSION=record_version
+
+_CacheHeader = namedtuple('_CacheHeader', [
+    'file_version',
+    'record_version',
+])
+
+
 def read_script_env_cache() -> dict:
     """ fetch cached msvc env vars if requested, else return empty dict """
     envcache = {}
     p = Path(CONFIG_CACHE)
     if not CONFIG_CACHE or not p.is_file():
         return envcache
+
+    envcache_dict = {}
     with SCons.Util.FileLock(CONFIG_CACHE, timeout=5, writer=False), p.open('r') as f:
         # Convert the list of cache entry dictionaries read from
         # json to the cache dictionary. Reconstruct the cache key
@@ -255,7 +273,7 @@ def read_script_env_cache() -> dict:
         # Note we need to take a write lock on the cachefile, as if there's
         # an error and we try to remove it, that's "writing" on Windows.
         try:
-            envcache_list = json.load(f)
+            envcache_dict = json.load(f)
         except json.JSONDecodeError:
             # If we couldn't decode it, it could be corrupt. Toss.
             with suppress(FileNotFoundError):
@@ -263,14 +281,38 @@ def read_script_env_cache() -> dict:
             warn_msg = "Could not decode msvc cache file %s: dropping."
             SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg % CONFIG_CACHE)
             debug(warn_msg, CONFIG_CACHE)
-        else:
-            if isinstance(envcache_list, list):
-                envcache = {tuple(d['key']): d['data'] for d in envcache_list}
-            else:
-                # don't fail if incompatible format, just proceed without it
-                warn_msg = "Incompatible format for msvc cache file %s: file may be overwritten."
-                SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg % CONFIG_CACHE)
-                debug(warn_msg, CONFIG_CACHE)
+            return envcache
+
+    is_valid = False
+    do_once = True
+    while do_once:
+        do_once = False
+        if not isinstance(envcache_dict, dict):
+            break
+        envcache_header = envcache_dict.get("header")
+        if not isinstance(envcache_header, dict):
+            break
+        try:
+            envcache_header_t = _CacheHeader(**envcache_header)
+        except TypeError:
+            break
+        if envcache_header_t.file_version != _CACHE_FILE_VERSION:
+            break
+        if envcache_header_t.record_version != _CACHE_RECORD_VERSION:
+            break
+        envcache_records = envcache_dict.get("records")
+        if not isinstance(envcache_records, list):
+            break
+        is_valid = True
+        envcache = {
+            tuple(d['key']): d['val'] for d in envcache_records
+        }
+
+    if not is_valid:
+        # don't fail if incompatible format, just proceed without it
+        warn_msg = "Incompatible format for msvc cache file %s: file may be overwritten."
+        SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg % CONFIG_CACHE)
+        debug(warn_msg, CONFIG_CACHE)
 
     return envcache
 
@@ -280,16 +322,25 @@ def write_script_env_cache(cache) -> None:
     if not CONFIG_CACHE:
         return
 
+    cache_header = _CacheHeader(
+        file_version=_CACHE_FILE_VERSION,
+        record_version=_CACHE_RECORD_VERSION,
+    )
+
     p = Path(CONFIG_CACHE)
     try:
         with SCons.Util.FileLock(CONFIG_CACHE, timeout=5, writer=True), p.open('w') as f:
             # Convert the cache dictionary to a list of cache entry
             # dictionaries. The cache key is converted from a tuple to
             # a list for compatibility with json.
-            envcache_list = [
-                {'key': list(key), 'data': data} for key, data in cache.items()
-            ]
-            json.dump(envcache_list, f, indent=2)
+            envcache_dict = {
+                'header':  cache_header._asdict(),
+                'records': [
+                    {'key': list(key), 'val': val._asdict()}
+                    for key, val in cache.items()
+                ],
+            }
+            json.dump(envcache_dict, f, indent=2)
     except TypeError:
         # data can't serialize to json, don't leave partial file
         with suppress(FileNotFoundError):
@@ -414,27 +465,27 @@ class _EnvVarsUtil:
             cls._cache_varlist_encode[norm_t] = encode_t
         return encode_t
 
-    _cache_msvc_environ_keystr = {}
+    _cache_msvc_environ_keys = {}
 
     @classmethod
-    def msvc_environ_keystr(cls):
+    def msvc_environ_keys(cls):
         shell_encode_t = cls.varlist_encode(MSVC_ENVIRON_SHELLVARS)
         keep_encode_t = cls.varlist_encode(MSVC_ENVIRON_KEEPVARS)
         key = (shell_encode_t, keep_encode_t)
-        keystr = cls._cache_msvc_environ_keystr.get(key)
-        if keystr is None:
-            keystr = ":".join([shell_encode_t.keystr, keep_encode_t.keystr])
-            cls._cache_msvc_environ_keystr[key] = keystr
-        return keystr
+        keys = cls._cache_msvc_environ_keys.get(key)
+        if not keys:
+            keys = (shell_encode_t.keystr, keep_encode_t.keystr)
+            cls._cache_msvc_environ_keys[key] = keys
+        return keys
 
-def msvc_environ_cache_key():
-    keystr = _EnvVarsUtil.msvc_environ_keystr()
-    debug("keystr=%r", keystr)
-    return keystr
+def msvc_environ_cache_keys():
+    keys = _EnvVarsUtil.msvc_environ_keys()
+    debug("keys=%r", keys)
+    return keys
 
 # Populate cache with default variable lists.
 # Useful when logging to detect user modifications of default variable lists.
-_ = msvc_environ_cache_key()
+_ = msvc_environ_cache_keys()
 
 
 # Functions for fetching environment variable settings from batch files.

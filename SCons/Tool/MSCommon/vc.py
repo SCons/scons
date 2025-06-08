@@ -61,7 +61,8 @@ from . import common
 from .common import (
     CONFIG_CACHE,
     debug,
-    msvc_environ_cache_key,
+    msvc_environ_cache_keys,
+    register_cache_record_version,
 )
 from .sdk import get_installed_sdks
 
@@ -1393,7 +1394,7 @@ class _VSWhere(MSVC.Util.AutoInitialize):
 
         for instance in vswhere_json:
 
-            #print(json.dumps(instance, indent=4, sort_keys=True))
+            # print(json.dumps(instance, indent=4, sort_keys=True))
 
             installation_path = instance.get('installationPath')
             if not installation_path or not os.path.exists(installation_path):
@@ -2106,33 +2107,84 @@ def _check_cl_exists_in_script_env(data):
 # not the entire output of running the batch file - saves a bit
 # of time not parsing every time.
 
+# Cache record version number:
+# * bump the record version up every time the contents of payload changes
+#   so that exising cache files are reconstructed.
+_CACHE_RECORD_VERSION = 1
+
+register_cache_record_version(_CACHE_RECORD_VERSION)
+
+_CachePayload = namedtuple('_CachePayload', [
+    'data',
+    'verify',
+])
+
+def _cache_payload_verify(payload_dict):
+
+    if not isinstance(payload_dict, dict):
+        return None
+
+    try:
+        cache_payload = _CachePayload(**payload_dict)
+    except TypeError:
+        return None
+
+    for p in cache_payload.verify:
+        if not os.path.exists(p):
+            return None
+
+    return cache_payload
+
+def _cache_data_verify_paths(cache_data, add_paths, cache_data_pathvars):
+
+    check_paths = []
+    for val in add_paths:
+        if not val:
+            continue
+        check_paths.append(val)
+    for var in cache_data_pathvars:
+        val = cache_data.get(var)
+        if not val:
+            continue
+        if isinstance(val, list):
+            check_paths.extend(val)
+            continue
+        check_paths.append(val)
+
+    seen = set()
+    verify_paths = []
+    for p in check_paths:
+        if not p or not os.path.exists(p):
+            continue
+        norm_path = os.path.normcase(os.path.abspath(p))
+        if norm_path in seen:
+            continue
+        seen.add(norm_path)
+        verify_paths.append(norm_path)
+
+    return verify_paths
+
+def _cache_verify(file_cache):
+    cache = {}
+    for key, payload_dict in file_cache.items():
+        cache_payload = _cache_payload_verify(payload_dict)
+        if not cache_payload:
+            continue
+        cache[key] = cache_payload
+    return cache
+
 script_env_cache = None
 
 def script_env(env, script, args=None):
     global script_env_cache
 
     if script_env_cache is None:
-        script_env_cache = common.read_script_env_cache()
-    cache_key = (script, args if args else None, msvc_environ_cache_key())
-    cache_data = script_env_cache.get(cache_key, None)
+        script_env_cache = _cache_verify(common.read_script_env_cache())
 
-    # Brief sanity check: if we got a value for the key,
-    # see if it has a VCToolsInstallDir entry that is not empty.
-    # If so, and that path does not exist, invalidate the entry.
-    # If empty, this is an old compiler, just leave it alone.
-    if cache_data is not None:
-        try:
-            toolsdir = cache_data["VCToolsInstallDir"]
-        except KeyError:
-            # we write this value, so should not happen
-            pass
-        else:
-            if toolsdir:
-                toolpath = Path(toolsdir[0])
-                if not toolpath.exists():
-                    cache_data = None
+    cache_key = (script, args if args else None, *msvc_environ_cache_keys())
+    cache_payload = script_env_cache.get(cache_key, None)
 
-    if cache_data is None:
+    if not cache_payload:
         skip_sendtelemetry = _skip_sendtelemetry(env)
         stdout = common.get_output(script, args, skip_sendtelemetry=skip_sendtelemetry)
         cache_data = common.parse_output(stdout)
@@ -2148,10 +2200,10 @@ def script_env(env, script, args=None):
                     script_errlog.append('vc script errors detected:')
                 script_errlog.append(line)
 
+        have_cl, cl_path = _check_cl_exists_in_script_env(cache_data)
+
         if script_errlog:
             script_errmsg = '\n'.join(script_errlog)
-
-            have_cl, _ = _check_cl_exists_in_script_env(cache_data)
 
             debug(
                 'script=%s args=%s have_cl=%s, errors=%s',
@@ -2163,11 +2215,18 @@ def script_env(env, script, args=None):
                 # detected errors, cl.exe not on path
                 raise BatchFileExecutionError(script_errmsg)
 
+        cache_payload = _CachePayload(
+            data=cache_data,
+            verify=_cache_data_verify_paths(
+                cache_data, [cl_path], ["VCToolsInstallDir", "LIB", "LIBPATH"],
+            ),
+        )
+
         # once we updated cache, give a chance to write out if user wanted
-        script_env_cache[cache_key] = cache_data
+        script_env_cache[cache_key] = cache_payload
         common.write_script_env_cache(script_env_cache)
 
-    return cache_data
+    return cache_payload.data
 
 def get_default_version(env):
     msvc_version = env.get('MSVC_VERSION')
