@@ -32,11 +32,15 @@ jobs:
         # In the 2nd half of 2022 the setup-mingw was often failing on
         # windows-latest, when 2022 became the latest. Now 2025 is out,
         # and 2019 is being retired, we need some kind of a solution.
-        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        cfg: [
+          {os: 'ubuntu-latest', arg: ''},
+          {os: 'windows-latest', args: ''},
+          {os: 'macos-latest', args: '--exclude-list=macos_ci_skip.txt'}
+        ]
         # os: ['ubuntu-latest', 'windows-2019', 'macos-latest']
 
     # The type of runner that the job will run on
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.cfg.os }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -54,23 +58,23 @@ jobs:
 
       - name: Set up MSYS2
         uses: msys2/setup-msys2@v2
-        if: matrix.os == 'windows-latest'
+        if: matrix.cfg.os == 'windows-latest'
         with:
           msystem: UCRT64
           update: false
           install: git mingw-w64-ucrt-x86_64-gcc
 
-      - name: Set up Python 3.11 ${{ matrix.os }}
+      - name: Set up Python 3.11 ${{ matrix.cfg.os }}
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies including ninja ${{ matrix.os }}
+      - name: Install dependencies including ninja ${{ matrix.cfg.os }}
         run: |
           python -m pip install --progress-bar off --upgrade pip
           python -m pip install --progress-bar off ninja psutil
           # sudo apt-get update
 
-      - name: Test experimental packages ${{ matrix.os }}
+      - name: Test experimental packages ${{ matrix.cfg.os }}
         run: |
-          python runtest.py test/import.py test/ninja
+          python runtest.py ${{ matrix.cfg.args }} test/import.py test/ninja
