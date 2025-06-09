@@ -61,6 +61,8 @@ FIXES
 - Ninja tool generate_command() fixed to call subst() with correct
   arguments in ListAction case. Unit tests added for generate_command.
 
+- Fix the SCons.Scanner.LaTeX to mimic LaTeX's search method.
+
 - Ninja tool now quotes targets (if necessary) when calling back to
   SCons - both in the POST request constructed to contact the
   daemon, and in the command eventually issued from the deamon.
