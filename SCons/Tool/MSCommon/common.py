@@ -31,6 +31,7 @@ import os
 import re
 import sys
 import time
+from collections import namedtuple
 from contextlib import suppress
 from subprocess import DEVNULL, PIPE
 from pathlib import Path
@@ -51,7 +52,7 @@ import SCons.Warnings
 # control execution in interesting ways.
 # Note these really should be unified - either controlled by vs.py,
 # or synced with the the common_tools_var # settings in vs.py.
-VS_VC_VARS = [
+MSVC_ENVIRON_SHELLVARS = (
     'COMSPEC',  # path to "shell"
     'OS', # name of OS family: Windows_NT or undefined (95/98/ME)
     'VS170COMNTOOLS',  # path to common tools for given version
@@ -74,7 +75,23 @@ VS_VC_VARS = [
     'POWERSHELL_TELEMETRY_OPTOUT',
     'PSDisableModuleAnalysisCacheCleanup',
     'PSModuleAnalysisCachePath',
-]
+)
+
+# Hard-coded list of the variables that are imported from the msvc
+# environment and added to the calling environment.  Currently, this
+# list does not contain any variables that are in the shell variables
+# list above.  Due to the existing implementation, variables in both
+# lists may not work as expected (e.g., overwites, adding empty values,
+# etc.).
+MSVC_ENVIRON_KEEPVARS = (
+    "INCLUDE",
+    "LIB",
+    "LIBPATH",
+    "PATH",
+    "VSCMD_ARG_app_plat",
+    "VCINSTALLDIR",  # needed by clang -VS 2017 and newer
+    "VCToolsInstallDir",  # needed by clang - VS 2015 and older
+)
 
 class MSVCCacheInvalidWarning(SCons.Warnings.WarningOnByDefault):
     pass
@@ -223,12 +240,30 @@ if CONFIG_CACHE:
     if os.environ.get('SCONS_CACHE_MSVC_FORCE_DEFAULTS') in ('1', 'true', 'True'):
         CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS = True
 
+# Cache file version number:
+# * bump the file version up every time the structure of the file changes
+#   so that exising cache files are reconstructed.
+_CACHE_FILE_VERSION = 1
+_CACHE_RECORD_VERSION = 0
+
+def register_cache_record_version(record_version) -> None:
+    global _CACHE_RECORD_VERSION
+    _CACHE_RECORD_VERSION=record_version
+
+_CacheHeader = namedtuple('_CacheHeader', [
+    'file_version',
+    'record_version',
+])
+
+
 def read_script_env_cache() -> dict:
     """ fetch cached msvc env vars if requested, else return empty dict """
     envcache = {}
     p = Path(CONFIG_CACHE)
     if not CONFIG_CACHE or not p.is_file():
         return envcache
+
+    envcache_dict = {}
     with SCons.Util.FileLock(CONFIG_CACHE, timeout=5, writer=False), p.open('r') as f:
         # Convert the list of cache entry dictionaries read from
         # json to the cache dictionary. Reconstruct the cache key
@@ -236,7 +271,7 @@ def read_script_env_cache() -> dict:
         # Note we need to take a write lock on the cachefile, as if there's
         # an error and we try to remove it, that's "writing" on Windows.
         try:
-            envcache_list = json.load(f)
+            envcache_dict = json.load(f)
         except json.JSONDecodeError:
             # If we couldn't decode it, it could be corrupt. Toss.
             with suppress(FileNotFoundError):
@@ -244,14 +279,38 @@ def read_script_env_cache() -> dict:
             warn_msg = "Could not decode msvc cache file %s: dropping."
             SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg % CONFIG_CACHE)
             debug(warn_msg, CONFIG_CACHE)
-        else:
-            if isinstance(envcache_list, list):
-                envcache = {tuple(d['key']): d['data'] for d in envcache_list}
-            else:
-                # don't fail if incompatible format, just proceed without it
-                warn_msg = "Incompatible format for msvc cache file %s: file may be overwritten."
-                SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg % CONFIG_CACHE)
-                debug(warn_msg, CONFIG_CACHE)
+            return envcache
+
+    is_valid = False
+    do_once = True
+    while do_once:
+        do_once = False
+        if not isinstance(envcache_dict, dict):
+            break
+        envcache_header = envcache_dict.get("header")
+        if not isinstance(envcache_header, dict):
+            break
+        try:
+            envcache_header_t = _CacheHeader(**envcache_header)
+        except TypeError:
+            break
+        if envcache_header_t.file_version != _CACHE_FILE_VERSION:
+            break
+        if envcache_header_t.record_version != _CACHE_RECORD_VERSION:
+            break
+        envcache_records = envcache_dict.get("records")
+        if not isinstance(envcache_records, list):
+            break
+        is_valid = True
+        envcache = {
+            tuple(d['key']): d['val'] for d in envcache_records
+        }
+
+    if not is_valid:
+        # don't fail if incompatible format, just proceed without it
+        warn_msg = "Incompatible format for msvc cache file %s: file may be overwritten."
+        SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg % CONFIG_CACHE)
+        debug(warn_msg, CONFIG_CACHE)
 
     return envcache
 
@@ -261,16 +320,25 @@ def write_script_env_cache(cache) -> None:
     if not CONFIG_CACHE:
         return
 
+    cache_header = _CacheHeader(
+        file_version=_CACHE_FILE_VERSION,
+        record_version=_CACHE_RECORD_VERSION,
+    )
+
     p = Path(CONFIG_CACHE)
     try:
         with SCons.Util.FileLock(CONFIG_CACHE, timeout=5, writer=True), p.open('w') as f:
             # Convert the cache dictionary to a list of cache entry
             # dictionaries. The cache key is converted from a tuple to
             # a list for compatibility with json.
-            envcache_list = [
-                {'key': list(key), 'data': data} for key, data in cache.items()
-            ]
-            json.dump(envcache_list, f, indent=2)
+            envcache_dict = {
+                'header':  cache_header._asdict(),
+                'records': [
+                    {'key': list(key), 'val': val._asdict()}
+                    for key, val in cache.items()
+                ],
+            }
+            json.dump(envcache_dict, f, indent=2)
     except TypeError:
         # data can't serialize to json, don't leave partial file
         with suppress(FileNotFoundError):
@@ -328,6 +396,64 @@ def has_reg(value) -> bool:
     except OSError:
         ret = False
     return ret
+
+# Functions for shell variables and keep variables cache key.
+
+class _EnvVarsUtil:
+
+    _cache_varlist_unique = {}
+
+    @classmethod
+    def varlist_unique_t(cls, varlist):
+        key = tuple(varlist)
+        unique = cls._cache_varlist_unique.get(key)
+        if unique is None:
+            seen = set()
+            unique = []
+            for var in varlist:
+                var_key = var.lower()
+                if var_key in seen:
+                    continue
+                seen.add(var_key)
+                unique.append(var)
+            unique = tuple(sorted(unique, key=str.lower))
+            cls._cache_varlist_unique[key] = unique
+        return unique
+
+    _cache_varlist_norm = {}
+
+    @classmethod
+    def varlist_norm_t(cls, varlist):
+        unique_t = cls.varlist_unique_t(varlist)
+        norm_t = cls._cache_varlist_norm.get(unique_t)
+        if norm_t is None:
+            norm_t = tuple(var.lower() for var in unique_t)
+            cls._cache_varlist_norm[unique_t] = norm_t
+        return norm_t
+
+    _cache_varlist_keystr = {}
+
+    @classmethod
+    def varlist_keystr(cls, varlist):
+        norm_t = cls.varlist_norm_t(varlist)
+        keystr = cls._cache_varlist_keystr.get(norm_t)
+        if keystr is None:
+            keystr = ":".join(norm_t)
+            cls._cache_varlist_keystr[norm_t] = keystr
+        return keystr
+
+def msvc_environ_cache_keys():
+    keys = (
+        _EnvVarsUtil.varlist_keystr(MSVC_ENVIRON_SHELLVARS),
+        _EnvVarsUtil.varlist_keystr(MSVC_ENVIRON_KEEPVARS),
+    )
+    debug("keys=%r", keys)
+    return keys
+
+# Populate cache with default variable lists.
+# Useful when logging to detect user modifications of default variable lists.
+_ = msvc_environ_cache_keys()
+
 
 # Functions for fetching environment variable settings from batch files.
 
@@ -522,7 +648,9 @@ def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
         # Create a blank environment, for use in launching the tools
         env = SCons.Environment.Environment(tools=[])
 
-    env['ENV'] = normalize_env(env['ENV'], VS_VC_VARS, force=False)
+    shellvars_t = _EnvVarsUtil.varlist_unique_t(MSVC_ENVIRON_SHELLVARS)
+
+    env['ENV'] = normalize_env(env['ENV'], shellvars_t, force=False)
 
     if skip_sendtelemetry:
         _force_vscmd_skip_sendtelemetry(env)
@@ -563,22 +691,16 @@ def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
     return cp.stdout.decode(OEM)
 
 
-KEEPLIST = (
-    "INCLUDE",
-    "LIB",
-    "LIBPATH",
-    "PATH",
-    "VSCMD_ARG_app_plat",
-    "VCINSTALLDIR",  # needed by clang -VS 2017 and newer
-    "VCToolsInstallDir",  # needed by clang - VS 2015 and older
-)
-
-
-def parse_output(output, keep=KEEPLIST):
+def parse_output(output, keep=None):
     """
     Parse output from running visual c++/studios vcvarsall.bat and running set
     To capture the values listed in keep
     """
+
+    if keep is None:
+        keep = MSVC_ENVIRON_KEEPVARS
+
+    keep = _EnvVarsUtil.varlist_unique_t(keep)
 
     # dkeep is a dict associating key: path_list, where key is one item from
     # keep, and path_list the associated list of paths
