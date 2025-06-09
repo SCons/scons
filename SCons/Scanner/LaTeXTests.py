@@ -23,6 +23,7 @@
 
 import collections
 import os
+import sys
 import unittest
 
 import TestCmd
@@ -206,7 +207,15 @@ class LaTeXScannerTestCase5(unittest.TestCase):
          path = s.path(env)
          deps = s(env.File('test6.latex'), env, path)
          files = ['inc1.tex', 'inc2.tex', 'subdir/inc3.tex', 'subdir2/inc3.tex']
-         deps_match(self, deps, files)
+
+         # on windows the paths used to sort are all caps and use backslash
+         # due to this only on windows subdir2 < subdir\, so this is the expected order
+         files_win = ['inc1.tex', 'inc2.tex', 'subdir2/inc3.tex', 'subdir/inc3.tex']
+         
+         if sys.platform == 'win32':
+             deps_match(self, deps, files_win)
+         else:
+             deps_match(self, deps, files)
 
 if __name__ == "__main__":
     unittest.main()

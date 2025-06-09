@@ -433,7 +433,9 @@ class LaTeX(ScannerBase):
                 # recurse down
                 queue.extend(self.scan(n, inc_subdir))
 
-        return [pair[1] for pair in sorted(nodes)]
+        # Don't sort on a tuple where the second element is an object, just
+        # use the first element of the tuple which is the "sort_key" value
+        return [pair[1] for pair in sorted(nodes, key=lambda n: n[0])]
 
 # Local Variables:
 # tab-width:4
