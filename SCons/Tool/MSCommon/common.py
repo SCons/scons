@@ -25,9 +25,7 @@
 Common helper functions for working with the Microsoft tool chain.
 """
 
-import base64
 import copy
-import hashlib
 import json
 import os
 import re
@@ -403,13 +401,6 @@ def has_reg(value) -> bool:
 
 class _EnvVarsUtil:
 
-    _VarListEncode = namedtuple('_VarListEncode', [
-        'n_elem',
-        'n_char',
-        'digest',
-        'keystr',
-    ])
-
     _cache_varlist_unique = {}
 
     @classmethod
@@ -440,46 +431,22 @@ class _EnvVarsUtil:
             cls._cache_varlist_norm[unique_t] = norm_t
         return norm_t
 
-    _cache_varlist_encode = {}
+    _cache_varlist_keystr = {}
 
     @classmethod
-    def varlist_encode(cls, varlist):
+    def varlist_keystr(cls, varlist):
         norm_t = cls.varlist_norm_t(varlist)
-        encode_t = cls._cache_varlist_encode.get(norm_t)
-        if encode_t is None:
-            message = ":".join(norm_t)
-            hash_object = hashlib.sha224()
-            hash_object.update(message.encode())
-            digest = base64.b85encode(hash_object.digest()).decode("ascii")
-            n_elem = len(norm_t)
-            n_char = len(message)
-            if n_elem > 1:
-                n_char -= n_elem - 1
-            encode_t = cls._VarListEncode(
-                n_elem=n_elem,
-                n_char=n_char,
-                digest=digest,
-                keystr=f'{n_elem}:{n_char}:{digest}',
-
-            )
-            cls._cache_varlist_encode[norm_t] = encode_t
-        return encode_t
-
-    _cache_msvc_environ_keys = {}
-
-    @classmethod
-    def msvc_environ_keys(cls):
-        shell_encode_t = cls.varlist_encode(MSVC_ENVIRON_SHELLVARS)
-        keep_encode_t = cls.varlist_encode(MSVC_ENVIRON_KEEPVARS)
-        key = (shell_encode_t, keep_encode_t)
-        keys = cls._cache_msvc_environ_keys.get(key)
-        if not keys:
-            keys = (shell_encode_t.keystr, keep_encode_t.keystr)
-            cls._cache_msvc_environ_keys[key] = keys
-        return keys
+        keystr = cls._cache_varlist_keystr.get(norm_t)
+        if keystr is None:
+            keystr = ":".join(norm_t)
+            cls._cache_varlist_keystr[norm_t] = keystr
+        return keystr
 
 def msvc_environ_cache_keys():
-    keys = _EnvVarsUtil.msvc_environ_keys()
+    keys = (
+        _EnvVarsUtil.varlist_keystr(MSVC_ENVIRON_SHELLVARS),
+        _EnvVarsUtil.varlist_keystr(MSVC_ENVIRON_KEEPVARS),
+    )
     debug("keys=%r", keys)
     return keys
 
