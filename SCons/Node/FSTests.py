@@ -1053,7 +1053,7 @@ class FSTestCase(_tempdirTestCase):
 
         seps = [os.sep]
         if os.sep != '/':
-            seps = seps + ['/']
+            seps.append('/')
 
         drive, path = os.path.splitdrive(os.getcwd())
 
@@ -1089,21 +1089,16 @@ class FSTestCase(_tempdirTestCase):
             else:
                 dir_up_path = dir.up().get_internal_path()
 
-            assert dir.name == name, \
-                "dir.name %s != expected name %s" % \
-                (dir.name, name)
-            assert dir.get_internal_path() == path, \
-                "dir.path %s != expected path %s" % \
-                (dir.get_internal_path(), path)
-            assert str(dir) == path, \
-                "str(dir) %s != expected path %s" % \
-                (str(dir), path)
-            assert dir.get_abspath() == abspath, \
-                "dir.abspath %s != expected absolute path %s" % \
-                (dir.get_abspath(), abspath)
-            assert dir_up_path == up_path, \
-                "dir.up().path %s != expected parent path %s" % \
-                (dir_up_path, up_path)
+            with self.subTest():
+                self.assertEqual(dir.name, name)
+            with self.subTest():
+                self.assertEqual(dir.get_internal_path(), path)
+            with self.subTest():
+                self.assertEqual(str(dir), path)
+            with self.subTest():
+                self.assertEqual(dir.get_abspath(), abspath)
+            with self.subTest():
+                self.assertEqual(dir_up_path, up_path)
 
         for sep in seps:
 
@@ -1583,10 +1578,12 @@ class FSTestCase(_tempdirTestCase):
 
     def test_drive_letters(self) -> None:
         """Test drive-letter look-ups"""
-
         test = self.test
-
         test.subdir('sub', ['sub', 'dir'])
+
+        seps = [os.sep]
+        if os.sep != '/':
+            seps.append('/')
 
         def drive_workpath(dirs, test=test):
             x = test.workpath(*dirs)
@@ -1594,33 +1591,27 @@ class FSTestCase(_tempdirTestCase):
             return 'X:' + path
 
         wp = drive_workpath([''])
-
-        if wp[-1] in (os.sep, '/'):
+        if wp[-1] in seps:
             tmp = os.path.split(wp[:-1])[0]
         else:
             tmp = os.path.split(wp)[0]
-
         parent_tmp = os.path.split(tmp)[0]
         if parent_tmp == 'X:':
             parent_tmp = 'X:' + os.sep
-
         tmp_foo = os.path.join(tmp, 'foo')
-
         foo = drive_workpath(['foo'])
         foo_bar = drive_workpath(['foo', 'bar'])
-        sub = drive_workpath(['sub', ''])
-        sub_dir = drive_workpath(['sub', 'dir', ''])
-        sub_dir_foo = drive_workpath(['sub', 'dir', 'foo', ''])
-        sub_dir_foo_bar = drive_workpath(['sub', 'dir', 'foo', 'bar', ''])
-        sub_foo = drive_workpath(['sub', 'foo', ''])
+        # The following are not used, but kept for reference.
+        # sub = drive_workpath(['sub', ''])
+        # sub_dir = drive_workpath(['sub', 'dir', ''])
+        # sub_dir_foo = drive_workpath(['sub', 'dir', 'foo', ''])
+        # sub_dir_foo_bar = drive_workpath(['sub', 'dir', 'foo', 'bar', ''])
+        # sub_foo = drive_workpath(['sub', 'foo', ''])
 
         fs = SCons.Node.FS.FS()
 
-        seps = [os.sep]
-        if os.sep != '/':
-            seps = seps + ['/']
-
         def _do_Dir_test(lpath, path_, up_path_, sep, fileSys=fs) -> None:
+            """Test the Dir constructor with a given path and expected values."""
             dir = fileSys.Dir(lpath.replace('/', sep))
 
             if os.sep != '/':
@@ -1636,18 +1627,14 @@ class FSTestCase(_tempdirTestCase):
             up_path = strip_slash(up_path_)
             name = path.split(os.sep)[-1]
 
-            assert dir.name == name, \
-                "dir.name %s != expected name %s" % \
-                (dir.name, name)
-            assert dir.get_internal_path() == path, \
-                "dir.path %s != expected path %s" % \
-                (dir.get_internal_path(), path)
-            assert str(dir) == path, \
-                "str(dir) %s != expected path %s" % \
-                (str(dir), path)
-            assert dir.up().get_internal_path() == up_path, \
-                "dir.up().path %s != expected parent path %s" % \
-                (dir.up().get_internal_path(), up_path)
+            with self.subTest():
+                self.assertEqual(dir.name, name)
+            with self.subTest():
+                self.assertEqual(dir.get_internal_path(), path)
+            with self.subTest():
+                self.assertEqual(str(dir), path)
+            with self.subTest():
+                self.assertEqual(dir.up().get_internal_path(), up_path)
 
         save_os_path = os.path
         save_os_sep = os.sep
@@ -1658,6 +1645,7 @@ class FSTestCase(_tempdirTestCase):
             SCons.Node.FS.initialize_do_splitdrive()
 
             for sep in seps:
+
                 def Dir_test(lpath, path_, up_path_, sep=sep, func=_do_Dir_test):
                     return func(lpath, path_, up_path_, sep)
 
@@ -1684,59 +1672,73 @@ class FSTestCase(_tempdirTestCase):
 
     def test_unc_path(self) -> None:
         """Test UNC path look-ups"""
-
         test = self.test
-
         test.subdir('sub', ['sub', 'dir'])
 
-        def strip_slash(p):
-            if p[-1] == os.sep and len(p) > 3:
-                p = p[:-1]
-            return p
+        seps = [os.sep]
+        if os.sep != '/':
+            seps.append('/')
 
         def unc_workpath(dirs, test=test):
+            """Return a UNC-style path for the given directory.
+
+            *dirs* is a list of directory names, which will be joined
+            together to derive the base of the path - any "drive letter"
+            bits split off. Makes no effort to crate an actual *valid*
+            UNC path - does not add a server or share name, so it will not
+            actually work in real life, just for string testing.
+
+            So that tests will work on non-Windows systems, we use the ntpath
+            module to perform the splitdrive, as that's otherwise a no-op.
+            """
             import ntpath
+
+            # This duplicates the definition in _do_Dir_test below.
+            # It depends on the monkeypatching of os.sep so we just have two.
+            def strip_slash(p):
+                if p[-1] in seps and len(p) > 3:
+                    p = p[:-1]
+                return p
+
             x = test.workpath(*dirs)
             drive, path = ntpath.splitdrive(x)
-            try:
-                unc, path = ntpath.splitunc(path)
-            except AttributeError:
-                # could be python 3.7 or newer, make sure splitdrive can do UNC
-                assert ntpath.splitdrive(r'\\split\drive\test')[0] == r'\\split\drive'
             path = strip_slash(path)
             return '//' + path[1:]
 
         wp = unc_workpath([''])
-
-        if wp[-1] in (os.sep, '/'):
-            tmp = os.path.split(wp[:-1])[0]
-        else:
-            tmp = os.path.split(wp)[0]
-
-        parent_tmp = os.path.split(tmp)[0]
-
+        tmp = os.path.split(wp)[0]
+        # parent_tmp = os.path.split(tmp)[0]
         tmp_foo = os.path.join(tmp, 'foo')
-
         foo = unc_workpath(['foo'])
         foo_bar = unc_workpath(['foo', 'bar'])
-        sub = unc_workpath(['sub', ''])
-        sub_dir = unc_workpath(['sub', 'dir', ''])
-        sub_dir_foo = unc_workpath(['sub', 'dir', 'foo', ''])
-        sub_dir_foo_bar = unc_workpath(['sub', 'dir', 'foo', 'bar', ''])
-        sub_foo = unc_workpath(['sub', 'foo', ''])
+        # The following are not used, but kept for reference.
+        # sub = unc_workpath(['sub', ''])
+        # sub_dir = unc_workpath(['sub', 'dir', ''])
+        # sub_dir_foo = unc_workpath(['sub', 'dir', 'foo', ''])
+        # sub_dir_foo_bar = unc_workpath(['sub', 'dir', 'foo', 'bar', ''])
+        # sub_foo = unc_workpath(['sub', 'foo', ''])
 
         fs = SCons.Node.FS.FS()
 
-        seps = [os.sep]
-        if os.sep != '/':
-            seps = seps + ['/']
-
-        def _do_Dir_test(lpath, path, up_path, sep, fileSys=fs) -> None:
+        def _do_Dir_test(lpath, path_, up_path_, sep, fileSys=fs) -> None:
+            """Test the Dir constructor with a given path and expected values."""
+            # before = time.perf_counter()
             dir = fileSys.Dir(lpath.replace('/', sep))
+            # after = time.perf_counter()
+            # print(f"TIME: dir creation for {lpath!r} (as {dir.path!r}) took {after - before:.6f} seconds")
 
+            # convert to os-native paths
             if os.sep != '/':
-                path = path.replace('/', os.sep)
-                up_path = up_path.replace('/', os.sep)
+                path_ = path_.replace('/', os.sep)
+                up_path_ = up_path_.replace('/', os.sep)
+
+            def strip_slash(p):
+                if p[-1] in os.sep and len(p) > 3:
+                    p = p[:-1]
+                return p
+
+            path = strip_slash(path_)
+            up_path = strip_slash(up_path_)
 
             if path == os.sep + os.sep:
                 name = os.sep + os.sep
@@ -1748,23 +1750,23 @@ class FSTestCase(_tempdirTestCase):
             else:
                 dir_up_path = dir.up().get_internal_path()
 
-            assert dir.name == name, \
-                "dir.name %s != expected name %s" % \
-                (dir.name, name)
-            assert dir.get_internal_path() == path, \
-                "dir.path %s != expected path %s" % \
-                (dir.get_internal_path(), path)
-            assert str(dir) == path, \
-                "str(dir) %s != expected path %s" % \
-                (str(dir), path)
-            assert dir_up_path == up_path, \
-                "dir.up().path %s != expected parent path %s" % \
-                (dir.up().get_internal_path(), up_path)
+            with self.subTest():
+                self.assertEqual(dir.name, name)
+            with self.subTest():
+                self.assertEqual(dir.get_internal_path(), path)
+            with self.subTest():
+                self.assertEqual(str(dir), path)
+            with self.subTest():
+                self.assertEqual(dir_up_path, up_path)
 
         save_os_path = os.path
         save_os_sep = os.sep
         try:
             import ntpath
+
+            # monkeypatch some things to look like Windows and force the
+            # splitdrive stuff in the Node package to re-init; we'll put
+            # it back later if we happened to be on a non-Windows platform.
             os.path = ntpath
             os.sep = '\\'
             SCons.Node.FS.initialize_do_splitdrive()
@@ -1772,6 +1774,16 @@ class FSTestCase(_tempdirTestCase):
             for sep in seps:
                 def Dir_test(lpath, path_, up_path_, sep=sep, func=_do_Dir_test):
                     return func(lpath, path_, up_path_, sep)
+
+                # Note that if any of the UNC paths eventually makes it to
+                # Windows, and looks syntactically valid (\\server\share), the
+                # mkdir takes a *long* time to fail with "network path not
+                # found".  If it's not syntaxtically valid, it fails
+                # immediately.  Thus, some of these tests can be very slow on
+                # the first pass.  Second pass they all "hit" on the Node
+                # lookup cache, so there's no further slowdown. Tried doing
+                # this passing create=False to the Dir() function, but that
+                # caused other problems.
 
                 Dir_test('//foo', '//foo', '//')
                 Dir_test('//foo/bar', '//foo/bar', '//foo')

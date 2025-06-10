@@ -73,6 +73,9 @@ FIXES
   of a list of actions. Recognition only happens if the special
   action is first in the list.
 
+- Fix a test problem on Windows where UNC tests failed due to incorrect path
+  munging if a non-default %TEMP% was defined (as in moving to a Dev Drive).
+
 IMPROVEMENTS
 ------------
 
