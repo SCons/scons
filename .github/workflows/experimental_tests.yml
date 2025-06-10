@@ -14,12 +14,8 @@ on:
   workflow_dispatch:
 
 env:
-    POWERSHELL_TELEMETRY_OPTOUT: 1
-    PSDisableModuleAnalysisCacheCleanup: 1
     # for use by the Windows runner (ignored by the others):
     SCONS_CACHE_MSVC_CONFIG: 1
-    VCPKG_DISABLE_METRICS: 1
-    VSCMD_SKIP_SENDTELEMETRY: 1
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -33,11 +29,10 @@ jobs:
         # windows-latest, when 2022 became the latest. Now 2025 is out,
         # and 2019 is being retired, we need some kind of a solution.
         cfg: [
-          {os: 'ubuntu-latest', arg: ''},
+          {os: 'ubuntu-latest', args: ''},
           {os: 'windows-latest', args: ''},
-          {os: 'macos-latest', args: '--exclude-list=macos_ci_skip.txt'}
+          {os: 'macos-latest', args: '--exclude-list=macos_ci_skip.txt'},
         ]
-        # os: ['ubuntu-latest', 'windows-2019', 'macos-latest']
 
     # The type of runner that the job will run on
     runs-on: ${{ matrix.cfg.os }}
@@ -77,4 +72,4 @@ jobs:
 
       - name: Test experimental packages ${{ matrix.cfg.os }}
         run: |
-          python runtest.py ${{ matrix.cfg.args }} test/import.py test/ninja
+          python runtest.py --time ${{ matrix.cfg.args }} test/import.py test/ninja
