@@ -315,7 +315,8 @@ class LaTeX(ScannerBase):
 
         for n in try_names:
             for search_path in search_paths:
-                paths = tuple([d.Dir(inc_subdir) for d in search_path])
+                paths = tuple([d.Dir(inc_subdir) for d in search_path] +
+                              list(search_path))
                 i = SCons.Node.FS.find_file(n, paths)
                 if i:
                     return i, include
@@ -407,16 +408,16 @@ class LaTeX(ScannerBase):
             include = queue.pop()
             inc_type, inc_subdir, inc_filename = include
 
-            try:
-                if seen[inc_filename]:
-                    continue
-            except KeyError:
-                seen[inc_filename] = True
-
             #
             # Handle multiple filenames in include[1]
             #
             n, i = self.find_include(include, source_dir, path_dict)
+            try:
+                if seen[str(n)]:
+                    continue
+            except KeyError:
+                seen[str(n)] = True
+
             if n is None:
                 # Do not bother with 'usepackage' warnings, as they most
                 # likely refer to system-level files
@@ -432,7 +433,9 @@ class LaTeX(ScannerBase):
                 # recurse down
                 queue.extend(self.scan(n, inc_subdir))
 
-        return [pair[1] for pair in sorted(nodes)]
+        # Don't sort on a tuple where the second element is an object, just
+        # use the first element of the tuple which is the "sort_key" value
+        return [pair[1] for pair in sorted(nodes, key=lambda n: n[0])]
 
 # Local Variables:
 # tab-width:4
