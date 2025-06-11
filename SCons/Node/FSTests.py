@@ -1684,7 +1684,7 @@ class FSTestCase(_tempdirTestCase):
 
             *dirs* is a list of directory names, which will be joined
             together to derive the base of the path - any "drive letter"
-            bits split off. Makes no effort to crate an actual *valid*
+            bits split off. Makes no effort to create an actual *valid*
             UNC path - does not add a server or share name, so it will not
             actually work in real life, just for string testing.
 
