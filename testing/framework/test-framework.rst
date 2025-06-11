@@ -59,7 +59,7 @@ Contrasting end-to-end and unit tests
 -------------------------------------
 
 End-to-end tests exist to verify hardened parts of the public interface:
-featurers documented in the reference manual that are available
+features documented in the reference manual that are available
 to use in a project. They accomplish this by themselves being
 complete (though usually very small) SCons projects.
 Unit tests are more for testing internal interfaces which may
@@ -80,7 +80,8 @@ However, bug reports tend describe end-to-end type behavior
 ("I put this in my SConscripts, and something went wrong"),
 so it's often useful to code an e2e test to match a bug report,
 and develop a solution that turns that to a pass.
-So pick the testing strategy that makes sense (sometimes both do).
+So pick the testing strategy that makes sense (sometimes both do) -
+and if it's possible to reduce an end-to-end test to a unit test, please do
 
 End-to-end tests are by their nature harder to debug. For the unit
 tests, you're running a test program directly, so you can drop straight
@@ -137,7 +138,7 @@ Testing Architecture
 
 The test framework provides a lot of useful functions for use within a
 test program. This includes test setup, parameterization, running tests,
-examining results and reporting outcomes. You can run a particular test
+examining results and reporting outcomes. You can run a particular unit test
 directly by making sure the Python interpreter can find the framework::
 
     $ PYTHON_PATH=testing/framework python SCons/ActionTests.py
@@ -260,8 +261,8 @@ supporting Python script files in a subdirectory which shouldn't be
 picked up as test scripts of their own.  There are two options here:
 
    * Add a file with the name ``sconstest.skip`` to your subdirectory. This
-   tells ``runtest.py`` to skip the contents of the directory completely.
-   * Create a file ``.exclude_tests`` in yur subdirectory, and in
+     tells ``runtest.py`` to skip the contents of the directory completely.
+   * Create a file ``.exclude_tests`` in your subdirectory, and in
      it list line-by-line the files to exclude from testing - the rest
      will still be picked up as long as they meet the selection criteria.
 
@@ -308,7 +309,7 @@ Line by line explanation of example
    Imports the main infrastructure for SCons tests.  This is
    normally the only part of the infrastructure that needs importing.
    If you need Python standard library modules in your code,
-   the conventio it to import those before the framework.
+   the convention it to import those before the framework.
 
 ``test = TestSCons.TestSCons()``
    Initializes an object for testing.  A fair amount happens under
