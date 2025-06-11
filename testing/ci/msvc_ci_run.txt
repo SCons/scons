@@ -1,0 +1,3 @@
+test/MSVC/msvc.py
+test/MSVC/msvc_cache_force_defaults.py
+

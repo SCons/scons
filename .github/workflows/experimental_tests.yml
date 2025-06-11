@@ -31,7 +31,7 @@ jobs:
         cfg: [
           {os: 'ubuntu-latest', args: ''},
           {os: 'windows-latest', args: ''},
-          {os: 'macos-latest', args: '--exclude-list=macos_ci_skip.txt'},
+          {os: 'macos-latest', args: '--exclude-list=testing/ci/macos_ci_skip.txt'},
         ]
 
     # The type of runner that the job will run on
