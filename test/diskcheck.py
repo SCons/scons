@@ -48,10 +48,10 @@ File('subdir')
 """)
 
 test.run(status=2, stderr=None)
-test.must_contain_all_lines(test.stderr(), ["found where file expected"])
+test.must_contain_all_lines(test.stdout(), ["found where file expected"])
 
 test.run(arguments='--diskcheck=match', status=2, stderr=None)
-test.must_contain_all_lines(test.stderr(), ["found where file expected"])
+test.must_contain_all_lines(test.stdout(), ["found where file expected"])
 
 # Test that setting --diskcheck to none via command line also works.
 test.run(arguments='--diskcheck=none')
