@@ -44,6 +44,19 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   these variables and values are propagated to the user's SCons
   environment after running the MSVC batch files.
 
+- Move the GitHub workflow test files from the SCons root to the ci
+  subdirectory of the testing directory.
+
+- GitHub: Exclude two ninja tests that consistently fail on MacOS in
+  the experimental tests workflow.
+
+- GitHub: Add a workflow file to test msvc with optional environment
+  variables.
+
+- Ninja: Increase the number of generated source files in the
+  iterative speedup test from 200 to 250.  Increasing the workload
+  should reduce the likelihood that the ninja tests are slower.
+
 FIXES
 -----
 

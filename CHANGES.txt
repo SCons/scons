@@ -45,6 +45,20 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       environment used by SCons to initialize MSVC when defined.  None of
       these variables and values are propagated to the user's SCons
       environment after running the MSVC batch files.
+    - GitHub workflow changes:
+      * Add directory testing/ci for test files.  Move the existing windows ci
+        skip file from the SCons root to the ci testing directory.
+      * Add an exclude test file for macos that skips the two ninja tests that
+        consistently fail.
+      * Add a test file containing two tests for the msvc optional environment
+        workflow.
+      * Modify the experimental workflow to pass the exclude test file as an
+        argument to the test runner for macos.
+      * Add a workflow file to test msvc with the optional environment
+        variables.
+    - Ninja: Increase the number of generated source files in the ninja
+      iterative speedup test from 200 to 250. Increasing the workload should
+      reduce the likelihood that the ninja tests are slower.
 
   From Edward Peek:
     - Fix the variant dir component being missing from generated source file
