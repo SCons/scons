@@ -1778,12 +1778,12 @@ class FSTestCase(_tempdirTestCase):
                 # Note that if any of the UNC paths eventually makes it to
                 # Windows, and looks syntactically valid (\\server\share), the
                 # mkdir takes a *long* time to fail with "network path not
-                # found".  If it's not syntaxtically valid, it fails
-                # immediately.  Thus, some of these tests can be very slow on
-                # the first pass.  Second pass they all "hit" on the Node
-                # lookup cache, so there's no further slowdown. Tried doing
-                # this passing create=False to the Dir() function, but that
-                # caused other problems.
+                # found".  If it's not valid syntax, it fails immediately.
+                # Thus, some of these tests can be very slow on the first pass.
+                # Second pass they all "hit" on the Node lookup cache,
+                # so there's no further slowdown. Tried doing this passing
+                # create=False to the Dir() function, but that causes a hard
+                # fail if the dir doesn't already exist, so not right either.
 
                 Dir_test('//foo', '//foo', '//')
                 Dir_test('//foo/bar', '//foo/bar', '//foo')
