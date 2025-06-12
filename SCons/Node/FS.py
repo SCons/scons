@@ -145,17 +145,29 @@ def initialize_do_splitdrive() -> None:
     do_splitdrive = bool(os.path.splitdrive('X:/foo')[0])
 
     if do_splitdrive:
+        # Note there's a little dilemma here - we should be able to use the
+        # Python os.path.splitdrive, which is well debugged over the years.
+        # For normal usage it should work, but we also want to as much as
+        # possible run the full testsuite on whichever platform, even if it's
+        # "wrong" for some feature. POSIX splitdrive doesn't do what we want
+        # when running the drive and UNC path tests, and the NT one isn't
+        # designed for use on non-win32.  So for now stuck on our private one.
+        # _my_splitdrive = os.path.splitdrive
+
         def _my_splitdrive(p):
             if p[1:2] == ':':
                 return p[:2], p[2:]
             if p[0:2] == '//':
-                # Note that we leave a leading slash in the path
-                # because UNC paths are always absolute.
+                # We leave a leading slash in the path because UNC paths
+                # are always absolute.
+                #
+                # TODO: returning "//" for the drive part is actually
+                #   completely wrong. UNC paths must have minimum three
+                #   slashes (if using '//server/share/path' style), or five
+                #   ('//?/UNC/server/share/path)' and we should return the
+                #   part up to but not including the next slash.
                 return '//', p[1:]
             return '', p
-    # TODO: the os routine should work and be better debugged than ours,
-    #   but unit test test_unc_path fails on POSIX platforms. Resolve someday.
-    # _my_splitdrive = os.path.splitdrive
 
     # Keep some commonly used values in global variables to skip to
     # module look-up costs.
@@ -1011,7 +1023,7 @@ class Entry(Base):
     def diskcheck_match(self) -> None:
         pass
 
-    def disambiguate(self, must_exist=None):
+    def disambiguate(self, must_exist=False):
         """
         """
         if self.isfile():
@@ -1069,7 +1081,7 @@ class Entry(Base):
         system, we check to see into what sort of subclass we should
         morph this Entry."""
         try:
-            self = self.disambiguate(must_exist=1)
+            self = self.disambiguate(must_exist=True)
         except SCons.Errors.UserError:
             # There was nothing on disk with which to disambiguate
             # this entry.  Leave it as an Entry, but return a null
