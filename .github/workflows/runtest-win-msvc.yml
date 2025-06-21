@@ -15,6 +15,7 @@ on:
 
 env:
     SCONS_CACHE_MSVC_CONFIG: 1
+    SCONS_CACHE_MSVC_FORCE_DEFAULTS: 1
     POWERSHELL_TELEMETRY_OPTOUT: 1
     PSDisableModuleAnalysisCacheCleanup: 1
     VCPKG_DISABLE_METRICS: 1
@@ -39,7 +40,11 @@ jobs:
 
       - name: runtest
         run: |
-          python runtest.py --file=testing/ci/msvc_ci_run.txt --time --jobs=4
+          python runtest.py --file=testing/ci/msvc_ci_run.txt --time
+
+      - name: Display MSVC cache
+        run: |
+          python testing/ci/windows_msvc_cache.py --skip-populate
 
       - name: Archive Failed tests
         uses: actions/upload-artifact@v4

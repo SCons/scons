@@ -1,31 +1,5 @@
 # temporarily skip this in GitHub Windows runner
 test/CPPDEFINES/pkg-config.py
-test/Interactive/added-include.py
-test/Interactive/Alias.py
-test/Interactive/basic.py
-test/Interactive/cache-debug.py
-test/Interactive/cache-disable.py
-test/Interactive/cache-force.py
-test/Interactive/cache-show.py
-test/Interactive/clean.py
-test/Interactive/configure.py
-test/Interactive/Default-None.py
-test/Interactive/Default.py
-test/Interactive/exit.py
-test/Interactive/failure.py
-test/Interactive/help.py
-test/Interactive/implicit-VariantDir.py
-test/Interactive/option--Q.py
-test/Interactive/option-i.py
-test/Interactive/option-j.py
-test/Interactive/option-k.py
-test/Interactive/option-n.py
-test/Interactive/option-s.py
-test/Interactive/repeat-line.py
-test/Interactive/shell.py
-test/Interactive/tree.py
-test/Interactive/unknown-command.py
-test/Interactive/variant_dir.py
 test/packaging/msi/explicit-target.py
 test/packaging/msi/file-placement.py
 test/packaging/msi/package.py
@@ -35,4 +9,3 @@ test/scons-time/run/option/python.py
 test/sconsign/script/no-SConsignFile.py
 test/sconsign/script/SConsignFile.py
 test/sconsign/script/Signatures.py
-

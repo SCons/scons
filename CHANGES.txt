@@ -46,19 +46,29 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       these variables and values are propagated to the user's SCons
       environment after running the MSVC batch files.
     - GitHub workflow changes:
-      * Add directory testing/ci for test files.  Move the existing windows ci
-        skip file from the SCons root to the ci testing directory.
-      * Add an exclude test file for macos that skips the two ninja tests that
+      * Add directory testing/ci for test runner files.  Move the existing
+        windows ci skip file from the SCons root to the ci testing directory.
+      * Remove the interactive tests from the windows ci skip file.
+      * Add an exclude test file for MacOS that skips the two ninja tests that
         consistently fail.
-      * Add a test file containing two tests for the msvc optional environment
+      * Add a test file containing one test for the MSVC optional environment
         workflow.
       * Modify the experimental workflow to pass the exclude test file as an
         argument to the test runner for macos.
-      * Add a workflow file to test msvc with the optional environment
+      * Add a workflow file to test MSVC with the optional environment
         variables.
+      * Add a script in the testing/ci directory to populate the MSVC
+        cache before running the test suite in select windows workflow files.
+        The experimental test suite and the full test suite workflow files
+        populate the MSVC cache before running the test suite on windows. The
+        script is also run after the test suite in the optional MSVC
+        environment variables workflow file to display the MSVC cache.
     - Ninja: Increase the number of generated source files in the ninja
       iterative speedup test from 200 to 250. Increasing the workload should
       reduce the likelihood that the ninja tests are slower.
+    - Testing: Increase the default timeout from 20 seconds to 60
+      seconds in the testing framework wait_for method.  At present, the
+      wait_for method is only used for the interactive tests.
 
   From Edward Peek:
     - Fix the variant dir component being missing from generated source file

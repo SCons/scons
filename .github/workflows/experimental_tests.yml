@@ -14,12 +14,12 @@ on:
   workflow_dispatch:
 
 env:
-    # for use by the Windows runner (ignored by the others):
+    # For use by the Windows runner (ignored by the others):
     SCONS_CACHE_MSVC_CONFIG: 1
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
+  # This workflow contains a single job called "experimental"
   experimental:
 
     strategy:
@@ -51,9 +51,9 @@ jobs:
       #     platform: x64
       #     static: 0
 
-      - name: Set up MSYS2
+      - name: Set up MSYS2 ${{ matrix.cfg.os }}
         uses: msys2/setup-msys2@v2
-        if: matrix.cfg.os == 'windows-latest'
+        if: startsWith(matrix.cfg.os, 'windows')
         with:
           msystem: UCRT64
           update: false
@@ -69,6 +69,11 @@ jobs:
           python -m pip install --progress-bar off --upgrade pip
           python -m pip install --progress-bar off ninja psutil
           # sudo apt-get update
+
+      - name: Populate MSVC cache ${{ matrix.cfg.os }}
+        if: startsWith(matrix.cfg.os, 'windows')
+        run: |
+          python testing/ci/windows_msvc_cache.py
 
       - name: Test experimental packages ${{ matrix.cfg.os }}
         run: |

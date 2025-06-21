@@ -37,6 +37,10 @@ jobs:
         run: |
           choco install --yes --no-progress dmd winflexbison3
 
+      - name: Populate MSVC cache
+        run: |
+          python testing/ci/windows_msvc_cache.py
+
       - name: runtest
         run: |
           python runtest.py --all --exclude-list=testing/ci/windows_ci_skip.txt --time --jobs=4

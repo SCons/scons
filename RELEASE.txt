@@ -44,14 +44,23 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   these variables and values are propagated to the user's SCons
   environment after running the MSVC batch files.
 
-- Move the GitHub workflow test files from the SCons root to the ci
-  subdirectory of the testing directory.
+- Move the GitHub workflow test runner files from the SCons root to
+  the ci subdirectory of the testing directory.
+
+- GitHub: Enable the interactive tests on windows.
 
 - GitHub: Exclude two ninja tests that consistently fail on MacOS in
   the experimental tests workflow.
 
-- GitHub: Add a workflow file to test msvc with optional environment
+- GitHub: Add a workflow file to test MSVC with optional environment
   variables.
+
+- GitHub: Populate the MSVC cache before running the test suite for
+  select windows workflow files.
+
+- Testing: Increase the default timeout from 20 seconds to 60 seconds
+  in the testing framework wait_for method. The timeout was increased
+  during isolated experiments of the interactive tests on windows.
 
 - Ninja: Increase the number of generated source files in the
   iterative speedup test from 200 to 250.  Increasing the workload
