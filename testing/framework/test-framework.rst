@@ -37,14 +37,15 @@ There are three categories of SCons tests:
 *End-to-End Tests*
    End-to-end tests of SCons are small self-contained projects that are
    run by calling ``scons`` (or in a few cases, ``sconsign`` or ``scons-time``)
-   to execute them, and thus capture the results of
-   running all the way through an invocation - end to end.
-   They are implemented as Python scripts which are responsible for setup,
-   for running the test, and for checking conformance with expectations.
-   The tests are runnable standalone but usually executed by the test runner.
+   to execute them, and thus simulate the results of running all the
+   way through building a project - thus "end to end".
+   These tests need a Python script to drive them - setup, issuing
+   the correct command line, checking and recording results;
+   these operations are aided by using the test infrastructure modules in
+   the ``testing/framework`` subdirectory.
+   The scripts need a test runner to find end execute them
+   (the runner specifically requires a ``.py`` filename suffix on these).
    The standard tests are located in the ``test/`` subdirectory,
-   and use the test infrastructure modules in the
-   ``testing/framework`` subdirectory.
 
 *External Tests*
    For the support of external Tools (in the form of packages, preferably),
