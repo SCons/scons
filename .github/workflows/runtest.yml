@@ -51,6 +51,7 @@ jobs:
 
       - name: Archive Failed tests ${{ matrix.os }}
         uses: actions/upload-artifact@v4
+        if: failure()
         with:
           name: ${{ matrix.os }}-failed-tests
           path: |

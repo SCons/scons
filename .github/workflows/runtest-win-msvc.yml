@@ -23,32 +23,40 @@ env:
 
 jobs:
   runtest-msvc:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['windows-latest']
+
+    runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
+      - name: Set up Python 3.12 ${{ matrix.os }}
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Install Python dependencies
+      - name: Install Python dependencies ${{ matrix.os }}
         run: |
           python -m pip install --progress-bar off --upgrade pip
           python -m pip install --progress-bar off -r requirements-dev.txt
 
-      - name: runtest
+      - name: runtest ${{ matrix.os }}
         run: |
           python runtest.py --file=testing/ci/msvc_ci_run.txt --time
 
-      - name: Display MSVC cache
+      - name: Display MSVC cache ${{ matrix.os }}
+        if: always()
         run: |
           python testing/ci/windows_msvc_cache.py --skip-populate
 
-      - name: Archive Failed tests
+      - name: Archive Failed tests ${{ matrix.os }}
         uses: actions/upload-artifact@v4
+        if: failure()
         with:
-          name: windows-failed-tests
+          name: ${{ matrix.os }}-failed-tests
           path: |
             failed_tests.log
