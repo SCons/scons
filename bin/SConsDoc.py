@@ -69,7 +69,7 @@ Function example:
     anywhere in the document by specifying the
     &f-FUNCTION; element or the &f-env-FUNCTION; element.
     Links to this definition may be interpolated by specifying
-    the &f-link-FUNCTION: or &f-link-env-FUNCTION; element.
+    the &f-link-FUNCTION; or &f-link-env-FUNCTION; element.
     </para>
 
     <example>

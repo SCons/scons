@@ -6,7 +6,13 @@ requires = ["setuptools"]
 name = "SCons"
 description = "Open Source next-generation build tool."
 requires-python = ">=3.7"
-license = { text = "MIT" }
+license = "MIT"  # PEP 639 form (new - setuptools >= 77.0)
+# Should include docbook license, but this fails:
+# license = "MIT AND DocBook-stylesheet"
+license-files = [
+    "LICENSE",
+    "SCons/Tool/docbook/docbook-xsl-1.76.1/COPYING",
+]
 readme = { file = "README-package.rst", content-type = "text/x-rst" }
 authors = [{ name = "William Deegan", email = "bill@baddogconsulting.com" }]
 dynamic = ["version"]
@@ -25,7 +31,6 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Environment :: Console",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Operating System :: Unix",
     "Operating System :: MacOS",
@@ -46,21 +51,38 @@ scons = "SCons.Script.Main:main"
 sconsign = "SCons.Utilities.sconsign:main"
 scons-configure-cache = "SCons.Utilities.ConfigureCache:main"
 
+[project.optional-dependencies]
+dev = [
+    "ninja",
+    "psutil",
+    "lxml < 5; sys_platform != 'win32' and python_version < '3.13'",
+]
+pkg = [
+    "ninja",
+    "psutil",
+    "readme-renderer",
+    "sphinx",
+    "sphinx-book-theme",
+    "rst2pdf",
+    "build",
+    "twine",
+    "packaging",
+]
+
 [tool.setuptools]
 zip-safe = false
 include-package-data = true
-license-files = ["LICENSE"]
 
 [tool.setuptools.dynamic]
 version = {attr = "SCons.__version__"}
 
 [tool.setuptools.packages.find]
-exclude = ["template"]
+include = ["SCons*"]
 namespaces = false
 
 [tool.setuptools.package-data]
 "*" = ["*.txt", "*.rst", "*.1"]
-"SCons.tool.docbook" = ["*.*"]
+"SCons.Tool.docbook" = ["*.*"]
 
 [tool.distutils.sdist]
 dist-dir = "build/dist"
