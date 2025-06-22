@@ -52,7 +52,11 @@ sconsign = "SCons.Utilities.sconsign:main"
 scons-configure-cache = "SCons.Utilities.ConfigureCache:main"
 
 [project.optional-dependencies]
-dev = ["ninja", "psutil"]
+dev = [
+    "ninja",
+    "psutil",
+    "lxml < 5; sys_platform != 'win32' and python_version < '3.13'",
+]
 pkg = [
     "ninja",
     "psutil",
@@ -63,7 +67,6 @@ pkg = [
     "build",
     "twine",
     "packaging",
-    "lxml<5; sys_platform != 'win32' and python_version<3.13",
 ]
 
 [tool.setuptools]
