@@ -46,8 +46,10 @@ import unittest
 from unittest import mock
 from subprocess import PIPE
 from typing import TYPE_CHECKING
-if 'unittest.util' in __import__('sys').modules:
-    __import__('sys').modules['unittest.util']._MAX_LENGTH = 99999999
+
+# If assertEqual truncates strings so it's hard to see the diff, enable this:
+# if 'unittest.util' in __import__('sys').modules:
+#     __import__('sys').modules['unittest.util']._MAX_LENGTH = 99999999
 
 import SCons.Action
 import SCons.Environment
