@@ -44,31 +44,6 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   these variables and values are propagated to the user's SCons
   environment after running the MSVC batch files.
 
-- Move the GitHub workflow test runner files from the SCons root to
-  the ci subdirectory of the testing directory.
-
-- GitHub: Enable the interactive tests on windows.
-
-- GitHub: Exclude two ninja tests that consistently fail on MacOS in
-  the experimental tests workflow.
-
-- GitHub: Add a workflow file to test MSVC with optional environment
-  variables.
-
-- GitHub: Populate the MSVC cache before running the test suite for
-  select windows workflow files.
-
-- GitHub: Upload the failed_tests.log artifact on failure in select
-  workflow files.
-
-- Testing: Increase the default timeout from 20 seconds to 60 seconds
-  in the testing framework wait_for method. The timeout was increased
-  during isolated experiments of the interactive tests on windows.
-
-- Ninja: Increase the number of generated source files in the
-  iterative speedup test from 200 to 250.  Increasing the workload
-  should reduce the likelihood that the ninja tests are slower.
-
 FIXES
 -----
 
@@ -156,9 +131,35 @@ DEVELOPMENT
 
 - Clean up C and C++ FLAGS tests. Tests which use a real compiler
   are now more clearly distinguished (-live.py suffix and docstring).
+
 - Fix a couple of unit tests to not fail with Python 3.14. These involve
   expectations for bytecode and error message contents; there was no problem
   with SCons itself using 3.14 in its current (just-before-freeze) state.
+
+- Move the GitHub workflow test runner files from the SCons root to
+  the ci subdirectory of the testing directory.
+
+- GitHub: Enable the interactive tests on windows.
+
+- GitHub: Exclude two ninja tests that consistently fail on MacOS in
+  the experimental tests workflow.
+
+- GitHub: Add a workflow file to test MSVC with optional environment
+  variables.
+
+- GitHub: Populate the MSVC cache before running the test suite for
+  select windows workflow files.
+
+- GitHub: Upload the failed_tests.log artifact on failure in select
+  workflow files.
+
+- Testing: Increase the default timeout from 20 seconds to 60 seconds
+  in the testing framework wait_for method. The timeout was increased
+  during isolated experiments of the interactive tests on windows.
+
+- Ninja: Increase the number of generated source files in the
+  iterative speedup test from 200 to 250.  Increasing the workload
+  should reduce the likelihood that the ninja tests are slower.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

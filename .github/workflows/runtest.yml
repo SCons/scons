@@ -28,7 +28,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: Install Ubuntu packages $${matrix.os}}
+      - name: Install Ubuntu packages $${ matrix.os }}
         run: |
           sudo apt-get update
           sudo apt-get install libtirpc-dev
