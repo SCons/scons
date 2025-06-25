@@ -20,39 +20,42 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ['ubuntu-22.04', 'ubuntu-24.04']
+        cfg: [
+          {os: 'ubuntu-22.04', py: '3.7'},
+          {os: 'ubuntu-24.04', py: '3.13'},
+        ]
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.cfg.os }}
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: Install Ubuntu packages $${ matrix.os }}
+      - name: Install Ubuntu packages ${{ matrix.cfg.os }}
         run: |
           sudo apt-get update
           sudo apt-get install libtirpc-dev
 
-      - name: Set up Python 3.12 ${{ matrix.os }}
+      - name: Set up Python ${{ matrix.cfg.py }} ${{ matrix.cfg.os }}
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: ${{ matrix.cfg.py }}
           cache: 'pip'
 
-      - name: Install Python dependencies ${{ matrix.os }}
+      - name: Install Python ${{ matrix.cfg.py }} dependencies ${{ matrix.cfg.os }}
         run: |
           python -m pip install --progress-bar off --upgrade pip
           python -m pip install --progress-bar off -r requirements-dev.txt
           # sudo apt-get update
 
-      - name: runtest ${{ matrix.os }}
+      - name: runtest ${{ matrix.cfg.os }} ${{ matrix.cfg.py }}
         run: |
           python runtest.py --all --time --jobs=4
 
-      - name: Archive Failed tests ${{ matrix.os }}
+      - name: Archive Failed tests ${{ matrix.cfg.os }} ${{ matrix.cfg.py }}
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: ${{ matrix.os }}-failed-tests
+          name: ${{ matrix.cfg.os }}-${{ matrix.cfg.py }}-failed-tests
           path: |
             failed_tests.log

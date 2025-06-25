@@ -153,6 +153,9 @@ DEVELOPMENT
 - GitHub: Upload the failed_tests.log artifact on failure in select
   workflow files.
 
+- GitHub: Change the runtest workflow to allow the python version to
+  be specified with the OS version.
+
 - Testing: Increase the default timeout from 20 seconds to 60 seconds
   in the testing framework wait_for method. The timeout was increased
   during isolated experiments of the interactive tests on windows.

@@ -66,6 +66,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       * Upload the failed_tests.log artifact on failure in select workflow
         files. Prior to this change, the failed test log was uploaded only
         when none of the tests failed.
+      * Modify the runtest workflow file to pair an OS version with a python
+        version.
     - Ninja: Increase the number of generated source files in the ninja
       iterative speedup test from 200 to 250. Increasing the workload should
       reduce the likelihood that the ninja tests are slower.
