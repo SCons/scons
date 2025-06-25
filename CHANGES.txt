@@ -72,8 +72,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       that can be rendered by Sphinx, and updating that text. The rest is
       minor fiddling like switching to f-strings small doc changes.
     - Fix a couple of unit tests to not fail with Python 3.14. These involve
-      bytecode and error message contents, and there was no problem with
-      SCons itself using 3.14 in its current (just-before-freeze) state.
+      bytecode strings and error message contents; there was no problem with
+      SCons itself using 3.14. Since 3.14 is now in Beta, there should
+      be no further changes.
     - Replace use of old conditional expression idioms with the official
       one from PEP 308 introduced in Python 2.5 (2006). The idiom being
       replaced (using and/or) is regarded as error prone.

@@ -134,9 +134,10 @@ DEVELOPMENT
 
 - Clean up C and C++ FLAGS tests. Tests which use a real compiler
   are now more clearly distinguished (-live.py suffix and docstring).
+
 - Fix a couple of unit tests to not fail with Python 3.14. These involve
-  expectations for bytecode and error message contents; there was no problem
-  with SCons itself using 3.14 in its current (just-before-freeze) state.
+  expectations for bytecode strings and error message contents; there was
+  no problem with SCons itself using 3.14.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
