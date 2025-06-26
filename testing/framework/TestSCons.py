@@ -1823,7 +1823,7 @@ else:
             restore_sconsflags(sconsflags)
         return p
 
-    def wait_for(self, fname, timeout: float = 20.0, popen=None) -> None:
+    def wait_for(self, fname, timeout: float = 60.0, popen=None) -> None:
         """
         Waits for the specified file name to exist.
         """

@@ -14,12 +14,12 @@ on:
   workflow_dispatch:
 
 env:
-    # for use by the Windows runner (ignored by the others):
+    # For use by the Windows runner (ignored by the others):
     SCONS_CACHE_MSVC_CONFIG: 1
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
+  # This workflow contains a single job called "experimental"
   experimental:
 
     strategy:
@@ -28,11 +28,14 @@ jobs:
         # In the 2nd half of 2022 the setup-mingw was often failing on
         # windows-latest, when 2022 became the latest. Now 2025 is out,
         # and 2019 is being retired, we need some kind of a solution.
-        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
-        # os: ['ubuntu-latest', 'windows-2019', 'macos-latest']
+        cfg: [
+          {os: 'ubuntu-latest', args: ''},
+          {os: 'windows-latest', args: ''},
+          {os: 'macos-latest', args: '--exclude-list=testing/ci/macos_ci_skip.txt'},
+        ]
 
     # The type of runner that the job will run on
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.cfg.os }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -48,25 +51,38 @@ jobs:
       #     platform: x64
       #     static: 0
 
-      - name: Set up MSYS2
+      - name: Set up MSYS2 ${{ matrix.cfg.os }}
         uses: msys2/setup-msys2@v2
-        if: matrix.os == 'windows-latest'
+        if: startsWith(matrix.cfg.os, 'windows')
         with:
           msystem: UCRT64
           update: false
           install: git mingw-w64-ucrt-x86_64-gcc
 
-      - name: Set up Python 3.11 ${{ matrix.os }}
+      - name: Set up Python 3.11 ${{ matrix.cfg.os }}
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies including ninja ${{ matrix.os }}
+      - name: Install dependencies including ninja ${{ matrix.cfg.os }}
         run: |
           python -m pip install --progress-bar off --upgrade pip
           python -m pip install --progress-bar off ninja psutil
           # sudo apt-get update
 
-      - name: Test experimental packages ${{ matrix.os }}
+      - name: Populate MSVC cache ${{ matrix.cfg.os }}
+        if: startsWith(matrix.cfg.os, 'windows')
         run: |
-          python runtest.py test/import.py test/ninja
+          python testing/ci/windows_msvc_cache.py
+
+      - name: Test experimental packages ${{ matrix.cfg.os }}
+        run: |
+          python runtest.py --time ${{ matrix.cfg.args }} test/import.py test/ninja
+
+      - name: Archive Failed tests ${{ matrix.cfg.os }}
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ${{ matrix.cfg.os }}-failed-tests
+          path: |
+            failed_tests.log

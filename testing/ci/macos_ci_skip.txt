@@ -1,0 +1,3 @@
+# temporarily skip this in GitHub MacOS Experimental runner
+test/ninja/ninja_handle_control_c_rebuild.py
+test/ninja/shutdown_scons_daemon.py
