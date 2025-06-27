@@ -560,6 +560,12 @@ class Node(metaclass=NoSlotsPyPy):
                  '_func_target_from_source']
 
     class Attrs:
+        """A generic place to store extra information about the Node.
+
+        Defines ``__slots__`` for performance, but different consumers
+        define their own attributes, so to avoid having to collect them
+        all here, we add a ``__dict__`` slot to get dynamic attributes.
+        """
         __slots__ = ('shared', '__dict__')
 
 
