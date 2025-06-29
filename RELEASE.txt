@@ -124,6 +124,8 @@ DOCUMENTATION
   as returning None.  It is now explicit that the path is returned if
   running in a virtualenv, and an empty (falsy) string if not.
 
+- Improve the wording of Configure methods.
+
 DEVELOPMENT
 -----------
 
