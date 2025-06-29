@@ -3872,23 +3872,32 @@ The &f-link-env-Dump; method can be called to examine the
 <title>Configure Contexts</title>
 
 <para>&SCons;
-supports a
-<firstterm>&configure_context;</firstterm>,
-an integrated mechanism similar to the
-various <constant>AC_CHECK</constant> macros in GNU &Autoconf;
+provides an integrated autoconfiguration mechanism
+(insipired by GNU &Autoconf; but intrinsic to &SCons;),
 for testing the existence of external items needed
 for the build, such as C header files, libraries, etc.
+This can be used both to build optional features only
+if support for them is available,
+or abort the build quickly if required elements are missing.
 The mechanism is portable across platforms.
 </para>
 
 <para>
-&scons;
+You activate this by creating a
+<firstterm>&configure_context;</firstterm>,
+which holds accumulated information while the
+checks are being performed,
+then transfer that information to the regular build environment.
+Optionally, a configuration header that C or C++
+code can incldue can also be generated.
+&SCons;
 does not maintain an explicit cache of the tested values
-(this is different than &Autoconf;),
+(unlike &Autoconf;),
 but uses its normal dependency tracking to keep the checked values
 up to date. You may override this behavior with the
 <link linkend="opt-config"><option>--config</option></link>
-command line option.</para>
+command line option.
+</para>
 
 <variablelist>
   <varlistentry>
@@ -3906,10 +3915,6 @@ after the active one is completed.
 For the global function form, the required <parameter>env</parameter>
 describes the initial values for the context's local &consenv;;
 for the &consenv; method form the instance provides the values.
-</para>
-<para>
-<emphasis>Changed in version 4.0</emphasis>: raises an exception
-on an attempt to create a new context when there is an active context.
 </para>
 <para><parameter>custom_tests</parameter>
 specifies a dictionary containing custom checks
@@ -3934,11 +3939,10 @@ under that build's variant directory.</para>
 <parameter>config_h</parameter>
 specifies a C header file where the results of tests
 will be written,
-so the build can have access to this information
-by including it.
+so the build can have access to this information by including it.
 The results will consist of lines like
-<literal>#define HAVE_STDIO_H</literal>,
-<literal>#define HAVE_LIBM</literal>, etc.
+<literal>#define HAVE_GETADDRINFO 1</literal>,
+<literal>#define HAVE_INTTYPES_H 1</literal>, etc.
 The default is <literal>None</literal>,
 which creates no configure header.
 The convention has been to call
@@ -3980,6 +3984,11 @@ or
 arguments
 (or both)
 to avoid unnecessary test execution.</para>
+
+<para>
+<emphasis>Changed in version 4.0</emphasis>: raises an exception
+on an attempt to create a new context when there is an active context.
+</para>
   </listitem>
   </varlistentry>
 
