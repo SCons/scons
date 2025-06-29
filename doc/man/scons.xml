@@ -3872,23 +3872,34 @@ The &f-link-env-Dump; method can be called to examine the
 <title>Configure Contexts</title>
 
 <para>&SCons;
-supports a
-<firstterm>&configure_context;</firstterm>,
-an integrated mechanism similar to the
-various <constant>AC_CHECK</constant> macros in GNU &Autoconf;
-for testing the existence of external items needed
+provides an integrated autoconfiguration mechanism
+(inspired by GNU &Autoconf; but intrinsic to &SCons;),
+for checking the existence of external items needed
 for the build, such as C header files, libraries, etc.
+This can be used to build optional features only
+if support for them is available,
+abort the build quickly if required elements are missing,
+or just tune the build to the specific build platform.
 The mechanism is portable across platforms.
 </para>
 
 <para>
-&scons;
+You activate the configuration sysem by creating a
+<firstterm>&configure_context;</firstterm>,
+which holds accumulated information while the
+checks are being performed,
+request the desired checks,
+and then transfer the information to the regular build environment.
+Optionally, a configure header that C or C++
+code can include can also be generated.
+&SCons;
 does not maintain an explicit cache of the tested values
-(this is different than &Autoconf;),
+(unlike &Autoconf;),
 but uses its normal dependency tracking to keep the checked values
 up to date. You may override this behavior with the
 <link linkend="opt-config"><option>--config</option></link>
-command line option.</para>
+command line option.
+</para>
 
 <variablelist>
   <varlistentry>
@@ -3896,9 +3907,9 @@ command line option.</para>
   <term><replaceable>env</replaceable>.<methodname>Configure</methodname>(<parameter>[custom_tests, conf_dir, log_file, config_h, clean, help]</parameter>)</term>
   <listitem>
 <para>Create a &configure_context;, which tracks information
-discovered while running tests. The context includes a local &consenv;
+discovered while running checks. The context includes a local &consenv;
 (available as <replaceable>context</replaceable>.<varname>env</varname>)
-which is used when running the tests and
+which is used when running the checks and
 which can be updated with the check results.
 Only one context may be active
 at a time, but a new context can be created
@@ -3906,10 +3917,6 @@ after the active one is completed.
 For the global function form, the required <parameter>env</parameter>
 describes the initial values for the context's local &consenv;;
 for the &consenv; method form the instance provides the values.
-</para>
-<para>
-<emphasis>Changed in version 4.0</emphasis>: raises an exception
-on an attempt to create a new context when there is an active context.
 </para>
 <para><parameter>custom_tests</parameter>
 specifies a dictionary containing custom checks
@@ -3934,11 +3941,10 @@ under that build's variant directory.</para>
 <parameter>config_h</parameter>
 specifies a C header file where the results of tests
 will be written,
-so the build can have access to this information
-by including it.
+so the build can have access to this information by including it.
 The results will consist of lines like
-<literal>#define HAVE_STDIO_H</literal>,
-<literal>#define HAVE_LIBM</literal>, etc.
+<literal>#define HAVE_GETADDRINFO 1</literal>,
+<literal>#define HAVE_INTTYPES_H 1</literal>, etc.
 The default is <literal>None</literal>,
 which creates no configure header.
 The convention has been to call
@@ -3980,18 +3986,26 @@ or
 arguments
 (or both)
 to avoid unnecessary test execution.</para>
+
+<para>
+<emphasis>Changed in version 4.0</emphasis>: raises an exception
+on an attempt to create a new context when there is an active context.
+</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
   <term><replaceable>context</replaceable>.<methodname>Finish</methodname>()</term>
   <listitem>
-<para>This method must be called after configuration is done.
+<para>Must be called after configuration is complete.
 Though required, this is not enforced except
 if &Configure; is called again while there is still an active context,
 in which case an exception is raised.
-&Finish; returns the environment as modified
-during the course of running the configuration checks.
+Returns the context's &consenv; as modified
+during the course of running the configuration checks -
+the original environment is unchanged;
+typically the returned environment is used to
+replace the original.
 After this method is called, no further checks can be performed
 with this configuration context.
 However, you can create a new
