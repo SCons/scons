@@ -4494,6 +4494,7 @@ sconf.CheckMember('struct tm.tm_sec', '#include &lt;time.h&gt;')
                 Returns a boolean indicating success or failure.
             </para>
 
+            <para><emphasis>Added in 4.4.0</emphasis>.</para>
         </listitem>
     </varlistentry>
 
