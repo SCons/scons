@@ -3872,23 +3872,34 @@ The &f-link-env-Dump; method can be called to examine the
 <title>Configure Contexts</title>
 
 <para>&SCons;
-supports a
-<firstterm>&configure_context;</firstterm>,
-an integrated mechanism similar to the
-various <constant>AC_CHECK</constant> macros in GNU &Autoconf;
-for testing the existence of external items needed
+provides an integrated autoconfiguration mechanism
+(inspired by GNU &Autoconf; but intrinsic to &SCons;),
+for checking the existence of external items needed
 for the build, such as C header files, libraries, etc.
+This can be used to build optional features only
+if support for them is available,
+abort the build quickly if required elements are missing,
+or just tune the build to the specific build platform.
 The mechanism is portable across platforms.
 </para>
 
 <para>
-&scons;
+You activate the configuration sysem by creating a
+<firstterm>&configure_context;</firstterm>,
+which holds accumulated information while the
+checks are being performed,
+request the desired checks,
+and then transfer the information to the regular build environment.
+Optionally, a configure header that C or C++
+code can include can also be generated.
+&SCons;
 does not maintain an explicit cache of the tested values
-(this is different than &Autoconf;),
+(unlike &Autoconf;),
 but uses its normal dependency tracking to keep the checked values
-up to date. However, users may override this behavior with the
+up to date. You may override this behavior with the
 <link linkend="opt-config"><option>--config</option></link>
-command line option.</para>
+command line option.
+</para>
 
 <variablelist>
   <varlistentry>
@@ -3896,9 +3907,9 @@ command line option.</para>
   <term><replaceable>env</replaceable>.<methodname>Configure</methodname>(<parameter>[custom_tests, conf_dir, log_file, config_h, clean, help]</parameter>)</term>
   <listitem>
 <para>Create a &configure_context;, which tracks information
-discovered while running tests. The context includes a local &consenv;
+discovered while running checks. The context includes a local &consenv;
 (available as <replaceable>context</replaceable>.<varname>env</varname>)
-which is used when running the tests and
+which is used when running the checks and
 which can be updated with the check results.
 Only one context may be active
 at a time, but a new context can be created
@@ -3906,10 +3917,6 @@ after the active one is completed.
 For the global function form, the required <parameter>env</parameter>
 describes the initial values for the context's local &consenv;;
 for the &consenv; method form the instance provides the values.
-</para>
-<para>
-<emphasis>Changed in version 4.0</emphasis>: raises an exception
-on an attempt to create a new context when there is an active context.
 </para>
 <para><parameter>custom_tests</parameter>
 specifies a dictionary containing custom checks
@@ -3933,30 +3940,30 @@ under that build's variant directory.</para>
 <para>
 <parameter>config_h</parameter>
 specifies a C header file where the results of tests
-will be written. The results will consist of lines like
-<literal>#define HAVE_STDIO_H</literal>,
-<literal>#define HAVE_LIBM</literal>, etc.
-Customarily, the name chosen is <quote><filename>config.h</filename></quote>.
-The default is to not write a
-<parameter>config_h</parameter>
-file.
+will be written,
+so the build can have access to this information by including it.
+The results will consist of lines like
+<literal>#define HAVE_GETADDRINFO 1</literal>,
+<literal>#define HAVE_INTTYPES_H 1</literal>, etc.
+The default is <literal>None</literal>,
+which creates no configure header.
+The convention has been to call
+the configure header <filename>config.h</filename>.
 You can specify the same
 <parameter>config_h</parameter>
 file in multiple calls to &Configure;,
 in which case &SCons;
 will concatenate all results in the specified file.
 Note that &SCons;
-uses its normal dependency checking
-to decide if it's necessary to rebuild
-the specified
-<parameter>config_h</parameter>
-file.
-This means that the file is not necessarily re-built each
+uses its normal dependency tracking
+to decide if it's necessary to rebuild the
+configure hearer.
+This means that the file is not necessarily rebuilt each
 time scons is run,
 but is only rebuilt if its contents will have changed
-and some target that depends on the
-<parameter>config_h</parameter>
-file is being built.</para>
+and some target that depends on the configure header is being built.
+</para>
+
 <para>The <parameter>clean</parameter>
 and
 <parameter>help</parameter>
@@ -3979,18 +3986,26 @@ or
 arguments
 (or both)
 to avoid unnecessary test execution.</para>
+
+<para>
+<emphasis>Changed in version 4.0</emphasis>: raises an exception
+on an attempt to create a new context when there is an active context.
+</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
   <term><replaceable>context</replaceable>.<methodname>Finish</methodname>()</term>
   <listitem>
-<para>This method must be called after configuration is done.
+<para>Must be called after configuration is complete.
 Though required, this is not enforced except
 if &Configure; is called again while there is still an active context,
 in which case an exception is raised.
-&Finish; returns the environment as modified
-during the course of running the configuration checks.
+Returns the context's &consenv; as modified
+during the course of running the configuration checks -
+the original environment is unchanged;
+typically the returned environment is used to
+replace the original.
 After this method is called, no further checks can be performed
 with this configuration context.
 However, you can create a new
@@ -4008,7 +4023,7 @@ conf = Configure(env)
 if not conf.CheckCHeader("math.h"):
     print("We really need math.h!")
     Exit(1)
-if conf.CheckLibWithHeader("qt", "qapp.h", "c++", "QApplication qapp(0,0);"):
+if conf.CheckLibWithHeader("qt", "qapp.h", "c++", call="QApplication qapp(0,0);"):
     # do stuff for qt - usage, e.g.
     conf.env.Append(CPPDEFINES="WITH_QT")
 env = conf.Finish()
@@ -4018,7 +4033,7 @@ env = conf.Finish()
 has the following predefined methods which
 can be used to perform checks. Where
 <parameter>language</parameter> is an optional parameter,
-it specifies the compiler to use for the check,
+it specifies the programming language of the check,
 currently a choice of C or C++.
 The spellings accepted for
 C are <quote>C</quote> or <quote>c</quote>;
@@ -4030,95 +4045,76 @@ If <parameter>language</parameter> is omitted,
 </para>
 
 <variablelist>
-  <varlistentry>
+  <varlistentry id="conf-checkheader">
   <term><replaceable>context</replaceable>.<methodname>CheckHeader</methodname>(<parameter>header, [include_quotes, language]</parameter>)</term>
   <listitem>
-<para>Checks if
+<para>Check if
 <parameter>header</parameter>
-is usable in the specified <parameter>language</parameter>.
-<parameter>header</parameter>
-may be a list,
+can be used when building this project.
+A generated stub program in the specified
+<parameter>language</parameter> is built to check.
+<parameter>header</parameter> may also be a list,
 in which case the last item in the list
 is the header file to be checked,
 and the previous list items are
 header files whose
 <literal>#include</literal>
-lines should precede the
+directives should precede the
 header line being checked for.
 The optional argument
 <parameter>include_quotes</parameter>
-must be
-a two character string, where the first character denotes the opening
-quote and the second character denotes the closing quote.
-By default, both characters  are <markup>"</markup> (double quote).
+specifies the characters wrapping the header name -
+only the first two are considered.
+Essentially, this allows you to swap the default
+double-quotes (<literal>""</literal>)
+for angle brackets (<literal>&lt;&gt;</literal>).
 </para>
-<para>Returns a boolean indicating success or failure.</para>
+
+<para>Returns a boolean indicating success or failure.
+If a configure header was requested,
+the result is recorded in it in the form of a
+preprocessor macro in the case of success,
+or an informative comment in the case of failure.
+</para>
+
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="check-checkcheader">
   <term><replaceable>context</replaceable>.<methodname>CheckCHeader</methodname>(<parameter>header, [include_quotes]</parameter>)</term>
   <listitem>
-<para>Checks if
+<para>Check if
 <parameter>header</parameter>
 is usable when compiling a C language program.
-<parameter>header</parameter>
-may be a list,
-in which case the last item in the list
-is the header file to be checked,
-and the previous list items are
-header files whose
-<literal>#include</literal>
-lines should precede the
-header line being checked for.
-The optional argument
-<parameter>include_quotes</parameter>
-must be
-a two character string, where the first character denotes the opening
-quote and the second character denotes the closing quote.
-By default, both characters  are <markup>"</markup> (double quote).
-Note this is a wrapper around
-<function>CheckHeader</function>.
-Returns a boolean indicating success or failure.</para>
+This is a wrapper around
+<link linkend="conf-checheader">&CheckHeader;</link> -
+see its entry for details.
+</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="check-checkcxxheader">
   <term><replaceable>context</replaceable>.<methodname>CheckCXXHeader</methodname>(<parameter>header, [include_quotes]</parameter>)</term>
   <listitem>
-<para>Checks if
+<para>Check if
 <parameter>header</parameter>
 is usable when compiling a C++ language program.
-<parameter>header</parameter>
-may be a list,
-in which case the last item in the list
-is the header file to be checked,
-and the previous list items are
-header files whose
-<literal>#include</literal>
-lines should precede the
-header line being checked for.
-The optional argument
-<parameter>include_quotes</parameter>
-must be
-a two character string, where the first character denotes the opening
-quote and the second character denotes the closing quote.
-By default, both characters  are <markup>"</markup> (double quote).
-Note this is a wrapper around
-<function>CheckHeader</function>.
-Returns a boolean indicating success or failure.</para>
+This is a wrapper around
+<link linkend="conf-checheader">&CheckHeader;</link> -
+see its entry for details.
+</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="check-checkfunc">
   <term><replaceable>context</replaceable>.<methodname>CheckFunc</methodname>(<parameter>function_name, [header, language, funcargs]</parameter>)</term>
   <listitem>
-<para>Checks if <parameter>function_name</parameter> is usable
+<para>Check if <parameter>function_name</parameter> is usable
 in the context's local environment, using the compiler
 specified by <parameter>language</parameter> - that is,
 can a check referencing it be compiled using the current values
 of &cv-link-CFLAGS;, &cv-link-CPPFLAGS;,
-&cv-link-LIBS; or other relevant &consvars;.
+   &cv-link-LIBS; or other relevant &consvars;.
 </para>
 
 <para>
@@ -4149,25 +4145,43 @@ type.  Modern C/C++ compilers reject implicit function declarations and may also
 function calls whose arguments are not type compatible with the prototype.
 </para>
 
+<para>Returns a boolean indicating success or failure.
+If a configure header was requested,
+the result is recorded in it in the form of a
+preprocessor macro in the case of success,
+or an informative comment in the case of failure.
+</para>
+
 <para>
 <emphasis>Changed in version 4.7.0: added the <parameter>funcargs</parameter>.</emphasis>
 </para>
-
-<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="conf-checklib">
   <term><replaceable>context</replaceable>.<methodname>CheckLib</methodname>(<parameter>[library, symbol, header, language, extra_libs=None, autoadd=True, append=True, unique=False]</parameter>) </term>
   <listitem>
-<para>Checks if
+<para>Check if
 <parameter>library</parameter>
-provides
-<parameter>symbol</parameter> by compiling a simple stub program
-with the compiler selected by <parameter>language</parameter>,
-and optionally adds that library to the context.
-If supplied, the text of <parameter>header</parameter> is included at the
-top of the stub.
+can be used to build this project
+(see also <link linkend="conf-checklibwithheader">&CheckLibWithHeader;</link>).
+A small stub program is generated and linked against
+<parameter>library</parameter> by the
+compiler selected by <parameter>language</parameter>.
+If <parameter>symbol</parameter> is specified,
+the stub will contain a reference to that symbol,
+to check if it is actually provided by the library.
+If supplied, the text of <parameter>header</parameter>
+is included at the top of the stub; it must be syntactically
+correct in <parameter>language</parameter>.
+</para>
+<para>
+Note that if <parameter>symbol</parameter> is given,
+the stub will be generated with an old-style prototype,
+as it has no knowledge of the actual prototype
+(e.g. <code>char sin();</code> instead of
+<code>double sin(double x);</code>).
+Such usage is no longer legal under C23 and later.
 </para>
 <para>
 The remaining arguments should be specified in keyword style.
@@ -4176,12 +4190,10 @@ it is a list off additional libraries to include when
 linking the stub program (usually, dependencies of
 the library being checked).
 If <parameter>autoadd</parameter> is true (the default),
-and the library provides the specified
-<parameter>symbol</parameter>,
-as defined by successfully linking the stub program,
-it is added to the &cv-link-LIBS; &consvar; in the context.
+and the link succeeds,
+the library is added to the &cv-link-LIBS; &consvar; in the context.
 If <parameter>append</parameter> is true (the default),
-the library is appended, otherwise it is prepended.
+an added library is appended, otherwise it is prepended.
 If <parameter>unique</parameter> is true,
 and the library would otherwise be added but is
 already present in &cv-link-LIBS; in the configure context,
@@ -4201,7 +4213,7 @@ is omitted or <constant>None</constant>,
 then <function>CheckLib</function>
 just checks if
 you can link against the specified
-<parameter>library</parameter>,
+<parameter>library</parameter>.
 Note though it is legal syntax, it would
 not be very useful to call this method
 with <parameter>library</parameter>
@@ -4222,32 +4234,30 @@ parameters.</emphasis>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="conf-checklibwithheader">
   <term><replaceable>context</replaceable>.<methodname>CheckLibWithHeader</methodname>(<parameter>[library, header, language, extra_libs=None, call=None, autoadd=True, append=True, unique=False]</parameter>)</term>
   <listitem>
 
-<para>Provides an alternative to the
-<methodname>CheckLib</methodname> method
-for checking whether libraries are usable in a build.
+<para>Check if
+<parameter>library</parameter>
+can be used to build this project,
+when a header file must be included to use <parameter>library</parameter>
+(see also <link linkend="conf-checklib">&CheckLib;</link>).
 The first three arguments can be given as
-positional or keyword style arguments.
+either positional or keyword arguments.
 <parameter>library</parameter>
 specifies a library or list of libraries to check
 (the default is <literal>None</literal>),
 <parameter>header</parameter>
-specifies header text to include in the test program.
-<parameter>header</parameter>
-may also be a list,
-in which case the last item in the list
-is the header file to be checked,
+specifies a header file or list of header files to include in the test program.
+If <parameter>header</parameter> is a list,
+the last item in the list is the header file to be checked,
 and the previous list items are
 header files whose
 <literal>#include</literal>
 lines should precede the
 header line being checked for.
 The default is to include no header text.
-<parameter>language</parameter> indicates the compiler to use
-(default "C").
 </para>
 
 <para>
@@ -4263,10 +4273,10 @@ the default checks the ability to link against the specified
 to link against (usually, dependencies of the library under test).
 If <parameter>autoadd</parameter> is true (the default),
 the first library that passes the check
-is added to the &cv-link-LIBS; &consvar; in the context
+is added to the &cv-link-LIBS; &consvar; in the configure context
 and the method returns.
 If <parameter>append</parameter> is true (the default),
-the library is appended, otherwise prepended.
+an added library is appended, otherwise it is prepended.
 If <parameter>unique</parameter> is true,
 and the library would otherwise be added but is
 already present in &cv-link-LIBS; in the configure context,
@@ -4287,55 +4297,57 @@ parameters.</emphasis>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="conf-checktype">
   <term><replaceable>context</replaceable>.<methodname>CheckType</methodname>(<parameter>type_name, [includes, language]</parameter>)</term>
   <listitem>
-<para>Checks for the existence of a type defined by
-<literal>typedef</literal>.
-<parameter>type_name</parameter>
-specifies the typedef name to check for.
+<para>Check whether <parameter>type_name</parameter>
+is defined via a <literal>typedef</literal>.
 <parameter>includes</parameter>
 is a string containing one or more
 <literal>#include</literal>
-lines that will be inserted into the program
-that will be run to test for the existence of the type.
-Example:</para>
+lines that will be placed at the top
+of the stub program
+that will be compiled to perform the check.
+Returns a boolean indicating success or failure.
+If a configure header was requested,
+the result is recorded in it in the form of a
+preprocessor macro in the case of success,
+or an informative comment in the case of failure.
+</para>
+
+<para>Example:</para>
 
 <programlisting language="python">
 sconf.CheckType('foo_type', '#include "my_types.h"', 'C++')
 </programlisting>
 
-<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="conf-checktypesize">
   <term><replaceable>context</replaceable>.<methodname>CheckTypeSize</methodname>(<parameter>type_name, [header, language, expect]</parameter>)</term>
   <listitem>
-<para>Checks for the size of a type defined by
-<literal>typedef</literal>.
+<para>Check for the size of a type
 <parameter>type_name</parameter>
-specifies the typedef name to check for.
+defined via a <literal>typedef</literal> (or built in).
 The optional
 <parameter>header</parameter>
 argument is a string
 that will be
 placed at the top
-of the test file
-that will be compiled
-to check if the type exists;
+of the stub program
+that will be compiled to perform the check -
 the default is empty.
+The check succeeds and returns the size of the type
+if it is found, else zero.
 If the optional
-<parameter>expect</parameter>,
-is supplied, it should be an integer size;
-&CheckTypeSize; will fail unless
-<parameter>type_name</parameter> is actually
-that size.
-Returns the size in bytes, or zero if the type was not found
-(or if the size did not match optional <parameter>expect</parameter>).</para>
+<parameter>expect</parameter>
+(integer) parameter is given,
+the check succeeds only if the
+detected size matches it.
+</para>
 
-<para>
-For example,</para>
+<para>Example:</para>
 
 <programlisting language="python">
 CheckTypeSize('short', expect=2)
@@ -4346,10 +4358,10 @@ actually two bytes.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="conf-checkcc">
   <term><replaceable>context</replaceable>.<methodname>CheckCC</methodname>()</term>
   <listitem>
-<para>Checks whether the C compiler
+<para>Check whether the C compiler
 (as defined by the &cv-link-CC; &consvar;) works,
 by trying to compile a small source file.
 This provides a more rigorous check:
@@ -4363,14 +4375,13 @@ for C source files, so by setting relevant &consvars;
 it can be used to detect if particular compiler flags will
 be accepted or rejected by the compiler.
 </para>
-<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="conf-checkcxx">
   <term><replaceable>context</replaceable>.<methodname>CheckCXX</methodname>()</term>
   <listitem>
-<para>Checks whether the C++ compiler
+<para>Check whether the C++ compiler
 (as defined by the &cv-link-CXX; &consvar;) works,
 by trying to compile a small source file.
 This provides a more rigorous check:
@@ -4384,14 +4395,13 @@ for C++ source files, so by setting relevant &consvars;
 it can be used to detect if particular compiler flags will
 be accepted or rejected by the compiler.
 </para>
-<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="conf-checkshcc">
   <term><replaceable>context</replaceable>.<methodname>CheckSHCC</methodname>()</term>
   <listitem>
-<para>Checks whether the shared-object C compiler (as defined by the
+<para>Check whether the shared-object C compiler (as defined by the
 &cv-link-SHCC; &consvar;) works
 by trying to compile a small source file.
 This provides a more rigorous check:
@@ -4407,14 +4417,13 @@ be accepted or rejected by the compiler.
 Note this does not check whether a shared library/dll can
 be created.
 </para>
-<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="conf-checkshcxx">
   <term><replaceable>context</replaceable>.<methodname>CheckSHCXX</methodname>()</term>
   <listitem>
-<para>Checks whether the shared-object C++ compiler (as defined by the
+<para>Check whether the shared-object C++ compiler (as defined by the
 &cv-link-SHCXX; &consvar;)
 works by trying to compile a small source file.
 This provides a more rigorous check:
@@ -4430,14 +4439,13 @@ be accepted or rejected by the compiler.
 Note this does not check whether a shared library/dll can
 be created.
 </para>
-<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="conf-checkprog">
   <term><replaceable>context</replaceable>.<methodname>CheckProg</methodname>(<parameter>prog_name</parameter>)</term>
   <listitem>
-<para>Checks if
+<para>Check if
 <parameter>prog_name</parameter>
 exists in the path &SCons; will use at build time.
 (<replaceable>context</replaceable>.<varname>env['ENV']['PATH']</varname>).
@@ -4446,10 +4454,10 @@ or <constant>None</constant> on failure.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="conf-checkdeclaration">
   <term><replaceable>context</replaceable>.<methodname>CheckDeclaration</methodname>(<parameter>symbol, [includes, language]</parameter>)</term>
   <listitem>
-<para>Checks if the specified
+<para>Check if the specified
 <parameter>symbol</parameter>
 is declared.
 <parameter>includes</parameter>
@@ -4462,12 +4470,12 @@ that will be run to test for the existence of the symbol.
   </listitem>
   </varlistentry>
 
-    <varlistentry>
+    <varlistentry id="conf-checkmember">
         <term><replaceable>context</replaceable>.<methodname>CheckMember</methodname>(<parameter>aggregate_member,
             [header, language]</parameter>)
         </term>
         <listitem>
-            <para>Checks for the existence of a member of the C/C++ struct or class.
+            <para>Check for the existence of a member of the C/C++ struct or class.
                 <parameter>aggregate_member</parameter>
                 specifies the struct/class and member to check for.
                 <parameter>header</parameter>
@@ -4486,16 +4494,17 @@ sconf.CheckMember('struct tm.tm_sec', '#include &lt;time.h&gt;')
                 Returns a boolean indicating success or failure.
             </para>
 
+            <para><emphasis>Added in 4.4.0</emphasis>.</para>
         </listitem>
     </varlistentry>
 
 
-    <varlistentry>
+    <varlistentry id="conf-checkdefine">
   <term><replaceable>context</replaceable>.<methodname>Define</methodname>(<parameter>symbol, [value, comment]</parameter>)</term>
   <listitem>
 <para>This method does not check for anything, but rather forces
 the definition of a preprocessor macro that will be added
-to the configuration header file.
+to the configure header.
 <parameter>name</parameter> is the macro's identifier.
 If <parameter>value</parameter> is given,
 it will be be used as the macro replacement value.
@@ -4610,7 +4619,7 @@ Usually called after the check has completed.</para>
   <varlistentry>
   <term><replaceable>chk_ctx</replaceable>.<methodname>TryCompile</methodname>(<parameter>text, extension=''</parameter>)</term>
   <listitem>
-<para>Checks if a file containing <parameter>text</parameter>
+<para>Check if a file containing <parameter>text</parameter>
 and given the specified <parameter>extension</parameter> (e.g.
 <literal>'.c'</literal>)
 can be compiled to an object file
@@ -4622,7 +4631,7 @@ Returns a boolean indicating success or failure.</para>
   <varlistentry>
   <term><replaceable>chk_ctx</replaceable>.<methodname>TryLink</methodname>(<parameter>text, extension=''</parameter>)</term>
   <listitem>
-<para>Checks if a file containing <parameter>text</parameter>
+<para>Check if a file containing <parameter>text</parameter>
 and given the specified <parameter>extension</parameter> (e.g.
 <literal>'.c'</literal>)
 can be compiled to an executable program
@@ -4634,7 +4643,7 @@ Returns a boolean indicating success or failure.</para>
   <varlistentry>
   <term><replaceable>chk_ctx</replaceable>.<methodname>TryRun</methodname>(<parameter>text, extension=''</parameter>)</term>
   <listitem>
-<para>Checks if a file containing <parameter>text</parameter>
+<para>Check if a file containing <parameter>text</parameter>
 and given the specified <parameter>extension</parameter> (e.g.
 <literal>'.c'</literal>)
 can be compiled to an excutable program
@@ -4654,7 +4663,7 @@ then <literal>(False, '')</literal> is returned.</para>
   <varlistentry>
   <term><replaceable>chk_ctx</replaceable>.<methodname>TryAction</methodname>(<parameter>action, [text, extension='']</parameter>)</term>
   <listitem>
-<para>Checks if the specified
+<para>Check if the specified
 <parameter>action</parameter>
 with an optional source file
 (contents <parameter>text</parameter>,
