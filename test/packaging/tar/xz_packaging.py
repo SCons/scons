@@ -28,23 +28,14 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 This tests the SRC xz packager, which does the following:
  - create a tar package from the specified files
 """
-import os
-import os.path
-import sys
-import TestSCons
+import TestSConsTar
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import _windows_tar as wintar
-sys.path.pop(0)
-
-python = TestSCons.python
-
-test = TestSCons.TestSCons()
+test = TestSConsTar.TestSConsTar()
 tar = test.detect('TAR', 'tar')
 if not tar:
     test.skip_test('tar not found, skipping test\n')
 
-is_wintar, is_xz_supported = wintar.windows_system_tar_xz(tar)
+is_wintar, is_xz_supported = TestSConsTar.windows_system_tar_xz(tar)
 if is_wintar and not is_xz_supported:
     test.skip_test('windows tar found; xz not supported, skipping test\n')
 

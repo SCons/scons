@@ -29,15 +29,17 @@ This tests the SRC 'targz' packager, which does the following:
  - create a targz package containing the specified files.
 """
 
-import TestSCons
+import TestSConsTar
 
-python = TestSCons.python
-
-test = TestSCons.TestSCons()
+test = TestSConsTar.TestSConsTar()
 
 tar = test.detect('TAR', 'tar')
 if not tar:
     test.skip_test('tar not found, skipping test\n')
+
+is_wintar, is_gz_supported = TestSConsTar.windows_system_tar_gz(tar)
+if is_wintar and not is_gz_supported:
+    test.skip_test('windows tar found; gz not supported, skipping test\n')
 
 test.subdir('src')
 

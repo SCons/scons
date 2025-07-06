@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -24,13 +22,34 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Utility functions for the windows system tar executable features.
+A testing framework for the SCons software construction tool.
+
+A TestSConsTar environment object is created via the usual invocation:
+
+    test = TestSConsTar()
+
+TestSConsTar is a subsclass of TestSCons, which is in turn a subclass
+of TestCommon, which is in turn is a subclass of TestCmd), and hence
+has available all of the methods and attributes from those classes,
+as well as any overridden or additional methods or attributes defined
+in this subclass.
 """
 
 import os
 import os.path
 import subprocess
 import sys
+
+from TestSCons import *
+from TestSCons import __all__
+
+__all__.extend([
+    'TestSConsTar',
+    'windows_system_tar_gz',
+    'windows_system_tar_bz2',
+    'windows_system_tar_xz',
+    'windows_system_tar_lzma',
+])
 
 if sys.platform == 'win32':
 
@@ -144,3 +163,11 @@ else:
     def windows_system_tar_lzma(tar):
         return False, None
 
+class TestSConsTar(TestSCons):
+    pass
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

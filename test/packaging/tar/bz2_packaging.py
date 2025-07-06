@@ -29,25 +29,15 @@ This tests the SRC bz2 packager, which does the following:
  - create a tar package from the specified files
 """
 
-import TestSCons
+import TestSConsTar
 
-import os
-import os.path
-import sys
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import _windows_tar as wintar
-sys.path.pop(0)
-
-python = TestSCons.python
-
-test = TestSCons.TestSCons()
+test = TestSConsTar.TestSConsTar()
 
 tar = test.detect('TAR', 'tar')
 if not tar:
     test.skip_test('tar not found, skipping test\n')
 
-is_wintar, is_bz2_supported = wintar.windows_system_tar_bz2(tar)
+is_wintar, is_bz2_supported = TestSConsTar.windows_system_tar_bz2(tar)
 if is_wintar and not is_bz2_supported:
     test.skip_test('windows tar found; bz2 not supported, skipping test\n')
 
