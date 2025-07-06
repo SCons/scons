@@ -33,6 +33,7 @@ import TestSCons
 
 import os
 import os.path
+import subprocess
 import sys
 
 python = TestSCons.python
@@ -43,20 +44,75 @@ tar = test.detect('TAR', 'tar')
 if not tar:
     test.skip_test('tar not found, skipping test\n')
 
-bz2 = test.where_is('bzip2')
-
 if sys.platform == 'win32':
-    # windows 10 causes fresh problems by supplying a tar, not bzip2
-    # but if git is installed, there's a bzip2 there, but can't be used
-    if not bz2:
-        test.skip_test('tar found, but helper bzip2 not found, skipping test\n')
-    bz2 = os.path.splitdrive(bz2)[1]
-    tar = os.path.splitdrive(test.where_is('tar'))[1]
-    if tar[:8] != bz2[:8]:   # catch one in \WINDOWS, one not
-        test.skip_test('tar found, but usable bzip2 not, skipping test\n')
 
-bz2_path = os.path.dirname(bz2)
+    # Windows 10 and later supplies windows/system32/tar.exe (bsdtar).
+    # Not all versions support bz2 compression.  Check the version string
+    # for bz2lib support.
 
+    def windows_system32_bsdtar_have_bz2(tar):
+
+        # Don't skip test if not confident this is the windows/system32/tar.exe (bsdtar).
+
+        tar = os.path.normcase(os.path.abspath(tar))
+
+        # windows tar.exe:
+        #   %systemroot%/system32/tar.exe
+
+        windir = os.environ.get("SystemRoot")
+        if not windir:
+            windir = os.environ.get("windir")
+        if windir:
+            expected = os.path.normcase(os.path.abspath(os.path.join(windir, "System32", "tar.exe")))
+            if tar != expected:
+                return False
+
+        try:
+            result = subprocess.run([f"{tar}", "--version"], capture_output=True, text=True, check=True)
+            version_str = result.stdout.strip()
+        except:
+            version_str = None
+
+        if not version_str:
+            return False
+
+        # print(f"{tar} --version => {version_str!r}")
+
+        # tar.exe --version (Windows 10, GH windows-2022):
+        #   bsdtar 3.5.2 - libarchive 3.5.2 zlib/1.2.5.f-ipp
+
+        # tar.exe --version (Windows 11):
+        #   bsdtar 3.7.7 - libarchive 3.7.7 zlib/1.2.5.f-ipp liblzma/5.4.3 bz2lib/1.0.8 libzstd/1.5.4
+
+        # tar.exe --version (GH windows-2025):
+        #   bsdtar 3.7.7 - libarchive 3.7.7 zlib/1.2.13.1-motley liblzma/5.4.3 bz2lib/1.0.8 libzstd/1.5.5
+
+        version_comps = version_str.split()
+        if len(version_comps) < 5:
+            return False
+
+        for indx, expected in [
+            (0, "bsdtar"), (2, "-"), (3, "libarchive"),
+        ]:
+            if version_comps[indx].lower() != expected:
+                return False
+
+        # Reasonably confident this is the windows/system32/tar.exe (bsdtar).
+
+        # bsdtar_version = version_comps[1]
+        # libarchive_version = version_comps[4]
+
+        for component in version_comps[5:]:
+            if component.lower().startswith("bz2lib/"):
+                # Don't skip test: bz2/bz2lib appears to be supported.
+                return False
+
+        # Skip test: bz2/bz2lib appears to be unsupported.
+        return True
+
+    skip_test = windows_system32_bsdtar_have_bz2(tar)
+    if skip_test:
+        test.skip_test('windows tar found; bz2 not supported, skipping test\n')
 
 test.subdir('src')
 
@@ -71,14 +127,11 @@ test.write('SConstruct', """
 Program( 'src/main.c' )
 env=Environment(tools=['packaging', 'filesystem', 'tar'])
 
-# needed for windows to prevent picking up windows tar and thinking non-windows bzip2 would work.
-env.PrependENVPath('PATH', r'%s')
-
 env.Package( PACKAGETYPE  = 'src_tarbz2',
              target       = 'src.tar.bz2',
              PACKAGEROOT  = 'test',
              source       = [ 'src/main.c', 'SConstruct' ] )
-"""%bz2_path)
+""")
 
 test.run(arguments='', stderr=None)
 

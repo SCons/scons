@@ -31,7 +31,7 @@ This tests the SRC xz packager, which does the following:
 import os
 import os.path
 import subprocess
-import TestCmd
+import sys
 import TestSCons
 
 python = TestSCons.python
@@ -41,7 +41,7 @@ tar = test.detect('TAR', 'tar')
 if not tar:
     test.skip_test('tar not found, skipping test\n')
 
-if TestCmd.IS_WINDOWS:
+if sys.platform == 'win32':
 
     # Windows 10 and later supplies windows/system32/tar.exe (bsdtar).
     # Not all versions support xz compression.  Check the version string
@@ -66,14 +66,14 @@ if TestCmd.IS_WINDOWS:
 
         try:
             result = subprocess.run([f"{tar}", "--version"], capture_output=True, text=True, check=True)
-            version_str = result.stdout
+            version_str = result.stdout.strip()
         except:
             version_str = None
 
         if not version_str:
             return False
 
-        # print("tar.exe version:", version_str)
+        # print(f"{tar} --version => {version_str!r}")
 
         # tar.exe --version (Windows 10, GH windows-2022):
         #   bsdtar 3.5.2 - libarchive 3.5.2 zlib/1.2.5.f-ipp
