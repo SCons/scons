@@ -28,24 +28,16 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 This tests the SRC xz packager, which does the following:
  - create a tar package from the specified files
 """
-import os.path
-import TestSCons
+import TestSConsTar
 
-python = TestSCons.python
-
-test = TestSCons.TestSCons()
+test = TestSConsTar.TestSConsTar()
 tar = test.detect('TAR', 'tar')
 if not tar:
     test.skip_test('tar not found, skipping test\n')
 
-# Windows 10 now supplies tar, but doesn't support xz compression
-# assume it's just okay to check for an xz command, because don't
-# want to probe the command itself to see what it supports
-xz = test.where_is('xz')
-if not xz:
-    test.skip_test('tar found, but helper xz not found, skipping test\n')
-
-xz_path = os.path.dirname(xz)
+is_wintar, is_xz_supported = TestSConsTar.windows_system_tar_xz(tar)
+if is_wintar and not is_xz_supported:
+    test.skip_test('windows tar found; xz not supported, skipping test\n')
 
 test.subdir('src')
 
@@ -60,14 +52,11 @@ test.write('SConstruct', """
 Program( 'src/main.c' )
 env=Environment(tools=['packaging', 'filesystem', 'tar'])
 
-# needed for windows to prevent picking up windows tar and thinking non-windows bzip2 would work.
-env.PrependENVPath('PATH', r'%s')
-
 env.Package( PACKAGETYPE  = 'src_tarxz',
              target       = 'src.tar.xz',
              PACKAGEROOT  = 'test',
              source       = [ 'src/main.c', 'SConstruct' ] )
-"""%xz_path)
+""")
 
 test.run(arguments='', stderr=None)
 

@@ -146,6 +146,8 @@ DEVELOPMENT
 
 - GitHub: Enable the interactive tests on windows.
 
+- GitHub: Enable the packaging tar xz test on windows.
+
 - GitHub: Exclude two ninja tests that consistently fail on MacOS in
   the experimental tests workflow.
 
@@ -164,6 +166,11 @@ DEVELOPMENT
 - Testing: Increase the default timeout from 20 seconds to 60 seconds
   in the testing framework wait_for method. The timeout was increased
   during isolated experiments of the interactive tests on windows.
+
+- Testing: Update the packaging tar bz2 and xz tests on on Windows.
+  The packaging tar bz2 and xz tests should be skipped on Windows 10
+  and GitHub windows-2022. The packaging tar bz2 and xz tests should
+  be run on Windows 11 and GitHub windows-2025.
 
 - Ninja: Increase the number of generated source files in the
   iterative speedup test from 200 to 250.  Increasing the workload

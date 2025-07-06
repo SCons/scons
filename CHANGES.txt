@@ -74,6 +74,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Testing: Increase the default timeout from 20 seconds to 60
       seconds in the testing framework wait_for method.  At present, the
       wait_for method is only used for the interactive tests.
+    - GitHub: Remove the packaging tar xz test from the windows ci skip file.
+    - Testing: Update the packaging tar bz2 and xz tests on on Windows.
+      Detect if the tar bz2 and xz formats are supported for the windows
+      system tar executable using the reported version string.  The packaging
+      tar bz2 and xz tests should be skipped on Windows 10 and GitHub
+      windows-2022. The packaging tar bz2 and xz tests should be run on
+      Windows 11 and GitHub windows-2025.
 
   From Edward Peek:
     - Fix the variant dir component being missing from generated source file

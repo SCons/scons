@@ -3,7 +3,6 @@ test/CPPDEFINES/pkg-config.py
 test/packaging/msi/explicit-target.py
 test/packaging/msi/file-placement.py
 test/packaging/msi/package.py
-test/packaging/tar/xz_packaging.py
 test/scons-time/run/config/python.py
 test/scons-time/run/option/python.py
 test/sconsign/script/no-SConsignFile.py
