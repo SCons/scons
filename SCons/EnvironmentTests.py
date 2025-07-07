@@ -1769,7 +1769,11 @@ def exists(env):
         env1.AppendENVPath(
             'MYPATH', r'C:\mydir\num\one', 'MYENV', sep=';', delete_existing=True
         )
-        # this should do nothing since delete_existing is false (the default)
+        assert (
+            env1['MYENV']['MYPATH'] == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one'
+        ), env1['MYENV']['MYPATH']
+
+        # this should do nothing since delete_existing is false
         env1.AppendENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
         assert (
             env1['MYENV']['MYPATH'] == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one'
@@ -1786,8 +1790,8 @@ def exists(env):
     def test_AppendUnique(self) -> None:
         """Test appending to unique values to construction variables
 
-        This strips values that are already present when lists are
-        involved."""
+        This strips values that are already present when lists are involved.
+        """
         env = self.TestEnvironment(AAA1 = 'a1',
                           AAA2 = 'a2',
                           AAA3 = 'a3',
@@ -1800,7 +1804,8 @@ def exists(env):
                           BBB5 = ['b5'],
                           CCC1 = '',
                           CCC2 = '',
-                          DDD1 = ['a', 'b', 'c'])
+                          DDD1 = ['a', 'b', 'c'],
+                          DDD2 = ['a', 'a', 'b'])
         env['LL1'] = [env.Literal('a literal'), env.Literal('b literal')]
         env['LL2'] = [env.Literal('c literal'), env.Literal('b literal')]
         env.AppendUnique(AAA1 = 'a1',
@@ -1816,6 +1821,7 @@ def exists(env):
                          CCC1 = 'c1',
                          CCC2 = ['c2'],
                          DDD1 = 'b',
+                         DDD2 = 'a',
                          LL1  = env.Literal('a literal'),
                          LL2  = env.Literal('a literal'))
 
@@ -1832,6 +1838,7 @@ def exists(env):
         assert env['CCC1'] == 'c1', env['CCC1']
         assert env['CCC2'] == ['c2'], env['CCC2']
         assert env['DDD1'] == ['a', 'b', 'c'], env['DDD1']
+        assert env['DDD2'] == ['a', 'a', 'b'], env['DDD2']  # keep existing dup
         assert env['LL1'] == [
             env.Literal('a literal'),
             env.Literal('b literal'),
@@ -1850,6 +1857,9 @@ def exists(env):
 
         env.AppendUnique(DDD1=['e', 'f', 'e'], delete_existing=True)
         assert env['DDD1'] == ['c', 'a', 'b', 'f', 'e'], env['DDD1']  # add last
+
+        env.AppendUnique(DDD2=['a'], delete_existing=True)
+        assert env['DDD2'] == ['b', 'a'], env['DDD2']  # all existing instances deleted
 
         # issue regression: substrings should not be deleted
         env.AppendUnique(BBB4='b4.newer', delete_existing=True)
@@ -2569,7 +2579,8 @@ f5: \
                           BBB5 = ['b5'],
                           CCC1 = '',
                           CCC2 = '',
-                          DDD1 = ['a', 'b', 'c'])
+                          DDD1 = ['a', 'b', 'c'],
+                          DDD2 = ['b', 'a', 'a'])
         env.PrependUnique(AAA1 = 'a1',
                           AAA2 = ['a2'],
                           AAA3 = ['a3', 'b', 'c', 'b', 'a3'], # ignore dups
@@ -2582,7 +2593,8 @@ f5: \
                           BBB5 = ['b5.new'],
                           CCC1 = 'c1',
                           CCC2 = ['c2'],
-                          DDD1 = 'b')
+                          DDD1 = 'b',
+                          DDD2 = 'a')
         assert env['AAA1'] == 'a1a1', env['AAA1']
         assert env['AAA2'] == ['a2'], env['AAA2']
         assert env['AAA3'] == ['c', 'b', 'a3'], env['AAA3']
@@ -2596,6 +2608,7 @@ f5: \
         assert env['CCC1'] == 'c1', env['CCC1']
         assert env['CCC2'] == ['c2'], env['CCC2']
         assert env['DDD1'] == ['a', 'b', 'c'], env['DDD1']
+        assert env['DDD2'] == ['b', 'a', 'a'], env['DDD2']  # keep existing dup
 
         env.PrependUnique(DDD1='b', delete_existing=True)
         assert env['DDD1'] == ['b', 'a', 'c'], env['DDD1']  # b moves to front
@@ -2605,6 +2618,9 @@ f5: \
 
         env.PrependUnique(DDD1=['d', 'e', 'd'], delete_existing=True)
         assert env['DDD1'] == ['d', 'e', 'a', 'c', 'b'], env['DDD1']
+
+        env.PrependUnique(DDD2=['a'], delete_existing=True)
+        assert env['DDD2'] == ['a', 'b'], env['DDD2']  # all existing instances deleted
 
         # issue regression: substrings should not be deleted
         env.PrependUnique(BBB4='b4.newer', delete_existing=True)
