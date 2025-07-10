@@ -778,26 +778,32 @@ See also &f-link-env-AppendUnique;,
 </arguments>
 <summary>
 <para>
-Append path elements specified by <parameter>newpath</parameter>
-to the given search path string or list <parameter>name</parameter>
-in mapping <parameter>envname</parameter> in the &consenv;.
-Supplying <parameter>envname</parameter> is optional:
-the default is the execution environment &cv-link-ENV;.
-Optional <parameter>sep</parameter> is used as the search path separator,
-the default is the platform's separator (<systemitem>os.pathsep</systemitem>).
-A path element will only appear once.
-Any duplicates in <parameter>newpath</parameter> are dropped,
-keeping the last appearing (to preserve path order).
-If <parameter>delete_existing</parameter>
-is <constant>False</constant> (the default)
-any addition duplicating an existing path element is ignored;
-if <parameter>delete_existing</parameter>
-is <constant>True</constant> the existing value will
-be dropped and the path element will be added at the end.
-To help maintain uniqueness all paths are normalized (using
-<systemitem>os.path.normpath</systemitem>
-and
-<systemitem>os.path.normcase</systemitem>).
+Append one or more path prefixes to an entry in a dictionary-valued
+&consvar; in <parameter>env</parameter>.
+The &consvar; to update is <literal>"ENV"</literal>,
+unless <parameter>envname</parameter> is specified.
+The required <parameter>name</parameter> parameter
+gives the dictionary entry to update.
+The prefix(es) in <parameter>newpath</parameter>
+may be specified as a string,
+a directory node, or a list of strings.
+If a string, it may contain multiple prefixes separated
+by the system path separator
+(<systemitem>os.pathsep</systemitem>),
+or, if specified, by the value of <parameter>sep</parameter>.
+Top-relative path strings (starting with <literal>#</literal>) are recognized.
+</para>
+<para>
+Path prefixes will only appear once.
+Duplicate prefixes in <parameter>newpath</parameter> are removed,
+preserving the last occurrence to maintain path order.
+If <parameter>delete_existing</parameter> is true,
+existing duplicates are removed before appending;
+otherwise, new duplicates are skipped
+(the default is false).
+Prefixes are normalized for comparisons to avoid problems of
+"same path, spelled differently",
+but retain their original form in the result.
 </para>
 
 <para>
@@ -1119,8 +1125,8 @@ env4 = env.Clone(tools=['msvc', MyTool])
 The
 <parameter>parse_flags</parameter>
 keyword argument is also recognized, to allow merging command-line
-style arguments into the appropriate construction
-variables (see &f-link-env-MergeFlags;).
+style arguments into the appropriate &consvars;
+(see &f-link-env-MergeFlags;).
 </para>
 
 <example_commands>
@@ -2863,26 +2869,32 @@ and &f-link-env-PrependUnique;.
 </arguments>
 <summary>
 <para>
-Prepend path elements specified by <parameter>newpath</parameter>
-to the given search path string or list <parameter>name</parameter>
-in mapping <parameter>envname</parameter> in the &consenv;.
-Supplying <parameter>envname</parameter> is optional:
-the default is the execution environment &cv-link-ENV;.
-Optional <parameter>sep</parameter> is used as the search path separator,
-the default is the platform's separator (<systemitem>os.pathsep</systemitem>).
-A path element will only appear once.
-Any duplicates in <parameter>newpath</parameter> are dropped,
-keeping the first appearing (to preserve path order).
-If <parameter>delete_existing</parameter>
-is <constant>False</constant>
-any addition duplicating an existing path element is ignored;
-if <parameter>delete_existing</parameter>
-is <constant>True</constant> (the default) the existing value will
-be dropped and the path element will be inserted at the beginning.
-To help maintain uniqueness all paths are normalized (using
-<systemitem>os.path.normpath</systemitem>
-and
-<systemitem>os.path.normcase</systemitem>).
+Prepend one or more path prefixes to an entry in a dictionary-valued
+&consvar; in <parameter>env</parameter>.
+The &consvar; to update is <literal>"ENV"</literal>,
+unless <parameter>envname</parameter> is specified.
+The required <parameter>name</parameter> parameter
+gives the dictionary entry to update.
+The prefix(es) in <parameter>newpath</parameter>
+may be specified as a string,
+a directory node, or a list of strings.
+If a string, it may contain multiple prefixes separated
+by the system path separator
+(<systemitem>os.pathsep</systemitem>),
+or, if specified, by the value of <parameter>sep</parameter>.
+Top-relative path strings (starting with <literal>#</literal>) are recognized.
+</para>
+<para>
+Path prefixes will only appear once.
+Duplicate prefixes in <parameter>newpath</parameter> are removed,
+preserving the last occurrence to maintain path order.
+If <parameter>delete_existing</parameter> is true,
+existing duplicates are removed before prepending;
+otherwise, new duplicates are skipped
+(the default is false).
+Prefixes are normalized for comparisons to avoid problems of
+"same path, spelled differently",
+but retain their original form in the result.
 </para>
 
 <para>
