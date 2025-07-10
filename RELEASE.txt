@@ -143,6 +143,8 @@ DOCUMENTATION
 
 - Improve the wording of Configure methods.
 
+- Improve thw wording of AppendENVPath and PrependENVPath in manpage.
+
 DEVELOPMENT
 -----------
 
@@ -192,6 +194,8 @@ DEVELOPMENT
 - Ninja: Increase the number of generated source files in the
   iterative speedup test from 200 to 250.  Increasing the workload
   should reduce the likelihood that the ninja tests are slower.
+
+- Add more unit tets to internal AppendPath, PrependPath functions.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

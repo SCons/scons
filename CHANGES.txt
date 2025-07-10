@@ -171,6 +171,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       if existing value already contained more than one of added value.
     - Tweak runtest.py and test framework to more reliably get the requested
       Python binary (for odd Windows setups + Python launcher)
+    - Improve thw wording of AppendENVPath and PrependENVPath in manpage.
+    - Add more unit tets to internal AppendPath, PrependPath functions.
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
