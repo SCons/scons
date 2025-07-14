@@ -154,6 +154,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       path munging if a non-default %TEMP% was defined (as in moving to
       a Dev Drive). Also some cleanup.
     - Improve the wording of Configure methods.
+    - Add unit test cases for AppendUnique, PrependUnique - verify behavior
+      if existing value already contained more than one of added value.
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
