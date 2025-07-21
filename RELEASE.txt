@@ -76,6 +76,10 @@ FIXES
 - Fix a test problem on Windows where UNC tests failed due to incorrect path
   munging if a non-default %TEMP% was defined (as in moving to a Dev Drive).
 
+- Fix Issue #4746. TEMPFILE's are written with utf-8 encoding, this doesn't work
+  for all situations. Change to use locale.getpreferredencoding(False), which should
+  yield the encoding for the system.
+
 IMPROVEMENTS
 ------------
 

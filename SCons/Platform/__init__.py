@@ -47,6 +47,7 @@ import importlib
 import os
 import sys
 import tempfile
+import locale
 
 import SCons.Errors
 import SCons.Subst
@@ -279,7 +280,7 @@ class TempFileMunge:
         tempfile_esc_func = env.get('TEMPFILEARGESCFUNC', SCons.Subst.quote_spaces)
         args = [tempfile_esc_func(arg) for arg in cmd[1:]]
         join_char = env.get('TEMPFILEARGJOIN', ' ')
-        os.write(fd, bytearray(join_char.join(args) + "\n", encoding="utf-8"))
+        os.write(fd, bytearray(join_char.join(args) + "\n", encoding=locale.getpreferredencoding(False)))
         os.close(fd)
 
         # XXX Using the SCons.Action.print_actions value directly
