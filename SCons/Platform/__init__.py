@@ -47,11 +47,13 @@ import importlib
 import os
 import sys
 import tempfile
-import locale
 
+import SCons.Action
 import SCons.Errors
+import SCons.Platform
 import SCons.Subst
 import SCons.Tool
+import SCons.Util
 
 
 def platform_default():
@@ -257,7 +259,8 @@ class TempFileMunge:
         else:
             tempfile_dir = None
 
-        fd, tmp = tempfile.mkstemp(suffix, dir=tempfile_dir, text=True)
+        # default is binary - encode the tempfile contents later
+        fd, tmp = tempfile.mkstemp(suffix, dir=tempfile_dir)
         native_tmp = SCons.Util.get_native_path(tmp)
 
         # arrange for cleanup on exit:
@@ -280,7 +283,8 @@ class TempFileMunge:
         tempfile_esc_func = env.get('TEMPFILEARGESCFUNC', SCons.Subst.quote_spaces)
         args = [tempfile_esc_func(arg) for arg in cmd[1:]]
         join_char = env.get('TEMPFILEARGJOIN', ' ')
-        os.write(fd, bytearray(join_char.join(args) + "\n", encoding=locale.getpreferredencoding(False)))
+        encoding = env.get('TEMPFILEENCODING', 'utf-8')
+        os.write(fd, bytes(join_char.join(args) + "\n", encoding=encoding))
         os.close(fd)
 
         # XXX Using the SCons.Action.print_actions value directly
