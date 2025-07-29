@@ -780,11 +780,14 @@ See also &f-link-env-AppendUnique;,
 <para>
 Append one or more path prefixes to an entry in a dictionary-valued
 &consvar; in <parameter>env</parameter>.
-The &consvar; to update is <literal>"ENV"</literal>,
-unless <parameter>envname</parameter> is specified.
+Optional <parameter>envname</parameter> specifies the
+the &consvar; to update;
+the default is <literal>"ENV"</literal>
+(see &cv-link-ENV;).
 The required <parameter>name</parameter> parameter
-gives the dictionary entry to update.
-The prefix(es) in <parameter>newpath</parameter>
+is the dictionary entry to update.
+The prefix(es) to add,
+given by <parameter>newpath</parameter>,
 may be specified as a string,
 a directory node, or a list of strings.
 If a string, it may contain multiple prefixes separated
@@ -2871,11 +2874,14 @@ and &f-link-env-PrependUnique;.
 <para>
 Prepend one or more path prefixes to an entry in a dictionary-valued
 &consvar; in <parameter>env</parameter>.
-The &consvar; to update is <literal>"ENV"</literal>,
-unless <parameter>envname</parameter> is specified.
+Optional <parameter>envname</parameter> specifies the
+the &consvar; to update;
+the default is <literal>"ENV"</literal>
+(see &cv-link-ENV;).
 The required <parameter>name</parameter> parameter
-gives the dictionary entry to update.
-The prefix(es) in <parameter>newpath</parameter>
+is the dictionary entry to update.
+The prefix(es) to insert,
+given by <parameter>newpath</parameter>,
 may be specified as a string,
 a directory node, or a list of strings.
 If a string, it may contain multiple prefixes separated
