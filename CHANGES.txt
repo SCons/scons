@@ -87,6 +87,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       of decoding errors, TEMPFILEENCODING can now be specified to give
       more explicit instructions to SCons.
 
+
   From Edward Peek:
     - Fix the variant dir component being missing from generated source file
       paths with CompilationDatabase() builder (Fixes #4003).

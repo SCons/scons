@@ -47,6 +47,7 @@ import importlib
 import os
 import sys
 import tempfile
+import locale
 
 import SCons.Action
 import SCons.Errors

@@ -83,7 +83,6 @@ FIXES
   as the default path for temporary files includes the username. Setting
   (existing) TEMPFILEDIR may also help in this case.
 
-
 IMPROVEMENTS
 ------------
 
