@@ -76,9 +76,12 @@ FIXES
 - Fix a test problem on Windows where UNC tests failed due to incorrect path
   munging if a non-default %TEMP% was defined (as in moving to a Dev Drive).
 
-- Fix Issue #4746. TEMPFILE's are written with utf-8 encoding, this doesn't work
-  for all situations. Change to use locale.getpreferredencoding(False), which should
-  yield the encoding for the system.
+- Fix Issue #4746. The TEMPFILE is written in utf-8 encoding by default.
+  If the tempfile contents cannot be decoded by the command the
+  tempfile is passed to, (new) TEMPPFILEENCODING can be used to speficy a
+  different encoding to use. On Windows, the username may be a cause of this,
+  as the default path for temporary files includes the username. Setting
+  (existing) TEMPFILEDIR may also help in this case.
 
 IMPROVEMENTS
 ------------

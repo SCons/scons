@@ -83,9 +83,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Windows 11 and GitHub windows-2025.
 
   From William Deegan:
-    - Fix Issue #4746. TEMPFILE's are written with utf-8 encoding, this doesn't work
-      for all situations. Change to use locale.getpreferredencoding(False), which should
-      yield the encoding for the system.
+    - Fix Issue #4746. TEMPFILE's are written with utf-8 encoding, In case
+      of decoding errors, TEMPFILEENCODING can now be specified to give
+      more explicit instructions to SCons.
+
 
   From Edward Peek:
     - Fix the variant dir component being missing from generated source file
