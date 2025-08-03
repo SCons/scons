@@ -9714,8 +9714,8 @@ If you need to apply extra operations on a command argument
 (to fix Windows slashes, normalize paths, etc.)
 before writing to the temporary file,
 you can set the &cv-TEMPFILEARGESCFUNC; variable to a custom function.
-Such a function takes a single string argument and returns
-a new string with any modifications applied.
+The function must accept a single string argument and
+and return a new string with any modifications applied.
 Example:
 </para>
 
@@ -9758,10 +9758,39 @@ Note this value is used literally and not expanded by the subst logic.
     </term>
     <listitem><para>
 The directory to create the long-lines temporary file in.
-If unset, some suitable default should be chosen.
-The default tempfile object lets the &Python;
-<systemitem>tempfile</systemitem> module choose.
+If unset, the &Python;
+<systemitem>tempfile</systemitem> module chooses the directory
+based on the <envar>TMPDIR</envar>,
+<envar>TEMP</envar>
+or <envar>TMP</envar> environment variables.
+If the default path causes processing errors,
+set &cv-TEMPFILEDIR; to a safer alternative.
+For example, on Windows,
+the default temporary file path contains the username.
+If the username contains non-7-bit-ASCII characters,
+there may decoding errors opening the path to the temporary file.
+See also &cv-link-TEMPFILEENCODING;.
 </para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-TEMPFILEENCODING">
+    <term>
+      <envar>TEMPFILEENCODING</envar>
+    </term>
+    <listitem><para>
+By default, the long-lines temporary file (aka "response file") created by the
+&cv-link-TEMPFILE; function will be encoded in the &Python;
+default encoding, UTF-8.
+If the external command which reads the response file
+encounters decoding errors
+(usually, if that command depends on Windows legacy code pages,
+and a pathname in the response file
+or the response file path itself cannot
+be represented in the 7-bit ASCII characer set),
+set this variable to the appropriate codec.
+See also &cv-link-TEMPFILEDIR;.
+</para>
+<para><emphasis>New in version NEXT_RELEASE</emphasis></para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-TEMPFILEPREFIX">

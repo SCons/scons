@@ -591,6 +591,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-TEMPFILEARGESCFUNC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEARGESCFUNC</envar>">
 <!ENTITY cv-TEMPFILEARGJOIN "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEARGJOIN</envar>">
 <!ENTITY cv-TEMPFILEDIR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEDIR</envar>">
+<!ENTITY cv-TEMPFILEENCODING "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEENCODING</envar>">
 <!ENTITY cv-TEMPFILEPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEPREFIX</envar>">
 <!ENTITY cv-TEMPFILESUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILESUFFIX</envar>">
 <!ENTITY cv-TEX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEX</envar>">
@@ -1273,6 +1274,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-TEMPFILEARGESCFUNC "<link linkend='cv-TEMPFILEARGESCFUNC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEARGESCFUNC</envar></link>">
 <!ENTITY cv-link-TEMPFILEARGJOIN "<link linkend='cv-TEMPFILEARGJOIN' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEARGJOIN</envar></link>">
 <!ENTITY cv-link-TEMPFILEDIR "<link linkend='cv-TEMPFILEDIR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEDIR</envar></link>">
+<!ENTITY cv-link-TEMPFILEENCODING "<link linkend='cv-TEMPFILEENCODING' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEENCODING</envar></link>">
 <!ENTITY cv-link-TEMPFILEPREFIX "<link linkend='cv-TEMPFILEPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEPREFIX</envar></link>">
 <!ENTITY cv-link-TEMPFILESUFFIX "<link linkend='cv-TEMPFILESUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILESUFFIX</envar></link>">
 <!ENTITY cv-link-TEX "<link linkend='cv-TEX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEX</envar></link>">
