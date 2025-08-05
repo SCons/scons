@@ -252,6 +252,7 @@ class TempFileMunge:
         tempfile_esc_func = env.get('TEMPFILEARGESCFUNC', SCons.Subst.quote_spaces)
         args = [tempfile_esc_func(arg) for arg in cmd[1:]]
         join_char = env.get('TEMPFILEARGJOIN', ' ')
+        contents = join_char.join(args) + "\n"
 
         if 'TEMPFILEENCODING' in env:
             encoding = env['TEMPFILEENCODING']
@@ -275,7 +276,7 @@ class TempFileMunge:
             return exc_type, exc_args
 
         try:
-            tempfile_contents= bytes(join_char.join(args) + "\n", encoding=encoding)
+            tempfile_contents= bytes(contents, encoding=encoding)
         except (UnicodeError, LookupError, TypeError) as e:
             exc_type, exc_args = _encoding_exception_helper(e, encoding_isuser)
             raise exc_type(*exc_args) from e
