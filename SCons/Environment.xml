@@ -778,33 +778,38 @@ See also &f-link-env-AppendUnique;,
 </arguments>
 <summary>
 <para>
-Append one or more path prefixes to an entry in a dictionary-valued
-&consvar; in <parameter>env</parameter>.
-Optional <parameter>envname</parameter> specifies the
-the &consvar; to update;
+Append directory paths from
+<parameter>newpath</parameter> to
+a search-path entry <parameter>name</parameter>
+in &consvar; <parameter>envname</parameter>
+in the current enviromment (<parameter>env</parameter>).
+If <parameter>envname</parameter> is not given,
 the default is <literal>"ENV"</literal>
 (see &cv-link-ENV;).
-The required <parameter>name</parameter> parameter
-is the dictionary entry to update.
-The prefix(es) to add,
-given by <parameter>newpath</parameter>,
+<parameter>envname</parameter> is expected
+to refer to a dictionary-like object;
+if it does not exist in <parameter>env</parameter>
+it will be created as an initially empty dict.
+<parameter>newpath</parameter>
 may be specified as a string,
 a directory node, or a list of strings.
-If a string, it may contain multiple prefixes separated
+If a string, it may contain multiple paths separated
 by the system path separator
 (<systemitem>os.pathsep</systemitem>),
 or, if specified, by the value of <parameter>sep</parameter>.
 Top-relative path strings (starting with <literal>#</literal>) are recognized.
+The type of the existing value
+of <parameter>name</parameter> is preserved.
 </para>
+
 <para>
-Path prefixes will only appear once.
-Duplicate prefixes in <parameter>newpath</parameter> are removed,
+Paths will only appear once.
+Duplicate paths in <parameter>newpath</parameter> are removed,
 preserving the last occurrence to maintain path order.
-If <parameter>delete_existing</parameter> is true,
-existing duplicates are removed before appending;
-otherwise, new duplicates are skipped
-(the default is false).
-Prefixes are normalized for comparisons to avoid problems of
+If <parameter>delete_existing</parameter> is true (the default),
+existing duplicates are removed before appending,
+otherwise, new duplicates are skipped.
+Paths are normalized during comparisons to avoid problems of
 "same path, spelled differently",
 but retain their original form in the result.
 </para>
@@ -2872,33 +2877,38 @@ and &f-link-env-PrependUnique;.
 </arguments>
 <summary>
 <para>
-Prepend one or more path prefixes to an entry in a dictionary-valued
-&consvar; in <parameter>env</parameter>.
-Optional <parameter>envname</parameter> specifies the
-the &consvar; to update;
+Prepend directory paths from
+<parameter>newpath</parameter> to
+a search-path entry <parameter>name</parameter>
+in &consvar; <parameter>envname</parameter>
+in the current enviromment (<parameter>env</parameter>).
+If <parameter>envname</parameter> is not given,
 the default is <literal>"ENV"</literal>
 (see &cv-link-ENV;).
-The required <parameter>name</parameter> parameter
-is the dictionary entry to update.
-The prefix(es) to insert,
-given by <parameter>newpath</parameter>,
+<parameter>envname</parameter> is expected
+to refer to a dictionary-like object;
+if it does not exist in <parameter>env</parameter>
+it will be created as an initially empty dict.
+<parameter>newpath</parameter>
 may be specified as a string,
 a directory node, or a list of strings.
-If a string, it may contain multiple prefixes separated
+If a string, it may contain multiple paths separated
 by the system path separator
 (<systemitem>os.pathsep</systemitem>),
 or, if specified, by the value of <parameter>sep</parameter>.
 Top-relative path strings (starting with <literal>#</literal>) are recognized.
+The type of the existing value
+of <parameter>name</parameter> is preserved.
 </para>
+
 <para>
-Path prefixes will only appear once.
-Duplicate prefixes in <parameter>newpath</parameter> are removed,
-preserving the last occurrence to maintain path order.
-If <parameter>delete_existing</parameter> is true,
-existing duplicates are removed before prepending;
-otherwise, new duplicates are skipped
-(the default is false).
-Prefixes are normalized for comparisons to avoid problems of
+Paths will only appear once.
+Duplicate paths in <parameter>newpath</parameter> are removed,
+preserving the first occurrence to maintain path order.
+If <parameter>delete_existing</parameter> is true (the default),
+existing duplicates are removed before prepending,
+otherwise, new duplicates are skipped.
+Paths are normalized during comparisons to avoid problems of
 "same path, spelled differently",
 but retain their original form in the result.
 </para>

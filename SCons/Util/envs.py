@@ -30,10 +30,11 @@ def PrependPath(
 
     Will only add any particular path once (leaving the first one it
     encounters and ignoring the rest, to preserve path order), and will
-    :mod:`os.path.normpath` and :mod:`os.path.normcase` all paths to help
-    assure this.  This can also handle the case where *oldpath*
-    is a list instead of a string, in which case a list will be returned
-    instead of a string. For example:
+    :mod:`os.path.normpath` and :mod:`os.path.normcase` all paths
+    for comparisons to help assure this. *oldpath* may be a list
+    instead of a string, in which case a list is returned.
+
+    Example:
 
     >>> p = PrependPath("/foo/bar:/foo", "/biz/boom:/foo")
     >>> print(p)
@@ -120,10 +121,11 @@ def AppendPath(
 
     Will only add any particular path once (leaving the last one it
     encounters and ignoring the rest, to preserve path order), and will
-    :mod:`os.path.normpath` and :mod:`os.path.normcase` all paths to help
-    assure this.  This can also handle the case where *oldpath*
-    is a list instead of a string, in which case a list will be returned
-    instead of a string. For example:
+    :mod:`os.path.normpath` and :mod:`os.path.normcase` all paths
+    for comparisons to help assure this. *oldpath* may be a list
+    instead of a string, in which case a list is returned.
+
+    Example:
 
     >>> p = AppendPath("/foo/bar:/foo", "/biz/boom:/foo")
     >>> print(p)
