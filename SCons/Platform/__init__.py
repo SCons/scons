@@ -146,6 +146,9 @@ class PlatformSpec:
         return self.name
 
 
+TEMPFILE_DEFAULT_ENCODING = "utf-8"
+
+
 class TempFileMunge:
     """Convert long command lines to use a temporary file.
 
@@ -246,6 +249,37 @@ class TempFileMunge:
         if cmdlist is not None:
             return cmdlist
 
+        tempfile_esc_func = env.get('TEMPFILEARGESCFUNC', SCons.Subst.quote_spaces)
+        args = [tempfile_esc_func(arg) for arg in cmd[1:]]
+        join_char = env.get('TEMPFILEARGJOIN', ' ')
+
+        if 'TEMPFILEENCODING' in env:
+            encoding = env['TEMPFILEENCODING']
+            encoding_isuser = True
+        else:
+            encoding = TEMPFILE_DEFAULT_ENCODING
+            encoding_isuser = False
+
+        def _encoding_exception_helper(exc, encoding_isuser):
+            # MUST be called from exception handler
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            encoding_msg = "env['TEMPFILEENCODING']" if encoding_isuser else "default"
+            if exc_type is UnicodeEncodeError:
+                err_msg = str(exc.reason)
+                exc_args = [exc.encoding, exc.object, exc.start, e.end]
+            else:
+                err_msg = str(exc_value)
+                exc_args = []
+            err_msg += f"\n  {type(self).__name__} encoding error ({encoding_msg}={encoding!r}):"
+            exc_args.append(err_msg)
+            return exc_type, exc_args
+
+        try:
+            tempfile_contents= bytes(join_char.join(args) + "\n", encoding=encoding)
+        except (UnicodeError, LookupError, TypeError) as e:
+            exc_type, exc_args = _encoding_exception_helper(e, encoding_isuser)
+            raise exc_type(*exc_args) from e
+
         # Default to the .lnk suffix for the benefit of the Phar Lap
         # linkloc linker, which likes to append an .lnk suffix if
         # none is given.
@@ -262,6 +296,12 @@ class TempFileMunge:
 
         # default is binary - encode the tempfile contents later
         fd, tmp = tempfile.mkstemp(suffix, dir=tempfile_dir)
+
+        try:
+            os.write(fd, tempfile_contents)
+        finally:
+            os.close(fd)
+
         native_tmp = SCons.Util.get_native_path(tmp)
 
         # arrange for cleanup on exit:
@@ -280,13 +320,6 @@ class TempFileMunge:
             prefix = env.subst('$TEMPFILEPREFIX')
         else:
             prefix = "@"
-
-        tempfile_esc_func = env.get('TEMPFILEARGESCFUNC', SCons.Subst.quote_spaces)
-        args = [tempfile_esc_func(arg) for arg in cmd[1:]]
-        join_char = env.get('TEMPFILEARGJOIN', ' ')
-        encoding = env.get('TEMPFILEENCODING', 'utf-8')
-        os.write(fd, bytes(join_char.join(args) + "\n", encoding=encoding))
-        os.close(fd)
 
         # XXX Using the SCons.Action.print_actions value directly
         # like this is bogus, but expedient.  This class should
