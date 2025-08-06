@@ -260,7 +260,7 @@ class TempFileMunge:
         encoding = env.get('TEMPFILEENCODING', TEMPFILE_DEFAULT_ENCODING)
 
         try:
-            tempfile_contents= bytes(contents, encoding=encoding)
+            tempfile_contents = bytes(contents, encoding=encoding)
         except (UnicodeError, LookupError, TypeError):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             if 'TEMPFILEENCODING' in env:
