@@ -57,7 +57,7 @@ import SCons.Tool
 import SCons.Util
 
 
-class TempFileEncodeError(SCons.Errors.UserError):
+class TempFileEncodeError(Exception):
     pass
 
 
