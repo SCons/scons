@@ -57,6 +57,9 @@ import SCons.Tool
 import SCons.Util
 
 
+TEMPFILE_DEFAULT_ENCODING = "utf-8"
+
+
 class TempFileEncodeError(Exception):
     pass
 
@@ -148,9 +151,6 @@ class PlatformSpec:
 
     def __str__(self) -> str:
         return self.name
-
-
-TEMPFILE_DEFAULT_ENCODING = "utf-8"
 
 
 class TempFileMunge:
@@ -262,12 +262,12 @@ class TempFileMunge:
         try:
             tempfile_contents = bytes(contents, encoding=encoding)
         except (UnicodeError, LookupError, TypeError):
-            exc_type, exc_value, exc_traceback = sys.exc_info()
+            exc_type, exc_value, _ = sys.exc_info()
             if 'TEMPFILEENCODING' in env:
                 encoding_msg = "env['TEMPFILEENCODING']"
             else:
                 encoding_msg = "default"
-            err_msg = f"[{exc_type.__name__}] {str(exc_value)}"
+            err_msg = f"[{exc_type.__name__}] {exc_value!s}"
             err_msg += f"\n  {type(self).__name__} encoding: {encoding_msg} = {encoding!r}"
             raise TempFileEncodeError(err_msg) from None
 
