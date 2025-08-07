@@ -75,7 +75,7 @@ scons\:.*
 
 expected_fail = """\
 TempFileEncodeError\\s*\: TempFileEncodeError \[{exception}\] .+
-  TempFileMunge encoding\: env\['TEMPFILEENCODINGx'\] = {encoding!r}
+  TempFileMunge encoding\: env\['TEMPFILEENCODING'\] = {encoding!r}
 scons\:.*
 """
 
