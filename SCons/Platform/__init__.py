@@ -60,7 +60,7 @@ import SCons.Util
 TEMPFILE_DEFAULT_ENCODING = "utf-8"
 
 
-class TempFileEncodeError(Exception):
+class TempFileEncodeError(SCons.Errors.UserError):
     pass
 
 
@@ -267,9 +267,10 @@ class TempFileMunge:
                 encoding_msg = "env['TEMPFILEENCODING']"
             else:
                 encoding_msg = "default"
-            err_msg = f"[{exc_type.__name__}] {exc_value!s}"
+            new_exc = TempFileEncodeError
+            err_msg = f"{new_exc.__name__} [{exc_type.__name__}] {exc_value!s}"
             err_msg += f"\n  {type(self).__name__} encoding: {encoding_msg} = {encoding!r}"
-            raise TempFileEncodeError(err_msg) from None
+            raise new_exc(err_msg) from None
 
         # Default to the .lnk suffix for the benefit of the Phar Lap
         # linkloc linker, which likes to append an .lnk suffix if

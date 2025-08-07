@@ -74,8 +74,8 @@ scons\:.*
 """
 
 expected_fail = """\
-TempFileEncodeError\\s*\: \[{exception}\] .+
-  TempFileMunge encoding\: env\['TEMPFILEENCODING'\] = {encoding!r}
+TempFileEncodeError\\s*\: TempFileEncodeError \[{exception}\] .+
+  TempFileMunge encoding\: env\['TEMPFILEENCODINGx'\] = {encoding!r}
 scons\:.*
 """
 
@@ -85,7 +85,7 @@ SCons\.Platform\.TEMPFILE_DEFAULT_ENCODING = {encoding!r}
 
 expected_fail_default = """\
 SCons\.Platform\.TEMPFILE_DEFAULT_ENCODING = {encoding!r}
-TempFileEncodeError\\s*\: \[{exception}\] .+
+TempFileEncodeError\\s*\: TempFileEncodeError \[{exception}\] .+
   TempFileMunge encoding\: default = {encoding!r}
 scons\:.*
 """
