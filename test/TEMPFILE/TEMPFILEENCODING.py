@@ -64,7 +64,7 @@ try:
     tfm(None, None, env, 0)
 except Exception:
     exc_type, exc_value, _ = sys.exc_info()
-    print(f"{{exc_type.__name__}} : {{str(exc_value)}}")
+    print(f"{{str(exc_value)}}")
 """
 
 expected_pass = """\
@@ -74,7 +74,7 @@ scons\:.*
 """
 
 expected_fail = """\
-TempFileEncodeError\\s*\: TempFileEncodeError \[{exception}\] .+
+TempFileEncodeError: \[{exception}\] .+
   TempFileMunge encoding\: env\['TEMPFILEENCODING'\] = {encoding!r}
 scons\:.*
 """
@@ -85,7 +85,7 @@ SCons\.Platform\.TEMPFILE_DEFAULT_ENCODING = {encoding!r}
 
 expected_fail_default = """\
 SCons\.Platform\.TEMPFILE_DEFAULT_ENCODING = {encoding!r}
-TempFileEncodeError\\s*\: TempFileEncodeError \[{exception}\] .+
+TempFileEncodeError: \[{exception}\] .+
   TempFileMunge encoding\: default = {encoding!r}
 scons\:.*
 """

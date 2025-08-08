@@ -61,7 +61,11 @@ TEMPFILE_DEFAULT_ENCODING = "utf-8"
 
 
 class TempFileEncodeError(SCons.Errors.UserError):
-    pass
+
+    @classmethod
+    def factory(cls, errmsg):
+        errmsg = f"{cls.__name__}: {errmsg!s}"
+        return TempFileEncodeError(errmsg)
 
 
 def platform_default():
@@ -267,10 +271,9 @@ class TempFileMunge:
                 encoding_msg = "env['TEMPFILEENCODING']"
             else:
                 encoding_msg = "default"
-            new_exc = TempFileEncodeError
-            err_msg = f"{new_exc.__name__} [{exc_type.__name__}] {exc_value!s}"
+            err_msg = f"[{exc_type.__name__}] {exc_value!s}"
             err_msg += f"\n  {type(self).__name__} encoding: {encoding_msg} = {encoding!r}"
-            raise new_exc(err_msg) from None
+            raise TempFileEncodeError.factory(err_msg)
 
         # Default to the .lnk suffix for the benefit of the Phar Lap
         # linkloc linker, which likes to append an .lnk suffix if
