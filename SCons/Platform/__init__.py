@@ -65,7 +65,7 @@ class TempFileEncodeError(SCons.Errors.UserError):
     @classmethod
     def factory(cls, errmsg):
         errmsg = f"{cls.__name__}: {errmsg!s}"
-        return TempFileEncodeError(errmsg)
+        return cls(errmsg)
 
 
 def platform_default():
