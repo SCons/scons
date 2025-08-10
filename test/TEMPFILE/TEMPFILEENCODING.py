@@ -35,7 +35,6 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 SCONSTRUCT_TEMPLATE="""
-import sys
 import SCons.Platform
 
 command = 'xyz ./test€/file.c'
@@ -62,9 +61,8 @@ tfm = SCons.Platform.TempFileMunge(command)
 
 try:
     tfm(None, None, env, 0)
-except Exception:
-    exc_type, exc_value, _ = sys.exc_info()
-    print(f"{{str(exc_value)}}")
+except SCons.Platform.TempFileEncodeError as e:
+    print(str(e))
 """
 
 expected_pass = """\
