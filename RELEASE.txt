@@ -83,6 +83,9 @@ FIXES
   as the default path for temporary files includes the username. Setting
   (existing) TEMPFILEDIR may also help in this case.
 
+- Tweak runtest.py and test framework to more reliably get the requested
+  Python binary (for odd Windows setups + Python launcher)
+
 IMPROVEMENTS
 ------------
 

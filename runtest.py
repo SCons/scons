@@ -1,7 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/python
+#
+# SPDX-License-Identifier: MIT
 #
 # Copyright The SCons Foundation
-#
+
 """runtest - wrapper script for running SCons tests
 
 The SCons test suite consists of:
