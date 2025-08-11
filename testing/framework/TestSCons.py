@@ -1724,7 +1724,15 @@ SConscript(sconscript)
 
         Returns a path to a Python executable suitable for testing on
         this platform and its associated include path, library path and
-        library name.
+        library name. ``runtest.py`` sets an environment variable with the
+        desired Python path, so if we're started from there, use that.
+
+        This exists because of SWIG, which may need to build things against
+        the Python header and library.  The approach is a bit of a large
+        hammer: we run a script like we would a test, and capture the results,
+        rather than querying the running Python. This supports the test
+        runner's ``-P`` option to specify an alternate Python, otherwise
+        we wouldn't need to be this complex.
 
         If the Python executable or Python header (if required)
         is not found, the test is skipped.
@@ -1732,7 +1740,7 @@ SConscript(sconscript)
         Returns:
             tuple: path to python, include path, library path, library name
         """
-        python = os.environ.get('python_executable', self.where_is('python'))
+        python = os.environ.get('python_executable', sys.executable)
         if not python:
             self.skip_test(
                 'Can not find installed "python", skipping test.\n', from_fw=True
