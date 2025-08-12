@@ -1,0 +1,64 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+import SCons.Errors
+import SCons.Script
+
+SCons.Script.AddOption(
+    '--encoding',
+    dest='encoding',
+    type='string',
+    nargs=1,
+    default='',
+    action='store',
+    help='tempfile encoding string',
+)
+
+SCons.Script.AddOption(
+    '--set-tempfile-encoding',
+    dest='tempfileencoding',
+    default=False,
+    action='store_const',
+    const=True,
+    help='set tempfile encoding: false (default) or true',
+)
+
+SCons.Script.AddOption(
+    '--set-default-encoding',
+    dest='defaultencoding',
+    default=False,
+    action='store_const',
+    const=True,
+    help='set default encoding: false (default) or true',
+)
+
+encoding = SCons.Script.GetOption('encoding').lower()
+if encoding in ('none',):
+    encoding = None
+
+tempfileencoding = SCons.Script.GetOption('tempfileencoding')
+defaultencoding = SCons.Script.GetOption('defaultencoding')
+
+command = 'xyz ./test€/file.c'
+
+DefaultEnvironment(tools=[])
+
+if defaultencoding:
+    SCons.Platform.TEMPFILE_DEFAULT_ENCODING = encoding
+    print(f"SCons.Platform.TEMPFILE_DEFAULT_ENCODING = {encoding!r}")
+
+env = Environment(
+    tools=[],
+    MAXLINELENGTH=2,
+)
+
+if tempfileencoding:
+    env['TEMPFILEENCODING'] = encoding
+
+tfm = SCons.Platform.TempFileMunge(command)
+
+try:
+    tfm(None, None, env, 0)
+except SCons.Errors.UserError as e:
+    print(str(e))

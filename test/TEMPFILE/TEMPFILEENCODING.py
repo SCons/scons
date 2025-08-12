@@ -34,36 +34,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-SCONSTRUCT_TEMPLATE="""
-import SCons.Platform
-
-command = 'xyz ./test€/file.c'
-encoding = {encoding!r}
-
-tempfileencoding = {tempfileencoding}
-defaultencoding = {defaultencoding}
-
-DefaultEnvironment()
-
-if defaultencoding:
-    SCons.Platform.TEMPFILE_DEFAULT_ENCODING = encoding
-    print("SCons.Platform.TEMPFILE_DEFAULT_ENCODING = {encoding!r}")
-
-env = Environment(
-    tools=[],
-    MAXLINELENGTH=2,
-)
-
-if tempfileencoding:
-    env['TEMPFILEENCODING'] = encoding
-
-tfm = SCons.Platform.TempFileMunge(command)
-
-try:
-    tfm(None, None, env, 0)
-except SCons.Platform.TempFileEncodeError as e:
-    print(str(e))
-"""
+test.file_fixture('fixture/SConstruct-tempfile-encoding', 'SConstruct')
 
 expected_pass = """\
 Using tempfile \\S+ for command line:
@@ -72,7 +43,7 @@ scons\:.*
 """
 
 expected_fail = """\
-TempFileEncodeError: \[{exception}\] .+
+tempfile encoding error: \[{exception}\] .+
   TempFileMunge encoding\: env\['TEMPFILEENCODING'\] = {encoding!r}
 scons\:.*
 """
@@ -83,7 +54,7 @@ SCons\.Platform\.TEMPFILE_DEFAULT_ENCODING = {encoding!r}
 
 expected_fail_default = """\
 SCons\.Platform\.TEMPFILE_DEFAULT_ENCODING = {encoding!r}
-TempFileEncodeError: \[{exception}\] .+
+tempfile encoding error: \[{exception}\] .+
   TempFileMunge encoding\: default = {encoding!r}
 scons\:.*
 """
@@ -106,16 +77,18 @@ for test_encoding, test_tempfileencoding, test_defaultencoding, test_expected in
 
 ]:
 
-    sconstruct = SCONSTRUCT_TEMPLATE.format(
-        encoding = test_encoding,
-        tempfileencoding = test_tempfileencoding,
-        defaultencoding = test_defaultencoding,
-    )
-    
-    test.write('SConstruct', sconstruct)
+    args = []
+    if test_encoding != "":
+        args.append(f'--encoding={test_encoding}')
+    if test_tempfileencoding:
+        args.append("--set-tempfile-encoding")
+    if test_defaultencoding:
+        args.append("--set-default-encoding")
+
+    argstr = " ".join(args)
 
     test.run(
-        arguments='-n -Q .',
+        arguments=f'-n -Q . {argstr}',
         stdout=test_expected,
         match=TestSCons.match_re,
     )
