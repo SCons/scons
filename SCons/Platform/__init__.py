@@ -57,6 +57,9 @@ import SCons.Tool
 import SCons.Util
 
 
+TEMPFILE_DEFAULT_ENCODING = "utf-8"
+
+
 def platform_default():
     r"""Return the platform string for our execution environment.
 
@@ -246,6 +249,24 @@ class TempFileMunge:
         if cmdlist is not None:
             return cmdlist
 
+        tempfile_esc_func = env.get('TEMPFILEARGESCFUNC', SCons.Subst.quote_spaces)
+        args = [tempfile_esc_func(arg) for arg in cmd[1:]]
+        join_char = env.get('TEMPFILEARGJOIN', ' ')
+        contents = join_char.join(args) + "\n"
+        encoding = env.get('TEMPFILEENCODING', TEMPFILE_DEFAULT_ENCODING)
+
+        try:
+            tempfile_contents = bytes(contents, encoding=encoding)
+        except (UnicodeError, LookupError, TypeError):
+            exc_type, exc_value, _ = sys.exc_info()
+            if 'TEMPFILEENCODING' in env:
+                encoding_msg = "env['TEMPFILEENCODING']"
+            else:
+                encoding_msg = "default"
+            err_msg = f"tempfile encoding error: [{exc_type.__name__}] {exc_value!s}"
+            err_msg += f"\n  {type(self).__name__} encoding: {encoding_msg} = {encoding!r}"
+            raise SCons.Errors.UserError(err_msg)
+
         # Default to the .lnk suffix for the benefit of the Phar Lap
         # linkloc linker, which likes to append an .lnk suffix if
         # none is given.
@@ -262,6 +283,12 @@ class TempFileMunge:
 
         # default is binary - encode the tempfile contents later
         fd, tmp = tempfile.mkstemp(suffix, dir=tempfile_dir)
+
+        try:
+            os.write(fd, tempfile_contents)
+        finally:
+            os.close(fd)
+
         native_tmp = SCons.Util.get_native_path(tmp)
 
         # arrange for cleanup on exit:
@@ -280,13 +307,6 @@ class TempFileMunge:
             prefix = env.subst('$TEMPFILEPREFIX')
         else:
             prefix = "@"
-
-        tempfile_esc_func = env.get('TEMPFILEARGESCFUNC', SCons.Subst.quote_spaces)
-        args = [tempfile_esc_func(arg) for arg in cmd[1:]]
-        join_char = env.get('TEMPFILEARGJOIN', ' ')
-        encoding = env.get('TEMPFILEENCODING', 'utf-8')
-        os.write(fd, bytes(join_char.join(args) + "\n", encoding=encoding))
-        os.close(fd)
 
         # XXX Using the SCons.Action.print_actions value directly
         # like this is bogus, but expedient.  This class should

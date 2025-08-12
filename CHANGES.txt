@@ -81,6 +81,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       tar bz2 and xz tests should be skipped on Windows 10 and GitHub
       windows-2022. The packaging tar bz2 and xz tests should be run on
       Windows 11 and GitHub windows-2025.
+    - TEMPFILE: Move encoding the tempfile contents before creating the
+      tempfile due to possible encoding errors. Ensure the tempfile file
+      handle is closed after writing the tempfile contents. Raise a
+      TempFileEncodeError exception when the tempfile contents encoding fails
+      for known exception types.
 
   From William Deegan:
     - Fix Issue #4746. TEMPFILE's are written with utf-8 encoding, In case

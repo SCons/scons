@@ -44,6 +44,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   these variables and values are propagated to the user's SCons
   environment after running the MSVC batch files.
 
+- TEMPFILE: A TempFileEncodeError exception is raised when encoding
+  the contents of the tempfile fails due to a limited set of expected
+  exceptions (e.g., UnicodeError).
+
 FIXES
 -----
 
