@@ -84,8 +84,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - TEMPFILE: Move encoding the tempfile contents before creating the
       tempfile due to possible encoding errors. Ensure the tempfile file
       handle is closed after writing the tempfile contents. Raise a
-      TempFileEncodeError exception when the tempfile contents encoding fails
+      UserError exception when the tempfile contents encoding fails
       for known exception types.
+    - TEMPFILE: Fix the tempfile encoding test regex strings to eliminate
+      warnings in python 3.12 and 3.13.
 
   From William Deegan:
     - Fix Issue #4746. TEMPFILE's are written with utf-8 encoding, In case
