@@ -44,7 +44,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   these variables and values are propagated to the user's SCons
   environment after running the MSVC batch files.
 
-- TEMPFILE: A TempFileEncodeError exception is raised when encoding
+- TEMPFILE: A UserError exception is raised when encoding
   the contents of the tempfile fails due to a limited set of expected
   exceptions (e.g., UnicodeError).
 
@@ -89,6 +89,9 @@ FIXES
 
 - Tweak runtest.py and test framework to more reliably get the requested
   Python binary (for odd Windows setups + Python launcher)
+
+- Fix the tempfile encoding test regex strings to eliminate warnings in
+  python 3.12 and 3.13.
 
 IMPROVEMENTS
 ------------

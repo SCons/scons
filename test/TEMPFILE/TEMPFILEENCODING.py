@@ -39,24 +39,24 @@ test.file_fixture('fixture/SConstruct-tempfile-encoding', 'SConstruct')
 expected_pass = """\
 Using tempfile \\S+ for command line:
 xyz \\S+
-scons\:.*
+scons:.*
 """
 
 expected_fail = """\
-tempfile encoding error: \[{exception}\] .+
-  TempFileMunge encoding\: env\['TEMPFILEENCODING'\] = {encoding!r}
-scons\:.*
+tempfile encoding error: \\[{exception}\\] .+
+  TempFileMunge encoding: env\\['TEMPFILEENCODING'\\] = {encoding!r}
+scons:.*
 """
 
 expected_pass_default = """\
-SCons\.Platform\.TEMPFILE_DEFAULT_ENCODING = {encoding!r}
+SCons[.]Platform[.]TEMPFILE_DEFAULT_ENCODING = {encoding!r}
 """ + expected_pass
 
 expected_fail_default = """\
-SCons\.Platform\.TEMPFILE_DEFAULT_ENCODING = {encoding!r}
-tempfile encoding error: \[{exception}\] .+
-  TempFileMunge encoding\: default = {encoding!r}
-scons\:.*
+SCons[.]Platform[.]TEMPFILE_DEFAULT_ENCODING = {encoding!r}
+tempfile encoding error: \\[{exception}\\] .+
+  TempFileMunge encoding: default = {encoding!r}
+scons:.*
 """
 
 for test_encoding, test_tempfileencoding, test_defaultencoding, test_expected in [
