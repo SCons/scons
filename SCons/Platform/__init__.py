@@ -43,11 +43,12 @@ their own platform definition.
 import SCons.compat
 
 import atexit
+import contextlib
 import importlib
+import locale
 import os
 import sys
 import tempfile
-import locale
 
 import SCons.Action
 import SCons.Errors
@@ -249,12 +250,13 @@ class TempFileMunge:
         if cmdlist is not None:
             return cmdlist
 
+        # try encoding the tempfile data before creating the file -
+        # avoid orphaned files
         tempfile_esc_func = env.get('TEMPFILEARGESCFUNC', SCons.Subst.quote_spaces)
         args = [tempfile_esc_func(arg) for arg in cmd[1:]]
         join_char = env.get('TEMPFILEARGJOIN', ' ')
         contents = join_char.join(args) + "\n"
         encoding = env.get('TEMPFILEENCODING', TEMPFILE_DEFAULT_ENCODING)
-
         try:
             tempfile_contents = bytes(contents, encoding=encoding)
         except (UnicodeError, LookupError, TypeError):
@@ -281,32 +283,20 @@ class TempFileMunge:
         else:
             tempfile_dir = None
 
-        # default is binary - encode the tempfile contents later
         fd, tmp = tempfile.mkstemp(suffix, dir=tempfile_dir)
-
         try:
             os.write(fd, tempfile_contents)
         finally:
             os.close(fd)
-
         native_tmp = SCons.Util.get_native_path(tmp)
 
         # arrange for cleanup on exit:
 
         def tmpfile_cleanup(file) -> None:
-            os.remove(file)
+            with contextlib.suppress(FileNotFoundError):
+                os.remove(file)
 
         atexit.register(tmpfile_cleanup, tmp)
-
-        if env.get('SHELL', None) == 'sh':
-            # The sh shell will try to escape the backslashes in the
-            # path, so unescape them.
-            native_tmp = native_tmp.replace('\\', r'\\\\')
-
-        if 'TEMPFILEPREFIX' in env:
-            prefix = env.subst('$TEMPFILEPREFIX')
-        else:
-            prefix = "@"
 
         # XXX Using the SCons.Action.print_actions value directly
         # like this is bogus, but expedient.  This class should
@@ -337,10 +327,18 @@ class TempFileMunge:
                 )
                 self._print_cmd_str(target, source, env, cmdstr)
 
+        if env.get('SHELL', None) == 'sh':
+            # The sh shell will try to escape the backslashes in the
+            # path, so unescape them.
+            native_tmp = native_tmp.replace('\\', r'\\\\')
+        if 'TEMPFILEPREFIX' in env:
+            prefix = env.subst('$TEMPFILEPREFIX')
+        else:
+            prefix = "@"
         cmdlist = [cmd[0], prefix + native_tmp]
 
         # Store the temporary file command list into the target Node.attributes
-        # to avoid creating two temporary files one for print and one for execute.
+        # to avoid creating separate temporary files for print and execute.
         if node is not None:
             try:
                 # Storing in tempfile_cmdlist by self.cmd provided when intializing
