@@ -51,9 +51,9 @@ import SCons.Warnings
 # control execution in interesting ways.
 # Note these really should be unified - either controlled by vs.py,
 # or synced with the the common_tools_var # settings in vs.py.
-VS_VC_VARS = [
+_MSVC_ENVIRON_IMPORT = (
     'COMSPEC',  # path to "shell"
-    'OS', # name of OS family: Windows_NT or undefined (95/98/ME)
+    'OS',  # name of OS family: Windows_NT or undefined (95/98/ME)
     'VS170COMNTOOLS',  # path to common tools for given version
     'VS160COMNTOOLS',
     'VS150COMNTOOLS',
@@ -66,15 +66,37 @@ VS_VC_VARS = [
     'VS71COMNTOOLS',
     'VSCOMNTOOLS',
     'MSDevDir',
-    'VSCMD_DEBUG',   # enable logging and other debug aids
+    'VSCMD_DEBUG',  # enable logging and other debug aids
     'VSCMD_SKIP_SENDTELEMETRY',
-    'windir', # windows directory (SystemRoot not available in 95/98/ME)
+    'windir',  # windows directory (SystemRoot not available in 95/98/ME)
     'VCPKG_DISABLE_METRICS',
     'VCPKG_ROOT',
     'POWERSHELL_TELEMETRY_OPTOUT',
     'PSDisableModuleAnalysisCacheCleanup',
     'PSModuleAnalysisCachePath',
-]
+)
+
+# Hard-coded list of the variables that are retrieved from the msvc
+# environment and added to the calling environment.  Currently, this
+# list does not contain any variables that are in the import list above.
+# Due to the existing implementation, variables in both lists may not
+# work as expected (e.g., overwites, adding empty values, etc.).
+_MSVC_ENVIRON_PRESERVE = (
+    "INCLUDE",
+    "LIB",
+    "LIBPATH",
+    "PATH",
+    "VSCMD_ARG_app_plat",
+    "VCINSTALLDIR",  # needed by clang -VS 2017 and newer
+    "VCToolsInstallDir",  # needed by clang - VS 2015 and older
+)
+
+# TODO: Currently, the import and preserve lists are intentionally
+# configured so that modifications at runtime will have no effect.
+# Due to the existing implementation, there are runtime and external
+# file cache consistency implications of dynamically changing the
+# variables lists during runtime.
+
 
 class MSVCCacheInvalidWarning(SCons.Warnings.WarningOnByDefault):
     pass
@@ -515,14 +537,14 @@ def normalize_env(env, keys, force: bool=False):
     return normenv
 
 
-def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
+def get_output(vcbat, args=None, env=None, import_vars=_MSVC_ENVIRON_IMPORT, skip_sendtelemetry=False):
     """Parse the output of given bat file, with given args."""
 
     if env is None:
         # Create a blank environment, for use in launching the tools
         env = SCons.Environment.Environment(tools=[])
 
-    env['ENV'] = normalize_env(env['ENV'], VS_VC_VARS, force=False)
+    env['ENV'] = normalize_env(env['ENV'], import_vars, force=False)
 
     if skip_sendtelemetry:
         _force_vscmd_skip_sendtelemetry(env)
@@ -563,30 +585,19 @@ def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
     return cp.stdout.decode(OEM)
 
 
-KEEPLIST = (
-    "INCLUDE",
-    "LIB",
-    "LIBPATH",
-    "PATH",
-    "VSCMD_ARG_app_plat",
-    "VCINSTALLDIR",  # needed by clang -VS 2017 and newer
-    "VCToolsInstallDir",  # needed by clang - VS 2015 and older
-)
-
-
-def parse_output(output, keep=KEEPLIST):
+def parse_output(output, keep_vars=_MSVC_ENVIRON_PRESERVE):
     """
     Parse output from running visual c++/studios vcvarsall.bat and running set
-    To capture the values listed in keep
+    to capture the values listed in keep_vars.
     """
 
     # dkeep is a dict associating key: path_list, where key is one item from
-    # keep, and path_list the associated list of paths
-    dkeep = {i: [] for i in keep}
+    # keep_vars, and path_list the associated list of paths
+    dkeep = {i: [] for i in keep_vars}
 
-    # rdk will  keep the regex to match the .bat file output line starts
+    # rdk will keep the regex to match the .bat file output line starts
     rdk = {}
-    for i in keep:
+    for i in keep_vars:
         rdk[i] = re.compile(r'%s=(.*)' % i, re.I)
 
     def add_env(rmatch, key, dkeep=dkeep) -> None:
