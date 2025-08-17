@@ -778,26 +778,41 @@ See also &f-link-env-AppendUnique;,
 </arguments>
 <summary>
 <para>
-Append path elements specified by <parameter>newpath</parameter>
-to the given search path string or list <parameter>name</parameter>
-in mapping <parameter>envname</parameter> in the &consenv;.
-Supplying <parameter>envname</parameter> is optional:
-the default is the execution environment &cv-link-ENV;.
-Optional <parameter>sep</parameter> is used as the search path separator,
-the default is the platform's separator (<systemitem>os.pathsep</systemitem>).
-A path element will only appear once.
-Any duplicates in <parameter>newpath</parameter> are dropped,
-keeping the last appearing (to preserve path order).
-If <parameter>delete_existing</parameter>
-is <constant>False</constant> (the default)
-any addition duplicating an existing path element is ignored;
-if <parameter>delete_existing</parameter>
-is <constant>True</constant> the existing value will
-be dropped and the path element will be added at the end.
-To help maintain uniqueness all paths are normalized (using
-<systemitem>os.path.normpath</systemitem>
-and
-<systemitem>os.path.normcase</systemitem>).
+Append directory paths from
+<parameter>newpath</parameter> to
+a search-path entry <parameter>name</parameter>
+in &consvar; <parameter>envname</parameter>
+in the current enviromment (<parameter>env</parameter>).
+If <parameter>envname</parameter> is not given,
+the default is <literal>"ENV"</literal>
+(see &cv-link-ENV;).
+<parameter>envname</parameter> is expected
+to refer to a dictionary-like object;
+if it does not exist in <parameter>env</parameter>
+it will be created as an initially empty dict.
+<parameter>newpath</parameter>
+may be specified as a string,
+a directory node, or a list of strings.
+If a string, it may contain multiple paths separated
+by the system path separator
+(<systemitem>os.pathsep</systemitem>),
+or, if specified, by the value of <parameter>sep</parameter>.
+Top-relative path strings (starting with <literal>#</literal>) are recognized.
+The type of the existing value
+of <parameter>name</parameter> is preserved.
+</para>
+
+<para>
+Paths will only appear once.
+Duplicate paths in <parameter>newpath</parameter> are removed,
+preserving the last occurrence to maintain path order.
+If <parameter>delete_existing</parameter> is true (the default),
+existing duplicates are removed before appending,
+otherwise, new duplicates are skipped.
+During comparisons, paths are normalized, to avoid
+issues with case differences (on case-insensitive filesystems)
+and with relative paths that may refer back to the same directory.
+The stored values are not modified by this process.
 </para>
 
 <para>
@@ -1119,8 +1134,8 @@ env4 = env.Clone(tools=['msvc', MyTool])
 The
 <parameter>parse_flags</parameter>
 keyword argument is also recognized, to allow merging command-line
-style arguments into the appropriate construction
-variables (see &f-link-env-MergeFlags;).
+style arguments into the appropriate &consvars;
+(see &f-link-env-MergeFlags;).
 </para>
 
 <example_commands>
@@ -2863,26 +2878,41 @@ and &f-link-env-PrependUnique;.
 </arguments>
 <summary>
 <para>
-Prepend path elements specified by <parameter>newpath</parameter>
-to the given search path string or list <parameter>name</parameter>
-in mapping <parameter>envname</parameter> in the &consenv;.
-Supplying <parameter>envname</parameter> is optional:
-the default is the execution environment &cv-link-ENV;.
-Optional <parameter>sep</parameter> is used as the search path separator,
-the default is the platform's separator (<systemitem>os.pathsep</systemitem>).
-A path element will only appear once.
-Any duplicates in <parameter>newpath</parameter> are dropped,
-keeping the first appearing (to preserve path order).
-If <parameter>delete_existing</parameter>
-is <constant>False</constant>
-any addition duplicating an existing path element is ignored;
-if <parameter>delete_existing</parameter>
-is <constant>True</constant> (the default) the existing value will
-be dropped and the path element will be inserted at the beginning.
-To help maintain uniqueness all paths are normalized (using
-<systemitem>os.path.normpath</systemitem>
-and
-<systemitem>os.path.normcase</systemitem>).
+Prepend directory paths from
+<parameter>newpath</parameter> to
+a search-path entry <parameter>name</parameter>
+in &consvar; <parameter>envname</parameter>
+in the current enviromment (<parameter>env</parameter>).
+If <parameter>envname</parameter> is not given,
+the default is <literal>"ENV"</literal>
+(see &cv-link-ENV;).
+<parameter>envname</parameter> is expected
+to refer to a dictionary-like object;
+if it does not exist in <parameter>env</parameter>
+it will be created as an initially empty dict.
+<parameter>newpath</parameter>
+may be specified as a string,
+a directory node, or a list of strings.
+If a string, it may contain multiple paths separated
+by the system path separator
+(<systemitem>os.pathsep</systemitem>),
+or, if specified, by the value of <parameter>sep</parameter>.
+Top-relative path strings (starting with <literal>#</literal>) are recognized.
+The type of the existing value
+of <parameter>name</parameter> is preserved.
+</para>
+
+<para>
+Paths will only appear once.
+Duplicate paths in <parameter>newpath</parameter> are removed,
+preserving the first occurrence to maintain path order.
+If <parameter>delete_existing</parameter> is true (the default),
+existing duplicates are removed before prepending,
+otherwise, new duplicates are skipped.
+During comparisons, paths are normalized, to avoid
+issues with case differences (on case-insensitive filesystems)
+and with relative paths that may refer back to the same directory.
+The stored values are not modified by this process.
 </para>
 
 <para>

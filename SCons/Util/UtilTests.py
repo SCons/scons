@@ -545,55 +545,95 @@ class UtilTestCase(unittest.TestCase):
 
     def test_PrependPath(self) -> None:
         """Test prepending to a path"""
-        p1: list | str = r'C:\dir\num\one;C:\dir\num\two'
-        p2: list | str = r'C:\mydir\num\one;C:\mydir\num\two'
-        # have to include the pathsep here so that the test will work on UNIX too.
-        p1 = PrependPath(p1, r'C:\dir\num\two', sep=';')
-        p1 = PrependPath(p1, r'C:\dir\num\three', sep=';')
-        assert p1 == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one', p1
+        # have to specify the pathsep when adding so it's cross-platform
+        # new duplicates existing - "moves to front"
+        with self.subTest():
+            p1: list | str = r'C:\dir\num\one;C:\dir\num\two'
+            p1 = PrependPath(p1, r'C:\dir\num\two', sep=';')
+            p1 = PrependPath(p1, r'C:\dir\num\three', sep=';')
+            self.assertEqual(p1, r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
 
-        p2 = PrependPath(p2, r'C:\mydir\num\three', sep=';')
-        p2 = PrependPath(p2, r'C:\mydir\num\one', sep=';')
-        assert p2 == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two', p2
+        # ... except with delete_existing false
+        with self.subTest():
+            p2: list | str = r'C:\dir\num\one;C:\dir\num\two'
+            p2 = PrependPath(p2, r'C:\dir\num\two', sep=';', delete_existing=False)
+            p2 = PrependPath(p2, r'C:\dir\num\three', sep=';', delete_existing=False)
+            self.assertEqual(p2, r'C:\dir\num\three;C:\dir\num\one;C:\dir\num\two')
 
-        # check (only) first one is kept if there are dupes in new
-        p3: list | str = r'C:\dir\num\one'
-        p3 = PrependPath(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\two', sep=';')
-        assert p3 == r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\one', p3
+        # only last one is kept if there are dupes in new
+        with self.subTest():
+            p3: list | str = r'C:\dir\num\one'
+            p3 = PrependPath(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\two', sep=';')
+            self.assertEqual(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\one')
+
+        # try prepending a Dir Node
+        with self.subTest():
+            p4: list | str = r'C:\dir\num\one'
+            test = TestCmd.TestCmd(workdir='')
+            test.subdir('sub')
+            subdir = test.workpath('sub')
+            p4 = PrependPath(p4, subdir, sep=';')
+            self.assertEqual(p4, rf'{subdir};C:\dir\num\one')
+
+        # try with initial list, adding string (result stays a list)
+        with self.subTest():
+            p5: list = [r'C:\dir\num\one', r'C:\dir\num\two']
+            p5 = PrependPath(p5, r'C:\dir\num\two', sep=';')
+            self.assertEqual(p5, [r'C:\dir\num\two', r'C:\dir\num\one'])
+            p5 = PrependPath(p5, r'C:\dir\num\three', sep=';')
+            self.assertEqual(p5, [r'C:\dir\num\three', r'C:\dir\num\two', r'C:\dir\num\one'])
+
+        # try with initial string, adding list (result stays a string)
+        with self.subTest():
+            p6: list | str = r'C:\dir\num\one;C:\dir\num\two'
+            p6 = PrependPath(p6, [r'C:\dir\num\two', r'C:\dir\num\three'], sep=';')
+            self.assertEqual(p6, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\one')
+
 
     def test_AppendPath(self) -> None:
         """Test appending to a path."""
-        p1: list | str = r'C:\dir\num\one;C:\dir\num\two'
-        p2: list | str = r'C:\mydir\num\one;C:\mydir\num\two'
-        # have to include the pathsep here so that the test will work on UNIX too.
-        p1 = AppendPath(p1, r'C:\dir\num\two', sep=';')
-        p1 = AppendPath(p1, r'C:\dir\num\three', sep=';')
-        assert p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three', p1
+        # have to specify the pathsep when adding so it's cross-platform
+        # new duplicates existing - "moves to end"
+        with self.subTest():
+            p1: list | str = r'C:\dir\num\one;C:\dir\num\two'
+            p1 = AppendPath(p1, r'C:\dir\num\two', sep=';')
+            p1 = AppendPath(p1, r'C:\dir\num\three', sep=';')
+            self.assertEqual(p1, r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
 
-        p2 = AppendPath(p2, r'C:\mydir\num\three', sep=';')
-        p2 = AppendPath(p2, r'C:\mydir\num\one', sep=';')
-        assert p2 == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one', p2
+        # ... except with delete_existing false
+        with self.subTest():
+            p2: list | str = r'C:\dir\num\one;C:\dir\num\two'
+            p2 = AppendPath(p1, r'C:\dir\num\one', sep=';', delete_existing=False)
+            p2 = AppendPath(p1, r'C:\dir\num\three', sep=';')
+            self.assertEqual(p2, r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
 
-        # check (only) last one is kept if there are dupes in new
-        p3: list | str = r'C:\dir\num\one'
-        p3 = AppendPath(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\two', sep=';')
-        assert p3 == r'C:\dir\num\one;C:\dir\num\three;C:\dir\num\two', p3
+        # only last one is kept if there are dupes in new
+        with self.subTest():
+            p3: list | str = r'C:\dir\num\one'
+            p3 = AppendPath(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\two', sep=';')
+            self.assertEqual(p3, r'C:\dir\num\one;C:\dir\num\three;C:\dir\num\two')
 
-    def test_PrependPathPreserveOld(self) -> None:
-        """Test prepending to a path while preserving old paths"""
-        p1: list | str = r'C:\dir\num\one;C:\dir\num\two'
-        # have to include the pathsep here so that the test will work on UNIX too.
-        p1 = PrependPath(p1, r'C:\dir\num\two', sep=';', delete_existing=False)
-        p1 = PrependPath(p1, r'C:\dir\num\three', sep=';')
-        assert p1 == r'C:\dir\num\three;C:\dir\num\one;C:\dir\num\two', p1
+        # try appending a Dir Node
+        with self.subTest():
+            p4: list | str = r'C:\dir\num\one'
+            test = TestCmd.TestCmd(workdir='')
+            test.subdir('sub')
+            subdir = test.workpath('sub')
+            p4 = AppendPath(p4, subdir, sep=';')
+            self.assertEqual(p4, rf'C:\dir\num\one;{subdir}')
 
-    def test_AppendPathPreserveOld(self) -> None:
-        """Test appending to a path while preserving old paths"""
-        p1: list | str = r'C:\dir\num\one;C:\dir\num\two'
-        # have to include the pathsep here so that the test will work on UNIX too.
-        p1 = AppendPath(p1, r'C:\dir\num\one', sep=';', delete_existing=False)
-        p1 = AppendPath(p1, r'C:\dir\num\three', sep=';')
-        assert p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three', p1
+        # try with initial list, adding string (result stays a list)
+        with self.subTest():
+            p5: list = [r'C:\dir\num\one', r'C:\dir\num\two']
+            p5 = AppendPath(p5, r'C:\dir\num\two', sep=';')
+            p5 = AppendPath(p5, r'C:\dir\num\three', sep=';')
+            self.assertEqual(p5, [r'C:\dir\num\one', r'C:\dir\num\two', r'C:\dir\num\three'])
+
+        # try with initia string, adding list (result stays a string)
+        with self.subTest():
+            p6: list | str = r'C:\dir\num\one;C:\dir\num\two'
+            p6 = AppendPath(p6, [r'C:\dir\num\two', r'C:\dir\num\three'], sep=';')
+            self.assertEqual(p6, r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
 
     def test_addPathIfNotExists(self) -> None:
         """Test the AddPathIfNotExists() function"""
