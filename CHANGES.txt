@@ -171,8 +171,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       if existing value already contained more than one of added value.
     - Tweak runtest.py and test framework to more reliably get the requested
       Python binary (for odd Windows setups + Python launcher)
-    - Improve thw wording of AppendENVPath and PrependENVPath in manpage.
-    - Add more unit tets to internal AppendPath, PrependPath functions.
     - Improve the wording of AppendENVPath and PrependENVPath in manpage.
     - Add more unit tests to internal AppendPath, PrependPath functions.
 
