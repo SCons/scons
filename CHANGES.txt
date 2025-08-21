@@ -173,6 +173,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Python binary (for odd Windows setups + Python launcher)
     - Improve the wording of AppendENVPath and PrependENVPath in manpage.
     - Add more unit tests to internal AppendPath, PrependPath functions.
+    - Add unit tests to show .filebase method strips only the last suffix if
+      several apparent suffixes are present, and .suffix returns the last.
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
