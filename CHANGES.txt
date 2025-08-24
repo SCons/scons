@@ -175,6 +175,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add more unit tests to internal AppendPath, PrependPath functions.
     - Add unit tests to show .filebase method strips only the last suffix if
       several apparent suffixes are present, and .suffix returns the last.
+    - Improve the error message when an environment method is called which
+      does not exist in that environment. Mostly this is intended to be a
+      bit more helpful in the case of a builder which did not instantiate.
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
