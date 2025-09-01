@@ -3842,6 +3842,7 @@ class SpecialAttrTestCase(unittest.TestCase):
         fs = SCons.Node.FS.FS(test.workpath('work'))
 
         f = fs.Entry('foo/bar/baz.blat').get_subst_proxy()
+        f2 = fs.Entry('foo/bar/baz.blat.qux').get_subst_proxy()
 
         s = str(f.dir)
         assert s == os.path.normpath('foo/bar'), s
@@ -3866,12 +3867,16 @@ class SpecialAttrTestCase(unittest.TestCase):
         assert f.filebase.is_literal(), f.filebase
         for_sig = f.filebase.for_signature()
         assert for_sig == 'baz.blat_filebase', for_sig
+        s = str(f2.filebase)
+        assert s == 'baz.blat', s
 
         s = str(f.suffix)
         assert s == '.blat', s
         assert f.suffix.is_literal(), f.suffix
         for_sig = f.suffix.for_signature()
         assert for_sig == 'baz.blat_suffix', for_sig
+        s = str(f2.suffix)
+        assert s == '.qux', s
 
         s = str(f.get_abspath())
         assert s == test.workpath('work', 'foo', 'bar', 'baz.blat'), s
