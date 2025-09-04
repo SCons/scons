@@ -156,10 +156,10 @@ class TestEnvironmentFixture:
             if key not in kw:
                 kw[key] = value
         if 'BUILDERS' not in kw:
-            static_obj = SCons.Builder.Builder(action = {},
-                                               emitter = {},
-                                               suffix = '.o',
-                                               single_source = 1)
+            static_obj = SCons.Builder.Builder(action={},
+                                               emitter={},
+                                               suffix='.o',
+                                               single_source=True)
             kw['BUILDERS'] = {'Object' : static_obj}
             static_obj.add_action('.cpp', 'fake action')
 

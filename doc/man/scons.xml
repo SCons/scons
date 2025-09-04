@@ -1130,7 +1130,7 @@ when encountering an otherwise unexplained error.</para>
 (When
 &scons;
 is executed without the
-<option>-j</option>
+<link linkend="opt-jobs"><option>-j</option></link>
 option,
 the elapsed wall-clock time will typically
 be slightly longer than the total time spent
@@ -1142,7 +1142,7 @@ When
 is executed
 <emphasis>with</emphasis>
 the
-<option>-j</option>
+<link linkend="opt-jobs"><option>-j</option></link>
 option,
 and your build configuration allows good parallelization,
 the elapsed wall-clock time should
@@ -2289,7 +2289,7 @@ which can yield unpredictable behavior with some compilers.</para>
   <varlistentry>
   <term><emphasis role="bold">future-reserved-variable</emphasis></term>
   <listitem>
-<para>Warnings about construction variables which
+<para>Warnings about &consvars; which
 are currently allowed,
 but will become reserved variables in a future release.
 </para>
@@ -2377,7 +2377,7 @@ Add another "-no" to disable.
   <listitem>
 <para>Warnings about the version of &Python;
 not being able to support parallel builds when the
-<option>-j</option>
+<link linkend="opt-jobs"><option>-j</option></link>
 option is used.
 These warnings are enabled by default.</para>
 <para>
@@ -2619,7 +2619,7 @@ settings. Otherwise, &f-env-Clone; takes the same arguments as
 &SCons; provides a special &consenv; called the
 <firstterm>&DefEnv;</firstterm>.
 The &defenv; is used only for global functions, that is,
-construction activities called without the context of a regular &consenv;.
+build requests called without the context of a regular &consenv;.
 See &f-link-DefaultEnvironment; for more information.
 </para>
 
@@ -5890,7 +5890,7 @@ Adding new Tool modules is described in
 <title>Builder Objects</title>
 
 <para>&scons;
-can be extended to build different types of targets
+can be extended to build additional types of targets
 by adding new Builder objects
 to a &consenv;.
 <emphasis>In general</emphasis>,
@@ -5899,7 +5899,7 @@ when you want to build a new type of file or other external target.
 For output file types &scons; already knows about,
 you can usually modify the behavior of premade Builders
 such as &b-link-Program;, &b-link-Object; or &b-link-Library;
-by changing the &consvars; they use
+by changing the &consvars; that control their behavior
 (&cv-link-CC;, &cv-link-LINK;, etc.).
 In this manner you can, for example, change the compiler to use,
 which is simpler and less error-prone than writing a new builder.
@@ -5911,8 +5911,8 @@ The documentation for each Builder lists which
 using the
 &f-link-Builder;
 factory function.
-Once created, a builder is added to an environment
-by entering it in the &cv-link-BUILDERS; dictionary
+Once created, a builder is added to a &consenv;
+by registering it in the &cv-link-BUILDERS; dictionary
 in that environment (some of the examples
 in this section illustrate this).
 Doing so automatically triggers &SCons; to add a method
@@ -6445,16 +6445,14 @@ env.MyBuild('sub/dir/foo.out', 'sub/dir/foo.in')
 
 <warning>
 <para>
-&Python; only keeps one current directory
-location even if there are multiple threads.
+&Python; only tracks one current directory location,
+even if there are multiple executing threads.
 This means that use of the
 <parameter>chdir</parameter>
-argument
-will
+argument will
 <emphasis>not</emphasis>
-work with the SCons
-<option>-j</option>
-option,
+work with &SCons; in multi-threaded mode
+(the <link linkend="opt-jobs"><option>-j</option></link> option),
 because individual worker threads spawned
 by SCons interfere with each other
 when they start changing directory.</para>
@@ -6466,8 +6464,8 @@ when they start changing directory.</para>
 <para>Any additional keyword arguments supplied
 when a Builder object is created
 (that is, when the &f-link-Builder; function is called)
-will be set in the executing construction
-environment when the Builder object is called.
+will be set in the executing &consenv;
+when the Builder object is called.
 The canonical example here would be
 to set a &consvar; to
 the repository of a source code system.</para>
@@ -6629,7 +6627,7 @@ will expand &consvars; in any argument strings,
 including
 <parameter>action</parameter>,
 at the time it is called,
-using the construction variables in the &consenv; through which
+using the &consvars; in the &consenv; through which
 it was called. The global function form &f-link-Action;
 delays variable expansion until
 the Action object is actually used.
