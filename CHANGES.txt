@@ -175,9 +175,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add more unit tests to internal AppendPath, PrependPath functions.
     - Add unit tests to show .filebase method strips only the last suffix if
       several apparent suffixes are present, and .suffix returns the last.
-    - Change the way the changed/unchanged target and source lists are
-      accounted for in interactive mode, to resolve a problem on Windows,
-      where those lists are considered for due to "batch mode" support.
+    - Incremental builds in Interactive mode could fail on platforms that
+      support batch mode (currently: Windows).  Change the way the changed
+      and unchanged target and source lists are accounted for to resolve.
       Fixes #3029.
 
 
