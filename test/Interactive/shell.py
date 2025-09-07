@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -26,7 +28,6 @@ Verify the ability of the "shell" command (and its "sh" and "!" aliases)
 to shell out of interactive mode.
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 
@@ -45,6 +46,9 @@ print('hello from shell_command.py')
 
 test.write('SConstruct', """\
 Command('foo.out', 'foo.in', Copy('$TARGET', '$SOURCE'))
+
+# Hack to make interactive tests more stable
+# See: test/Interactive/README.md
 Command('1', [], Touch('$TARGET'))
 """)
 

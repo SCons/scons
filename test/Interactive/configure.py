@@ -29,7 +29,6 @@ a target, while using a Configure context within the environment.
 Also tests that "b" can be used as a synonym for "build".
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 import TestCmd

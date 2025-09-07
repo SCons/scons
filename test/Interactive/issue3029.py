@@ -23,46 +23,43 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+r"""
+Check that incremental builds work in interactive mode.
+
+On Windows, there was a code path where cleaning, then rebuilding
+would lead the the source file not being supplied to the build:
+
+  scons: Building targets
+  cl /Fosrc\myunit.obj /c /TP /nologo /EHsc /Iinclude
+  cl : Command line error D8003 : missing source filename
+
+This is described in detail in GH issue 3039.
+
+This is a live test - depends on running a real compiler.
+It could actually skip if not on Windows as the problem has not
+been observed there.
 """
-Verify use of the "exit" subcommand.
-"""
+
+import os
 
 import TestSCons
 
 test = TestSCons.TestSCons()
+lib = f'{TestSCons.lib_}mylib{TestSCons._lib}'
+test.dir_fixture('fixture/issue3029')
+# file: fixture/issue3029/SConstruct
+test.run(arguments='-Q mylib', stdout=None)
+test.must_exist(lib)
 
-test.write('SConstruct', """\
-Command('foo.out', 'foo.in', Copy('$TARGET', '$SOURCE'))
-
-# Hack to make interactive tests more stable
-# See: test/Interactive/README.md
-Command('1', [], Touch('$TARGET'))
-""")
-
-test.write('foo.in', "foo.in 1\n")
-
-
-
-scons = test.start(arguments = '-Q --interactive')
-
-scons.send("build foo.out 1\n")
-
-test.wait_for(test.workpath('1'))
-
-test.must_match(test.workpath('foo.out'), "foo.in 1\n")
-
-
-
-scons.send('exit\n')
-
-expect_stdout = """\
-scons>>> Copy("foo.out", "foo.in")
-Touch("1")
-scons>>> """
-
-test.finish(scons, stdout = expect_stdout)
-
-
+scons = test.start(arguments='-Q --interactive')
+scons.send("clean mylib\n")
+scons.send("build 1\n")
+test.wait_for(test.workpath('1'), popen=scons)
+test.must_not_exist(test.workpath(lib))
+scons.send("build mylib\n")
+scons.send("build 2\n")
+test.wait_for(test.workpath('2'), popen=scons)
+test.must_exist(test.workpath(lib))
 
 test.pass_test()
 
