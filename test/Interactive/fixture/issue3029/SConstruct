@@ -3,6 +3,9 @@ import os, sys
 DefaultEnvironment(tools=[])
 env = Environment()
 
+
+# Hack to make interactive tests more stable
+# See: test/Interactive/README.md
 Command('1', [], Touch('$TARGET'))
 Command('2', [], Touch('$TARGET'))
 
