@@ -1,0 +1,26 @@
+import os, sys
+
+DefaultEnvironment(tools=[])
+env = Environment()
+
+
+# Hack to make interactive tests more stable
+# See: test/Interactive/README.md
+Command('1', [], Touch('$TARGET'))
+Command('2', [], Touch('$TARGET'))
+
+if sys.platform == 'win32':
+    # Enable C++ execptions (no SEH), extern "C" defaults to nothrow
+    env.Append(CCFLAGS="/EHsc")
+
+lib_env = env.Clone()
+lib_env.Append(CPPPATH="#include")
+
+mylib = lib_env.StaticLibrary(
+    "mylib",
+    ["src/myunit.cpp", "src/otherunit.cpp"],
+    incdirs="#include",
+)
+
+env.Alias("mylib", mylib)
+env.Default(mylib)

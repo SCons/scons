@@ -1831,9 +1831,17 @@ else:
             restore_sconsflags(sconsflags)
         return p
 
-    def wait_for(self, fname, timeout: float = 60.0, popen=None) -> None:
-        """
-        Waits for the specified file name to exist.
+    def wait_for(self, fname, timeout: float = 20.0, popen=None):
+        """Wait for the specified file name to exist.
+
+        This interface is primarily used in the tests for interactive
+        mode, where you issue individual commands and SCons keeps running.
+
+        Wait up to *timeout* seconds for *fname* to exist.  If the
+        timeout is reached, fail the test. If *popen* is specified,
+        it is assumed to be a process started with the :meth:`start`
+        method, giving a handle to cleanup actions.
+
         """
         waited = 0.0
         while not os.path.exists(fname):
@@ -1854,7 +1862,7 @@ else:
                     sys.stderr.write(stderr)
                 self.fail_test()
             time.sleep(1.0)
-            waited = waited + 1.0
+            waited += 1.0
 
     def get_alt_cpp_suffix(self):
         """Return alternate C++ file suffix.

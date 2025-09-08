@@ -178,6 +178,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Improve the error message when an environment method is called which
       does not exist in that environment. Mostly this is intended to be a
       bit more helpful in the case of a builder which did not instantiate.
+    - Incremental builds in Interactive mode could fail on platforms that
+      support batch mode (currently: Windows).  Change the way the changed
+      and unchanged target and source lists are accounted for to resolve.
+      Fixes #3029.
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
