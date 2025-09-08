@@ -110,8 +110,12 @@ IMPROVEMENTS
   in 3.3; now looks for the official approach first. This in an internal
   detail, the API is unchanged.
 
-- Add internal routines to maniplutate publicly visible argument and
+- Add internal routines to manipulate publicly visible argument and
   target lists. These interfaces are not part of the public API.
+
+- Improve the error message when an environment method is called which
+  does not exist in that environment. Mostly this is intended to be a
+  bit more helpful in the case of a builder which did not instantiate.
 
 PACKAGING
 ---------

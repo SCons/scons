@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that env.Copy() fails as expected since its removal
@@ -33,12 +32,15 @@ import TestSCons
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 test.file_fixture('SConstruct.method', 'SConstruct')
-expect = """\
-AttributeError: 'SConsEnvironment' object has no attribute 'Copy':
-  File "{}", line 3:
+expect = f"""\
+AttributeError: Builder or other environment method 'Copy' not found.
+Check spelling, check external program exists in env['ENV']['PATH'],
+and check that a suitable tool is being loaded:
+  File "{test.workpath('SConstruct')}", line 3:
     env.Copy()
-""".format(test.workpath('SConstruct'))
-test.run(arguments='-Q -s', status=2, stderr=expect, match=TestSCons.match_exact)
+"""
+test.run(arguments='-Q -s', status=2, stderr=None)
+test.must_contain_all(test.stderr(), expect)
 
 test.pass_test()
 

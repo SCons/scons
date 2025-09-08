@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -21,8 +23,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 """
 Test the removed SourceCode() method errors out if used.
 """
@@ -30,24 +30,27 @@ Test the removed SourceCode() method errors out if used.
 import TestSCons
 
 test = TestSCons.TestSCons(match=TestSCons.match_exact)
-
 test.subdir('src')
 
 test.file_fixture('SConstruct.global', 'SConstruct')
-expect = """\
+expect = f"""\
 NameError: name 'SourceCode' is not defined:
-  File "{}", line 2:
+  File "{test.workpath('SConstruct')}", line 2:
     SourceCode('no_source.c', None)
-""".format(test.workpath('SConstruct'))
-test.run(arguments='-Q -s', status=2, stderr=expect)
+"""
+test.run(arguments='-Q -s', status=2, stderr=None)
+test.must_contain_all(test.stderr(), expect)
 
 test.file_fixture('SConstruct.method', 'SConstruct')
-expect = """\
-AttributeError: 'SConsEnvironment' object has no attribute 'SourceCode':
-  File "{}", line 3:
+expect = f"""\
+AttributeError: Builder or other environment method 'SourceCode' not found.
+Check spelling, check external program exists in env['ENV']['PATH'],
+and check that a suitable tool is being loaded:
+  File "{test.workpath('SConstruct')}", line 3:
     env.SourceCode('no_source.c', None)
-""".format(test.workpath('SConstruct'))
-test.run(arguments='-Q -s', status=2, stderr=expect)
+"""
+test.run(arguments='-Q -s', status=2, stderr=None)
+test.must_contain_all(test.stderr(), expect)
 
 test.pass_test()
 

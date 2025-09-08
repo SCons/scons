@@ -1295,6 +1295,24 @@ class Base(SubstitutionEnvironment):
         if parse_flags:
             self.MergeFlags(parse_flags)
 
+    def __getattr__(self, name):
+        """Handle missing attribute in an environment.
+
+        Assume this is a builder that's not instantiated, becasue that has
+        been a common failure mode. Could also  be a typo. Emit a
+        message about this to try to help. We can't get too clever,
+        other parts of SCons depend on seeing the :exc:`AttributeError` that
+        triggers this call, so all we do is produce our own message.
+
+        .. versioniadded:: NEXT_RELEASE
+        """
+        raise AttributeError(
+            f"Builder or other environment method {name!r} not found.\n"
+            "Check spelling, check external program exists in env['ENV']['PATH'],\n"
+            "and check that a suitable tool is being loaded"
+       ) from None
+
+
     #######################################################################
     # Utility methods that are primarily for internal use by SCons.
     # These begin with lower-case letters.
