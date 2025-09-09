@@ -3281,64 +3281,6 @@ bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
 print("The path to bar_obj is:", str(bar_obj_list[0]))
 </programlisting>
 
-<para>Note that because the Builder call returns a
-<classname>NodeList</classname>,
-you have to access the first element in the list
-(<literal>bar_obj_list[0]</literal> in the example)
-to get at the Node that actually represents
-the object file.</para>
-
-<para>
-When trying to handle errors that may occur in a builder method,
-consider that the corresponding Action is executed at a different
-time than the &SConscript; file statement calling the builder.
-It is not useful to wrap a builder call in a
-<systemitem>try</systemitem> block,
-since success in the builder call is not the same as
-the builder itself succeeding.
-If necessary, a Builder's Action should be coded to exit with
-a useful exception message indicating the problem in the &SConscript; files -
-programmatically recovering from build errors is rarely useful.
-</para>
-
-<para>
-The following builder methods are predefined in the
-&SCons; core software distribution.
-Depending on the setup of a particular
-&consenv; and on the type and software
-installation status of the underlying system,
-not all builders may be available in that
-&consenv;.
-Since the function calling signature is the same for all builders:
-</para>
-<programlisting language="python">
-<function>Buildername</function>(<parameter>target, source, [key=val, ...]</parameter>)
-</programlisting>
-<para>
-it is omitted in this listing for brevity.
-</para>
-
-<!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
-<!-- '\" BEGIN GENERATED BUILDER DESCRIPTIONS -->
-
-<!-- '\" The descriptions below of the various SCons Builders are generated -->
-<!-- '\" from the .xml files located together with the various Python -->
-<!-- '\" builder modules in the build engine directory -->
-
-<!-- '\" BEGIN GENERATED BUILDER DESCRIPTIONS -->
-<!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
-<xsi:include xmlns:xsi="http://www.w3.org/2001/XInclude" href="../generated/builders.gen"/>
-<!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
-<!-- '\" END GENERATED BUILDER DESCRIPTIONS -->
-
-<!-- '\" The descriptions abocve of the various SCons Builders are generated -->
-<!-- '\" from the .xml files located together with the various Python -->
-<!-- '\" builder modules in the build engine directory -->
-
-<!-- '\" END GENERATED BUILDER DESCRIPTIONS -->
-<!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
-
-
 <para>All
 targets of builder methods automatically depend on their sources.
 An explicit dependency can
@@ -3387,13 +3329,58 @@ and using the
 <classname>SourceFileScanner</classname>
 object.</para>
 
+
+<para>Note that because the Builder call returns a
+<classname>NodeList</classname>,
+you have to access the first element in the list
+(<literal>bar_obj_list[0]</literal> in the example)
+to get at the Node that actually represents
+the object file.</para>
+
+<para>
+The following builder methods are predefined in the
+&SCons; core software distribution.
+Depending on the setup of a particular
+&consenv; and on the type and software
+installation status of the underlying system,
+not all builders may be available in that
+&consenv;.
+Since the function calling signature is the same for all builders:
+</para>
+<programlisting language="python">
+<function>Buildername</function>(<parameter>target, source, [key=val, ...]</parameter>)
+</programlisting>
+<para>
+it is omitted in this listing for brevity.
+</para>
+
+<!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
+<!-- '\" BEGIN GENERATED BUILDER DESCRIPTIONS -->
+
+<!-- '\" The descriptions below of the various SCons Builders are generated -->
+<!-- '\" from the .xml files located together with the various Python -->
+<!-- '\" builder modules in the build engine directory -->
+
+<!-- '\" BEGIN GENERATED BUILDER DESCRIPTIONS -->
+<!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
+<xsi:include xmlns:xsi="http://www.w3.org/2001/XInclude" href="../generated/builders.gen"/>
+<!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
+<!-- '\" END GENERATED BUILDER DESCRIPTIONS -->
+
+<!-- '\" The descriptions abocve of the various SCons Builders are generated -->
+<!-- '\" from the .xml files located together with the various Python -->
+<!-- '\" builder modules in the build engine directory -->
+
+<!-- '\" END GENERATED BUILDER DESCRIPTIONS -->
+<!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
+
 </refsect2>
 
 <refsect2 id='env_methods'>
 <title>&SCons; Functions and Environment Methods</title>
 
 <para>
-&SCons; provides a variety of  &consenv; methods
+&SCons; provides a variety of &consenv; methods
 and global functions to manipulate the build configuration.
 Often, a &consenv; method and a global function with
 the same name exist for convenience.
@@ -6482,6 +6469,21 @@ following functions:
 <link linkend='miscellaneous_action_functions'>function Actions</link>,
 and
 <link linkend='emitter_function'>emitter functions</link>.
+</para>
+
+<para>
+When debugging errors in a custom builder method,
+remember that the builder's Action is executed asynchronously -
+the builder call in the &SConscript; only instructs
+&SCons; what you want built, while the actual building is
+scheduled later (if necessary) by the taskmaster.
+As a result, wrapping a builder call in a
+<systemitem>try</systemitem> block is not useful,
+as success in the builder call is not the same as
+the build itself succeeding.
+If necessary, code a builder's Action to exit with
+a useful error message indicating the problem in the &SConscript; file.
+Attempting programmatic recovery from build errors is rarely useful.
 </para>
 
 </refsect2>
