@@ -154,6 +154,8 @@ DOCUMENTATION
 
 - Improve the wording of AppendENVPath and PrependENVPath in manpage.
 
+- Improve documentation of builder methods and builder objects.
+
 DEVELOPMENT
 -----------
 
