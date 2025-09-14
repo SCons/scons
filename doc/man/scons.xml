@@ -2882,6 +2882,112 @@ strings of white-space characters as the delimiter
 method, but succeeds even if the input isn't a string).</para>
 
 <para>
+&SCons; can resolve paths to sources and targets
+specified in several different forms.
+The <parameter>target</parameter> and
+<parameter>source</parameter> arguments
+can be scalar (string or Node) or a collection (of strings or Nodes).
+</para>
+<itemizedlist>
+<listitem>
+<para>
+Nodes always work,
+as they are the result of a previous successful path resolution;
+if a path string is resolved correctly it is stored
+internally as a Node in the dependency graph.
+</para>
+</listitem>
+<listitem>
+<para>
+Plain file names (no pathname separators)
+are searched for in the current directory.
+</para>
+</listitem>
+<listitem>
+<para>
+Absolute paths (begin with a pathname separator)
+are resolved by walking the path components
+starting from root of the filesystem or current volume.
+</para>
+</listitem>
+<listitem>
+<para>
+Relative paths (no leading pathname separator)
+are resolved by walking the path components
+starting from the current directory.
+</para>
+</listitem>
+<listitem>
+<para>
+Top-relative paths are relative paths whose first character
+is <emphasis role="bold">#</emphasis>.
+They are walked starting from the project top-level directory
+(usually, the directory where the &SConstruct; file is found).
+Top-relative paths are always relative paths,
+so the initial character can be followed by a pathname separator,
+which is ignored and does not affect resolution.
+</para>
+</listitem>
+<listitem>
+<para>
+UNC paths (Windows) start with exactly two pathname separators.
+They take the form <literal>\\server_name\share_name\file_path</literal>.
+The <varname>file_path</varname> portion is looked up as an
+absolute path starting from the root of the
+resource described by <literal>\\server_name\share_name</literal>.
+Since UNC paths are never relative,
+the top-relative path form does not apply.
+</para>
+</listitem>
+<listitem>
+<para>
+URL-style strings and &Python; <systemitem>pathlib</systemitem>
+objects are not recognized.
+</para>
+</listitem>
+</itemizedlist>
+
+<para>
+The "current directory" for relative path resolution has options.
+&SCons; by default changes to the directory containing the
+&SConscript; file (including &SConstruct;) it is currently processing.
+Use of the &f-link-SConscriptChdir; function toggles the
+default behavior off/on.
+The <parameter>srcdir</parameter> builder argument
+affects where source file paths are looked for
+(see details below).
+Specifying one or more source code repositories via
+the &f-link-Repository; function or the
+<link linkend="opt-repository"><option>-Y/--repository</option></link>
+option tells &SCons; to look additional places
+after the actual current directory.
+The concept of current directory changes for targets
+(and in some cases sources) if a variant directory is set up using
+the &f-link-VariantDir; function or the <parameter>variant_dir=</parameter>
+parameter to the &f-link-SConscript; function.
+These options do not affect top-relative paths.
+</para>
+
+<note>
+<para>
+On Windows, DOS paths may beging with a volume or drive letter
+followed by the volume separator (<literal>:</literal>).
+The remainder of the path is absolute or relative;
+if the volume specifier is present,
+resolution starts at the root of the specified drive for absolute paths
+and the current directory on the specified drive for relative paths.
+The combination of a drive letter different from the
+current drive and a relative path is ambiguous:
+depending on context the current directory on
+that drive may have been saved from outside the &SCons; process,
+and is unknown to the &Python; interpreter,
+so that form should be avoided.
+Use of a drive letter in the path also precludes
+the use of the top-relative form.
+</para>
+</note>
+
+<para>
 The following are equivalent examples of calling the
 &Program; builder method:
 </para>
@@ -2896,41 +3002,18 @@ env.Program(target='bar', source=env.Split('bar.c foo.c'))
 env.Program('bar', source='bar.c foo.c'.split())
 </programlisting>
 
-<para>
-Sources and targets can be specified as a scalar or as a list,
-composed of either strings or nodes (more on nodes below).
-When specifying path strings,
-&Python; follows the POSIX pathname convention:
-if a string begins with the operating system pathname separator
-(on Windows both the slash and backslash separator are accepted,
-and any leading drive specifier is ignored for
-the determination) it is considered an absolute path,
-otherwise it is a relative path.
-If the path string contains no separator characters,
-it is searched for as a file in the current directory. If it
-contains separator characters, the search follows down
-from the starting point, which is the top of the directory tree for
-an absolute path and the current directory for a relative path.
-The "current directory" in this context is the directory
-of the &SConscript; file currently being processed.
-</para>
+<para>Additional examples of source and target paths:</para>
 
+<note>
 <para>
-&SCons; also recognizes a third way to specify
-path strings: if the string begins with
-the <emphasis role="bold">#</emphasis> character it is
-<firstterm>top-relative</firstterm> - it works like a relative path, but the
-search follows down from the project top directory rather than
-from the current directory. The <emphasis role="bold">#</emphasis>
-can optionally be followed by a pathname separator,
-which is ignored if found in that position.
-Top-relative paths only work in places where &scons; will
-interpret the path (see some examples below).  To be
-used in other contexts the string will need to be converted
-to a relative or absolute path first.
+Top-relative paths <emphasis role="bold">only</emphasis> work
+where &SCons; will interpret the path (see examples).
+To be used in other contexts the string must first be converted
+to a relative or absolute path.
+A suitable string can be extracted from the Node
+created from the top-relative path.
 </para>
-
-<para>Examples:</para>
+</note>
 
 <programlisting language="python">
 # The comments describing the targets that will be built
