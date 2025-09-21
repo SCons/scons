@@ -30,7 +30,7 @@ This file is processed by the bin/SConsDoc.py module.
 
 <title>Hierarchical Builds</title>
 
-<!--
+<!-- cons reference documentation:
 
 
 =head2 The Build command
@@ -913,7 +913,7 @@ void bar(void) { printf("bar/bar.c\n"); }
 
   <!--
 
-  <section>
+  <section id="sect-hierarchy-finding-sconstruct">
   <title>Executing From a Subdirectory:  the -D, -u and -U Options</title>
 
     <para>

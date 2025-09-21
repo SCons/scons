@@ -29,7 +29,9 @@ This file is processed by the bin/SConsDoc.py module.
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>&SCons; Actions</title>
 
-<!--
+<!-- TOOD: placeholder file, not currently included in build -->
+
+<!-- cons reference documentation:
 
 =head1 Build actions
 
@@ -272,10 +274,10 @@ b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
 
   </para>
 
-  <section>
+  <section id="sect-cmdstr-actions">
   <title>Command Strings as Actions</title>
 
-    <section>
+    <section id="sect-suppress-cmdline">
     <title>Suppressing Command-Line Printing</title>
 
     <para>
@@ -286,7 +288,7 @@ b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
 
     </section>
 
-    <section>
+    <section id="sect-ignore-exit-status">
     <title>Ignoring Exit Status</title>
 
     <para>
@@ -299,7 +301,7 @@ b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
 
   </section>
 
-  <section>
+  <section id="sect-arglist-actions">
   <title>Argument Lists as Actions</title>
 
   <para>
@@ -310,7 +312,7 @@ b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
 
   </section>
 
-  <section>
+  <section id="sect-python-func-actions">
   <title>Python Functions as Actions</title>
 
   <para>
@@ -321,10 +323,10 @@ b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
 
   </section>
 
-  <section>
+  <section id="sect-modify-printing">
   <title>Modifying How an Action is Printed</title>
 
-    <section>
+    <section id="sect-strfunc-cmdstr">
     <title>XXX:  the &strfunction; keyword argument</title>
 
     <para>
@@ -335,7 +337,7 @@ b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
 
     </section>
 
-    <section>
+    <section id="sect-cmdstr-cmdstr">
     <title>XXX:  the &cmdstr; keyword argument</title>
 
     <para>
@@ -348,7 +350,7 @@ b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
 
   </section>
 
-  <section>
+  <section id="sect-varlist">
   <title>Making an Action Depend on Variable Contents:  the &varlist; keyword argument</title>
 
   <para>
@@ -359,7 +361,7 @@ b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
 
   </section>
 
-  <section>
+  <section id="sect-chdir">
   <title>chdir=1</title>
 
   <para>
@@ -370,7 +372,7 @@ b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
 
   </section>
 
-  <section>
+  <section id="sect-batch-key">
   <title>Batch Building of Multiple Targets from Separate Sources:  the &batch_key; keyword argument</title>
 
   <para>
@@ -381,7 +383,7 @@ b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
 
   </section>
 
-  <section>
+  <section id="sect-exitstatfunc">
   <title>Manipulating the Exit Status of an Action:  the &exitstatfunc; keyword argument</title>
 
   <para>
@@ -396,7 +398,7 @@ b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
 
   ???
 
-  <section>
+  <section id="sect-presub">
   <title>presub=</title>
 
   <para>

@@ -29,13 +29,15 @@ This file is processed by the bin/SConsDoc.py module.
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>Errors</title>
 
+<!-- TOOD: placeholder file, not currently included in build -->
+
  <para>
 
    XXX
 
  </para>
 
- <section>
+ <section id="sect-errors-xxx">
  <title>XXX</title>
 
    <para>

@@ -47,7 +47,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   </para>
 
-  <section>
+  <section id="sect-builders-external">
   <title>Writing Builders That Execute External Commands</title>
 
     <para>
@@ -76,7 +76,7 @@ bld = Builder(action='foobuild &lt; $SOURCE &gt; $TARGET')
 
   </section>
 
-  <section>
+  <section id="sect-builders-attaching">
   <title>Attaching a Builder to a &ConsEnv;</title>
 
     <para>
@@ -268,7 +268,7 @@ env.Program('hello.c')
 
   </section>
 
-  <section>
+  <section id="sect-builders-suffix">
   <title>Letting &SCons; Handle The File Suffixes</title>
 
     <para>
@@ -337,7 +337,7 @@ env.Foo('file2')
 
   </section>
 
-  <section>
+  <section id="sect-builders-function">
   <title>Builders That Execute Python Functions</title>
 
     <para>
@@ -474,7 +474,7 @@ file.input
 
   </section>
 
-  <section>
+  <section id="sect-builders-generator">
   <title>Builders That Create Actions Using a &Generator;</title>
 
     <para>
@@ -644,7 +644,7 @@ env.Foo('file')
 
   </section>
 
-  <section>
+  <section id="sect-builders-emitter">
   <title>Builders That Modify the Target or Source Lists Using an &Emitter;</title>
 
     <para>
@@ -800,7 +800,7 @@ cat
 
   </section>
 
-  <section>
+  <section id="sect-builders-adding-emitter">
   <title>Modifying a Builder by adding an Emitter</title>
 
     <para>
@@ -920,7 +920,7 @@ main()
 
   -->
 
-  <section>
+  <section id="sect-builders-tools-placement">
   <title>Where To Put Your Custom Builders and Tools</title>
 
     <para>

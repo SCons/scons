@@ -42,7 +42,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   </para>
 
-  <section>
+  <section id="sect-java-builder">
   <title>Building Java Class Files:  the &b-Java; Builder</title>
 
     <para>
@@ -119,7 +119,7 @@ public class Example3
 
   </section>
 
-  <section>
+  <section id="sect-java-deps">
   <title>How &SCons; Handles Java Dependencies</title>
 
     <para>
@@ -246,7 +246,7 @@ Java('classes', 'src', JAVAVERSION='1.6')
 
   </section>
 
-  <section>
+  <section id="sect-java-jar">
   <title>Building Java Archive (<filename>.jar</filename>) Files:  the &b-Jar; Builder</title>
 
     <para>
@@ -387,7 +387,7 @@ public class Example4
 
   </section>
 
-  <section>
+  <section id="sect-java-javah">
   <title>Building C Header and Stub Files:  the &b-JavaH; Builder</title>
 
     <para>
@@ -608,7 +608,7 @@ public class Example3
 
   </section>
 
-  <section>
+  <section id="sect-java-rmic">
   <title>Building RMI Stub and Skeleton Class Files:  the &b-RMIC; Builder</title>
 
     <para>

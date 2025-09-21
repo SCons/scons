@@ -36,7 +36,7 @@ This file is processed by the bin/SConsDoc.py module.
   translation templates similarly to how it's done with autotools.
   </para>
 
-  <section>
+  <section id="sect-gettext-prereq">
   <title>Prerequisites</title>
   <para>
     To follow examples provided in this chapter set up your operating system to
@@ -57,7 +57,7 @@ This file is processed by the bin/SConsDoc.py module.
   </para>
   </section>
 
-  <section>
+  <section id="sect-gettext-simple">
   <title>Simple project</title>
     <para>
     Let's start with a very simple project, the "Hello world" program

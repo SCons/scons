@@ -28,7 +28,8 @@ This file is processed by the bin/SConsDoc.py module.
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 
-<!-- NOTE: this file is incomplete, and main.xml does not currently include it -->
+<!-- TOOD: placeholder file, not currently included in build -->
+
 <title>Built-In Builders</title>
 
   <para>
@@ -47,7 +48,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   </para>
 
-  <section>
+  <section id="sect-build-program">
   <title>Programs:  the &Program; Builder</title>
 
     <para>
@@ -214,7 +215,7 @@ int goodbye() { printf("Goodbye, world!\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-build-objfiles">
   <title>Object-File Builders</title>
 
     <para>
@@ -226,7 +227,7 @@ int goodbye() { printf("Goodbye, world!\n"); }
 
     </para>
 
-    <section>
+    <section id="sect-build-staticobj">
     <title>The &StaticObject; Builder</title>
 
       <para>
@@ -305,7 +306,7 @@ StaticObject('file.c')
 
     </section>
 
-    <section>
+    <section id="sect-build-sharedobj">
     <title>The &SharedObject; Builder</title>
 
       <para>
@@ -384,7 +385,7 @@ SharedObject('file.c')
 
     </section>
 
-    <section>
+    <section id="sect-build-obj">
     <title>The &Object; Builder</title>
 
       <para>
@@ -398,7 +399,7 @@ SharedObject('file.c')
 
   </section>
 
-  <section>
+  <section id="sect-build-libraries">
   <title>Library Builders</title>
 
     <para>
@@ -408,7 +409,7 @@ SharedObject('file.c')
 
     </para>
 
-    <section>
+    <section id="sect-build-staticlib">
     <title>The &StaticLibrary; Builder</title>
 
       <para>
@@ -482,7 +483,7 @@ StaticLibrary(['file.c', 'another.c'])
 
     </section>
 
-    <section>
+    <section id="sect-build-sharedlib">
     <title>The &SharedLibrary; Builder</title>
 
       <para>
@@ -556,7 +557,7 @@ SharedLibrary(['file.c', 'another.c'])
 
     </section>
 
-    <section>
+    <section id="sect-build-lib">
     <title>The &Library; Builder</title>
 
       <para>
@@ -570,7 +571,7 @@ SharedLibrary(['file.c', 'another.c'])
 
   </section>
 
-  <section>
+  <section id="sect-build-pch">
   <title>Pre-Compiled Headers:  the &PCH; Builder</title>
 
     <para>
@@ -581,7 +582,7 @@ SharedLibrary(['file.c', 'another.c'])
 
   </section>
 
-  <section>
+  <section id="sect-build-res">
   <title>&MSVC; Resource Files: the &RES; Builder</title>
 
     <para>
@@ -592,7 +593,7 @@ SharedLibrary(['file.c', 'another.c'])
 
   </section>
 
-  <section>
+  <section id="sect-srcfiles">
   <title>Source Files</title>
 
     <para>
@@ -606,7 +607,7 @@ SharedLibrary(['file.c', 'another.c'])
 
     </para>
 
-    <section>
+    <section id="sect-build-cfile">
     <title>The &CFile; Builder</title>
 
       <para>
@@ -625,7 +626,7 @@ XXX CFile() screen
 
     </section>
 
-    <section>
+    <section id="sect-build-cxxfile">
     <title>The &CXXFile; Builder</title>
 
       <para>
@@ -646,7 +647,7 @@ XXX CXXFILE() screen
 
   </section>
 
-  <section>
+  <section id="sect-doc-builders">
   <title>Documents</title>
 
     <para>
@@ -656,7 +657,7 @@ XXX CXXFILE() screen
 
     </para>
 
-    <section>
+    <section id="sect-build-dvi">
     <title>The &DVI; Builder</title>
 
       <para>
@@ -675,7 +676,7 @@ XXX DVI() screen
 
     </section>
 
-    <section>
+    <section id="sect-build-pdf">
     <title>The &PDF; Builder</title>
 
       <para>
@@ -686,7 +687,7 @@ XXX DVI() screen
 
     </section>
 
-    <section>
+    <section id="sect-build-postscript">
     <title>The &PostScript; Builder</title>
 
       <para>
@@ -707,7 +708,7 @@ XXX PostScript() screen
 
   </section>
 
-  <section>
+  <section id="sect-archives">
   <title>Archives</title>
 
     <para>
@@ -717,7 +718,7 @@ XXX PostScript() screen
 
     </para>
 
-    <section>
+    <section id="sect-build-tar">
     <title>The &Tar; Builder</title>
 
       <para>
@@ -804,7 +805,7 @@ directory/file
 
     </section>
 
-    <section>
+    <section id="sect-build-zip">
     <title>The &Zip; Builder</title>
 
       <para>
@@ -848,7 +849,7 @@ file2
 
   </section>
 
-  <section>
+  <section id="sect-java-builders">
   <title>Java</title>
 
     <para>
@@ -858,7 +859,7 @@ file2
 
     </para>
 
-    <section>
+    <section id="sect-build-java">
     <title>Building Class Files:  the &Java; Builder</title>
 
       <para>
@@ -894,7 +895,7 @@ XXX Java() screen
 
     </section>
 
-    <section>
+    <section id="sect-build-jar">
     <title>The &Jar; Builder</title>
 
       <para>
@@ -915,7 +916,7 @@ XXX Jar() screen
 
     </section>
 
-    <section>
+    <section id="sect-build-javah">
     <title>Building C header and stub files:  the &JavaH; Builder</title>
 
       <para>
@@ -934,7 +935,7 @@ XXX JavaH() screen
 
     </section>
 
-    <section>
+    <section id="sect-build-rmic">
     <title>Building RMI stub and skeleton class files:  the &RMIC; Builder</title>
 
       <para>

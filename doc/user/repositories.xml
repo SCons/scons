@@ -486,7 +486,7 @@ int main() { printf("Hello, world!\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-repository-derived">
   <title>Finding derived files in repositories</title>
 
     <para>
@@ -581,7 +581,7 @@ cc -o hello hello.o /usr/repository1/file1.o /usr/repository1/file2.o
 
   </section>
 
-  <section>
+  <section id="sect-repository-local-copy">
   <title>Guaranteeing local copies of files</title>
 
     <para>

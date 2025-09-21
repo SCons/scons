@@ -26,9 +26,12 @@ This file is processed by the bin/SConsDoc.py module.
          xmlns="http://www.scons.org/dbxsd/v1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<!-- TOOD: placeholder file, not currently included in build -->
+
 <title>Converting From Make</title>
 
-<!--
+<!-- cons reference documentation:
 
 =head1 Why Cons? Why not Make?
 
@@ -103,7 +106,7 @@ the makefiles.
 
  </para>
 
- <section>
+ <section id="sect-make-diff">
  <title>Differences Between &Make; and &SCons;</title>
 
    <para>
@@ -114,7 +117,7 @@ the makefiles.
 
  </section>
 
- <section>
+ <section id="sect-make-adv">
  <title>Advantages of &SCons; Over &Make;</title>
 
    <para>

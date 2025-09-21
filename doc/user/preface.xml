@@ -78,7 +78,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   <!--
 
-  <section>
+  <section id="sect-why-scons">
   <title>Why &SCons;?</title>
 
     <para>
@@ -180,7 +180,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   <!--
 
-  <section>
+  <section id="sect-conventions">
   <title>Conventions</title>
 
     <para>

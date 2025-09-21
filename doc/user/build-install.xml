@@ -366,7 +366,7 @@ $ <emphasis>activate a virtualenv and run 'scons' to use that version</emphasis>
 
   <!--
 
-  <section>
+  <section id="sect-python-basics">
   <title>Python Basics</title>
 
     <para>

@@ -45,7 +45,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   </para>
 
-  <section>
+  <section id="sect-caching-setup">
   <title>Specifying the Derived-File Cache Directory</title>
 
     <para>
@@ -163,7 +163,7 @@ CacheDir('/usr/local/build_cache')
 
   </section>
 
-  <section>
+  <section id="sect-caching-consistency">
   <title>Keeping Build Output Consistent</title>
 
     <para>
@@ -207,7 +207,7 @@ CacheDir('/usr/local/build_cache')
 
   </section>
 
-  <section>
+  <section id="sect-caching-nocache">
   <title>Not Using the Derived-File Cache for Specific Files</title>
 
     <para>
@@ -274,7 +274,7 @@ Retrieved `hello' from cache
 
   </section>
 
-  <section>
+  <section id="sect-caching-disable">
   <title>Disabling the Derived-File Cache</title>
 
     <para>
@@ -314,7 +314,7 @@ Retrieved `hello' from cache
 
   </section>
 
-  <section>
+  <section id="sect-caching-populate">
   <title>Populating a Derived-File Cache With Already-Built Files</title>
 
     <para>
@@ -369,7 +369,7 @@ Retrieved `hello' from cache
 
   </section>
 
-  <section>
+  <section id="sect-caching-random">
   <title>Minimizing Cache Contention:  the <option>--random</option> Option</title>
 
     <para>
@@ -511,7 +511,7 @@ Program('prog', ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
 
   </section>
 
-  <section>
+  <section id="sect-caching-custom">
     <title>Using a Custom CacheDir Class</title>
 
     <para>
@@ -566,7 +566,7 @@ env.CacheDir('scons-cache', custom_class=CustomCacheDir)
 
   <!--
 
-  <section>
+  <section id="sect-caching-troubleshoot">
   <title>Troubleshooting Shared Caching:  the &cache-debug; Option</title>
 
     <para>
@@ -582,7 +582,7 @@ env.CacheDir('scons-cache', custom_class=CustomCacheDir)
 
   <!--
 
-  <section>
+  <section id="sect-caching-manage">
 
     <para>
 

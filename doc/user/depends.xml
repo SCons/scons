@@ -80,7 +80,7 @@ int main() { printf("Hello, world!\n"); }
 
   </para>
 
-  <section>
+  <section id="sect-decider-function">
   <title>Deciding When an Input File Has Changed:  the &Decider; Function</title>
 
     <para>
@@ -102,7 +102,7 @@ int main() { printf("Hello, world!\n"); }
 
     </para>
 
-    <section>
+    <section id="sect-contentsigs">
     <title>Using Content Signatures to Decide if a File Has Changed</title>
 
       <para>
@@ -171,7 +171,7 @@ Decider('content')
 
       </para>
 
-      <section>
+      <section id="sect-csig-ramifications">
       <title>Ramifications of Using Content Signatures</title>
 
         <para>
@@ -225,7 +225,7 @@ Decider('content')
 
     </section>
 
-    <section>
+    <section id="sect-timestamps">
     <title>Using Time Stamps to Decide If a File Has Changed</title>
 
       <para>
@@ -366,7 +366,7 @@ int main() { printf("Hello, world!\n"); }
 
     </section>
 
-    <section>
+    <section id="sect-csig-timestamp">
     <title>Deciding If a File Has Changed Using Both MD Signatures and Time Stamps</title>
 
       <para>
@@ -466,7 +466,7 @@ cc -o hello hello.o
 
     </section>
 
-    <section>
+    <section id="sect-custom-decider">
     <title>Extending &SCons;: Writing Your Own Custom &Decider; Function</title>
 
       <para>
@@ -667,7 +667,7 @@ env.Install("install", "test.txt")
 
     </section>
 
-    <section>
+    <section id="sect-mixing-deciders">
     <title>Mixing Different Ways of Deciding If a File Has Changed</title>
 
       <para>
@@ -737,7 +737,7 @@ int main() { printf("Hello, world!\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-implicit-deps">
   <title>Implicit Dependencies:  The &cv-CPPPATH; Construction Variable</title>
 
     <para>
@@ -879,7 +879,7 @@ int main() { printf("Hello, world!\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-implicit-cache">
   <title>Caching Implicit Dependencies</title>
 
     <para>
@@ -987,7 +987,7 @@ SetOption('implicit_cache', 1)
 
     </itemizedlist>
 
-    <section>
+    <section id="sect-implicit-deps-changed">
     <title>The &implicit-deps-changed; Option</title>
 
       <para>
@@ -1021,7 +1021,7 @@ SetOption('implicit_cache', 1)
 
     </section>
 
-    <section>
+    <section id="sect-implicit-deps-unchanged">
     <title>The &implicit-deps-unchanged; Option</title>
 
       <para>
@@ -1065,7 +1065,7 @@ SetOption('implicit_cache', 1)
 
     <!--
 
-    <section>
+    <section id="sect-max-drift">
     <title>XXX max drift</title>
 
       XXX SetOption('max_drift')
@@ -1076,7 +1076,7 @@ SetOption('implicit_cache', 1)
 
   </section>
 
-  <section>
+  <section id="sect-depends-function">
   <title>Explicit Dependencies:  the &Depends; Function</title>
 
     <para>
@@ -1143,7 +1143,7 @@ cc -o hello hello.o
 
   </section>
 
-  <section>
+  <section id="sect-parse-depends-function">
   <title>Dependencies From External Files:  the &ParseDepends;
   Function</title>
 
@@ -1317,7 +1317,7 @@ scons: `.' is up to date.
 
   </section>
 
-  <section>
+  <section id="sect-ignore-function">
   <title>Ignoring Dependencies:  the &Ignore; Function</title>
 
     <para>
@@ -1427,7 +1427,7 @@ int main() { printf("Hello!\n"); }
     </scons_output>
   </section>
 
-  <section>
+  <section id="sect-requires-function">
   <title>Order-Only Dependencies:  the &Requires; Function</title>
 
     <para>
@@ -1589,7 +1589,7 @@ int main() { printf("Hello, %s!  I was built: %s\n", date); }
 
   </section>
 
-  <section>
+  <section id="sect-alwaysbuild-function">
   <title>The &AlwaysBuild; Function</title>
 
     <para>
@@ -1661,7 +1661,7 @@ int main() { printf("Hello, %s!\n", string); }
 
   <!--
 
-  <section>
+  <section id="sect-salt-method">
   <title>The &Salt; Method</title>
 
     <para>
