@@ -1304,7 +1304,7 @@ class Base(SubstitutionEnvironment):
         other parts of SCons depend on seeing the :exc:`AttributeError` that
         triggers this call, so all we do is produce our own message.
 
-        .. versioniadded:: NEXT_RELEASE
+        .. versionadded:: NEXT_RELEASE
         """
         raise AttributeError(
             f"Builder or other environment method {name!r} not found.\n"
@@ -1319,8 +1319,7 @@ class Base(SubstitutionEnvironment):
     #######################################################################
 
     def get_builder(self, name):
-        """Fetch the builder with the specified name from the environment.
-        """
+        """Fetch the builder with the specified name from the environment."""
         try:
             return self._dict['BUILDERS'][name]
         except KeyError:
