@@ -513,7 +513,7 @@ int main() { printf("Goodbye, world!\n"); }
 
  </section>
 
- <section id="sect_building_simple">
+ <section id="sect-building-simple">
  <title>Making the &SCons; Output Less Verbose</title>
 
    <para>

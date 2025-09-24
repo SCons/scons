@@ -597,7 +597,7 @@ void main() { }
 
     </para>
 
-    <section id="sec-creating-consenv">
+    <section id="sect-creating-consenv">
     <title>Creating a &ConsEnv;: the &Environment; Function</title>
 
       <para>
@@ -1058,7 +1058,7 @@ def_env = DefaultEnvironment(tools=['gcc', 'gnulink'], CC='/usr/local/bin/gcc')
 
     </section>
 
-    <section id='multiple_construction_envs'>
+    <section id='sect-multiple-construction-envs'>
     <title>Multiple &ConsEnvs;</title>
 
       <para>
@@ -1632,7 +1632,7 @@ env.PrependUnique(CCFLAGS=['-g'])
 
       </section>
 
-      <section id="builder_overrides">
+      <section id="sect-builder-overrides">
       <title>Overriding &ConsVar; Settings</title>
 
       <para>
@@ -1751,7 +1751,7 @@ void main() {
       the same target with different sets of flags or other construction
       variables will lead to the
       <computeroutput>scons: *** Two environments with different actions...</computeroutput>
-      error described in <xref linkend="multiple_construction_envs"/>
+      error described in <xref linkend="sect-multiple-construction-envs"/>
       above. In this case you will actually want to create separate
       environments.
 

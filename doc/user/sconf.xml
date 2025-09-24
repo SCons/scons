@@ -42,7 +42,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   </para>
 
-  <section>
+  <section id="sect-configure-contexts">
   <title>&Configure_Contexts;</title>
 
     <para>
@@ -128,7 +128,7 @@ env = conf.Finish()
 
   </section>
 
-  <section>
+  <section id="sect-check-header">
   <title>Checking for the Existence of Header Files</title>
 
     <para>
@@ -190,7 +190,7 @@ env = conf.Finish()
 
   </section>
 
-  <section>
+  <section id="sect-check-func">
   <title>Checking for the Availability of a Function</title>
 
     <para>
@@ -211,7 +211,7 @@ env = conf.Finish()
 
   </section>
 
-  <section>
+  <section id="sect-check-lib">
   <title>Checking for the Availability of a Library</title>
 
     <para>
@@ -264,7 +264,7 @@ env = conf.Finish()
 
   </section>
 
-  <section>
+  <section id="sect-check-type">
   <title>Checking for the Availability of a &typedef;</title>
 
     <para>
@@ -303,7 +303,7 @@ env = conf.Finish()
     </sconstruct>
 
   </section>
-  <section>
+  <section id="sect-check-type-size">
   <title>Checking the size of a datatype</title>
     <para>
     Check the size of a datatype by using the &CheckTypeSize; method:
@@ -324,7 +324,7 @@ scons: `.' is up to date.
     </screen>
   </section>
 
-  <section>
+  <section id="sect-check-prog">
   <title>Checking for the Presence of a program</title>
 
     <para>
@@ -344,7 +344,7 @@ env = conf.Finish()
     </sconstruct>
 
   </section>
-  <section>
+  <section id="sect-sconf-custom-checks">
   <title>Extending &SCons;: Adding Your Own Custom Checks</title>
 
     <para>
@@ -501,7 +501,7 @@ scons: Building targets ...
 
   </section>
 
-  <section>
+  <section id="sect-no-config-when-cleaning">
   <title>Not Configuring When Cleaning Targets</title>
 
     <para>
@@ -554,7 +554,7 @@ Removed foo
 
   <!--
 
-  <section>
+  <section id="sect-config-option">
   <title>Controlling Configuration:  the &config; Option</title>
 
     <para>

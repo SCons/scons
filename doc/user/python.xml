@@ -27,13 +27,17 @@ This file is processed by the bin/SConsDoc.py module.
           xmlns="http://www.scons.org/dbxsd/v1.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<!-- TOOD: placeholder file, not currently included in build -->
+
 <title>Python overview</title>
 
     <para>
 
     This section will provide a brief overview of
-    the Python programming language.
-    Skip this section if you are already familiar with Python
+    the &Python; programming language.
+    Skip this section if you are already familiar with &Python;
+    or if you plan to learn &Python; as you go along
     (or you're really intent on diving into &SCons;
     and just picking up things as you go).
 
@@ -44,8 +48,8 @@ This file is processed by the bin/SConsDoc.py module.
     Python has a lot of good
     documentation freely available on-line
     to help you get started.
-    The standard tutorial is available at XXX.
-
+    &Python;'s own tutorial is available at
+    <ulink url="https://docs.python.org/3/tutorial/"/>.
 
     </para>
 

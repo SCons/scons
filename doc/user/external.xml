@@ -49,7 +49,7 @@ This file is processed by the bin/SConsDoc.py module.
 
     </para>
 
-    <section>
+    <section id="sect-external-cdb">
         <title>Creating a Compilation Database</title>
 
         <para>
@@ -279,7 +279,7 @@ env2.CompilationDatabase('compile_commands-linux64.json')
 
     </section>
 
-    <section>
+    <section id="sect-external-ninja">
         <title>Ninja Build Generator</title>
 <note>
     <para>

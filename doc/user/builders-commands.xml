@@ -29,7 +29,7 @@ This file is processed by the bin/SConsDoc.py module.
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>Not Writing a Builder:  the &Command; Builder</title>
 
-  <!--
+  <!-- cons reference documentation:
 
   =head2 The C<Command> method
 

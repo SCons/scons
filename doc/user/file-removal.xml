@@ -46,7 +46,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   </para>
 
-  <section>
+  <section id="sect-fileremoval-intro">
   <title>Preventing target removal during build: the &Precious; Function</title>
 
     <para>
@@ -100,7 +100,7 @@ int f3() { }
 
   </section>
 
-  <section>
+  <section id="sect-fileremoval-noclean">
   <title>Preventing target removal during clean: the &NoClean; Function</title>
 
     <para>
@@ -151,7 +151,7 @@ int f3() { }
 
   </section>
 
-  <section>
+  <section id="sect-fileremoval-clean">
   <title>Removing additional files during clean: the &Clean; Function</title>
 
     <para>

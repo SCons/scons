@@ -115,7 +115,7 @@ int main() { printf("Hello, world!\n"); }
      <scons_output_command>scons -Q install</scons_output_command>
   </scons_output>
 
-  <section>
+  <section id="sect-install-multiple">
   <title>Installing Multiple Files in a Directory</title>
 
     <para>
@@ -170,7 +170,7 @@ env.Alias('install', '__ROOT__/usr/bin')
 
   </section>
 
-  <section>
+  <section id="sect-install-different-name">
   <title>Installing a File Under a Different Name</title>
 
     <para>
@@ -209,7 +209,7 @@ int main() { printf("Hello, world!\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-install-multiple-different-names">
   <title>Installing Multiple Files Under Different Names</title>
 
     <para>
@@ -256,7 +256,7 @@ int main() { printf("Goodbye, world!\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-install-shared-lib">
   <title>Installing a Shared Library</title>
 
     <para>

@@ -144,7 +144,7 @@ over the file scanning rather than being called for each input line:
 
   </para>
 
-  <section id="simple-scanner">
+  <section id="sect-simple-scanner">
   <title>A Simple Scanner Example</title>
 
     <para>
@@ -375,7 +375,7 @@ cat
 
   </section>
 
-  <section id="scanner-search-paths">
+  <section id="sect-scanner-search-paths">
   <title>Adding a search path to a Scanner: &FindPathDirs;</title>
 
     <para>
@@ -457,7 +457,7 @@ kscan = Scanner(
 
   </section>
 
-  <section id="scanner-with-builder">
+  <section id="sect-scanner-with-builder">
   <title>Using scanners with Builders</title>
 
     <para>

@@ -156,6 +156,10 @@ DOCUMENTATION
 
 - Improve documentation of builder methods and builder objects.
 
+- All the User Guide sections now have textual anchors, meaning there
+  no longer be build-generated numeric tags like
+  https://scons.org/doc/production/HTML/scons-user.html#id1514
+
 DEVELOPMENT
 -----------
 

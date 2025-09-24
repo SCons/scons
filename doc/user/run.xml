@@ -28,7 +28,9 @@ This file is processed by the bin/SConsDoc.py module.
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>How to Run &SCons;</title>
 
-<!--
+<!-- TOOD: placeholder file, not currently included in build -->
+
+<!-- cons reference documentation
 
 =head1 Invoking Cons
 
@@ -320,7 +322,7 @@ do an unconstrained build before committing the integration).
 
   </para>
 
-  <section>
+  <section id="sect-run-cmdline">
   <title>Command-Line Options</title>
 
     <para>
@@ -331,7 +333,7 @@ do an unconstrained build before committing the integration).
 
   </section>
 
-  <section>
+  <section id="sect-run-args">
   <title>Getting at Command-Line Arguments</title>
 
     <para>
@@ -342,7 +344,7 @@ do an unconstrained build before committing the integration).
 
   </section>
 
-  <section>
+  <section id="sect-run-selective">
   <title>Selective Builds</title>
 
     <para>
@@ -355,7 +357,7 @@ do an unconstrained build before committing the integration).
 
   <!--
 
-  <section>
+  <section id="sect-run-pruning">
   <title>Build Pruning</title>
 
     <para>
@@ -368,7 +370,7 @@ do an unconstrained build before committing the integration).
 
   -->
 
-  <section>
+  <section id="sect-run-command">
   <title>Overriding Construction Variables</title>
 
     <para>

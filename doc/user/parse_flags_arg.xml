@@ -22,7 +22,7 @@ This file is processed by the bin/SConsDoc.py module.
     %variables-mod;
 ]>
 
-<section id="sect-parse_flags_"
+<section id="sect-parse-flags"
          xmlns="http://www.scons.org/dbxsd/v1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
@@ -38,7 +38,7 @@ This file is processed by the bin/SConsDoc.py module.
  described for the &MergeFlags; method.
  This also works when calling &f-link-env-Clone;,
  as well as in overrides to builder methods
- (see <xref linkend="builder_overrides"/>).
+ (see <xref linkend="sect-builder-overrides"/>).
 
  </para>
 

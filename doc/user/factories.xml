@@ -44,7 +44,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   </para>
 
-  <section>
+  <section id="sect-factories-intro">
   <title>Copying Files or Directories:  The &Copy; Factory</title>
 
     <para>
@@ -183,7 +183,7 @@ Command("LinkIn", "FileOrDirectoryOut", Copy("$TARGET", "$SOURCE", symlinks=Fals
 
   </section>
 
-  <section>
+  <section id="sect-factories-delete">
   <title>Deleting Files or Directories:  The &Delete; Factory</title>
 
     <para>
@@ -290,7 +290,7 @@ Command(
 
   </section>
 
-  <section>
+  <section id="sect-factories-move">
   <title>Moving (Renaming) Files or Directories:  The &Move; Factory</title>
 
     <para>
@@ -338,7 +338,7 @@ touch $*
 
   </section>
 
-  <section>
+  <section id="sect-factories-touch">
   <title>Updating the Modification Time of a File:  The &Touch; Factory</title>
 
     <para>
@@ -378,7 +378,7 @@ SConscript('S')
 
   </section>
 
-  <section>
+  <section id="sect-factories-mkdir">
   <title>Creating a Directory:  The &Mkdir; Factory</title>
 
     <para>
@@ -432,7 +432,7 @@ touch $*
 
   </section>
 
-  <section>
+  <section id="sect-factories-chmod">
   <title>Changing File or Directory Permissions:  The &Chmod; Factory</title>
 
     <para>
@@ -472,7 +472,7 @@ Command(
 
   </section>
 
-  <section>
+  <section id="sect-execute-function">
   <title>Executing an action immediately:  the &Execute; Function</title>
 
     <para>

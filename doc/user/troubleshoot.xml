@@ -62,7 +62,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   </para>
 
-  <section>
+  <section id="sect-debug-explain">
   <title>Why is That Target Being Rebuilt?  the &debug-explain; Option</title>
 
     <para>
@@ -244,7 +244,7 @@ file3.c
 
   </section>
 
-  <section>
+  <section id="sect-dump-method">
   <title>What's in That Construction Environment?  the &f-Dump; Method</title>
 
     <para>
@@ -360,7 +360,7 @@ print(env.Dump('ENV'))
 
   </section>
 
-  <section>
+  <section id="sect-tree-option">
 
   <title>What Dependencies Does &SCons; Know About?  the &tree; Option</title>
 
@@ -601,7 +601,7 @@ inc.h
 
   </section>
 
-  <section>
+  <section id="sect-debug-presub">
 
   <title>How is &SCons; Constructing the Command Lines It Executes?  the &debug-presub; Option</title>
 
@@ -649,7 +649,7 @@ cc -o prog prog.o
 
   </section>
 
-  <section>
+  <section id="sect-debug-findlibs">
 
   <title>Where is &SCons; Searching for Libraries?  the &debug-findlibs; Option</title>
 
@@ -697,7 +697,7 @@ libs2/libbar.a
 
   <!--
 
-  <section>
+  <section id="sect-debug-includes">
 
   <title>What Implicit Dependencies Did the &SCons; Scanner find?  the &debug-includes; Option</title>
 
@@ -733,7 +733,7 @@ inc2/file2.h
 
   -->
 
-  <section>
+  <section id="sect-debug-stacktrace">
 
   <title>Where is &SCons; Blowing Up?  the &debug-stacktrace; Option</title>
 
@@ -805,7 +805,7 @@ Program('prog.c')
 
   </section>
 
-  <section>
+  <section id="sect-taskmastertrace">
 
   <title>How is &SCons; Making Its Decisions?  the &taskmastertrace; Option</title>
 
@@ -871,7 +871,7 @@ prog.c
 
   </section>
 
-  <section>
+  <section id="sect-debug-prepare">
 
   <title>Watch &SCons; prepare targets for building: the &debug-prepare; Option</title>
 
@@ -887,7 +887,7 @@ prog.c
 
   </section>
 
-  <section>
+  <section id="sect-debug-duplicate">
 
   <title>Why is a file disappearing?  the &debug-duplicate; Option</title>
 
@@ -909,7 +909,7 @@ prog.c
 
   </section>
 
-  <section>
+  <section id="sect-keep-it-simple">
 
   <title>Keep it simple</title>
 
@@ -942,7 +942,7 @@ prog.c
   <!--
 
 
-  <section>
+  <section id="sect-profile-option">
 
   <title>Where Are My Build Bottlenecks?  the &profile; Option</title>
 
@@ -958,7 +958,7 @@ prog.c
 
   <!--
 
-  <section>
+  <section id="sect-cache-debug-option">
   <title>Troubleshooting Shared Caching:  the &cache-debug; Option</title>
 
     <para>

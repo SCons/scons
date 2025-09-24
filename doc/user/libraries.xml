@@ -37,7 +37,7 @@ This file is processed by the bin/SConsDoc.py module.
 
   </para>
 
-  <section>
+  <section id="sect-building-libraries">
   <title>Building Libraries</title>
 
     <para>
@@ -98,7 +98,7 @@ void f3() { printf("f3.c\n"); }
 
     </para>
 
-    <section>
+    <section id="sect-building-libraries-from-objects">
     <title>Building Libraries From Source Code or Object Files</title>
 
       <para>
@@ -156,7 +156,7 @@ object file
 
     </section>
 
-    <section>
+    <section id="sect-building-static-libraries">
     <title>Building Static Libraries Explicitly:  the &b-StaticLibrary; Builder</title>
 
       <para>
@@ -183,7 +183,7 @@ StaticLibrary('foo', ['f1.c', 'f2.c', 'f3.c'])
 
     </section>
 
-    <section>
+    <section id="sect-building-shared-libraries">
     <title>Building Shared (DLL) Libraries:  the &b-SharedLibrary; Builder</title>
 
       <para>
@@ -243,7 +243,7 @@ void f3() { printf("f3.c\n"); }
 
   </section>
 
-  <section>
+  <section id="sect-linking-libraries">
   <title>Linking with Libraries</title>
 
     <para>
@@ -354,7 +354,7 @@ Program('prog.c', LIBS=['foo'], LIBPATH='.')
 
   </section>
 
-  <section>
+  <section id="sect-libpath">
   <title>Finding Libraries:  the &cv-LIBPATH; Construction Variable</title>
 
     <para>
