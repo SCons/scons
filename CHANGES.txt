@@ -88,11 +88,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       for known exception types.
     - TEMPFILE: Fix the tempfile encoding test regex strings to eliminate
       warnings in python 3.12 and 3.13.
-    - Add tags to the remaining section headers in the User Guide. This is
-      visible only in two ways: it's possible to link to any section now,
-      and the generated html will no longer have obscure links
-      (e.g. https://scons.org/doc/production/HTML/scons-user.html#id1514)
-      that may change over time.
 
   From William Deegan:
     - Fix Issue #4746. TEMPFILE's are written with utf-8 encoding, In case
@@ -188,6 +183,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and unchanged target and source lists are accounted for to resolve.
       Fixes #3029.
     - Improve documentation of builder methods and builder objects.
+    - Add tags to the remaining section headers in the User Guide. This is
+      visible only in two ways: it's possible to link to any section now,
+      and the generated html will no longer have obscure links
+      (e.g. https://scons.org/doc/production/HTML/scons-user.html#id1514)
+      that may change over time.
 
 
 RELEASE 4.9.1 -  Thu, 27 Mar 2025 11:40:20 -0700
