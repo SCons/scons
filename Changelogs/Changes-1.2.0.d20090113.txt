@@ -1,0 +1,76 @@
+RELEASE 1.2.0.d20090113 - Tue, 13 Jan 2009 02:50:30 -0800
+
+  From Stanislav Baranov, Ted Johnson and Steven Knight:
+
+    - Add support for batch compilation of Visual Studio C/C++ source
+      files, controlled by a new $MSVC_BATCH construction variable.
+
+  From Steven Knight:
+
+    - Print the message, "scons: Build interrupted." on error output,
+      not standard output.
+
+    - Add a --warn=future-deprecated option for advance warnings about
+      deprecated features that still have warnings hidden by default.
+
+    - Fix use of $SOURCE and $SOURCES attributes when there are no
+      sources specified in the Builder call.
+
+    - Add support for new $CHANGED_SOURCES, $CHANGED_TARGETS,
+      $UNCHANGED_SOURCES and $UNCHANGED_TARGETS variables.
+
+    - Add general support for batch builds through new batch_key= and
+      targets= keywords to Action object creation.
+
+  From Arve Knudsen:
+
+    - Make linker tools differentiate properly between SharedLibrary
+      and LoadableModule.
+
+    - Document TestCommon.shobj_prefix variable.
+
+    - Support $SWIGOUTDIR values with spaces.
+
+  From Rob Managan:
+
+    - Don't automatically try to build .pdf graphics files for
+      .eps files in \includegraphics{} calls in TeX/LaTeX files
+      when building with the PDF builder (and thus using pdflatex).
+
+  From Gary Oberbrunner:
+
+    - Allow AppendENVPath() and PrependENVPath() to interpret '#'
+      for paths relative to the top-level SConstruct directory.
+
+    - Use the Borland ilink -e option to specify the output file name.
+
+    - Document that the msvc Tool module uses $PCH, $PCHSTOP and $PDB.
+
+    - Allow WINDOWS_INSERT_DEF=0 to disable --output-def when linking
+      under MinGW.
+
+  From Zia Sobhani:
+
+    - Fix typos in the User's Guide.
+
+  From Greg Spencer:
+
+    - Support implicit dependency scanning of files encoded in utf-8
+      and utf-16.
+
+  From Roberto de Vecchi:
+
+    - Remove $CCFLAGS from the the default definitions of $CXXFLAGS for
+      Visual C/C++ and MIPSpro C++ on SGI so, they match other tools
+      and avoid flag duplication on C++ command lines.
+
+  From Ben Webb:
+
+    - Handle quoted module names in SWIG source files.
+
+    - Emit *_wrap.h when SWIG generates header file for directors
+
+  From Matthew Wesley:
+
+    - Copy file attributes so we identify, and can link a shared library
+      from, shared object files in a Repository.
