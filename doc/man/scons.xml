@@ -3041,23 +3041,10 @@ If the
 is not a string or Node
 and evaluates true,
 then &scons; will change to the
-target file's directory.</para>
-
-<warning>
-<para>
-&Python; only keeps one current directory
-location even if there are multiple threads.
-This means that use of the
-<parameter>chdir</parameter>
-argument
-will
-<emphasis>not</emphasis>
-work with the SCons
-<option>-j</option>
-option,
-because individual worker threads spawned
-by &SCons; interfere with each other
-when they start changing directory.</para>
+target file's directory.
+The original directory is restored
+after the action is complete.
+</para>
 
 <programlisting language="python">
 # scons will change to the "sub" subdirectory
@@ -3074,6 +3061,20 @@ env.Command(
 # "cp" command.
 env.Command('sub/dir/foo.out', 'sub/dir/foo.in', "cp foo.in foo.out", chdir=True)
 </programlisting>
+
+<warning>
+<para>
+&Python; only tracks one current directory location,
+even if there are multiple executing threads.
+This means that use of the
+<parameter>chdir</parameter>
+argument will
+<emphasis>not</emphasis>
+work with &SCons; in multi-threaded mode
+(the <link linkend="opt-jobs"><option>-j</option></link> option),
+because individual worker threads spawned
+by &SCons; interfere with each other
+when they start changing directory.</para>
 </warning>
 
 <para>Note that &SCons; will
@@ -3211,6 +3212,17 @@ tgt = env.Program("prog", ["foo.c", "bar.c", "main.c"])
 Default(tgt)
 </programlisting>
 
+<para>
+The Node representing the explicitly-requested target
+is always the first element of the returned
+<classname>NodeList</classname>,
+and can be retrieved via list indexing
+(e.g. <literal>bar_obj_list[0]</literal>).
+The path name for a Node's file can be obtained
+by using &Python;'s string constructor <function>str</function>
+(e.g. <literal>str(bar_obj_list[0])</literal>).
+</para>
+
 <para>Builder calls will automatically "flatten"
 lists passed as source and target, so they are free to
 contain elements which are themselves lists, such as
@@ -3271,11 +3283,6 @@ object_files = []
 object_files.extend(Object('bar.c'))
 </programlisting>
 
-<para>The path name for a Node's file may be used
-by passing the Node to &Python;'s built-in
-<function>str</function>
-function:</para>
-
 <programlisting language="python">
 bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
 print("The path to bar_obj is:", str(bar_obj_list[0]))
@@ -3328,14 +3335,6 @@ defining your own Scanner objects
 and using the
 <classname>SourceFileScanner</classname>
 object.</para>
-
-
-<para>Note that because the Builder call returns a
-<classname>NodeList</classname>,
-you have to access the first element in the list
-(<literal>bar_obj_list[0]</literal> in the example)
-to get at the Node that actually represents
-the object file.</para>
 
 <para>
 The following builder methods are predefined in the
