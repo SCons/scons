@@ -69,7 +69,7 @@ FIXES
 - Tweak runtest.py and test framework to more reliably get the requested
   Python binary (for odd Windows setups + Python launcher)
 
-- Fix the tempfile encoding test regex strings to eliminate warnings in
+- Fix the tempfile encoding test regex strings to remove warnings in
   python 3.12 and 3.13.
 
 - Incremental builds in Interactive mode could fail on platforms that
@@ -96,7 +96,7 @@ PACKAGING
 ---------
 
 - The generated roff (.1) manpages are now included in the
-  scons-doc tarball that is built at part of the release process,
+  scons-doc tarball built at part of the release process,
   in addition to the html and txt versions. For distribution
   packaging, the manpages can be extracted from here (downloadable
   from https://scons.org/doc/ using a a version-specific URL,
@@ -185,3 +185,10 @@ Thanks to the following contributors listed below for their contributions to thi
 
 
     git shortlog --no-merges -ns 4.9.1..HEAD
+        61  Mats Wichmann
+        46  Joseph Brill
+        25  William Deegan
+         6  Keith F. Prussing
+         1  Bill Prendergast
+         1  Edward Peek
+         1  Thaddeus Crews
