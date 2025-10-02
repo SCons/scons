@@ -2970,18 +2970,18 @@ These options do not affect top-relative paths.
 
 <note>
 <para>
-On Windows, DOS paths may beging with a volume or drive letter
+On Windows, DOS paths may begin with a volume or drive letter
 followed by the volume separator (<literal>:</literal>).
 The remainder of the path is absolute or relative;
 if the volume specifier is present,
 resolution starts at the root of the specified drive for absolute paths
 and the current directory on the specified drive for relative paths.
-The combination of a drive letter different from the
-current drive and a relative path is ambiguous:
-depending on context the current directory on
-that drive may have been saved from outside the &SCons; process,
-and is unknown to the &Python; interpreter,
-so that form should be avoided.
+If the specified drive letter is different than the
+current drive, a relative path is missing context:
+since &SCons; is a console (command-line) application,
+it may inherit state from the terminal it was started in,
+including saved current directories for other drives;
+&SCons; has no way of knowing what those would be.
 Use of a drive letter in the path also precludes
 the use of the top-relative form.
 </para>
