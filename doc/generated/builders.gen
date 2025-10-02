@@ -2419,27 +2419,16 @@ when it is done linking it.
 Builds an object file intended for
 inclusion in a shared library.
 Source files must have one of the same set of extensions
-specified above for the
-&b-StaticObject;
+specified for the
+&b-link-StaticObject;
 builder method.
-On some platforms building a shared object requires additional
-compiler option
-(e.g. <option>-fPIC</option> for <command>gcc</command>)
-in addition to those needed to build a
-normal (static) object, but on some platforms there is no difference between a
-shared object and a normal (static) one. When there is a difference, SCons
-will only allow shared objects to be linked into a shared library, and will
-use a different suffix for shared objects. On platforms where there is no
-difference, SCons will allow both normal (static)
-and shared objects to be linked into a
-shared library, and will use the same suffix for shared and normal
-(static) objects.
 The target object file prefix,
 specified by the &cv-link-SHOBJPREFIX; &consvar;
 (by default, the same as &cv-link-OBJPREFIX;),
 and suffix,
 specified by the &cv-link-SHOBJSUFFIX; &consvar;,
 are automatically added to the target if not already present.
+&b-SharedObject; is a single-source builder.
 Examples:
 </para>
 
@@ -2447,10 +2436,24 @@ Examples:
 env.SharedObject(target='ddd', source='ddd.c')
 env.SharedObject(target='eee.o', source='eee.cpp')
 env.SharedObject(target='fff.obj', source='fff.for')
+env.SharedObject(source=Glob('*.c'))
 </example_commands>
 
 <para>
-Note that the source files will be scanned
+On some platforms building a shared object requires additional
+compiler option(s)
+(e.g. <option>-fPIC</option> for <command>gcc</command>)
+in addition to those needed to build a
+normal (static) object.
+If shared and static objects differ,
+&SCons; will allow only shared objects
+to be linked into a shared library,
+and will use a different suffix for shared objects
+to help indicate and track the difference.
+</para>
+
+<para>
+Source files will be scanned
 according to the suffix mappings in the
 <classname>SourceFileScanner</classname>
 object.
@@ -2502,10 +2505,10 @@ will raise an error if there is any mismatch.
     <listitem><para>
 Builds a static object file
 from one or more C, C++, D, or Fortran source files.
-Source files must have one of the following extensions:
+The file extension mapping is shown in the table:
 </para>
 
-<example_commands>
+<literallayout><literal>
   .asm    assembly language file
   .ASM    assembly language file
   .c      C file
@@ -2534,17 +2537,18 @@ Source files must have one of the following extensions:
           POSIX:  assembly language file + C pre-processor
   .spp    assembly language file + C pre-processor
   .SPP    assembly language file + C pre-processor
-</example_commands>
+</literal></literallayout>
 
 <para>
 The target object file prefix,
 specified by the &cv-link-OBJPREFIX; &consvar;
-(nothing by default),
+(empty string by default),
 and suffix,
 specified by the &cv-link-OBJSUFFIX; &consvar;
 (<filename>.obj</filename> on Windows systems,
 <filename>.o</filename> on POSIX systems),
 are automatically added to the target if not already present.
+&b-StaticObject; is a single-source builder.
 Examples:
 </para>
 
@@ -2552,10 +2556,11 @@ Examples:
 env.StaticObject(target='aaa', source='aaa.c')
 env.StaticObject(target='bbb.o', source='bbb.c++')
 env.StaticObject(target='ccc.obj', source='ccc.f')
+env.StaticObject(source=Glob('*.c'))
 </example_commands>
 
 <para>
-Note that the source files will be scanned
+Source files will be scanned
 according to the suffix mappings in the
 <classname>SourceFileScanner</classname>
 object.

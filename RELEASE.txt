@@ -1,33 +1,12 @@
-If you are reading this in the git repository, the contents
-refer to *unreleased* changes since the last SCons release.
-Past official release announcements appear at:
-
-    https://scons.org/tag/releases.html
-
-==================================================================
-
-A new SCons release, X.Y.Z, is now available on the SCons download page:
+A new SCons release, 4.9.10, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
 Here is a summary of the changes since 4.9.1:
 
 
-NEW FUNCTIONALITY
------------------
-
-- List new features (presumably why a checkpoint is being released)
-
-DEPRECATED FUNCTIONALITY
-------------------------
-
-- List anything that's been deprecated since the last release
-
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
-
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
 
 - Nodes are now treated as PathLike objects.
 
@@ -90,7 +69,7 @@ FIXES
 - Tweak runtest.py and test framework to more reliably get the requested
   Python binary (for odd Windows setups + Python launcher)
 
-- Fix the tempfile encoding test regex strings to eliminate warnings in
+- Fix the tempfile encoding test regex strings to remove warnings in
   python 3.12 and 3.13.
 
 - Incremental builds in Interactive mode could fail on platforms that
@@ -100,10 +79,6 @@ FIXES
 
 IMPROVEMENTS
 ------------
-
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
 
 - Virtualenv support module modernized: previously looked first for an
   unofficial approach from before venv support was made part of Python
@@ -120,10 +95,8 @@ IMPROVEMENTS
 PACKAGING
 ---------
 
-- List changes in the way SCons is packaged and/or released
-
 - The generated roff (.1) manpages are now included in the
-  scons-doc tarball that is built at part of the release process,
+  scons-doc tarball built at part of the release process,
   in addition to the html and txt versions. For distribution
   packaging, the manpages can be extracted from here (downloadable
   from https://scons.org/doc/ using a a version-specific URL,
@@ -131,10 +104,6 @@ PACKAGING
 
 DOCUMENTATION
 -------------
-
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
 
 - Clarify how pre/post actions on an alias work.
 
@@ -162,8 +131,6 @@ DOCUMENTATION
 
 DEVELOPMENT
 -----------
-
-- List visible changes in the way SCons is developed
 
 - runtest.py once again finds "external" tests, such as the tests for
   tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
@@ -218,3 +185,10 @@ Thanks to the following contributors listed below for their contributions to thi
 
 
     git shortlog --no-merges -ns 4.9.1..HEAD
+        61  Mats Wichmann
+        46  Joseph Brill
+        25  William Deegan
+         6  Keith F. Prussing
+         1  Bill Prendergast
+         1  Edward Peek
+         1  Thaddeus Crews

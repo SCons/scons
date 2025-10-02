@@ -459,7 +459,7 @@ be represented in the 7-bit ASCII characer set),
 set this variable to the appropriate codec.
 See also &cv-link-TEMPFILEDIR;.
 </para>
-<para><emphasis>New in version NEXT_RELEASE</emphasis></para>
+<para><emphasis>New in version 4.10.0</emphasis></para>
 </summary>
 </cvar>
 

@@ -8,6 +8,6 @@ scons: internal stack trace:
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "SCons/Taskmaster/__init__.py", line 195, in prepare
     executor.prepare()
-  File "SCons/Executor.py", line 420, in prepare
+  File "SCons/Executor.py", line 424, in prepare
     raise SCons.Errors.StopError(msg % (s, self.batches[0].targets[0]))
 </screen>

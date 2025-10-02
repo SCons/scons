@@ -204,7 +204,7 @@ class Executor(metaclass=NoSlotsPyPy):
     def _get_changes(self) -> None:
         """Populate all the changed/unchanged lists.
 
-        .. versionchanged:: NEXT_RELEASE
+        .. versionchanged:: 4.10.0
            ``_changed_sources``, ``_changed_targets``, ``_unchanged_sources``
            and ``_unchanged_targets`` are no longer separate instance
            attributes, but rather saved in the :attr:`_memo` dict.

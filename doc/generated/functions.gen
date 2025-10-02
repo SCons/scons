@@ -738,9 +738,10 @@ preserving the last occurrence to maintain path order.
 If <parameter>delete_existing</parameter> is true (the default),
 existing duplicates are removed before appending,
 otherwise, new duplicates are skipped.
-Paths are normalized during comparisons to avoid problems of
-"same path, spelled differently",
-but retain their original form in the result.
+During comparisons, paths are normalized, to avoid
+issues with case differences (on case-insensitive filesystems)
+and with relative paths that may refer back to the same directory.
+The stored values are not modified by this process.
 </para>
 
 <para>
@@ -3426,9 +3427,10 @@ preserving the first occurrence to maintain path order.
 If <parameter>delete_existing</parameter> is true (the default),
 existing duplicates are removed before prepending,
 otherwise, new duplicates are skipped.
-Paths are normalized during comparisons to avoid problems of
-"same path, spelled differently",
-but retain their original form in the result.
+During comparisons, paths are normalized, to avoid
+issues with case differences (on case-insensitive filesystems)
+and with relative paths that may refer back to the same directory.
+The stored values are not modified by this process.
 </para>
 
 <para>

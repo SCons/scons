@@ -235,7 +235,7 @@ def _Remove_Argument(aarg: str) -> None:
     could not recognize it belongs to an option and is not a standalone
     variable=value argument.
 
-    .. versionadded:: NEXT_RELEASE
+    .. versionadded:: 4.10.0
 
     """
     if aarg:
@@ -261,7 +261,7 @@ def _Remove_Target(targ: str) -> None:
     Since we are "correcting an error", we also have to fix up the internal
     :data:`_build_plus_default` list.
 
-    .. versionadded:: NEXT_RELEASE
+    .. versionadded:: 4.10.0
 
     """
     if targ:
