@@ -13,7 +13,7 @@ scons: Reading SConscript files ...
   'CCDEPFLAGS': '/showIncludes',
   'CCFLAGS': ['/nologo'],
   'CCPCHFLAGS': &lt;function gen_ccpchflags at 0x700000&gt;,
-  'CCPDBFLAGS': ['${(PDB and "/Z7") or ""}'],
+  'CCPDBFLAGS': ['${"/Z7" if PDB else ""}'],
   'CFILESUFFIX': '.c',
   'CFLAGS': [],
   'CONFIGUREDIR': '#/.sconf_temp',
@@ -74,7 +74,7 @@ scons: Reading SConscript files ...
   'PCHCOM': '$CXX /Fo${TARGETS[1]} $CXXFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS '
             '$_CPPINCFLAGS /c $SOURCES /Yc$PCHSTOP /Fp${TARGETS[0]} '
             '$CCPDBFLAGS $PCHPDBFLAGS',
-  'PCHPDBFLAGS': ['${(PDB and "/Yd") or ""}'],
+  'PCHPDBFLAGS': ['${"/Yd" if PDB else ""}'],
   'PLATFORM': 'win32',
   'PROGPREFIX': '',
   'PROGSUFFIX': '.exe',

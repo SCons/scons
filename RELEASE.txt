@@ -1,33 +1,12 @@
-If you are reading this in the git repository, the contents
-refer to *unreleased* changes since the last SCons release.
-Past official release announcements appear at:
-
-    https://scons.org/tag/releases.html
-
-==================================================================
-
-A new SCons release, X.Y.Z, is now available on the SCons download page:
+A new SCons release, 4.9.10, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
 Here is a summary of the changes since 4.9.1:
 
 
-NEW FUNCTIONALITY
------------------
-
-- List new features (presumably why a checkpoint is being released)
-
-DEPRECATED FUNCTIONALITY
-------------------------
-
-- List anything that's been deprecated since the last release
-
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
-
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
 
 - Nodes are now treated as PathLike objects.
 
@@ -101,10 +80,6 @@ FIXES
 IMPROVEMENTS
 ------------
 
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
-
 - Virtualenv support module modernized: previously looked first for an
   unofficial approach from before venv support was made part of Python
   in 3.3; now looks for the official approach first. This in an internal
@@ -120,8 +95,6 @@ IMPROVEMENTS
 PACKAGING
 ---------
 
-- List changes in the way SCons is packaged and/or released
-
 - The generated roff (.1) manpages are now included in the
   scons-doc tarball that is built at part of the release process,
   in addition to the html and txt versions. For distribution
@@ -131,10 +104,6 @@ PACKAGING
 
 DOCUMENTATION
 -------------
-
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
 
 - Clarify how pre/post actions on an alias work.
 
@@ -162,8 +131,6 @@ DOCUMENTATION
 
 DEVELOPMENT
 -----------
-
-- List visible changes in the way SCons is developed
 
 - runtest.py once again finds "external" tests, such as the tests for
   tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.

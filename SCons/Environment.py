@@ -1304,7 +1304,7 @@ class Base(SubstitutionEnvironment):
         other parts of SCons depend on seeing the :exc:`AttributeError` that
         triggers this call, so all we do is produce our own message.
 
-        .. versionadded:: NEXT_RELEASE
+        .. versionadded:: 4.10.0
         """
         raise AttributeError(
             f"Builder or other environment method {name!r} not found.\n"
