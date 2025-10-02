@@ -1,194 +1,65 @@
-A new SCons release, 4.9.10, is now available on the SCons download page:
+If you are reading this in the git repository, the contents
+refer to *unreleased* changes since the last SCons release.
+Past official release announcements appear at:
+
+    https://scons.org/tag/releases.html
+
+==================================================================
+
+A new SCons release, NEXT_RELEASE, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
-Here is a summary of the changes since 4.9.1:
 
+Here is a summary of the changes since PREVIOUS_RELEASE:
+
+NEW FUNCTIONALITY
+-----------------
+
+- List new features (presumably why a checkpoint is being released)
+
+DEPRECATED FUNCTIONALITY
+------------------------
+
+- List anything that's been deprecated since the last release
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- Nodes are now treated as PathLike objects.
-
-- Replace use of old conditional expression idioms with the official
-  one from PEP 308 introduced in Python 2.5 (2006). The idiom being
-  replaced (using and/or) is regarded as error prone.
-
-- MSVC: The following shell environment variables are now included in
-  the environment used by SCons to initialize MSVC when defined:
-  VCPKG_DISABLE_METRICS, VCPKG_ROOT, POWERSHELL_TELEMETRY_OPTOUT,
-  PSDisableModuleAnalysisCacheCleanup, and PSModuleAnalysisCachePath.
-  A subset of the shell environment PSModulePath is included in the
-  environment used by SCons to initialize MSVC when defined.  None of
-  these variables and values are propagated to the user's SCons
-  environment after running the MSVC batch files.
-
-- TEMPFILE: A UserError exception is raised when encoding
-  the contents of the tempfile fails due to a limited set of expected
-  exceptions (e.g., UnicodeError).
+- List modifications to existing features, where the previous behavior
+  wouldn't actually be considered a bug
 
 FIXES
 -----
 
-- Fixed SCons.Variables.PackageVariable to correctly test the default
-  setting against both enable & disable strings. (Fixes #4702)
-
-- MSVC: Fixed a significant delay experienced in the Github Actions
-  windows 2022 and 2025 runners due to the environment used by SCons
-  to initialize MSVC when the Visual Studio vcpkg component is
-  installed. The Github Actions windows 2019 runner was not affected.
-
-- Fix the variant dir component being missing from generated source file
-  paths with CompilationDatabase() builder (Fixes #4003).
-
-- Ninja tool generate_command() fixed to call subst() with correct
-  arguments in ListAction case. Unit tests added for generate_command.
-
-- Fix the SCons.Scanner.LaTeX to mimic LaTeX's search method.
-
-- Ninja tool now quotes targets (if necessary) when calling back to
-  SCons - both in the POST request constructed to contact the
-  daemon, and in the command eventually issued from the deamon.
-
-- Ninja tool is adjusted to recognize and emit the right rule in
-  the case of special actions that the tool recognizes, like Copy.
-  This was working in the case of single commands, but not when part
-  of a list of actions. Recognition only happens if the special
-  action is first in the list.
-
-- Fix a test problem on Windows where UNC tests failed due to incorrect path
-  munging if a non-default %TEMP% was defined (as in moving to a Dev Drive).
-
-- Fix Issue #4746. The TEMPFILE is written in utf-8 encoding by default.
-  If the tempfile contents cannot be decoded by the command the
-  tempfile is passed to, (new) TEMPPFILEENCODING can be used to speficy a
-  different encoding to use. On Windows, the username may be a cause of this,
-  as the default path for temporary files includes the username. Setting
-  (existing) TEMPFILEDIR may also help in this case.
-
-- Tweak runtest.py and test framework to more reliably get the requested
-  Python binary (for odd Windows setups + Python launcher)
-
-- Fix the tempfile encoding test regex strings to remove warnings in
-  python 3.12 and 3.13.
-
-- Incremental builds in Interactive mode could fail on platforms that
-  support batch mode (currently: Windows).  Change the way the changed
-  and unchanged target and source lists are accounted for to resolve.
-  Fixes #3029.
+- List fixes of outright bugs
 
 IMPROVEMENTS
 ------------
 
-- Virtualenv support module modernized: previously looked first for an
-  unofficial approach from before venv support was made part of Python
-  in 3.3; now looks for the official approach first. This in an internal
-  detail, the API is unchanged.
-
-- Add internal routines to manipulate publicly visible argument and
-  target lists. These interfaces are not part of the public API.
-
-- Improve the error message when an environment method is called which
-  does not exist in that environment. Mostly this is intended to be a
-  bit more helpful in the case of a builder which did not instantiate.
+- List improvements that wouldn't be visible to the user in the
+  documentation:  performance improvements (describe the circumstances
+  under which they would be observed), or major code cleanups
 
 PACKAGING
 ---------
 
-- The generated roff (.1) manpages are now included in the
-  scons-doc tarball built at part of the release process,
-  in addition to the html and txt versions. For distribution
-  packaging, the manpages can be extracted from here (downloadable
-  from https://scons.org/doc/ using a a version-specific URL,
-  e.g. https://scons.org/doc/4.9.1/scons-doc-4.9.1.tar.gz).
+- List changes in the way SCons is packaged and/or released
 
 DOCUMENTATION
 -------------
 
-- Clarify how pre/post actions on an alias work.
-
-- Improve the description of PackageVariable.
-
-- The "API Docs" build (Sphinx) configuration is improved, and
-  SConsDoc and SConsExample are now included - their API is
-  interesting to developers working on SCons (needed to write docs),
-  even if not part of "The SCons API" itself.
-
-- Missing documentation for the Virtualenv() function is added.
-  Note that the User Guide previously described a negative outcome
-  as returning None.  It is now explicit that the path is returned if
-  running in a virtualenv, and an empty (falsy) string if not.
-
-- Improve the wording of Configure methods.
-
-- Improve the wording of AppendENVPath and PrependENVPath in manpage.
-
-- Improve documentation of builder methods and builder objects.
-
-- All the User Guide sections now have textual anchors, meaning there
-  no longer be build-generated numeric tags like
-  https://scons.org/doc/production/HTML/scons-user.html#id1514
+- List any significant changes to the documentation (not individual
+  typo fixes, even if they're mentioned in src/CHANGES.txt to give
+  the contributor credit)
 
 DEVELOPMENT
 -----------
 
-- runtest.py once again finds "external" tests, such as the tests for
-  tools in scons-contrib. An earlier rework had broken this.  Fixes #4699.
-
-- Clean up C and C++ FLAGS tests. Tests which use a real compiler
-  are now more clearly distinguished (-live.py suffix and docstring).
-
-- Fix a couple of unit tests to not fail with Python 3.14. These involve
-  expectations for bytecode strings and error message contents; there was
-  no problem with SCons itself using 3.14.
-
-- Move the GitHub workflow test runner files from the SCons root to
-  the ci subdirectory of the testing directory.
-
-- GitHub: Enable the interactive tests on windows.
-
-- GitHub: Enable the packaging tar xz test on windows.
-
-- GitHub: Exclude two ninja tests that consistently fail on MacOS in
-  the experimental tests workflow.
-
-- GitHub: Add a workflow file to test MSVC with optional environment
-  variables.
-
-- GitHub: Populate the MSVC cache before running the test suite for
-  select windows workflow files.
-
-- GitHub: Upload the failed_tests.log artifact on failure in select
-  workflow files.
-
-- GitHub: Change the runtest workflow to allow the python version to
-  be specified with the OS version.
-
-- Testing: Increase the default timeout from 20 seconds to 60 seconds
-  in the testing framework wait_for method. The timeout was increased
-  during isolated experiments of the interactive tests on windows.
-
-- Testing: Update the packaging tar bz2 and xz tests on on Windows.
-  The packaging tar bz2 and xz tests should be skipped on Windows 10
-  and GitHub windows-2022. The packaging tar bz2 and xz tests should
-  be run on Windows 11 and GitHub windows-2025.
-
-- Ninja: Increase the number of generated source files in the
-  iterative speedup test from 200 to 250.  Increasing the workload
-  should reduce the likelihood that the ninja tests are slower.
-
-- Add more unit tests to internal AppendPath, PrependPath functions.
+- List visible changes in the way SCons is developed
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-
-    git shortlog --no-merges -ns 4.9.1..HEAD
-        61  Mats Wichmann
-        46  Joseph Brill
-        25  William Deegan
-         6  Keith F. Prussing
-         1  Bill Prendergast
-         1  Edward Peek
-         1  Thaddeus Crews
+    git shortlog --no-merges -ns PREVIOUS_RELEASE..HEAD
