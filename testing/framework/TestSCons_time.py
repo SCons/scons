@@ -139,10 +139,6 @@ profile_py = """\
 
 import cProfile
 
-try: dispatch = cProfile.Profile.dispatch
-except AttributeError: pass
-else: dispatch['c_exception'] = cProfile.Profile.trace_dispatch_return
-
 prof = cProfile.Profile()
 prof.runcall(%(call)s)
 prof.dump_stats(r'%(profile_name)s')
