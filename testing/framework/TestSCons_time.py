@@ -137,13 +137,13 @@ Total command execution time: 44.456789 seconds
 profile_py = """\
 %(body)s
 
-import profile
+import cProfile
 
-try: dispatch = profile.Profile.dispatch
+try: dispatch = cProfile.Profile.dispatch
 except AttributeError: pass
-else: dispatch['c_exception'] = profile.Profile.trace_dispatch_return
+else: dispatch['c_exception'] = cProfile.Profile.trace_dispatch_return
 
-prof = profile.Profile()
+prof = cProfile.Profile()
 prof.runcall(%(call)s)
 prof.dump_stats(r'%(profile_name)s')
 """

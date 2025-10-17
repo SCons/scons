@@ -29,6 +29,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - List modifications to existing features, where the previous behavior
   wouldn't actually be considered a bug
 
+- Switch test framework from using profile to cProfile. profile
+  generates deprecation warnings starting with Python 3.15.
+
 FIXES
 -----
 
