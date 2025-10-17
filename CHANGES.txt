@@ -12,9 +12,12 @@ NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
+  From John Doe:
+    - Whatever John Doe did.
 
-        - Whatever John Doe did.
+  From Mats Wichmann:
+    - Switch test framework from using profile to cProfile. profile
+      generates deprecation warnings starting with Python 3.15.
 
 
 RELEASE 4.10.0 -  Thu, 02 Oct 2025 11:40:20 -0700
