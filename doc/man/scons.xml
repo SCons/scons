@@ -2830,20 +2830,12 @@ out-of-date with respect to the sources.
 </para>
 
 <para>
-&SCons;
-provides a number of builders, and you can also write your own
-(see <link linkend='builder_objects'>Builder Objects</link>).
-Builders are created dynamically at run-time,
-often (though not always) by tools which determine
-whether the external dependencies for the builder are satisfied,
-and which perform the necessary setup
-(see <link linkend='tools'>Tools</link>).
-Builders are attached to a &consenv; as methods.
-The available builder methods are registered as
-key-value pairs in the
-&cv-link-BUILDERS; attribute of the &consenv;,
-so the available builders can be examined.
-This example displays them for debugging purposes:
+All true Builder methods share the same function calling syntax.
+For the sake of brevity, this common signature is not included in
+the listing of Builders.
+Pseudo-Builders have more flexibility in how they are called,
+and do not necessarily follow this convention,
+as described in the text of the respective entries.
 </para>
 
 <programlisting language="python">
@@ -2851,10 +2843,6 @@ This example displays them for debugging purposes:
 </programlisting>
 
 <para>
-Builder methods take two required arguments:
-<parameter>target</parameter>
-and
-<parameter>source</parameter>.
 The <parameter>target</parameter> and
 <parameter>source</parameter> arguments
 can be specified either as positional arguments,
