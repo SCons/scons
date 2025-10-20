@@ -13,10 +13,6 @@ SCons - a Software Construction Tool
    :target: https://sourceforge.net/projects/scons
    :alt: Sourceforge Total Downloads
 
-.. image:: https://travis-ci.com/SCons/scons.svg?branch=master
-   :target: https://travis-ci.com/SCons/scons
-   :alt: Travis CI build status
-
 .. image:: https://ci.appveyor.com/api/projects/status/github/SCons/scons?svg=true&branch=master
    :target: https://ci.appveyor.com/project/SCons/scons
    :alt: AppVeyor CI build Status
