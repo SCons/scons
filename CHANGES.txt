@@ -19,6 +19,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Switch test framework from using profile to cProfile. profile
       generates deprecation warnings starting with Python 3.15.
     - Improve documentation of builder methods and builder objects.
+    - Make links clickable in the SetOption and GetOption manpage entries.
 
 
 RELEASE 4.10.0 -  Thu, 02 Oct 2025 11:40:20 -0700
