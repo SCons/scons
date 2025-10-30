@@ -50,6 +50,7 @@ cache_force = False
 cache_show = False
 cache_readonly = False
 cache_tmp_uuid = uuid.uuid4().hex
+cli_cache_dir = None
 
 def CacheRetrieveFunc(target, source, env) -> int:
     t = target[0]

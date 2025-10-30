@@ -43,6 +43,7 @@ from typing import TYPE_CHECKING, Callable, Collection, Sequence
 
 import SCons.Action
 import SCons.Builder
+import SCons.CacheDir
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Defaults
@@ -1221,6 +1222,12 @@ class Base(SubstitutionEnvironment):
         self._dict = semi_deepcopy(SCons.Defaults.ConstructionEnvironment)
         self._init_special()
         self.added_methods = []
+
+        # If user specifies a --cache-dir on the command line, then
+        # use that for all created Environments, user can alter this
+        # by specifying CacheDir() per environment.
+        if SCons.CacheDir.cli_cache_dir:
+            self.CacheDir(SCons.CacheDir.cli_cache_dir)
 
         # We don't use AddMethod, or define these as methods in this
         # class, because we *don't* want these functions to be bound

@@ -793,6 +793,13 @@ def Parser(version):
                   help="Print CacheDir debug info to FILE",
                   metavar="FILE")
 
+    op.add_option('--cache-dir',
+                  nargs=1,
+                  dest='cache_dir',
+                  metavar='CACHEDIR',
+                  help='Enable the derived‑file cache and set its directory to CACHEDIR',
+                  default=None)
+
     op.add_option('--cache-disable', '--no-cache',
                   dest='cache_disable', default=False,
                   action="store_true",
