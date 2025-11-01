@@ -58,6 +58,8 @@ DOCUMENTATION
 
 - Improve documentation of builder methods and builder objects.
 
+- Make links clickable in the SetOption and GetOption manpage entries.
+
 DEVELOPMENT
 -----------
 
