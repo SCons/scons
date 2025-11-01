@@ -708,6 +708,20 @@ derived-file cache specified by &f-link-CacheDir;.</para>
   </listitem>
   </varlistentry>
 
+  <varlistentry id="opt-cache-dir">
+  <term>-<option>-cache-dir=<replaceable>cachedir</replaceable></option></term>
+  <listitem>
+<para>Enable derived-file caching globally, using
+<replaceable>cachedir</replaceable> as the cache directory.
+An individual &consenv; may still specify a different
+cache directory by calling &f-link-env-CacheDir;.
+</para>
+<para><emphasis>Added in version NEXT_RELEASE.</emphasis></para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+
   <varlistentry id="opt-cache-disable">
   <term>
     <option>--cache-disable</option>,
@@ -9073,7 +9087,7 @@ However, the following variables are imported by
 </para>
 
 <variablelist>
-  <varlistentry>
+  <varlistentry id="v-SCONS_LIB_DIR">
     <term><envar>SCONS_LIB_DIR</envar></term>
     <listitem>
 <para>Specifies the directory that contains the &scons;
@@ -9099,7 +9113,7 @@ so the command line can be used to override
     </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-SCONS_CACHE_MSVC_CONFIG">
     <term><envar>SCONS_CACHE_MSVC_CONFIG</envar></term>
     <listitem>
 <para>(Windows only). If set, save the shell environment variables

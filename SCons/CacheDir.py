@@ -44,13 +44,15 @@ CACHE_TAG = (
     b"# SCons cache directory - see https://bford.info/cachedir/\n"
 )
 
+# Defaults for the cache subsystem's globals. Most of these are filled in by
+# SCons.Script.Main._build_targets, once the command line has been parsed.
 cache_enabled = True
 cache_debug = False
 cache_force = False
 cache_show = False
 cache_readonly = False
 cache_tmp_uuid = uuid.uuid4().hex
-cli_cache_dir = None
+cli_cache_dir = ""
 
 def CacheRetrieveFunc(target, source, env) -> int:
     t = target[0]
@@ -211,9 +213,11 @@ class CacheDir:
             return False
 
         try:
+            parent_dir = os.path.dirname(directory)
+            os.makedirs(parent_dir, exist_ok=True)
             # TODO: Python 3.7. See comment below.
-            # tempdir = tempfile.TemporaryDirectory(dir=os.path.dirname(directory))
-            tempdir = tempfile.mkdtemp(dir=os.path.dirname(directory))
+            # tempdir = tempfile.TemporaryDirectory(dir=os.path.dirname(parent_dir))
+            tempdir = tempfile.mkdtemp(dir=os.path.dirname(parent_dir))
         except OSError as e:
             msg = "Failed to create cache directory " + path
             raise SCons.Errors.SConsEnvironmentError(msg) from e
@@ -274,18 +278,33 @@ class CacheDir:
             if cache_debug == '-':
                 self.debugFP = sys.stdout
             elif cache_debug:
+                # TODO: this seems fragile. There can be only one debug output
+                #   (terminal, file or none) per run, so it should not
+                #   be reopened. Testing multiple caches showed a problem
+                #   where reopening with 'w' mode meant some of the output
+                #   was lost, so for the moment switched to append mode.
+                # . Keeping better track of the output file, or switching to
+                #   using the logging module should help. The "persistence"
+                #   of using append mode breaks test/CacheDir/debug.py
                 def debug_cleanup(debugFP) -> None:
                     debugFP.close()
 
-                self.debugFP = open(cache_debug, 'w')
+                self.debugFP = open(cache_debug, 'a')
                 atexit.register(debug_cleanup, self.debugFP)
             else:
                 self.debugFP = None
             self.current_cache_debug = cache_debug
         if self.debugFP:
+            # TODO: consider emitting more than the base filename to help
+            #   distinguish retrievals across variantdirs (target.relpath?).
+            #   Separately, showing more of the cache entry path would be
+            #   useful for testing, though possibly not otherwise. How else
+            #   can you tell which target went to which cache if there are >1?
             self.debugFP.write(fmt % (target, os.path.split(cachefile)[1]))
-            self.debugFP.write("requests: %d, hits: %d, misses: %d, hit rate: %.2f%%\n" %
-                               (self.requests, self.hits, self.misses, self.hit_ratio))
+            self.debugFP.write(
+                "requests: %d, hits: %d, misses: %d, hit rate: %.2f%%\n" %
+                (self.requests, self.hits, self.misses, self.hit_ratio)
+            )
 
     @classmethod
     def copy_from_cache(cls, env, src, dst) -> str:
@@ -337,7 +356,7 @@ class CacheDir:
         Given a Node, obtain the configured cache directory and
         the path to the cached file, which is generated from the
         node's build signature. If caching is not enabled for the
-        None, return a tuple of None.
+        node, return a tuple of ``None``.
         """
         if not self.is_enabled():
             return None, None
@@ -350,11 +369,11 @@ class CacheDir:
     def retrieve(self, node) -> bool:
         """Retrieve a node from cache.
 
-        Returns True if a successful retrieval resulted.
+        Returns ``True`` if a successful retrieval resulted.
 
         This method is called from multiple threads in a parallel build,
         so only do thread safe stuff here. Do thread unsafe stuff in
-        built().
+        :meth:`built`.
 
         Note that there's a special trick here with the execute flag
         (one that's not normally done for other actions).  Basically

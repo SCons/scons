@@ -47,6 +47,7 @@ import re
 import sys
 import traceback
 import time
+import types
 
 class SConscriptReturn(Exception):
     pass
@@ -667,42 +668,43 @@ def get_DefaultEnvironmentProxy():
     return _DefaultEnvironmentProxy
 
 class DefaultEnvironmentCall:
-    """A class that implements "global function" calls of
-    Environment methods by fetching the specified method from the
-    DefaultEnvironment's class.  Note that this uses an intermediate
-    proxy class instead of calling the DefaultEnvironment method
-    directly so that the proxy can override the subst() method and
+    """Create a "global function" from an Environment method.
+
+    Fetches the *method_name* from the Environment instance created to hold
+    the Default Environment.  Uses an intermediate proxy class instead of
+    calling the :meth:`~SCons.Defaults.DefaultEnvironment` function directly,
+    so that the proxy can override the ``subst()`` method and
     thereby prevent expansion of construction variables (since from
     the user's point of view this was called as a global function,
-    with no associated construction environment)."""
-    def __init__(self, method_name, subst: int=0) -> None:
+    with no associated construction environment).
+    """
+
+    def __init__(self, method_name, subst: bool = False) -> None:
         self.method_name = method_name
         if subst:
             self.factory = SCons.Defaults.DefaultEnvironment
         else:
             self.factory = get_DefaultEnvironmentProxy
+
     def __call__(self, *args, **kw):
         env = self.factory()
         method = getattr(env, self.method_name)
         return method(*args, **kw)
 
-
-def BuildDefaultGlobals():
-    """
-    Create a dictionary containing all the default globals for
-    SConstruct and SConscript files.
-    """
-
+def BuildDefaultGlobals() -> dict:
+    """Create a dict containing all the default globals for SConscript files."""
     global GlobalDict
     if GlobalDict is None:
-        GlobalDict = {}
-
         import SCons.Script
+
+        GlobalDict = {}
         d = SCons.Script.__dict__
-        def not_a_module(m, d=d, mtype=type(SCons.Script)) -> bool:
-             return not isinstance(d[m], mtype)
+
+        def not_a_module(m, d=d) -> bool:
+            return not isinstance(d[m], types.ModuleType)
+
         for m in filter(not_a_module, dir(SCons.Script)):
-             GlobalDict[m] = d[m]
+            GlobalDict[m] = d[m]
 
     return GlobalDict.copy()
 
