@@ -709,18 +709,23 @@ derived-file cache specified by &f-link-CacheDir;.</para>
   </varlistentry>
 
   <varlistentry id="opt-cache-dir">
-  <term>-<option>-cache-dir=<replaceable>cachedir</replaceable></option></term>
-  <listitem>
-<para>Enable derived-file caching globally, using
-<replaceable>cachedir</replaceable> as the cache directory.
-An individual &consenv; may still specify a different
-cache directory by calling &f-link-env-CacheDir;.
-</para>
-<para><emphasis>Added in version NEXT_RELEASE.</emphasis></para>
-  </listitem>
+    <term>-
+      <option>-cache-dir=
+        <replaceable>cachedir</replaceable>
+      </option>
+    </term>
+    <listitem>
+      <para>Enable derived-file caching globally, using
+        <replaceable>cachedir</replaceable>
+        as the cache directory.
+        An individual &consenv; may still specify a different
+        cache directory by calling &f-link-env-CacheDir;.
+      </para>
+      <para>
+        <emphasis>Added in version NEXT_RELEASE.</emphasis>
+      </para>
+    </listitem>
   </varlistentry>
-
-  <varlistentry>
 
   <varlistentry id="opt-cache-disable">
   <term>
@@ -2829,18 +2834,19 @@ method (see below).
 <refsect2 id='builder_methods'>
 <title>Builder Methods</title>
 
-<para>You tell &SCons; what to build
-by calling <firstterm>Builders</firstterm>,
-functions which take particular action(s)
-to produce target(s) of a particular type
-(conventionally hinted at by the builder name, e.g. &Program;)
-from the specified source files.
-A builder call is a declaration: &SCons; enters the
-specified relationship into its internal dependency node graph,
-and only later makes the decision on whether anything is actually built,
-since this depends on command-line options,
-target selection rules, and whether the target(s) are
-out-of-date with respect to the sources.
+<para>
+Builder methods are special functions
+used to declare relationships in the build dependency graph.
+Calling a Builder does not build anything directly,
+but records the target or targets (what you want built),
+sources (what it’s built from),
+and the &consenv; to use for build settings.
+The builder itself will typically have information
+about producing targets which is also used,
+except &b-link-Command;, where the caller is
+responsible for specifying the action.
+The &SCons; job runner later decides if and when
+to initiate a build using this information.
 </para>
 
 <para>
@@ -2859,28 +2865,15 @@ as described in the text of the respective entries.
 <para>
 The <parameter>target</parameter> and
 <parameter>source</parameter> arguments
-can be specified either as positional arguments,
-in which case <parameter>target</parameter> comes first, or as
-keyword arguments, using <parameter>target=</parameter>
-and <parameter>source=</parameter>.
-Although both arguments are nominally required,
-if there is a single source and the target can be inferred
-the <parameter>target</parameter> argument can be omitted (see below).
-Builder methods also take a variety of
-keyword arguments, described below.
+can be specified either as positional or keyword arguments.
+Some additional keyword arguments are recognized for all builders,
+and any unknown keyword arguments are treated as temporary
+&consvar; assignments.
+You can specify sources and targets as a scalar or a list,
+composed of either strings or nodes.
+For convenience, the &f-link-Split; method
+can be used to split a single whitespace-separated string into a list.
 </para>
-
-<para>Because long lists of file names
-can lead to a lot of quoting in a builder call,
-&SCons;
-supplies a &f-link-Split;
-global function
-and a same-named environment method
-that splits a single string
-into a list, using
-strings of white-space characters as the delimiter
-(similar to the &Python; string <function>split</function>
-method, but succeeds even if the input isn't a string).</para>
 
 <para>
 &SCons; can resolve paths to sources and targets
@@ -3044,36 +3037,28 @@ if os.path.exists('#inc/foo.h'):
     env.Append(CPPPATH='#inc')
 </programlisting>
 
-<para>When the target shares the same base name
-as the source and only the suffix varies,
-and if the builder method has a suffix defined for the target file type,
-then the target argument may be omitted completely,
-and
-&scons;
-will deduce the target file name from
-the source file name.
-The following examples all build the
-executable program
-<emphasis role="bold">bar</emphasis>
-(on POSIX systems)
-or
-<emphasis role="bold">bar.exe</emphasis>
-(on Windows systems)
-from the <filename>bar.c</filename> source file:</para>
+<para>
+If &SCons; can deduce the target name from the source(s),
+the <parameter>target</parameter> argument may be omitted.
+If the Builder supports it,
+&SCons; will take the base name of the first source file
+and use it as the base name of the target,
+adding the appropriate prefix/suffix.
+For Builders designated as single-source,
+a separate target is built for each source file.
+If multiple sources are passed to a single-source builder,
+the target argument <emphasis>must</emphasis> be omitted,
+and each target will be given a name deduced from
+the corresponding source file.
+</para>
 
-<programlisting language="python">
-env.Program(target='bar', source='bar.c')
-env.Program('bar', source='bar.c')
-env.Program(source='bar.c')
-env.Program('bar.c')
-</programlisting>
-
-<para>The optional
+<para>
+The optional
 <parameter>srcdir</parameter>
 keyword argument specifies that
-all source file strings that are not absolute paths
+source file strings that are not absolute
 or top-relative paths
-shall be interpreted relative to the specified
+are to be interpreted relative to the value of
 <parameter>srcdir</parameter>.
 The following example will build the
 <filename>build/prog</filename>
@@ -3083,33 +3068,35 @@ on Windows)
 program from the files
 <filename>src/f1.c</filename>
 and
-<filename>src/f2.c</filename>:
+<filename>src/f2.c</filename>,
+rather than looking for them in the directory of
+of the &SConscript; file being evaluated.
 </para>
 
 <programlisting language="python">
 env.Program('build/prog', ['f1.c', 'f2.c'], srcdir='src')
 </programlisting>
 
-<para>The optional
+<para>
+The optional
 <parameter>parse_flags</parameter>
 keyword argument causes behavior similar to the
 &f-link-env-MergeFlags; method, where the argument value is
 broken into individual settings and merged into the appropriate &consvars;.
+The following example adds <literal>'include'</literal> to
+the &cv-link-CPPPATH; &consvar;,
+<literal>'EBUG'</literal> to
+&cv-link-CPPDEFINES;,
+and <literal>'m'</literal> to
+&cv-link-LIBS;:
 </para>
 
 <programlisting language="python">
 env.Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
 </programlisting>
 
-<para>This example adds 'include' to
-the &cv-link-CPPPATH; &consvar;,
-'EBUG' to
-&cv-link-CPPDEFINES;,
-and 'm' to
-&cv-link-LIBS;.
-</para>
-
-<para>The optional
+<para>
+The optional
 <parameter>chdir</parameter>
 keyword argument
 specifies that the Builder's action(s)
@@ -3131,19 +3118,23 @@ after the action is complete.
 </para>
 
 <programlisting language="python">
-# scons will change to the "sub" subdirectory
-# before executing the "cp" command.
+# scons will change to the "sub/dir" subdirectory
+# before executing the Copy action function
 env.Command(
     target='sub/dir/foo.out',
     source='sub/dir/foo.in',
-    action="cp dir/foo.in dir/foo.out",
-    chdir='sub',
+    action=Copy('${TARGET.file}', '${SOURCE.file}'),
+    chdir='sub/dir',
 )
 
-# Because chdir is not a string, scons will change to the
-# target's directory ("sub/dir") before executing the
-# "cp" command.
-env.Command('sub/dir/foo.out', 'sub/dir/foo.in', "cp foo.in foo.out", chdir=True)
+# Here, chdir is not a string, so scons will change to the
+# target's directory ("sub/dir") to execute the action.
+env.Command('
+    target='sub/dir/foo.out',
+    source='sub/dir/foo.in',
+    action=Copy('${TARGET.file}', '${SOURCE.file}'),
+    chdir=True
+)
 </programlisting>
 
 <warning>
@@ -3161,18 +3152,13 @@ by &SCons; interfere with each other
 when they start changing directory.</para>
 </warning>
 
-<para>Note that &SCons; will
-<emphasis>not</emphasis>
-automatically modify
-its expansion of
-&consvars; like &cv-link-TARGET;
-and &cv-link-SOURCE;
-when using the <parameter>chdir</parameter>
-keyword argument--that is,
-the expanded file names
-will still be relative to
-the project top directory,
-and consequently incorrect
+<note>
+<para>
+&SCons; does not account for
+<parameter>chdir</parameter>
+when it expands &consvars;
+like &cv-link-TARGET; and &cv-link-SOURCE;,
+so they will be incorrect
 relative to the chdir directory.
 If you use the <parameter>chdir</parameter> keyword argument,
 you will typically need to supply a different
@@ -3180,9 +3166,11 @@ command line using
 expansions like
 <literal>${TARGET.file}</literal>
 and
-<literal>${SOURCE.file}</literal>
-to use just the filename portion of the
-target and source.</para>
+<literal>${SOURCE.file}</literal>,
+which expand to the filename portion of the
+target and source.
+</para>
+</note>
 
 <para>Keyword arguments that are not specifically
 recognized are treated as &consvar;
