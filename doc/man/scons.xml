@@ -9075,7 +9075,7 @@ However, the following variables are imported by
 </para>
 
 <variablelist>
-  <varlistentry>
+  <varlistentry id="v-SCONS_LIB_DIR">
     <term><envar>SCONS_LIB_DIR</envar></term>
     <listitem>
 <para>Specifies the directory that contains the &scons;
@@ -9101,7 +9101,7 @@ so the command line can be used to override
     </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-SCONS_CACHE_MSVC_CONFIG">
     <term><envar>SCONS_CACHE_MSVC_CONFIG</envar></term>
     <listitem>
 <para>(Windows only). If set, save the shell environment variables

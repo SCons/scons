@@ -798,7 +798,7 @@ def Parser(version):
                   dest='cache_dir',
                   metavar='CACHEDIR',
                   help='Enable the derived‑file cache and set its directory to CACHEDIR',
-                  default=None)
+                  default="")
 
     op.add_option('--cache-disable', '--no-cache',
                   dest='cache_disable', default=False,
