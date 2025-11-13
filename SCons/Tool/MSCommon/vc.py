@@ -736,6 +736,7 @@ def _skip_sendtelemetry(env):
 # If you update this, update SupportedVSList in Tool/MSCommon/vs.py, and the
 # MSVC_VERSION documentation in Tool/msvc.xml.
 _VCVER = [
+    "14.5",
     "14.3",
     "14.2",
     "14.1", "14.1Exp",
@@ -759,6 +760,7 @@ _VSWHERE_VSMAJOR_TO_VCVERSION = {}
 _VSWHERE_SUPPORTED_VCVER = set()
 
 for vs_major, vc_version, vc_ver_list in (
+    ('18', '14.5', None),
     ('17', '14.3', None),
     ('16', '14.2', None),
     ('15', '14.1', ['14.1Exp']),
@@ -855,7 +857,7 @@ _VCVER_TO_PRODUCT_DIR = {
 
 # detect ide binaries
 
-VS2022_VS2002_DEV = (
+VS2026_VS2002_DEV = (
     MSVC.Kind.IDE_PROGRAM_DEVENV_COM,  # devenv.com
 )
 
@@ -885,27 +887,28 @@ _VCVER_KIND_DETECT = {
 
     #   'VCVer':   (relpath from pdir to vsroot, path from vsroot to ide binaries, ide binaries)
 
-    '14.3':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV),  # 2022
-    '14.2':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV),  # 2019
-    '14.1':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2017_EXP),  # 2017
-    '14.1Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2017_EXP),  # 2017
+    '14.5':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV),  # 2026
+    '14.3':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV),  # 2022
+    '14.2':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV),  # 2019
+    '14.1':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV + VS2017_EXP),  # 2017
+    '14.1Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV + VS2017_EXP),  # 2017
 
-    '14.0':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 2015
-    '14.0Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 2015
-    '12.0':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 2013
-    '12.0Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 2013
-    '11.0':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 2012
-    '11.0Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 2012
+    '14.0':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV + VS2015_VS2012_EXP),  # 2015
+    '14.0Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV + VS2015_VS2012_EXP),  # 2015
+    '12.0':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV + VS2015_VS2012_EXP),  # 2013
+    '12.0Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV + VS2015_VS2012_EXP),  # 2013
+    '11.0':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV + VS2015_VS2012_EXP),  # 2012
+    '11.0Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV + VS2015_VS2012_EXP),  # 2012
 
-    '10.0':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 2010
-    '10.0Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 2010
-    '9.0':     _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 2008
-    '9.0Exp':  _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 2008
-    '8.0':     _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 2005
-    '8.0Exp':  _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 2005
+    '10.0':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV + VS2010_VS2005_EXP),  # 2010
+    '10.0Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV + VS2010_VS2005_EXP),  # 2010
+    '9.0':     _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV + VS2010_VS2005_EXP),  # 2008
+    '9.0Exp':  _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV + VS2010_VS2005_EXP),  # 2008
+    '8.0':     _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV + VS2010_VS2005_EXP),  # 2005
+    '8.0Exp':  _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV + VS2010_VS2005_EXP),  # 2005
 
-    '7.1':     _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV),  # 2003
-    '7.0':     _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV),  # 2001
+    '7.1':     _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV),  # 2003
+    '7.0':     _DETECT(root='..', path=r'Common7\IDE', programs=VS2026_VS2002_DEV),  # 2001
 
     '6.0':     _DETECT(root='..', path=r'Common\MSDev98\Bin', programs=VS1998_DEV),  # 1998
 }
