@@ -25,14 +25,24 @@ import SCons.compat
 
 import os
 import unittest
+from collections import UserString
 from functools import partial
-
 
 import SCons.Errors
 
-from SCons.Subst import (Literal, SUBST_CMD, SUBST_RAW, SUBST_SIG, SpecialAttrWrapper, collections,
-                         escape_list, quote_spaces, scons_subst, scons_subst_list, scons_subst_once,
-                         subst_dict)
+from SCons.Subst import (
+    Literal,
+    SUBST_CMD,
+    SUBST_RAW,
+    SUBST_SIG,
+    SpecialAttrWrapper,
+    escape_list,
+    quote_spaces,
+    scons_subst,
+    scons_subst_list,
+    scons_subst_once,
+    subst_dict,
+)
 
 class DummyNode:
     """Simple node work-alike."""
@@ -230,7 +240,7 @@ class SubstTestCase(unittest.TestCase):
         'T'         : ('x', 'y'),
         'CS'        : cs,
         'CL'        : cl,
-        'US'        : collections.UserString('us'),
+        'US'        : UserString('us'),
 
         # Test function calls within ${}.
         'FUNCCALL'  : '${FUNC1("$AAA $FUNC2 $BBB")}',
@@ -395,9 +405,9 @@ class scons_subst_TestCase(SubstTestCase):
         '$CL',                  'cl',
 
         # Various uses of UserString.
-        collections.UserString('x'),         'x',
-        collections.UserString('$X'),        'x',
-        collections.UserString('$US'),       'us',
+        UserString('x'),         'x',
+        UserString('$X'),        'x',
+        UserString('$US'),       'us',
         '$US',                              'us',
 
         # Test function calls within ${}.
@@ -834,12 +844,12 @@ class scons_subst_list_TestCase(SubstTestCase):
         ['$CL'],                [['cl']],
 
         # Various uses of UserString.
-        collections.UserString('x'),         [['x']],
-        [collections.UserString('x')],       [['x']],
-        collections.UserString('$X'),        [['x']],
-        [collections.UserString('$X')],      [['x']],
-        collections.UserString('$US'),       [['us']],
-        [collections.UserString('$US')],     [['us']],
+        UserString('x'),         [['x']],
+        [UserString('x')],       [['x']],
+        UserString('$X'),        [['x']],
+        [UserString('$X')],      [['x']],
+        UserString('$US'),       [['us']],
+        [UserString('$US')],     [['us']],
         '$US',                              [['us']],
         ['$US'],                            [['us']],
 

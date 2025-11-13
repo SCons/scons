@@ -37,6 +37,12 @@ FIXES
 
 - List fixes of outright bugs
 
+- Enable membership tests on instances of Literal (non-substituting string).
+
+- In the SequenceTypes tuple used for dynamic type checks, include
+  the dict contents views, exclude the dictionary view itself as it
+  is not an interable sequence type.
+
 IMPROVEMENTS
 ------------
 
