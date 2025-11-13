@@ -54,7 +54,8 @@ import SCons.Warnings
 VS_VC_VARS = [
     'COMSPEC',  # path to "shell"
     'OS', # name of OS family: Windows_NT or undefined (95/98/ME)
-    'VS170COMNTOOLS',  # path to common tools for given version
+    'VS180COMNTOOLS',  # path to common tools for given version
+    'VS170COMNTOOLS',
     'VS160COMNTOOLS',
     'VS150COMNTOOLS',
     'VS140COMNTOOLS',

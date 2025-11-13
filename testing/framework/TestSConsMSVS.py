@@ -1047,6 +1047,8 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
             return '16'
         elif major == 14 and minor == 3:
             return '17'
+        elif major == 14 and minor == 5:
+            return '18'
         else:
             raise SCons.Errors.UserError(f'Received unexpected VC version {vc_version}')
 
@@ -1078,6 +1080,9 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         elif vc_version == '14.3':
             # ToolsVersion='17'
             return '17.0'
+        elif vc_version == '14.5':
+            # ToolsVersion='18'
+            return '18.0'
         else:
             raise SCons.Errors.UserError(f'Received unexpected VC version {vc_version}')
 

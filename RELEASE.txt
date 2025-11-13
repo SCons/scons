@@ -18,6 +18,8 @@ NEW FUNCTIONALITY
 
 - List new features (presumably why a checkpoint is being released)
 
+- Add support for Visual Studio 2026.
+
 DEPRECATED FUNCTIONALITY
 ------------------------
 

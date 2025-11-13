@@ -15,6 +15,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From John Doe:
     - Whatever John Doe did.
 
+  From Thaddeus Crews:
+    - Add support for Visual Studio 2026.
+
   From William Deegan:
     - Fix copyright date in API docs to match that in the rest of the build.
 
