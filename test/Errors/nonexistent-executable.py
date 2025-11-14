@@ -61,7 +61,7 @@ if os.name == 'nt':
         konnte_nicht_gefunden_werden % ('f1', 1),
         unspecified % 'f1'
     ]
-elif sys.platform.find('sunos') != -1:
+elif 'sunos' in sys.platform:
     errs = [
         not_found_space % ('f1', 1),
     ]

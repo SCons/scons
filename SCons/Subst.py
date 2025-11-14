@@ -561,8 +561,8 @@ class ListSubber(UserList):
                 self.close_strip('$)')
             else:
                 key = s[1:]
-                if key[0] == '{' or key.find('.') >= 0:
-                    if key[0] == '{':
+                if key.startswith('{') or '.' in key:
+                    if key.startswith('{'):
                         key = key[1:-1]
 
                 # Store for error messages if we fail to expand the
@@ -962,7 +962,7 @@ def scons_subst_once(strSubst, env, key):
 
     We do this with some straightforward, brute-force code here...
     """
-    if isinstance(strSubst, str) and strSubst.find('$') < 0:
+    if isinstance(strSubst, str) and '$' not in strSubst:
         return strSubst
 
     matchlist = ['$' + key, '${' + key + '}']

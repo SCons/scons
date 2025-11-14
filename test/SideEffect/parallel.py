@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that targets with the same SideEffect are not built in parallel
@@ -65,6 +64,7 @@ os.rmdir(lockdir)
 
 test.write('SConstruct', """\
 Build = Builder(action=r'%(_python_)s build.py $SOURCE $TARGET')
+DefaultEnvironment(tools=[])
 env = Environment(BUILDERS={'Build':Build})
 env.Build('h1.out', 'h1.in')
 env.Build('g2.out', 'g2.in')
@@ -91,14 +91,14 @@ stdout = test.stdout()
 
 
 build_lines =  [
-    'build.py h1.in h1.out', 
-    'build.py g2.in g2.out', 
-    'build.py f3.in f3.out', 
+    'build.py h1.in h1.out',
+    'build.py g2.in g2.out',
+    'build.py f3.in f3.out',
 ]
 
 missing = []
 for line in build_lines:
-    if stdout.find(line) == -1:
+    if line not in stdout:
         missing.append(line)
 
 if missing:
@@ -119,7 +119,7 @@ log_lines = [
 
 missing = []
 for line in log_lines:
-    if log.find(line) == -1:
+    if line not in log:
         missing.append(line)
 
 if missing:

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Ensure that SharedLibrary builder with SHLIBVERSION set works with VariantDir.
@@ -40,8 +39,6 @@ test = TestSCons.TestSCons()
 env = SCons.Defaults.DefaultEnvironment()
 platform = SCons.Platform.platform_default()
 tool_list = SCons.Platform.DefaultToolList(platform, env)
-
-
 
 test.subdir(['src'])
 test.subdir(['src','lib'])
@@ -65,7 +62,8 @@ int main(void)
 }
 """)
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment()
 variant = { 'variant_dir' : 'build',
             'src_dir'     : 'src',
@@ -96,7 +94,7 @@ if platform == 'cygwin' or platform == 'win32':
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = test.workpath('build/lib')
-if sys.platform.find('irix') != -1:
+if 'irix' in sys.platform:
     os.environ['LD_LIBRARYN32_PATH'] = test.workpath('build/lib')
 
 test.run(program = test.workpath('build/bin/main'))

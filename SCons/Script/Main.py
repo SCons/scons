@@ -144,7 +144,7 @@ class Progressor:
             self.func = obj
         elif SCons.Util.is_List(obj):
             self.func = self.spinner
-        elif obj.find(self.target_string) != -1:
+        elif self.target_string in obj:
             self.func = self.replace_string
         else:
             self.func = self.string
@@ -644,7 +644,7 @@ def find_deepest_user_frame(tb):
     # of SCons:
     for frame in tb:
         filename = frame[0]
-        if filename.find(os.sep+'SCons'+os.sep) == -1:
+        if f'{os.sep}SCons{os.sep}' not in filename:
             return frame
     return tb[0]
 

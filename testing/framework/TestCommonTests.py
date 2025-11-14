@@ -216,7 +216,7 @@ class must_be_writable_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "Missing files: `file1'\n", stdout
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_writable_file_exists(self) -> None:
         """Test must_be_writable():  writable file exists"""
@@ -260,7 +260,7 @@ class must_be_writable_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "Unwritable files: `file1'\n", stdout
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_file_specified_as_list(self) -> None:
         """Test must_be_writable():  file specified as list"""
@@ -335,7 +335,7 @@ class must_contain_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "", stdout
         stderr = run_env.stderr()
-        assert stderr.find("No such file or directory:") != -1, stderr
+        assert "No such file or directory:") in stderr, stderr
 
     def test_failure(self) -> None:
         """Test must_contain():  failure"""
@@ -359,7 +359,7 @@ class must_contain_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == expect, f"got:\n{stdout}\nexpected:\n{expect}"
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_mode(self) -> None:
         """Test must_contain():  mode"""
@@ -454,7 +454,7 @@ class must_contain_all_lines_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_find(self) -> None:
         """Test must_contain_all_lines():  find"""
@@ -530,7 +530,7 @@ class must_contain_all_lines_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
 
 class must_contain_any_line_TestCase(TestCommonTestCase):
@@ -606,7 +606,7 @@ class must_contain_any_line_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_find(self) -> None:
         """Test must_contain_any_line():  find"""
@@ -681,7 +681,7 @@ class must_contain_any_line_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
 
 class must_contain_exactly_lines_TestCase(TestCommonTestCase):
@@ -789,7 +789,7 @@ class must_contain_exactly_lines_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_find(self) -> None:
         """Test must_contain_exactly_lines():  find"""
@@ -875,7 +875,7 @@ class must_contain_exactly_lines_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
 
 class must_contain_lines_TestCase(TestCommonTestCase):
@@ -949,7 +949,7 @@ class must_contain_lines_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
 
 class must_exist_TestCase(TestCommonTestCase):
@@ -984,7 +984,7 @@ class must_exist_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "Missing files: `file1'\n", stdout
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_failure_message(self) -> None:
         """Test must_exist():  failure with extra message"""
@@ -1000,7 +1000,7 @@ class must_exist_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "Missing files: `file1'\n", stdout
         stderr = run_env.stderr()
-        assert stderr.find("Extra Info") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_file_specified_as_list(self) -> None:
         """Test must_exist():  file specified as list"""
@@ -1071,7 +1071,7 @@ class must_exist_one_of_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "Missing one of: `file1'\n", stdout
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_failure_message(self) -> None:
         """Test must_exist_one_of():  failure with extra message"""
@@ -1087,7 +1087,7 @@ class must_exist_one_of_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "Missing one of: `file1'\n", stdout
         stderr = run_env.stderr()
-        assert stderr.find("Extra Info") != -1, stderr
+        assert 'Extra Info' in stderr, stderr
 
     def test_files_specified_as_list(self) -> None:
         """Test must_exist_one_of():  files specified as list"""
@@ -1192,7 +1192,7 @@ class must_match_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "", stdout
         stderr = run_env.stderr()
-        assert stderr.find("No such file or directory:") != -1, stderr
+        assert 'No such file or directory' in stderr, stderr
 
     def test_failure(self) -> None:
         """Test must_match():  failure"""
@@ -1221,7 +1221,7 @@ class must_match_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == expect, stdout
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_mode(self) -> None:
         """Test must_match():  mode"""
@@ -1258,7 +1258,7 @@ class must_not_be_writable_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "Missing files: `file1'\n", stdout
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_writable_file_exists(self) -> None:
         """Test must_not_be_writable():  writable file exists"""
@@ -1280,7 +1280,7 @@ class must_not_be_writable_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "Writable files: `file1'\n", stdout
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_non_writable_file_exists(self) -> None:
         """Test must_not_be_writable():  non-writable file exists"""
@@ -1360,7 +1360,7 @@ class must_not_contain_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "", stdout
         stderr = run_env.stderr()
-        assert stderr.find("No such file or directory:") != -1, stderr
+        assert 'No such file or directory' in stderr, stderr
 
     def test_failure(self) -> None:
         """Test must_not_contain():  failure"""
@@ -1385,7 +1385,7 @@ class must_not_contain_TestCase(TestCommonTestCase):
         assert stdout == expect, f"\ngot:\n{stdout}\nexpected:\n{expect}"
 
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_failure_index_0(self) -> None:
         """Test must_not_contain():  failure at index 0"""
@@ -1410,7 +1410,7 @@ class must_not_contain_TestCase(TestCommonTestCase):
         assert stdout == expect, f"\ngot:\n{stdout}\nexpected:\n{expect}"
 
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_mode(self) -> None:
         """Test must_not_contain():  mode"""
@@ -1478,7 +1478,7 @@ class must_not_contain_any_line_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_find(self) -> None:
         """Test must_not_contain_any_line():  find"""
@@ -1584,7 +1584,7 @@ class must_not_contain_any_line_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
 
 class must_not_contain_lines_TestCase(TestCommonTestCase):
@@ -1631,7 +1631,7 @@ class must_not_contain_lines_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         stderr = run_env.stderr()
         assert stdout == expect, assert_display(expect, stdout, stderr)
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_success(self) -> None:
         """Test must_not_contain_lines():  success"""
@@ -1679,7 +1679,7 @@ class must_not_exist_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "Unexpected files exist: `file1'\n", stdout
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_success(self) -> None:
         """Test must_not_exist():  success"""
@@ -1730,7 +1730,7 @@ class must_not_exist_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "Unexpected files exist: `brokenlink'\n", stdout
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
 
 class must_not_exist_any_of_TestCase(TestCommonTestCase):
@@ -1765,7 +1765,7 @@ class must_not_exist_any_of_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "Unexpected files exist: `file1'\n", stdout
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_files_specified_as_list(self) -> None:
         """Test must_not_exist_any_of():  files specified as list"""
@@ -1855,7 +1855,7 @@ class must_not_be_empty_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "File is empty: `file1'\n", stdout
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
     def test_success(self) -> None:
         """Test must_not_be_empty():  success"""
@@ -1888,7 +1888,7 @@ class must_not_be_empty_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "File doesn't exist: `file1'\n", stdout
         stderr = run_env.stderr()
-        assert stderr.find("FAILED") != -1, stderr
+        assert 'FAILED' in stderr, stderr
 
 
 class run_TestCase(TestCommonTestCase):

@@ -166,7 +166,7 @@ elif sys.platform == 'cygwin':
     lib_suffix = '.a'
     dll_prefix = 'cyg'
     dll_suffix = '.dll'
-elif sys.platform.find('irix') != -1:
+elif 'irix' in sys.platform:
     exe_suffix = ''
     obj_suffix = '.o'
     shobj_suffix = '.o'
@@ -175,7 +175,7 @@ elif sys.platform.find('irix') != -1:
     lib_suffix = '.a'
     dll_prefix = 'lib'
     dll_suffix = '.so'
-elif sys.platform.find('darwin') != -1:
+elif 'darwin' in sys.platform:
     exe_suffix = ''
     obj_suffix = '.o'
     shobj_suffix = '.os'
@@ -184,7 +184,7 @@ elif sys.platform.find('darwin') != -1:
     lib_suffix = '.a'
     dll_prefix = 'lib'
     dll_suffix = '.dylib'
-elif sys.platform.find('sunos') != -1:
+elif 'sunos' in sys.platform:
     exe_suffix = ''
     obj_suffix = '.o'
     shobj_suffix = '.pic.o'
