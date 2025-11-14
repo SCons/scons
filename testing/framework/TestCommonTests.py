@@ -335,7 +335,7 @@ class must_contain_TestCase(TestCommonTestCase):
         stdout = run_env.stdout()
         assert stdout == "", stdout
         stderr = run_env.stderr()
-        assert "No such file or directory:") in stderr, stderr
+        assert "No such file or directory" in stderr, stderr
 
     def test_failure(self) -> None:
         """Test must_contain():  failure"""
