@@ -569,7 +569,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose: int=0):
         for ld in [envlicdir, reglicdir]:
             # If the string contains an '@', then assume it's a network
             # license (port@system) and good by definition.
-            if ld and (ld.find('@') != -1 or os.path.exists(ld)):
+            if ld and ('@' in ld or os.path.exists(ld)):
                 licdir = ld
                 break
         if not licdir:

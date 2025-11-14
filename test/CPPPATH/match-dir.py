@@ -35,7 +35,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 # TODO(sgk):  get this to work everywhere by using fake compilers
-if sys.platform.find('sunos') != -1:
+if 'sunos' in sys.platform:
     msg = 'SunOS C compiler does not handle this case; skipping test.\n'
     test.skip_test(msg)
 

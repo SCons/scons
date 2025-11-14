@@ -954,7 +954,7 @@ if True:
                     if os.path.exists(home):
                         return home
             else:
-                if java_home.find(f'jdk{version}') != -1:
+                if f'jdk{version}' in java_home:
                     return java_home
                 for home in [
                     f'/System/Library/Frameworks/JavaVM.framework/Versions/{version}/Home',
@@ -1066,7 +1066,7 @@ if True:
         stderr = self.stderr() or ""
         if version:
             verf = f'javac {version}'
-            if stderr.find(verf) == -1 and stdout.find(verf) == -1:
+            if verf not in stderr and verf not in stdout:
                 fmt = "Could not find javac for Java version %s, skipping test(s).\n"
                 self.skip_test(fmt % version, from_fw=True)
         else:
@@ -1080,7 +1080,7 @@ if True:
                 self.javac_is_gcj = False
                 return where_javac, version
 
-            if stderr.find('gcj') != -1:
+            if 'gcj' in stderr:
                 version = '1.2'
                 self.javac_is_gcj = True
             else:
@@ -1393,10 +1393,8 @@ SConscript(sconscript)
 
             if (
                 doCheckLog
-                and logfile.find(
-                    "scons: warning: The stored build information has an unexpected class."
-                )
-                >= 0
+                and "scons: warning: The stored build information has an unexpected class."
+                in logfile
             ):
                 self.fail_test()
 
@@ -1559,10 +1557,8 @@ SConscript(sconscript)
 
             if (
                 doCheckLog
-                and logfile.find(
-                    "scons: warning: The stored build information has an unexpected class."
-                )
-                >= 0
+                and "scons: warning: The stored build information has an unexpected class."
+                in logfile
             ):
                 self.fail_test()
 

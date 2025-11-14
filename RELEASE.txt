@@ -52,6 +52,9 @@ IMPROVEMENTS
   documentation:  performance improvements (describe the circumstances
   under which they would be observed), or major code cleanups
 
+- Internal: where the find method on a string was used to determine
+  if a substring is present, use the more readable "in" and "not in".
+
 PACKAGING
 ---------
 

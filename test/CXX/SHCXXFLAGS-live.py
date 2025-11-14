@@ -42,7 +42,7 @@ barflags = e['SHCXXFLAGS'] + ' -DBAR'
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
-if sys.platform.find('irix') > -1:
+if 'irix' in sys.platform:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
 test.write('SConstruct', f"""\

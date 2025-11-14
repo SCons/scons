@@ -38,10 +38,10 @@ test.Qt_create_SConstruct('SConstruct', qt_tool='qt3')
 test.write('SConscript', """\
 Import("env")
 env.Append(CPPDEFINES = ['FOOBAZ'])
-                                                                                
+
 copy = env.Clone()
 copy.Append(CPPDEFINES = ['MYLIB_IMPL'])
-                                                                                
+
 copy.SharedLibrary(
    target = 'MyLib',
    source = ['MyFile.cpp','MyForm.ui']
@@ -65,9 +65,9 @@ void aaa(void)
 
 test.run()
 
-moc_MyForm = [x for x in test.stdout().split('\n') if x.find('moc_MyForm') != -1]
+moc_MyForm = [x for x in test.stdout().split('\n') if 'moc_MyForm' in x]
 
-MYLIB_IMPL = [x for x in moc_MyForm if x.find('MYLIB_IMPL') != -1]
+MYLIB_IMPL = [x for x in moc_MyForm if 'MYLIB_IMPL' in x]
 
 if not MYLIB_IMPL:
     print("Did not find MYLIB_IMPL on moc_MyForm compilation line:")

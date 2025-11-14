@@ -30,6 +30,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - In the SequenceTypes tuple used for dynamic type checks, include
       the dict contents views, exclude the dictionary view itself as it
       is not an interable sequence type.
+    - Internal: where the find method on a string was used to determine
+      if a substring is present, use the more readable "in" and "not in".
 
 
 RELEASE 4.10.0 -  Thu, 02 Oct 2025 11:40:20 -0700

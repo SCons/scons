@@ -152,7 +152,7 @@ test.must_exist(
 
 def _flagTest(test,fileToContentsStart):
     for f,c in fileToContentsStart.items():
-        if test.read(test.workpath('work1', f), mode='r').find(c) != 0:
+        if not test.read(test.workpath('work1', f), mode='r').startswith(c):
             return 1
     return 0
 
@@ -172,6 +172,7 @@ test.fail_test(
 test.write(['work2', 'SConstruct'], """
 import os.path
 
+DefaultEnvironment(tools=[])
 env1 = Environment(
     tools=['qt3'],
     QT3DIR=r'%(QT3DIR)s',

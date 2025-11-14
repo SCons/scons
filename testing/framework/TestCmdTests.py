@@ -491,7 +491,7 @@ sys.exit(0)
         assert status == 1, status
         expect1 = "Regular expression error in '^a.*(e$': missing )"
         expect2 = "Regular expression error in '^a.*(e$': unbalanced parenthesis"
-        assert stderr.find(expect1) != -1 or stderr.find(expect2) != -1, repr(stderr)
+        assert expect1 in stderr or expect2 in stderr, repr(stderr)
 
     def test_simple_diff_static_method(self) -> None:
         """Test calling the TestCmd.TestCmd.simple_diff() static method"""
@@ -1261,9 +1261,7 @@ sys.exit(0)
             assert status == 1, status
             expect1 = "Regular expression error in '^a.*(e$': missing )"
             expect2 = "Regular expression error in '^a.*(e$': unbalanced parenthesis"
-            assert stderr.find(expect1) != -1 or stderr.find(expect2) != -1, repr(
-                stderr
-            )
+            assert expect1 in stderr or expect2 in stderr, repr(stderr)
         finally:
             os.chdir(cwd)
 
@@ -1345,9 +1343,7 @@ sys.exit(0)
             assert status == 1, status
             expect1 = "Regular expression error in '^a.*(e$': missing )"
             expect2 = "Regular expression error in '^a.*(e$': unbalanced parenthesis"
-            assert stderr.find(expect1) != -1 or stderr.find(expect2) != -1, repr(
-                stderr
-            )
+            assert expect1 in stderr or expect2 in stderr, repr(stderr)
         finally:
             os.chdir(cwd)
 

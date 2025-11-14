@@ -95,7 +95,7 @@ test.must_contain_all_lines(test.stdout(), expect)
 
 expect = 'Memory before reading SConscript files'
 lines = test.stdout().split('\n')
-memory_lines = [l for l in lines if l.find(expect) != -1]
+memory_lines = [l for l in lines if expect in l]
 
 test.fail_test(len(memory_lines) != 1)
 

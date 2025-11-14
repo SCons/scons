@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import sys
@@ -47,7 +46,8 @@ dlopen_line = {
 }
 platforms_with_dlopen = list(dlopen_line.keys())
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment()
 # dlopenprog tries to dynamically load foo1 at runtime using dlopen().
 env.LoadableModule(target = 'foo1', source = 'f1.c')
@@ -103,7 +103,7 @@ test.run(arguments = '.',
          match=TestSCons.match_re_dotall)
 
 # TODO: Add new Intel-based Macs?  Why are we only picking on Macs?
-#if sys.platform.find('darwin') != -1:
+#if 'darwin' in sys.platform:
 #    test.run(program='/usr/bin/file',
 #             arguments = "foo1",
 #             match = TestCmd.match_re,
@@ -114,7 +114,7 @@ if sys.platform in platforms_with_dlopen:
     os.environ['LD_LIBRARY_PATH'] = test.workpath()
     test.run(program = test.workpath('dlopenprog'),
              stdout = "f1.c\ndlopenprog.c\n")
-                 
+
 
 
 test.pass_test()
