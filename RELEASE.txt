@@ -1,12 +1,4 @@
-If you are reading this in the git repository, the contents
-refer to *unreleased* changes since the last SCons release.
-Past official release announcements appear at:
-
-    https://scons.org/tag/releases.html
-
-==================================================================
-
-A new SCons release, NEXT_RELEASE, is now available on the SCons download page:
+A new SCons release, 4.10.1, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
@@ -16,20 +8,10 @@ Here is a summary of the changes since PREVIOUS_RELEASE:
 NEW FUNCTIONALITY
 -----------------
 
-- List new features (presumably why a checkpoint is being released)
-
 - Add support for Visual Studio 2026.
-
-DEPRECATED FUNCTIONALITY
-------------------------
-
-- List anything that's been deprecated since the last release
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
-
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
 
 - Switch test framework from using profile to cProfile. profile
   generates deprecation warnings starting with Python 3.15.
@@ -37,47 +19,30 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- List fixes of outright bugs
-
 - Enable membership tests on instances of Literal (non-substituting string).
 
 - In the SequenceTypes tuple used for dynamic type checks, include
   the dict contents views, exclude the dictionary view itself as it
-  is not an interable sequence type.
+  is not an iterable sequence type.
 
 IMPROVEMENTS
 ------------
 
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
-
 - Internal: where the find method on a string was used to determine
   if a substring is present, use the more readable "in" and "not in".
 
-PACKAGING
----------
-
-- List changes in the way SCons is packaged and/or released
-
 DOCUMENTATION
 -------------
-
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
 
 - Improve documentation of builder methods and builder objects.
 
 - Make links clickable in the SetOption and GetOption manpage entries.
 
-DEVELOPMENT
------------
-
-- List visible changes in the way SCons is developed
-
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns PREVIOUS_RELEASE..HEAD
+    git shortlog --no-merges -ns 4.10.0..HEAD
+        12  Mats Wichmann
+         4  William Deegan
+         1  Thaddeus Crews
