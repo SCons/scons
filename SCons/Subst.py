@@ -25,14 +25,17 @@
 
 A substitution mini-language describes how SCons performs token
 replacement on strings or lists of strings that are intended for use
-in commands.  ``${expression}`` is the primary format. ``expression`` can
-refer to a construction variable within a given environment or to a Python
-expression. The curly braces can be omitted for variable references, if
-there is no ambiguity with following text. Doubling the ``$`` escapes
-its special meaning. THe sequence ``$(subexpression$)`` is used to
-indicate ``subexpression`` should be included in the substituted string
-if substitution is for a command line, and omitted if the substitution
-is to produce a string for signature (hash) computation.
+in actions.  A replaceble element is specified as ``${expression}``.
+``expression`` can refer to a construction variable within a given
+environment or to a Python expression. The curly braces can be omitted
+for variable references if there is no ambiguity with the following text.
+For technical reasons the unbraced ``$var`` form is preferable when it can
+be used.  Doubling the ``$`` escapes its special meaning. The sequence
+``$(subexpression$)`` is used to indicate ``subexpression`` should be
+included in the substituted string if substitution is intended for a
+command line, and omitted if the substitution is to produce a string for
+signature (hash) computation. THe begin/end markers are always omitted
+in the substituted text.
 
 Substitution is recursive: the token replacement may produce new
 substitutable sequences, and work has to proceed until there are no more.
@@ -76,7 +79,7 @@ def raise_exception(exception, target, s):
 
 
 class Literal:
-    """A wrapper for non-subsitutable strings.
+    """A wrapper for non-substitutable strings.
 
     The substitution logic will not change the wrapped string.
     When passed to the command interpreter, all special
@@ -476,6 +479,7 @@ class StringSubber:
                 return conv(substitute(l, lvars))
 
             return list(map(func, s))
+
         if callable(s):
 
             # SCons has the unusual Null class where any __getattr__ call returns it's self,
