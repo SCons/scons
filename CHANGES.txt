@@ -10,10 +10,7 @@ NOTE: Since SCons 4.3.0, Python 3.6.0 or above is required.
 NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
 
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
-  From John Doe:
-    - Whatever John Doe did.
+RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
 
   From Thaddeus Crews:
     - Add support for Visual Studio 2026.
@@ -29,7 +26,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Enable membership tests on instances of Literal (non-substituting string).
     - In the SequenceTypes tuple used for dynamic type checks, include
       the dict contents views, exclude the dictionary view itself as it
-      is not an interable sequence type.
+      is not an iterable sequence type.
     - Internal: where the find method on a string was used to determine
       if a substring is present, use the more readable "in" and "not in".
 
