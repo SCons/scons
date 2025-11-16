@@ -10,6 +10,13 @@ NOTE: Since SCons 4.3.0, Python 3.6.0 or above is required.
 NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
 
 
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+      From John Doe:
+
+        - Whatever John Doe did.
+
+
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
 
   From Thaddeus Crews:
