@@ -6053,6 +6053,13 @@ Visual Studio </literallayout></entry>
     </thead>
     <tbody>
       <row>
+        <entry> <literal>"14.5"</literal> </entry>
+        <entry> 14.5x </entry>
+        <entry> 195x </entry>
+        <entry> Visual Studio 2026 </entry>
+        <entry> 18.x </entry>
+      </row>
+      <row>
         <entry> <literal>"14.3"</literal> </entry>
         <entry> 14.3x </entry>
         <entry> 193x </entry>
