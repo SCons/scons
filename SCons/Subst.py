@@ -85,6 +85,10 @@ class Literal:
     The substitution logic will not change the wrapped string.
     When passed to the command interpreter, all special
     characters will be escaped and/or the string quoted.
+
+    Note that since we do not subclass :mod:`~collections.UserString`,
+    :func:`~SCons.Util.sctypes.is_String` will not identify this as a string,
+    and :func:`~SCons.Util.sctypes.to_String` won't return the enclosed string.
     """
 
     def __init__(self, lstr) -> None:
@@ -131,8 +135,12 @@ class SpecialAttrWrapper:
     so we can return some canonical string during signature
     calculation to avoid unnecessary rebuilds.
 
-    If the *for_signature* parameter if supplied at creation time,
+    If the *for_signature* parameter is supplied at creation time,
     :meth:`for_signature` will return that when called, else the original.
+
+    Note that since we do not subclass :mod:`~collections.UserString`,
+    :func:`~SCons.Util.sctypes.is_String` will not identify this as a string,
+    and :func:`~SCons.Util.sctypes.to_String` won't return the enclosed string.
     """
 
     def __init__(self, lstr: str, for_signature: str | None = None) -> None:
