@@ -25,17 +25,18 @@
 
 A substitution mini-language describes how SCons performs token
 replacement on strings or lists of strings that are intended for use
-in actions.  A replaceble element is specified as ``${expression}``.
-``expression`` can refer to a construction variable within a given
-environment or to a Python expression. The curly braces can be omitted
-for variable references if there is no ambiguity with the following text.
-For technical reasons the unbraced ``$var`` form is preferable when it can
-be used.  Doubling the ``$`` escapes its special meaning. The sequence
-``$(subexpression$)`` is used to indicate ``subexpression`` should be
-included in the substituted string if substitution is intended for a
-command line, and omitted if the substitution is to produce a string for
-signature (hash) computation. THe begin/end markers are always omitted
-in the substituted text.
+in actions. A replaceable element is specified as ``${expression}``,
+where ``expression`` is all the characters up to the matching closing
+brace. If ``expression`` is a construction variable reference, the
+braces can be omitted (this is preferred for performance reasons), in
+which case the expression ends at the first character not valid in a
+Python identifier. ``expression`` can also be Python code, which always
+requires braces. ``$(subexpression$)`` is used to indicate text to be
+included in the substituted string when a command line is being produced,
+and omitted if the string is being produced for signature (hash) calculation.
+The begin/end markers are always omitted in the substituted text.
+The special meaning of ``$`` can be escaped by doubling it, which
+eventually produces a single ``$`` in the output.
 
 Substitution is recursive: the token replacement may produce new
 substitutable sequences, and work has to proceed until there are no more.
@@ -423,8 +424,8 @@ class StringSubber:
             if s1 == '$':
                 # In this case keep the double $'s which we'll later
                 # swap for a single dollar sign as we need to retain
-                # this information to properly avoid matching "$("" when
-                # the actual text was "$$(""  (or "$)"" when "$$)"" )
+                # this information to properly avoid matching "$(" when
+                # the actual text was "$$("  (or "$)" when "$$)" )
                 return '$$'
             elif s1 in '()':
                 return s
@@ -543,9 +544,9 @@ class StringSubber:
 class ListSubber(UserList):
     """A class to construct the results of a scons_subst_list() call.
 
-    Like StringSubber, this class binds a specific construction
-    environment, mode, target and source with two methods
-    (substitute() and expand()) that handle the expansion.
+    Like :class:`StringSubber:class:`, this class binds a specific
+    construction environment, mode, target and source with two methods
+    (:meth:`substitute` and :meth:`expand`) that handle the expansion.
 
     In addition, however, this class is used to track the state of
     the result(s) we're gathering so we can do the appropriate thing
@@ -572,11 +573,11 @@ class ListSubber(UserList):
         self.next_line()
 
     def expanded(self, s) -> bool:
-        """Determines if the string s requires further expansion.
+        """Determine if the string *s* requires further expansion.
 
-        Due to the implementation of ListSubber expand will call
-        itself 2 additional times for an already expanded string. This
-        method is used to determine if a string is already fully
+        Due to the implementation of :class:`ListSubber`, :meth:`expand`
+        will call itself 2 additional times for an already expanded string.
+        This method is used to determine if a string is already fully
         expanded and if so exit the loop early to prevent these
         recursive calls.
         """
@@ -878,7 +879,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     substitutions.
 
     This is the work-horse function for substitutions in file names
-    and the like.  The companion scons_subst_list() function (below)
+    and the like.  The companion :func:`scons_subst_list` function
     handles separating command lines into lists of arguments, so see
     that function if that's what you're looking for.
     """
@@ -959,7 +960,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
     """Substitute construction variables in a string (or list or other
     object) and separate the arguments into a command list.
 
-    The companion scons_subst() function (above) handles basic
+    The companion :func:`scons_subst` function handles basic
     substitutions within strings, so see that function instead
     if that's what you're looking for.
     """
@@ -1009,7 +1010,7 @@ def scons_subst_once(strSubst, env, key):
 
     This is used when setting a variable when copying or overriding values
     in an Environment.  We want to capture (expand) the old value before
-    we override it, so people can do things like:
+    we override it, so people can do things like::
 
         env2 = env.Clone(CCFLAGS = '$CCFLAGS -g')
 
