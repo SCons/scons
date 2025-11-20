@@ -42,7 +42,7 @@ mains = ["main.tex", "main.extra.tex"]
 
 test.write(["SConstruct"], f"""\
 import os
-env = Environment(ENV={{'PATH': os.environ['PATH']}}, tools=['pdftex', 'tex'])
+env = Environment(tools=['pdftex', 'tex'])
 env.PDF({mains})
 """)
 
