@@ -33,6 +33,7 @@ FIXES
 -----
 
 - List fixes of outright bugs
+- Fix multiple extension stripping for BibTeX and Biber processing
 
 IMPROVEMENTS
 ------------
