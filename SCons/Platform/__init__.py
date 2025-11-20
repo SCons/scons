@@ -74,15 +74,15 @@ def platform_default():
     if osname == 'posix':
         if sys.platform == 'cygwin':
             return 'cygwin'
-        elif sys.platform.find('irix') != -1:
+        elif 'irix' in sys.platform:
             return 'irix'
-        elif sys.platform.find('sunos') != -1:
+        elif 'sunos' in sys.platform:
             return 'sunos'
-        elif sys.platform.find('hp-ux') != -1:
+        elif 'hp-ux' in sys.platform:
             return 'hpux'
-        elif sys.platform.find('aix') != -1:
+        elif 'aix' in sys.platform:
             return 'aix'
-        elif sys.platform.find('darwin') != -1:
+        elif 'darwin' in sys.platform:
             return 'darwin'
         else:
             return 'posix'

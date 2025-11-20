@@ -136,10 +136,10 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
     stderrRedirected = False
     for arg in args:
         # are there more possibilities to redirect stdout ?
-        if arg.find(">", 0, 1) != -1 or arg.find("1>", 0, 2) != -1:
+        if arg.startswith(">")or arg.startswith("1>"):
             stdoutRedirected = True
         # are there more possibilities to redirect stderr ?
-        if arg.find("2>", 0, 2) != -1:
+        if arg.startswith("2>"):
             stderrRedirected = True
 
     # redirect output of non-redirected streams to our tempfiles

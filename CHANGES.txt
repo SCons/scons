@@ -12,8 +12,15 @@ NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From John Doe:
-    - Whatever John Doe did.
+      From John Doe:
+
+        - Whatever John Doe did.
+
+
+RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
+
+  From Thaddeus Crews:
+    - Add support for Visual Studio 2026.
 
   From William Deegan:
     - Fix copyright date in API docs to match that in the rest of the build.
@@ -23,6 +30,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       generates deprecation warnings starting with Python 3.15.
     - Improve documentation of builder methods and builder objects.
     - Make links clickable in the SetOption and GetOption manpage entries.
+    - Enable membership tests on instances of Literal (non-substituting string).
+    - In the SequenceTypes tuple used for dynamic type checks, include
+      the dict contents views, exclude the dictionary view itself as it
+      is not an iterable sequence type.
+    - Internal: where the find method on a string was used to determine
+      if a substring is present, use the more readable "in" and "not in".
 
 
 RELEASE 4.10.0 -  Thu, 02 Oct 2025 11:40:20 -0700

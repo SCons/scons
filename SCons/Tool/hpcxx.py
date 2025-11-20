@@ -1,15 +1,6 @@
-"""SCons.Tool.hpc++
-
-Tool-specific initialization for c++ on HP/UX.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -29,9 +20,15 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""SCons.Tool.hpc++
+
+Tool-specific initialization for c++ on HP/UX.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+"""
 
 import os.path
 
@@ -59,7 +56,7 @@ for dir in dirs:
         acc = cc
         break
 
-        
+
 def generate(env) -> None:
     """Add Builders and construction variables for g++ to an Environment."""
     cplusplus.generate(env)
@@ -70,7 +67,7 @@ def generate(env) -> None:
         # determine version of aCC
         with os.popen(acc + ' -V 2>&1') as p:
             line = p.readline().rstrip()
-        if line.find('aCC: HP ANSI C++') == 0:
+        if line.startswith('aCC: HP ANSI C++'):
             env['CXXVERSION'] = line.split()[-1]
 
         if env['PLATFORM'] == 'cygwin':

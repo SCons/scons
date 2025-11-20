@@ -52,10 +52,10 @@ def midl_emitter(target, source, env):
 
     midlcom = env['MIDLCOM']
 
-    if midlcom.find('/proxy') != -1:
+    if '/proxy' in midlcom:
         proxy = base + '_p.c'
         targets.append(proxy)
-    if midlcom.find('/dlldata') != -1:
+    if '/dlldata' in midlcom:
         dlldata = base + '_data.c'
         targets.append(dlldata)
 

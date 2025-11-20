@@ -60,6 +60,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(TEX = r'%(_python_)s mytex.py', tools=['tex'])
 env.DVI(target = 'test.dvi', source = 'test.tex')
 """ % locals())
@@ -171,13 +172,13 @@ Run \texttt{latex}, then \texttt{bibtex}, then \texttt{latex} twice again \cite{
     test.run(stderr = None)
     output_lines = test.stdout().split('\n')
 
-    reruns = [x for x in output_lines if x.find('latex -interaction=nonstopmode -recorder rerun.tex') != -1]
+    reruns = [x for x in output_lines if 'latex -interaction=nonstopmode -recorder rerun.tex' in x]
     if len(reruns) != 2:
         print("Expected 2 latex calls, got %s:" % len(reruns))
         print('\n'.join(reruns))
         test.fail_test()
 
-    bibtex = [x for x in output_lines if x.find('bibtex bibtex-test') != -1]
+    bibtex = [x for x in output_lines if 'bibtex bibtex-test' in x]
     if len(bibtex) != 1:
         print("Expected 1 bibtex call, got %s:" % len(bibtex))
         print('\n'.join(bibtex))

@@ -15,7 +15,7 @@ import re
 import sys
 
 from collections import UserDict, UserList, UserString, deque
-from collections.abc import MappingView, Iterable
+from collections.abc import Iterable, KeysView, ValuesView, ItemsView
 
 # Functions for deciding if things are like various types, mainly to
 # handle UserDict, UserList and UserString like their underlying types.
@@ -40,7 +40,7 @@ ListTypes = (list, UserList, deque)
 # sequences are range and bytearray.  What we don't want is strings: while
 # they are iterable sequences, in SCons usage iterating over a string is
 # almost never what we want. So basically iterable-but-not-string:
-SequenceTypes = (list, tuple, deque, UserList, MappingView)
+SequenceTypes = (list, tuple, deque, UserList, KeysView, ValuesView, ItemsView)
 
 # Note that profiling data shows a speed-up when comparing
 # explicitly with str instead of simply comparing
@@ -58,7 +58,7 @@ if sys.version_info >= (3, 13):
 
     DictTypeRet: TypeAlias = TypeIs[dict | UserDict]
     ListTypeRet: TypeAlias = TypeIs[list | UserList | deque]
-    SequenceTypeRet: TypeAlias = TypeIs[list | tuple | deque | UserList | MappingView]
+    SequenceTypeRet: TypeAlias = TypeIs[list | tuple | deque | UserList | KeysView | ValuesView | ItemsView]
     TupleTypeRet: TypeAlias = TypeIs[tuple]
     StringTypeRet: TypeAlias = TypeIs[str | UserString]
 elif sys.version_info >= (3, 10):
@@ -66,7 +66,7 @@ elif sys.version_info >= (3, 10):
 
     DictTypeRet: TypeAlias = TypeGuard[dict | UserDict]
     ListTypeRet: TypeAlias = TypeGuard[list | UserList | deque]
-    SequenceTypeRet: TypeAlias = TypeGuard[list | tuple | deque | UserList | MappingView]
+    SequenceTypeRet: TypeAlias = TypeGuard[list | tuple | deque | UserList | KeysView | ValuesView | ItemsView]
     TupleTypeRet: TypeAlias = TypeGuard[tuple]
     StringTypeRet: TypeAlias = TypeGuard[str | UserString]
 else:

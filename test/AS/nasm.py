@@ -41,7 +41,7 @@ nasm = test.where_is('nasm')
 if not nasm:
     test.skip_test('nasm not found; skipping test\n')
 
-if sys.platform.find('linux') == -1:
+if 'linux' not in sys.platform:
     test.skip_test("skipping test on non-Linux platform '%s'\n" % sys.platform)
 
 try:
@@ -69,7 +69,7 @@ else:
 nasm_format = 'elf'
 format_map = {}
 for k, v in format_map.items():
-    if sys.platform.find(k) != -1:
+    if k in sys.platform:
         nasm_format = v
         break
 

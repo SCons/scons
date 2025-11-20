@@ -126,7 +126,7 @@ test.must_not_exist(test.workpath(cpp))
 test.must_not_exist(test.workpath(h))
 
 cppContents = test.read(test.workpath('build', cpp), mode='r')
-test.fail_test(cppContents.find('#include "aaa.ui.h"') == -1)
+test.fail_test('#include "aaa.ui.h"' not in cppContents)
 
 test.run(
     arguments="variant_dir=1 chdir=1 "

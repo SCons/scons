@@ -31,9 +31,11 @@ $RSYNC $RSYNCOPTS\
 # Upload main scons release files:
 $RSYNC $RSYNCOPTS \
   SCons-$VERSION.tar.gz \
-  SCons-$VERSION.zip \
   CHANGES.txt RELEASE.txt \
   $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons/$VERSION/
+
+#  SCons-$VERSION.zip \
+
 
 # Local packages:
 $RSYNC $RSYNCOPTS \
@@ -62,18 +64,18 @@ $RSYNC $RSYNCOPTS \
 # Doc: copy the doc tgz over; we'll unpack later
 $RSYNC $RSYNCOPTS \
   scons-doc-$VERSION.tar.gz \
-  scons@scons.org:public_html/production/doc/$VERSION/
+  scons@ssh.scons.org:public_html/production/doc/$VERSION/
 # Copy the changelog
 $RSYNC $RSYNCOPTS \
   CHANGES.txt \
-  scons@scons.org:public_html/production/
+  scons@ssh.scons.org:public_html/production/
 # Note that Announce.txt gets copied over to RELEASE.txt.
 # This should be fixed at some point.
 $RSYNC $RSYNCOPTS \
   RELEASE.txt \
-  scons@scons.org:public_html/production/RELEASE.txt
+  scons@ssh.scons.org:public_html/production/RELEASE.txt
 # Unpack the doc and repoint doc symlinks:
-ssh scons@scons.org "
+ssh scons@ssh.scons.org "
   cd public_html/production/doc
   cd $VERSION
   tar xvf scons-doc-$VERSION.tar.gz

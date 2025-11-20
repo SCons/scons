@@ -10,7 +10,6 @@ Routines for working with content and signature hashes.
 
 from __future__ import annotations
 
-import functools
 import hashlib
 import sys
 
@@ -318,9 +317,8 @@ def hash_signature(s, hash_format=None):
     return m.hexdigest()
 
 
-def hash_file_signature(fname, chunksize: int=65536, hash_format=None):
-    """
-    Generate the md5 signature of a file
+def hash_file_signature(fname: str, chunksize: int=65536, hash_format=None) -> str:
+    """Generate the md5 signature of a file
 
     Args:
         fname: file to hash
@@ -330,7 +328,6 @@ def hash_file_signature(fname, chunksize: int=65536, hash_format=None):
     Returns:
         String of Hex digits representing the signature
     """
-
     m = _get_hash_object(hash_format)
     with open(fname, "rb") as f:
         while True:

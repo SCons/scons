@@ -39,7 +39,8 @@ test = TestSCons.TestSCons()
 if not test.detect('AS', 'as'):
     test.skip_test("as not found; skipping test\n")
 
-x86 = (sys.platform == 'win32' or sys.platform.find('linux') != -1)
+# this is an odd check... linux runs on non-x86 hardware
+x86 = (sys.platform == 'win32' or 'linux' in sys.platform)
 if not x86:
     test.skip_test("skipping as test on non-x86 platform '%s'\n" % sys.platform)
 

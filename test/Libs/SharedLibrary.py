@@ -198,7 +198,7 @@ test.run(arguments = '.',
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
-if sys.platform.find('irix') != -1:
+if 'irix' in sys.platform:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
 test.run(program = test.workpath('prog'),
@@ -211,7 +211,7 @@ if sys.platform == 'cygwin':
     test.must_not_exist('foo3.dll.a')
 
 
-if sys.platform == 'win32' or sys.platform.find('irix') != -1:
+if sys.platform == 'win32' or 'irix' in sys.platform:
     test.run(arguments='-f SConstructFoo')
 else:
     expect = r"scons: \*\*\* \[.*\] Source file: foo\..* is static and is not compatible with shared target: .*"

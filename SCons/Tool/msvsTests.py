@@ -464,7 +464,7 @@ class RegNode:
         return rv
 
     def key(self,key,sep: str = '\\'):
-        if key.find(sep) != -1:
+        if sep in key:
             keyname, subkeys = key.split(sep,1)
         else:
             keyname = key
@@ -479,7 +479,7 @@ class RegNode:
             raise SCons.Util.RegError
 
     def addKey(self,name,sep: str = '\\'):
-        if name.find(sep) != -1:
+        if sep in name:
             keyname, subkeys = name.split(sep, 1)
         else:
             keyname = name

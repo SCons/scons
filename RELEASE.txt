@@ -29,9 +29,6 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - List modifications to existing features, where the previous behavior
   wouldn't actually be considered a bug
 
-- Switch test framework from using profile to cProfile. profile
-  generates deprecation warnings starting with Python 3.15.
-
 FIXES
 -----
 
@@ -55,10 +52,6 @@ DOCUMENTATION
 - List any significant changes to the documentation (not individual
   typo fixes, even if they're mentioned in src/CHANGES.txt to give
   the contributor credit)
-
-- Improve documentation of builder methods and builder objects.
-
-- Make links clickable in the SetOption and GetOption manpage entries.
 
 DEVELOPMENT
 -----------

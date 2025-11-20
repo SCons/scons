@@ -337,7 +337,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 if os.path.isfile(target_aux):
                     with open(target_aux) as f:
                         content = f.read()
-                    if content.find("bibdata") != -1:
+                    if 'bibdata' in content:
                         if Verbose:
                             print("Need to run bibtex on ",auxfilename)
                         auxfile = env.fs.File(target_aux)
@@ -362,7 +362,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 if os.path.isfile(target_bcf):
                     with open(target_bcf) as f:
                         content = f.read()
-                    if content.find("bibdata") != -1:
+                    if 'bibdata' in content:
                         if Verbose:
                             print("Need to run biber on ",bcffilename)
                         auxfile = env.fs.File(target_aux)
