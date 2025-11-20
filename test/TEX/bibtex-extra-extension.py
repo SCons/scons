@@ -70,7 +70,7 @@ test.write("references.bib", r"""
 
 test.run()
 
-pdfs = [test.read(_[:-3] + "pdf") for _ in mains]
+pdfs = [test.normalize_pdf(test.read(_[:-3] + "pdf")) for _ in mains]
 test.fail_test(pdfs[0] != pdfs[1])
 test.pass_test()
 
