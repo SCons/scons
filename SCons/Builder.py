@@ -670,8 +670,8 @@ class BuilderBase:
         else:
             env_kw = self.overrides
 
-        # TODO if env_kw: then the following line. there's no purpose in calling if no overrides.
-        env = env.Override(env_kw)
+        if env_kw:  # there's no purpose in calling if no overrides.
+            env = env.Override(env_kw)
         return self._execute(env, target, source, OverrideWarner(kw), ekw)
 
     def adjust_suffix(self, suff):

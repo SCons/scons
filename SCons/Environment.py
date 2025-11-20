@@ -859,9 +859,12 @@ class SubstitutionEnvironment:
            A proxy environment of type :class:`OverrideEnvironment`.
            or the current environment if *overrides* is empty.
         """
-        if not overrides: return self
+        # belt-and-suspenders - main callers should already have checked:
+        if not overrides:
+            return self
         o = copy_non_reserved_keywords(overrides)
-        if not o: return self
+        if not o:
+            return self
         overrides = {}
         merges = None
         for key, value in o.items():
