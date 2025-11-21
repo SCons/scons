@@ -13,11 +13,16 @@ NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From John Doe:
-
-        - Whatever John Doe did.
+    - Whatever John Doe did.
 
   From William Deegan:
-        - Fix SCons Docbook schema to work with lxml > 5
+    - Fix SCons Docbook schema to work with lxml > 5
+
+  From Mats Wichmann:
+    - Reduce unneeded computation of overrides. The Mkdir builder used an
+      unknown argument ('explain') on creation, causing it to be considered
+      an override. Also, if override dict is empty, don't even call the
+      Override factory function.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
