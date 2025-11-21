@@ -16,11 +16,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # We can't build with > 3.12 for now: no usable lxml wheel from 3.13 on
-    - name: Set up Python 3.12
+    - name: Set up Python 3.14
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: '3.14'
         cache: 'pip'
 
     - name: Install dependencies

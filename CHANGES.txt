@@ -12,9 +12,12 @@ NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
+  From John Doe:
 
         - Whatever John Doe did.
+
+  From William Deegan:
+        - Fix SCons Docbook schema to work with lxml > 5
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
