@@ -54,6 +54,9 @@ DOCUMENTATION
   typo fixes, even if they're mentioned in src/CHANGES.txt to give
   the contributor credit)
 
+- Fix SCons Docbook schema to work with lxml > 5
+
+
 DEVELOPMENT
 -----------
 

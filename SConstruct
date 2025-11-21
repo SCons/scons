@@ -216,7 +216,8 @@ env.Alias("tar-gz", wheel[1])
 zip_file = env.Command(
     target='$DISTDIR/SCons-${VERSION}.zip',
     source=['pyproject.toml', 'setup.py', 'SCons/__init__.py'] + man_pages,
-    action='$PYTHON setup.py sdist --format=zip',
+    action="echo NOT WORKING FOR NOW"
+    # action='$PYTHON setup.py sdist --format=zip',
 )
 env.Alias("zip", zip_file)
 
