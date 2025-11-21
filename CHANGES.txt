@@ -127,6 +127,10 @@ RELEASE 4.10.0 -  Thu, 02 Oct 2025 11:40:20 -0700
     - Fix the variant dir component being missing from generated source file
       paths with CompilationDatabase() builder (Fixes #4003).
 
+  From Raven Kopelman (@ravenAtSafe on GitHub):
+    - Prevent files from being partially read from the cache. If there's an error while copying the file
+      is now removed.
+
   From Bill Prendergast:
     - Fixed SCons.Variables.PackageVariable to correctly test the default
       setting against both enable & disable strings. (Fixes #4702)
@@ -1737,13 +1741,6 @@ RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
 
   From Daniel Moody:
     - Fix issue where java parsed a class incorrectly from lambdas used after a new.
-
-  From Simon Tegelid
-    - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
-      with an action list like this:
-      ['${TEMPFILE("xxx.py -otempfile $SOURCE")}', '${TEMPFILE("yyy.py -o$TARGET tempfile")}']
-      Could yield a single tempfile with the first TEMPFILE's contents, used by both steps
-      in the action list.
 
   From Mats Wichmann:
     - Complete tests for Dictionary, env.keys() and env.values() for
