@@ -32,7 +32,7 @@ from __future__ import annotations
 
 import os
 import unittest
-from pathlib import Path
+from contextlib import suppress
 
 import TestCmd
 
@@ -49,7 +49,8 @@ class TestFileLock(unittest.TestCase):
     def tearDown(self):
         self.lock.release_lock()
         # in case we made phony lock, clean that up too
-        Path(self.lockfile).unlink(missing_ok=True)
+        with suppress(FileNotFoundError):
+            os.unlink(self.lockfile)
 
     def _fakelock(self):
         """Create a fake lockfile to simulate a busy lock."""
