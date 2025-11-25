@@ -61,6 +61,8 @@ DEVELOPMENT
 
 - List visible changes in the way SCons is developed
 
+- Introduce some unit tests for the file locking utility routines
+
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
