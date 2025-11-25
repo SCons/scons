@@ -52,9 +52,9 @@ class TestFileLock(unittest.TestCase):
         with suppress(FileNotFoundError):
             os.unlink(self.lockfile)
 
-    def _fakelock(self):
+    def _fakelock(self) -> int:
         """Create a fake lockfile to simulate a busy lock."""
-        _ = os.open(self.lockfile, os.O_CREAT|os.O_EXCL|os.O_RDWR)
+        return os.open(self.lockfile, os.O_CREAT|os.O_EXCL|os.O_RDWR)
 
     def test_context_manager_lock(self):
         """Test acquiring a file lock, context manager."""
@@ -81,16 +81,18 @@ class TestFileLock(unittest.TestCase):
     def test_nonblocking_lockfail(self):
         """Test non-blocking acquiring a busy file lock."""
         self.lock = filelock.FileLock(self.file, writer=True)
-        self._fakelock()
+        fd = self._fakelock()
         with self.lock and self.assertRaises(filelock.AlreadyLockedError):
             self.lock.acquire_lock()
+        os.close(fd)
 
     def test_timeout_lockfail(self):
         """Test blocking acquiring a busy file lock with timeout."""
         self.lock = filelock.FileLock(self.file, writer=True, timeout=1)
-        self._fakelock()
+        fd = self._fakelock()
         with self.lock and self.assertRaises(filelock.LockTimeoutError):
             self.lock.acquire_lock()
+        os.close(fd)
 
 if __name__ == "__main__":
     unittest.main()
