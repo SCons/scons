@@ -20,6 +20,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
+    - More clarifications in manpage Builder Methods section.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
