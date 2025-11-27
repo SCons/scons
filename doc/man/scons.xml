@@ -2984,21 +2984,21 @@ env.Program('bar', source='bar.c foo.c'.split())
 Top-relative paths only work
 for objects that are participants in the build
 (sources and targets).
-To be used in other contexts
-(in particular, in pure &Python; code that does not
+The string must first be converted
+to a relative or absolute path
+to be used in other contexts
+(such as pure &Python; code that does not
 involve an &SCons; API call),
-the string must first be converted
-to a relative or absolute path.
 A suitable string can be extracted from the Node
 created from a top-relative path.
 Additionally, some paths are handled by &SCons; but
 are not directly build participants,
 so are not evaluated for the <literal>#</literal>
 since no Nodes are created.
-For example, the path to the derived-file cache set by
-a call to &f-link-CacheDir; is not entered
-into the dependency graph,
-but you can create a &f-link-Dir; node to force the evaluation.
+You can explcitly create a &f-link-File; or &f-link-Dir;
+node to force evaluation,
+such as when specifying a path to the derived-file cache:
+<literal>CacheDir(Dir('#cache'))</literal>.
 </para>
 </note>
 
