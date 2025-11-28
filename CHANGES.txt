@@ -26,6 +26,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       an override. Also, if override dict is empty, don't even call the
       Override factory function.
 
+  From Keith F Prussing:
+    -  Fix multiple extension stripping for BibTeX and Biber processing
+
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
 
