@@ -381,7 +381,6 @@ def get_MkdirBuilder():
         # calling SCons.Defaults.DefaultEnvironment() when necessary.
         MkdirBuilder = SCons.Builder.Builder(action = Mkdir,
                                              env = None,
-                                             explain = None,
                                              is_explicit = None,
                                              target_scanner = SCons.Defaults.DirEntryScanner,
                                              name = "MkdirBuilder")
