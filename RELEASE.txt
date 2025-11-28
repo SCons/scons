@@ -41,6 +41,11 @@ IMPROVEMENTS
   documentation:  performance improvements (describe the circumstances
   under which they would be observed), or major code cleanups
 
+- Reduce unneeded computation of overrides. The Mkdir builder used an
+  unknown argument ('explain') on creation, causing it to be considered
+  an override. Also, if override dict is empty, don't even call the
+  Override factory function.
+
 PACKAGING
 ---------
 
