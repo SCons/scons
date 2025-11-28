@@ -2981,12 +2981,23 @@ env.Program('bar', source='bar.c foo.c'.split())
 
 <note>
 <para>
-Top-relative paths <emphasis role="bold">only</emphasis> work
+Top-relative paths only work
 where &SCons; will interpret the path (see examples).
-To be used in other contexts the string must first be converted
-to a relative or absolute path.
+The string must first be converted
+to a relative or absolute path
+to be used in other contexts
+(such as pure &Python; code that does not
+involve an &SCons; API call),
 A suitable string can be extracted from the Node
-created from the top-relative path.
+created from a top-relative path.
+Additionally, some paths are handled by &SCons; but
+are not directly build participants,
+so are not evaluated for the <literal>#</literal>
+since no Nodes are created.
+You can explcitly create a &f-link-File; or &f-link-Dir;
+node to force evaluation,
+such as when specifying a path to the derived-file cache:
+<literal>CacheDir(Dir('#cache'))</literal>.
 </para>
 </note>
 
@@ -3012,9 +3023,12 @@ env.Program('#/bar', 'bar.c')
 # SConstruct directory) from "subdir/foo.c":
 env.Program('#other/foo', 'foo.c')
 
-# This will not work, only SCons interfaces understand '#',
-# os.path.exists is pure Python:
+# os.path.exists() is pure Python, so this fails:
 if os.path.exists('#inc/foo.h'):
+    env.Append(CPPPATH='#inc')
+
+# create a Node to make it work:
+if os.path.exists(File('#inc/foo.h')):
     env.Append(CPPPATH='#inc')
 </programlisting>
 

@@ -60,6 +60,8 @@ DOCUMENTATION
 
 - Fix SCons Docbook schema to work with lxml > 5
 
+- More clarifications in manpage Builder Methods section.
+
 
 DEVELOPMENT
 -----------

@@ -20,6 +20,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
+    - More clarifications in manpage Builder Methods section.
     - Reduce unneeded computation of overrides. The Mkdir builder used an
       unknown argument ('explain') on creation, causing it to be considered
       an override. Also, if override dict is empty, don't even call the
