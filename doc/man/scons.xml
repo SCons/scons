@@ -2982,8 +2982,7 @@ env.Program('bar', source='bar.c foo.c'.split())
 <note>
 <para>
 Top-relative paths only work
-for objects that are participants in the build
-(sources and targets).
+where &SCons; will interpret the path (see examples).
 The string must first be converted
 to a relative or absolute path
 to be used in other contexts
