@@ -1195,7 +1195,7 @@ def _main(parser):
 
     fs.chdir(fs.Top)
 
-    SCons.Node.FS.save_strings(1)
+    SCons.Node.FS.save_strings(True)
 
     # Now that we've read the SConscripts we can set the options
     # that are SConscript settable:

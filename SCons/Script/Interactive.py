@@ -215,7 +215,7 @@ version                 Prints SCons version information.
         def get_unseen_children(node, parent, seen_nodes=seen_nodes):
             def is_unseen(node, seen_nodes=seen_nodes) -> bool:
                 return node not in seen_nodes
-            return [child for child in node.children(scan=1) if is_unseen(child)]
+            return [child for child in node.children(scan=True) if is_unseen(child)]
 
         def add_to_seen_nodes(node, parent, seen_nodes=seen_nodes) -> None:
             seen_nodes[node] = 1

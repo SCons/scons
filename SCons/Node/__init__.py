@@ -1288,9 +1288,9 @@ class Node(metaclass=NoSlotsPyPy):
                not self.linked and \
                not self.rexists()
 
-    def remove(self) -> None:
+    def remove(self) -> bool:
         """Remove this Node:  no-op by default."""
-        return None
+        return False
 
     def add_dependency(self, depend: list[Node]) -> None:
         """Adds dependencies."""
@@ -1547,7 +1547,7 @@ class Node(metaclass=NoSlotsPyPy):
         if self.always_build:
             return False
         state = 0
-        for kid in self.children(False):
+        for kid in self.children(scan=False):
             s = kid.get_state()
             if s and (not state or s > state):
                 state = s
