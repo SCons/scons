@@ -117,14 +117,6 @@ extend-safe-fixes = ["FA", "UP006", "UP007"]
 [tool.ruff.format]
 quote-style = "preserve" # Equivalent to black's "skip-string-normalization"
 
-[tool.ruff.lint.per-file-ignores]
-"SCons/Util/__init__.py" = [
-    "F401",  # Module imported but unused
-]
-"SCons/Variables/__init__.py" = [
-    "F401",  # Symbol imported but unused
-]
-
 [tool.mypy]
 python_version = "3.8"
 exclude = [

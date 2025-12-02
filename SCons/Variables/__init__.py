@@ -34,7 +34,6 @@ from typing import Any, Callable, Sequence
 
 import SCons.Errors
 import SCons.Util
-import SCons.Warnings
 
 # Note: imports are for the benefit of SCons.Main (and tests); since they
 #   are not used here, the "as Foo" form is for checkers.
