@@ -178,7 +178,7 @@ class Progressor:
                 self.erase_previous()
             self.func(node)
 
-ProgressObject = SCons.Util.Null()
+ProgressObject = None
 
 def Progress(*args, **kw) -> None:
     """Show progress during building - Public API."""
@@ -203,7 +203,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
         display('scons: ' + message)
 
     def prepare(self):
-        if not isinstance(self.progress, SCons.Util.Null):
+        if self.progress is not None:
             for target in self.targets:
                 self.progress(target)
         return SCons.Taskmaster.OutOfDateTask.prepare(self)
