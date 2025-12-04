@@ -4,3 +4,5 @@
 fbb026ef1145fe29e0ec3c1b66a3e99cac51e18d
 # Black/Ruff'd test framework code.
 c9d9fa58b796532320a2248ddc5be07b7280adf3
+# Purge vim/emac variable bloat
+ad7207090187a6cd2657cce00096cfc4bc9c3010
