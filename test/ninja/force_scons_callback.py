@@ -87,9 +87,3 @@ test.run(arguments="PORT=9999 --disable-execute-ninja", stdout=None)
 test.must_contain(test.workpath("build.ninja"), "PORT = 9999")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

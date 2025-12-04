@@ -97,9 +97,3 @@ expect = '(0o755, root, users) /bin/main'
 test.must_contain_all_lines(test.read('foo-1.2.3.spec',mode='r'), [expect])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

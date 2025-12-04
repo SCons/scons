@@ -68,9 +68,3 @@ env.Program(target='test2', source='test2.C')
     test.must_match('test2' + _exe, "This is a .C file.\n", mode='r')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

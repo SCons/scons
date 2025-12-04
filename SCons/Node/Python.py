@@ -162,10 +162,3 @@ def ValueWithMemo(value, built_value=None, name=None):
         v = Value(value, built_value, name)
         _memo_lookup_map[memo_lookup_key] = v
         return v
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

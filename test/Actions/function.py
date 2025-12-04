@@ -199,9 +199,3 @@ runtest('', """Head:0:1:Tail\n18\naaa\n6\n""")
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -302,9 +302,3 @@ test.fail_test(not os.path.exists(test.workpath('work3', 'outdir', 'Foo3.h')))
 #test.up_to_date(chdir = 'work2', options = opts, arguments = ".")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

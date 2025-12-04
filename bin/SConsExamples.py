@@ -936,10 +936,3 @@ def create_scons_output(e):
         s = stf.decorateWithHeader(stf.convertElementTree(sroot)[0])
         # Write it to file
         stf.writeTree(s, fpath)
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

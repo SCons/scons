@@ -5,7 +5,7 @@ The zip SRC packager.
 
 #
 # __COPYRIGHT__
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -36,9 +36,3 @@ def package(env, target, source, PACKAGEROOT, **kw):
     target, source = stripinstallbuilder(target, source, env)
     target, source = putintopackageroot(target, source, env, PACKAGEROOT)
     return bld(env, target, source)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -246,9 +246,3 @@ def Trace(msg, tracefile=None, mode: str='w', tstamp: bool=False) -> None:
         PreviousTime = now
     fp.write(msg)
     fp.flush()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

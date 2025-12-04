@@ -84,9 +84,3 @@ test.must_exist(test.workpath('foo' + _obj + '2.rsp'))
 test.run(program=test.workpath('foo' + _exe), stdout="foo.c")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

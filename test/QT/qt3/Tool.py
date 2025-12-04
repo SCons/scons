@@ -53,7 +53,7 @@ def DoWithVariables(variables, prefix, what):
     env[ name ].append(variables[ name ])
 
   result = what()
-  
+
   for name in saved_variables.keys():
     env[ name ] = saved_variables[ name ]
     env[ prefix+name ] = variables[ name ]
@@ -68,7 +68,7 @@ def CheckForQtAt(context, qtdir):
       { "LIBS": "qt-mt", "LIBPATH": libp , "CPPPATH": cppp },
       '''
 #include <qapplication.h>
-int main(int argc, char **argv) { 
+int main(int argc, char **argv) {
   QApplication qapp(argc, argv);
   return 0;
 }
@@ -91,7 +91,7 @@ def CheckForQt(context):
 
   if 'QTDIR' in os.environ:
     potential_qt_dirs.insert(0, os.environ['QTDIR'])
-  
+
   if env[ 'qt_directory' ] != "/":
      uic_path = os.path.join(env['qt_directory'], 'bin', 'uic')
      if os.path.isfile(uic_path):
@@ -129,7 +129,7 @@ def AttemptLinkWithVariables(context, variables, code, extension, prefix):
 
 env = Environment(CPPPATH=['.'], LIBPATH=['.'], LIBS=[])
 
-opts = Variables('lprof.conf') 
+opts = Variables('lprof.conf')
 opts.Add(PathVariable("qt_directory", "Path to Qt directory", "/"))
 opts.Update(env)
 
@@ -148,9 +148,3 @@ env.Tool('qt3', ['$TOOL_PATH'])
 test.run(arguments='.')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

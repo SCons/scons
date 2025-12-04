@@ -63,9 +63,3 @@ FAILING TEST STDERR
 test.run(arguments='-k --retry', status=1, stdout=expect_stdout, stderr=expect_stderr)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

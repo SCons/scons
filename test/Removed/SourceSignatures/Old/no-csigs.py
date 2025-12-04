@@ -69,9 +69,3 @@ test.run_sconsign(arguments = test.workpath(test.get_sconsignname()),
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -61,7 +61,7 @@ def generate(env) -> None:
 
     if version:
         env['CXXVERSION'] = version
-    
+
 def exists(env):
     path, _cxx, version = get_xlc(env)
     if path and _cxx:
@@ -69,9 +69,3 @@ def exists(env):
         if os.path.exists(xlc):
             return xlc
     return None
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -202,9 +202,3 @@ with open(results_filename, 'a') as r:
         for test in tests:
             print(',%8.3f' % results_dict[implementation][test], file=r, end='')
         print(file=r)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -59,9 +59,3 @@ def re_find(content, line):
 test.must_contain_all_lines(content, expect, 'foo-000-0.log', re_find)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

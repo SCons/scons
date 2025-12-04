@@ -404,9 +404,3 @@ def mssdk_exists(version=None):
     if version is None:
         return len(sdks) > 0
     return version in sdks
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

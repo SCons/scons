@@ -212,9 +212,3 @@ expect2 = "scons: warning: Could not detect qt3, using moc executable as a hint"
 test.fail_test(expect1 not in test.stderr() and expect2 not in test.stderr())
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

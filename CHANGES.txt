@@ -15,6 +15,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From John Doe:
     - Whatever John Doe did.
 
+  From Thaddeus Crews:
+    - Purge vim/emac local variable bloat.
+
   From William Deegan:
     - Fix SCons Docbook schema to work with lxml > 5
 

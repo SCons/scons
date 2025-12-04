@@ -61,10 +61,10 @@ def generate(env) -> None:
     try:
         if GhostscriptAction is None:
             GhostscriptAction = SCons.Action.Action('$GSCOM', '$GSCOMSTR')
-    
+
         from SCons.Tool import pdf
         pdf.generate(env)
-    
+
         bld = env['BUILDERS']['PDF']
         bld.add_action('.ps', GhostscriptAction)
     except ImportError as e:
@@ -72,7 +72,7 @@ def generate(env) -> None:
 
     gsbuilder = SCons.Builder.Builder(action = SCons.Action.Action('$GSCOM', '$GSCOMSTR'))
     env['BUILDERS']['Gs'] = gsbuilder
-    
+
     env['GS']      = gs
     env['GSFLAGS'] = SCons.Util.CLVar('-dNOPAUSE -dBATCH -sDEVICE=pdfwrite')
     env['GSCOM']   = '$GS $GSFLAGS -sOutputFile=$TARGET $SOURCES'
@@ -83,9 +83,3 @@ def exists(env):
         return env.Detect(env['PS2PDF'])
     else:
         return env.Detect(gs) or SCons.Util.WhereIs(gs)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

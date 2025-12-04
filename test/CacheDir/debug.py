@@ -193,9 +193,3 @@ test.must_match(debug_out, expect, mode='r')
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

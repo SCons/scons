@@ -90,14 +90,14 @@ test.run(arguments='--config=cache', status=2, stderr=expect)
 test.run(arguments='--config=auto')
 test.checkConfigureLogAndStdout(checks=[
     ConfigCheckInfo("Checking for C header file non_system_header0.h... ",
-                    'yes', 
-                    [((".c", NCR), 
+                    'yes',
+                    [((".c", NCR),
                     (_obj, NCR))],
                     conftest_0_base
                     ),
     ConfigCheckInfo("Checking for C header file non_system_header1.h... ",
-                    'no', 
-                    [((".c", NCR), 
+                    'no',
+                    [((".c", NCR),
                     (_obj, NCF))],
                     conftest_1_base)]
 )
@@ -211,9 +211,3 @@ test.must_not_contain(test.workpath('config.log'), "TypeError: 'NoneType' object
 test.fail_test('test_main.o' in test.stdout())
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

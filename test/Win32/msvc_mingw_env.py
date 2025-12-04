@@ -51,7 +51,7 @@ test.run(arguments='-Q -s')
 if 'CCFLAGS=/nologo' not in test.stdout() or 'CC=cl' not in test.stdout():
     test.fail_test()
 
-# make sure windows msvc doesnt add bad mingw flags 
+# make sure windows msvc doesnt add bad mingw flags
 # and that gcc is selected
 test.write('SConstruct',"""
 DefaultEnvironment(tools=[])
@@ -96,9 +96,3 @@ if "['-myflag', '-myflag2']" not in test.stdout():
     test.fail_test()
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -52,9 +52,3 @@ test.run(program=test.workpath('foo'+_exe))
 test.fail_test(not test.stdout() == 'Hello!')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

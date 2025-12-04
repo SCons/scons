@@ -57,9 +57,3 @@ test.must_match(['out', 'file2.h'], "file2.class\n")
 test.must_match(['out', 'file3.h'], "file3.class\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

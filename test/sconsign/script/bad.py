@@ -59,9 +59,3 @@ test.run_sconsign(arguments = "-f sconsign bad3",
          stderr = "sconsign: ignoring invalid .sconsign file `bad3'.*\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

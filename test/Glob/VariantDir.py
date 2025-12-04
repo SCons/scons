@@ -102,9 +102,3 @@ test.must_match(['var3', 'sub1', 'f.out'], "src/sub1/f1.in\nsrc/sub1/f2.in\nsrc/
 test.must_match(['var3', 'sub1', 'fex.out'], "src/sub1/f2.in\nsrc/sub1/f3.in\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

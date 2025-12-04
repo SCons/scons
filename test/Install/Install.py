@@ -144,9 +144,3 @@ if not IS_ROOT:
         test.must_contain_any_line(test.stderr(), expect)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

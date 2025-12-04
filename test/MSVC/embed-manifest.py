@@ -92,9 +92,3 @@ test.must_exist('testdll%s.manifest' % _dll)
 test.must_contain('dll-extracted.manifest', '</assembly>', mode='r')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -432,9 +432,3 @@ test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

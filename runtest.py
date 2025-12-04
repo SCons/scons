@@ -924,9 +924,3 @@ elif no_result and args.dont_ignore_skips:
     sys.exit(2)
 else:
     sys.exit(0)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

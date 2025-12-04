@@ -75,9 +75,3 @@ test.run(arguments = '.')
 test.run(program = test.workpath('prog' + _exe), stdout = "1\n2\n3\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

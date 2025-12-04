@@ -158,9 +158,3 @@ for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
 
 if test:
     test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

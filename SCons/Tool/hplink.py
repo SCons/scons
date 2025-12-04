@@ -57,16 +57,10 @@ def generate(env) -> None:
     an Environment.
     """
     link.generate(env)
-    
+
     env['LINKFLAGS']   = SCons.Util.CLVar('-Wl,+s -Wl,+vnocompatwarnings')
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -b')
     env['SHLIBSUFFIX'] = '.sl'
 
 def exists(env):
     return ccLinker
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -69,9 +69,3 @@ test.must_match(obj_ + 'test07' + _obj, " -c -x\nThis is a .fpp file.\n")
 test.must_match(obj_ + 'test08' + _obj, " -c -x\nThis is a .FPP file.\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

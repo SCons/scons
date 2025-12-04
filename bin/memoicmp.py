@@ -73,9 +73,3 @@ Compares --debug=memomize output from file1 against file2."""%sys.argv[0])
 
         memoize_cmp(sys.argv[1], sys.argv[2])
         sys.exit(0)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

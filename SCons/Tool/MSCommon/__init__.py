@@ -93,9 +93,3 @@ from .MSVC.Util import (  # noqa: F401
     msvc_extended_version_components,
     msvc_sdk_version_components,
 )
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

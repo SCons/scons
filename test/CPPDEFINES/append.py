@@ -342,9 +342,3 @@ build_output="scons: `.' is up to date.\n"
 expect = test.wrap_stdout(build_str=build_output, read_str=expect_print_output)
 test.run(arguments='.', stdout=expect)
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

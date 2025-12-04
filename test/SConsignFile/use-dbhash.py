@@ -76,7 +76,7 @@ test.must_exist(test.workpath(database_name))
 test.must_not_exist(test.workpath(database_filename))
 test.must_not_exist(test.workpath('subdir', database_name))
 test.must_not_exist(test.workpath('subdir', database_filename))
-  
+
 test.must_match('f1.out', "f1.in\n")
 test.must_match('f2.out', "f2.in\n")
 test.must_match(['subdir', 'f3.out'], "subdir/f3.in\n")
@@ -90,9 +90,3 @@ test.must_not_exist(test.workpath('subdir', database_name))
 test.must_not_exist(test.workpath('subdir', database_filename))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

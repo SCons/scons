@@ -29,7 +29,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that we do rebuild things when the contents of
 two .h files are swapped, changing the order in which
 dependency signatures show up in the calculated list,
-but 
+but
 
 """
 
@@ -129,9 +129,3 @@ test.run(program = work2_foo, stdout = "content2\n")
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

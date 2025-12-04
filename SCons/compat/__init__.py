@@ -96,9 +96,3 @@ class NoSlotsPyPy(type):
         if PYPY and '__slots__' in dct:
             dct.pop('__slots__')
         return super().__new__(meta, name, bases, dct)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

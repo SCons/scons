@@ -24,7 +24,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWAR
 
 """
-This is an obscure test case. When a file without a suffix is included in 
+This is an obscure test case. When a file without a suffix is included in
 a c++ build and there is a directory with the same name as that file in a
 sub-build directory, verify that an Errno 21 is not thrown upon trying to
 recursively scan the contents of includes. The Errno 21 indicates that
@@ -90,9 +90,3 @@ test.run(program = test.workpath('prog' + _exe), stdout = "1\n")
 test.run(program = test.workpath('inc1/build/one' + _exe), stdout = "1\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

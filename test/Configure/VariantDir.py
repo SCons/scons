@@ -79,7 +79,7 @@ test.checkLogAndStdout(["Checking for C header file math.h... ",
                       os.path.join("build", "config.log"),
                       os.path.join("build", "config.tests"),
                       "SConstruct")
-    
+
 test.run()
 test.checkLogAndStdout(["Checking for C header file math.h... ",
                        "Checking for C header file no_std_c_header.h... "],
@@ -91,9 +91,3 @@ test.checkLogAndStdout(["Checking for C header file math.h... ",
                       "SConstruct")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

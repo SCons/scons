@@ -190,7 +190,7 @@ class DummyEnvironment:
     def __init__(self, listCppPath) -> None:
         self.path = listCppPath
         self.fs = SCons.Node.FS.FS(test.workpath(''))
-        
+
     def Dictionary(self, *args):
         if not args:
             return { 'CPPPATH': self.path }
@@ -279,7 +279,7 @@ class IDLScannerTestCase4(unittest.TestCase):
         deps = s(env.File('t2.idl'), env, path)
         headers =  ['d1/f1.idl', 'f1.idl', 'd1/d2/f1.idl', 'f3.idl']
         deps_match(self, deps, headers)
-        
+
 class IDLScannerTestCase5(unittest.TestCase):
     def runTest(self) -> None:
         env = DummyEnvironment([])
@@ -299,7 +299,7 @@ class IDLScannerTestCase5(unittest.TestCase):
         # Make sure rexists() got called on the file node being
         # scanned, essential for cooperation with VariantDir functionality.
         assert n.GetTag('rexists_called')
-        
+
         headers =  ['d1/f1.idl', 'd1/f2.idl',
                     'f1.idl', 'f2.idl', 'f3-test.idl',
                     'd1/f1.idl', 'd1/f2.idl', 'd1/f3-test.idl']
@@ -353,7 +353,7 @@ class IDLScannerTestCase8(unittest.TestCase):
 
         # Did we catch the warning associated with not finding fb.idl?
         assert to.out
-        
+
         deps_match(self, deps, [ 'fa.idl' ])
         test.unlink('fa.idl')
 
@@ -423,7 +423,7 @@ class IDLScannerTestCase12(unittest.TestCase):
         deps = s(env.File('t1.idl'), env, path)
         headers = ['f1.idl', 'f3.idl', 'd1/f2.idl']
         deps_match(self, deps, headers)
-        
+
 
 def suite():
     suite = unittest.TestSuite()
@@ -443,9 +443,3 @@ def suite():
 
 if __name__ == "__main__":
     TestUnit.run(suite())
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

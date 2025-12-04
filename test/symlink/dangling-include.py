@@ -52,13 +52,7 @@ expect = """\
 scons: \\*\\*\\* \\[foo.o(bj)?\\] Implicit dependency `foo.h' not found, needed by target `%s'.(  Stop.)?
 """% foo_obj
 
-test.run(arguments = '.', status = 2, stderr = expect, 
+test.run(arguments = '.', status = 2, stderr = expect,
          match=TestSCons.match_re_dotall)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -40,9 +40,3 @@ test.must_match('out.txt', f"I_got_expanded_to_out.txt{os.linesep}out.txt_is_fro
 test.must_match('out2.txt', f"I_got_expanded_to_out2.txt{os.linesep}out2.txt_is_from_expansion{os.linesep}$EXPAND_THIS{os.linesep}")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
