@@ -108,9 +108,3 @@ test.run(program=test.workpath('sub dir', 'foo' + _exe), stdout="foo.c\n")
 test.validate_msvs_file(test.workpath('sub dir', 'foo.vcxproj.user'))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

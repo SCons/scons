@@ -75,6 +75,7 @@ DEVELOPMENT
 
 - Introduce some unit tests for the file locking utility routines
 
+- Purge vim/emac local variable bloat.
 - Update pyproject.toml to support Python 3.14 and remove restrictions on lxml version install
 
 

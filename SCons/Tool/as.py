@@ -40,10 +40,3 @@ import SCons.Tool.asm
 # Resolve FLAKE8 F401 (make sider happy)
 generate = SCons.Tool.asm.generate
 exists = SCons.Tool.asm.exists
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

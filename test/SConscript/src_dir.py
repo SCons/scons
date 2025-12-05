@@ -44,7 +44,7 @@ test.write(['SConstruct'], """\
 env = Environment()
 
 for src_dir in ['src','samples']:
-    SConscript('build/glob_build.py', 
+    SConscript('build/glob_build.py',
                src_dir=src_dir,
                variant_dir='build/output/'+src_dir,
                duplicate=0,
@@ -97,9 +97,3 @@ test.run(program = goodbye, stdout = "Goodbye, world!\n")
 test.run(program = hello, stdout = "Hello, world!\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

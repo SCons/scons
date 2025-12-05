@@ -145,9 +145,3 @@ expect = [f"scons: *** missing SConscript file {missing!r}"]
 test.must_contain_all_lines(test.stderr(), expect)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

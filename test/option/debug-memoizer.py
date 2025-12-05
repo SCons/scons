@@ -78,9 +78,3 @@ test.must_contain_any_line(test.stdout(), expect)
 test.must_match('file.out', "file.in\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

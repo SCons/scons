@@ -103,9 +103,3 @@ test.run(arguments='-C %s -C %s .' % (wpath_sub_dir, wpath_sub),
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

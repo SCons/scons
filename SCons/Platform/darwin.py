@@ -39,7 +39,7 @@ def generate(env) -> None:
     # put macports paths at front to override Apple's versions, fink path is after
     # For now let people who want Macports or Fink tools specify it!
     # env['ENV']['PATH'] = '/opt/local/bin:/opt/local/sbin:' + env['ENV']['PATH'] + ':/sw/bin'
-    
+
     # Store extra system paths in env['ENV']['PATHOSX']
 
     filelist = ['/etc/paths',]
@@ -63,9 +63,3 @@ def generate(env) -> None:
     # Not sure why this wasn't the case all along?
     if env['ENV'].get('PATHOSX', False) and os.environ.get('SCONS_USE_MAC_PATHS', False):
         env.AppendENVPath('PATH',env['ENV']['PATHOSX'])
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

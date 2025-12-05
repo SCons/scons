@@ -41,7 +41,7 @@ import SCons.Util
 def generate(env) -> None:
     """Add Builders and construction variables for ar to an Environment."""
     SCons.Tool.createStaticLibBuilder(env)
-    
+
     if env.Detect('CC'):
         env['AR']          = 'CC'
         env['ARFLAGS']     = SCons.Util.CLVar('-xar')
@@ -56,9 +56,3 @@ def generate(env) -> None:
 
 def exists(env):
     return env.Detect('CC') or env.Detect('ar')
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

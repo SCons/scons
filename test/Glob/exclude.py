@@ -79,9 +79,3 @@ test.must_match('fe.out', "f2.in\nf3.in\nf4.in\nf5.in\n")
 test.must_match('ff.out', "f1.in\nf2.in\nf3.in\nf4.in\nf5.in\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

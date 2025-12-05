@@ -44,7 +44,7 @@ assert y == 'zoom'
 test.write("SConstruct", """
 x = 'x'
 y = 'zoom'
-Export(list(globals().keys()))                         
+Export(list(globals().keys()))
 SConscript('SConscript')
 """)
 
@@ -63,7 +63,7 @@ test.run(arguments = ".")
 test.write("SConstruct", """
 x = 'x'
 y = 'zoom'
-Export(globals())                         
+Export(globals())
 SConscript('SConscript')
 """)
 
@@ -139,9 +139,3 @@ assert y == 'zoom'
 test.run(arguments = ".")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

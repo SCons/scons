@@ -44,7 +44,7 @@ rpcgen_xdr      = cmd % ('c', '$RPCGENXDRFLAGS')
 
 def generate(env) -> None:
     """Add RPCGEN Builders and construction variables for an Environment."""
-    
+
     client  = Builder(action=rpcgen_client,  suffix='_clnt.c', src_suffix='.x')
     header  = Builder(action=rpcgen_header,  suffix='.h',      src_suffix='.x')
     service = Builder(action=rpcgen_service, suffix='_svc.c',  src_suffix='.x')
@@ -62,9 +62,3 @@ def generate(env) -> None:
 
 def exists(env):
     return env.Detect('rpcgen')
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

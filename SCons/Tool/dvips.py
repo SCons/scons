@@ -75,7 +75,7 @@ def generate(env) -> None:
                                           single_source=True)
 
     env['BUILDERS']['PostScript'] = PSBuilder
-    
+
     env['DVIPS']      = 'dvips'
     env['DVIPSFLAGS'] = SCons.Util.CLVar('')
     # I'm not quite sure I got the directories and filenames right for variant_dir
@@ -87,9 +87,3 @@ def generate(env) -> None:
 def exists(env):
     SCons.Tool.tex.generate_darwin(env)
     return env.Detect('dvips')
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

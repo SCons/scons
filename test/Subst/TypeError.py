@@ -92,9 +92,3 @@ test.file_fixture('./fixture/SConstruct.callable_exception', 'SConstruct')
 test.run(status=2, stderr=r'.*TypeError\s:\sUser\scallable\sexception.*')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

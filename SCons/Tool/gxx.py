@@ -72,9 +72,3 @@ def generate(env) -> None:
 def exists(env):
     # is executable, and is a GNU compiler (or accepts '--version' at least)
     return gcc.detect_version(env, env.Detect(env.get('CXX', compilers)))
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

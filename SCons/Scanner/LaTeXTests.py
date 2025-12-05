@@ -211,7 +211,7 @@ class LaTeXScannerTestCase5(unittest.TestCase):
          # on windows the paths used to sort are all caps and use backslash
          # due to this only on windows subdir2 < subdir\, so this is the expected order
          files_win = ['inc1.tex', 'inc2.tex', 'subdir2/inc3.tex', 'subdir/inc3.tex']
-         
+
          if sys.platform == 'win32':
              deps_match(self, deps, files_win)
          else:
@@ -219,9 +219,3 @@ class LaTeXScannerTestCase5(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

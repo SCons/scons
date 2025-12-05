@@ -31,7 +31,7 @@ people. The problem was, that the value of the Node.changed() method got cached
 too early for File nodes.
 
 This test verifies that the changed() function works properly, especially
-in connection with auto-generated sources, combined with an explicit Depends().  
+in connection with auto-generated sources, combined with an explicit Depends().
 """
 
 import TestSCons
@@ -65,9 +65,3 @@ test.must_exist('all-defuns.obj')
 test.up_to_date(arguments = 'all-defuns.obj')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

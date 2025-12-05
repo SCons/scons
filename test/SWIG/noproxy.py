@@ -38,7 +38,7 @@ import TestSCons
 if sys.platform == 'win32':
     _dll = '.dll'
 else:
-    _dll   = '.so' 
+    _dll   = '.so'
 
 test = TestSCons.TestSCons()
 
@@ -85,9 +85,3 @@ test.up_to_date(arguments = '.')
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

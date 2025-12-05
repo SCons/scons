@@ -629,9 +629,3 @@ def importfile(path):
         return importlib._bootstrap._load(spec)
     except ImportError:
         raise Exception(path, sys.exc_info())
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

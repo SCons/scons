@@ -26,7 +26,7 @@
 """
 Verify useful error message when you create a second Configure context without
 finalizing the previous one via conf.Finish()
-This addresses Issue 2906: 
+This addresses Issue 2906:
 https://github.com/SCons/scons/issues/2906
 """
 
@@ -47,9 +47,3 @@ File "%s", line 10, in <module>\n"""%test_SConstruct_path
 test.run(stderr=expected_stderr, stdout=expected_stdout, status=2)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

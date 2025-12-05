@@ -126,10 +126,3 @@ def IsInVirtualenv(path: str) -> bool:
     Returns ``False`` if not using a virtualenv.
     """
     return _is_path_in(path, Virtualenv())
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

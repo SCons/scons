@@ -177,9 +177,3 @@ test.must_exist(test.workpath('touch1.out'))
 test.must_exist(test.workpath('touch2.out'))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

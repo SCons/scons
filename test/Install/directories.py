@@ -47,7 +47,7 @@ test.subdir(
 
 test.write(['work', 'SConstruct'], """\
 DefaultEnvironment(tools=[])
-env = Environment(tools=[]) 
+env = Environment(tools=[])
 
 Install('../outside',  'dir1')
 InstallAs('../outside/d2', 'dir2')
@@ -93,9 +93,3 @@ test.must_match(test.workpath('outside', 'd4', 'f8'),           "work/dir4/f8\n"
 test.must_match(test.workpath('outside', 'd4', 'sub', 'f9'),    "work/dir4/sub/f9\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

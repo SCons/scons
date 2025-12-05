@@ -24,7 +24,7 @@
 
 """
 This test verifies that the build command signatures do not depend on
-the case of the drive letter on Windows. This is important because Windows is 
+the case of the drive letter on Windows. This is important because Windows is
 inconsistent about which case is used for the drive letter.
 """
 
@@ -49,30 +49,30 @@ Default(env.Program('../build/bar', ['main.c', '../src2/blat.c', '../build/bar.l
 """)
 
 test.write('src/foo.c', """
-int foo(void) 
-{ 
+int foo(void)
+{
     return 1;
 }
 """)
 
 test.write('src/bar.c', """
-__declspec(dllexport) int bar(void) 
-{ 
+__declspec(dllexport) int bar(void)
+{
     return 1;
 }
 """)
 
 test.write('src/main.c', """
 #include <bar.h>
-int main(void) 
-{ 
+int main(void)
+{
     return 1;
 }
 """)
 
 test.write('src2/blat.c', """
-int blat(void) 
-{ 
+int blat(void)
+{
     return 1;
 }
 """)
@@ -141,9 +141,3 @@ scons: .* is up to date.
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

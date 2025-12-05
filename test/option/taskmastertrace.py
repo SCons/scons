@@ -64,9 +64,3 @@ new_trace=thread_id.sub('[Thread:XXXXX]', new_trace)
 test.must_match('taskmaster_expected_new_parallel.txt', new_trace,  mode='r')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

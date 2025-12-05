@@ -48,9 +48,3 @@ def generate(env) -> None:
     env['LIBLITERAPPREFIX'] = ''
     env['HOST_OS']        = 'os2'
     env['HOST_ARCH']      = win32.get_architecture().arch
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

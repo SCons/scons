@@ -102,9 +102,3 @@ Copy("k2", "foo.k")
 test.run(arguments='k k2', stdout=expected_stdout)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

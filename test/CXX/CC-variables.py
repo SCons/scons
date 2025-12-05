@@ -48,9 +48,3 @@ g++ -o test.obj -c +for_CCFLAGS -Wp,-for_CPPFLAGS test.cxx
 test.run(arguments = '-Q -n test.obj', stdout=expect)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

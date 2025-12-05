@@ -102,9 +102,3 @@ test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "Bbar.lB\n")
 test.must_contain(test.workpath('bar.c'), "unistd.h")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

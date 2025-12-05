@@ -149,9 +149,3 @@ test.run(arguments = 'add_post_action')
 test.must_contain_all(test.stdout(), 'string it: Goodbye')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

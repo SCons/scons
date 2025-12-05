@@ -70,9 +70,3 @@ def exists(env):
             return SCons.Tool.FindTool(linktools, env)
         alltools.extend(linktools)
     return SCons.Tool.FindTool(alltools, env)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

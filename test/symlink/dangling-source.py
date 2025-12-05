@@ -49,9 +49,3 @@ scons: *** [file.out] Source `file.in' not found, needed by target `file.out'.
 test.run(arguments = '.', status = 2, stderr = expect)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

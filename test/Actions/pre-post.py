@@ -127,9 +127,3 @@ test.must_match(['work4', 'file.out'], "file.in\n")
 test.must_match(['work4', 'pre-post'], "pre file.in\npost file.in\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

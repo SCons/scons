@@ -34,7 +34,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
-env = Environment(tools=[]) 
+env = Environment(tools=[])
 env.Install('install', 'file1')
 env.Install('install', 'file1')
 """)
@@ -45,9 +45,3 @@ test.run(arguments='.')
 test.must_match(['install', 'file1'], "file1\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

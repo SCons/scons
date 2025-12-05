@@ -84,7 +84,7 @@ test.write('src/BarObject.h','''
 
 #include "resource.h"
 
-class ATL_NO_VTABLE CBarObject : 
+class ATL_NO_VTABLE CBarObject :
         public CComObjectRootEx<CComSingleThreadModel>,
         public CComCoClass<CBarObject, &CLSID_BarObject>,
         public IDispatchImpl<IBarObject, &IID_IBarObject, &LIBID_BARLib>
@@ -284,18 +284,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 #ifdef APSTUDIO_INVOKED
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE DISCARDABLE
 BEGIN
     "resource.h\\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE DISCARDABLE
 BEGIN
     "#include ""winres.h""\\r\\n"
     "\\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE DISCARDABLE
 BEGIN
     "1 TYPELIB ""bar.tlb""\\r\\n"
     "\\0"
@@ -344,7 +344,7 @@ END
 
 IDR_BAROBJECT           REGISTRY DISCARDABLE    "BarObject.rgs"
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     IDS_PROJNAME            "bar"
 END
@@ -437,9 +437,3 @@ test.must_not_exist(['build2','bar.lib'])
 test.must_not_exist(['build2','bar.exp'])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -43,12 +43,12 @@ if not where_java_include:
 
 test.write(['SConstruct'], """\
 env = Environment(tools = ['default', 'swig'],
-                CPPPATH=%(where_java_include)s,                 
+                CPPPATH=%(where_java_include)s,
                 )
 
 Java_foo_interface = env.SharedLibrary(
-    'Java_foo_interface', 
-    'Java_foo_interface.i', 
+    'Java_foo_interface',
+    'Java_foo_interface.i',
     SWIGOUTDIR = 'java/build dir',
     SWIGFLAGS = '-c++ -java -Wall',
     SWIGCXXFILESUFFIX = "_wrap.cpp")
@@ -63,25 +63,19 @@ test.write('Java_foo_interface.i', """\
 test.run(arguments = '.')
 
 test.must_exist('java/build dir/foopackJNI.java')
-test.must_exist('java/build dir/foopack.java') 
+test.must_exist('java/build dir/foopack.java')
 
 # SCons should remove the built .java files.
 test.run(arguments = '-c')
 
 test.must_not_exist('java/build dir/foopackJNI.java')
-test.must_not_exist('java/build dir/foopack.java') 
+test.must_not_exist('java/build dir/foopack.java')
 
 # SCons should realize it needs to rebuild the removed .java files.
 test.not_up_to_date(arguments = '.')
 
 test.must_exist('java/build dir/foopackJNI.java')
-test.must_exist('java/build dir/foopack.java') 
+test.must_exist('java/build dir/foopack.java')
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

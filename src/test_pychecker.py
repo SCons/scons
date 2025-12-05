@@ -114,7 +114,7 @@ os.environ['PYTHONPATH'] = src_engine
 
 for file in files:
 
-    args = (default_arguments + 
+    args = (default_arguments +
             per_file_arguments.get(file, []) +
             [os.path.join(src_engine, file)])
 
@@ -143,9 +143,3 @@ if mismatches:
     test.fail_test()
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

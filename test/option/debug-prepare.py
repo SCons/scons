@@ -53,9 +53,3 @@ test.run(arguments = "--debug=prepare", stdout=test.wrap_stdout(expect))
 test.must_exist('foo.out')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

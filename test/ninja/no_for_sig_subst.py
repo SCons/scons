@@ -67,9 +67,3 @@ test.run(program=program, stdout=None)
 test.must_exist([test.workpath('out.txt')])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

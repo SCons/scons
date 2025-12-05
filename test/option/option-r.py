@@ -35,9 +35,3 @@ test.option_not_yet_implemented('-r', '.')
 test.option_not_yet_implemented('--no-builtin-rules', '.')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

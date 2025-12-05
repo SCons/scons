@@ -75,7 +75,7 @@ else:
     invalid_chars.add(chr(92)) # forward slash (dirsep)
     invalid_chars.add(chr(96)) # backtick
 
-    
+
     def bad_char(c):
         return c in invalid_chars
     def invalid_leading_char(c):
@@ -125,9 +125,3 @@ for c in goodChars:
         test.must_match("out" + c_str, contents(c))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

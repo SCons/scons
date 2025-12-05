@@ -36,8 +36,3 @@ test.run(arguments=["-Q"])
 test.run(arguments=["-Q"])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:

@@ -654,9 +654,3 @@ class Null(metaclass=NoSlotsPyPy):
     def set_action_list(self, action) -> None:
         self._morph()
         self.set_action_list(action)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

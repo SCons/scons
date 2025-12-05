@@ -39,9 +39,3 @@ test.run(arguments='out2.txt -Q')
 test.must_contain_exactly_lines(test.stdout(), ['out1.txt', 'out2.txt'])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

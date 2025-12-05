@@ -150,9 +150,3 @@ for source_signature in ['MD5', 'timestamp-newer']:
     test.must_match('f5.out', "C=/var")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

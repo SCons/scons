@@ -396,9 +396,3 @@ class CacheDir:
     def push_if_forced(self, node):
         if cache_force:
             return self.push(node)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

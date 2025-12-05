@@ -115,9 +115,3 @@ test.must_match('frog.1', 'croak\ninput sound2\n', mode='r')
 test.must_match('frog.2', 'include sound1\nrudeep\n', mode='r')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

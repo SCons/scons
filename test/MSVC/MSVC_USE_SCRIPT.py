@@ -43,9 +43,3 @@ test.run(arguments = ".", status=2, stderr=None)
 test.must_contain_all(test.stderr(), "Script specified by MSVC_USE_SCRIPT not found")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

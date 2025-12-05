@@ -162,9 +162,3 @@ test.must_match(['expand_chdir_sub', 'f11.out'],
                 "expand_chdir_sub/f11.in\n", mode='r')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

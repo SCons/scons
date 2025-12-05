@@ -342,9 +342,3 @@ _is_valid_var_re = re.compile(r'[_a-zA-Z]\w*$')
 def is_valid_construction_var(varstr: str) -> bool:
     """Return True if *varstr* is a legitimate name of a construction variable."""
     return bool(_is_valid_var_re.match(varstr))
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

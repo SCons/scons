@@ -203,9 +203,3 @@ test.fail_test( condition=(os.readlink(rellinkToCopy) != os.readlink( L9 )) )
 test.fail_test( condition=(os.readlink(rellinkToCopy) != os.readlink( L10 )) )
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

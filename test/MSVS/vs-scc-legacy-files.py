@@ -109,9 +109,3 @@ env.MSVSProject(target = '{project_file}',
 
 if test:
     test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

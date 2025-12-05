@@ -58,9 +58,3 @@ Building test1.dvi from test1.tex
 test.must_match('test1.dvi', "test1.tex\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

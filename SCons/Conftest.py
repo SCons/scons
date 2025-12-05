@@ -859,12 +859,3 @@ def _lang2suffix(lang):
         return ("C++", ".cpp", None)
 
     return None, None, "Unsupported language: %s" % lang
-
-
-# vim: set sw=4 et sts=4 tw=79 fo+=l:
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

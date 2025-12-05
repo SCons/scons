@@ -65,9 +65,3 @@ test.must_exist_one_of([test.workpath(f) for f in filename_options])
 test.must_exist(test.workpath(libraryname))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

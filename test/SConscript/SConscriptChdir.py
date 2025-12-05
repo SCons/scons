@@ -92,9 +92,3 @@ test.must_match('test.txt',"This is the dir3 test.\nThis is the dir5 test.\n", m
 test.must_match(['dir4', 'test.txt'],"This is the dir4 test.\n", mode='r')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -287,9 +287,3 @@ stderr = filter_tempnam(test.stderr())
 test.fail_test(TestSCons.match_re_dotall(stderr, 6*warning))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -86,9 +86,3 @@ test.run(arguments = '--help help=1')
 test.must_contain_all_lines(test.stdout(), lines)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

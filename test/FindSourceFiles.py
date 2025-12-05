@@ -74,9 +74,3 @@ test.must_not_exist('foo-1.0/var/SConscript')
 test.must_not_exist('foo-1.0/var/foo.c.in')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -373,9 +373,3 @@ def Platform(name = platform_default()):
     module = platform_module(name)
     spec = PlatformSpec(name, module.generate)
     return spec
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

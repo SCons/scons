@@ -3852,9 +3852,3 @@ def invalidate_node_memos(targets) -> None:
             node = get_default_fs().Entry(entry)
             if node:
                 node.clear_memoized_values()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

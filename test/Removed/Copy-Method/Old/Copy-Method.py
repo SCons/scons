@@ -42,9 +42,3 @@ msg = """The env.Copy() method is deprecated; use the env.Clone() method instead
 test.deprecated_warning('deprecated-copy', msg)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

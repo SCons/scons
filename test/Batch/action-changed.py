@@ -96,9 +96,3 @@ test.must_match('f2.out', "two\nf2.in\n")
 test.must_match('f3.out', "two\nf3.in\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

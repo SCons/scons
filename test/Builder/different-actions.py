@@ -24,7 +24,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Verify that two builders in two environments with different 
+Verify that two builders in two environments with different
 actions generate an error.
 """
 
@@ -50,9 +50,3 @@ scons: *** Two environments with different actions were specified for the same t
 test.run(arguments='out.txt', status=2, stderr=expect)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

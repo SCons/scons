@@ -92,7 +92,7 @@ def generate(env) -> None:
     bld.add_action('.tex', PDFTeXLaTeXAction)
     bld.add_emitter('.tex', SCons.Tool.tex.tex_pdf_emitter)
 
-    # Add the epstopdf builder after the pdftex builder 
+    # Add the epstopdf builder after the pdftex builder
     # so pdftex is the default for no source suffix
     pdf.generate2(env)
 
@@ -101,9 +101,3 @@ def generate(env) -> None:
 def exists(env):
     SCons.Tool.tex.generate_darwin(env)
     return env.Detect('pdftex')
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

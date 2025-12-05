@@ -52,7 +52,7 @@ def get_package_info(package_name, pkginfo, pkgchk):
     except KeyError:
         version = None
         pathname = None
-        from subprocess import DEVNULL 
+        from subprocess import DEVNULL
 
         try:
             with open('/var/sadm/install/contents', encoding='UTF-8') as f:
@@ -145,9 +145,3 @@ def exists(env):
         if os.path.exists(cppc):
             return cppc
     return None
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

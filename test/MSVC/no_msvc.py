@@ -78,9 +78,3 @@ test.file_fixture('no_msvc/no_msvcs_sconstruct_msvc_query_toolset_version.py', '
 test.run(arguments='-Q -s', status=2, stderr=r"^.*MSVCToolsetVersionNotFound.+", match=TestSCons.match_re_dotall)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -54,9 +54,3 @@ test.must_not_be_empty(test.workpath('manual_xi.xml'))
 test.must_contain(test.workpath('manual_xi.xml'),'<para>This is another text.')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

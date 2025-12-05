@@ -73,9 +73,3 @@ def generate(env) -> None:
 
 def exists(env):
     return findIt('bcc32', env)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

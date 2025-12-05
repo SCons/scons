@@ -113,9 +113,3 @@ cp = subprocess.run(
 )
 test.fail_test(cp.stdout != "libfoo-1.2.3/src/main.c\nlibfoo-1.2.3/SConstruct\n")
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

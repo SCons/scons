@@ -705,9 +705,3 @@ def BuildDefaultGlobals():
              GlobalDict[m] = d[m]
 
     return GlobalDict.copy()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -120,9 +120,3 @@ if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
         except Exception:
             log_error(f"Error: {traceback.format_exc()}")
             exit(1)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

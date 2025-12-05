@@ -58,9 +58,3 @@ test.run('-Q -q --extra=A TARG', status=1, stdout="A\n['TARG']\n")
 test.run('-Q -q --extra A TARG', status=1, stdout="A\n['TARG']\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

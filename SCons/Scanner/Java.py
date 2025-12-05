@@ -103,9 +103,3 @@ def JavaScanner():
     .. versionadded:: 4.4
     """
     return SCons.Scanner.Base(scan, 'JavaScanner', skeys=['.java'])
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

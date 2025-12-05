@@ -26,10 +26,10 @@ Options:
   -f file(s)        dump function information to the specified file(s)
   -t file(s)        dump tool information to the specified file(s)
   -v file(s)        dump variable information to the specified file(s)
-  
+
   The "files" argument following a -[bftv] argument is expected to
   be a comma-separated pair of names like: foo.gen,foo.mod
-  
+
 """
 
 opts, args = getopt.getopt(sys.argv[1:],
@@ -105,17 +105,17 @@ class SCons_XML:
         self.values = entries
         for k, v in kw.items():
             setattr(self, k, v)
-            
+
     def fopen(self, name, mode='w'):
         if name == '-':
             return sys.stdout
         return open(name, mode)
-    
+
     def write(self, files):
         gen, mod = files.split(',')
         self.write_gen(gen)
         self.write_mod(mod)
-        
+
     def write_gen(self, filename):
         if not filename:
             return
@@ -123,12 +123,12 @@ class SCons_XML:
         if filename.count(','):
             fl = filename.split(',')
             filename = fl[0]
-            
+
         # Start new XML file
         root = stf.newXmlTree("variablelist")
-        
+
         for v in self.values:
-            
+
             ve = stf.newNode("varlistentry")
             stf.setAttribute(ve, 'id', '%s%s' % (v.prefix, v.idfunc()))
             for t in v.xml_terms():
@@ -139,7 +139,7 @@ class SCons_XML:
                 for s in v.summary:
                     added = True
                     stf.appendNode(vl, stf.copyNode(s))
-            
+
             if v.sets:
                 added = True
                 vp = stf.newNode("para")
@@ -157,21 +157,21 @@ class SCons_XML:
                     stf.appendCvLink(vp, x, ', ')
                 stf.appendCvLink(vp, v.uses[-1], '.')
                 stf.appendNode(vl, vp)
-                
+
             # Still nothing added to this list item?
             if not added:
                 # Append an empty para
                 vp = stf.newNode("para")
                 stf.appendNode(vl, vp)
-                
+
             stf.appendNode(ve, vl)
             stf.appendNode(root, ve)
-            
-        # Write file        
+
+        # Write file
         f = self.fopen(filename)
         stf.writeGenTree(root, f)
         f.close()
-            
+
     def write_mod(self, filename):
         try:
             description = self.values[0].description
@@ -245,7 +245,7 @@ class SConsThing(Proxy):
     """Base class for the SConsDoc special elements"""
     def idfunc(self):
         return self.name
-    
+
     def xml_terms(self):
         e = stf.newNode("term")
         stf.setText(e, self.name)
@@ -256,7 +256,7 @@ class Builder(SConsThing):
     description = 'builder'
     prefix = 'b-'
     tag = 'function'
-    
+
     def xml_terms(self):
         """emit xml for an scons builder
 
@@ -279,7 +279,7 @@ class Builder(SConsThing):
         stf.setTail(meth, '()')
 
         return [gterm, mterm]
-            
+
     def entityfunc(self):
         return self.name
 
@@ -288,7 +288,7 @@ class Function(SConsThing):
     description = 'function'
     prefix = 'f-'
     tag = 'function'
-    
+
     def xml_terms(self):
         """emit xml for an scons function
 
@@ -343,7 +343,7 @@ class Function(SConsThing):
         if not tlist:
             tlist.append(stf.newNode("term"))
         return tlist
-    
+
     def entityfunc(self):
         return self.name
 
@@ -352,10 +352,10 @@ class Tool(SConsThing):
     description = 'tool'
     prefix = 't-'
     tag = 'literal'
-    
+
     def idfunc(self):
         return self.name.replace('+', 'X')
-    
+
     def entityfunc(self):
         return self.name
 
@@ -370,7 +370,7 @@ class Variable(SConsThing):
         var = stf.newSubNode(term, Variable.tag)
         stf.setText(var, self.name)
         return [term]
-    
+
     def entityfunc(self):
         return '$' + self.name
 
@@ -380,17 +380,17 @@ def write_output_files(h, buildersfiles, functionsfiles,
         g = processor_class([Builder(b) for b in sorted(h.builders.values())],
                             env_signatures=True)
         write_func(g, buildersfiles)
-    
+
     if functionsfiles:
         g = processor_class([Function(b) for b in sorted(h.functions.values())],
                             env_signatures=True)
         write_func(g, functionsfiles)
-    
+
     if toolsfiles:
         g = processor_class([Tool(t) for t in sorted(h.tools.values())],
                             env_signatures=False)
         write_func(g, toolsfiles)
-    
+
     if variablesfiles:
         g = processor_class([Variable(v) for v in sorted(h.cvars.values())],
                             env_signatures=False)
@@ -419,9 +419,3 @@ h = parse_docs(args, include_entities=True)
 write_output_files(h, buildersfiles, functionsfiles, toolsfiles,
                    variablesfiles, SCons_XML.write)
 print("Done")
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -92,9 +92,3 @@ test.must_match('foo.x', os.linesep.join(["line 1", "fff", "line 3"]))
 test.must_match('bar', os.linesep.join(["line 1", "bbb", "line 3"]))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

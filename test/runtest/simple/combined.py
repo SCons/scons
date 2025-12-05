@@ -70,9 +70,3 @@ test.must_exist('failed_tests.log')
 test.must_contain('failed_tests.log', test_fail_py)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

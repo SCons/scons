@@ -623,10 +623,3 @@ def get_pch_node(env, target, source):
         pch_subst = target[0].dir.File(pch_subst)
 
     return pch_subst
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

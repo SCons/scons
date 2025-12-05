@@ -142,9 +142,3 @@ class Alias(SCons.Node.Node):
 default_ans = AliasNameSpace()
 
 SCons.Node.arg2nodes_lookups.append(default_ans.lookup)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

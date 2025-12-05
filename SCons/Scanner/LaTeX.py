@@ -436,9 +436,3 @@ class LaTeX(ScannerBase):
         # Don't sort on a tuple where the second element is an object, just
         # use the first element of the tuple which is the "sort_key" value
         return [pair[1] for pair in sorted(nodes, key=lambda n: n[0])]
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

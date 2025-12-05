@@ -64,9 +64,3 @@ test.run()
 test.must_match('test3.dll', "test1.c\ntest2.c\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

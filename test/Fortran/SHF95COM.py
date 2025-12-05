@@ -92,9 +92,3 @@ if not is_windows:
     test.must_match(obj_ + 'test22' + _obj, "This is a .F95 file.\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

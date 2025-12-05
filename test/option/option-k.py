@@ -49,7 +49,7 @@ sys.exit(1)
 
 #
 # Test: work1
-# 
+#
 
 test.write(['work1', 'SConstruct'], """\
 DefaultEnvironment(tools=[])
@@ -119,7 +119,7 @@ test.must_not_exist(test.workpath('work1', 'bbb.out'))
 
 #
 # Test: work2
-# 
+#
 
 test.write(['work2', 'SConstruct'], """\
 DefaultEnvironment(tools=[])
@@ -171,12 +171,12 @@ test.must_match(['work2', 'ddd.out'], "succeed.py: ddd.out\n", mode='r')
 #          |           |             |
 #         a1           a2           a3
 #          |           |             |
-#          +       +---+---+     +---+---+ 
+#          +       +---+---+     +---+---+
 #          \       |      /      |       |
 #           \   bbb.out  /      a4    ccc.out
-#            \          /       /        
-#             \        /       /  
-#              \      /       /  
+#            \          /       /
+#             \        /       /
+#              \      /       /
 #              aaa.out (fails)
 #
 
@@ -305,9 +305,3 @@ test.must_exist(['work3', 'bbb.out'])
 test.must_exist(['work3', 'ccc.out'])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

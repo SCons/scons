@@ -50,9 +50,3 @@ test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
 test.must_contain(test.workpath('build.ninja'), 'deps = msvc')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

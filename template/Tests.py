@@ -27,9 +27,3 @@ Replace this with a description of the test.
 """
 
 import unittest
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

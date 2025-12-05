@@ -58,7 +58,7 @@ def getPharLapPath():
         idx=val.find('\0')
         if idx >= 0:
             val = val[:idx]
-                    
+
         return os.path.normpath(val)
     except SCons.Util.RegError:
         raise SCons.Errors.UserError("Cannot find Phar Lap ETS path in the registry.  Is it installed properly?")
@@ -104,13 +104,6 @@ def addPharLapPaths(env) -> None:
                                   os.path.join(ph_path, 'lib'))
     SCons.Util.AddPathIfNotExists(env_dict, 'LIB',
                                   os.path.join(ph_path, os.path.normpath('lib/vclib')))
-    
+
     env['PHARLAP_PATH'] = getPharLapPath()
     env['PHARLAP_VERSION'] = str(getPharLapVersion())
-    
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

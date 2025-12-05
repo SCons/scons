@@ -32,7 +32,7 @@ is added to targets.
 
 import TestSCons
 
-# swap slashes because on py3 on win32 inside the generated build.py 
+# swap slashes because on py3 on win32 inside the generated build.py
 # the backslashes are getting interpretted as unicode which is
 # invalid.
 python = TestSCons.python.replace('\\','//')
@@ -150,9 +150,3 @@ run_test('xyzzy\\\\n', python, _python_)
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

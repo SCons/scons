@@ -71,14 +71,8 @@ test.fail_test(test.read('test1' + _exe) != b"This is a .spp file.\n")
 test.fail_test(test.read('test2' + _exe) != b"This is a .SPP file.\n")
 
 # Ensure the source scanner was run on test3.sx by
-# checking for foo.h in the dependency tree output 
+# checking for foo.h in the dependency tree output
 test.run(arguments = '. --tree=prune')
 test.fail_test("foo.h" not in test.stdout())
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

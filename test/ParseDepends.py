@@ -154,9 +154,3 @@ test.run(status=2, stderr=None)
 test.must_contain_all_lines(test.stderr(), ["No such file or directory"])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

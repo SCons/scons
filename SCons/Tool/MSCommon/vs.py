@@ -639,9 +639,3 @@ def query_versions(env=None):
     considered when a batfile is found."""
     versions = _get_installed_vss(env)
     return versions
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

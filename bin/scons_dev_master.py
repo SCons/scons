@@ -39,7 +39,7 @@ BUILDING_PACKAGES = [
     'rpm',
     'tar',
     'lynx',
-    
+
     # additional packages that Bill Deegan's web page suggests
     #'docbook-to-man',
     #'docbook2x',
@@ -223,9 +223,3 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
 
 if __name__ == "__main__":
     sys.exit(main())
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
