@@ -29,6 +29,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Operating System :: POSIX :: Linux",
@@ -55,7 +56,7 @@ scons-configure-cache = "SCons.Utilities.ConfigureCache:main"
 dev = [
     "ninja",
     "psutil",
-    "lxml < 5; sys_platform != 'win32' and python_version < '3.13'",
+    "lxml",
 ]
 pkg = [
     "ninja",
