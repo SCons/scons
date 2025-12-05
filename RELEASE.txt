@@ -75,6 +75,9 @@ DEVELOPMENT
 
 - Introduce some unit tests for the file locking utility routines
 
+- Update pyproject.toml to support Python 3.14 and remove restrictions on lxml version install
+
+
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
