@@ -20,6 +20,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From William Deegan:
     - Fix SCons Docbook schema to work with lxml > 5
+    - Update pyproject.toml to support Python 3.14 and remove restrictions on lxml version install
 
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
