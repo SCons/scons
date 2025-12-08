@@ -1,4 +1,7 @@
-# Dependencies for packaging, and distribution, including the docs build
+# Dependencies for packaging and distribution, including the docs build
+#
+# You can alternatively use: pip install scons[pkg]
+# to pick up the dependencies from pyproject.toml
 
 -r requirements-dev.txt
 
@@ -7,10 +10,12 @@
 # See: https://github.com/pypa/readme_renderer
 readme-renderer
 
-# sphinx pinned because it has broken several times on new releases
+# pin sphinx if it breaks on a new release, which has happened many times.
 sphinx
 sphinx-book-theme
 rst2pdf
+# pdf doc build suggests this for better results, excluded for now:
+# "matplotlib",
 
 build
 twine
