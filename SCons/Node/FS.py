@@ -93,6 +93,26 @@ class EntryProxyAttributeError(AttributeError):
                       repr(entry.name),
                       repr(self.attribute))
 
+
+class FileWhereDirectoryExpectedError(SCons.Errors.BuildError):
+    def __init__(self, node_path):
+        super().__init__()
+        self.node_path = node_path
+
+    def __str__(self):
+        fmt = "File %s found where directory expected."
+        return fmt % self.node_path
+
+
+class DirWhereFileExpectedError(SCons.Errors.BuildError):
+    def __init__(self, node_path):
+        super().__init__()
+        self.node_path = node_path
+
+    def __str__(self):
+        fmt = "Directory %s found where file expected."
+        return fmt % self.node_path
+
 # The max_drift value:  by default, use a cached signature value for
 # any file that's been untouched for more than two days.
 default_max_drift = 2*24*60*60
@@ -429,7 +449,7 @@ class DiskChecker:
             self.func = self.ignore_check_function
 
 
-def do_diskcheck_match(node, predicate, errorfmt):
+def do_diskcheck_match(node, predicate, error_exception):
     result = predicate()
     try:
         # If calling the predicate() cached a None value from stat(),
@@ -443,7 +463,7 @@ def do_diskcheck_match(node, predicate, errorfmt):
     except (AttributeError, KeyError):
         pass
     if result:
-        raise TypeError(errorfmt % node.get_abspath())
+        raise error_exception(node.get_abspath())
 
 
 def ignore_diskcheck_match(node, predicate, errorfmt) -> None:
@@ -1685,9 +1705,9 @@ class Dir(Base):
             l.insert(0, a)
             self.get_executor().set_action_list(l)
 
-    def diskcheck_match(self) -> None:
-        diskcheck_match(self, self.isfile,
-                        "File %s found where directory expected.")
+    def diskcheck_match(self)-> None:
+        diskcheck_match(self, self.isfile, FileWhereDirectoryExpectedError)
+
 
     def __clearRepositoryCache(self, duplicate=None) -> None:
         """Called when we change the repository(ies) for a directory.
@@ -2485,6 +2505,7 @@ class RootDir(Dir):
             # created matches whatever is out there in the real world.
             result.diskcheck_match()
 
+
             self._lookupDict[k] = result
             dir_node.entries[_my_normcase(file_name)] = result
             dir_node.implicit = None
@@ -2686,8 +2707,7 @@ class File(Base):
     hash_chunksize = 65536
 
     def diskcheck_match(self) -> None:
-        diskcheck_match(self, self.isdir,
-                        "Directory %s found where file expected.")
+        diskcheck_match(self, self.isdir, DirWhereFileExpectedError)
 
     def __init__(self, name, directory, fs) -> None:
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.File')
