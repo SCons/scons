@@ -68,7 +68,7 @@ def diskcheck_convert(value):
 
 
 class SConsValues(optparse.Values):
-    """Holder class for uniform access to SCons options.
+    """SCons parsed argument names and values.
 
     A SCons option value can originate three different ways:
 
@@ -235,8 +235,8 @@ class SConsValues(optparse.Values):
 class SConsOption(optparse.Option):
     """SCons added option.
 
-    Changes :attr:`CHECK_METHODS` and :attr:`CONST_ACTIONS` settings from
-    :class:`optparse.Option` base class to tune for our usage.
+    Changes :attr:`CHECK_METHODS` and :attr:`CONST_ACTIONS` settings
+    to tune for our usage.
 
     New function :meth:`_check_nargs_optional` implements the ``nargs=?``
     syntax from :mod:`argparse`, and is added to the ``CHECK_METHODS`` list.
@@ -247,12 +247,13 @@ class SConsOption(optparse.Option):
        set in the option. A parameter to mark the option settable was added
        in 4.8.0, but was not initially made part of the option object itself.
     """
+
     # can uncomment to have a place to trap SConsOption creation for debugging:
     # def __init__(self, *args, **kwargs):
     #     super().__init__(*args, **kwargs)
 
     def convert_value(self, opt: str, value):
-        """SCons override: recognize nargs="?"."""
+        """SCons override: recognize ``nargs='?'`"""
         if value is not None:
             if self.nargs in (1, '?'):
                 return self.check_value(opt, value)
@@ -289,7 +290,7 @@ class SConsOption(optparse.Option):
 
 
 class SConsOptionGroup(optparse.OptionGroup):
-    """A subclass for SCons-specific option groups.
+    """SCons option groups.
 
     The only difference between this and the base class is that we print
     the group's help text flush left, underneath their own title but
@@ -311,7 +312,7 @@ class SConsOptionGroup(optparse.OptionGroup):
 
 
 class SConsBadOptionError(optparse.BadOptionError):
-    """Raised if an invalid option value is encountered on the command line.
+    """SCons handler for bad options.
 
     Attributes:
        opt_str: The unrecognized command-line option.
@@ -328,6 +329,8 @@ class SConsBadOptionError(optparse.BadOptionError):
 
 
 class SConsOptionParser(optparse.OptionParser):
+    """SCons option parser."""
+
     preserve_unknown_options = False
     raise_exception_on_error = False
 
@@ -343,13 +346,11 @@ class SConsOptionParser(optparse.OptionParser):
     def _process_long_opt(self, rargs, values) -> None:
         """SCons-specific processing of long options.
 
-        This is copied directly from the normal Optparse
-        :meth:`~optparse.OptionParser._process_long_opt` method, except
-        that, if configured to do so, we catch the exception thrown
-        when an unknown option is encountered and just stick it back
-        on the "leftover" arguments for later (re-)processing. This is
-        because we may see the option definition later, while processing
-        SConscript files.
+        Vendors :meth:`~optparse.OptionParser._process_long_opt`.
+        If configured to do so, catch the unknown option exception and stick
+        the option back on the "leftover" arguments for later (re-)processing.
+        This is because we may see the option definition later in the form
+        of a :meth:`~SCons.Script.Main.AddOption` while reading SConscript files.
         """
         arg = rargs.pop(0)
 
@@ -420,13 +421,11 @@ class SConsOptionParser(optparse.OptionParser):
     def _process_short_opts(self, rargs, values) -> None:
         """SCons-specific processing of short options.
 
-        This is copied directly from the normal Optparse
-        :meth:`~optparse.OptionParser._process_short_opts` method, except
-        that, if configured to do so, we catch the exception thrown
-        when an unknown option is encountered and just stick it back
-        on the "leftover" arguments for later (re-)processing. This is
-        because we may see the option definition later, while processing
-        SConscript files.
+        Vendors :meth:`~optparse.OptionParser._process_short_opts`.
+        If configured to do so, catch the unknown option exception and stick
+        the option back on the "leftover" arguments for later (re-)processing.
+        This is because we may see the option definition later in the form
+        of a :meth:`~SCons.Script.Main.AddOption` while reading SConscript files.
         """
         arg = rargs.pop(0)
         stop = False
@@ -549,7 +548,7 @@ class SConsOptionParser(optparse.OptionParser):
         by default "local" (project-added) options are not eligible for
         :func:`~SCons.Script.Main.SetOption` calls.
 
-        .. versionchanged:: NEXT_VERSION
+        .. versionchanged:: 4.9.0
            If the option's *settable* attribute is true, it is added to
            the :attr:`SConsValues.settable` list. *settable* handling was
            added in 4.8.0, but was not made an option attribute at the time.
@@ -617,6 +616,12 @@ class SConsOptionParser(optparse.OptionParser):
 
 
 class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
+    """SCons help formatting.
+
+    This is the SCons-specific :meth:`~optparse.HelpFormatter` subclass,
+    implemented by extending :meth:`optparse.IndentedHelpFormatter`.
+    """
+
     def format_usage(self, usage) -> str:
         """Format the usage message for SCons."""
         return "usage: %s\n" % usage
@@ -625,7 +630,7 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
         """Translate heading to "SCons Options"
 
         Heading of "Options" changed to "SCons Options."
-        Unfortunately, we have to do this here, because those titles
+        Unfortunately, we have to intercept it here, because those titles
         are hard-coded in the optparse calls.
         """
         if heading == 'Options':
@@ -635,8 +640,8 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
     def format_option(self, option):
         """SCons-specific option formatter.
 
-        A copy of the :meth:`optparse.IndentedHelpFormatter.format_option`
-        method.  Overridden so we can modify text wrapping to our liking:
+        Vendors :meth:`optparse.HelpFormatter.format_option`, overridden
+        to modify text wrapping to our liking:
 
         * add our own regular expression that doesn't break on hyphens
           (so things like ``--no-print-directory`` don't get broken).
@@ -663,8 +668,9 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
                   read data from FILENAME
 
         Help strings are wrapped for terminal width and do not preserve
-        any hand-made formatting that may have been used in the ``AddOption``
-        call, so don't attempt prettying up a list of choices (for example).
+        any hand-made formatting that may have been used in the
+        :meth:`~SCons.Script.Main.AddOption` call, so don't attempt
+        prettying up a list of choices (for example).
         """
         result = []
         opts = self.option_strings[option]

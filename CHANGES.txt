@@ -32,6 +32,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Handle the default (unset) ProgressObject differently for the sole
       purpose of avoiding Sphinx 9.0+ blowing up on it (it's been giving
       a warning for years, but now it's a fatal error).
+    - Improve covarage of API doc build by ignoring any setting of
+      __all__ in a package and not showing inherited members from optparse.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
