@@ -94,15 +94,15 @@ class ValueTestCase(unittest.TestCase):
     def test_get_csig(self) -> None:
         """Test calculating the content signature of a Value() object."""
         v1 = SCons.Node.Python.Value('aaa')
-        csig = v1.get_csig(None)
+        csig = v1.get_csig()
         assert csig == 'aaa', csig
 
         v2 = SCons.Node.Python.Value(7)
-        csig = v2.get_csig(None)
+        csig = v2.get_csig()
         assert csig == '7', csig
 
         v3 = SCons.Node.Python.Value(None)
-        csig = v3.get_csig(None)
+        csig = v3.get_csig()
         assert csig == 'None', csig
 
         # Dependencies: a tree of Value nodes comes back as a single string.
