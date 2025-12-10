@@ -52,15 +52,18 @@ scons = "SCons.Script.Main:main"
 sconsign = "SCons.Utilities.sconsign:main"
 scons-configure-cache = "SCons.Utilities.ConfigureCache:main"
 
-[project.optional-dependencies]
+# Extra deps for development.
+[dependency-groups]
 dev = [
     "ninja",
     "psutil",
     "lxml",
 ]
+# there's no official syntax for "include @dev" yet, so repeat:
 pkg = [
     "ninja",
     "psutil",
+    "lxml",
     "readme-renderer",
     "sphinx",
     "sphinx-book-theme",
@@ -68,7 +71,12 @@ pkg = [
     "build",
     "twine",
     "packaging",
+    # pdf doc build suggests this for better results, excluded for now:
+    # "matplotlib",
 ]
+
+# Features users can opt into. Currently none.
+# [project.optional-dependencies]
 
 [tool.setuptools]
 zip-safe = false
@@ -119,7 +127,9 @@ extend-safe-fixes = ["FA", "UP006", "UP007"]
 quote-style = "preserve" # Equivalent to black's "skip-string-normalization"
 
 [tool.mypy]
-python_version = "3.8"
+# version should be oldest supported by SCons, but mypy has moved on.
+# can't *run* mypy with 3.9, but can still check against it, for now.
+python_version = "3.9"
 exclude = [
     "^bench/",
     "^bin/",
@@ -131,3 +141,5 @@ exclude = [
     "^timings/",
     "^SCons/Tool/docbook/docbook-xsl-1.76.1/",
 ]
+
+# TODO: need a matching section for pyright? (doesn't read [tool.mypy]

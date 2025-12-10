@@ -1,12 +1,16 @@
 # Dependencies for development - mainly for running tests
+#
+# You can alternativey use: pip install scons[dev]
+# to pick up the dependencies from pyproject.toml
 
 -r requirements.txt
 
-# for now keep pinning "known working" lxml,
-# it's been a troublesome component in the past.
-# Skip  lxml for win32 as no tests which require it currently pass on win32
-lxml<5; python_version < '3.13' and sys_platform != 'win32'
-lxml>=5.0.0; python_version >= '3.13'
+# pin lxml if it breaks on a new release, which has happened many times.
+# we used to skip lxml on win32 as no tests which require it currently
+# pass on Windows anyway, and as we don't build docs on Windows either.
+# Add the exclusion back if it's found to cause trouble.
+# lxml and sys.platform != 'win32'
+lxml
 
 ninja
 
