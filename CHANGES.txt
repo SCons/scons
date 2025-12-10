@@ -15,6 +15,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From John Doe:
     - Whatever John Doe did.
 
+  From Thaddeus Crews:
+    - Ruff: Handle F401 exclusions more granularly, remove per-file exclusions.
+
   From William Deegan:
     - Fix SCons Docbook schema to work with lxml > 5
     - Update pyproject.toml to support Python 3.14 and remove restrictions on lxml version install
