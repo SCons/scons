@@ -115,6 +115,10 @@ DEVELOPMENT
 - MSVC: Added a host/target batch file configuration table for Visual
   Studio 2026.  Visual Studio 2026 removed support for 32-bit arm targets.
 
+- Modernized GitHub Actions test runner. This consolidates the logic of
+  existing test environments into a single package. Adjusted AppVeyor to
+  only run for targets unsupported by GitHub runners.
+
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
