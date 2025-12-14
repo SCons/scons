@@ -1558,25 +1558,26 @@ class Node(metaclass=NoSlotsPyPy):
         the command interpreter literally."""
         return True
 
-    def render_include_tree(self):
+    def render_include_tree(self) -> str:
         """
         Return a text representation, suitable for displaying to the
         user, of the include tree for the sources of this node.
         """
-        if self.is_derived():
-            env = self.get_build_env()
-            if env:
-                for s in self.sources:
-                    scanner = self.get_source_scanner(s)
-                    if scanner:
-                        path = self.get_build_scanner_path(scanner)
-                    else:
-                        path = None
-                    def f(node: Node, env: Environment = env, scanner: ScannerBase = scanner, path=path):
-                        return node.get_found_includes(env, scanner, path)
-                    return render_tree(s, f, 1)
-        else:
-            return None
+        if not self.is_derived():  # quick bailout
+            return ""
+
+        tree = ""
+        env = self.get_build_env()
+        if env:
+            for s in self.sources:
+                scanner = self.get_source_scanner(s)
+                if scanner:
+                    path = self.get_build_scanner_path(scanner)
+                else:
+                    path = None
+                tree += render_tree(s, lambda node: node.get_found_includes(env, scanner, path), prune=True)
+
+        return tree
 
     def get_abspath(self) -> str:
         """
