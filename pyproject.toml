@@ -59,11 +59,8 @@ dev = [
     "psutil",
     "lxml",
 ]
-# there's no official syntax for "include @dev" yet, so repeat:
 pkg = [
-    "ninja",
-    "psutil",
-    "lxml",
+    { include-group = "dev" },
     "readme-renderer",
     "sphinx",
     "sphinx-book-theme",
