@@ -31,6 +31,7 @@ import re
 
 import SCons.Util
 import SCons.Warnings
+from SCons.Util.sctypes import _null
 
 class XgettextToolWarning(SCons.Warnings.SConsWarning):
     pass
@@ -245,7 +246,7 @@ class _POFileBuilder(BuilderBase):
         return SCons.Node.NodeList(result)
 
 
-def _translate(env, target=None, source=SCons.Environment._null, *args, **kw):
+def _translate(env, target=None, source=_null, *args, **kw):
     """ Function for `Translate()` pseudo-builder """
     if target is None: target = []
     pot = env.POTUpdate(None, source, *args, **kw)

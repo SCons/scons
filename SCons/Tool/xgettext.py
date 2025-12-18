@@ -34,7 +34,6 @@ import SCons.Tool
 import SCons.Util
 import SCons.Warnings
 from SCons.Builder import BuilderBase
-from SCons.Environment import _null
 from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
 from SCons.Tool.GettextCommon import (
@@ -44,6 +43,7 @@ from SCons.Tool.GettextCommon import (
     _xgettext_exists,
     # XgettextToolWarning,
 )
+from SCons.Util.sctypes import _null
 
 
 class _CmdRunner:

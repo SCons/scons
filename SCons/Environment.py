@@ -78,14 +78,10 @@ from SCons.Util import (
     to_String_for_subst,
     uniquer_hashables,
 )
+from SCons.Util.sctypes import _null
 
 if TYPE_CHECKING:
     from SCons.Executor import Executor
-
-class _Null:
-    pass
-
-_null = _Null
 
 _warn_copy_deprecated = True
 _warn_source_signatures_deprecated = True
