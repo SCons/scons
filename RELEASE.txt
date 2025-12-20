@@ -80,10 +80,11 @@ DEVELOPMENT
 - List visible changes in the way SCons is developed
 
 - Introduce some unit tests for the file locking utility routines
-
 - Implement type hints for Node subclasses.
 - Ruff: Handle F401 exclusions more granularly, remove per-file exclusions.
 - Update pyproject.toml to support Python 3.14 and remove restrictions on lxml version install
+- Unify internal "_null" sentinel usage.
+
 
 
 Thanks to the following contributors listed below for their contributions to this release.

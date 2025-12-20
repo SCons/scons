@@ -117,6 +117,7 @@ import SCons.Debug
 import SCons.Errors
 import SCons.Subst
 import SCons.Util
+from SCons.Util.sctypes import _null
 
 # we use these a lot, so try to optimize them
 from SCons.Debug import logInstanceCreation
@@ -125,9 +126,6 @@ from SCons.Util import is_String, is_List
 
 if TYPE_CHECKING:
     from SCons.Executor import Executor
-
-class _null:
-    pass
 
 print_actions = True
 execute_actions = True

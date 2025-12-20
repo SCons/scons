@@ -28,14 +28,7 @@ import re
 import SCons.Node.FS
 import SCons.PathList
 import SCons.Util
-
-
-class _Null:
-    pass
-
-# This is used instead of None as a default argument value so None can be
-# used as an actual argument value.
-_null = _Null
+from SCons.Util.sctypes import _null
 
 def Scanner(function, *args, **kwargs):
     """Factory function to create a Scanner Object.

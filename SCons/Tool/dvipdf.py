@@ -34,11 +34,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Action
 import SCons.Defaults
+import SCons.Scanner.LaTeX
 import SCons.Tool.pdf
 import SCons.Tool.tex
 import SCons.Util
-
-_null = SCons.Scanner.LaTeX._null
+from SCons.Util.sctypes import _null
 
 def DviPdfPsFunction(XXXDviAction, target = None, source= None, env=None):
     """A builder for DVI files that sets the TEXPICTS environment

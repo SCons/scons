@@ -42,6 +42,7 @@ import SCons.Node
 import SCons.Node.FS
 import SCons.Util
 import SCons.Scanner.LaTeX
+from SCons.Util.sctypes import _null
 
 Verbose = False
 
@@ -143,9 +144,6 @@ MakeAcronymsAction = None
 
 # An action to run MakeIndex (for newglossary commands) on a file.
 MakeNewGlossaryAction = None
-
-# Used as a return value of modify_env_var if the variable is not set.
-_null = SCons.Scanner.LaTeX._null
 
 modify_env_var = SCons.Scanner.LaTeX.modify_env_var
 
