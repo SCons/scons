@@ -29,7 +29,7 @@ import SCons.Util
 from . import ScannerBase, FindPathDirs
 
 # global, set by --debug=findlibs
-print_find_libs = None
+print_find_libs = ""
 
 def ProgramScanner(**kwargs):
     """Return a prototype Scanner instance for scanning executable

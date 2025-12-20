@@ -52,7 +52,6 @@ in multiple places, rather then being topical only to one module/package.
 from __future__ import annotations
 
 import copy
-import hashlib
 import logging
 import os
 import re
@@ -60,13 +59,12 @@ import sys
 import time
 from collections import UserDict, UserList, deque
 from contextlib import suppress
-from types import MethodType, FunctionType
 from typing import Any
 from logging import Formatter
 
 # Util split into a package. Make sure things that used to work
 # when importing just Util itself still work:
-from .sctypes import (
+from .sctypes import (  # noqa: F401
     DictTypes,
     ListTypes,
     SequenceTypes,
@@ -90,7 +88,7 @@ from .sctypes import (
     get_os_env_bool,
     get_environment_var,
 )
-from .hashes import (
+from .hashes import (  # noqa: F401
     ALLOWED_HASH_FORMATS,
     DEFAULT_HASH_FORMATS,
     get_hash_format,
@@ -103,7 +101,7 @@ from .hashes import (
     MD5filesignature,
     MD5collect,
 )
-from .envs import (
+from .envs import (  # noqa: F401
     MethodWrapper,
     PrependPath,
     AppendPath,
@@ -111,7 +109,7 @@ from .envs import (
     AddMethod,
     is_valid_construction_var,
 )
-from .filelock import FileLock, SConsLockFailure
+from .filelock import FileLock, SConsLockFailure  # noqa: F401
 
 PYPY = hasattr(sys, 'pypy_translation_info')
 

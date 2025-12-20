@@ -39,6 +39,7 @@ from SCons.Tool.GettextCommon import (
     # MsgmergeToolWarning,
     _POFileBuilder,
 )
+from SCons.Util.sctypes import _null
 
 def _update_or_init_po_files(target, source, env):
     """ Action function for `POUpdate` builder """
@@ -59,9 +60,6 @@ def _POUpdateBuilder(env, **kw):
 
     action = SCons.Action.Action(_update_or_init_po_files, None)
     return _POFileBuilder(env, action=action, target_alias='$POUPDATE_ALIAS')
-
-
-from SCons.Environment import _null
 
 
 def _POUpdateBuilderWrapper(env, target=None, source=_null, **kw):

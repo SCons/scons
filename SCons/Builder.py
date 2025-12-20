@@ -115,11 +115,7 @@ from SCons.Debug import logInstanceCreation
 from SCons.Errors import InternalError, UserError
 from SCons.Executor import Executor
 from SCons.Node import Node
-
-class _Null:
-    pass
-
-_null = _Null
+from SCons.Util.sctypes import _null
 
 def match_splitext(path, suffixes = []):
     if suffixes:

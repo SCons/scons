@@ -34,6 +34,8 @@ FIXES
 
 - List fixes of outright bugs
 
+- Fix --debug=includes for case of multiple source files.
+
 IMPROVEMENTS
 ------------
 
@@ -67,6 +69,10 @@ DOCUMENTATION
   a warning for years, but now it's a fatal error). Affects only the
   API doc build.
 
+- Improve covarage of API doc build by ignoring any setting of
+  __all__ in a package and not showing inherited members from optparse.
+
+
 
 DEVELOPMENT
 -----------
@@ -76,7 +82,11 @@ DEVELOPMENT
 - Introduce some unit tests for the file locking utility routines
 
 - Purge vim/emac local variable bloat.
+- Implement type hints for Node subclasses.
+- Ruff: Handle F401 exclusions more granularly, remove per-file exclusions.
 - Update pyproject.toml to support Python 3.14 and remove restrictions on lxml version install
+- Unify internal "_null" sentinel usage.
+
 
 
 Thanks to the following contributors listed below for their contributions to this release.

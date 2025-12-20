@@ -33,6 +33,7 @@ SCons.Script.SConsOptions module
 --------------------------------
 
 .. automodule:: SCons.Script.SConsOptions
+    :no-inherited-members:
     :members:
     :undoc-members:
     :show-inheritance:

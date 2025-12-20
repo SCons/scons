@@ -29,18 +29,14 @@ import re
 import SCons.Node.FS
 import SCons.Util
 import SCons.Warnings
+# Used as a return value of modify_env_var if the variable is not set.
+from SCons.Util.sctypes import _null
 from . import ScannerBase, FindPathDirs
 
 # list of graphics file extensions for TeX and LaTeX
 TexGraphics   = ['.eps', '.ps']
 #LatexGraphics = ['.pdf', '.png', '.jpg', '.gif', '.tif']
 LatexGraphics = [ '.png', '.jpg', '.gif', '.tif']
-
-
-# Used as a return value of modify_env_var if the variable is not set.
-class _Null:
-    pass
-_null = _Null
 
 # The user specifies the paths in env[variable], similar to other builders.
 # They may be relative and must be converted to absolute, as expected

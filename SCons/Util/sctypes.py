@@ -132,11 +132,21 @@ def is_Scalar(  # pylint: disable=redefined-outer-name,redefined-builtin
     return isinstance(obj, StringTypes) or not isinstance(obj, Iterable)
 
 
+# Sentinels for use when None is needed for something else
+# 1. Simple:
+
+class _Null:
+    pass
+
+_null = _Null()
+
+# 2. More complex - when we don't necessarily want to check for the
+# sentinel, and don't want it to fail if used as the "real" class:
+
 # From Dinu C. Gherman,
 # Python Cookbook, second edition, recipe 6.17, p. 277.
 # Also: https://code.activestate.com/recipes/68205
 # ASPN: Python Cookbook: Null Object Design Pattern
-
 
 class Null:
     """Null objects always and reliably 'do nothing'."""
@@ -167,6 +177,9 @@ class Null:
     def __delattr__(self, name):
         return self
 
+# 3. Refining the previous, to add iteration capability.
+# You'd want to combine these two, but there are uses of _Null that
+# don't seem to work right with _NullSeq - a TODO
 
 class NullSeq(Null):
     """A Null object that can also be iterated over."""
