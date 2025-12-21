@@ -91,6 +91,7 @@ CleanTargets = {}
 CalculatorArgs = {}
 
 def alias_builder(env, target, source) -> None:
+    """Dummy action for use by the Alias Builder."""
     pass
 
 AliasBuilder = SCons.Builder.Builder(
@@ -103,6 +104,7 @@ AliasBuilder = SCons.Builder.Builder(
 )
 
 def apply_tools(env, tools, toolpath) -> None:
+    """Apply the specified tools to the Environment."""
     # Store the toolpath in the Environment.
     # This is expected to work even if no tools are given, so do this first.
     if toolpath is not None:
@@ -140,6 +142,7 @@ future_reserved_construction_var_names = [
 ]
 
 def copy_non_reserved_keywords(dict):
+    """Copy a dict excluding reserved construction variable names."""
     result = semi_deepcopy(dict)
     for k in result.copy().keys():
         if k in reserved_construction_var_names:
@@ -149,15 +152,18 @@ def copy_non_reserved_keywords(dict):
     return result
 
 def _set_reserved(env, key, value) -> None:
+    """Warn about attempts to set reserved construction variables."""
     msg = "Ignoring attempt to set reserved variable `$%s'"
     SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning, msg % key)
 
 def _set_future_reserved(env, key, value) -> None:
+    """Warn about attempts to set future reserved construction variables."""
     env._dict[key] = value
     msg = "`$%s' will be reserved in a future release and setting it will become ignored"
     SCons.Warnings.warn(SCons.Warnings.FutureReservedVariableWarning, msg % key)
 
 def _set_BUILDERS(env, key, value):
+    """Set the BUILDERS construction variable."""
     try:
         bd = env._dict[key]
         for k in bd.copy().keys():
@@ -171,10 +177,12 @@ def _set_BUILDERS(env, key, value):
     bd.update(value)
 
 def _del_SCANNERS(env, key) -> None:
+    """Delete the SCANNERS construction variable."""
     del env._dict[key]
     env.scanner_map_delete()
 
 def _set_SCANNERS(env, key, value) -> None:
+    """Set the SCANNERS construction variable."""
     env._dict[key] = value
     env.scanner_map_delete()
 
@@ -204,7 +212,7 @@ def _add_cppdefines(
     unique: bool = False,
     delete_existing: bool = False,
 ) -> None:
-    """Adds to ``CPPDEFINES``, using the rules for C preprocessor macros.
+    """Add to ``CPPDEFINES``, using the rules for C preprocessor macros.
 
     This is split out from regular construction variable addition because
     these entries can express either a macro with a replacement value or
@@ -241,7 +249,7 @@ def _add_cppdefines(
 
 
     def _is_in(item, defines: deque):
-        """Returns match for *item* if found in *defines*.
+        """Return match for *item* if found in *defines*.
 
         Accounts for type differences: tuple ("FOO", "BAR"), list
         ["FOO", "BAR"], string "FOO=BAR" and dict {"FOO": "BAR"} all
@@ -261,7 +269,7 @@ def _add_cppdefines(
         if the initial add is a list its contents are not converted.
         """
         def _macro_conv(v) -> list:
-            """Normalizes a macro to a list for comparisons."""
+            """Normalize a macro to a list for comparisons."""
             if is_Tuple(v):
                 return list(v)
             elif is_String(v):
@@ -413,22 +421,21 @@ def _add_cppdefines(
 # and otherwise we had a circular import problem.
 
 class BuilderWrapper(MethodWrapper):
-    """
-    A MethodWrapper subclass that that associates an environment with
-    a Builder.
+    """Normalize Builder arguments.
 
-    This mainly exists to wrap the __call__() function so that all calls
-    to Builders can have their argument lists massaged in the same way
-    (treat a lone argument as the source, treat two arguments as target
-    then source, make sure both target and source are lists) without
-    having to have cut-and-paste code to do it.
+    Wrapper mainly exists to wrap the ``__call__()`` method so that
+    all calls to Builders can have their argument lists massaged in the
+    same way (treat a lone positional argument as the source, treat two
+    positional arguments as target then source, make sure both target and
+    source are lists) without having to have cut-and-paste code to do it.
 
     As a bit of obsessive backwards compatibility, we also intercept
-    attempts to get or set the "env" or "builder" attributes, which were
+    attempts to get or set the *env* or *builder* attributes, which were
     the names we used before we put the common functionality into the
-    MethodWrapper base class.  We'll keep this around for a while in case
+    :class:`~SCons.Util.envs.MethodWrapper` base class.
+    Keep this around for a while in case
     people shipped Tool modules that reached into the wrapper (like the
-    Tool/qt.py module does, or did).  There shouldn't be a lot attribute
+    ``Tool/qt.py`` module does, or did).  There shouldn't be a lot attribute
     fetching or setting on these, so a little extra work shouldn't hurt.
     """
     def __call__(self, target=None, source=_null, *args, **kw):
@@ -475,10 +482,13 @@ class BuilderWrapper(MethodWrapper):
     #    self.builder.execute(**kw)
 
 class BuilderDict(UserDict):
-    """This is a dictionary-like class used by an Environment to hold
-    the Builders.  We need to do this because every time someone changes
-    the Builders in the Environment's BUILDERS dictionary, we must
-    update the Environment's attributes."""
+    """Dictionary-like class to hold Builders.
+
+    We need this because every time someone changes the Builders in the
+    Environment's ``BUILDERS`` dictionary, we must update the Environment's
+    attributes.
+    """
+
     def __init__(self, mapping, env) -> None:
         # Set self.env before calling the superclass initialization,
         # because it will end up calling our other methods, which will
@@ -539,11 +549,18 @@ class SubstitutionEnvironment:
     via proxy from an :class:`OverrideEnvironment`, which isn't in the
     class inheritance chain. Take care that methods called with a *self*
     that's really an ``OverrideEnvironment`` don't make bad assumptions.
+
+    Note: as currently constituted, this class is not useful standalone,
+    except for unit tests (the only things that ever instantiate one).
+    There is at least one method (:meth:`MergeFlags`) that calls methods that
+    don't exist here (:meth:`~Base.Append`, :meth:`~Base.AppendUnique`,
+    and :meth:`~Split`) that are left to derived classes - :class:`Base`).
+    A brief experiment in moving ``MergeFlags``
+    broke things as it's part of how an environment is initialized.
+    It doesn't seen worthwhile to refactor this separation.
     """
 
     def __init__(self, **kw) -> None:
-        """Initialization of an underlying SubstitutionEnvironment class.
-        """
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.SubstitutionEnvironment')
         self.fs = SCons.Node.FS.get_default_fs()
         self.ans = SCons.Node.Alias.default_ans
@@ -554,8 +571,7 @@ class SubstitutionEnvironment:
         #self._memo = {}
 
     def _init_special(self) -> None:
-        """Initial the dispatch tables for special handling of
-        special construction variables."""
+        """Initialize the dispatch tables for special construction variables."""
         self._special_del = {}
         self._special_del['SCANNERS'] = _del_SCANNERS
 
@@ -616,30 +632,30 @@ class SubstitutionEnvironment:
             self._dict[key] = value
 
     def get(self, key, default=None):
-        """Emulates the get() method of dictionaries."""
+        """Emulate the ``get`` method of dictionaries."""
         return self._dict.get(key, default)
 
     def __contains__(self, key) -> bool:
         return key in self._dict
 
     def keys(self):
-        """Emulates the keys() method of dictionaries."""
+        """Emulate the ``keys`` method of dictionaries."""
         return self._dict.keys()
 
     def values(self):
-        """Emulates the values() method of dictionaries."""
+        """Emulate the ``values`` method of dictionaries."""
         return self._dict.values()
 
     def items(self):
-        """Emulates the items() method of dictionaries."""
+        """Emulate the ``items`` method of dictionaries."""
         return self._dict.items()
 
     def setdefault(self, key, default=None):
-        """Emulates the setdefault() method of dictionaries."""
+        """Emulate the ``setdefault`` method of dictionaries."""
         return self._dict.setdefault(key, default)
 
     def arg2nodes(self, args, node_factory=_null, lookup_list=_null, **kw):
-        """Converts *args* to a list of nodes.
+        """Convert *args* to a list of nodes.
 
         Arguments:
            args - filename strings or nodes to convert; nodes are just
@@ -647,7 +663,7 @@ class SubstitutionEnvironment:
            node_factory - optional factory to create the nodes; if not
               specified, will use this environment's ``fs.File`` method.
            lookup_list - optional list of lookup functions to call to
-              attempt to find the file referenced by each *args*.
+              attempt to find the file referenced by each arg in *args*.
            kw - keyword arguments that represent additional nodes to add.
         """
         if node_factory is _null:
@@ -693,9 +709,11 @@ class SubstitutionEnvironment:
         return nodes
 
     def gvars(self):
+        """Return the global construction variables dictionary."""
         return self._dict
 
     def lvars(self):
+        """Return the local construction variables dictionary."""
         return {}
 
     def subst(self, string, raw: int=0, target=None, source=None, conv=None, executor: Executor | None = None, overrides: dict | None = None):
@@ -716,6 +734,7 @@ class SubstitutionEnvironment:
         return SCons.Subst.scons_subst(string, self, raw, target, source, gvars, lvars, conv, overrides=overrides)
 
     def subst_kw(self, kw, raw: int=0, target=None, source=None):
+        """Substitute all keys and string values in a keyword dictionary."""
         nkw = {}
         for k, v in kw.items():
             k = self.subst(k, raw, target, source)
@@ -784,11 +803,11 @@ class SubstitutionEnvironment:
 
         Provides behavior conceptually like POSIX Shell notation
         for running a command in backquotes (backticks) by running
-        ``command`` and returning the resulting output string.
+        *command* and returning the resulting output string.
 
         This is not really a public API any longer, it is provided for the
         use of :meth:`ParseFlags` (which supports it using a syntax of
-        !command) and :meth:`ParseConfig`.
+        ``!command``) and :meth:`ParseConfig`.
 
         Raises:
             OSError: if the external command returned non-zero exit status.
@@ -905,6 +924,7 @@ class SubstitutionEnvironment:
         }
 
         def do_parse(arg: str | Sequence) -> None:
+            """Utility function to parse a single argument."""
             if not arg:
                 return
 
@@ -917,8 +937,8 @@ class SubstitutionEnvironment:
             if arg[0] == '!':
                 arg = self.backtick(arg[1:])
 
-            # utility function to deal with -D option
             def append_define(name, mapping=mapping) -> None:
+                """Utility function to deal with -D option."""
                 t = name.split('=')
                 if len(t) == 1:
                     mapping['CPPDEFINES'].append(name)
@@ -1255,8 +1275,7 @@ class Base(SubstitutionEnvironment):
         # environment before calling the tools, because they may use
         # some of them during initialization.
         if 'options' in kw:
-            # Backwards compatibility:  they may stll be using the
-            # old "options" keyword.
+            # Backwards compatibility:  handle the old "options" keyword.
             variables = kw['options']
             del kw['options']
         self.Replace(**kw)
@@ -1336,6 +1355,7 @@ class Base(SubstitutionEnvironment):
         return custom_class
 
     def get_CacheDir(self):
+        """Return the CacheDir object for this environment, instantiating it if necessary."""
         try:
             path = self._CacheDir_path
         except AttributeError:
@@ -1359,9 +1379,7 @@ class Base(SubstitutionEnvironment):
         return cd
 
     def get_factory(self, factory, default: str='File'):
-        """Return a factory function for creating Nodes for this
-        construction environment.
-        """
+        """Return a factory function for creating Nodes."""
         name = default
         try:
             is_node = issubclass(factory, SCons.Node.FS.Base)
@@ -1421,15 +1439,13 @@ class Base(SubstitutionEnvironment):
         return result
 
     def get_scanner(self, skey):
-        """Find the appropriate scanner given a key (usually a file suffix).
-        """
+        """Find the appropriate scanner given a key (usually a file suffix)."""
         if skey and self['PLATFORM'] == 'win32':
             skey = skey.lower()
         return self._gsm().get(skey)
 
     def scanner_map_delete(self, kw=None) -> None:
-        """Delete the cached scanner map (if we need to).
-        """
+        """Delete the cached scanner map (if necessary)."""
         try:
             del self._memo['_gsm']
         except KeyError:
@@ -1675,23 +1691,29 @@ class Base(SubstitutionEnvironment):
         return clone
 
     def _changed_build(self, dependency, target, prev_ni, repo_node=None) -> bool:
+        """Decide whether a target needs to be rebuilt based on a dependency."""
         if dependency.changed_state(target, prev_ni, repo_node):
             return True
         return self.decide_source(dependency, target, prev_ni, repo_node)
 
     def _changed_content(self, dependency, target, prev_ni, repo_node=None) -> bool:
+        """Decide whether a target needs to be rebuilt based on content change."""
         return dependency.changed_content(target, prev_ni, repo_node)
 
     def _changed_timestamp_then_content(self, dependency, target, prev_ni, repo_node=None) -> bool:
+        """Decide whether a target needs to be rebuilt based on timestamp then content."""
         return dependency.changed_timestamp_then_content(target, prev_ni, repo_node)
 
     def _changed_timestamp_newer(self, dependency, target, prev_ni, repo_node=None) -> bool:
+        """Decide whether a target needs to be rebuilt based on newer timestamp."""
         return dependency.changed_timestamp_newer(target, prev_ni, repo_node)
 
     def _changed_timestamp_match(self, dependency, target, prev_ni, repo_node=None) -> bool:
+        """Decide whether a target needs to be rebuilt based on timestamp matching."""
         return dependency.changed_timestamp_match(target, prev_ni, repo_node)
 
     def Decider(self, function):
+        """Set the decision function for whether targets need rebuilding."""
         self.cache_timestamp_newer = False
         if function in ('MD5', 'content'):
             # TODO: Handle if user requests MD5 and not content with deprecation notice
@@ -1717,8 +1739,7 @@ class Base(SubstitutionEnvironment):
         """Return the first available program from one or more possibilities.
 
         Args:
-            progs (str or list): one or more command names to check for
-
+            progs: one or more command names to check for availability.
         """
         if not is_List(progs):
             progs = [progs]
@@ -1843,16 +1864,16 @@ class Base(SubstitutionEnvironment):
     def ParseConfig(self, command, function=None, unique: bool=True):
         """Parse the result of running a command to update construction vars.
 
-        Use ``function`` to parse the output of running ``command``
+        Use *function* to parse the output of running *command`*
         in order to modify the current environment.
 
         Args:
             command: a string or a list of strings representing a command
               and its arguments.
-            function: called to process the result of ``command``, which will
-              be passed as ``args``.  If ``function`` is omitted or ``None``,
+            function: called to process the result of *command*, which will
+              be passed as the *args* argument.  If *function* is omitted or ``None``,
               :meth:`MergeFlags` is used. Takes 3 args ``(env, args, unique)``
-            unique: whether no duplicate values are allowed (default true)
+            unique: if true (the default) no duplicate values are allowed
         """
         if function is None:
 
@@ -1867,9 +1888,9 @@ class Base(SubstitutionEnvironment):
 
 
     def ParseDepends(self, filename, must_exist=None, only_one: bool=False):
-        """
-        Parse a mkdep-style file for explicit dependencies.  This is
-        completely abusable, and should be unnecessary in the "normal"
+        """Parse a depends-style file *filename* for explicit dependencies.
+
+        This is completely abusable, and should be unnecessary in the "normal"
         case of proper SCons configuration, but it may help make
         the transition from a Make hierarchy easier for some people
         to swallow.  It can also be genuinely useful when using a tool
@@ -1907,11 +1928,12 @@ class Base(SubstitutionEnvironment):
             self.Depends(target, depends)
 
     def Platform(self, platform):
+        """Call a platform object to update the environment."""
         platform = self.subst(platform)
         return SCons.Platform.Platform(platform)(self)
 
     def Prepend(self, **kw) -> None:
-        """Prepend values to construction variables in an Environment.
+        """Prepend values to construction variables.
 
         The variable is created if it is not already present.
         """
@@ -1985,7 +2007,7 @@ class Base(SubstitutionEnvironment):
         assure this.  This can also handle the case where the env
         variable is a list instead of a string.
 
-        If *delete_existing* is False, a *newpath* component already in the path
+        If *delete_existing* is false, a *newpath* component already in the path
         will not be moved to the front (it will be left where it is).
         """
 
@@ -2050,9 +2072,7 @@ class Base(SubstitutionEnvironment):
         self.scanner_map_delete(kw)
 
     def Replace(self, **kw) -> None:
-        """Replace existing construction variables in an Environment
-        with new construction variables and/or values.
-        """
+        """Replace existing construction variables new construction variables and/or values."""
         try:
             kwbd = kw['BUILDERS']
         except KeyError:
@@ -2066,15 +2086,14 @@ class Base(SubstitutionEnvironment):
         self.scanner_map_delete(kw)
 
     def ReplaceIxes(self, path, old_prefix, old_suffix, new_prefix, new_suffix):
-        """
-        Replace old_prefix with new_prefix and old_suffix with new_suffix.
+        """Replace prefixes and/or suffixes in a path.
 
-        env - Environment used to interpolate variables.
-        path - the path that will be modified.
-        old_prefix - construction variable for the old prefix.
-        old_suffix - construction variable for the old suffix.
-        new_prefix - construction variable for the new prefix.
-        new_suffix - construction variable for the new suffix.
+        Args:
+            path: the path that will be modified.
+            old_prefix: construction variable for the old prefix.
+            old_suffix: construction variable for the old suffix.
+            new_prefix: construction variable for the new prefix.
+            new_suffix: construction variable for the new suffix.
         """
         old_prefix = self.subst('$'+old_prefix)
         old_suffix = self.subst('$'+old_suffix)
@@ -2090,12 +2109,14 @@ class Base(SubstitutionEnvironment):
         return os.path.join(dir, new_prefix+name+new_suffix)
 
     def SetDefault(self, **kw) -> None:
+        """Set default values for construction variables."""
         for k in list(kw.keys()):
             if k in self._dict:
                 del kw[k]
         self.Replace(**kw)
 
     def _find_toolpath_dir(self, tp):
+        """Helper to find a toolpath directory."""
         return self.fs.Dir(self.subst(tp)).srcnode().get_abspath()
 
     def Tool(
@@ -2123,7 +2144,20 @@ class Base(SubstitutionEnvironment):
         return tool
 
     def WhereIs(self, prog, path=None, pathext=None, reject=None):
-        """Find prog in the path. """
+        """Find a program in the path.
+
+        Args:
+            prog: the program name to search for.
+            path: the list of directories to search in.  If ``None``, uses the PATH from
+              the environment's ENV dictionary.
+            pathext: the list of executable extensions to try.  If ``None``, uses the PATHEXT from
+              the environment's ENV dictionary.
+            reject: a function that is called with each candidate path.  If it returns true,
+              that path is skipped.
+
+        Returns:
+            The full path to the program if found, or ``None``.
+        """
         if not prog:  # nothing to search for, just give up
             return None
         if path is None:
@@ -2155,6 +2189,7 @@ class Base(SubstitutionEnvironment):
     #######################################################################
 
     def Action(self, *args, **kw):
+        """Create and return an Action object."""
         def subst_string(a, self=self):
             if is_String(a):
                 a = self.subst(a)
@@ -2164,6 +2199,7 @@ class Base(SubstitutionEnvironment):
         return SCons.Action.Action(*nargs, **nkw)
 
     def AddPreAction(self, files, action):
+        """Add a pre-action to be executed before building *files*."""
         nodes = self.arg2nodes(files, self.fs.Entry)
         action = SCons.Action.Action(action)
         uniq = {}
@@ -2174,6 +2210,7 @@ class Base(SubstitutionEnvironment):
         return nodes
 
     def AddPostAction(self, files, action):
+        """Add a post-action to be executed after building *files*."""
         nodes = self.arg2nodes(files, self.fs.Entry)
         action = SCons.Action.Action(action)
         uniq = {}
@@ -2184,6 +2221,7 @@ class Base(SubstitutionEnvironment):
         return nodes
 
     def Alias(self, target, source=[], action=None, **kw):
+        """Create an alias *target* that depends on *source*."""
         tlist = self.arg2nodes(target, self.ans.Alias)
         if not is_List(source):
             source = [source]
@@ -2237,6 +2275,7 @@ class Base(SubstitutionEnvironment):
         return result
 
     def AlwaysBuild(self, *targets):
+        """Tag *targets* to always be built."""
         tlist = []
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))
@@ -2245,10 +2284,17 @@ class Base(SubstitutionEnvironment):
         return tlist
 
     def Builder(self, **kw):
+        """Create and return a Builder object."""
         nkw = self.subst_kw(kw)
         return SCons.Builder.Builder(**nkw)
 
     def CacheDir(self, path, custom_class=None) -> None:
+        """Set up a CacheDir for this environment.
+
+        Args:
+            path: Path to the CacheDir directory. If ``None``, disables caching.
+            custom_class: Optional custom CacheDir class to use.
+        """
         if path is not None:
             path = self.subst(path)
         self._CacheDir_path = path
@@ -2284,6 +2330,7 @@ class Base(SubstitutionEnvironment):
                 CleanTargets[t] = flist
 
     def Configure(self, *args, **kw):
+        """Set up a configuration context."""
         nargs = [self]
         if args:
             nargs = nargs + self.subst_list(args)[0]
@@ -2341,8 +2388,7 @@ class Base(SubstitutionEnvironment):
         return tlist
 
     def Dir(self, name, *args, **kw):
-        """
-        """
+        """Create Dir node(s) for *name*."""
         s = self.subst(name)
         if is_Sequence(s):
             result=[]
@@ -2352,6 +2398,7 @@ class Base(SubstitutionEnvironment):
         return self.fs.Dir(s, *args, **kw)
 
     def PyPackageDir(self, modulename):
+        """Create Dir node(s) for *modulename*."""
         s = self.subst(modulename)
         if is_Sequence(s):
             result=[]
@@ -2370,7 +2417,7 @@ class Base(SubstitutionEnvironment):
         return tlist
 
     def NoCache(self, *targets):
-        """Tag target(s) so that it will not be cached."""
+        """Tag *targets* to not be cached."""
         tlist = []
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))
@@ -2379,8 +2426,7 @@ class Base(SubstitutionEnvironment):
         return tlist
 
     def Entry(self, name, *args, **kw):
-        """
-        """
+        """Create Entry node(s) for *name*."""
         s = self.subst(name)
         if is_Sequence(s):
             result=[]
@@ -2390,11 +2436,11 @@ class Base(SubstitutionEnvironment):
         return self.fs.Entry(s, *args, **kw)
 
     def Environment(self, **kw):
+        """Create a construction environment object."""
         return SCons.Environment.Environment(**self.subst_kw(kw))
 
     def Execute(self, action, *args, **kw):
-        """Directly execute an action through an Environment
-        """
+        """Directly execute *action* through an Environment."""
         action = self.Action(action, *args, **kw)
         result = action([], [], self)
         if isinstance(result, BuildError):
@@ -2407,8 +2453,7 @@ class Base(SubstitutionEnvironment):
             return result
 
     def File(self, name, *args, **kw):
-        """
-        """
+        """Create File node(s) for *name*."""
         s = self.subst(name)
         if is_Sequence(s):
             result=[]
@@ -2418,14 +2463,17 @@ class Base(SubstitutionEnvironment):
         return self.fs.File(s, *args, **kw)
 
     def FindFile(self, file, dirs):
+        """Find *file* in *dirs* and return the corresponding Node."""
         file = self.subst(file)
         nodes = self.arg2nodes(dirs, self.fs.Dir)
         return SCons.Node.FS.find_file(file, tuple(nodes))
 
     def Flatten(self, sequence):
+        """Flatten a nested sequence into a single sequence."""
         return flatten(sequence)
 
     def GetBuildPath(self, files):
+        """Get the build path for *files*."""
         result = list(map(str, self.arg2nodes(files, self.fs.Entry)))
         if is_List(files):
             return result
@@ -2433,10 +2481,11 @@ class Base(SubstitutionEnvironment):
             return result[0]
 
     def Glob(self, pattern, ondisk: bool=True, source: bool=False, strings: bool=False, exclude=None):
+        """Return a list of nodes matching *pattern*."""
         return self.fs.Glob(self.subst(pattern), ondisk, source, strings, exclude)
 
     def Ignore(self, target, dependency):
-        """Ignore a dependency."""
+        """Ignore *dependency* for *target*."""
         tlist = self.arg2nodes(target, self.fs.Entry)
         dlist = self.arg2nodes(dependency, self.fs.Entry)
         for t in tlist:
@@ -2444,9 +2493,11 @@ class Base(SubstitutionEnvironment):
         return tlist
 
     def Literal(self, string):
+        """Return a Literal substitution wrapper for *string*."""
         return SCons.Subst.Literal(string)
 
     def Local(self, *targets):
+        """Mark *targets* as local: do not look in repositories."""
         ret = []
         for targ in targets:
             if isinstance(targ, SCons.Node.Node):
@@ -2494,7 +2545,12 @@ class Base(SubstitutionEnvironment):
             t.add_prerequisite(plist)
         return tlist
 
-    def Scanner(self, *args, **kw):
+    def Scanner(self, *args, **kw) -> SCons.Scanner.ScannerBase:
+        """Create a Scanner object.
+
+        A thin wrapper around the class initializer; performs
+        environment-specific substitution on the arguments before handing off.
+        """
         nargs = []
         for arg in args:
             if is_String(arg):
@@ -2504,6 +2560,7 @@ class Base(SubstitutionEnvironment):
         return SCons.Scanner.ScannerBase(*nargs, **nkw)
 
     def SConsignFile(self, name=SCons.SConsign.current_sconsign_filename(), dbm_module=None) -> None:
+        """Specify the SConsign file to use for this environment."""
         if name is not None:
             name = self.subst(name)
             if not os.path.isabs(name):
@@ -2516,8 +2573,7 @@ class Base(SubstitutionEnvironment):
         SCons.SConsign.File(name, dbm_module)
 
     def SideEffect(self, side_effect, target):
-        """Tell scons that side_effects are built as side
-        effects of building targets."""
+        """Record that *side_effects* are also built when building *target*."""
         side_effects = self.arg2nodes(side_effect, self.fs.Entry)
         targets = self.arg2nodes(target, self.fs.Entry)
 
@@ -2538,8 +2594,9 @@ class Base(SubstitutionEnvironment):
         return added_side_effects
 
     def Split(self, arg):
-        """This function converts a string or list into a list of strings
-        or Nodes.  This makes things easier for users by allowing files to
+        """Convert a string or list into a list of strings or Nodes.
+
+        This makes things easier for users by allowing files to
         be specified as a white-space separated list to be split.
 
         The input rules are:
@@ -2549,8 +2606,8 @@ class Base(SubstitutionEnvironment):
             - A list containing either strings or Node instances. Any strings
               in the list are not split at spaces.
 
-        In all cases, the function returns a list of Nodes and strings."""
-
+        In all cases, the function returns a list of Nodes and strings.
+        """
         if is_List(arg):
             return list(map(self.subst, arg))
         elif is_String(arg):
@@ -2559,7 +2616,7 @@ class Base(SubstitutionEnvironment):
             return [self.subst(arg)]
 
     def Value(self, value, built_value=None, name=None):
-        """Return a Value (Python expression) node.
+        """Return a value Node ((Python expression).
 
         .. versionchanged:: 4.0
            the *name* parameter was added.
@@ -2567,12 +2624,19 @@ class Base(SubstitutionEnvironment):
         return SCons.Node.Python.ValueWithMemo(value, built_value, name)
 
     def VariantDir(self, variant_dir, src_dir, duplicate: int=1) -> None:
+        """Create a VariantDir mapping.
+
+        This function creates a mapping from the source directory *src_dir* to the
+        variant directory *variant_dir*.  If *duplicate* is true (the default),
+        the source files are duplicated into the variant directory; if false,
+        they are not.
+        """
         variant_dir = self.arg2nodes(variant_dir, self.fs.Dir)[0]
         src_dir = self.arg2nodes(src_dir, self.fs.Dir)[0]
         self.fs.VariantDir(variant_dir, src_dir, duplicate)
 
     def FindSourceFiles(self, node: str='.') -> list:
-        """Return a list of all source files."""
+        """Return the list of all source files under *node*."""
         node = self.arg2nodes(node, self.fs.Entry)[0]
 
         sources = []
@@ -2595,8 +2659,7 @@ class Base(SubstitutionEnvironment):
         return list(set(sources))
 
     def FindInstalledFiles(self):
-        """ returns the list of all targets of the Install and InstallAs Builder.
-        """
+        """Return the list of all targets of the Install and InstallAs Builders."""
         from SCons.Tool import install
         if install._UNIQUE_INSTALLED_FILES is None:
             install._UNIQUE_INSTALLED_FILES = uniquer_hashables(install._INSTALLED_FILES)
@@ -2729,7 +2792,7 @@ class OverrideEnvironment(Base):
         self.__dict__['__deleted'].append(key)
 
     def get(self, key, default=None):
-        """Emulates the ``get`` method of dictionaries.
+        """Emulate the ``get`` method of dictionaries.
 
         Backfills from the subject environment if *key* is not in the override
         and not deleted.
@@ -2742,7 +2805,7 @@ class OverrideEnvironment(Base):
             return self.__dict__['__subject'].get(key, default)
 
     def __contains__(self, key) -> bool:
-        """Emulates the ``contains`` method of dictionaries.
+        """Emulate the ``contains`` method of dictionaries.
 
         Backfills from the subject environment if *key* is not in the override
         and not deleted.
@@ -2754,7 +2817,7 @@ class OverrideEnvironment(Base):
         return key in self.__dict__['__subject']
 
     def Dictionary(self, *args, as_dict: bool = False):
-        """Return construction variables from an environment.
+        """Return a dict of construction variables from an environment.
 
         Behavior is as described for :class:`SubstitutionEnvironment.Dictionary`
         but understanda about the override.
@@ -2779,19 +2842,19 @@ class OverrideEnvironment(Base):
         return dlist
 
     def items(self):
-        """Emulates the ``items`` method of dictionaries."""
+        """Emulate the ``items`` method of dictionaries."""
         return self.Dictionary().items()
 
     def keys(self):
-        """Emulates the ``keys`` method of dictionaries."""
+        """Emulate the ``keys`` method of dictionaries."""
         return self.Dictionary().keys()
 
     def values(self):
-        """Emulates the ``values`` method of dictionaries."""
+        """Emulate the ``values`` method of dictionaries."""
         return self.Dictionary().values()
 
     def setdefault(self, key, default=None):
-        """Emulates the ``setdefault`` method of dictionaries."""
+        """Emulate the ``setdefault`` method of dictionaries."""
         try:
             return self.__getitem__(key)
         except KeyError:
@@ -2801,6 +2864,7 @@ class OverrideEnvironment(Base):
     # Overridden private construction environment methods.
 
     def _update(self, other) -> None:
+        """Update the construction variable dict with another dict."""
         self.__dict__['overrides'].update(other)
 
     def _update_onlynew(self, other) -> None:
@@ -2814,9 +2878,11 @@ class OverrideEnvironment(Base):
                 self.__dict__['overrides'][k] = v
 
     def gvars(self):
+        """Return the global construction variables dict."""
         return self.__dict__['__subject'].gvars()
 
     def lvars(self):
+        """Return the local construction variables dict."""
         lvars = self.__dict__['__subject'].lvars()
         lvars.update(self.__dict__['overrides'])
         return lvars
@@ -2824,6 +2890,7 @@ class OverrideEnvironment(Base):
     # Overridden public construction environment methods.
 
     def Replace(self, **kw) -> None:
+        """Assign new values to construction variables."""
         kw = copy_non_reserved_keywords(kw)
         self.__dict__['overrides'].update(semi_deepcopy(kw))
 
@@ -2838,12 +2905,12 @@ Environment = Base
 
 
 def NoSubstitutionProxy(subject):
-    """
-    An entry point for returning a proxy subclass instance that overrides
-    the subst*() methods so they don't actually perform construction
+    """Return a proxy subclass instance that overrides the subst*() methods.
+
+    Used to make sure so they don't actually perform construction
     variable substitution.  This is specifically intended to be the shim
     layer in between global function calls (which don't want construction
-    variable substitution) and the DefaultEnvironment() (which would
+    variable substitution) and the ``DefaultEnvironment`` (which would
     substitute variables if left to its own devices).
 
     We have to wrap this in a function that allows us to delay definition of
@@ -2851,6 +2918,7 @@ def NoSubstitutionProxy(subject):
     it will pick up whatever Environment subclass the wrapper interface
     might have assigned to SCons.Environment.Environment.
     """
+
     class _NoSubstitutionProxy(Environment):
         def __init__(self, subject) -> None:
             self.__dict__['__subject'] = subject
@@ -2878,12 +2946,15 @@ def NoSubstitutionProxy(subject):
                 mapping['mode'] = raw
 
         def subst(self, string, *args, **kwargs):
+            """Return *string* substituted."""
             return string
 
         def subst_kw(self, kw, *args, **kwargs):
+            """Return *kw* with its values substituted."""
             return kw
 
         def subst_list(self, string, *args, **kwargs):
+            """Return *string* substituted as a list."""
             nargs = (string, self,) + args
             nkw = kwargs.copy()
             nkw['gvars'] = {}
@@ -2892,6 +2963,7 @@ def NoSubstitutionProxy(subject):
             return SCons.Subst.scons_subst_list(*nargs, **nkw)
 
         def subst_target_source(self, string, *args, **kwargs):
+            """Return *string* substituted for target/source."""
             nargs = (string, self,) + args
             nkw = kwargs.copy()
             nkw['gvars'] = {}
