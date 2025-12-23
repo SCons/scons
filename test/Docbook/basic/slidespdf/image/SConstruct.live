@@ -9,4 +9,3 @@ if DOCBOOK_XSLTPROC:
     env['DOCBOOK_XSLTPROC'] = DOCBOOK_XSLTPROC
 env.Append(DOCBOOK_XSLTPROCFLAGS=['--novalid', '--nonet'])
 env.DocbookSlidesPdf('virt')
-
