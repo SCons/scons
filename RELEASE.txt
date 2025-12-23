@@ -84,6 +84,8 @@ DEVELOPMENT
 - Ruff: Handle F401 exclusions more granularly, remove per-file exclusions.
 - Update pyproject.toml to support Python 3.14 and remove restrictions on lxml version install
 - Unify internal "_null" sentinel usage.
+- Docbook tests: improve skip message, more clearly indicate which test
+  need actual installed system programs (add -live suffix).
 
 
 
