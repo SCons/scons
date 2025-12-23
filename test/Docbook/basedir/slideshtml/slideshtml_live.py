@@ -23,27 +23,33 @@
 #
 
 """
-Test the chunked HTML builder while using
+Test the base_dir argument for the Slides HTML builder while using
 the xsltproc executable, if it exists.
 """
 
+import os
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 xsltproc = test.where_is('xsltproc')
-if not xsltproc:
-    test.skip_test('No xsltproc executable found, skipping test.\n')
-
+if not (
+    xsltproc
+    and os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl/slides')
+):
+    test.skip_test("No 'xsltproc' or no slides stylesheets found, skipping test.\n")
 test.dir_fixture('image')
 
 # Normal invocation
-test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc], stderr=None)
-test.must_not_be_empty(test.workpath('index.html'))
+test.run(
+    arguments=['-f', 'SConstruct.live', f'DOCBOOK_XSLTPROC={xsltproc}'], stderr=None
+)
+test.must_not_be_empty(test.workpath('output/index.html'))
+test.must_contain(test.workpath('output/index.html'), 'sfForming')
 
 # Cleanup
-test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])
-test.must_not_exist(test.workpath('index.html'))
+test.run(arguments=['-f', 'SConstruct.live', '-c', f'DOCBOOK_XSLTPROC={xsltproc}'])
+test.must_not_exist(test.workpath('output/index.html'))
 
 test.pass_test()
 
