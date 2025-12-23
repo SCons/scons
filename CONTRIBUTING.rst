@@ -496,22 +496,6 @@ bin/
     - scripts and a Python module for translating the SCons home-brew XML
       documentation tags into DocBook and man page format
 
-bootstrap.py
-    Obsolete packaging logic - ignore this.
-
-debian/
-    Files needed to construct a Debian package.
-    The contents of this directory are dictated by the
-    `Debian Policy Manual <https://www.debian.org/doc/debian-policy>`).
-    The package will not be accepted into the Debian distribution unless
-    the contents of this directory satisfy the relevant Debian policies.
-    At this point, this is a sample; SCons is packaged for Debian by the
-    Debian project itself (and thus inherited by projects which derive from it,
-    if they haven't made their own packages). See:
-
-    - `Debian scons packages <https://packages.debian.org/search?keywords=scons&searchon=names&suite=all&section=all>`_
-    - `Ubuntu scons packages <https://packages.ubuntu.com/search?keywords=scons&searchon=names&suite=all&section=all>`_
-
 doc/
     SCons documentation.  A variety of things here, in various stages of
     (in)completeness. Note not all of the documentation is in ``doc`` -
