@@ -143,9 +143,3 @@ test.must_match(['sub2', 'f6.out'], "f6.in 3\nsubdir/bar.dep 3\n")
 
 #
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

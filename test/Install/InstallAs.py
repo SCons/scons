@@ -83,9 +83,3 @@ test.must_match(install_file1a_out, "file1.in\n", mode='r')
 test.up_to_date(arguments = '.')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

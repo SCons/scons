@@ -47,9 +47,3 @@ test.run(arguments='-Q jim --warning=target-not-built -n',
          stdout = "scons: `jim' is up to date.\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

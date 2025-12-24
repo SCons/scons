@@ -173,9 +173,3 @@ class FileLock:
             f"pid={os.getpid()}) "
             f"at 0x{id(self):x}>"
         )
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

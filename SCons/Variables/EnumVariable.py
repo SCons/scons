@@ -140,9 +140,3 @@ def EnumVariable(
         converter = converter_rcase
 
     return key, help, default, validator, converter
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

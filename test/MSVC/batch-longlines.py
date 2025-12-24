@@ -51,9 +51,3 @@ test.run(arguments='MSVC_BATCH=1 .')
 test.must_exist('mylib.dll')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

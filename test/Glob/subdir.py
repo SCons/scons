@@ -57,9 +57,3 @@ test.run(arguments = '.')
 test.must_match('f.out', "subdir/file.in\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

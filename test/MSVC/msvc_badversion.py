@@ -69,9 +69,3 @@ env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='bad_value')
 test.run(arguments='-Q -s', status=2, stderr=r"^.* Value specified for MSVC_NOTFOUND_POLICY.+", match=TestSCons.match_re_dotall)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

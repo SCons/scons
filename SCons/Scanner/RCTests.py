@@ -75,7 +75,7 @@ class DummyEnvironment(collections.UserDict):
         super().__init__()
         self.data.update(kwargs)
         self.fs = SCons.Node.FS.FS(test.workpath(''))
-        
+
     def Dictionary(self, *args):
         return self.data
 
@@ -153,13 +153,7 @@ class RCScannerTestCase3(unittest.TestCase):
         deps = s(env.File('t3.rc'), env, path)
         headers = ['t1.h']
         deps_match(self, deps, headers)
-        
+
 
 if __name__ == "__main__":
     unittest.main()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

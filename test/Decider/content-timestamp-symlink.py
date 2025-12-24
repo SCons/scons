@@ -73,9 +73,3 @@ test.must_match('match1.out', 'match2.in\n', message="match1.out not rebuilt\n")
 test.must_match('match2.out', 'match2.in\n', message="match2.out not rebuilt\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

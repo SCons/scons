@@ -233,9 +233,3 @@ for ninja_time, scons_time in zip(ninja_times, scons_times):
         print("Single File Rebuild   - SCons: {:.3f}s Ninja: {:.3f}s".format(scons_time, ninja_time))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

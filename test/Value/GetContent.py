@@ -48,9 +48,3 @@ _ = v[0].get_text_contents()  # only care it doesn't take exception
 
 test.run()
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

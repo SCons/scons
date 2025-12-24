@@ -87,9 +87,3 @@ test.must_match('test09' + _exe, " -c -x\nThis is a .f03 file.\n")
 test.must_match('test10' + _exe, " -c -x\nThis is a .F03 file.\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

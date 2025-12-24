@@ -66,9 +66,3 @@ test.must_match('foo2.out','foo2.in\n', mode='r')
 test.must_match('foo3.out','foo3.in\n', mode='r')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

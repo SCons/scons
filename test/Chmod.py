@@ -244,9 +244,3 @@ s = stat.S_IMODE(os.stat(test.workpath('d18')).st_mode)
 test.fail_test(s != 0o777)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

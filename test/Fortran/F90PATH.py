@@ -289,9 +289,3 @@ test.run(program = test.workpath(variant_prog),
 test.up_to_date(arguments = args)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

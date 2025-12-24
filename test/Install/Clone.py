@@ -67,9 +67,3 @@ test.must_match(['sub2', 'foo.out'], "foo.in\n")
 test.must_match(['sub3', 'foo.out'], "foo.in\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

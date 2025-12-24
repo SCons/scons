@@ -77,9 +77,3 @@ test.must_contain_all_lines(test.stdout(), ['Checking whether hello works... yes
 test.must_not_exist('traceback')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

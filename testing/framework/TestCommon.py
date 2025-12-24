@@ -923,10 +923,3 @@ class TestCommon(TestCmd):
                 print(f"\n[{v}]\n[{e}]")
 
         return f"Expected:\n{expect}\nGot:\n{value}"
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

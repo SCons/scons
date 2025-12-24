@@ -93,15 +93,9 @@ test.write('xxx', "xxx")
 test.run(arguments='xxx', stdout=test.wrap_stdout("""\
 scons: Nothing to be done for `xxx'.
 """))
-         
+
 test.run(arguments='xxx', stdout=test.wrap_stdout("""\
 scons: Nothing to be done for `xxx'.
 """))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

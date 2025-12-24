@@ -56,7 +56,7 @@ ccc.Program(target = 'ccc', source = ['ccc.asm', 'ccc_main.c'])
 ddd.Program(target = 'ddd', source = ['ddd.asm', 'ddd_main.c'])
 """ % locals())
 
-test.write('ccc.asm', 
+test.write('ccc.asm',
 """
 DSEG	segment
         PUBLIC _name
@@ -65,8 +65,8 @@ DSEG	ends
         end
 """)
 
-test.write('ddd.asm', 
-"""        
+test.write('ddd.asm',
+"""
 DSEG	segment
         PUBLIC _name
 _name	byte "ddd.asm",0
@@ -113,9 +113,3 @@ test.must_match('wrapper.out', "wrapper.py\n")
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

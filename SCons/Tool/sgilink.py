@@ -39,7 +39,7 @@ linkers = ['CC', 'cc']
 def generate(env) -> None:
     """Add Builders and construction variables for MIPSPro to an Environment."""
     link.generate(env)
-    
+
     env['LINK'] = env.Detect(linkers) or 'cc'
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
 
@@ -51,9 +51,3 @@ def generate(env) -> None:
 
 def exists(env):
     return env.Detect(linkers)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -214,9 +214,3 @@ def convert_to_BuildError(status, exc_info=None):
     #import sys
     #sys.stderr.write("convert_to_BuildError: status %s => (errstr %s, status %s)\n"%(status,buildError.errstr, buildError.status))
     return buildError
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

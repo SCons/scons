@@ -676,9 +676,3 @@ class DumbPreProcessor(PreProcessor):
         d = self.default_table
         for func in ['if', 'elif', 'else', 'endif', 'ifdef', 'ifndef']:
             d[func] = d[func] = self.do_nothing
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

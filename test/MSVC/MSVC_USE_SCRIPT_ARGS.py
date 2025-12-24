@@ -40,9 +40,3 @@ test.run(arguments=".", status=0, stderr=None)
 test.must_contain('MSDEBUG_OUTPUT.log', "Calling 'fake_script.bat one two'")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

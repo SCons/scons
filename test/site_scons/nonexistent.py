@@ -36,7 +36,7 @@ test.write('SConstruct', "\n")
 
 test.run(arguments = '-Q --site-dir=whatever .',
          stderr = r".*site dir .*whatever not found.*",
-         status = 2, 
+         status = 2,
          match = TestSCons.match_re_dotall)
 
 
@@ -44,9 +44,3 @@ test.run(arguments = '-Q --site-dir=whatever .',
 test.pass_test()
 
 # end of file
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

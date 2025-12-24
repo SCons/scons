@@ -123,9 +123,3 @@ def scan_in_memory(node, env, path=()):
         return []
     entry_list = sorted(filter(do_not_scan, list(entries.keys())))
     return [entries[n] for n in entry_list]
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

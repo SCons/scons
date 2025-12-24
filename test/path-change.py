@@ -69,9 +69,3 @@ test.up_to_date(options='SRCDIR=src1')
 test.not_up_to_date(options='SRCDIR=src2')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

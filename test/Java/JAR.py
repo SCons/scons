@@ -506,7 +506,7 @@ test.must_exist(['testdir3','foo.jar'])
 test.must_exist(['testdir3', 'fooTest', 'com', 'sub', 'foo', 'Example1.class'])
 test.must_exist(['testdir3', 'fooTest', 'com', 'sub', 'foo', 'Example2.class'])
 test.must_exist(['testdir3', 'fooTest', 'com', 'sub', 'foo', 'Example3.class'])
-# TODO: determine expected behavior with resource files, should they be 
+# TODO: determine expected behavior with resource files, should they be
 #       automatically copied in or specified in seperate commands
 test.must_exist(['testdir3', 'fooTest', 'com', 'sub', 'foo', 'NonJava.txt'])
 
@@ -515,14 +515,8 @@ test.must_exist(['testdir3','bar.jar'])
 test.must_exist(['testdir3', 'barTest', 'com', 'sub', 'bar', 'Example4.class'])
 test.must_exist(['testdir3', 'barTest', 'com', 'sub', 'bar', 'Example5.class'])
 test.must_exist(['testdir3', 'barTest', 'com', 'sub', 'bar', 'Example6.class'])
-# TODO: determine expected behavior with resource files, should they be 
+# TODO: determine expected behavior with resource files, should they be
 #       automatically copied in or specified in seperate commands
 test.must_exist(['testdir3', 'barTest', 'com', 'sub', 'bar', 'NonJava.txt'])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

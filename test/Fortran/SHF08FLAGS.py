@@ -83,9 +83,3 @@ test.must_match(obj_ + 'test09' + _obj, " -c -x\nThis is a .f08 file.\n")
 test.must_match(obj_ + 'test10' + _obj, " -c -x\nThis is a .F08 file.\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

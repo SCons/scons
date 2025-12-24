@@ -36,7 +36,7 @@ import SCons.Util
 def generate(env) -> None:
     """Add Builders and construction variables for ilink to an Environment."""
     SCons.Tool.createProgBuilder(env)
-    
+
     env['LINK']        = 'ilink'
     env['LINKFLAGS']   = SCons.Util.CLVar('')
     env['LINKCOM']     = '$LINK $LINKFLAGS /O:$TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
@@ -47,9 +47,3 @@ def generate(env) -> None:
 
 def exists(env):
     return env.Detect('ilink')
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

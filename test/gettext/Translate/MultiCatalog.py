@@ -26,11 +26,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Ensure that projects with multiple translation catalogs maintain translation
-files correctly. 
+files correctly.
 """
 
 # There was a bug that affected the `Translate()` when no targets were provided
-# explicitelly via argument list. If, for exapmle, `pkg1/SConscript` and 
+# explicitelly via argument list. If, for exapmle, `pkg1/SConscript` and
 # `pkg2/SConscript` scripts in some project `p1` had:
 #
 #       Translate(LINGUAS_FILE = 1)
@@ -111,9 +111,3 @@ test.must_not_exist(['tc1', 'pkg2', 'pl.po'] )
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

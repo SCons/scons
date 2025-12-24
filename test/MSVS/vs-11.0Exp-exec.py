@@ -62,7 +62,7 @@ if env.WhereIs('cl'):
 if test.stdout() == "":
     msg = "Visual Studio %s missing cl.exe; skipping test.\n" % msvs_version
     test.skip_test(msg)
-    
+
 exec(test.stdout())
 
 
@@ -108,9 +108,3 @@ test.run(program=test.workpath('sub dir', 'foo'), stdout="foo.c\n")
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

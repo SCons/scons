@@ -2220,9 +2220,3 @@ class TimeSCons(TestSCons):
 # test/AR.py for sample usage).
 
 noisy_ar = r'(ar: creating( archive)? \S+\n?)*'
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

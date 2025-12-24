@@ -70,15 +70,10 @@ void go()
     test.up_to_date("helloWorldMain.o hw")
 
     test.run("-c")
-    
+
     test.must_not_exist('source/helloWorld.o')
     test.must_not_exist('helloWorldMain.o')
     test.must_not_exist('include/helloWorld.di')
     test.must_not_exist('hw')
 
     test.pass_test()
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

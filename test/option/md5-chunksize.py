@@ -115,9 +115,3 @@ env.Command('test.stat', 'test.big', Action(get_stat))
 
 test2.run(arguments='--md5-chunksize=128', stdout=expected_stdout, stderr='')
 test2.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

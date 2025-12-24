@@ -16,6 +16,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Whatever John Doe did.
 
   From Thaddeus Crews:
+    - Purge vim/emac local variable bloat.
     - Implement type hints for Node subclasses.
     - Ruff: Handle F401 exclusions more granularly, remove per-file exclusions.
 

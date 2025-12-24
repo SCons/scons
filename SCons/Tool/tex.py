@@ -988,9 +988,3 @@ def generate_common(env) -> None:
 def exists(env):
     generate_darwin(env)
     return env.Detect('tex')
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

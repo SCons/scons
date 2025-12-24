@@ -79,7 +79,7 @@ test.must_match('foo.exe',   "test1.c\ntest2.cpp\ntest3.F\n")
 if TestSCons.case_sensitive_suffixes('.F', '.f'):
     test.must_match('mygcc.out', "cc\nc++\ng77\n")
 else:
-    test.must_match('mygcc.out', "cc\nc++\n")   
+    test.must_match('mygcc.out', "cc\nc++\n")
 
 test.write('SConstruct', """
 env = Environment(
@@ -127,12 +127,6 @@ test.must_match('foo.bar',        "test1.c\ntest2.cpp\ntest3.F\n")
 if TestSCons.case_sensitive_suffixes('.F', '.f'):
     test.must_match('mygcc.out', "cc\nc++\ng77\n")
 else:
-    test.must_match('mygcc.out', "cc\nc++\n")   
+    test.must_match('mygcc.out', "cc\nc++\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

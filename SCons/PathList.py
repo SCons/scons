@@ -219,9 +219,3 @@ PathList = PathListCache().PathList
 # TODO: removing the class object here means Sphinx doesn't pick up its
 #   docstrings: they're fine for reading here, but are not in API Docs.
 del PathListCache
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

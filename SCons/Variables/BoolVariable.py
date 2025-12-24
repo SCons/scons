@@ -97,9 +97,3 @@ def BoolVariable(key, help: str, default) -> tuple[str, str, str, Callable, Call
     """
     help = f'{help} (yes|no)'
     return key, help, default, _validator, _text2bool
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

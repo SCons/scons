@@ -42,20 +42,20 @@ test.dir_fixture('fixture')
 # which fails and the second of which succeeds, and then stops processing
 # due to the first build failure - the second build job does not just
 # continue processing tasks.  To try to control the timing, the two
-# task scripts will be managed by a server script which regulates the 
+# task scripts will be managed by a server script which regulates the
 # state of the test.
 #
-# The failure script waits until the server responds that the 
-# copy script has, in fact, gotten started. If we don't wait, then SCons 
-# could detect our script failure early (typically if a high system load 
-# happens to delay SCons' ability to start the next script) and then not 
+# The failure script waits until the server responds that the
+# copy script has, in fact, gotten started. If we don't wait, then SCons
+# could detect our script failure early (typically if a high system load
+# happens to delay SCons' ability to start the next script) and then not
 # start the successful script at all.
 #
-# The successful script waits until the server responds that the 
+# The successful script waits until the server responds that the
 # failure script has finished (the server checks that the task pid does not
-# exist). If we don't wait for that, then SCons could detect our successful 
-# exit first (typically if a high system load happens to delay the failure 
-# script) and start another job before it sees the failure from the first 
+# exist). If we don't wait for that, then SCons could detect our successful
+# exit first (typically if a high system load happens to delay the failure
+# script) and start another job before it sees the failure from the first
 # script.
 #
 # Both scripts are set to bail if they had to wait too long for what
@@ -71,9 +71,3 @@ test.must_not_exist(test.workpath('f5'))
 test.must_not_exist(test.workpath('f6'))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

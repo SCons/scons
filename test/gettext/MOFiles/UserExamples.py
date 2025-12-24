@@ -228,10 +228,3 @@ test.must_exist(['ex4', 'en.mo'])
 test.must_exist(['ex4', 'pl.mo'])
 
 test.pass_test()
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

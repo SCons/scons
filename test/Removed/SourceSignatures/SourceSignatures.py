@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# 
+#
 # __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -49,9 +49,3 @@ No warning type: 'deprecated-source-signatures'
 """)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

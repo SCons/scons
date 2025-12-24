@@ -48,9 +48,3 @@ test.run(arguments=['-f', 'SConstruct.live', '-c', f'DOCBOOK_XSLTPROC={xsltproc}
 test.must_not_exist(test.workpath('manual.html'))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

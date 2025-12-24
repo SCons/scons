@@ -71,9 +71,3 @@ test.must_match(["foo", "marker"], "MakeDirectory\n")
 test.must_match("output", "src/file1\nsrc/file2\nsrc/file3\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -40,7 +40,7 @@ test = TestSCons.TestSCons()
 test.write(['SConstruct'], """\
 import SCons.Defaults
 DefaultEnvironment(tools=[])
-env = Environment(tools=[]) 
+env = Environment(tools=[])
 env['BUILDERS']['C'] = Builder(action = Copy('$TARGET', '$SOURCE'),
                                source_scanner = SCons.Defaults.CScan)
 env['BUILDERS']['Mod'] = Builder(action = r'%(_python_)s mod.py')
@@ -90,9 +90,3 @@ test.not_up_to_date(arguments = 'two')
 test.up_to_date(arguments = 'seq')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

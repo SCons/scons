@@ -87,9 +87,3 @@ javac -bootclasspath %(bootclasspath)s -d class -sourcepath com com.Example2\\.j
 test.run(arguments = '-Q -n .', stdout = expect, match=TestSCons.match_re)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

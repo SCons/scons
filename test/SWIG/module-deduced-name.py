@@ -75,9 +75,3 @@ test.must_not_exist(['python','build dir','interfaces','python_foo_interface.py'
 test.must_exist(['python','build dir','python_foo_interface.py'])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
