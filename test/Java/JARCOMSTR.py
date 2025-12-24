@@ -57,9 +57,3 @@ Jar'ing up test1.jar from file1.in file2.in file3.in
 test.must_match('test1.jar', "file1.in\nfile2.in\nfile3.in\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

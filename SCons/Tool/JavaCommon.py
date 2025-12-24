@@ -587,9 +587,3 @@ def get_java_include_paths(env, javac, version) -> list[str]:
             paths.extend([p, os.path.join(p, 'linux')])
 
     return paths
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

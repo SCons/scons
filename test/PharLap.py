@@ -42,7 +42,7 @@ if not test.detect_tool('386asm'):
 
 # From the Phar Lap minasm example program...
 test.write("minasm.asm", r"""
-; 
+;
 ; MINASM.ASM - A minimal assembly language program which runs
 ;       under ToolSuite.  You can use this program as a framework
 ;       for large assembly language programs.
@@ -226,16 +226,16 @@ public __p_start
 __p_start proc near
         pushad				; save initial regs
         push	es				;
-        call	__pl_unpackrom		; Call the unpacker 
+        call	__pl_unpackrom		; Call the unpacker
         cld				; Clear direction flag
 
-        lea 	eax,__p_SEG__bss_END	; load end address and 
+        lea 	eax,__p_SEG__bss_END	; load end address and
         lea	ebx,__p_SEG__bss_BEGIN	; subtract start to get size
         sub 	eax,ebx
         mov 	ecx,eax			; This is size
         inc	ecx
         lea	edi,__p_SEG__bss_BEGIN	; Zero from start address
-        mov 	al,0			;Zero out BSS and C_COMMON	
+        mov 	al,0			;Zero out BSS and C_COMMON
         rep     stosb
 
         pop	es			; restore initial regs
@@ -308,9 +308,3 @@ test.run(arguments='.')
 test.fail_test(oldtime == os.path.getmtime(test.workpath('minasm.exe')))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -181,9 +181,3 @@ test.must_match(repository_subdir_ddd_out, "repository/subdir/ddd.in\n", mode='r
 
 #
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

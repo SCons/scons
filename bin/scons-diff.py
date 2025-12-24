@@ -186,9 +186,3 @@ def diff_dir(left, right):
             print('Only in %s: %s' % (right, x))
 
 do_diff(left, right, True)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

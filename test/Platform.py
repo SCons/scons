@@ -67,9 +67,3 @@ expect = test.wrap_stdout(read_str = """'.exe'
 test.run(arguments = ".", stdout = expect)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

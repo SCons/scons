@@ -104,9 +104,3 @@ test.write('Inner$Class.class', "Inner$Class.class\n")
 test.run(arguments = '.')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

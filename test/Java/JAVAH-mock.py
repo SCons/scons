@@ -94,9 +94,3 @@ line 3
     test.must_match('test2.h', "test2.JAVA\nline 3\n", mode='r')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

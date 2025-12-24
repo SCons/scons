@@ -62,9 +62,3 @@ def testForTool(tool):
     test.fail_test(test.stdout() != 'Hello World.\n')
 
     test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

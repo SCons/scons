@@ -189,11 +189,5 @@ scons>>> b foo.obj
 /usr/bin/python3 mycc.py foo.obj foo.cpp
 scons>>> build foo.obj
 scons: `foo.obj' is up to date.
-scons>>>
+scons>>> 
 """
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

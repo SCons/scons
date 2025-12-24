@@ -229,9 +229,3 @@ def ListVariable(
         (help, '(all|none|comma-separated list of names)', names_str))
     converter = functools.partial(_converter, allowedElems=names, mapdict=map)
     return key, help, default, validator, converter
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

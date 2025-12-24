@@ -78,9 +78,3 @@ if not IS_WINDOWS:
 # Verify that Rebuilding build.ninja and sending control-c to ninja doesn't remove build.ninja
 test.must_exist("build.ninja")
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -73,7 +73,7 @@ test.run(
     arguments='-i aaa.1 aaa.out bbb.1 bbb.out',
     stderr='scons: *** [aaa.1] Error 1\nscons: *** [bbb.1] Error 1\n',
 )
-         
+
 test.fail_test(os.path.exists(test.workpath('aaa.1')))
 test.fail_test(test.read('aaa.out',mode='r') != "succeed.py: aaa.out\n")
 test.fail_test(os.path.exists(test.workpath('bbb.1')))
@@ -93,10 +93,3 @@ test.fail_test(os.path.exists(test.workpath('bbb.1')))
 test.fail_test(test.read('bbb.out', mode='r') != "succeed.py: bbb.out\n")
 
 test.pass_test()
- 
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

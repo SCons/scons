@@ -32,16 +32,10 @@ if sys.platform == 'darwin':
     import TestSCons
     test = TestSCons.TestSCons()
 
-    msg = "Skipping Mixed dmd test until a good way to ensure proper gcc is called." 
+    msg = "Skipping Mixed dmd test until a good way to ensure proper gcc is called."
     "Calling default(system /usr/bin/gcc) gcc yields a surplus of linking errors\n"
     test.skip_test(msg)
 
 
 from Common.common import testForTool
 testForTool('dmd')
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

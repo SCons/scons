@@ -51,9 +51,3 @@ with open('/dev/null'):
 test.run(arguments = '-Q', stdout='3\n')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

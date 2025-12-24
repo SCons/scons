@@ -61,9 +61,3 @@ test.must_match('test3.shobj', "test3.spp\n")
 test.must_match('test4.shobj', "test4.SPP\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

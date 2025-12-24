@@ -60,9 +60,3 @@ test.must_match('prereq.out', "prereq.in 1\n", mode='r')
 test.must_match('file.out', "file.in 1\n", mode='r')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

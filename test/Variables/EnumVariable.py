@@ -98,9 +98,3 @@ test.run(arguments=['some=zwei Wörter'])
 check(['no', 'gtk', 'zwei wörter'])  # case-lowering converter
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

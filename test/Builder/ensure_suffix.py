@@ -53,9 +53,3 @@ test.run(arguments = '.')
 test.must_match('aa.bb.cc.dd.dll', "clean test\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -117,9 +117,3 @@ test.finish(scons, stdout = None)
 test.must_contain_all_lines(test.stdout(), expect_stdout.splitlines(), find=TestSCons.search_re)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

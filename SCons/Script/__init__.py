@@ -489,9 +489,3 @@ SConscript.DefaultTargets = DEFAULT_TARGETS
 # unlikely enough that we're going to leave this as is and cross that
 # bridge if someone actually comes to it.
 Command = _SConscript.DefaultEnvironmentCall('Command', subst=1)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

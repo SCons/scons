@@ -6,7 +6,7 @@ There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
 
-The ipkg tool calls the ipkg-build. Its only argument should be the 
+The ipkg tool calls the ipkg-build. Its only argument should be the
 packages fake_root.
 """
 
@@ -67,9 +67,3 @@ def exists(env):
     Can we find the tool
     """
     return env.Detect('ipkg-build')
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

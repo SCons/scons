@@ -117,9 +117,3 @@ test.run(arguments="--debug=includes foo.lib")
 test.run(arguments="--debug=includes foo.shlib")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

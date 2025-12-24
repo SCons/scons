@@ -62,10 +62,3 @@ test.fail_test(test.read(test.workpath('foo2.out')) != b"foo2.in\n")
 test.fail_test(test.read(test.workpath('foo3.out')) != b"foo3.in\n")
 
 test.pass_test()
- 
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

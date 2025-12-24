@@ -131,9 +131,3 @@ SCons Error: `nonsense' is not a valid duplication option type, try:
 """)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

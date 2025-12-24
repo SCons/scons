@@ -44,7 +44,7 @@ try:
         indata = f.read()
 except IndexError:
     indata = sys.stdin.buffer.read()
-    
+
 sys.stdout.buffer.write(indata)
 sys.exit(0)
 """)
@@ -74,9 +74,3 @@ test.must_match('foo3', 'bar3\r\n')
 test.must_match('foo4', 'bar4\r\n')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

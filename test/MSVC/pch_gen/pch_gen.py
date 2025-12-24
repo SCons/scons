@@ -58,9 +58,3 @@ test.must_exist(test.workpath('output1/test.pdb'))
 test.fail_test(condition = ('/Yuoutput1/StdAfx.h' in test.stdout()), message="Shouldn't have output1/YuStdAfx.h in compile line when PCH is disabled")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

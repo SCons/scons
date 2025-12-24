@@ -74,9 +74,3 @@ test.must_match('test07' + _exe, " -c -x\nThis is a .fpp file.\n")
 test.must_match('test08' + _exe, " -c -x\nThis is a .FPP file.\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

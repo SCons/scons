@@ -51,9 +51,3 @@ deprecated_python_version = (3, 7, 0)
 
 # If copyright years is not given, the release year is used as the end.
 copyright_years = '2001 - 2025'
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

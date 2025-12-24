@@ -31,7 +31,7 @@ import TestSCons
 _exe = TestSCons._exe
 _dll = TestSCons._dll
 dll_ = TestSCons.dll_
-    
+
 test = TestSCons.TestSCons()
 
 test.subdir('lib1', 'lib2')
@@ -162,9 +162,3 @@ env.Library('foo', source='empty.c')
 test.run(arguments='.', stderr=TestSCons.noisy_ar, match=TestSCons.match_re_dotall)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

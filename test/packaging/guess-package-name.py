@@ -130,9 +130,3 @@ env.Package( NAME        = 'libfoo',
     test.must_exist('libfoo-1.2.3.tar.xz')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

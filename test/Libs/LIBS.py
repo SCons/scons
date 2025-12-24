@@ -222,9 +222,3 @@ test.run(arguments = '.',
 test.run(program=foo1_exe, stdout='sub1/bar.c\nsub1/baz.c 2\n')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

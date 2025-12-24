@@ -45,12 +45,12 @@ copyright_line = """\
 """
 
 expect1 = """\
-scons>>> 
+scons>>>
 scons>>> 
 """
 
 expect2 = """\
-scons>>> 
+scons>>>
 scons>>> 
 """
 
@@ -71,9 +71,3 @@ if not test.match_re(stdout, expect2):
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

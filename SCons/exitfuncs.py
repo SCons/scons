@@ -51,9 +51,3 @@ def register(func, *targs, **kargs) -> None:
 
 # make our exit function get run by python when it exits
 atexit.register(_run_exitfuncs)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

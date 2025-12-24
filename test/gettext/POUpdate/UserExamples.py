@@ -392,10 +392,3 @@ test.must_contain(['ex8', 'en.po'], "Hello from a.cpp", mode='r')
 test.must_contain(['ex8', 'pl.po'], "Hello from a.cpp", mode='r')
 
 test.pass_test()
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

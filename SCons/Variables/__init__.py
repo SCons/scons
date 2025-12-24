@@ -483,9 +483,3 @@ class Variables:
         if aliases:
             return self.aliasfmt % (key, help, default, actual, aliases)
         return self.fmt % (key, help, default, actual)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -42,9 +42,3 @@ if IS_WINDOWS:
     test.pass_test()
 else:
     test.skip_test('Skipping Windows-only test.')
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

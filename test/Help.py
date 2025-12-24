@@ -130,9 +130,3 @@ test.run(arguments='-h LOCAL_ONLY=1', stdout=expect)
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

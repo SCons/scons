@@ -193,7 +193,7 @@ env = Environment( tools = ["default", "msginit"] )
 env['POAUTOINIT'] = 1
 env['LINGUAS_FILE'] = 1
 env['POTDOMAIN'] = 'foo'
-env.POInit() 
+env.POInit()
 """)
 test.write(['ex6', 'LINGUAS'],"""
 en
@@ -212,10 +212,3 @@ test.must_contain(  ['ex6', 'en.po'], "Hello from a.cpp", mode='r')
 test.must_contain(  ['ex6', 'pl.po'], "Hello from a.cpp", mode='r')
 
 test.pass_test()
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

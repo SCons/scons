@@ -75,9 +75,3 @@ test.must_match('test3.obj', "test3.asm\n")
 test.must_match('test4.obj', "test4.ASM\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

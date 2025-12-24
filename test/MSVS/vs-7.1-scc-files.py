@@ -110,9 +110,3 @@ expect = test.msvs_substitute(expected_slnfile, '7.1', None, 'SConstruct',
 assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

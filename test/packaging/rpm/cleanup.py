@@ -99,9 +99,3 @@ test.must_not_exist( 'foo-1.2.3/src/main.c' )
 test.must_not_exist( 'bin/main' )
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

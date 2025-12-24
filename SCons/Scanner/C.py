@@ -324,10 +324,3 @@ def CConditionalScanner():
     (#ifdef, #if, defined, #else, #elif, etc.).
     """
     return SConsCPPConditionalScannerWrapper("CConditionalScanner", "CPPPATH")
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

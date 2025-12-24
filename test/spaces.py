@@ -37,7 +37,7 @@ else:
     test.write('duplicate a file.sh', 'cp foo.in foo.out\n')
     copy = test.workpath('duplicate a file.sh')
     os.chmod(test.workpath('duplicate a file.sh'), 0o777)
-    
+
 
 test.write('SConstruct', r'''
 env=Environment()
@@ -60,9 +60,3 @@ test.write('foo.in', 'foo.in 2 \n')
 test.run(arguments='foo.out')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

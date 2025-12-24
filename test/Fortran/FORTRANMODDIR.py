@@ -106,9 +106,3 @@ test.must_match(['sub3', 'mod_foo.mod'], "myfortran.py wrote mod_foo.mod\n")
 test.up_to_date(arguments = '.')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

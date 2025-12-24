@@ -100,9 +100,3 @@ test.run(arguments = 'func --file st2.conf --fmt gnuplot')
 test.must_contain_exactly_lines(test.stdout(), expect2, find=TestSCons_time.search_re_in_list)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
