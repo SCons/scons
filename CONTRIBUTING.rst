@@ -30,7 +30,7 @@ Here are some important pointers to other resources:
 
   * `SCons Home Page <https://scons.org>`_
   * `Github Project Page <https://github.com/scons/scons>`_
-  * `Bugs and Feature Requests <https://scons.org/bugs>`_
+  * `Bugs and Feature Requests <https://scons.org/bugs.html>`_
   * `Development <https://scons.org/dev.html>`_
   * `SCons Developer's Guidelines <https://scons.org/guidelines.html>`_
   * `Contacts <https://scons.org/contact.html>`_
@@ -228,7 +228,7 @@ though the handling of command line arguments,
 processing sconscript files,
 and the implementation of interactive mode remain in
 ``SCons/Script``; the build engine is the rest of the code in
-``SCons`` excecpt for ``SCons/Tools`` which provides
+``SCons`` except for ``SCons/Tools`` which provides
 run-time initialization.
 ``scripts/scons.py`` is a thin wrapper which exists mainly to find
 the appropriate build engine module and execute it.
