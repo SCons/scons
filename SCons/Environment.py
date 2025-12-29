@@ -438,6 +438,7 @@ class BuilderWrapper(MethodWrapper):
     ``Tool/qt.py`` module does, or did).  There shouldn't be a lot attribute
     fetching or setting on these, so a little extra work shouldn't hurt.
     """
+
     def __call__(self, target=None, source=_null, *args, **kw):
         if source is _null:
             source = target
@@ -497,8 +498,8 @@ class BuilderDict(UserDict):
         super().__init__(mapping)
 
     def __semi_deepcopy__(self):
-        # These cannot be copied since they would both modify the same builder object, and indeed
-        # just copying would modify the original builder
+        # These cannot be copied since they would both modify the same builder
+        # object, and indeed just copying would modify the original builder
         raise TypeError( 'cannot semi_deepcopy a BuilderDict' )
 
     def __setitem__(self, item, val) -> None:
@@ -658,13 +659,16 @@ class SubstitutionEnvironment:
         """Convert *args* to a list of nodes.
 
         Arguments:
-           args - filename strings or nodes to convert; nodes are just
-              added to the list without further processing.
-           node_factory - optional factory to create the nodes; if not
+           args: sequence of filename strings or nodes to convert.
+              Nodes are added to the list without further processing.
+           node_factory: optional factory to create the nodes; if not
               specified, will use this environment's ``fs.File`` method.
-           lookup_list - optional list of lookup functions to call to
-              attempt to find the file referenced by each arg in *args*.
-           kw - keyword arguments that represent additional nodes to add.
+           lookup_list: optional list of lookup functions to call to
+              attempt to find each file referenced by *args*.
+           kw: keyword arguments that represent additional nodes to add.
+
+        Returns:
+           a list of nodes.
         """
         if node_factory is _null:
             node_factory = self.fs.File
@@ -717,14 +721,21 @@ class SubstitutionEnvironment:
         return {}
 
     def subst(self, string, raw: int=0, target=None, source=None, conv=None, executor: Executor | None = None, overrides: dict | None = None):
-        """Recursively interpolates construction variables from the
-        Environment into the specified string, returning the expanded
-        result.  Construction variables are specified by a $ prefix
+        """Substitute construction variables (recursively) into *string*.
+
+        This is the Public entry point for substitution, despite not using
+        the CapWords convention SCons usually follows for such interfaces.
+        The related methods :meth:`subst_kw`, :meth:`subst_list` and
+        :meth:`subst_path` are not exported as part of the Public API.
+
+        Construction variables are specified by a ``$`` prefix
         in the string and begin with an initial underscore or
         alphabetic character followed by any number of underscores
         or alphanumeric characters.  The construction variable names
         may be surrounded by curly braces to separate the name from
         trailing characters.
+
+        The hard work is done by :func:`SCons.Subst.scons_subst`.
         """
         gvars = self.gvars()
         lvars = self.lvars()
@@ -744,9 +755,9 @@ class SubstitutionEnvironment:
         return nkw
 
     def subst_list(self, string, raw: int=0, target=None, source=None, conv=None, executor: Executor | None = None, overrides: dict | None = None):
-        """Calls through to SCons.Subst.scons_subst_list().
+        """Perform substitution and produce a command list.
 
-        See the documentation for that function.
+        The hard work is done by :func:`SCons.Subst.scons_subst_list`.
         """
         gvars = self.gvars()
         lvars = self.lvars()
@@ -756,20 +767,24 @@ class SubstitutionEnvironment:
         return SCons.Subst.scons_subst_list(string, self, raw, target, source, gvars, lvars, conv, overrides=overrides)
 
     def subst_path(self, path, target=None, source=None):
-        """Substitute a path list.
+        """Perform substitution on a path list.
 
-        Turns EntryProxies into Nodes, leaving Nodes (and other objects) as-is.
+        Turns each :class:`EntryProxy` into a Node, leaving Nodes
+        (and other objects) as-is.
         """
         if not is_List(path):
             path = [path]
 
         def s(obj):
-            """This is the "string conversion" routine that we have our
+            """Convert strings to Nodes during substitution.
+
+            This is the "string conversion" routine that we have our
             substitutions use to return Nodes, not strings.  This relies
             on the fact that an EntryProxy object has a get() method that
             returns the underlying Node that it wraps, which is a bit of
             architectural dependence that we might need to break or modify
-            in the future in response to additional requirements."""
+            in the future in response to additional requirements.
+            """
             try:
                 get = obj.get
             except AttributeError:
@@ -833,23 +848,27 @@ class SubstitutionEnvironment:
 
 
     def AddMethod(self, function, name=None) -> None:
-        """
-        Adds the specified function as a method of this construction
-        environment with the specified name.  If the name is omitted,
-        the default name is the name of the function itself.
+        """Add *function* as method ``env.function``.
+
+        Creates a :class:`~SCons.Util.envs.MethodWrapper` instance and adds it to the
+        :attr:`added_methods` list.
+
+        If *name* is omitted, the name of the function itself is used.
         """
         method = MethodWrapper(self, function, name)
         self.added_methods.append(method)
 
     def RemoveMethod(self, function) -> None:
-        """
-        Removes the specified function's MethodWrapper from the
-        added_methods list, so we don't re-bind it when making a clone.
+        """Remove *function* as a method.
+
+        Removes the specified function's :class:`~SCons.Util.envs.MethodWrapper`
+        from the :attr:`added_methods` list, so we don't re-bind it when
+        making a clone.
         """
         self.added_methods = [dm for dm in self.added_methods if dm.method is not function]
 
     def Override(self, overrides):
-        """Create an override environment from the current environment.
+        """Create an override environment.
 
         Produces a modified environment where the current variables are
         overridden by any same-named variables from the *overrides* dict.
@@ -893,17 +912,18 @@ class SubstitutionEnvironment:
         return env
 
     def ParseFlags(self, *flags) -> dict:
-        """Return a dict of parsed flags.
+        """Parse *flags* into a dict of construction variables.
 
-        Parse ``flags`` and return a dict with the flags distributed into
-        the appropriate construction variable names.  The flags are treated
-        as a typical set of command-line flags for a GNU-style toolchain,
-        such as might have been generated by one of the {foo}-config scripts,
-        and used to populate the entries based on knowledge embedded in
-        this method - the choices are not expected to be portable to other
-        toolchains.
+        Parse *flags* and return a dict with the flags distributed into
+        the appropriate construction variable names.  The flags are
+        treated as a typical set of command-line flags for a GNU-style
+        toolchain, such as might have been emitted by ``pkg-config``
+        for a specific package (or a standalone ``something-config``),
+        and used to populate the entries based on knowledge embedded
+        in this method - the choices are not expected to be portable to
+        other toolchains.
 
-        If one of the ``flags`` strings begins with a bang (exclamation mark),
+        If one of the *flags* strings begins with a bang (exclamation mark),
         it is assumed to be a command and the rest of the string is executed;
         the result of that evaluation is then added to the dict.
         """
@@ -1194,9 +1214,26 @@ class Base(SubstitutionEnvironment):
     These are the primary objects used to communicate dependency
     and construction information to the build engine.
 
-    Keyword arguments supplied when the construction Environment
-    is created are construction variables used to initialize the
-    Environment.
+    Sets up special construction variables like ``BUILDER``,
+    ``PLATFORM``, etc., and searches for and applies available Tools.
+
+    Note that we do *not* call the base class (:class:`SubstitutionEnvironment`)
+    initializer, because we need to initialize things in a very specific
+    order that doesn't work with the much simpler base class initialization.
+
+    Except for the five recognized keyword arguments *platform*,
+    *tools*, *toolpath*, *variables* and *parse_flags*, keyword arguments
+    supplied when the construction Environment is created will be added
+    as construction variables in the Environment.
+
+    Arguments:
+       platform: the SCons platform name to use for initialization.
+       tools: list of tools to initialize.
+       toolpath: list of paths to search for tools.
+       variables: a :class:`~SCons.Variables.Variables` object to
+          use to populate construction variables from command-line
+          variables.
+       parse_flags: option strings to parse into construction variables.
     """
 
     #######################################################################
@@ -1222,16 +1259,6 @@ class Base(SubstitutionEnvironment):
         parse_flags=None,
         **kw
     ) -> None:
-        """Initialization of a basic SCons construction environment.
-
-        Sets up special construction variables like BUILDER,
-        PLATFORM, etc., and searches for and applies available Tools.
-
-        Note that we do *not* call the underlying base class
-        (SubsitutionEnvironment) initialization, because we need to
-        initialize things in a very specific order that doesn't work
-        with the much simpler base class initialization.
-        """
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.Base')
         self._memo = {}
         self.fs = SCons.Node.FS.get_default_fs()
@@ -1344,10 +1371,16 @@ class Base(SubstitutionEnvironment):
             return None
 
     def validate_CacheDir_class(self, custom_class=None):
-        """Validate the passed custom CacheDir class, or if no args are passed,
-        validate the custom CacheDir class from the environment.
-        """
+        """Return a validated custom CacheDir class.
 
+        Validate *custom_class*, which must be derived from
+        :class:`SCons.CacheDir.CacheDir`. If *custom_class* is not
+        supplied, use the ``CACHEDIR_CLASS`` entry from the environment.
+        Return the class if there was no error.
+
+        Raises:
+           UserError: if the class is not derived from ``CacheDir``.
+        """
         if custom_class is None:
             custom_class = self.get("CACHEDIR_CLASS", SCons.CacheDir.CacheDir)
         if not issubclass(custom_class, SCons.CacheDir.CacheDir):
@@ -1461,9 +1494,10 @@ class Base(SubstitutionEnvironment):
     def _update_onlynew(self, other) -> None:
         """Private method to add new items to an environment's consvar dict.
 
-        Only adds items from `other` whose keys do not already appear in
-        the existing dict; values from `other` are not used for replacement.
-        Bypasses the normal checks that occur when users try to set items.
+        Only adds items from *other* whose keys do not already appear in
+        the existing dict; values from *other* are not used for replacement.
+        Bypasses the normal checks that occur when setting items through the
+        public API.
         """
         for k, v in other.items():
             if k not in self._dict:
@@ -1559,16 +1593,22 @@ class Base(SubstitutionEnvironment):
 
     def AppendENVPath(self, name, newpath, envname: str='ENV',
                       sep=os.pathsep, delete_existing: bool=False) -> None:
-        """Append path elements to the path *name* in the *envname*
-        dictionary for this environment.  Will only add any particular
-        path once, and will normpath and normcase all paths to help
-        assure this.  This can also handle the case where the env
-        variable is a list instead of a string.
+        """Append path elements to the path variable *name* in *envname*.
 
-        If *delete_existing* is False, a *newpath* element already in the path
-        will not be moved to the end (it will be left where it is).
+        This is a convenience function for the case where the subject path
+        variable is "down a level", as in ``env['ENV']['PATH']``. The hard
+        work is done by :func:`~SCons.Util.AppendPath`.
+
+        Args:
+           name: the path variable to add paths to
+           newpath: the new paths to add
+           envname: the name of the environment dictionary to update
+           sep: the pathname separator to use. Defaults to the system's
+              native path separator.
+           delete_existing: if false, any *newpath* component already in the
+              path will not be moved to the end, but left where it is.
+              Default is ``True``.
         """
-
         orig = ''
         if envname in self._dict and name in self._dict[envname]:
             orig = self._dict[envname][name]
@@ -1647,7 +1687,7 @@ class Base(SubstitutionEnvironment):
               variables.
            parse_flags: option strings to parse into construction variables.
 
-        .. versionadded:: 4.8.0
+        .. versionchanged:: 4.8.0
               The optional *variables* parameter was added.
         """
         builders = self._dict.get('BUILDERS', {})
@@ -1864,8 +1904,8 @@ class Base(SubstitutionEnvironment):
     def ParseConfig(self, command, function=None, unique: bool=True):
         """Parse the result of running a command to update construction vars.
 
-        Use *function* to parse the output of running *command`*
-        in order to modify the current environment.
+        Call *function* to parse the output of running *command*
+        in order to modify the current construction environment.
 
         Args:
             command: a string or a list of strings representing a command
@@ -1890,11 +1930,11 @@ class Base(SubstitutionEnvironment):
     def ParseDepends(self, filename, must_exist=None, only_one: bool=False):
         """Parse a depends-style file *filename* for explicit dependencies.
 
-        This is completely abusable, and should be unnecessary in the "normal"
-        case of proper SCons configuration, but it may help make
-        the transition from a Make hierarchy easier for some people
-        to swallow.  It can also be genuinely useful when using a tool
-        that can write a .d file, but for which writing a scanner would
+        This is completely abusable, and should be unnecessary in the
+        "normal" case of proper SCons configuration, but it may help
+        make the transition from a Make hierarchy easier for some people.
+        It can also be genuinely useful when using a tool
+        that can write a ``.d`` file, but for which writing a scanner would
         be too complicated.
         """
         filename = self.subst(filename)
@@ -2001,16 +2041,22 @@ class Base(SubstitutionEnvironment):
 
     def PrependENVPath(self, name, newpath, envname: str='ENV',
                        sep=os.pathsep, delete_existing: bool=True) -> None:
-        """Prepend path elements to the path *name* in the *envname*
-        dictionary for this environment.  Will only add any particular
-        path once, and will normpath and normcase all paths to help
-        assure this.  This can also handle the case where the env
-        variable is a list instead of a string.
+        """Prepend path elements to the path variable *name* in *envname*.
 
-        If *delete_existing* is false, a *newpath* component already in the path
-        will not be moved to the front (it will be left where it is).
+        This is a convenience function for the case where the subject path
+        variable is "down a level", as in ``env['ENV']['PATH']``. The hard
+        work is done by :func:`~SCons.Util.PrependPath`.
+
+        Args:
+           name: the path variable to add paths to
+           newpath: the new paths to add
+           envname: the name of the environment dictionary to update
+           sep: the pathname separator to use. Defaults to the system's
+              native path separator.
+           delete_existing: if false, any *newpath* component already in the
+              path will not be moved to the front, but left where it is.
+              Default is ``True``.
         """
-
         orig = ''
         if envname in self._dict and name in self._dict[envname]:
             orig = self._dict[envname][name]
@@ -2072,7 +2118,11 @@ class Base(SubstitutionEnvironment):
         self.scanner_map_delete(kw)
 
     def Replace(self, **kw) -> None:
-        """Replace existing construction variables new construction variables and/or values."""
+        """Assign new values to construction variables.
+
+        If a variable does not exist in the environment, it is added.
+        See also :meth:`SetDefault`.
+        """
         try:
             kwbd = kw['BUILDERS']
         except KeyError:
@@ -2109,7 +2159,11 @@ class Base(SubstitutionEnvironment):
         return os.path.join(dir, new_prefix+name+new_suffix)
 
     def SetDefault(self, **kw) -> None:
-        """Set default values for construction variables."""
+        """Set construction variables if they do not already have values.
+
+        If a variable already exists in the environment, it is unchanged.
+        See also :meth:`Replace`.
+        """
         for k in list(kw.keys()):
             if k in self._dict:
                 del kw[k]
@@ -2144,16 +2198,28 @@ class Base(SubstitutionEnvironment):
         return tool
 
     def WhereIs(self, prog, path=None, pathext=None, reject=None):
-        """Find a program in the path.
+        """Find an executable program in the search path.
+
+        Each *path* is searched for *prog* (after substitution).
+        If *path* is ``None``, the execution environment path
+        (``['ENV']['PATH']``) is used, unless that is unset - then use
+        the external environment's search path (``os.environ['PATH']``)
+        Any names/paths in *reject* are ignored.
+
+        On Windows, each extension in *pathext* is sequentially tried
+        when checking for *prog* If *pathext* is ``None``, the value
+        from the execution environment (``['ENV']['PATHEXT']``) is used,
+        unless that is unset - then use the value from the external
+        environment (``os.environ['PATHEXT']``).
+
+        This is a wrapper for :func:`SCons.Util.WhereIs` which enforces
+        some of the rules and performs the actual search.
 
         Args:
-            prog: the program name to search for.
-            path: the list of directories to search in.  If ``None``, uses the PATH from
-              the environment's ENV dictionary.
-            pathext: the list of executable extensions to try.  If ``None``, uses the PATHEXT from
-              the environment's ENV dictionary.
-            reject: a function that is called with each candidate path.  If it returns true,
-              that path is skipped.
+            prog: program to search for
+            path: specific paths to search. Defaults to ``None``.
+            pathext: filename extensions to search.  Defaults to ``None``.
+            reject: names to exclude from match.  Defaults to ``None``.
 
         Returns:
             The full path to the program if found, or ``None``.
@@ -2199,7 +2265,11 @@ class Base(SubstitutionEnvironment):
         return SCons.Action.Action(*nargs, **nkw)
 
     def AddPreAction(self, files, action):
-        """Add a pre-action to be executed before building *files*."""
+        """Set an action to be performed before *files* are built.
+
+        Returns:
+            a list of the affected Nodes.
+        """
         nodes = self.arg2nodes(files, self.fs.Entry)
         action = SCons.Action.Action(action)
         uniq = {}
@@ -2210,7 +2280,11 @@ class Base(SubstitutionEnvironment):
         return nodes
 
     def AddPostAction(self, files, action):
-        """Add a post-action to be executed after building *files*."""
+        """Set an action to be performed after *files* are built.
+
+        Returns:
+            a list of the affected Nodes.
+        """
         nodes = self.arg2nodes(files, self.fs.Entry)
         action = SCons.Action.Action(action)
         uniq = {}
@@ -2312,9 +2386,8 @@ class Base(SubstitutionEnvironment):
     def Clean(self, targets, files) -> None:
         """Mark additional files for cleaning.
 
-        *files* will be removed if any of *targets* are selected
-        for cleaning - that is, the combination of target selection
-        and -c clean mode.
+        *files* will be removed if any of *targets* are selected,
+        and clean mode is active.
 
         Args:
             targets (files or nodes): targets to associate *files* with.
@@ -2560,7 +2633,12 @@ class Base(SubstitutionEnvironment):
         return SCons.Scanner.ScannerBase(*nargs, **nkw)
 
     def SConsignFile(self, name=SCons.SConsign.current_sconsign_filename(), dbm_module=None) -> None:
-        """Specify the SConsign file to use for this environment."""
+        """Specify the name of the signature database use for this environment.
+
+        If *dbm_module* is specified, it is the name of the database module
+        to use. It must follow the Python Database API specification
+        described in PEP 249.
+        """
         if name is not None:
             name = self.subst(name)
             if not os.path.isabs(name):
@@ -2594,19 +2672,20 @@ class Base(SubstitutionEnvironment):
         return added_side_effects
 
     def Split(self, arg):
-        """Convert a string or list into a list of strings or Nodes.
+        """Convert *arg* into a list of strings or Nodes.
 
-        This makes things easier for users by allowing files to
-        be specified as a white-space separated list to be split.
+        If *arg* is a string, it is split on whitespace.  This makes
+        things easier for users by allowing files to be specified as a
+        white-space separated list to be split without having to use
+        lots of quotes and commas. Otherwise, things are pretty much
+        unchanged, allowing ``Split`` to be safely called in various
+        circumstances without checking types. The input rules are:
 
-        The input rules are:
-            - A single string containing names separated by spaces. These will be
-              split apart at the spaces.
-            - A single Node instance
-            - A list containing either strings or Node instances. Any strings
-              in the list are not split at spaces.
-
-        In all cases, the function returns a list of Nodes and strings.
+        * A single string containing names separated by spaces. These will be
+          split apart at the spaces.
+        * A single Node instance. Unchanged.
+        * A list containing either strings or Node instances. String-valueed
+          elements are not split at spaces. Nodes are unchanged.
         """
         if is_List(arg):
             return list(map(self.subst, arg))
@@ -2930,6 +3009,7 @@ def NoSubstitutionProxy(subject):
             return setattr(self.__dict__['__subject'], name, value)
 
         def executor_to_lvars(self, kwdict) -> None:
+            """Transfer executor's local vars to kwdict as 'lvars'."""
             if 'executor' in kwdict:
                 kwdict['lvars'] = kwdict['executor'].get_lvars()
                 del kwdict['executor']
@@ -2937,6 +3017,7 @@ def NoSubstitutionProxy(subject):
                 kwdict['lvars'] = {}
 
         def raw_to_mode(self, mapping) -> None:
+            """Transfer 'raw' entry to 'mode' entry in mapping."""
             try:
                 raw = mapping['raw']
             except KeyError:
