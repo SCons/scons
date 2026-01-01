@@ -1,31 +1,34 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
 #
-# tree2test.py - turn a directory tree into TestSCons code
+# SPDX-License-Identifier: MIT
 #
-# A quick script for importing directory hierarchies containing test
-# cases that people supply (typically in a .zip or .tar.gz file) into a
-# TestSCons.py script.  No error checking or options yet, it just walks
-# the first command-line argument (assumed to be the directory containing
-# the test case) and spits out code looking like the following:
-#
-#       test.subdir(['sub1'],
-#                   ['sub1', 'sub2'])
-#
-#       test.write(['sub1', 'file1'], """\
-#       contents of file1
-#       """)
-#
-#       test.write(['sub1', 'sub2', 'file2'], """\
-#       contents of file2
-#       """)
-#
-# There's no massaging of contents, so any files that themselves contain
-# """ triple-quotes will need to have their contents edited by hand.
-#
+# Copyright The SCons Foundation
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+'''
+tree2test.py - turn a directory tree into TestSCons code
+
+A quick script for importing directory hierarchies containing test
+cases that people supply (typically in a .zip or .tar.gz file) into a
+TestSCons.py script.  No error checking or options yet, it just walks
+the first command-line argument (assumed to be the directory containing
+the test case) and spits out code looking like the following:
+
+      test.subdir(['sub1'],
+                  ['sub1', 'sub2'])
+
+      test.write(['sub1', 'file1'], """\
+      contents of file1
+      """)
+
+      test.write(['sub1', 'sub2', 'file2'], """\
+      contents of file2
+      """)
+
+There's no massaging of contents, so any files that themselves contain
+""" triple-quotes will need to have their contents edited by hand.
+
+'''
 
 import os.path
 import sys

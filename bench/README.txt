@@ -1,4 +1,6 @@
-# __COPYRIGHT__
+
+ SPDX-License-Identifier: MIT
+ Copyright The SCons Foundation
 
 This subdirectory contains a harness and various timing tests that we've
 used to decide on the most efficient implementation of various pieces

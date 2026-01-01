@@ -1,27 +1,10 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
 #
-# Count statistics about SCons test and source files.  This must be run
-# against a fully-populated tree (for example, one that's been freshly
-# checked out).
+# SPDX-License-Identifier: MIT
 #
-# A test file is anything under the src/ directory that begins with
-# 'test_' or ends in 'Tests.py', or anything under the test/ directory
-# that ends in '.py'.  Note that runtest.py script does *not*, by default,
-# consider the files that begin with 'test_' to be tests, because they're
-# tests of SCons packaging and installation, not functional tests of
-# SCons code.
+# Copyright The SCons Foundation
 #
-# A source file is anything under the src/engine/ or src/script/
-# directories that ends in '.py' but does NOT begin with 'test_'
-# or end in 'Tests.py'.
-#
-# We report the number of tests and sources, the total number of lines
-# in each category, the number of non-blank lines, and the number of
-# non-comment lines.  The last figure (non-comment) lines is the most
-# interesting one for most purposes.
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 
