@@ -36,7 +36,7 @@ NEW_HEADER = """#!/usr/bin/env python
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
-# \"Software\"), to deal in the Software without restriction, including
+# "Software"), to deal in the Software without restriction, including
 # without limitation the rights to use, copy, modify, merge, publish,
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
@@ -45,7 +45,7 @@ NEW_HEADER = """#!/usr/bin/env python
 # The above copyright notice and this permission notice shall be included
 # in all copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
 # KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 # WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
@@ -54,7 +54,130 @@ NEW_HEADER = """#!/usr/bin/env python
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+XML_OLD_HEADER = """<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->"""
+
+# This is the intermediate MIT header that might be present in some files
+XML_MIT_HEADER = """<!--
+
+  MIT License
+ 
+  Copyright The SCons Foundation
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->"""
+
+XML_NEW_HEADER = """<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
+-->"""
+
+def update_xml_file(file_path):
+    try:
+        if os.path.getsize(file_path) == 0:
+            print(f"Skipping empty file: {file_path}")
+            return
+
+        with open(file_path, 'r') as f:
+            content = f.read()
+
+        original_content = content
+        
+        # Detect and remove existing XML declaration to avoid doubling up
+        # as XML_NEW_HEADER includes it.
+        xml_decl_regex = re.compile(r'^\s*<\?xml\s+[^?]*\?>\s*', re.MULTILINE)
+        content_no_decl = xml_decl_regex.sub('', content)
+
+        # We want to replace the old copyright blocks. 
+        # If we found XML_OLD_HEADER or XML_MIT_HEADER, replace it.
+        # Note: XML_OLD_HEADER and XML_MIT_HEADER in script might have different 
+        # line endings or spacing than in files.
+        
+        if XML_OLD_HEADER in content_no_decl:
+            content_no_decl = content_no_decl.replace(XML_OLD_HEADER, XML_NEW_HEADER)
+        elif XML_MIT_HEADER in content_no_decl:
+            content_no_decl = content_no_decl.replace(XML_MIT_HEADER, XML_NEW_HEADER)
+        else:
+            # If neither exact match is found, maybe prepend if it's missing entirely?
+            # User said "replace the copyright", so let's stick to replacement if found.
+            # However, if it's already updated, we should see XML_NEW_HEADER (or part of it).
+            if "SPDX-FileCopyrightText: Copyright The SCons Foundation" not in content_no_decl:
+                # If old headers not found exactly, but we are supposed to update it,
+                # we might need a more flexible approach.
+                # But let's try exact matches first as defined.
+                print(f"Old header not found in XML: {file_path}")
+                return
+
+        final_content = content_no_decl
+        if not final_content.startswith('<?xml'):
+            # This should be true if we replaced a header that was at the top
+            # but didn't have the declaration, or if we removed an existing declaration.
+            if not final_content.startswith('<!--'):
+                 # Ensure XML_NEW_HEADER is at the very top
+                 final_content = XML_NEW_HEADER + "\n\n" + final_content.lstrip()
+
+        if final_content != original_content:
+            with open(file_path, 'w') as f:
+                f.write(final_content)
+            print(f"Updated XML: {file_path}")
+        else:
+            print(f"No changes: {file_path}")
+    except Exception as e:
+        print(f"Failed to update XML {file_path}: {e}")
+
 def update_file(file_path, add_shebang=True):
+    if file_path.endswith('.xml') or file_path.endswith('.xsl'):
+        update_xml_file(file_path)
+        return
+
+    # SConstruct and SConscript files are Python but should not have a shebang added
+    # (and existing one preserved if present, which is handled by add_shebang=False)
+    if os.path.basename(file_path) in ('SConstruct', 'SConscript'):
+        add_shebang = False
+
     try:
         if os.path.getsize(file_path) == 0:
             print(f"Skipping empty file: {file_path}")
@@ -191,7 +314,7 @@ def main():
         elif os.path.isdir(path):
             for root, dirs, files in os.walk(path):
                 for file in files:
-                    if file.endswith('.py'):
+                    if file.endswith('.py') or file.endswith('.xml') or file.endswith('.xsl') or file in ('SConstruct', 'SConscript'):
                         update_file(os.path.join(root, file), add_shebang=args.add_shebang)
         else:
             print(f"Path not found: {path}")

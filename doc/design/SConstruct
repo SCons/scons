@@ -24,17 +24,22 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+SConstruct file for building SCons documentation.
+"""
+
+
 import os
 
 env = Environment(ENV={'PATH' : os.environ['PATH']},
-                  tools=['docbook'], 
+                  tools=['docbook'],
                   toolpath=['../../SCons/Tool'],
                   DOCBOOK_DEFAULT_XSL_HTML='html.xsl',
                   DOCBOOK_DEFAULT_XSL_HTMLCHUNKED='chtml.xsl',
                   DOCBOOK_DEFAULT_XSL_PDF='pdf.xsl')
 
 has_pdf = False
-if (env.WhereIs('fop') or 
+if (env.WhereIs('fop') or
     env.WhereIs('xep')):
     has_pdf = True
 
@@ -42,7 +47,7 @@ if (env.WhereIs('fop') or
 # Create document
 #
 env.DocbookXInclude('design_xi.xml', 'main.xml')
-env.DocbookXslt('design.xml', 'design_xi.xml', 
+env.DocbookXslt('design.xml', 'design_xi.xml',
                 xsl='../xslt/to_docbook.xslt')
 env.DocbookHtmlChunked('index.html','design.xml', base_dir='scons-design/')
 if has_pdf:

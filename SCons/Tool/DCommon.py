@@ -1,4 +1,3 @@
-#
 # MIT License
 #
 # Copyright The SCons Foundation
