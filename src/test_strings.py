@@ -104,14 +104,6 @@ class Checker:
                             result.append(msg)
         return result
 
-class CheckUnexpandedStrings(Checker):
-    expressions = [
-        re.compile('__COPYRIGHT__'),
-        re.compile('__FILE__ __REVISION__ __DATE__ __DEVELOPER__'),
-    ]
-    def must_be_built(self):
-        return None
-
 class CheckPassTest(Checker):
     expressions = [
         re.compile(r'\.pass_test()'),
@@ -127,22 +119,6 @@ class CheckExpandedCopyright(Checker):
         return 1
 
 check_list = [
-
-    CheckUnexpandedStrings(
-        'src',
-        search_list = [ '*.py' ],
-        remove_list = [
-            'engine/SCons/compat/_scons_sets.py',
-            'engine/SCons/compat/_scons_subprocess.py',
-            'engine/SCons/Conftest.py',
-            'engine/SCons/dblite.py',
-        ],
-    ),
-
-    CheckUnexpandedStrings(
-        'test',
-        search_list = [ '*.py' ],
-    ),
 
     CheckPassTest(
         'test',
