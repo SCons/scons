@@ -15,6 +15,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From John Doe:
     - Whatever John Doe did.
 
+  From Marcel Admiraal:
+    - Use scons as the default MSVSSCONS variable.
+
   From Thaddeus Crews:
     - Purge vim/emac local variable bloat.
     - Implement type hints for Node subclasses.
