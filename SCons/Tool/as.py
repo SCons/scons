@@ -30,7 +30,9 @@ There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
 """
-
+#
+# Forward proxy to the preferred asm version
+#
 import SCons.Tool.asm
 
 # Resolve FLAKE8 F401 (make sider happy)

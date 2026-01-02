@@ -32,4 +32,5 @@ selection method.
 
 """
 
+#forward proxy to the preffered cxx version
 from SCons.Tool.sgicxx import *
