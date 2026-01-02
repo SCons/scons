@@ -83,7 +83,7 @@ XML_OLD_HEADER = """<!--
 XML_MIT_HEADER = """<!--
 
   MIT License
- 
+
   Copyright The SCons Foundation
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -110,8 +110,6 @@ XML_NEW_HEADER = """<!--
 SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 SPDX-License-Identifier: MIT
 SPDX-FileType: DOCUMENTATION
-
-This file is processed by the bin/SConsDoc.py module.
 -->"""
 
 def update_xml_file(file_path):
@@ -124,7 +122,7 @@ def update_xml_file(file_path):
             content = f.read()
 
         original_content = content
-        
+
         # Replace either the old __COPYRIGHT__ header or the previous MIT header
         updated_content = content
         if XML_OLD_HEADER in content:
@@ -167,7 +165,7 @@ def update_file(file_path, add_shebang=True):
             lines = content.splitlines(keepends=True)
             file_shebang = lines[0]
             content = "".join(lines[1:])
-        
+
         # Detect existing Docstring at start
         docstring = ""
         match = re.match(r'^\s*("""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\')', content, re.MULTILINE)
@@ -177,15 +175,15 @@ def update_file(file_path, add_shebang=True):
 
         # Parse lines to identify header block, revision, and potential new docstring comments
         lines = content.splitlines(keepends=True)
-        
+
         in_header = True
         seen_revision = False
         revision_regex = re.compile(r'^__revision__\s*=')
-        
+
         header_comments = []      # To be discarded (Old License)
         description_comments = [] # To be converted to docstring
         lines_to_keep = []        # Code
-        
+
         for line in lines:
             if in_header:
                 sline = line.strip()
@@ -195,23 +193,23 @@ def update_file(file_path, add_shebang=True):
                         if description_comments:
                             description_comments.append(line)
                     continue
-                
+
                 if sline.startswith('#'):
                     if seen_revision:
                         description_comments.append(line)
                     else:
                         header_comments.append(line)
                     continue
-                
+
                 if revision_regex.match(sline):
                     seen_revision = True
                     continue
-                    
+
                 in_header = False
                 lines_to_keep.append(line)
             else:
                 lines_to_keep.append(line)
-                
+
         new_docstring = ""
         if description_comments and not docstring:
             cleaned_lines = []
@@ -224,16 +222,16 @@ def update_file(file_path, add_shebang=True):
                     cleaned_lines.append(val)
                 else:
                     cleaned_lines.append("")
-            
+
             while cleaned_lines and not cleaned_lines[-1]:
                 cleaned_lines.pop()
-                
+
             if cleaned_lines:
                 doc_content = "\n".join(cleaned_lines)
                 new_docstring = f'"""\n{doc_content}\n"""'
 
         rest_of_content = "".join(lines_to_keep)
-        
+
         # Reassemble
         header_to_use = NEW_HEADER.strip()
         final_prefix = ""
@@ -246,19 +244,19 @@ def update_file(file_path, add_shebang=True):
             header_lines = header_to_use.splitlines(keepends=True)
             if header_lines and header_lines[0].startswith("#!"):
                 header_to_use = "".join(header_lines[1:]).lstrip()
-            
+
             if file_shebang:
                 final_prefix = file_shebang + header_to_use + "\n"
             else:
                 final_prefix = header_to_use + "\n"
 
         final_content = final_prefix
-        
+
         final_doc = docstring if docstring else new_docstring
-        
+
         if final_doc:
             final_content += "\n" + final_doc + "\n"
-        
+
         if rest_of_content:
              final_content += "\n" + rest_of_content.lstrip()
         else:
