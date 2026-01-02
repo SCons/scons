@@ -106,8 +106,7 @@ XML_MIT_HEADER = """<!--
 
 -->"""
 
-XML_NEW_HEADER = """<?xml version="1.0" encoding="UTF-8"?>
-<!--
+XML_NEW_HEADER = """<!--
 SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 SPDX-License-Identifier: MIT
 SPDX-FileType: DOCUMENTATION
@@ -126,42 +125,16 @@ def update_xml_file(file_path):
 
         original_content = content
         
-        # Detect and remove existing XML declaration to avoid doubling up
-        # as XML_NEW_HEADER includes it.
-        xml_decl_regex = re.compile(r'^\s*<\?xml\s+[^?]*\?>\s*', re.MULTILINE)
-        content_no_decl = xml_decl_regex.sub('', content)
+        # Replace either the old __COPYRIGHT__ header or the previous MIT header
+        updated_content = content
+        if XML_OLD_HEADER in content:
+            updated_content = updated_content.replace(XML_OLD_HEADER, XML_NEW_HEADER)
+        if XML_MIT_HEADER in content:
+            updated_content = updated_content.replace(XML_MIT_HEADER, XML_NEW_HEADER)
 
-        # We want to replace the old copyright blocks. 
-        # If we found XML_OLD_HEADER or XML_MIT_HEADER, replace it.
-        # Note: XML_OLD_HEADER and XML_MIT_HEADER in script might have different 
-        # line endings or spacing than in files.
-        
-        if XML_OLD_HEADER in content_no_decl:
-            content_no_decl = content_no_decl.replace(XML_OLD_HEADER, XML_NEW_HEADER)
-        elif XML_MIT_HEADER in content_no_decl:
-            content_no_decl = content_no_decl.replace(XML_MIT_HEADER, XML_NEW_HEADER)
-        else:
-            # If neither exact match is found, maybe prepend if it's missing entirely?
-            # User said "replace the copyright", so let's stick to replacement if found.
-            # However, if it's already updated, we should see XML_NEW_HEADER (or part of it).
-            if "SPDX-FileCopyrightText: Copyright The SCons Foundation" not in content_no_decl:
-                # If old headers not found exactly, but we are supposed to update it,
-                # we might need a more flexible approach.
-                # But let's try exact matches first as defined.
-                print(f"Old header not found in XML: {file_path}")
-                return
-
-        final_content = content_no_decl
-        if not final_content.startswith('<?xml'):
-            # This should be true if we replaced a header that was at the top
-            # but didn't have the declaration, or if we removed an existing declaration.
-            if not final_content.startswith('<!--'):
-                 # Ensure XML_NEW_HEADER is at the very top
-                 final_content = XML_NEW_HEADER + "\n\n" + final_content.lstrip()
-
-        if final_content != original_content:
+        if updated_content != original_content:
             with open(file_path, 'w') as f:
-                f.write(final_content)
+                f.write(updated_content)
             print(f"Updated XML: {file_path}")
         else:
             print(f"No changes: {file_path}")
