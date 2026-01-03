@@ -32,6 +32,9 @@ TestSCons.py script.  No error checking or options yet, it just walks
 the first command-line argument (assumed to be the directory containing
 the test case) and spits out code looking like the following:
 
+
+.. code-block:: python
+
       test.subdir(['sub1'],
                   ['sub1', 'sub2'])
 
