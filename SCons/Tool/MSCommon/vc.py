@@ -303,9 +303,53 @@ def _host_target_config_factory(*, label, host_all_hosts, host_all_targets, host
 # The cl path fragment under the toolset version folder is the second value of
 # the stored tuple.
 
-# 14.3 (VS2022) and later
+# 14.5 (VS2026) and later
 
-_GE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS = {
+_GE2026_HOST_TARGET_BATCHFILE_CLPATHCOMPS = {
+
+    ('amd64', 'amd64') : ('vcvars64.bat',          ('bin', 'Hostx64', 'x64')),
+    ('amd64', 'x86')   : ('vcvarsamd64_x86.bat',   ('bin', 'Hostx64', 'x86')),
+    ('amd64', 'arm64') : ('vcvarsamd64_arm64.bat', ('bin', 'Hostx64', 'arm64')),
+
+    ('x86',   'amd64') : ('vcvarsx86_amd64.bat',   ('bin', 'Hostx86', 'x64')),
+    ('x86',   'x86')   : ('vcvars32.bat',          ('bin', 'Hostx86', 'x86')),
+    ('x86',   'arm64') : ('vcvarsx86_arm64.bat',   ('bin', 'Hostx86', 'arm64')),
+
+    ('arm64', 'amd64') : ('vcvarsarm64_amd64.bat', ('bin', 'Hostarm64', 'arm64_amd64')),
+    ('arm64', 'x86')   : ('vcvarsarm64_x86.bat',   ('bin', 'Hostarm64', 'arm64_x86')),
+    ('arm64', 'arm64') : ('vcvarsarm64.bat',       ('bin', 'Hostarm64', 'arm64')),
+
+}
+
+_GE2026_HOST_TARGET_CFG = _host_target_config_factory(
+
+    label = 'GE2026',
+
+    host_all_hosts = OrderedDict([
+        ('amd64', ['amd64', 'x86']),
+        ('x86',   ['x86']),
+        ('arm64', ['arm64', 'amd64', 'x86']),
+    ]),
+
+    host_all_targets = {
+        'amd64': ['amd64', 'x86', 'arm64'],
+        'x86':   ['x86', 'amd64', 'arm64'],
+        'arm64': ['arm64', 'amd64', 'x86'],
+    },
+
+    host_def_targets = {
+        'amd64': ['amd64', 'x86'],
+        'x86':   ['x86'],
+        'arm64': ['arm64', 'amd64', 'x86'],
+    },
+
+)
+
+# debug("_GE2026_HOST_TARGET_CFG: %s", _GE2026_HOST_TARGET_CFG)
+
+# 14.3 (VS2022)
+
+_LE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS = {
 
     ('amd64', 'amd64') : ('vcvars64.bat',          ('bin', 'Hostx64', 'x64')),
     ('amd64', 'x86')   : ('vcvarsamd64_x86.bat',   ('bin', 'Hostx64', 'x86')),
@@ -324,9 +368,9 @@ _GE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS = {
 
 }
 
-_GE2022_HOST_TARGET_CFG = _host_target_config_factory(
+_LE2022_HOST_TARGET_CFG = _host_target_config_factory(
 
-    label = 'GE2022',
+    label = 'LE2022',
 
     host_all_hosts = OrderedDict([
         ('amd64', ['amd64', 'x86']),
@@ -351,7 +395,7 @@ _GE2022_HOST_TARGET_CFG = _host_target_config_factory(
 
 )
 
-# debug("_GE2022_HOST_TARGET_CFG: %s", _GE2022_HOST_TARGET_CFG)
+# debug("_LE2022_HOST_TARGET_CFG: %s", _LE2022_HOST_TARGET_CFG)
 
 # 14.2 (VS2019) to 14.1 (VS2017)
 
@@ -619,9 +663,12 @@ def get_host_target(env, msvc_version, all_host_targets: bool=False):
     vernum = float(get_msvc_version_numeric(msvc_version))
     vernum_int = int(vernum * 10)
 
-    if vernum_int >= 143:
-        # 14.3 (VS2022) and later
-        host_target_cfg = _GE2022_HOST_TARGET_CFG
+    if vernum_int >= 145:
+        # 14.5 (VS2026) and later
+        host_target_cfg = _GE2026_HOST_TARGET_CFG
+    elif 145 > vernum_int >= 143:
+        # 14.3 (VS2022)
+        host_target_cfg = _LE2022_HOST_TARGET_CFG
     elif 143 > vernum_int >= 141:
         # 14.2 (VS2019) to 14.1 (VS2017)
         host_target_cfg = _LE2019_HOST_TARGET_CFG
@@ -1772,10 +1819,16 @@ def find_batch_file(msvc_version, host_arch, target_arch, pdir):
     clexe = None
     depbat = None
 
-    if vernum_int >= 143:
-        # 14.3 (VS2022) and later
+    if vernum_int >= 145:
+        # 14.5 (VS2026) and later
         batfiledir = os.path.join(pdir, "Auxiliary", "Build")
-        batfile, _ = _GE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
+        batfile, _ = _GE2026_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
+        batfilename = os.path.join(batfiledir, batfile)
+        vcdir = pdir
+    elif 145 > vernum_int >= 143:
+        # 14.3 (VS2022)
+        batfiledir = os.path.join(pdir, "Auxiliary", "Build")
+        batfile, _ = _LE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
         batfilename = os.path.join(batfiledir, batfile)
         vcdir = pdir
     elif 143 > vernum_int >= 141:
@@ -1904,9 +1957,12 @@ def _check_files_exist_in_vc_dir(env, vc_dir, msvc_version) -> bool:
             debug('failed to find MSVC version in %s', default_toolset_file)
             return False
 
-        if vernum_int >= 143:
-            # 14.3 (VS2022) and later
-            host_target_batchfile_clpathcomps = _GE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS
+        if vernum_int >= 145:
+            # 14.5 (VS2026) and later
+            host_target_batchfile_clpathcomps = _GE2026_HOST_TARGET_BATCHFILE_CLPATHCOMPS
+        elif 145 > vernum_int >= 143:
+            # 14.3 (VS2022)
+            host_target_batchfile_clpathcomps = _LE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS
         else:
             # 14.2 (VS2019) to 14.1 (VS2017)
             host_target_batchfile_clpathcomps = _LE2019_HOST_TARGET_BATCHFILE_CLPATHCOMPS

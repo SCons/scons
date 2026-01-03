@@ -15,6 +15,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From John Doe:
     - Whatever John Doe did.
 
+  From Joseph Brill:
+    - MSVC: Remove the 32-bit arm target and host from the Visual Studio 2026
+      configuration.  Visual Studio 2026 removed support for targeting arm. The
+      arm libraries are not included in the latest Windows SDK (10.0.26100.0).
+
   From Thaddeus Crews:
     - Purge vim/emac local variable bloat.
     - Implement type hints for Node subclasses.
