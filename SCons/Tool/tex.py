@@ -339,8 +339,9 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                     if 'bibdata' in content:
                         if Verbose:
                             print("Need to run bibtex on ",auxfilename)
-                        bibfile = env.fs.File(SCons.Util.splitext(target_aux)[0])
-                        result = BibTeXAction(bibfile, bibfile, env)
+                        auxfile = env.fs.File(target_aux)
+                        bibfile = env.fs.File(SCons.Util.splitext(target_aux)[0] + ".bib")
+                        result = BibTeXAction(bibfile, auxfile, env)
                         if result != 0:
                             check_file_error_message(env['BIBTEX'], 'blg')
                         check_content_hash(suffix_nodes[".bbl"], ".bbl")
@@ -363,8 +364,9 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                     if 'bibdata' in content:
                         if Verbose:
                             print("Need to run biber on ",bcffilename)
-                        bibfile = env.fs.File(SCons.Util.splitext(target_bcf)[0])
-                        result = BiberAction(bibfile, bibfile, env)
+                        auxfile = env.fs.File(target_aux)
+                        bibfile = env.fs.File(SCons.Util.splitext(target_aux)[0] + ".bbl")
+                        result = BiberAction(bibfile, auxfile, env)
                         if result != 0:
                             check_file_error_message(env['BIBER'], 'blg')
                         check_content_hash(suffix_nodes[".bbl"], ".bbl")
