@@ -81,13 +81,13 @@ Legend:
 
   Develop
     devenv.com or msdev.com is detected.
-  
+
   Express
     WDExpress.exe or VCExpress.exe is detected.
-  
+
   BuildTools [VS2015]
     The vcvarsall batch file dispatches to the buildtools batch file.
-  
+
   CmdLine [VS2015]
     Neither Develop, Express, or BuildTools.
 
@@ -204,6 +204,23 @@ The following issues are known to exist:
   the default environment was moved from ``MSCommon/vc.py`` to ``MSCommon/MSVC/SetupEnvDefault.py``.
   There are very few, if any, existing unit tests. Now that the code is isolated in its own
   module with a limited API, unit tests may be easier to implement.
+
+
+Potential Issues
+================
+
+The following potential issues are known to exist:
+
+* Visual Studio 2026 removed support for 32-bit arm targets. The 32-bit arm libraries are not included
+  in the latest Windows SDK (10.0.26100.0).
+
+  The Visual Studio documentation states: "Developers needing to target ARM32 can continue using the
+  Visual Studio 2022 v143 build tools".
+
+  As of Visual Studio 2022 17.14.23, builds targeting 32-bit arm on a machine that has Windows SDK
+  10.0.26100.0 or later installed, may fail due to the Visual Studio 2022 batch file implementation.
+  If this happens, explicitly passing an earlier Windows SDK version via ``MSVC_SDK_VERSION`` may be
+  required.  For example, ``MSVC_SDK_VERSION="10.0.22621.0"``.
 
 
 Experimental Features

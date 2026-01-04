@@ -31,7 +31,6 @@ import re
 
 from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 from SCons.Tool.MSCommon.vc import get_native_host_platform
-from SCons.Tool.MSCommon.vc import _GE2022_HOST_TARGET_CFG
 from SCons.Tool.MSCommon.MSVC.Kind import (
     msvc_version_is_express,
     msvc_version_is_btdispatch,

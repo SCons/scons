@@ -133,10 +133,25 @@ class MSVcTestCase(unittest.TestCase):
         except IOError as e:
             print("Failed trying to write :%s :%s" % (tools_version_file, e))
 
-        # Test 14.3 (VS2022) and later
-        vc_ge2022_list = SCons.Tool.MSCommon.vc._GE2022_HOST_TARGET_CFG.all_pairs
-        for host, target in vc_ge2022_list:
-            batfile, clpathcomps = SCons.Tool.MSCommon.vc._GE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
+        # Test 14.5 (VS2026) and later
+        vc_ge2026_list = SCons.Tool.MSCommon.vc._GE2026_HOST_TARGET_CFG.all_pairs
+        for host, target in vc_ge2026_list:
+            batfile, clpathcomps = SCons.Tool.MSCommon.vc._GE2026_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
+            # print("GE 14.5 Got: (%s, %s) -> (%s, %s)"%(host,target,batfile,clpathcomps))
+
+            env={'TARGET_ARCH':target, 'HOST_ARCH':host}
+            path = os.path.join('.', "Auxiliary", "Build", batfile)
+            MSVcTestCase._createDummyFile(path, batfile, add_bin=False)
+            path = os.path.join('.', 'Tools', 'MSVC', MS_TOOLS_VERSION, *clpathcomps)
+            MSVcTestCase._createDummyFile(path, 'cl.exe', add_bin=False)
+            result=check(env, '.', '14.5')
+            # print("for:(%s, %s) got :%s"%(host, target, result))
+            self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
+
+        # Test 14.3 (VS2022)
+        vc_le2022_list = SCons.Tool.MSCommon.vc._LE2022_HOST_TARGET_CFG.all_pairs
+        for host, target in vc_le2022_list:
+            batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
             # print("GE 14.3 Got: (%s, %s) -> (%s, %s)"%(host,target,batfile,clpathcomps))
 
             env={'TARGET_ARCH':target, 'HOST_ARCH':host}
