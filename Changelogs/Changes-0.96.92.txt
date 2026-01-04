@@ -1,0 +1,272 @@
+RELEASE 0.96.92 - Mon, 10 Apr 2006 21:08:22 -0400
+
+  NOTE:  This was a pre-release of 0.97 for testing purposes.
+
+  From Anonymous:
+
+  - Fix the intelc.py Tool module to not throw an exception if the
+    only installed version is something other than ia32.
+
+  - Set $CCVERSION when using gcc.
+
+  From Matthias:
+
+  - Support generating project and solution files for Microsoft
+    Visual Studio version 8.
+
+  - Support generating more than one project file for a Microsoft
+    Visual Studio solution file.
+
+  - Add support for a support "runfile" parameter to Microsoft
+    Visual Studio project file creation.
+
+  - Put the project GUID, not the solution GUID, in the right spot
+    in the solution file.
+
+  From Erling Andersen:
+
+  - Fix interpretation of Node.FS objects wrapped in Proxy instances,
+    allowing expansion of things like ${File(TARGET)} in command lines.
+
+  From Stanislav Baranov:
+
+  - Add a separate MSVSSolution() Builder, with support for the
+    following new construction variables: $MSVSBUILDCOM, $MSVSCLEANCOM,
+    $MSVSENCODING, $MSVSREBUILDCOM, $MSVSSCONS, $MSVSSCONSCOM,
+    $MSVSSCONSFLAGS, $MSVSSCONSCRIPT and $MSVSSOLUTIONCOM.
+
+  From Ralph W. Grosse-Kunstleve and Patrick Mezard:
+
+  - Remove unneceesary (and incorrect) SCons.Util strings on some function
+    calls in SCons.Util.
+
+  From Bob Halley:
+
+  - Fix C/C++ compiler selection on AIX to not always use the external $CC
+    environment variable.
+
+  From August HÃ¶randl:
+
+  - Add a scanner for \include and \import files, with support for
+    searching a directory list in $TEXINPUTS (imported from the external
+    environment).
+
+  - Support $MAKEINDEX, $MAKEINDEXCOM, $MAKEINDEXCOMSTR and
+    $MAKEINDEXFLAGS for generating indices from .idx files.
+
+  From Steven Johnson:
+
+  - Add a NoClean() Environment method and function to override removal
+    of targets during a -c clean, including documentation and tests.
+
+  From Steven Knight:
+
+  - Check for whether files exist on disk by listing the directory
+    contents, not calling os.path.exists() file by file.  This is
+    somewhat more efficient in general, and may be significantly
+    more efficient on Windows.
+
+  - Minor speedups in the internal is_Dict(), is_List() and is_String()
+    functions.
+
+  - Fix a signature refactoring bug that caused Qt header files to
+    get re-generated every time.
+
+  - Don't fail when writing signatures if the .sconsign.dblite file is
+    owned by a different user (e.g. root) from a previous run.
+
+  - When deleting variables from stacked OverrideEnvironments, don't
+    throw a KeyError if we were able to delte the variable from any
+    Environment in the stack.
+
+  - Get rid of the last indentation tabs in the SCons source files and
+    add -tt to the Python invocations in the packaging build and the
+    tests so they don't creep back in.
+
+  - In Visual Studio project files, put quotes around the -C directory
+    so everything works even if the path has spaces in it.
+
+  - The Intel Fortran compiler uses -object:$TARGET, not "-o $TARGET",
+    when building object files on Windows.  Have the the ifort Tool
+    modify the default command lines appropriately.
+
+  - Document the --debug=explain option in the man page.  (How did we
+    miss this?)
+
+  - Add a $LATEXRETRIES variable to allow configuration of the number of
+    times LaTex can be re-called to try to resolve undefined references.
+
+  - Change the order of the arguments to Configure.Checklib() to match
+    the documentation.
+
+  - Handle signature calculation properly when the Python function used
+    for a FunctionAction is an object method.
+
+  - On Windows, assume that absolute path names without a drive letter
+    refer to the drive on which the SConstruct file lives.
+
+  - Add /usr/ccs/bin to the end of the the default external execution
+    PATH on Solaris.
+
+  - Add $PKGCHK and $PKGINFO variables for use on Solaris when searching
+    for the SunPRO C++ compiler.  Make the default value for $PKGCHK
+    be /usr/sbin/pgkchk (since /usr/sbin isn't usually on the external
+    execution $PATH).
+
+  - Fix a man page example of overriding variables when calling
+    SharedLibrary() to also set the $LIBSUFFIXES variable.
+
+  - Add a --taskmastertrace=FILE option to give some insight on how
+    the taskmaster decides what Node to build next.
+
+  - Changed the names of the old $WIN32DEFPREFIX, $WIN32DEFSUFFIX,
+    $WIN32DLLPREFIX and $WIN32IMPLIBPREFIX construction variables to
+    new $WINDOWSDEFPREFIX, $WINDOWSDEFSUFFIX, $WINDOWSDLLPREFIX and
+    $WINDOWSIMPLIBPREFIX construction variables.  The old names are now
+    deprecated, but preserved for backwards compatibility.
+
+  - Fix (?) a runtest.py hang on Windows when the --xml option is used.
+
+  - Change the message when an error occurs trying to interact with the
+    file system to report the target(s) in square brackets (as before) and
+    the actual file or directory that encountered the error afterwards.
+
+  From Chen Lee:
+
+  - Add x64 support for Microsoft Visual Studio 8.
+
+  From Baptiste Lepilleur:
+
+  - Support the --debug=memory option on Windows when the Python version
+    has the win32process and win32api modules.
+
+  - Add support for Visual Studio 2005 Pro.
+
+  - Fix portability issues in various tests: test/Case.py,
+    Test/Java/{JAR,JARCHDIR,JARFLAGS,JAVAC,JAVACFLAGS,JAVAH,RMIC}.py,
+    test/MSVS/vs-{6.0,7.0,7.1,8.0}-exec.py,
+    test/Repository/{Java,JavaH,RMIC}.py,
+    test/QT/{generated-ui,installed,up-to-date,warnings}.py,
+    test/ZIP/ZIP.py.
+
+  - Ignore pkgchk errors on Solaris when searching for the C++ compiler.
+
+  - Speed up the SCons/EnvironmentTests.py unit tests.
+
+  - Add a --verbose= option to runtest.py to print executed commands
+    and their output at various levels.
+
+  From Christian Maaser:
+
+  - Add support for Visual Studio Express Editions.
+
+  - Add support for Visual Studio 8 *.manifest files, includng
+    new $WINDOWS_INSERT_MANIFEST, $WINDOWSPROGMANIFESTSUFFIX,
+    $WINDOWSPROGMANIFESTPREFIX, $WINDOWSPROGMANIFESTSUFFIX,
+    $WINDOWSSHLIBMANIFESTPREFIX and $WINDOWSSHLIBMANIFESTSUFFIX
+    construction variables.
+
+  From Adam MacBeth:
+
+  - Fix detection of additional Java inner classes following use of a
+    "new" keyword inside an inner class.
+
+  From Sanjoy Mahajan:
+
+  - Correct TeX-related command lines to just $SOURCE, not $SOURCES
+
+  From Patrick Mezard:
+
+  - Execute build commands for a command-line target if any of the
+    files built along with the target is out of date or non-existent,
+    not just if the command-line target itself is out of date.
+
+  - Fix the -n option when used with -c to print all of the targets
+    that will be removed for a multi-target Builder call.
+
+  - If there's no file in the source directory, make sure there isn't
+    one in the build directory, too, to avoid dangling files left
+    over from previous runs when a source file is removed.
+
+  - Allow AppendUnique() and PrependUnique() to append strings (and
+    other atomic objects) to lists.
+
+  From Joel B. Mohler:
+
+  - Extend latex.py, pdflatex.py, pdftex.py and tex.py so that building
+    from both TeX and LaTeX files uses the same logic to call $BIBTEX
+    when it's necessary, to call $MAKEINDEX when it's necessary, and to
+    call $TEX or $LATEX multiple times to handle undefined references.
+
+  - Add an emitter to the various TeX builders so that the generated
+    .aux and .log files also get deleted by the -c option.
+
+  From Leanid Nazdrynau:
+
+  - Fix the Qt UIC scanner to work with generated .ui files (by using
+    the FindFile() function instead of checking by-hand for the file).
+
+  From Jan Nieuwenhuizen:
+
+  - Fix a problem with interpreting quoted argument lists on command lines.
+
+  From Greg Noel:
+
+  - Add /sw/bin to the default execution PATH on Mac OS X.
+
+  From Kian Win Ong:
+
+  - When building a .jar file and there is a $JARCHDIR, put the -C
+    in front of each .class file on the command line.
+
+  - Recognize the Java 1.5 enum keyword.
+
+  From Asfand Yar Qazi:
+
+  - Add /opt/bin to the default execution PATH on all POSIX platforms
+    (between /usr/local/bin and /bin).
+
+  From Jon Rafkind:
+
+  - Fix the use of Configure() contexts from nested subsidiary
+    SConscript files.
+
+  From Christoph Schulz:
+
+  - Add support for $CONFIGUREDIR and $CONFIGURELOG variables to control
+    the directory and logs for configuration tests.
+
+  - Add support for a $INSTALLSTR variable.
+
+  - Add support for $RANLIBCOM and $RANLIBCOMSTR variables (which fixes
+    a bug when setting $ARCOMSTR).
+
+  From Amir Szekely:
+
+  - Add use of $CPPDEFINES to $RCCOM (resource file compilation) on MinGW.
+
+  From Erick Tryzelaar:
+
+  - Fix the error message when trying to report that a given option is
+    not gettable/settable from an SConscript file.
+
+  From Dobes Vandermeer:
+
+  - Add support for SCC and other settings in Microsoft Visual
+    Studio project and solution files:  $MSVS_PROJECT_BASE_PATH,
+    $MSVS_PROJECT_GUID, $MSVS_SCC_AUX_PATH, $MSVS_SCC_LOCAL_PATH,
+    $MSVS_SCC_PROJECT_NAME, $MSVS_SCC_PROVIDER,
+
+  - Add support for using a $SCONS_HOME variable (imported from the
+    external environment, or settable internally) to put a shortened
+    SCons execution line in the Visual Studio project file.
+
+  From David J. Van Maren:
+
+  - Only filter common prefixes from source files names in Visual Studio
+    project files if the prefix is a complete (sub)directory name.
+
+  From Thad Ward:
+
+  - If $MSVSVERSIONS is already set, don't overwrite it with
+    information from the registry.
