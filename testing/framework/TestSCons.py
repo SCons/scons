@@ -192,7 +192,7 @@ def deprecated_python_version(version=sys.version_info):
 if deprecated_python_version():
     msg = r"""
 scons: warning: Support for Python older than %s is deprecated (%s detected).
-    If this will cause hardship, contact scons-dev@scons.org
+    If this will cause hardship, contact scons-dev@python.org
 """
     deprecated_python_expr = (
         re_escape(msg % (python_version_supported_str, python_version_string()))

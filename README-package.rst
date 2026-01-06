@@ -74,7 +74,7 @@ Documentation
 =============
 
 Documentation for SCons is available at
-http://www.scons.org/documentation.html.
+https://scons.org/documentation.html.
 
 
 Execution Requirements
@@ -144,7 +144,7 @@ The SCons project welcomes bug reports and feature requests.
 
 Please make sure you send email with the problem or feature request to
 the SCons users mailing list, which you can join at
-https://two.pairlist.net/mailman/listinfo/scons-users,
+https://mail.python.org/mailman3/lists/scons-users.python.org,
 or on the SCons Discord server in
 `#scons-help <https://discord.gg/bXVpWAy#scons-help>`_.
 
@@ -166,7 +166,7 @@ question, there is a mailing list specifically for developers of SCons
 You may send questions or comments to the list at:
 
 You may subscribe to the developer's mailing list using the form at
-https://two.pairlist.net/mailman/listinfo/scons-dev.
+https://mail.python.org/mailman3/lists/scons-dev.python.org.
 
 Subscription to the developer's mailing list is by approval.  In practice, no
 one is refused list membership, but we reserve the right to limit membership
@@ -191,7 +191,7 @@ or the GitHub Sponsors button on https://github.com/scons/scons.
 For More Information
 ====================
 
-Check the SCons web site at https://www.scons.org/
+Check the SCons web site at https://scons.org
 
 
 Copyright (c) 2001 - 2024 The SCons Foundation
