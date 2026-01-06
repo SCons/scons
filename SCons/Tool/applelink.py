@@ -1,13 +1,3 @@
-"""SCons.Tool.applelink
-
-Tool-specific initialization for Apple's gnu-like linker.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
 #
 # MIT License
 #
@@ -31,10 +21,17 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-# Even though the Mac is based on the GNU toolchain, it doesn't understand
-# the -rpath option, so we use the "link" tool instead of "gnulink".
+"""SCons.Tool.applelink
+
+Tool-specific initialization for Apple's gnu-like linker.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+
+"""
+
 from SCons.Util import CLVar
 from SCons.Errors import UserError
 from . import link

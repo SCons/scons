@@ -1,3 +1,4 @@
+#
 # MIT License
 #
 # Copyright 2020 MongoDB Inc.

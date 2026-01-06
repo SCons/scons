@@ -1,20 +1,7 @@
-"""SCons.Tool.rpmutils.py
-
-RPM specific helper routines for general usage in the test framework
-and SCons core modules.
-
-Since we check for the RPM package target name in several places,
-we have to know which machine/system name RPM will use for the current
-hardware setup. The following dictionaries and functions try to
-mimic the exact naming rules of the RPM source code.
-They were directly derived from the file "rpmrc.in" of the version
-rpm-4.9.1.3. For updating to a more recent version of RPM, this Python
-script can be used standalone. The usage() function below shows the
-exact syntax.
-
-"""
-
-# __COPYRIGHT__
+#
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -34,8 +21,22 @@ exact syntax.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""SCons.Tool.rpmutils.py
+
+RPM specific helper routines for general usage in the test framework
+and SCons core modules.
+
+Since we check for the RPM package target name in several places,
+we have to know which machine/system name RPM will use for the current
+hardware setup. The following dictionaries and functions try to
+mimic the exact naming rules of the RPM source code.
+They were directly derived from the file "rpmrc.in" of the version
+rpm-4.9.1.3. For updating to a more recent version of RPM, this Python
+script can be used standalone. The usage() function below shows the
+exact syntax.
+
+"""
 
 import platform
 import subprocess

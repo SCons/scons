@@ -14,8 +14,8 @@ Group: Development/Tools
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildArchitectures: noarch
-Vendor: The SCons Development Team <scons-dev@scons.org>
-Packager: The SCons Development Team <scons-dev@scons.org>
+Vendor: The SCons Development Team <scons-dev@python.org>
+Packager: The SCons Development Team <scons-dev@python.org>
 Requires: python >= 2.4
 Url: http://www.scons.org/
 

@@ -133,10 +133,25 @@ class MSVcTestCase(unittest.TestCase):
         except IOError as e:
             print("Failed trying to write :%s :%s" % (tools_version_file, e))
 
-        # Test 14.3 (VS2022) and later
-        vc_ge2022_list = SCons.Tool.MSCommon.vc._GE2022_HOST_TARGET_CFG.all_pairs
-        for host, target in vc_ge2022_list:
-            batfile, clpathcomps = SCons.Tool.MSCommon.vc._GE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
+        # Test 14.5 (VS2026) and later
+        vc_ge2026_list = SCons.Tool.MSCommon.vc._GE2026_HOST_TARGET_CFG.all_pairs
+        for host, target in vc_ge2026_list:
+            batfile, clpathcomps = SCons.Tool.MSCommon.vc._GE2026_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
+            # print("GE 14.5 Got: (%s, %s) -> (%s, %s)"%(host,target,batfile,clpathcomps))
+
+            env={'TARGET_ARCH':target, 'HOST_ARCH':host}
+            path = os.path.join('.', "Auxiliary", "Build", batfile)
+            MSVcTestCase._createDummyFile(path, batfile, add_bin=False)
+            path = os.path.join('.', 'Tools', 'MSVC', MS_TOOLS_VERSION, *clpathcomps)
+            MSVcTestCase._createDummyFile(path, 'cl.exe', add_bin=False)
+            result=check(env, '.', '14.5')
+            # print("for:(%s, %s) got :%s"%(host, target, result))
+            self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
+
+        # Test 14.3 (VS2022)
+        vc_eq2022_list = SCons.Tool.MSCommon.vc._EQ2022_HOST_TARGET_CFG.all_pairs
+        for host, target in vc_eq2022_list:
+            batfile, clpathcomps = SCons.Tool.MSCommon.vc._EQ2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
             # print("GE 14.3 Got: (%s, %s) -> (%s, %s)"%(host,target,batfile,clpathcomps))
 
             env={'TARGET_ARCH':target, 'HOST_ARCH':host}
@@ -149,9 +164,9 @@ class MSVcTestCase(unittest.TestCase):
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
         # Test 14.2 (VS2019) to 14.1 (VS2017) versions
-        vc_le2019_list = SCons.Tool.MSCommon.vc._LE2019_HOST_TARGET_CFG.all_pairs
-        for host, target in vc_le2019_list:
-            batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2019_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
+        vc_le2019_ge2017_list = SCons.Tool.MSCommon.vc._LE2019_GE2017_HOST_TARGET_CFG.all_pairs
+        for host, target in vc_le2019_ge2017_list:
+            batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2019_GE2017_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
             # print("LE 14.2 Got: (%s, %s) -> (%s, %s)"%(host,target,batfile,clpathcomps))
 
             env={'TARGET_ARCH':target, 'HOST_ARCH':host}
@@ -162,9 +177,9 @@ class MSVcTestCase(unittest.TestCase):
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
         # Test 14.0 (VS2015) to 10.0 (VS2010) versions
-        vc_le2015_list = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_CFG.all_pairs
-        for host, target in vc_le2015_list:
-            batarg, batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host, target)]
+        vc_le2015_ge2010_list = SCons.Tool.MSCommon.vc._LE2015_GE2010_HOST_TARGET_CFG.all_pairs
+        for host, target in vc_le2015_ge2010_list:
+            batarg, batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2015_GE2010_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host, target)]
             # print("LE 14.0 Got: (%s, %s) -> (%s, %s, %s)"%(host,target,batarg,batfile,clpathcomps))
             env={'TARGET_ARCH':target, 'HOST_ARCH':host}
             MSVcTestCase._createDummyFile('.', 'vcvarsall.bat', add_bin=False)
@@ -176,9 +191,9 @@ class MSVcTestCase(unittest.TestCase):
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
         # Test 9.0 (VC2008) to 8.0 (VS2005)
-        vc_le2008_list = SCons.Tool.MSCommon.vc._LE2008_HOST_TARGET_CFG.all_pairs
-        for host, target in vc_le2008_list:
-            batarg, batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2008_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host, target)]
+        vc_le2008_ge2005_list = SCons.Tool.MSCommon.vc._LE2008_GE2005_HOST_TARGET_CFG.all_pairs
+        for host, target in vc_le2008_ge2005_list:
+            batarg, batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2008_GE2005_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host, target)]
             # print("LE 9.0 Got: (%s, %s) -> (%s, %s, %s)"%(host,target,batarg,batfile,clpathcomps))
             env={'TARGET_ARCH':target, 'HOST_ARCH':host}
             MSVcTestCase._createDummyFile('.', 'vcvarsall.bat', add_bin=False)

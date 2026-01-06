@@ -1155,7 +1155,7 @@ def _main(parser):
         msg = (
             f"Support for Python older than {deprecated_version_string}"
             f" is deprecated ({python_version_string()} detected).\n"
-            "    If this will cause hardship, contact scons-dev@scons.org"
+            "    If this will cause hardship, contact scons-dev@python.org"
         )
         SCons.Warnings.warn(SCons.Warnings.PythonVersionWarning, msg)
 
