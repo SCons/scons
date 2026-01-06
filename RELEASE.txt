@@ -74,7 +74,9 @@ DOCUMENTATION
 
 - All functions/classes/non-dunder methods in Environment now have docstrings.
 
-
+- Add possible build failure when targeting 32-bit arm using Visual
+  Studio 2022 with Windows SDK version 10.0.26100.0 or later installed
+  to the known issues in SCons/Tool/MSCommon/README.rst.
 
 DEVELOPMENT
 -----------

@@ -37,7 +37,7 @@ installation is used only when no other installation is detected.
 | Product | VCVer   | Priority                                                 |
 +=========+=========+==========================================================+
 | VS2026  | 14.5    | Enterprise, Professional, Community, BuildTools          |
-+=========+=========+==========================================================+
++---------+---------+----------------------------------------------------------+
 | VS2022  | 14.3    | Enterprise, Professional, Community, BuildTools          |
 +---------+---------+----------------------------------------------------------+
 | VS2019  | 14.2    | Enterprise, Professional, Community, BuildTools          |
@@ -81,13 +81,13 @@ Legend:
 
   Develop
     devenv.com or msdev.com is detected.
-  
+
   Express
     WDExpress.exe or VCExpress.exe is detected.
-  
+
   BuildTools [VS2015]
     The vcvarsall batch file dispatches to the buildtools batch file.
-  
+
   CmdLine [VS2015]
     Neither Develop, Express, or BuildTools.
 
@@ -189,6 +189,23 @@ Known Issues
 ============
 
 The following issues are known to exist:
+
+* Visual Studio 2026 removed support for 32-bit arm targets. The 32-bit arm libraries are not included
+  in Windows SDK version 10.0.26100.0 or later.
+
+  The Visual Studio 2026 documentation indicates: "Developers needing to target ARM32 can continue
+  using the Visual Studio 2022 v143 build tools...".
+
+  As of Visual Studio 2022 version 17.14.23, builds targeting 32-bit arm on a machine that has Windows
+  SDK version 10.0.26100.0 or later installed, may fail due to the Visual Studio 2022 batch file
+  implementation.  If this happens, explicitly passing an earlier Windows SDK version via the SCons
+  construction variable ``MSVC_SDK_VERSION`` may be required.
+
+  Example usage:
+  ::
+
+      env = Environment(MSVC_VERSION='14.3', TARGET_ARCH='arm', MSVC_SDK_VERSION='10.0.22621.0')
+
 
 * Using ``MSVC_USE_SCRIPT`` and ``MSVC_USE_SCRIPT_ARGS`` to call older Microsoft SDK
   ``SetEnv.cmd`` batch files may result in build failures.
@@ -364,7 +381,7 @@ Supported MSVC batch file arguments by product:
 | Product | UWP     | SDK    | Toolset | Spectre |
 +=========+=========+========+=========+=========+
 | VS2026  | X       | X      | X       | X       |
-+=========+=========+========+=========+=========+
++---------+---------+--------+---------+---------+
 | VS2022  | X       | X      | X       | X       |
 +---------+---------+--------+---------+---------+
 | VS2019  | X       | X      | X       | X       |
