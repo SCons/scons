@@ -125,7 +125,7 @@ Installation
 The preferred way to install SCons is through the Python installer, ``pip``
 (or equivalent alternatives, such as ``uv`` or the Anaconda installer, ``conda``).
 You can install either from a wheel package or from the source directory.
-To work on a project that builds using SCons, installating lets you
+To work on a project that builds using SCons, "installing" lets you
 just use ``scons`` as a command and not worry about paths.  In this
 case, we usually suggest using a virtualenv, to isolate the Python
 environment to that project
