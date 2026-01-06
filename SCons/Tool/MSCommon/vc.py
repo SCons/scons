@@ -47,7 +47,6 @@ from subprocess import PIPE
 import re
 from collections import (
     namedtuple,
-    OrderedDict,
 )
 import json
 from functools import cmp_to_key
@@ -325,11 +324,11 @@ _GE2026_HOST_TARGET_CFG = _host_target_config_factory(
 
     label = 'GE2026',
 
-    host_all_hosts = OrderedDict([
-        ('amd64', ['amd64', 'x86']),
-        ('x86',   ['x86']),
-        ('arm64', ['arm64', 'amd64', 'x86']),
-    ]),
+    host_all_hosts = {
+        'amd64': ['amd64', 'x86'],
+        'x86':   ['x86'],
+        'arm64': ['arm64', 'amd64', 'x86'],
+    },
 
     host_all_targets = {
         'amd64': ['amd64', 'x86', 'arm64'],
@@ -349,7 +348,7 @@ _GE2026_HOST_TARGET_CFG = _host_target_config_factory(
 
 # 14.3 (VS2022)
 
-_LE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS = {
+_EQ2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS = {
 
     ('amd64', 'amd64') : ('vcvars64.bat',          ('bin', 'Hostx64', 'x64')),
     ('amd64', 'x86')   : ('vcvarsamd64_x86.bat',   ('bin', 'Hostx64', 'x86')),
@@ -368,16 +367,16 @@ _LE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS = {
 
 }
 
-_LE2022_HOST_TARGET_CFG = _host_target_config_factory(
+_EQ2022_HOST_TARGET_CFG = _host_target_config_factory(
 
-    label = 'LE2022',
+    label = 'EQ2022',
 
-    host_all_hosts = OrderedDict([
-        ('amd64', ['amd64', 'x86']),
-        ('x86',   ['x86']),
-        ('arm64', ['arm64', 'amd64', 'x86']),
-        ('arm',   ['x86']),
-    ]),
+    host_all_hosts = {
+        'amd64': ['amd64', 'x86'],
+        'x86':   ['x86'],
+        'arm64': ['arm64', 'amd64', 'x86'],
+        'arm':   ['x86'],
+    },
 
     host_all_targets = {
         'amd64': ['amd64', 'x86', 'arm64', 'arm'],
@@ -395,11 +394,11 @@ _LE2022_HOST_TARGET_CFG = _host_target_config_factory(
 
 )
 
-# debug("_LE2022_HOST_TARGET_CFG: %s", _LE2022_HOST_TARGET_CFG)
+# debug("_EQ2022_HOST_TARGET_CFG: %s", _EQ2022_HOST_TARGET_CFG)
 
 # 14.2 (VS2019) to 14.1 (VS2017)
 
-_LE2019_HOST_TARGET_BATCHFILE_CLPATHCOMPS = {
+_LE2019_GE2017_HOST_TARGET_BATCHFILE_CLPATHCOMPS = {
 
     ('amd64', 'amd64') : ('vcvars64.bat',          ('bin', 'Hostx64', 'x64')),
     ('amd64', 'x86')   : ('vcvarsamd64_x86.bat',   ('bin', 'Hostx64', 'x86')),
@@ -418,16 +417,16 @@ _LE2019_HOST_TARGET_BATCHFILE_CLPATHCOMPS = {
 
 }
 
-_LE2019_HOST_TARGET_CFG = _host_target_config_factory(
+_LE2019_GE2017_HOST_TARGET_CFG = _host_target_config_factory(
 
-    label = 'LE2019',
+    label = 'LE2019_GE2017',
 
-    host_all_hosts = OrderedDict([
-        ('amd64', ['amd64', 'x86']),
-        ('x86',   ['x86']),
-        ('arm64', ['amd64', 'x86']),
-        ('arm',   ['x86']),
-    ]),
+    host_all_hosts = {
+        'amd64': ['amd64', 'x86'],
+        'x86':   ['x86'],
+        'arm64': ['amd64', 'x86'],
+        'arm':   ['x86'],
+    },
 
     host_all_targets = {
         'amd64': ['amd64', 'x86', 'arm64', 'arm'],
@@ -445,7 +444,7 @@ _LE2019_HOST_TARGET_CFG = _host_target_config_factory(
 
 )
 
-# debug("_LE2019_HOST_TARGET_CFG: %s", _LE2019_HOST_TARGET_CFG)
+# debug("_LE2019_GE2017_HOST_TARGET_CFG: %s", _LE2019_GE2017_HOST_TARGET_CFG)
 
 # 14.0 (VS2015) to 10.0 (VS2010)
 
@@ -456,7 +455,7 @@ _LE2019_HOST_TARGET_CFG = _host_target_config_factory(
 # bin directory (i.e., <VSROOT>/VC/bin).  Any other tools are in subdirectory
 # named for the the host/target pair or a single name if the host==target.
 
-_LE2015_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS = {
+_LE2015_GE2010_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS = {
 
     ('amd64', 'amd64') : ('amd64',     'vcvars64.bat',         ('bin', 'amd64')),
     ('amd64', 'x86')   : ('amd64_x86', 'vcvarsamd64_x86.bat',  ('bin', 'amd64_x86')),
@@ -476,17 +475,17 @@ _LE2015_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS = {
 
 }
 
-_LE2015_HOST_TARGET_CFG = _host_target_config_factory(
+_LE2015_GE2010_HOST_TARGET_CFG = _host_target_config_factory(
 
-    label = 'LE2015',
+    label = 'LE2015_GE2010',
 
-    host_all_hosts = OrderedDict([
-        ('amd64', ['amd64', 'x86']),
-        ('x86',   ['x86']),
-        ('arm64', ['amd64', 'x86']),
-        ('arm',   ['arm']),
-        ('ia64',  ['ia64']),
-    ]),
+    host_all_hosts = {
+        'amd64': ['amd64', 'x86'],
+        'x86':   ['x86'],
+        'arm64': ['amd64', 'x86'],
+        'arm':   ['arm'],
+        'ia64':  ['ia64'],
+    },
 
     host_all_targets = {
         'amd64': ['amd64', 'x86', 'arm'],
@@ -506,11 +505,11 @@ _LE2015_HOST_TARGET_CFG = _host_target_config_factory(
 
 )
 
-# debug("_LE2015_HOST_TARGET_CFG: %s", _LE2015_HOST_TARGET_CFG)
+# debug("_LE2015_GE2010_HOST_TARGET_CFG: %s", _LE2015_GE2010_HOST_TARGET_CFG)
 
 # 9.0 (VS2008) to 8.0 (VS2005)
 
-_LE2008_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS = {
+_LE2008_GE2005_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS = {
 
     ('amd64', 'amd64') : ('amd64',     'vcvarsamd64.bat',      ('bin', 'amd64')),
     ('amd64', 'x86') :   ('x86',       'vcvars32.bat',         ('bin', )),
@@ -526,16 +525,16 @@ _LE2008_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS = {
 
 }
 
-_LE2008_HOST_TARGET_CFG = _host_target_config_factory(
+_LE2008_GE2005_HOST_TARGET_CFG = _host_target_config_factory(
 
-    label = 'LE2008',
+    label = 'LE2008_GE2005',
 
-    host_all_hosts = OrderedDict([
-        ('amd64', ['amd64', 'x86']),
-        ('x86',   ['x86']),
-        ('arm64', ['amd64', 'x86']),
-        ('ia64',  ['ia64']),
-    ]),
+    host_all_hosts = {
+        'amd64': ['amd64', 'x86'],
+        'x86':   ['x86'],
+        'arm64': ['amd64', 'x86'],
+        'ia64':  ['ia64'],
+    },
 
     host_all_targets = {
         'amd64': ['amd64', 'x86'],
@@ -553,7 +552,7 @@ _LE2008_HOST_TARGET_CFG = _host_target_config_factory(
 
 )
 
-# debug("_LE2008_HOST_TARGET_CFG: %s", _LE2008_HOST_TARGET_CFG)
+# debug("_LE2008_GE2005_HOST_TARGET_CFG: %s", _LE2008_GE2005_HOST_TARGET_CFG)
 
 # 7.1 (VS2003) and earlier
 
@@ -564,11 +563,11 @@ _LE2003_HOST_TARGET_CFG = _host_target_config_factory(
 
     label = 'LE2003',
 
-    host_all_hosts = OrderedDict([
-        ('amd64', ['x86']),
-        ('x86',   ['x86']),
-        ('arm64', ['x86']),
-    ]),
+    host_all_hosts = {
+        'amd64': ['x86'],
+        'x86':   ['x86'],
+        'arm64': ['x86'],
+    },
 
     host_all_targets = {
         'amd64': ['x86'],
@@ -668,16 +667,16 @@ def get_host_target(env, msvc_version, all_host_targets: bool=False):
         host_target_cfg = _GE2026_HOST_TARGET_CFG
     elif 145 > vernum_int >= 143:
         # 14.3 (VS2022)
-        host_target_cfg = _LE2022_HOST_TARGET_CFG
+        host_target_cfg = _EQ2022_HOST_TARGET_CFG
     elif 143 > vernum_int >= 141:
         # 14.2 (VS2019) to 14.1 (VS2017)
-        host_target_cfg = _LE2019_HOST_TARGET_CFG
+        host_target_cfg = _LE2019_GE2017_HOST_TARGET_CFG
     elif 141 > vernum_int >= 100:
         # 14.0 (VS2015) to 10.0 (VS2010)
-        host_target_cfg = _LE2015_HOST_TARGET_CFG
+        host_target_cfg = _LE2015_GE2010_HOST_TARGET_CFG
     elif 100 > vernum_int >= 80:
         # 9.0 (VS2008) to 8.0 (VS2005)
-        host_target_cfg = _LE2008_HOST_TARGET_CFG
+        host_target_cfg = _LE2008_GE2005_HOST_TARGET_CFG
     else: # 80 > vernum_int
         # 7.1 (VS2003) and earlier
         host_target_cfg = _LE2003_HOST_TARGET_CFG
@@ -1828,24 +1827,24 @@ def find_batch_file(msvc_version, host_arch, target_arch, pdir):
     elif 145 > vernum_int >= 143:
         # 14.3 (VS2022)
         batfiledir = os.path.join(pdir, "Auxiliary", "Build")
-        batfile, _ = _LE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
+        batfile, _ = _EQ2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
         batfilename = os.path.join(batfiledir, batfile)
         vcdir = pdir
     elif 143 > vernum_int >= 141:
         # 14.2 (VS2019) to 14.1 (VS2017)
         batfiledir = os.path.join(pdir, "Auxiliary", "Build")
-        batfile, _ = _LE2019_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
+        batfile, _ = _LE2019_GE2017_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
         batfilename = os.path.join(batfiledir, batfile)
         vcdir = pdir
     elif 141 > vernum_int >= 100:
         # 14.0 (VS2015) to 10.0 (VS2010)
-        arg, batfile, cl_path_comps = _LE2015_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
+        arg, batfile, cl_path_comps = _LE2015_GE2010_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
         batfilename = os.path.join(pdir, "vcvarsall.bat")
         depbat = os.path.join(pdir, *cl_path_comps, batfile)
         clexe = os.path.join(pdir, *cl_path_comps, _CL_EXE_NAME)
     elif 100 > vernum_int >= 80:
         # 9.0 (VS2008) to 8.0 (VS2005)
-        arg, batfile, cl_path_comps = _LE2008_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
+        arg, batfile, cl_path_comps = _LE2008_GE2005_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
         if vernum_int == 90 and MSVC.Kind.msvc_version_is_vcforpython(msvc_version):
             # 9.0 (VS2008) Visual C++ for Python:
             #     sdk batch files do not point to the VCForPython installation
@@ -1962,10 +1961,10 @@ def _check_files_exist_in_vc_dir(env, vc_dir, msvc_version) -> bool:
             host_target_batchfile_clpathcomps = _GE2026_HOST_TARGET_BATCHFILE_CLPATHCOMPS
         elif 145 > vernum_int >= 143:
             # 14.3 (VS2022)
-            host_target_batchfile_clpathcomps = _LE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS
+            host_target_batchfile_clpathcomps = _EQ2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS
         else:
             # 14.2 (VS2019) to 14.1 (VS2017)
-            host_target_batchfile_clpathcomps = _LE2019_HOST_TARGET_BATCHFILE_CLPATHCOMPS
+            host_target_batchfile_clpathcomps = _LE2019_GE2017_HOST_TARGET_BATCHFILE_CLPATHCOMPS
 
         for host_platform, target_platform in host_target_list:
 
@@ -1996,10 +1995,10 @@ def _check_files_exist_in_vc_dir(env, vc_dir, msvc_version) -> bool:
 
         if vernum_int >= 100:
             # 14.0 (VS2015) to 10.0 (VS2010)
-            host_target_batcharg_batchfile_clpathcomps = _LE2015_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS
+            host_target_batcharg_batchfile_clpathcomps = _LE2015_GE2010_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS
         else:
             # 9.0 (VS2008) to 8.0 (VS2005)
-            host_target_batcharg_batchfile_clpathcomps = _LE2008_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS
+            host_target_batcharg_batchfile_clpathcomps = _LE2008_GE2005_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS
 
         if vernum_int == 90 and MSVC.Kind.msvc_version_is_vcforpython(msvc_version):
             # 9.0 (VS2008) Visual C++ for Python:
