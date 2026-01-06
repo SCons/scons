@@ -91,6 +91,8 @@ DEVELOPMENT
 - Docbook tests: improve skip message, more clearly indicate which test
   need actual installed system programs (add -live suffix).
 
+- MSVC: Added a host/target batch file configuration table for Visual
+  Studio 2026.  Visual Studio 2026 removed support for 32-bit arm targets.
 
 
 Thanks to the following contributors listed below for their contributions to this release.

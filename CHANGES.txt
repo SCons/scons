@@ -15,6 +15,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From John Doe:
     - Whatever John Doe did.
 
+  From Joseph Brill:
+    - MSVC: Added a host/target batch file configuration table for Visual
+      Studio 2026.  Visual Studio 2026 removed support for 32-bit arm targets.
+
   From Thaddeus Crews:
     - Purge vim/emac local variable bloat.
     - Implement type hints for Node subclasses.
