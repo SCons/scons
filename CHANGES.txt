@@ -16,6 +16,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Whatever John Doe did.
 
   From Joseph Brill:
+    - Add possible build failure when targeting 32-bit arm using
+      Visual Studio 2022 with Windows SDK version 10.0.26100.0 or later
+      installed to the known issues in SCons/Tool/MSCommon/README.rst.
     - MSVC: Added a host/target batch file configuration table for Visual
       Studio 2026.  Visual Studio 2026 removed support for 32-bit arm targets.
 
