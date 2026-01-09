@@ -611,5 +611,5 @@ many contributors, including but not at all limited to:
 
 \... and many others.
 
-Copyright (c) 2001 - 2024 The SCons Foundation
+Copyright (c) 2001 - 2026 The SCons Foundation
 
