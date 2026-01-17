@@ -117,9 +117,7 @@ class TestRuntest(TestCommon):
         if 'program' not in kw:
             kw['program'] = 'runtest.py'
         if 'interpreter' not in kw:
-            kw['interpreter'] = [
-                python,
-            ]
+            kw['interpreter'] = [python]
         if 'match' not in kw:
             kw['match'] = match_exact
         if 'workdir' not in kw:
@@ -128,10 +126,7 @@ class TestRuntest(TestCommon):
         try:
             things_to_copy = kw['things_to_copy']
         except KeyError:
-            things_to_copy = [
-                'runtest.py',
-                'testing/framework',
-            ]
+            things_to_copy = ['runtest.py', 'testing/framework']
         else:
             del kw['things_to_copy']
 
@@ -158,7 +153,6 @@ class TestRuntest(TestCommon):
     def write_fake_scons_source_tree(self) -> None:
         os.mkdir('scripts')
         self.write('scripts/scons.py', fake_scons_py)
-
         os.mkdir('SCons')
         self.write('SCons/__init__.py', fake___init___py)
         os.mkdir('SCons/Script')

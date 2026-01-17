@@ -48,6 +48,9 @@ IMPROVEMENTS
   an override. Also, if override dict is empty, don't even call the
   Override factory function.
 
+- Test runner reworked to use Python logging; the portion of the test suite
+  which tests the runner was adjusted to match.
+
 PACKAGING
 ---------
 
