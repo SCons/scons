@@ -54,14 +54,14 @@ test.write(['src', 'SConscript'], SConscript_contents%{'HOST_ARCH': host_arch})
 test.run(arguments=".")
 
 dsp = test.read(['src', 'Test.dsp'], 'r')
-expect = test.msvs_substitute(expected_dspfile, '6.0', None, 'SConstruct')
+expect = test.msvs_substitute(expected_dspfile, '6.0', sconscript='SConstruct')
 # don't compare the pickled data
 assert dsp[:len(expect)] == expect, test.diff_substr(expect, dsp)
 
 test.must_exist(test.workpath('src', 'Test.dsw'))
 dsw = test.read(['src', 'Test.dsw'], 'r')
-expect = test.msvs_substitute(expected_dswfile, '6.0', 'src')
-assert dsw == expect, test.diff_substr(expect, dsw)
+expect = test.msvs_substitute(expected_dswfile, '6.0', subdir='src')
+assert dsw == expect, test.diff_substr(expect, subdir=dsw)
 
 test.must_match(['build', 'Test.dsp'], """\
 This is just a placeholder file.

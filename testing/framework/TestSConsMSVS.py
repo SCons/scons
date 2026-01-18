@@ -832,6 +832,48 @@ def get_tested_proj_file_vc_versions():
     return ['8.0', '9.0', '10.0', '11.0', '12.0', '14.0', '14.1', '14.2', '14.3']
 
 
+_exec_script_main_template = None
+
+def get_exec_script_main(scons_home=None):
+    """
+    Returns the python script string embedded in the msvs project files.
+    """
+    global _exec_script_main_template
+
+    scons_home = scons_home
+    os_scons_home = os.environ.get('SCONS_HOME')
+    os_scons_libdir = os.environ.get('SCONS_LIB_DIR')
+
+    if _exec_script_main_template is None:
+        _exec_script_main_template = "; ".join([
+            "from os.path import isdir, isfile, join",
+            "import os",
+            "import sys",
+            "sconslibs = lambda l: [p for p in l if p and isdir(p) and isfile(join(p, 'SCons', '__init__.py'))]",
+            "libspec = r'{scons_home}'",
+            "libspec = libspec if libspec else os.environ.get('SCONS_HOME', r'{os_scons_home}')",
+            "libspec = libspec if libspec else os.environ.get('SCONS_LIB_DIR', r'{os_scons_libdir}')",
+            "libs = [libspec] if libspec else sconslibs([r'{scons_genlib}'])",
+            "libs = libs if libs else sconslibs([join(sys.prefix, 'Lib', 'site-packages', 'scons-{scons_version}'), join(sys.prefix, 'scons-{scons_version}'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons'), join(sys.prefix, 'Lib', 'site-packages')])",
+            "sys.path = libs[:1] + sys.path if libs else sys.path",
+            # "print(f'libs = {{libs}}')",
+            # "print(f'sys.path = {{sys.path}}')",
+            "import SCons.Script",
+            "SCons.Script.main()",
+        ])
+
+    exec_script_main = _exec_script_main_template.format(
+        scons_home=os.path.abspath(scons_home) if scons_home else '',
+        os_scons_home=os.path.abspath(os_scons_home) if os_scons_home else '',
+        os_scons_libdir=os.path.abspath(os_scons_libdir) if os_scons_libdir else '',
+        scons_genlib=os.path.abspath(os.path.join(os.path.dirname(SCons.__file__), "..")),
+        scons_version=SCons.__version__,
+    )
+    # print("exec_script_main:\n", ' ' + '\n  '.join(exec_script_main.split("; ")))
+
+    return exec_script_main
+
+
 class TestSConsMSVS(TestSCons):
     """Subclass for testing MSVS-specific portions of SCons."""
 
@@ -875,12 +917,14 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         self,
         input,
         msvs_ver,
+        *,
         subdir=None,
         sconscript=None,
         python=None,
         project_guid=None,
         vcproj_sccinfo: str = '',
         sln_sccinfo: str = '',
+        scons_home=None,
     ):
         if not hasattr(self, '_msvs_versions'):
             self.msvs_versions()
@@ -899,10 +943,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         if project_guid is None:
             project_guid = PROJECT_GUID
 
-        if 'SCONS_LIB_DIR' in os.environ:
-            exec_script_main = f"from os.path import join; import sys; sys.path = [ r'{os.environ['SCONS_LIB_DIR']}' ] + sys.path; import SCons.Script; SCons.Script.main()"
-        else:
-            exec_script_main = f"from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-{self.scons_version}'), join(sys.prefix, 'scons-{self.scons_version}'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()"
+        exec_script_main = get_exec_script_main(scons_home=scons_home)
         exec_script_main_xml = exec_script_main.replace("'", "&apos;")
 
         result = input.replace(r'<WORKPATH>', workpath)
@@ -1149,6 +1190,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         solution_guid_2=None,
         vcproj_sccinfo: str = '',
         sln_sccinfo: str = '',
+        scons_home=None,
     ):
         if not hasattr(self, '_msvs_versions'):
             self.msvs_versions()
@@ -1176,10 +1218,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         if solution_guid_2 is None:
             solution_guid_2 = SOLUTION_GUID_2
 
-        if 'SCONS_LIB_DIR' in os.environ:
-            exec_script_main = f"from os.path import join; import sys; sys.path = [ r'{os.environ['SCONS_LIB_DIR']}' ] + sys.path; import SCons.Script; SCons.Script.main()"
-        else:
-            exec_script_main = f"from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-{self.scons_version}'), join(sys.prefix, 'scons-{self.scons_version}'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()"
+        exec_script_main = get_exec_script_main(scons_home=scons_home)
         exec_script_main_xml = exec_script_main.replace("'", "&apos;")
 
         result = input.replace(r'<WORKPATH>', workpath)

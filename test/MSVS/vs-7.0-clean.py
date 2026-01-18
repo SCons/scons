@@ -71,13 +71,13 @@ test.run(arguments=".")
 
 test.must_exist(test.workpath('Test.vcproj'))
 vcproj = test.read('Test.vcproj', 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '7.0', None, 'SConstruct')
+expect = test.msvs_substitute(expected_vcprojfile, '7.0', sconscript='SConstruct')
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
 test.must_exist(test.workpath('Test.sln'))
 sln = test.read('Test.sln', 'r')
-expect = test.msvs_substitute(expected_slnfile, '7.0', None, 'SConstruct')
+expect = test.msvs_substitute(expected_slnfile, '7.0', sconscript='SConstruct')
 # don't compare the pickled data
 assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 
