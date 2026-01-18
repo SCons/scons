@@ -152,25 +152,34 @@ def msvs_parse_version(s):
     num, suite = version_re.match(s).groups()
     return float(num), suite
 
-# This is how we re-invoke SCons from inside MSVS Project files.
-# The problem is that we might have been invoked as either scons.bat
-# or scons.py.  If we were invoked directly as scons.py, then we could
-# use sys.argv[0] to find the SCons "executable," but that doesn't work
-# if we were invoked as scons.bat, which uses "python -c" to execute
-# things and ends up with "-c" as sys.argv[0].  Consequently, we have
-# the MSVS Project file invoke SCons the same way that scons.bat does,
-# which works regardless of how we were invoked.
+
 def getExecScriptMain(env, xml=None):
+    """
+    This is how we re-invoke SCons from inside MSVS Project files.
+    The problem is that we might have been invoked as either scons.bat
+    or scons.py.  If we were invoked directly as scons.py, then we could
+    use sys.argv[0] to find the SCons "executable," but that doesn't work
+    if we were invoked as scons.bat, which uses "python -c" to execute
+    things and ends up with "-c" as sys.argv[0].  Consequently, we have
+    the MSVS Project file invoke SCons the same way that scons.bat does,
+    which works regardless of how we were invoked.
+
+    :param env: Environment to operate on
+    :param xml: Extra XML to add to generated MSVS project file
+    """
     if 'SCONS_HOME' not in env:
         env['SCONS_HOME'] = os.environ.get('SCONS_HOME')
     scons_home = env.get('SCONS_HOME')
     if not scons_home and 'SCONS_LIB_DIR' in os.environ:
         scons_home = os.environ['SCONS_LIB_DIR']
     if scons_home:
-        exec_script_main = "from os.path import join; import sys; sys.path = [ r'%s' ] + sys.path; import SCons.Script; SCons.Script.main()" % scons_home
+        exec_script_main = f"import sys; sys.path = [ r'{scons_home}' ] + sys.path; import SCons.Script; SCons.Script.main()"
     else:
         version = SCons.__version__
-        exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%(version)s'), join(sys.prefix, 'scons-%(version)s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % locals()
+        # *** ADDED SCONS PARENT PATH ***
+        scons_parent = os.path.abspath(os.path.join(os.path.dirname(SCons.__file__), ".."))
+        # *** ADDED SCONS PARENT PATH TO END OF THE PREFIX LIST ***
+        exec_script_main = f"import sys; sys.path = [ r'{scons_parent}' ] + sys.path; import SCons.Script; SCons.Script.main()"
     if xml:
         exec_script_main = xmlify(exec_script_main)
     return exec_script_main

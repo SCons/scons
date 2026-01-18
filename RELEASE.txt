@@ -48,6 +48,10 @@ IMPROVEMENTS
   an override. Also, if override dict is empty, don't even call the
   Override factory function.
 
+- MSVS: Fix msvs project file creation to work with scons-local packages, and with windows scoop.sh 
+  package manager installed SCons. (Based on work by Joseph Brill and Marcel Admiraal)
+
+
 PACKAGING
 ---------
 
