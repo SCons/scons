@@ -1,5 +1,3 @@
-# __COPYRIGHT__
-
 This directory contains timing configurations for SCons.
 
 Each configuration exists in a subdirectory.  The controlling script
