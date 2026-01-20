@@ -540,6 +540,7 @@ elif scons_lib_dir:
     # Because SCons is really aggressive about finding its modules,
     # it sometimes finds SCons modules elsewhere on the system.
     # This forces SCons to use the modules that are being tested.
+    testenv['SCONS_HOME'] = scons_lib_dir
     testenv['SCONS_LIB_DIR'] = scons_lib_dir
 
 if args.scons_exec:

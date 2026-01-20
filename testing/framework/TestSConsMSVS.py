@@ -38,6 +38,7 @@ in this subclass.
 import os
 import sys
 import platform
+import textwrap
 import traceback
 from xml.etree import ElementTree
 
@@ -841,33 +842,27 @@ def get_exec_script_main(scons_home=None):
     global _exec_script_main_template
 
     scons_home = scons_home
-    os_scons_home = os.environ.get('SCONS_HOME')
-    os_scons_libdir = os.environ.get('SCONS_LIB_DIR')
+    if not scons_home and 'SCONS_HOME' in os.environ:
+        scons_home = os.environ['SCONS_HOME']
+    if not scons_home and 'SCONS_LIB_DIR' in os.environ:
+        scons_home = os.environ['SCONS_LIB_DIR']
 
     if _exec_script_main_template is None:
-        _exec_script_main_template = "; ".join([
-            "from os.path import isdir, isfile, join",
-            "import os",
-            "import sys",
-            "sconslibs = lambda l: [p for p in l if p and isdir(p) and isfile(join(p, 'SCons', '__init__.py'))]",
-            "libspec = r'{scons_home}'",
-            "libspec = libspec if libspec else os.environ.get('SCONS_HOME', r'{os_scons_home}')",
-            "libspec = libspec if libspec else os.environ.get('SCONS_LIB_DIR', r'{os_scons_libdir}')",
-            "libs = [libspec] if libspec else sconslibs([r'{scons_genlib}'])",
-            "libs = libs if libs else sconslibs([join(sys.prefix, 'Lib', 'site-packages', 'scons-{scons_version}'), join(sys.prefix, 'scons-{scons_version}'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons'), join(sys.prefix, 'Lib', 'site-packages')])",
-            "sys.path = libs[:1] + sys.path if libs else sys.path",
-            # "print(f'libs = {{libs}}')",
-            # "print(f'sys.path = {{sys.path}}')",
-            "import SCons.Script",
-            "SCons.Script.main()",
-        ])
+        _exec_script_main_template = "; ".join(textwrap.dedent(
+            """\
+            import sys
+            scons_home = r'{scons_home}'
+            scons_path = r'{scons_path}'
+            scons_spec = scons_home if scons_home else scons_path
+            sys.path = [scons_spec] + sys.path
+            import SCons.Script
+            SCons.Script.main()
+            """
+        ).splitlines())
 
     exec_script_main = _exec_script_main_template.format(
         scons_home=os.path.abspath(scons_home) if scons_home else '',
-        os_scons_home=os.path.abspath(os_scons_home) if os_scons_home else '',
-        os_scons_libdir=os.path.abspath(os_scons_libdir) if os_scons_libdir else '',
-        scons_genlib=os.path.abspath(os.path.join(os.path.dirname(SCons.__file__), "..")),
-        scons_version=SCons.__version__,
+        scons_path=os.path.abspath(os.path.dirname(os.path.dirname(SCons.__file__))),
     )
     # print("exec_script_main:\n", ' ' + '\n  '.join(exec_script_main.split("; ")))
 

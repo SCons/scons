@@ -36,6 +36,7 @@ import os
 import pickle
 import re
 import sys
+import textwrap
 
 import SCons.Builder
 import SCons.Node.FS
@@ -152,50 +153,46 @@ def msvs_parse_version(s):
     num, suite = version_re.match(s).groups()
     return float(num), suite
 
-# This is how we re-invoke SCons from inside MSVS Project files.
-# The problem is that we might have been invoked as either scons.bat
-# or scons.py.  If we were invoked directly as scons.py, then we could
-# use sys.argv[0] to find the SCons "executable," but that doesn't work
-# if we were invoked as scons.bat, which uses "python -c" to execute
-# things and ends up with "-c" as sys.argv[0].  Consequently, we have
-# the MSVS Project file invoke SCons the same way that scons.bat does,
-# which works regardless of how we were invoked.
 _exec_script_main_template = None
 
 def getExecScriptMain(env, xml=None):
+    """
+    This is how we re-invoke SCons from inside MSVS Project files.
+    The problem is that we might have been invoked as either scons.bat
+    or scons.py.  If we were invoked directly as scons.py, then we could
+    use sys.argv[0] to find the SCons "executable," but that doesn't work
+    if we were invoked as scons.bat, which uses "python -c" to execute
+    things and ends up with "-c" as sys.argv[0].  Consequently, we have
+    the MSVS Project file invoke SCons the same way that scons.bat does,
+    which works regardless of how we were invoked.
+
+    :param env: Environment to operate on
+    :param xml: Extra XML to add to generated MSVS project file
+    """
     global _exec_script_main_template
 
-    scons_home = env.get('SCONS_HOME')
-    os_scons_home = os.environ.get('SCONS_HOME')
-    os_scons_libdir = os.environ.get('SCONS_LIB_DIR')
-
     if 'SCONS_HOME' not in env:
-        env['SCONS_HOME'] = os_scons_home
+        env['SCONS_HOME'] = os.environ.get('SCONS_HOME')
+    scons_home = env.get('SCONS_HOME')
+    if not scons_home and 'SCONS_LIB_DIR' in os.environ:
+        scons_home = os.environ['SCONS_LIB_DIR']
 
     if _exec_script_main_template is None:
-        _exec_script_main_template = "; ".join([
-            "from os.path import isdir, isfile, join",
-            "import os",
-            "import sys",
-            "sconslibs = lambda l: [p for p in l if p and isdir(p) and isfile(join(p, 'SCons', '__init__.py'))]",
-            "libspec = r'{scons_home}'",
-            "libspec = libspec if libspec else os.environ.get('SCONS_HOME', r'{os_scons_home}')",
-            "libspec = libspec if libspec else os.environ.get('SCONS_LIB_DIR', r'{os_scons_libdir}')",
-            "libs = [libspec] if libspec else sconslibs([r'{scons_genlib}'])",
-            "libs = libs if libs else sconslibs([join(sys.prefix, 'Lib', 'site-packages', 'scons-{scons_version}'), join(sys.prefix, 'scons-{scons_version}'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons'), join(sys.prefix, 'Lib', 'site-packages')])",
-            "sys.path = libs[:1] + sys.path if libs else sys.path",
-            # "print(f'libs = {{libs}}')",
-            # "print(f'sys.path = {{sys.path}}')",
-            "import SCons.Script",
-            "SCons.Script.main()",
-        ])
+        _exec_script_main_template = "; ".join(textwrap.dedent(
+            """\
+            import sys
+            scons_home = r'{scons_home}'
+            scons_path = r'{scons_path}'
+            scons_spec = scons_home if scons_home else scons_path
+            sys.path = [scons_spec] + sys.path
+            import SCons.Script
+            SCons.Script.main()
+            """
+        ).splitlines())
 
     exec_script_main = _exec_script_main_template.format(
         scons_home=os.path.abspath(scons_home) if scons_home else '',
-        os_scons_home=os.path.abspath(os_scons_home) if os_scons_home else '',
-        os_scons_libdir=os.path.abspath(os_scons_libdir) if os_scons_libdir else '',
-        scons_genlib=os.path.abspath(os.path.join(os.path.dirname(SCons.__file__), "..")),
-        scons_version=SCons.__version__,
+        scons_path=os.path.abspath(os.path.dirname(os.path.dirname(SCons.__file__))),
     )
     # print("exec_script_main:\n", ' ' + '\n  '.join(exec_script_main.split("; ")))
 
@@ -208,18 +205,13 @@ def getExecScriptMain(env, xml=None):
 # is either sys.executable or, if an external PYTHON_ROOT environment
 # variable exists, $(PYTHON)ROOT\\python.exe (generalized a little to
 # pluck the actual executable name from sys.executable).
-
-def getPythonExecutable(env):
-    pyhead, pytail = os.path.split(sys.executable)
-    pyroot = env.get('PYTHON_ROOT')
-    if not pyroot:
-        pyroot = os.environ.get('PYTHON_ROOT')
-        if pyroot:
-            pyroot = '$$(PYTHON_ROOT)'
-    if not pyroot:
-        pyroot = pyhead
-    pyexe = os.path.join(pyroot, pytail)
-    return pyexe
+try:
+    python_root = os.environ['PYTHON_ROOT']
+except KeyError:
+    python_executable = sys.executable
+else:
+    python_executable = os.path.join('$$(PYTHON_ROOT)',
+                                     os.path.split(sys.executable)[1])
 
 class Config:
     pass
@@ -2181,7 +2173,7 @@ def generate(env) -> None:
     # MSVSSCONSFLAGS. This helps support consumers who use wrapper scripts to
     # invoke scons.
     if 'MSVSSCONS' not in env:
-        env['MSVSSCONS'] = '"%s" -c "%s"' % (getPythonExecutable(env), getExecScriptMain(env))
+        env['MSVSSCONS'] = '"%s" -c "%s"' % (python_executable, getExecScriptMain(env))
     if 'MSVSSCONSFLAGS' not in env:
         env['MSVSSCONSFLAGS'] = '-C "${MSVSSCONSCRIPT.dir.get_abspath()}" -f ${MSVSSCONSCRIPT.name}'
 
