@@ -27,6 +27,8 @@ import sys
 import tempfile
 import threading
 import time
+from dataclasses import dataclass
+from datetime import datetime
 from abc import ABC, abstractmethod
 from io import StringIO
 from pathlib import Path, PurePath, PureWindowsPath
@@ -44,6 +46,24 @@ Environment Variables:
   PRESERVE, PRESERVE_{PASS,FAIL,NO_RESULT}: preserve test subdirs
   TESTCMD_VERBOSE: turn on verbosity in TestCommand\
 """
+
+@dataclass
+class Summary:
+    """The overall results of the test run.
+
+    This exists to collect what would otherwise be a bunch of globals
+    into one place. Things the report printers want should be added here.
+    """
+
+    time_start: datetime
+    total_time: float = 0.0
+    total_num_tests: int = 0
+    jobs: int = 1
+    passed: list[str] | None = None
+    failed: list[str] | None = None
+    no_result: list[str] | None = None
+
+stats = Summary(time_start=datetime.now())
 
 # this is currently expected to be global, maybe refactor later?
 unittests: list[str]
@@ -85,7 +105,7 @@ parser.add_argument('-e', '--external', action='store_true',
                     help="Run the script in external mode (for external Tools)")
 
 def posint(arg: str) -> int:
-    """Special positive-int type for argparse"""
+    """Special positive-int type for :mod:`argparse`"""
     num = int(arg)
     if num < 0:
         raise argparse.ArgumentTypeError("JOBS value must not be negative")
@@ -121,9 +141,7 @@ parser.add_argument('--no-faillog', dest='error_log',
                     default='failed_tests.log',
                     help="Do not log failed tests to a file")
 
-parser.add_argument('--no-ignore-skips', dest='dont_ignore_skips',
-                    action='store_true',
-                    default=False,
+parser.add_argument('--no-ignore-skips', action='store_true', default=False,
                     help="If any tests are skipped, exit status 2")
 
 outctl = parser.add_argument_group(description='Output control options:')
@@ -402,7 +420,7 @@ class RuntestBase(ABC):
         self.abspath = path.absolute()
         self.command_args = []
         self.command_str = ""
-        self.test_time = self.total_time = 0
+        self.test_time = 0.0
         if spe:
             for d in spe:
                 f = os.path.join(d, path)
@@ -493,7 +511,7 @@ class XML(PopenExecutor):
         f.write('    </test>\n')
 
     def footer(self, f):
-        f.write('  <time>%.1f</time>\n' % self.total_time)
+        f.write('  <time>%.1f</time>\n' % stats.total_time)
         f.write('  </results>\n')
 
 if args.xml:
@@ -702,6 +720,7 @@ error: no tests matching the specification were found.
 
 # ---[ Test Processing ]-----------------------------------
 tests = [Test(t) for t in tests]
+stats.total_num_tests = len(tests)
 
 if args.list_only:
     for t in tests:
@@ -724,11 +743,6 @@ else:
 
     def print_time(fmt, tm):
         pass
-
-time_func = time.perf_counter
-total_start_time = time_func()
-total_num_tests = len(tests)
-
 
 def log_result(t, io_lock=None):
     """ log the result of a test.
@@ -794,8 +808,8 @@ def run_test(t, io_lock=None, run_async=True):
     if args.printcommand:
         if args.print_progress:
             t.headline += (
-                f"{t.testno}/{total_num_tests} "
-                f"({t.testno / total_num_tests:7.2%}) {t.command_str}\n"
+                f"{t.testno}/{stats.total_num_tests} "
+                f"({t.testno / stats.total_num_tests:7.2%}) {t.command_str}\n"
             )
         else:
             t.headline += t.command_str + "\n"
@@ -811,14 +825,14 @@ def run_test(t, io_lock=None, run_async=True):
     # Set the list of fixture dirs directly in the environment. Just putting
     # it in os.environ and spawning the process is racy. Make it reliable by
     # overriding the environment passed to execute().
-    env = dict(os.environ)
+    env = os.environ.copy()
     env['FIXTURE_DIRS'] = os.pathsep.join(fixture_dirs)
 
-    test_start_time = time_func()
+    test_start_time: float = time.perf_counter()
     if args.execute_tests:
         t.execute(env)
 
-    t.test_time = time_func() - test_start_time
+    t.test_time = time.perf_counter() - test_start_time
     log_result(t, io_lock=io_lock)
 
 
@@ -856,43 +870,45 @@ else:
         run_test(t, io_lock=None, run_async=False)
 
 # --- all tests are complete by the time we get here ---
-if tests:
-    tests[0].total_time = time_func() - total_start_time
-    print_time("Total execution time for all tests: %.1f seconds", tests[0].total_time)
+if not tests:
+    sys.exit(0)
 
-passed = [t for t in tests if t.status == 0]
-fail = [t for t in tests if t.status == 1]
-no_result = [t for t in tests if t.status == 2]
+stats.total_time = (datetime.now() - stats.time_start).total_seconds()
+stats.passed = [t for t in tests if t.status == 0]
+stats.failed = [t for t in tests if t.status == 1]
+stats.no_result = [t for t in tests if t.status == 2]
 
-# print summaries, but only if multiple tests were run
-if len(tests) != 1 and args.execute_tests:
-    if passed and args.print_passed_summary:
-        if len(passed) == 1:
+print_time("Total execution time for all tests: %.1f seconds", stats.total_time)
+
+# print category summaries (skip if only one test run)
+if args.execute_tests and stats.total_num_tests > 1:
+    if stats.passed and args.print_passed_summary:
+        if len(stats.passed) == 1:
             sys.stdout.write("\nPassed the following test:\n")
         else:
-            sys.stdout.write("\nPassed the following %d tests:\n" % len(passed))
-        paths = [x.path for x in passed]
+            sys.stdout.write("\nPassed the following %d tests:\n" % len(stats.passed))
+        paths = [x.path for x in stats.passed]
         sys.stdout.write("\t" + "\n\t".join(paths) + "\n")
-    if fail:
-        if len(fail) == 1:
+    if stats.failed:
+        if len(stats.failed) == 1:
             sys.stdout.write("\nFailed the following test:\n")
         else:
-            sys.stdout.write("\nFailed the following %d tests:\n" % len(fail))
-        paths = [x.path for x in fail]
+            sys.stdout.write("\nFailed the following %d tests:\n" % len(stats.failed))
+        paths = [x.path for x in stats.failed]
         sys.stdout.write("\t" + "\n\t".join(paths) + "\n")
-    if no_result:
-        if len(no_result) == 1:
+    if stats.no_result:
+        if len(stats.no_result) == 1:
             sys.stdout.write("\nNO RESULT from the following test:\n")
         else:
-            sys.stdout.write("\nNO RESULT from the following %d tests:\n" % len(no_result))
-        paths = [x.path for x in no_result]
+            sys.stdout.write("\nNO RESULT from the following %d tests:\n" % len(stats.no_result))
+        paths = [x.path for x in stats.no_result]
         sys.stdout.write("\t" + "\n\t".join(paths) + "\n")
 
 # save the fails to a file
 if args.error_log:
     with open(args.error_log, "w") as f:
-        if fail:
-            paths = [x.path for x in fail]
+        if stats.failed:
+            paths = [x.path for x in stats.failed]
             for test in paths:
                 print(test, file=f)
         # if there are no fails, file will be cleared
@@ -917,9 +933,9 @@ if args.output:
     if isinstance(sys.stderr, Tee):
         sys.stderr.file.close()
 
-if fail:
+if stats.failed:
     sys.exit(1)
-elif no_result and args.dont_ignore_skips:
+elif stats.no_result and args.no_ignore_skips:
     # if no fails, but skips were found
     sys.exit(2)
 else:
