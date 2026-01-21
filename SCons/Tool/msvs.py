@@ -180,12 +180,16 @@ def getExecScriptMain(env, xml=None):
     if _exec_script_main_template is None:
         _exec_script_main_template = "; ".join(textwrap.dedent(
             """\
+            import os.path
             import sys
             scons_home = r'{scons_home}'
             scons_path = r'{scons_path}'
             scons_spec = scons_home if scons_home else scons_path
-            sys.path = [scons_spec] + sys.path
+            have_scons = bool(scons_spec and os.path.isdir(scons_spec) and os.path.isfile(os.path.join(scons_spec, 'SCons', '__init__.py')))
+            sys.path = [scons_spec] + sys.path if have_scons else sys.path
+            _ = None if have_scons else print(f'python: *** ATTENTION: SCons was not found at the generated path location (\\\'{{scons_spec}}\\\'). ***')
             import SCons.Script
+            _ = None if have_scons else print(f'python: *** ATTENTION: SCons was found on the python system path (\\\'{{os.path.dirname(os.path.dirname(SCons.__file__))}}\\\'). ***')
             SCons.Script.main()
             """
         ).splitlines())
