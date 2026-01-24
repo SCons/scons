@@ -177,26 +177,101 @@ def getExecScriptMain(env, xml=None):
     if not scons_home and 'SCONS_LIB_DIR' in os.environ:
         scons_home = os.environ['SCONS_LIB_DIR']
 
+    if scons_home is None:
+        scons_home = ''
+
+    scons_abspath = os.path.abspath(os.path.dirname(os.path.dirname(SCons.__file__)))
+
+    def _in_pytree(scons_abspath):
+        scons_norm = os.path.normcase(scons_abspath)
+        for py_prefix in [sys.prefix]:  # sys.exec_prefix also on windows?
+            py_norm = os.path.normcase(os.path.abspath(py_prefix))
+            try:
+                common = os.path.commonpath([py_norm, scons_norm])
+                if common == py_norm:
+                    return True
+                break
+            except ValueError:
+                pass
+        return False
+
+    in_pytree = _in_pytree(scons_abspath)
+    # print(f"in_pytree={in_pytree}, scons_abspath=`{scons_abspath}', sys.prefix='{sys.prefix}', sys.exec_prefix='{sys.exec_prefix}'")
+
+    if in_pytree:
+        scons_abspath = ''
+
     if _exec_script_main_template is None:
-        _exec_script_main_template = "; ".join(textwrap.dedent(
+        _exec_script_main_template = "; ".join([line for block in [textwrap.dedent(s).splitlines() for s in [
+            # Import libraries and functions.
             """\
-            import os.path
+            import importlib.util
             import sys
-            scons_home = r'{scons_home}'
-            scons_path = r'{scons_path}'
-            scons_spec = scons_home if scons_home else scons_path
-            have_scons = bool(scons_spec and os.path.isdir(scons_spec) and os.path.isfile(os.path.join(scons_spec, 'SCons', '__init__.py')))
-            sys.path = [scons_spec] + sys.path if have_scons else sys.path
-            _ = None if have_scons else print(f'python: *** ATTENTION: SCons was not found at the generated path location (\\\'{{scons_spec}}\\\'). ***')
+            from os.path import abspath, dirname, isdir, isfile, join, normcase, realpath
+            """,
+            # Initialize the generated paths:
+            # * convert scons_home to an absolute path,
+            # * clear scons_abspath when equal to the scons_home absolute path.
+            """\
+            usrinit = lambda p: abspath(p) if p else p
+            geninit = lambda p, u: '' if (p and u and normcase(p) == normcase(u)) else p
+            usr_path = usrinit(r'{scons_home}')
+            gen_path = geninit(r'{scons_abspath}', usr_path)
+            """,
+            # Evaluate candidate lists:
+            # 1. If scons_home is defined:
+            #    * Record scons_home as found iff the path contains SCons.
+            #    * Stop evaluating remaining alternatives.
+            # 2. If scons_abspath is defined:
+            #    * Record scons_abspath as found iff the path contains SCons.
+            #    * Stop evaluating remaining alternatives.
+            # 3. Evaluate known library locations:
+            #    * Record the first library path that contains SCons as found.
+            """\
+            state = {{}}
+            isvalid = lambda p: p and isdir(p) and isfile(join(p, 'SCons', '__init__.py'))
+            store = lambda k, l, s: {{k: l[0], 'Found': l[0], 'Stop': True}} if l else {{k: '', 'Stop': s}}
+            check = lambda k, l, s: state.update(store(k, [p for p in l if isvalid(p)], s)) if not state.get('Stop') else None
+            _ = [check(k, l, s) for k, l, s in [('usr', [usr_path], bool(usr_path)), ('gen', [gen_path], bool(gen_path)), ('lib', [join(sys.prefix, *t) for t in [('Lib', 'site-packages', 'scons-{scons_version}'), ('scons-{scons_version}',), ('Lib', 'site-packages', 'scons'), ('scons',), ('Lib', 'site-packages')]], False)]]
+            """,
+            # If an SCons module path was found, add the path to the front of
+            # the sys.path list.
+            """\
+            path = state.get('Found', '')
+            _  = sys.path.insert(0, path) if path else None
+            """,
+            # Use importlib to find the SCons module path prior to import.
+            # Add a valid module spec origin path to the front of the sys.path list if:
+            # * a module path was not found earlier, or
+            # * the module spec origin path is different than the module
+            #   path found earlier.
+            """\
+            spec = importlib.util.find_spec('SCons')
+            orig = dirname(dirname(abspath(spec.origin))) if (spec and spec.origin) else ''
+            syspath = orig and (not path or normcase(abspath(path)) != normcase(orig))
+            _ = sys.path.insert(0, orig) if syspath else None
+            """,
+            # Display diagnostic messages.
+            """\
+            _ = print(f'proj: *** SCons not found at user path \\\'{{usr_path}}\\\'. ***') if (usr_path and state.get('usr') == '') else None
+            _ = print(f'proj: *** SCons not found at generated path \\\'{{gen_path}}\\\' ***.') if (gen_path and state.get('gen') == '') else None
+            _ = print( 'proj: *** SCons not found. ***') if (not orig) else None
+            """,
+            # Display SCons module path (if found).
+            """\
+            _ = print(f'proj: Using SCons path \\\'{{orig}}\\\' (realpath=\\\'{{realpath(orig)}}\\\', syspath={{syspath}}).') if (orig) else None
+            """,
+            # Import SCons and run main script.
+            """\
             import SCons.Script
-            _ = None if have_scons else print(f'python: *** ATTENTION: SCons was found on the python system path (\\\'{{os.path.dirname(os.path.dirname(SCons.__file__))}}\\\'). ***')
             SCons.Script.main()
-            """
-        ).splitlines())
+            """,
+        ]] for line in block])
 
     exec_script_main = _exec_script_main_template.format(
-        scons_home=os.path.abspath(scons_home) if scons_home else '',
-        scons_path=os.path.abspath(os.path.dirname(os.path.dirname(SCons.__file__))),
+        scons_home=scons_home,
+        scons_abspath=scons_abspath,
+        scons_version=SCons.__version__,
     )
     # print("exec_script_main:\n", ' ' + '\n  '.join(exec_script_main.split("; ")))
 
