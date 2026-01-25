@@ -53,6 +53,19 @@ from SCons.Tool.MSCommon import (
 
 tool_name = 'msvs'
 
+
+# The string for the Python executable we tell the Project file to use
+# is either sys.executable or, if an external PYTHON_ROOT environment
+# variable exists, $(PYTHON)ROOT\\python.exe (generalized a little to
+# pluck the actual executable name from sys.executable).
+try:
+    python_root = os.environ['PYTHON_ROOT']
+except KeyError:
+    python_executable = sys.executable
+else:
+    python_executable = os.path.join('$$(PYTHON_ROOT)',
+                                     os.path.split(sys.executable)[1])
+    
 ##############################################################################
 # Below here are the classes and functions for generation of
 # DSP/DSW/SLN/VCPROJ files.
@@ -152,40 +165,30 @@ def msvs_parse_version(s):
     num, suite = version_re.match(s).groups()
     return float(num), suite
 
-# This is how we re-invoke SCons from inside MSVS Project files.
-# The problem is that we might have been invoked as either scons.bat
-# or scons.py.  If we were invoked directly as scons.py, then we could
-# use sys.argv[0] to find the SCons "executable," but that doesn't work
-# if we were invoked as scons.bat, which uses "python -c" to execute
-# things and ends up with "-c" as sys.argv[0].  Consequently, we have
-# the MSVS Project file invoke SCons the same way that scons.bat does,
-# which works regardless of how we were invoked.
-def getExecScriptMain(env, xml=None):
-    if 'SCONS_HOME' not in env:
-        env['SCONS_HOME'] = os.environ.get('SCONS_HOME')
-    scons_home = env.get('SCONS_HOME')
-    if not scons_home and 'SCONS_LIB_DIR' in os.environ:
-        scons_home = os.environ['SCONS_LIB_DIR']
-    if scons_home:
-        exec_script_main = "from os.path import join; import sys; sys.path = [ r'%s' ] + sys.path; import SCons.Script; SCons.Script.main()" % scons_home
-    else:
-        version = SCons.__version__
-        exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%(version)s'), join(sys.prefix, 'scons-%(version)s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % locals()
+
+def get_msvs_scons(env, xml=None):
+    """
+    This is how we re-invoke SCons from inside MSVS Project files.
+
+    Simplifying old logic.
+    Now there are two paths:
+    1 - MSVS_SCONS is set in env (or os.environ) us that scons.py
+    2 - otherwise we use the current running scons.py which is
+        available in SCons.Script.Main.SCONS_SCRIPT_PATH
+    """
+    if 'MSVS_SCONS' not in env:
+        env['MSVS_SCONS'] = os.environ.get('MSVS_SCONS')
+    scons_script_path = env.get('MSVS_SCONS')
+    if not scons_script_path:
+        scons_script_path = SCons.Script.Main.SCONS_SCRIPT_PATH
+
+    exec_script_main = f'"{python_executable}" "{scons_script_path}"'
+
     if xml:
         exec_script_main = xmlify(exec_script_main)
     return exec_script_main
 
-# The string for the Python executable we tell the Project file to use
-# is either sys.executable or, if an external PYTHON_ROOT environment
-# variable exists, $(PYTHON)ROOT\\python.exe (generalized a little to
-# pluck the actual executable name from sys.executable).
-try:
-    python_root = os.environ['PYTHON_ROOT']
-except KeyError:
-    python_executable = sys.executable
-else:
-    python_executable = os.path.join('$$(PYTHON_ROOT)',
-                                     os.path.split(sys.executable)[1])
+
 
 class Config:
     pass
@@ -2147,7 +2150,7 @@ def generate(env) -> None:
     # MSVSSCONSFLAGS. This helps support consumers who use wrapper scripts to
     # invoke scons.
     if 'MSVSSCONS' not in env:
-        env['MSVSSCONS'] = '"%s" -c "%s"' % (python_executable, getExecScriptMain(env))
+        env['MSVSSCONS'] = get_msvs_scons(env)
     if 'MSVSSCONSFLAGS' not in env:
         env['MSVSSCONSFLAGS'] = '-C "${MSVSSCONSCRIPT.dir.get_abspath()}" -f ${MSVSSCONSCRIPT.name}'
 

@@ -30,6 +30,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Deegan:
     - Fix SCons Docbook schema to work with lxml > 5
     - Update pyproject.toml to support Python 3.14 and remove restrictions on lxml version install
+    - MSVS: Fix msvs project file creation to work with scons-local packages, and with windows scoop.sh 
+      package manager installed SCons. (Based on work by Joseph Brill and Marcel Admiraal)
 
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
