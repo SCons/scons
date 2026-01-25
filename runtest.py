@@ -178,6 +178,7 @@ def posint(arg: str) -> int:
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command line arguments."""
     script = PurePath(sys.argv[0]).name
     usagestr = f"{script} [OPTIONS] [TEST ...]"
     epilogstr = """
@@ -381,6 +382,7 @@ def find_e2e_tests(directory: Path) -> list[Path]:
     return sorted(result)
 
 def setup_logging(args: argparse.Namespace, stats: Summary):
+    """Set up logging to console and file."""
     logger = logging.getLogger("runtest.console")
     logger.setLevel(logging.DEBUG)
     
@@ -554,79 +556,10 @@ class TestRunner(threading.Thread):
             run_test(test, self.context)
             self.queue.task_done()
 
-def discover_tests(args: argparse.Namespace, parser: argparse.ArgumentParser) -> tuple[list[Path], list[Path]]:
-    """
-    Discover tests based on arguments.
-    Returns a tuple of (tests, unittests) where:
-    - tests is the list of tests to run (after filtering)
-    - unittests is the list of discovered unit tests (used for runner identification)
-    """
-    unittests = []
-    endtests = []
-    
-    if args.testlistfile:
-        tests = scanlist(args.testlistfile)
-    else:
-        testpaths = []
-        if args.all:
-            testpaths = [Path('SCons'), Path('test')]
-        elif args.testlist:
-            testpaths = [Path(PureWindowsPath(t)) for t in args.testlist]
-
-        for path in testpaths:
-            # Clean up path removing leading ./ or .\
-            # Path(str) cleans simple ./ but let's ensure
-            if str(path).startswith('.') and len(str(path)) > 1 and str(path)[1] in (os.sep, os.altsep or '/') :
-                path = Path(str(path)[2:])
-            
-            if path.exists():
-                if path.is_dir():
-                    parts = path.parts
-                    if parts[0] == "SCons" or parts[0] == "testing":
-                        unittests.extend(find_unit_tests(path))
-                    elif parts[0] == 'test':
-                        endtests.extend(find_e2e_tests(path))
-                    elif args.external and 'test' in parts:
-                         endtests.extend(find_e2e_tests(path))
-                else:
-                    if path.match("*Tests.py"):
-                        unittests.append(path)
-                    elif path.match("*.py"):
-                        endtests.append(path)
-
-        tests = sorted(unittests + endtests)
-
-    # Remove exclusions
-    if args.e2e_only:
-        tests = [t for t in tests if not t.match("*Tests.py")]
-    if args.unit_only:
-        tests = [t for t in tests if t.match("*Tests.py")]
-    if args.excludelistfile:
-        excludetests = scanlist(args.excludelistfile)
-        tests = [t for t in tests if t not in excludetests]
-
-    if not tests:
-        sys.stderr.write(parser.format_usage() + """
-error: no tests matching the specification were found.
-       See "Test selection options" in the help for details on
-       how to specify and/or exclude tests.
-""")
-        sys.exit(1)
-
-    return tests, unittests
-
-def main():
-    args, parser = parse_args()
-    stats = Summary(jobs=args.jobs)
-    
-    logger, xml_logger = setup_logging(args, stats)
-
+def setup_env(args: argparse.Namespace) -> None:
+    """Set up the execution environment (environment variables, paths)."""
     if args.verbose:
         os.environ['TESTCMD_VERBOSE'] = str(args.verbose)
-
-    debug = None
-    if args.debug:
-        debug = "pdb"
 
     cwd = Path.cwd()
     
@@ -698,18 +631,69 @@ def main():
     if '_JAVA_OPTIONS' in os.environ:
         del os.environ['_JAVA_OPTIONS']
 
-    # --- Test Discovery ---
-    tests, unittests = discover_tests(args, parser)
+def discover_tests(args: argparse.Namespace, parser: argparse.ArgumentParser) -> tuple[list[Path], list[Path]]:
+    """
+    Discover tests based on arguments.
+    Returns a tuple of (tests, unittests) where:
+    - tests is the list of tests to run (after filtering)
+    - unittests is the list of discovered unit tests (used for runner identification)
+    """
+    unittests = []
+    endtests = []
+    
+    if args.testlistfile:
+        tests = scanlist(args.testlistfile)
+    else:
+        testpaths = []
+        if args.all:
+            testpaths = [Path('SCons'), Path('test')]
+        elif args.testlist:
+            testpaths = [Path(PureWindowsPath(t)) for t in args.testlist]
 
-    # Wrap tests
-    test_objects = [Test(t) for t in tests]
-    stats.total_num_tests = len(test_objects)
+        for path in testpaths:
+            # Clean up path removing leading ./ or .\
+            # Path(str) cleans simple ./ but let's ensure
+            if str(path).startswith('.') and len(str(path)) > 1 and str(path)[1] in (os.sep, os.altsep or '/') :
+                path = Path(str(path)[2:])
+            
+            if path.exists():
+                if path.is_dir():
+                    parts = path.parts
+                    if parts[0] == "SCons" or parts[0] == "testing":
+                        unittests.extend(find_unit_tests(path))
+                    elif parts[0] == 'test':
+                        endtests.extend(find_e2e_tests(path))
+                    elif args.external and 'test' in parts:
+                         endtests.extend(find_e2e_tests(path))
+                else:
+                    if path.match("*Tests.py"):
+                        unittests.append(path)
+                    elif path.match("*.py"):
+                        endtests.append(path)
 
-    if args.list_only:
-        for t in test_objects:
-            print(t.path)
-        sys.exit(0)
+        tests = sorted(unittests + endtests)
 
+    # Remove exclusions
+    if args.e2e_only:
+        tests = [t for t in tests if not t.match("*Tests.py")]
+    if args.unit_only:
+        tests = [t for t in tests if t.match("*Tests.py")]
+    if args.excludelistfile:
+        excludetests = scanlist(args.excludelistfile)
+        tests = [t for t in tests if t not in excludetests]
+
+    if not tests:
+        sys.stderr.write(parser.format_usage() + """
+error: no tests matching the specification were found.
+       See "Test selection options" in the help for details on
+       how to specify and/or exclude tests.
+""")
+        sys.exit(1)
+
+    return tests, unittests
+
+def create_run_context(args, stats, logger, unittests):
+    """Create the run context object."""
     # Determine Python executable
     if not args.python:
         if os.name == 'java':
@@ -718,9 +702,11 @@ def main():
             args.python = sys.executable
     os.environ["python_executable"] = args.python
     stats.python = args.python
+    
+    scriptpath = Path(__file__).resolve().parent
+    debug = "pdb" if args.debug else None
 
-    # Create Context
-    context = RunContext(
+    return RunContext(
         args=args,
         stats=stats,
         logger=logger,
@@ -729,28 +715,34 @@ def main():
         debug=debug
     )
 
-    # --- Execution ---
-    if args.jobs == 1:
+def execute_tests(test_objects: list[Test], context: RunContext) -> None:
+    """Execute the identified tests."""
+    if context.args.jobs == 1:
         for test in test_objects:
             run_test(test, context)
     else:
-        logger.info("Running tests using %d jobs", stats.jobs)
+        context.logger.info("Running tests using %d jobs", context.stats.jobs)
         testq = Queue()
         for test in test_objects:
             testq.put(test)
         
         # Add None markers to stop threads
-        for _ in range(args.jobs):
+        for _ in range(context.args.jobs):
             testq.put(None)
 
-        threads = [TestRunner(queue=testq, context=context) for _ in range(args.jobs)]
+        threads = [TestRunner(queue=testq, context=context) for _ in range(context.args.jobs)]
         for thread in threads:
             thread.start()
         
         for thread in threads:
             thread.join()
 
-    # --- Summary ---
+def report_results(context: RunContext, test_objects: list[Test], xml_logger: logging.Logger) -> None:
+    """Report the results of the test run."""
+    stats = context.stats
+    args = context.args
+    logger = context.logger
+
     if not test_objects:
         sys.exit(0)
 
@@ -812,6 +804,29 @@ def main():
         sys.exit(2)
     else:
         sys.exit(0)
+
+def main():
+    """Main entry point for runtest."""
+    args, parser = parse_args()
+    stats = Summary(jobs=args.jobs)
+    logger, xml_logger = setup_logging(args, stats)
+    
+    setup_env(args)
+    
+    tests, unittests = discover_tests(args, parser)
+    test_objects = [Test(t) for t in tests]
+    
+    if args.list_only:
+        for t in test_objects:
+            print(t.path)
+        sys.exit(0)
+
+    stats.total_num_tests = len(test_objects)
+    
+    context = create_run_context(args, stats, logger, unittests)
+    
+    execute_tests(test_objects, context)
+    report_results(context, test_objects, xml_logger)
 
 if __name__ == "__main__":
     main()
