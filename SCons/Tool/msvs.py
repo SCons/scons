@@ -170,7 +170,7 @@ def get_msvs_scons(env, xml=None):
         scons_script_path = SCons.Script.Main.SCONS_SCRIPT_PATH
 
 
-    exec_script_main = f"{python_executable}  {scons_script_path}"
+    exec_script_main = f'"{python_executable}"  "{scons_script_path}"'
 
     if xml:
         exec_script_main = xmlify(exec_script_main)
