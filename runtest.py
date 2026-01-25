@@ -332,7 +332,7 @@ Environment Variables:
         )
         sys.exit(1)
 
-    return args
+    return args, parser
 
 
 def scanlist(testfile: Path) -> list[Path]:
@@ -554,7 +554,7 @@ class TestRunner(threading.Thread):
             run_test(test, self.context)
             self.queue.task_done()
 
-def discover_tests(args: argparse.Namespace) -> tuple[list[Path], list[Path]]:
+def discover_tests(args: argparse.Namespace, parser: argparse.ArgumentParser) -> tuple[list[Path], list[Path]]:
     """
     Discover tests based on arguments.
     Returns a tuple of (tests, unittests) where:
@@ -606,13 +606,17 @@ def discover_tests(args: argparse.Namespace) -> tuple[list[Path], list[Path]]:
         tests = [t for t in tests if t not in excludetests]
 
     if not tests:
-        sys.stderr.write("error: no tests matching the specification were found.\n")
+        sys.stderr.write(parser.format_usage() + """
+error: no tests matching the specification were found.
+       See "Test selection options" in the help for details on
+       how to specify and/or exclude tests.
+""")
         sys.exit(1)
 
     return tests, unittests
 
 def main():
-    args = parse_args()
+    args, parser = parse_args()
     stats = Summary(jobs=args.jobs)
     
     logger, xml_logger = setup_logging(args, stats)
@@ -695,7 +699,7 @@ def main():
         del os.environ['_JAVA_OPTIONS']
 
     # --- Test Discovery ---
-    tests, unittests = discover_tests(args)
+    tests, unittests = discover_tests(args, parser)
 
     # Wrap tests
     test_objects = [Test(t) for t in tests]
