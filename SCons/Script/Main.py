@@ -1478,11 +1478,14 @@ def _exec_main(parser, values) -> None:
         _main(parser)
 
 
-def main() -> None:
+def main(script_path) -> None:
     global OptionsParser
     global exit_status
     global first_command_start
     global ENABLE_JSON
+    global SCONS_SCRIPT_PATH
+
+    SCONS_SCRIPT_PATH = script_path
 
     # Check up front for a Python version we do not support.  We
     # delay the check for deprecated Python versions until later,

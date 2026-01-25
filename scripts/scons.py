@@ -94,4 +94,4 @@ if __name__ == "__main__":
 
     # this does all the work, and calls sys.exit
     # with the proper exit status when done.
-    SCons.Script.main()
+    SCons.Script.main(os.path.abspath(__file__))
