@@ -54,12 +54,11 @@ test.write(
 expect_stdout = f"""\
 {pythonstring}{pythonflags} {test_fail_py}
 FAILING TEST STDOUT
-"""
-
-expect_stderr = """\
 FAILING TEST STDERR
+
+Summary: 1 selected, 1 failed, 0 no result
 """
 
-test.run(arguments='-k --retry', status=1, stdout=expect_stdout, stderr=expect_stderr)
+test.run(arguments='-k --retry', status=1, stdout=expect_stdout, stderr=None)
 
 test.pass_test()

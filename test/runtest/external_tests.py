@@ -59,13 +59,13 @@ error: no tests matching the specification were found.
 expect_stdout = f"""\
 {pythonstring}{pythonflags} {one}
 PASSING TEST STDOUT
+PASSING TEST STDERR
+
 {pythonstring}{pythonflags} {two}
 PASSING TEST STDOUT
-"""
+PASSING TEST STDERR
 
-expect_stderr = """\
-PASSING TEST STDERR
-PASSING TEST STDERR
+Summary: 2 selected, 0 failed, 0 no result
 """
 
 test.run(
@@ -79,7 +79,7 @@ test.run(
     arguments='--no-progress --external ext/test/subdir',
     status=0,
     stdout=expect_stdout,
-    stderr=expect_stderr,
+    stderr=None,
 )
 
 test.pass_test()

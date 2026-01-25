@@ -51,6 +51,8 @@ IMPROVEMENTS
 - MSVS: Fix msvs project file creation to work with scons-local packages, and with windows scoop.sh 
   package manager installed SCons. (Based on work by Joseph Brill and Marcel Admiraal)
 
+- Test runner reworked to use Python logging; the portion of the test suite
+  which tests the runner was adjusted to match.
 
 PACKAGING
 ---------
