@@ -177,8 +177,8 @@ def posint(arg: str) -> int:
     return num
 
 
-def parse_args() -> argparse.Namespace:
-    """Parse command line arguments."""
+def build_parser() -> argparse.ArgumentParser:
+    """Construct the argument parser."""
     script = PurePath(sys.argv[0]).name
     usagestr = f"{script} [OPTIONS] [TEST ...]"
     epilogstr = """
@@ -282,9 +282,10 @@ Environment Variables:
         metavar='XML',
         help="Save results to XML in SCons XML format (use - for stdout).",
     )
+    return parser
 
-    args = parser.parse_args()
-
+def process_arguments(args: argparse.Namespace, parser: argparse.ArgumentParser) -> argparse.Namespace:
+    """Validate and process parsed arguments."""
     # Post-processing args
     if args.testlist and (args.testlistfile or args.all or args.retry):
         sys.stderr.write(
@@ -333,6 +334,13 @@ Environment Variables:
         )
         sys.exit(1)
 
+    return args
+
+def parse_args() -> tuple[argparse.Namespace, argparse.ArgumentParser]:
+    """Parse command line arguments."""
+    parser = build_parser()
+    args = parser.parse_args()
+    args = process_arguments(args, parser)
     return args, parser
 
 
