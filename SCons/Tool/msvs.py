@@ -53,6 +53,19 @@ from SCons.Tool.MSCommon import (
 
 tool_name = 'msvs'
 
+
+# The string for the Python executable we tell the Project file to use
+# is either sys.executable or, if an external PYTHON_ROOT environment
+# variable exists, $(PYTHON)ROOT\\python.exe (generalized a little to
+# pluck the actual executable name from sys.executable).
+try:
+    python_root = os.environ['PYTHON_ROOT']
+except KeyError:
+    python_executable = sys.executable
+else:
+    python_executable = os.path.join('$$(PYTHON_ROOT)',
+                                     os.path.split(sys.executable)[1])
+    
 ##############################################################################
 # Below here are the classes and functions for generation of
 # DSP/DSW/SLN/VCPROJ files.
@@ -169,24 +182,13 @@ def get_msvs_scons(env, xml=None):
     if not scons_script_path:
         scons_script_path = SCons.Script.Main.SCONS_SCRIPT_PATH
 
-
-    exec_script_main = f'"{python_executable}"  "{scons_script_path}"'
+    exec_script_main = f'"{python_executable}" "{scons_script_path}"'
 
     if xml:
         exec_script_main = xmlify(exec_script_main)
     return exec_script_main
 
-# The string for the Python executable we tell the Project file to use
-# is either sys.executable or, if an external PYTHON_ROOT environment
-# variable exists, $(PYTHON)ROOT\\python.exe (generalized a little to
-# pluck the actual executable name from sys.executable).
-try:
-    python_root = os.environ['PYTHON_ROOT']
-except KeyError:
-    python_executable = sys.executable
-else:
-    python_executable = os.path.join('$$(PYTHON_ROOT)',
-                                     os.path.split(sys.executable)[1])
+
 
 class Config:
     pass

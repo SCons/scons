@@ -92,8 +92,8 @@ CFG=Test - Win32 Release
 # PROP BASE Use_Debug_Libraries 0
 # PROP BASE Output_Dir ""
 # PROP BASE Intermediate_Dir ""
-# PROP BASE Cmd_Line "echo Starting SCons && "<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C "<WORKPATH>" -f SConstruct "Test.exe""
-# PROP BASE Rebuild_Opt "-c && echo Starting SCons && "<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C "<WORKPATH>" -f SConstruct "Test.exe""
+# PROP BASE Cmd_Line "echo Starting SCons && "<PYTHON>" "<SCONS_SCRIPT_PATH>" -C "<WORKPATH>" -f SConstruct "Test.exe""
+# PROP BASE Rebuild_Opt "-c && echo Starting SCons && "<PYTHON>" "<SCONS_SCRIPT_PATH>" -C "<WORKPATH>" -f SConstruct "Test.exe""
 # PROP BASE Target_File "Test.exe"
 # PROP BASE Bsc_Name ""
 # PROP BASE Target_Dir ""
@@ -101,8 +101,8 @@ CFG=Test - Win32 Release
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir ""
 # PROP Intermediate_Dir ""
-# PROP Cmd_Line "echo Starting SCons && "<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C "<WORKPATH>" -f SConstruct "Test.exe""
-# PROP Rebuild_Opt "-c && echo Starting SCons && "<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C "<WORKPATH>" -f SConstruct "Test.exe""
+# PROP Cmd_Line "echo Starting SCons && "<PYTHON>" "<SCONS_SCRIPT_PATH>" -C "<WORKPATH>" -f SConstruct "Test.exe""
+# PROP Rebuild_Opt "-c && echo Starting SCons && "<PYTHON>" "<SCONS_SCRIPT_PATH>" -C "<WORKPATH>" -f SConstruct "Test.exe""
 # PROP Target_File "Test.exe"
 # PROP Bsc_Name ""
 # PROP Target_Dir ""
@@ -263,9 +263,9 @@ expected_vcprojfile_7_0 = """\
 \t\t\tATLMinimizesCRunTimeLibraryUsage="FALSE">
 \t\t\t<Tool
 \t\t\t\tName="VCNMakeTool"
-\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
-\t\t\t\tReBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
-\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;Test.exe&quot;"
+\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; &quot;<SCONS_SCRIPT_PATH>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
+\t\t\t\tReBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; &quot;<SCONS_SCRIPT_PATH>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
+\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; &quot;<SCONS_SCRIPT_PATH>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;Test.exe&quot;"
 \t\t\t\tOutput="Test.exe"/>
 \t\t</Configuration>
 \t</Configurations>
@@ -388,9 +388,9 @@ expected_vcprojfile_7_1 = """\
 \t\t\tATLMinimizesCRunTimeLibraryUsage="FALSE">
 \t\t\t<Tool
 \t\t\t\tName="VCNMakeTool"
-\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
-\t\t\t\tReBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
-\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;Test.exe&quot;"
+\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; &quot;<SCONS_SCRIPT_PATH>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
+\t\t\t\tReBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; &quot;<SCONS_SCRIPT_PATH>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;"
+\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; &quot;<SCONS_SCRIPT_PATH>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;Test.exe&quot;"
 \t\t\t\tOutput="Test.exe"/>
 \t\t</Configuration>
 \t</Configurations>
@@ -513,9 +513,9 @@ expected_vcprojfile_fmt = """\
 \t\t\t>
 \t\t\t<Tool
 \t\t\t\tName="VCNMakeTool"
-\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;%(PROJECT_BASENAME)s.exe&quot;"
-\t\t\t\tReBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;%(PROJECT_BASENAME)s.exe&quot;"
-\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;%(PROJECT_BASENAME)s.exe&quot;"
+\t\t\t\tBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; &quot;<SCONS_SCRIPT_PATH>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;%(PROJECT_BASENAME)s.exe&quot;"
+\t\t\t\tReBuildCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; &quot;<SCONS_SCRIPT_PATH>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;%(PROJECT_BASENAME)s.exe&quot;"
+\t\t\t\tCleanCommandLine="echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; &quot;<SCONS_SCRIPT_PATH>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;%(PROJECT_BASENAME)s.exe&quot;"
 \t\t\t\tOutput="%(PROJECT_BASENAME)s.exe"
 \t\t\t\tPreprocessorDefinitions="DEF1;DEF2;DEF3=1234"
 \t\t\t\tIncludeSearchPath="%(INCLUDE_DIRS)s"
@@ -607,9 +607,9 @@ expected_vcxprojfile_fmt = """\
 \t<PropertyGroup Label="UserMacros" />
 \t<PropertyGroup>
 \t<_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-\t\t<NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;%(PROJECT_BASENAME)s.exe&quot;</NMakeBuildCommandLine>
-\t\t<NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;%(PROJECT_BASENAME)s.exe&quot;</NMakeReBuildCommandLine>
-\t\t<NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;%(PROJECT_BASENAME)s.exe&quot;</NMakeCleanCommandLine>
+\t\t<NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; &quot;<SCONS_SCRIPT_PATH>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;%(PROJECT_BASENAME)s.exe&quot;</NMakeBuildCommandLine>
+\t\t<NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; &quot;<SCONS_SCRIPT_PATH>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;%(PROJECT_BASENAME)s.exe&quot;</NMakeReBuildCommandLine>
+\t\t<NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; &quot;<SCONS_SCRIPT_PATH>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;%(PROJECT_BASENAME)s.exe&quot;</NMakeCleanCommandLine>
 \t\t<NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PROJECT_BASENAME)s.exe</NMakeOutput>
 \t\t<NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DEF1;DEF2;DEF3=1234</NMakePreprocessorDefinitions>
 \t\t<NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(INCLUDE_DIRS)s</NMakeIncludeSearchPath>
@@ -899,18 +899,19 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         if project_guid is None:
             project_guid = PROJECT_GUID
 
-        if 'SCONS_LIB_DIR' in os.environ:
-            exec_script_main = f"import sys; sys.path = [ r'{os.environ['SCONS_LIB_DIR']}' ] + sys.path; import SCons.Script; SCons.Script.main()"
+        if 'MSVS_SCONS' in os.environ:
+            exec_script_main = f'{os.environ['MSVS_SCONS']}'
         else:
-            exec_script_main = f"import sys; sys.path = [ scons_parent ] + sys.path; import SCons.Script; SCons.Script.main()"
+            exec_script_main = f'{self.program}'
+
 
         exec_script_main_xml = exec_script_main.replace("'", "&apos;")
 
         result = input.replace(r'<WORKPATH>', workpath)
         result = result.replace(r'<PYTHON>', python)
         result = result.replace(r'<SCONSCRIPT>', sconscript)
-        result = result.replace(r'<SCONS_SCRIPT_MAIN>', exec_script_main)
-        result = result.replace(r'<SCONS_SCRIPT_MAIN_XML>', exec_script_main_xml)
+        result = result.replace(r'<SCONS_SCRIPT_PATH>', exec_script_main)
+        result = result.replace(r'<SCONS_SCRIPT_PATH_XML>', exec_script_main_xml)
         result = result.replace(r'<PROJECT_GUID>', project_guid)
         result = result.replace('<SCC_VCPROJ_INFO>\n', vcproj_sccinfo)
         result = result.replace('<SCC_SLN_INFO>\n', sln_sccinfo)
@@ -1177,17 +1178,18 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         if solution_guid_2 is None:
             solution_guid_2 = SOLUTION_GUID_2
 
-        if 'SCONS_LIB_DIR' in os.environ:
-            exec_script_main = f"from os.path import join; import sys; sys.path = [ r'{os.environ['SCONS_LIB_DIR']}' ] + sys.path; import SCons.Script; SCons.Script.main()"
+        if 'MSVS_SCONS' in os.environ:
+            exec_script_main = f'{os.environ['MSVS_SCONS']}'
         else:
-            exec_script_main = f"from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-{self.scons_version}'), join(sys.prefix, 'scons-{self.scons_version}'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()"
+            exec_script_main = f'{self.program}'
+
         exec_script_main_xml = exec_script_main.replace("'", "&apos;")
 
         result = input.replace(r'<WORKPATH>', workpath)
         result = result.replace(r'<PYTHON>', python)
         result = result.replace(r'<SCONSCRIPT>', sconscript)
-        result = result.replace(r'<SCONS_SCRIPT_MAIN>', exec_script_main)
-        result = result.replace(r'<SCONS_SCRIPT_MAIN_XML>', exec_script_main_xml)
+        result = result.replace(r'<SCONS_SCRIPT_PATH>', exec_script_main)
+        result = result.replace(r'<SCONS_SCRIPT_PATH_XML>', exec_script_main_xml)
         result = result.replace(r'<PROJECT_GUID_1>', project_guid_1)
         result = result.replace(r'<PROJECT_GUID_2>', project_guid_2)
         result = result.replace(r'<SOLUTION_GUID_1>', solution_guid_1)
