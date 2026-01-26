@@ -842,13 +842,14 @@ def get_exec_script_main(scons_home=None):
     global _exec_script_main_template
 
     scons_home = scons_home
-    if not scons_home and 'SCONS_HOME' in os.environ:
-        scons_home = os.environ['SCONS_HOME']
+    # Some tests may fail if SCONS_HOME is defined in the os environment when
+    # the tests are run.  The SCons location set in the user's os environment
+    # may point to a different SCons than the SCons currently being tested.
+    # This behavior is consistent with the main branch code at the time.
+    # if not scons_home and 'SCONS_HOME' in os.environ:
+    #     scons_home = os.environ['SCONS_HOME']
     if not scons_home and 'SCONS_LIB_DIR' in os.environ:
         scons_home = os.environ['SCONS_LIB_DIR']
-
-    if scons_home is None:
-        scons_home = ''
 
     scons_abspath = os.path.abspath(os.path.dirname(os.path.dirname(SCons.__file__)))
 
@@ -868,42 +869,29 @@ def get_exec_script_main(scons_home=None):
     in_pytree = _in_pytree(scons_abspath)
     # print(f"in_pytree={in_pytree}, scons_abspath=`{scons_abspath}', sys.prefix='{sys.prefix}', sys.exec_prefix='{sys.exec_prefix}'")
 
-    if in_pytree:
-        scons_abspath = ''
-
     if _exec_script_main_template is None:
         _exec_script_main_template = "; ".join(textwrap.dedent(
             """\
             import importlib.util
             import sys
-            from os.path import abspath, dirname, isdir, isfile, join, normcase, realpath
-            usrinit = lambda p: abspath(p) if p else p
-            geninit = lambda p, u: '' if (p and u and normcase(p) == normcase(u)) else p
-            usr_path = usrinit(r'{scons_home}')
-            gen_path = geninit(r'{scons_abspath}', usr_path)
-            state = {{}}
-            isvalid = lambda p: p and isdir(p) and isfile(join(p, 'SCons', '__init__.py'))
-            store = lambda k, l, s: {{k: l[0], 'Found': l[0], 'Stop': True}} if l else {{k: '', 'Stop': s}}
-            check = lambda k, l, s: state.update(store(k, [p for p in l if isvalid(p)], s)) if not state.get('Stop') else None
-            _ = [check(k, l, s) for k, l, s in [('usr', [usr_path], bool(usr_path)), ('gen', [gen_path], bool(gen_path)), ('lib', [join(sys.prefix, *t) for t in [('Lib', 'site-packages', 'scons-{scons_version}'), ('scons-{scons_version}',), ('Lib', 'site-packages', 'scons'), ('scons',), ('Lib', 'site-packages')]], False)]]
-            path = state.get('Found', '')
-            _  = sys.path.insert(0, path) if path else None
+            from os.path import abspath, dirname, isdir, isfile, join, realpath
+            usr_path = r'{scons_home}'
+            gen_path = r'{scons_abspath}'
+            syspath = sys.path
+            search, path = ([usr_path], usr_path) if usr_path else ([gen_path], gen_path) if gen_path else ([join(sys.prefix, *t) for t in [('Lib', 'site-packages', 'scons-{scons_version}'), ('scons-{scons_version}',), ('Lib', 'site-packages', 'scons'), ('scons',), ('Lib', 'site-packages')]] + sys.path, None)
+            sys.path = search
             spec = importlib.util.find_spec('SCons')
             orig = dirname(dirname(abspath(spec.origin))) if (spec and spec.origin) else ''
-            syspath = orig and (not path or normcase(abspath(path)) != normcase(orig))
-            _ = sys.path.insert(0, orig) if syspath else None
-            _ = print(f'proj: *** SCons not found at user path \\\'{{usr_path}}\\\'. ***') if (usr_path and state.get('usr') == '') else None
-            _ = print(f'proj: *** SCons not found at generated path \\\'{{gen_path}}\\\' ***.') if (gen_path and state.get('gen') == '') else None
-            _ = print( 'proj: *** SCons not found. ***') if (not orig) else None
-            _ = print(f'proj: Using SCons path \\\'{{orig}}\\\' (realpath=\\\'{{realpath(orig)}}\\\', syspath={{syspath}}).') if (orig) else None
+            sys.path = [orig] + syspath if orig else syspath
+            _ = print(f'proj: Using SCons path \\\'{{orig}}\\\' (realpath=\\\'{{realpath(orig)}}\\\').') if orig else (print(f'proj: Error: SCons not found (path=\\\'{{path if path else search}}\\\').'), sys.exit(1))
             import SCons.Script
             SCons.Script.main()
-            """,
+            """
         ).splitlines())
 
     exec_script_main = _exec_script_main_template.format(
-        scons_home=scons_home,
-        scons_abspath=scons_abspath,
+        scons_home=scons_home if scons_home else '',
+        scons_abspath=scons_abspath if not in_pytree else '',
         scons_version=SCons.__version__,
     )
     # print("exec_script_main:\n", ' ' + '\n  '.join(exec_script_main.split("; ")))
