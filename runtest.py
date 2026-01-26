@@ -39,7 +39,12 @@ if sys.platform == 'win32':
     import ctypes
 
     def get_template_command(filetype, verb=None):
-        """Return the association-related string for *filetype*"""
+        """Return the association-related string for *filetype*.
+
+        :param filetype: The file type extension (e.g., '.py').
+        :param verb: The verb (optional).
+        :return: The command string.
+        """
         # thanks to Eryk Sun for this recipe
         shlwapi = ctypes.OleDLL('shlwapi')
         shlwapi.AssocQueryStringW.argtypes = (
@@ -74,7 +79,17 @@ if sys.platform == 'win32':
 
 @dataclass
 class Summary:
-    """The overall results of the test run."""
+    """The overall results of the test run.
+
+    :param time_start: Start time of the test run.
+    :param total_time: Total execution time.
+    :param total_num_tests: Total number of tests executed.
+    :param jobs: Number of parallel jobs used.
+    :param passed: List of passed tests.
+    :param failed: List of failed tests.
+    :param no_result: List of tests with no result.
+    :param python: Python interpreter used.
+    """
     time_start: datetime = field(default_factory=datetime.now)
     total_time: float = 0.0
     total_num_tests: int = 0
@@ -86,7 +101,15 @@ class Summary:
 
 @dataclass
 class RunContext:
-    """Holds configuration and state for the test run."""
+    """Holds configuration and state for the test run.
+
+    :param args: Parsed command-line arguments.
+    :param stats: Summary object for collecting statistics.
+    :param logger: Logger for console output.
+    :param scriptpath: Path to the script directory.
+    :param unittests: List of discovered unit tests.
+    :param debug: Debug mode string (e.g., 'pdb') or None.
+    """
     args: argparse.Namespace
     stats: Summary
     logger: logging.Logger
@@ -95,7 +118,11 @@ class RunContext:
     debug: str | None = None
 
 class Test:
-    """Class holding a single test file."""
+    """Class holding a single test file.
+
+    :param path: Path to the test file.
+    :param spe: Specific path entries (optional).
+    """
     _ids = itertools.count(1)  # to generate test # automatically
 
     def __init__(self, path: Path, spe=None):
@@ -117,6 +144,11 @@ class Test:
                     break
 
     def execute(self, env: dict, allow_pipe_files: bool = True) -> None:
+        """Execute the test.
+
+        :param env: Environment variables for the test execution.
+        :param allow_pipe_files: Whether to use temporary files for stdout/stderr to avoid hanging.
+        """
         if allow_pipe_files:
             # The subprocess.Popen() suffers from a well-known
             # problem. Data for stdout/stderr is read into a
@@ -170,7 +202,12 @@ class Test:
 
 
 def posint(arg: str) -> int:
-    """Special positive-int type for :mod:`argparse`"""
+    """Special positive-int type for :mod:`argparse`.
+
+    :param arg: The argument string to convert.
+    :return: The converted integer.
+    :raises argparse.ArgumentTypeError: If the value is negative.
+    """
     num = int(arg)
     if num < 0:
         raise argparse.ArgumentTypeError("JOBS value must not be negative")
@@ -178,7 +215,10 @@ def posint(arg: str) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Construct the argument parser."""
+    """Construct the argument parser.
+
+    :return: The configured argument parser.
+    """
     script = PurePath(sys.argv[0]).name
     usagestr = f"{script} [OPTIONS] [TEST ...]"
     epilogstr = """
@@ -285,7 +325,12 @@ Environment Variables:
     return parser
 
 def process_arguments(args: argparse.Namespace, parser: argparse.ArgumentParser) -> argparse.Namespace:
-    """Validate and process parsed arguments."""
+    """Validate and process parsed arguments.
+
+    :param args: The parsed arguments.
+    :param parser: The argument parser (used for error reporting).
+    :return: The processed arguments.
+    """
     # Post-processing args
     if args.testlist and (args.testlistfile or args.all or args.retry):
         sys.stderr.write(
@@ -337,7 +382,10 @@ def process_arguments(args: argparse.Namespace, parser: argparse.ArgumentParser)
     return args
 
 def parse_args() -> tuple[argparse.Namespace, argparse.ArgumentParser]:
-    """Parse command line arguments."""
+    """Parse command line arguments.
+
+    :return: A tuple containing the parsed arguments and the parser object.
+    """
     parser = build_parser()
     args = parser.parse_args()
     args = process_arguments(args, parser)
@@ -345,7 +393,11 @@ def parse_args() -> tuple[argparse.Namespace, argparse.ArgumentParser]:
 
 
 def scanlist(testfile: Path) -> list[Path]:
-    """Process a testlist file."""
+    """Process a testlist file.
+
+    :param testfile: Path to the file containing a list of tests.
+    :return: A list of Path objects for the tests.
+    """
     data = StringIO(testfile.read_text())
     tests = [t.strip() for t in data.readlines() if not t.startswith('#')]
     # in order to allow scanned lists to work whether they use forward or
@@ -356,7 +408,11 @@ def scanlist(testfile: Path) -> list[Path]:
 
 
 def find_unit_tests(directory: Path) -> list[Path]:
-    """Look for unit tests."""
+    """Look for unit tests.
+
+    :param directory: The directory to search in.
+    :return: A list of unit test paths.
+    """
     result = []
     for dirpath, _, filenames in os.walk(directory):
         # Skip folders containing a sconstest.skip file
@@ -370,7 +426,11 @@ def find_unit_tests(directory: Path) -> list[Path]:
 
 
 def find_e2e_tests(directory: Path) -> list[Path]:
-    """Look for end-to-end tests"""
+    """Look for end-to-end tests
+
+    :param directory: The directory to search in.
+    :return: A list of end-to-end test paths.
+    """
     result = []
     for dirpath, _, filenames in os.walk(directory):
         # Skip folders containing a sconstest.skip file
@@ -390,7 +450,12 @@ def find_e2e_tests(directory: Path) -> list[Path]:
     return sorted(result)
 
 def setup_logging(args: argparse.Namespace, stats: Summary):
-    """Set up logging to console and file."""
+    """Set up logging to console and file.
+
+    :param args: Command-line arguments.
+    :param stats: Summary object.
+    :return: A tuple of (console logger, xml logger).
+    """
     logger = logging.getLogger("runtest.console")
     logger.setLevel(logging.DEBUG)
     
@@ -417,6 +482,7 @@ def setup_logging(args: argparse.Namespace, stats: Summary):
 
     if args.xml:
         class XmlFormatter(logging.Formatter):
+            """Formatter for SCons XML logging."""
             wrap_output = True
 
             def _format_header(self) -> str:
@@ -464,6 +530,11 @@ def setup_logging(args: argparse.Namespace, stats: Summary):
                 )
 
             def format(self, record):
+                """Format the specified record as XML.
+
+                :param record: The log record.
+                :return: The formatted string.
+                """
                 rv = ""
                 records = record.msg
                 if isinstance(records, list) and len(records) > 0:
@@ -492,7 +563,11 @@ def setup_logging(args: argparse.Namespace, stats: Summary):
 
 
 def log_result(t: Test, context: RunContext) -> None:
-    """Log the result of a test."""
+    """Log the result of a test.
+
+    :param t: The test object.
+    :param context: The run context.
+    """
     times = f"Test execution time: {t.test_time:.1f} seconds" if context.args.print_times else ""
     
     output = f"{t.headline}{t.command_str}"
@@ -509,7 +584,11 @@ def log_result(t: Test, context: RunContext) -> None:
 
 
 def run_test(t: Test, context: RunContext) -> None:
-    """Run a testcase."""
+    """Run a testcase.
+
+    :param t: The test object.
+    :param context: The run context.
+    """
     command_args = []
     if context.debug:
         command_args.extend(['-m', context.debug])
@@ -548,7 +627,11 @@ def run_test(t: Test, context: RunContext) -> None:
 
 
 class TestRunner(threading.Thread):
-    """Test Runner thread."""
+    """Test Runner thread.
+
+    :param queue: Queue containing tests to run.
+    :param context: The run context.
+    """
     def __init__(self, queue, context: RunContext):
         super().__init__()
         self.queue = queue
@@ -565,7 +648,10 @@ class TestRunner(threading.Thread):
             self.queue.task_done()
 
 def setup_env(args: argparse.Namespace) -> None:
-    """Set up the execution environment (environment variables, paths)."""
+    """Set up the execution environment (environment variables, paths).
+
+    :param args: Command-line arguments.
+    """
     if args.verbose:
         os.environ['TESTCMD_VERBOSE'] = str(args.verbose)
 
@@ -642,9 +728,10 @@ def setup_env(args: argparse.Namespace) -> None:
 def discover_tests(args: argparse.Namespace, parser: argparse.ArgumentParser) -> tuple[list[Path], list[Path]]:
     """
     Discover tests based on arguments.
-    Returns a tuple of (tests, unittests) where:
-    - tests is the list of tests to run (after filtering)
-    - unittests is the list of discovered unit tests (used for runner identification)
+
+    :param args: Command-line arguments.
+    :param parser: The argument parser.
+    :return: A tuple of (list of tests to run, list of all unit tests).
     """
     unittests = []
     endtests = []
@@ -701,7 +788,14 @@ error: no tests matching the specification were found.
     return tests, unittests
 
 def create_run_context(args, stats, logger, unittests):
-    """Create the run context object."""
+    """Create the run context object.
+
+    :param args: Command-line arguments.
+    :param stats: Summary object.
+    :param logger: Logger object.
+    :param unittests: List of unit tests.
+    :return: A populated RunContext object.
+    """
     # Determine Python executable
     if not args.python:
         if os.name == 'java':
@@ -724,7 +818,11 @@ def create_run_context(args, stats, logger, unittests):
     )
 
 def execute_tests(test_objects: list[Test], context: RunContext) -> None:
-    """Execute the identified tests."""
+    """Execute the identified tests.
+
+    :param test_objects: List of Test objects to run.
+    :param context: The run context.
+    """
     if context.args.jobs == 1:
         for test in test_objects:
             run_test(test, context)
@@ -745,8 +843,13 @@ def execute_tests(test_objects: list[Test], context: RunContext) -> None:
         for thread in threads:
             thread.join()
 
-def report_results(context: RunContext, test_objects: list[Test], xml_logger: logging.Logger) -> None:
-    """Report the results of the test run."""
+def display_results(context: RunContext, test_objects: list[Test], xml_logger: logging.Logger) -> None:
+    """Report the results of the test run.
+
+    :param context: The run context.
+    :param test_objects: List of executed Test objects.
+    :param xml_logger: Logger for XML output.
+    """
     stats = context.stats
     args = context.args
     logger = context.logger
@@ -834,7 +937,7 @@ def main():
     context = create_run_context(args, stats, logger, unittests)
     
     execute_tests(test_objects, context)
-    report_results(context, test_objects, xml_logger)
+    display_results(context, test_objects, xml_logger)
 
 if __name__ == "__main__":
     main()
