@@ -30,6 +30,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Deegan:
     - Fix SCons Docbook schema to work with lxml > 5
     - Update pyproject.toml to support Python 3.14 and remove restrictions on lxml version install
+    - Used Gemini to refactor runtest.py to better organized the code and add docstrings.
 
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
