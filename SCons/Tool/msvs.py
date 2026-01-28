@@ -36,6 +36,7 @@ import os
 import pickle
 import re
 import sys
+import textwrap
 
 import SCons.Builder
 import SCons.Node.FS
@@ -152,27 +153,78 @@ def msvs_parse_version(s):
     num, suite = version_re.match(s).groups()
     return float(num), suite
 
-# This is how we re-invoke SCons from inside MSVS Project files.
-# The problem is that we might have been invoked as either scons.bat
-# or scons.py.  If we were invoked directly as scons.py, then we could
-# use sys.argv[0] to find the SCons "executable," but that doesn't work
-# if we were invoked as scons.bat, which uses "python -c" to execute
-# things and ends up with "-c" as sys.argv[0].  Consequently, we have
-# the MSVS Project file invoke SCons the same way that scons.bat does,
-# which works regardless of how we were invoked.
+_exec_script_main_template = None
+
 def getExecScriptMain(env, xml=None):
+    """
+    This is how we re-invoke SCons from inside MSVS Project files.
+    The problem is that we might have been invoked as either scons.bat
+    or scons.py.  If we were invoked directly as scons.py, then we could
+    use sys.argv[0] to find the SCons "executable," but that doesn't work
+    if we were invoked as scons.bat, which uses "python -c" to execute
+    things and ends up with "-c" as sys.argv[0].  Consequently, we have
+    the MSVS Project file invoke SCons the same way that scons.bat does,
+    which works regardless of how we were invoked.
+
+    :param env: Environment to operate on
+    :param xml: Extra XML to add to generated MSVS project file
+    """
+    global _exec_script_main_template
+
     if 'SCONS_HOME' not in env:
         env['SCONS_HOME'] = os.environ.get('SCONS_HOME')
     scons_home = env.get('SCONS_HOME')
     if not scons_home and 'SCONS_LIB_DIR' in os.environ:
         scons_home = os.environ['SCONS_LIB_DIR']
-    if scons_home:
-        exec_script_main = "from os.path import join; import sys; sys.path = [ r'%s' ] + sys.path; import SCons.Script; SCons.Script.main()" % scons_home
-    else:
-        version = SCons.__version__
-        exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%(version)s'), join(sys.prefix, 'scons-%(version)s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % locals()
+
+    scons_abspath = os.path.abspath(os.path.dirname(os.path.dirname(SCons.__file__)))
+
+    def _in_pytree(scons_abspath):
+        scons_norm = os.path.normcase(scons_abspath)
+        for py_prefix in [sys.prefix]:  # sys.exec_prefix also on windows?
+            py_norm = os.path.normcase(os.path.abspath(py_prefix))
+            try:
+                common = os.path.commonpath([py_norm, scons_norm])
+                if common == py_norm:
+                    return True
+                break
+            except ValueError:
+                pass
+        return False
+
+    in_pytree = _in_pytree(scons_abspath)
+    # print(f"in_pytree={in_pytree}, scons_abspath=`{scons_abspath}', sys.prefix='{sys.prefix}', sys.exec_prefix='{sys.exec_prefix}'")
+
+    if _exec_script_main_template is None:
+        _exec_script_main_template = "; ".join(textwrap.dedent(
+            """\
+            import importlib.util
+            import sys
+            from os.path import abspath, dirname, isdir, isfile, join, realpath
+            usr_path = r'{scons_home}'
+            gen_path = r'{scons_abspath}'
+            syspath = sys.path
+            search, path = ([usr_path], usr_path) if usr_path else ([gen_path], gen_path) if gen_path else ([join(sys.prefix, *t) for t in [('Lib', 'site-packages', 'scons-{scons_version}'), ('scons-{scons_version}',), ('Lib', 'site-packages', 'scons'), ('scons',), ('Lib', 'site-packages')]] + sys.path, None)
+            sys.path = search
+            spec = importlib.util.find_spec('SCons')
+            orig = dirname(dirname(abspath(spec.origin))) if (spec and spec.origin) else ''
+            sys.path = [orig] + syspath if orig else syspath
+            _ = print(f'proj: Using SCons path \\\'{{orig}}\\\' (realpath=\\\'{{realpath(orig)}}\\\').') if orig else (print(f'proj: Error: SCons not found (path=\\\'{{path if path else search}}\\\').'), sys.exit(1))
+            import SCons.Script
+            SCons.Script.main()
+            """
+        ).splitlines())
+
+    exec_script_main = _exec_script_main_template.format(
+        scons_home=scons_home if scons_home else '',
+        scons_abspath=scons_abspath if not in_pytree else '',
+        scons_version=SCons.__version__,
+    )
+    # print("exec_script_main:\n", ' ' + '\n  '.join(exec_script_main.split("; ")))
+
     if xml:
         exec_script_main = xmlify(exec_script_main)
+
     return exec_script_main
 
 # The string for the Python executable we tell the Project file to use

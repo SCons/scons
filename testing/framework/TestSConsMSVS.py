@@ -38,6 +38,7 @@ in this subclass.
 import os
 import sys
 import platform
+import textwrap
 import traceback
 from xml.etree import ElementTree
 
@@ -832,6 +833,72 @@ def get_tested_proj_file_vc_versions():
     return ['8.0', '9.0', '10.0', '11.0', '12.0', '14.0', '14.1', '14.2', '14.3']
 
 
+_exec_script_main_template = None
+
+def get_exec_script_main(scons_home=None):
+    """
+    Returns the python script string embedded in the msvs project files.
+    """
+    global _exec_script_main_template
+
+    scons_home = scons_home
+    # Some tests may fail if SCONS_HOME is defined in the os environment when
+    # the tests are run.  The SCons location set in the user's os environment
+    # may point to a different SCons than the SCons currently being tested.
+    # This behavior is consistent with the main branch code at the time.
+    # if not scons_home and 'SCONS_HOME' in os.environ:
+    #     scons_home = os.environ['SCONS_HOME']
+    if not scons_home and 'SCONS_LIB_DIR' in os.environ:
+        scons_home = os.environ['SCONS_LIB_DIR']
+
+    scons_abspath = os.path.abspath(os.path.dirname(os.path.dirname(SCons.__file__)))
+
+    def _in_pytree(scons_abspath):
+        scons_norm = os.path.normcase(scons_abspath)
+        for py_prefix in [sys.prefix]:  # sys.exec_prefix also on windows?
+            py_norm = os.path.normcase(os.path.abspath(py_prefix))
+            try:
+                common = os.path.commonpath([py_norm, scons_norm])
+                if common == py_norm:
+                    return True
+                break
+            except ValueError:
+                pass
+        return False
+
+    in_pytree = _in_pytree(scons_abspath)
+    # print(f"in_pytree={in_pytree}, scons_abspath=`{scons_abspath}', sys.prefix='{sys.prefix}', sys.exec_prefix='{sys.exec_prefix}'")
+
+    if _exec_script_main_template is None:
+        _exec_script_main_template = "; ".join(textwrap.dedent(
+            """\
+            import importlib.util
+            import sys
+            from os.path import abspath, dirname, isdir, isfile, join, realpath
+            usr_path = r'{scons_home}'
+            gen_path = r'{scons_abspath}'
+            syspath = sys.path
+            search, path = ([usr_path], usr_path) if usr_path else ([gen_path], gen_path) if gen_path else ([join(sys.prefix, *t) for t in [('Lib', 'site-packages', 'scons-{scons_version}'), ('scons-{scons_version}',), ('Lib', 'site-packages', 'scons'), ('scons',), ('Lib', 'site-packages')]] + sys.path, None)
+            sys.path = search
+            spec = importlib.util.find_spec('SCons')
+            orig = dirname(dirname(abspath(spec.origin))) if (spec and spec.origin) else ''
+            sys.path = [orig] + syspath if orig else syspath
+            _ = print(f'proj: Using SCons path \\\'{{orig}}\\\' (realpath=\\\'{{realpath(orig)}}\\\').') if orig else (print(f'proj: Error: SCons not found (path=\\\'{{path if path else search}}\\\').'), sys.exit(1))
+            import SCons.Script
+            SCons.Script.main()
+            """
+        ).splitlines())
+
+    exec_script_main = _exec_script_main_template.format(
+        scons_home=scons_home if scons_home else '',
+        scons_abspath=scons_abspath if not in_pytree else '',
+        scons_version=SCons.__version__,
+    )
+    # print("exec_script_main:\n", ' ' + '\n  '.join(exec_script_main.split("; ")))
+
+    return exec_script_main
+
+
 class TestSConsMSVS(TestSCons):
     """Subclass for testing MSVS-specific portions of SCons."""
 
@@ -875,12 +942,14 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         self,
         input,
         msvs_ver,
+        *,
         subdir=None,
         sconscript=None,
         python=None,
         project_guid=None,
         vcproj_sccinfo: str = '',
         sln_sccinfo: str = '',
+        scons_home=None,
     ):
         if not hasattr(self, '_msvs_versions'):
             self.msvs_versions()
@@ -899,10 +968,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         if project_guid is None:
             project_guid = PROJECT_GUID
 
-        if 'SCONS_LIB_DIR' in os.environ:
-            exec_script_main = f"from os.path import join; import sys; sys.path = [ r'{os.environ['SCONS_LIB_DIR']}' ] + sys.path; import SCons.Script; SCons.Script.main()"
-        else:
-            exec_script_main = f"from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-{self.scons_version}'), join(sys.prefix, 'scons-{self.scons_version}'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()"
+        exec_script_main = get_exec_script_main(scons_home=scons_home)
         exec_script_main_xml = exec_script_main.replace("'", "&apos;")
 
         result = input.replace(r'<WORKPATH>', workpath)
@@ -1149,6 +1215,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         solution_guid_2=None,
         vcproj_sccinfo: str = '',
         sln_sccinfo: str = '',
+        scons_home=None,
     ):
         if not hasattr(self, '_msvs_versions'):
             self.msvs_versions()
@@ -1176,10 +1243,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         if solution_guid_2 is None:
             solution_guid_2 = SOLUTION_GUID_2
 
-        if 'SCONS_LIB_DIR' in os.environ:
-            exec_script_main = f"from os.path import join; import sys; sys.path = [ r'{os.environ['SCONS_LIB_DIR']}' ] + sys.path; import SCons.Script; SCons.Script.main()"
-        else:
-            exec_script_main = f"from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-{self.scons_version}'), join(sys.prefix, 'scons-{self.scons_version}'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()"
+        exec_script_main = get_exec_script_main(scons_home=scons_home)
         exec_script_main_xml = exec_script_main.replace("'", "&apos;")
 
         result = input.replace(r'<WORKPATH>', workpath)

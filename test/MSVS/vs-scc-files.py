@@ -111,15 +111,13 @@ env.MSVSProject(target = '{project_file}',
 
     test.must_exist(test.workpath(project_file))
     vcproj = test.read(project_file, 'r')
-    expect = test.msvs_substitute(expected_vcprojfile, vc_version, None, 'SConstruct',
-                                  vcproj_sccinfo=expected_vcproj_sccinfo)
+    expect = test.msvs_substitute(expected_vcprojfile, vc_version, sconscript='SConstruct', vcproj_sccinfo=expected_vcproj_sccinfo)
     # don't compare the pickled data
     assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 
     test.must_exist(test.workpath('Test.sln'))
     sln = test.read('Test.sln', 'r')
-    expect = test.msvs_substitute(expected_slnfile, vc_version, None, 'SConstruct',
-                                  sln_sccinfo=expected_sln_sccinfo)
+    expect = test.msvs_substitute(expected_slnfile, vc_version, sconscript='SConstruct', sln_sccinfo=expected_sln_sccinfo)
     # don't compare the pickled data
     assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 
