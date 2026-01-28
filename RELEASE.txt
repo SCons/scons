@@ -53,6 +53,8 @@ IMPROVEMENTS
 
 - Used Gemini to refactor runtest.py to better organized the code and add docstrings.
 
+- Switch remaining "original style" docstring parameter listings to Google style.
+
 
 PACKAGING
 ---------
