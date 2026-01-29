@@ -33,6 +33,7 @@ import base64
 import uuid
 import ntpath
 import os
+import pathlib
 import pickle
 import re
 import sys
@@ -180,36 +181,35 @@ def getExecScriptMain(env, xml=None):
     scons_abspath = os.path.abspath(os.path.dirname(os.path.dirname(SCons.__file__)))
 
     def _in_pytree(scons_abspath):
-        scons_norm = os.path.normcase(scons_abspath)
-        for py_prefix in [sys.prefix]:  # sys.exec_prefix also on windows?
-            py_norm = os.path.normcase(os.path.abspath(py_prefix))
-            try:
-                common = os.path.commonpath([py_norm, scons_norm])
-                if common == py_norm:
-                    return True
-                break
-            except ValueError:
-                pass
-        return False
+        py_comps = pathlib.Path(os.path.normcase(os.path.abspath(sys.prefix))).parts
+        comps = pathlib.Path(os.path.normcase(scons_abspath)).parts
+        rval = bool(comps[:len(py_comps)] == py_comps)
+        return rval
 
     in_pytree = _in_pytree(scons_abspath)
-    # print(f"in_pytree={in_pytree}, scons_abspath=`{scons_abspath}', sys.prefix='{sys.prefix}', sys.exec_prefix='{sys.exec_prefix}'")
+    # print(f"in_pytree={in_pytree}, scons_abspath=`{scons_abspath}', sys.prefix='{sys.prefix}'")
 
     if _exec_script_main_template is None:
         _exec_script_main_template = "; ".join(textwrap.dedent(
             """\
             import importlib.util
             import sys
-            from os.path import abspath, dirname, isdir, isfile, join, realpath
+            from os.path import abspath, dirname, join, normcase, realpath
+            from pathlib import Path
             usr_path = r'{scons_home}'
             gen_path = r'{scons_abspath}'
-            syspath = sys.path
-            search, path = ([usr_path], usr_path) if usr_path else ([gen_path], gen_path) if gen_path else ([join(sys.prefix, *t) for t in [('Lib', 'site-packages', 'scons-{scons_version}'), ('scons-{scons_version}',), ('Lib', 'site-packages', 'scons'), ('scons',), ('Lib', 'site-packages')]] + sys.path, None)
-            sys.path = search
-            spec = importlib.util.find_spec('SCons')
-            orig = dirname(dirname(abspath(spec.origin))) if (spec and spec.origin) else ''
-            sys.path = [orig] + syspath if orig else syspath
-            _ = print(f'proj: Using SCons path \\\'{{orig}}\\\' (realpath=\\\'{{realpath(orig)}}\\\').') if orig else (print(f'proj: Error: SCons not found (path=\\\'{{path if path else search}}\\\').'), sys.exit(1))
+            syspath = list(sys.path)
+            memo = {{'pycomps': Path(normcase(abspath(sys.prefix))).parts}}
+            origin = lambda l: (sys.path.clear(), sys.path.extend(l), memo.update({{'spec': importlib.util.find_spec('SCons')}}), dirname(dirname(abspath(memo['spec'].origin))) if (memo['spec'] and memo['spec'].origin) else '')[-1]
+            pytree = lambda p: (memo.update({{'comps': Path(normcase(p)).parts}}), memo['comps'][:len(memo['pycomps'])] ==  memo['pycomps'])[-1] if p else False
+            search = ([usr_path] + syspath if usr_path else [join(sys.prefix, *t) for t in [('Lib', 'site-packages', 'scons-{scons_version}'), ('scons-{scons_version}',), ('Lib', 'site-packages', 'scons'), ('scons',), ('Lib', 'site-packages')]] + syspath)
+            begpath = origin(search)
+            user = begpath and usr_path and normcase(begpath) == normcase(abspath(usr_path))
+            endpath = (search.insert(0, gen_path), origin([gen_path]))[-1] if (not user and gen_path and (not begpath or pytree(begpath))) else ''
+            path = endpath if endpath else begpath
+            _ = (print(f'proj: Error: SCons not found (path=\\\'{{search}}\\\').'), sys.exit(1)) if (not path) else None
+            sys.path = [path] + syspath
+            print(f'proj: Using SCons path \\\'{{path}}\\\' (realpath=\\\'{{realpath(path)}}\\\').')
             import SCons.Script
             SCons.Script.main()
             """
