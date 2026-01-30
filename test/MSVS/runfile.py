@@ -113,7 +113,7 @@ test.run(chdir='work1', arguments="Test.vcproj")
 
 test.must_exist(test.workpath('work1', 'Test.vcproj'))
 vcproj = test.read(['work1', 'Test.vcproj'], 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '8.0', subdir='work1', sconscript='SConstruct')
+expect = test.msvs_substitute(expected_vcprojfile, '8.0', 'work1', 'SConstruct')
 # don't compare the pickled data
 assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
 

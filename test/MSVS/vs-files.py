@@ -59,13 +59,13 @@ for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
     else:
         test.must_not_exist(test.workpath(filters_file))
     vcxproj = test.read(project_file, 'r')
-    expect = test.msvs_substitute(expected_vcprojfile, vc_version, sconscript='SConstruct')
+    expect = test.msvs_substitute(expected_vcprojfile, vc_version, None, 'SConstruct')
     # don't compare the pickled data
     assert vcxproj[:len(expect)] == expect, test.diff_substr(expect, vcxproj)
 
     test.must_exist(test.workpath('Test.sln'))
     sln = test.read('Test.sln', 'r')
-    expect = test.msvs_substitute(expected_slnfile, vc_version, sconscript='SConstruct')
+    expect = test.msvs_substitute(expected_slnfile, vc_version, None, 'SConstruct')
     # don't compare the pickled data
     assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 
@@ -99,7 +99,8 @@ for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
 
     test.must_exist(test.workpath(project_file))
     vcxproj = test.read(project_file, 'r')
-    expect = test.msvs_substitute(expected_vcprojfile, vc_version, sconscript='SConstruct', python=python)
+    expect = test.msvs_substitute(expected_vcprojfile, vc_version, None, 'SConstruct',
+                                  python=python)
     # don't compare the pickled data
     assert vcxproj[:len(expect)] == expect, test.diff_substr(expect, vcxproj)
 

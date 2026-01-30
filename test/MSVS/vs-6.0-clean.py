@@ -70,13 +70,13 @@ test.run()
 
 test.must_exist(test.workpath('Test.dsp'))
 dsp = test.read('Test.dsp', 'r')
-expect = test.msvs_substitute(expected_dspfile, '6.0', sconscript='SConstruct')
+expect = test.msvs_substitute(expected_dspfile, '6.0', None, 'SConstruct')
 # don't compare the pickled data
 assert dsp[:len(expect)] == expect, test.diff_substr(expect, dsp)
 
 test.must_exist(test.workpath('Test.dsw'))
 dsw = test.read('Test.dsw', 'r')
-expect = test.msvs_substitute(expected_dswfile, '6.0', sconscript='SConstruct')
+expect = test.msvs_substitute(expected_dswfile, '6.0', None, 'SConstruct')
 assert dsw == expect, test.diff_substr(expect, dsw)
 
 test.run(arguments='-c .')

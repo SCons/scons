@@ -868,22 +868,23 @@ def get_exec_script_main(scons_home=''):
             """\
             import importlib.util
             import sys
-            from os.path import abspath, dirname, join, normcase, realpath
+            from os.path import abspath, dirname, join, normcase
             from pathlib import Path
-            usr_path = r'{scons_home}'
-            gen_path = r'{scons_abspath}'
+            usr = r'{scons_home}'
+            gen = r'{scons_abspath}'
+            usrpath = abspath(usr) if usr else ''
+            genpath = gen if (gen and (not usrpath or normcase(usrpath) != normcase(gen))) else ''
             syspath = list(sys.path)
             memo = {{'pycomps': Path(normcase(abspath(sys.prefix))).parts}}
             origin = lambda l: (sys.path.clear(), sys.path.extend(l), memo.update({{'spec': importlib.util.find_spec('SCons')}}), dirname(dirname(abspath(memo['spec'].origin))) if (memo['spec'] and memo['spec'].origin) else '')[-1]
             pytree = lambda p: (memo.update({{'comps': Path(normcase(p)).parts}}), memo['comps'][:len(memo['pycomps'])] ==  memo['pycomps'])[-1] if p else False
-            search = ([usr_path] + syspath if usr_path else [join(sys.prefix, *t) for t in [('Lib', 'site-packages', 'scons-{scons_version}'), ('scons-{scons_version}',), ('Lib', 'site-packages', 'scons'), ('scons',), ('Lib', 'site-packages')]] + syspath)
+            search = ([usrpath] + syspath if usrpath else [join(sys.prefix, *t) for t in [('Lib', 'site-packages', 'scons-{scons_version}'), ('scons-{scons_version}',), ('Lib', 'site-packages', 'scons'), ('scons',), ('Lib', 'site-packages')]] + syspath)
             begpath = origin(search)
-            user = begpath and usr_path and normcase(begpath) == normcase(abspath(usr_path))
-            endpath = (search.insert(0, gen_path), origin([gen_path]))[-1] if (not user and gen_path and (not begpath or pytree(begpath))) else ''
+            endpath = (search.insert(0, genpath), origin([genpath]))[-1] if (genpath and (not begpath or pytree(begpath))) else ''
             path = endpath if endpath else begpath
-            _ = (print(f'proj: Error: SCons not found (path=\\\'{{search}}\\\').'), sys.exit(1)) if (not path) else None
+            _ = (print(f'proj: Error: SCons not found (search=\\\'{{search}}\\\').'), sys.exit(1)) if (not path) else None
             sys.path = [path] + syspath
-            print(f'proj: Using SCons path \\\'{{path}}\\\' (realpath=\\\'{{realpath(path)}}\\\').')
+            print(f'proj: Using SCons path \\\'{{path}}\\\'.')
             import SCons.Script
             SCons.Script.main()
             """
@@ -942,7 +943,6 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         self,
         input,
         msvs_ver,
-        *,
         subdir=None,
         sconscript=None,
         python=None,
