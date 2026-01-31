@@ -26,6 +26,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Purge vim/emac local variable bloat.
     - Implement type hints for Node subclasses.
     - Ruff: Handle F401 exclusions more granularly, remove per-file exclusions.
+    - Simplified and sped up compilation database generation. No longer requires
+      each entry to have a dedicated node that's always built; instead, the database
+      *itself* is set to always build.
 
   From William Deegan:
     - Fix SCons Docbook schema to work with lxml > 5
