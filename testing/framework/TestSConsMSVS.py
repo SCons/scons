@@ -878,7 +878,7 @@ def get_exec_script_main(scons_home=''):
             memo = {{'pycomps': Path(normcase(abspath(sys.prefix))).parts}}
             origin = lambda l: (sys.path.clear(), sys.path.extend(l), memo.update({{'spec': importlib.util.find_spec('SCons')}}), dirname(dirname(abspath(memo['spec'].origin))) if (memo['spec'] and memo['spec'].origin) else '')[-1]
             pytree = lambda p: (memo.update({{'comps': Path(normcase(p)).parts}}), memo['comps'][:len(memo['pycomps'])] ==  memo['pycomps'])[-1] if p else False
-            search = ([usrpath] + syspath if usrpath else [join(sys.prefix, *t) for t in [('Lib', 'site-packages', 'scons-{scons_version}'), ('scons-{scons_version}',), ('Lib', 'site-packages', 'scons'), ('scons',), ('Lib', 'site-packages')]] + syspath)
+            search = ([usrpath] + syspath if usrpath else [join(sys.prefix, *t) for t in [('Lib', 'site-packages', 'scons-{scons_version}'), ('scons-{scons_version}',), ('Lib', 'site-packages', 'scons'), ('scons',)]] + syspath)
             begpath = origin(search)
             endpath = (search.insert(0, genpath), origin([genpath]))[-1] if (genpath and (not begpath or pytree(begpath))) else ''
             path = endpath if endpath else begpath
