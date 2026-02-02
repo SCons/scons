@@ -58,7 +58,7 @@ from SCons.Util import hash_signature, hash_file_signature, hash_collect
 
 if TYPE_CHECKING:
     from SCons.Builder import BuilderBase
-    from SCons.Environment import Base as Environment
+    from SCons.Environment import EnvironmentBase
     from SCons.Scanner import ScannerBase
     from SCons.SConsign import SConsignEntry, DB as SConsignDatabase
 
@@ -304,7 +304,7 @@ def set_duplicate(duplicate: str) -> None:
         if link_dict[func]:
             Link_Funcs.append(link_dict[func])
 
-def LinkFunc(target: list[Base], source: list[Base], env: Environment) -> int:
+def LinkFunc(target: list[Base], source: list[Base], env: EnvironmentBase) -> int:
     """
     Relative paths cause problems with symbolic links, so
     we use absolute paths, which may be a problem for people
@@ -344,7 +344,7 @@ def LocalString(target, source, env) -> str:
 
 LocalCopy = SCons.Action.Action(LinkFunc, LocalString)
 
-def UnlinkFunc(target: list[Base], source: list[Base], env: Environment) -> int:
+def UnlinkFunc(target: list[Base], source: list[Base], env: EnvironmentBase) -> int:
     t = target[0]
     file = t.get_abspath()
     try:
@@ -355,7 +355,7 @@ def UnlinkFunc(target: list[Base], source: list[Base], env: Environment) -> int:
 
 Unlink = SCons.Action.Action(UnlinkFunc, None)
 
-def MkdirFunc(target: list[Base], source: list[Base], env: Environment) -> int:
+def MkdirFunc(target: list[Base], source: list[Base], env: EnvironmentBase) -> int:
     t = target[0]
     # - It's possible when using Install() to install multiple
     #   dirs outside the source tree to get a case where t.exists()
@@ -1846,7 +1846,7 @@ class Dir(Base):
 
         return result
 
-    def get_env_scanner(self, env: Environment, kw: dict[str, Any] | None = {}) -> ScannerBase:
+    def get_env_scanner(self, env: EnvironmentBase, kw: dict[str, Any] | None = {}) -> ScannerBase:
         import SCons.Defaults
         return SCons.Defaults.DirEntryScanner
 
@@ -1854,7 +1854,7 @@ class Dir(Base):
         import SCons.Defaults
         return SCons.Defaults.DirEntryScanner
 
-    def get_found_includes(self, env: Environment, scanner: ScannerBase | None, path: str) -> list[Node]:
+    def get_found_includes(self, env: EnvironmentBase, scanner: ScannerBase | None, path: str) -> list[Node]:
         """Return this directory's implicit dependencies.
 
         We don't bother caching the results because the scan typically
@@ -2958,11 +2958,11 @@ class File(Base):
     def rel_path(self, other: Base) -> str:
         return self.dir.rel_path(other)
 
-    def _get_found_includes_key(self, env: Environment, scanner: ScannerBase | None, path):
+    def _get_found_includes_key(self, env: EnvironmentBase, scanner: ScannerBase | None, path):
         return (id(env), id(scanner), path)
 
     @SCons.Memoize.CountDictCall(_get_found_includes_key)
-    def get_found_includes(self, env: Environment, scanner: ScannerBase | None, path):
+    def get_found_includes(self, env: EnvironmentBase, scanner: ScannerBase | None, path):
         """Return the included implicit dependencies in this file.
         Cache results so we only scan the file once per path
         regardless of how many times this information is requested.
