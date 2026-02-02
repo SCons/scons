@@ -552,8 +552,8 @@ def pass_test(self=None, condition: bool = True, function=None) -> None:
 
 
 def match_exact(
-    lines: str | list | None = None,
-    matches: str | list | None = None,
+    lines: str | list[str] | None = None,
+    matches: str | list[str] | None = None,
     newline: str = os.sep,
 ) -> int | None:
     """Match function using exact match.
@@ -582,7 +582,8 @@ def match_exact(
 
 
 def match_caseinsensitive(
-    lines: str | list | None = None, matches: str | list | None = None
+    lines: str | list[str] | None = None,
+    matches: str | list[str] | None = None,
 ) -> int | None:
     """Match function using case-insensitive matching.
 
@@ -609,7 +610,10 @@ def match_caseinsensitive(
     return 1
 
 
-def match_re(lines: str | list | None = None, res: str | list | None = None) -> int | None:
+def match_re(
+    lines: str | list[str] | None = None,
+    res: str | list[str] | None = None,
+) -> int | None:
     """Match function using line-by-line regular expression match.
 
     Args:
@@ -642,7 +646,8 @@ def match_re(lines: str | list | None = None, res: str | list | None = None) -> 
 
 
 def match_re_dotall(
-    lines: str | list | None = None, res: str | list | None = None
+    lines: str | list[str] | None = None,
+    res: str | list[str] | None = None,
 ) -> Match[str] | None:
     """Match function using regular expression match.
 
@@ -2160,7 +2165,7 @@ class TestCmd:
                     do_chmod(os.path.join(dirpath, name))
             do_chmod(top)
 
-    def write(self, file: str | list, content: str | bytes, mode: str = 'wb'):
+    def write(self, file: str | list[str], content: str | bytes, mode: str = 'wb'):
         """Writes data to file.
 
         The file is created under the temporary working directory.
