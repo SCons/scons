@@ -58,8 +58,8 @@ default_version = '4.10.2ayyyymmdd'
 
 # TODO: these need to be hand-edited when there are changes
 python_version_unsupported = (3, 7, 0)
-python_version_deprecated = (3, 7, 0)
-python_version_supported_str = "3.7.0"  # str of lowest non-deprecated Python
+python_version_deprecated = (3, 9, 0)
+python_version_supported_str = "3.9.0"  # str of lowest non-deprecated Python
 
 SConsVersion = default_version
 
