@@ -23,6 +23,8 @@ DEPRECATED FUNCTIONALITY
 
 - List anything that's been deprecated since the last release
 
+- Deprecated Python 3.8 support.
+
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 

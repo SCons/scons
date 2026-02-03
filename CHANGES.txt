@@ -28,6 +28,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Implement type hints for Node subclasses.
     - Ruff: Handle F401 exclusions more granularly, remove per-file exclusions.
     - Removed Python 3.7 support.
+    - Deprecated Python 3.8 support.
 
   From William Deegan:
     - Fix SCons Docbook schema to work with lxml > 5

@@ -109,6 +109,13 @@ support for &Python; 3.7 is removed.
 The CPython project retired 3.7 in June 2023:
 <ulink url="https://peps.python.org/pep-0537"/>.
 </para>
+<para>
+<emphasis>Changed in version NEXT_RELEASE:</emphasis>
+support for &Python; 3.8 is deprecated and will be removed
+in a future &SCons; release.
+The CPython project retired 3.8 in Sept 2024:
+<ulink url="https://peps.python.org/pep-0569"/>.
+</para>
 
 <para>
 You set up an &SCons; build by writing a script
