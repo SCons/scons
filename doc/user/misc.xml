@@ -75,14 +75,14 @@ This file is processed by the bin/SConsDoc.py module.
 
     <scons_example name="misc_EnsurePythonVersion">
       <file name="SConstruct" printme="1">
-EnsurePythonVersion(3, 8)
+EnsurePythonVersion(3, 9)
       </file>
     </scons_example>
 
     -->
 
     <sconstruct>
-EnsurePythonVersion(3, 8)
+EnsurePythonVersion(3, 9)
     </sconstruct>
 
     <para>
@@ -107,7 +107,7 @@ EnsurePythonVersion(3, 8)
 
     <screen>
 % <userinput>scons -Q</userinput>
-Python 3.7 or greater required, but you have Python 3.6.5
+Python 3.9 or greater required, but you have Python 3.8.2
     </screen>
 
   </section>

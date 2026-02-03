@@ -253,7 +253,7 @@ def get_current_hash_algorithm_used():
     """Returns the current hash algorithm name used.
 
     Where the python version >= 3.9, this is expected to return md5.
-    If python's version is <= 3.8, this returns md5 on non-FIPS-mode platforms, and
+    If python's version is == 3.8, this returns md5 on non-FIPS-mode platforms, and
     sha1 or sha256 on FIPS-mode Linux platforms.
 
     This function is primarily useful for testing, where one expects a value to be
@@ -330,14 +330,8 @@ def hash_file_signature(fname: str, chunksize: int=65536, hash_format=None) -> s
     """
     m = _get_hash_object(hash_format)
     with open(fname, "rb") as f:
-        while True:
-            blck = f.read(chunksize)
-            if not blck:
-                break
-            m.update(to_bytes(blck))
-        # TODO: can use this when base is Python 3.8+
-        # while (blk := f.read(chunksize)) != b'':
-        #     m.update(to_bytes(blk))
+        while (blk := f.read(chunksize)):
+            m.update(to_bytes(blk))
 
     return m.hexdigest()
 

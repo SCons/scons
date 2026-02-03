@@ -13,7 +13,7 @@ SCons is an open-source software construction tool (build tool) implemented in P
 ## Building and Running
 
 ### Prerequisites
-*   Python 3.7 or higher.
+*   Python 3.8 or higher.
 *   Development dependencies: `python -m pip install -r requirements-dev.txt`
 
 ### Running SCons (Development)

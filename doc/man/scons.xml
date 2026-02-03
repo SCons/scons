@@ -87,7 +87,7 @@ and a database of information about previous builds so
 details do not have to be recalculated each run.
 </para>
 
-<para>&scons; requires &Python; 3.7 or later to run;
+<para>&scons; requires &Python; 3.8 or later to run;
 there should be no other dependencies or requirements,
 unless the experimental Ninja tool is used (requires the ninja package).
 </para>
@@ -102,6 +102,12 @@ The CPython project retired 3.5 in Sept 2020:
 support for &Python; 3.6 is removed.
 The CPython project retired 3.6 in Sept 2021:
 <ulink url="https://peps.python.org/pep-0494"/>.
+</para>
+<para>
+<emphasis>Changed in version NEXT_RELEASE:</emphasis>
+support for &Python; 3.7 is removed.
+The CPython project retired 3.7 in June 2023:
+<ulink url="https://peps.python.org/pep-0537"/>.
 </para>
 
 <para>

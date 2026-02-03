@@ -55,7 +55,7 @@ jobs:
 
     - &coverage_jobs
       dist: bionic
-      python: 3.7
+      python: 3.8
       name: coverage
       before_script:
         - ./.travis/coverage_setup.sh

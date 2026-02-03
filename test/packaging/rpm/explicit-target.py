@@ -75,11 +75,7 @@ env.Package( NAME           = 'foo',
         )
 """ % locals())
 
-
-if sys.version_info.minor >= 8:
-    line_number = 12
-else:
-    line_number = 23
+line_number = 12
 
 expect = """
 scons: *** Setting target is not supported for rpm.
