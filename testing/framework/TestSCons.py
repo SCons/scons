@@ -190,17 +190,17 @@ def deprecated_python_version(version=sys.version_info):
 
 
 if deprecated_python_version():
-    msg = r"""
-scons: warning: Support for Python older than %s is deprecated (%s detected).
+    deprecated_python_msg = rf"""
+scons: warning: Support for Python older than {python_version_supported_str} is deprecated ({python_version_string()} detected).
     If this will cause hardship, contact scons-dev@python.org
 """
     deprecated_python_expr = (
-        re_escape(msg % (python_version_supported_str, python_version_string()))
+        re_escape(deprecated_python_msg )
         + file_expr
     )
-    del msg
 else:
     deprecated_python_expr = ""
+    deprecated_python_msg = ""
 
 
 def initialize_sconsflags(ignore_python_version):
