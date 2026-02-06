@@ -59,6 +59,9 @@ PACKAGING
 
 - List changes in the way SCons is packaged and/or released
 
+- Added script for release process to find all contributors in a release and highlight
+  new contributors. (Using Gemini AI)
+
 DOCUMENTATION
 -------------
 
