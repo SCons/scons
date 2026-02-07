@@ -10,8 +10,9 @@ It then checks if any of these contributors have made prior contributions
 import subprocess
 import sys
 import argparse
+from typing import List, Set, Tuple, Dict
 
-def get_git_output(args):
+def get_git_output(args: List[str]) -> str:
     """Runs a git command and returns its output as a string.
 
     Args:
@@ -33,7 +34,7 @@ def get_git_output(args):
         print(e.output.decode('utf-8', errors='replace'))
         sys.exit(1)
 
-def get_contributors_since(tag):
+def get_contributors_since(tag: str) -> Set[Tuple[str, str]]:
     """Retrieves a set of contributors who have committed since the specified tag.
 
     Args:
@@ -58,7 +59,7 @@ def get_contributors_since(tag):
                     contributors.add((name, email))
     return contributors
 
-def get_prior_emails(tag):
+def get_prior_emails(tag: str) -> Set[str]:
     """Retrieves a set of email addresses for all contributors prior to the specified tag.
 
     Args:
@@ -80,7 +81,7 @@ def get_prior_emails(tag):
                 prior_emails.add(line.strip().lower())
     return prior_emails
 
-def main():
+def main() -> None:
     """Main function to parse arguments and print the contributor report."""
     parser = argparse.ArgumentParser(description="List contributors since a specified tag and identify first-time contributors.")
     parser.add_argument("tag", help="The git tag to start from (e.g., 4.7.0)")
@@ -104,7 +105,7 @@ def main():
     
     # Prepare data for display with deduplication
     # Map: display_name -> is_new (boolean)
-    contributor_status = {}
+    contributor_status: Dict[str, bool] = {}
     
     for name, email in recent_contributors:
         display_name = name if name else email
