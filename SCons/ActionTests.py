@@ -2360,9 +2360,6 @@ class ObjectContentsTestCase(unittest.TestCase):
     @mock.patch("subprocess.run", mock_subprocess_run)
     def test_scons_subproc_run(self):
         """Test the argument remapping options."""
-        # set phony Python versions to trigger the logic in scons_subproc_run:
-        # any version greater than 3.6, really
-        save_info, sys.version_info = sys.version_info, (3, 11, 1)
         env = Environment()
         self.assertEqual(scons_subproc_run(env), {"check": False})
         with self.subTest():
@@ -2380,25 +2377,6 @@ class ObjectContentsTestCase(unittest.TestCase):
                 scons_subproc_run(env, text=True),
                 {"text": True, "check": False},
             )
-
-        # 3.7:
-        sys.version_info = (3, 7, 2)
-        with self.subTest():
-            self.assertEqual(
-                scons_subproc_run(env, capture_output=True),
-                {"capture_output": True, "check": False},
-            )
-        with self.subTest():
-            self.assertEqual(
-                scons_subproc_run(env, text=True),
-                {"check": False, "text": True},
-            )
-        with self.subTest():
-            self.assertEqual(
-                scons_subproc_run(env, universal_newlines=True),
-                {"universal_newlines": True, "check": False},
-            )
-        sys.version_info = save_info
 
 
 if __name__ == "__main__":
