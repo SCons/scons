@@ -8,7 +8,7 @@ NOTE: The 4.0.0 release of SCons dropped Python 2.7 support. Use 3.1.2 if
   Python 2.7 support is required (but note old SCons releases are unsupported).
 NOTE: Since SCons 4.3.0, Python 3.6.0 or above is required.
 NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
-
+The last release to support Python 3.7 or Python 3.8 is NEXT_RELEASE.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
