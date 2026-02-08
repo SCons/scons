@@ -271,7 +271,7 @@ Environment Variables:
     parser.add_argument('-d', '--debug', action='store_true',
                         help="Run test scripts under the Python debugger.")
     parser.add_argument('-D', '--devmode', action='store_true',
-                        help="Run tests in Python's development mode (Py3.7+ only).")
+                        help="Run tests in Python's development mode.")
     parser.add_argument('-e', '--external', action='store_true',
                         help="Run the script in external mode (for external Tools)")
     parser.add_argument('-j', '--jobs', metavar='JOBS', default=1, type=posint,

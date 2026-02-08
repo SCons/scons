@@ -41,6 +41,7 @@ from collections.abc import Callable, Collection
 from subprocess import DEVNULL, PIPE
 from types import ModuleType
 from typing import TYPE_CHECKING, Any, NoReturn, cast, overload
+from typing import Literal as _Literal
 
 import SCons.Action
 import SCons.Builder
@@ -1919,7 +1920,12 @@ class Base(SubstitutionEnvironment):
             if path: return prog
         return None
 
-    # TODO: Overloads based on `as_dict` once py3.8 is the minimum version.
+    @overload
+    def Dictionary(self, *args: str, as_dict: _Literal[False]) -> Any | list[Any]: ...
+
+    @overload
+    def Dictionary(self, *args: str, as_dict: _Literal[True]) -> dict[str, Any]: ...
+
     def Dictionary(self, *args: str, as_dict: bool = False) -> Any | list[Any] | dict[str, Any]:
         """Return construction variables from an environment.
 
