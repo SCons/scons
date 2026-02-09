@@ -78,12 +78,16 @@ def cyglink_shlib_symlink_emitter(target, source, env, **kw):
     """
     On cygwin, we only create a symlink from the non-versioned implib to the versioned implib.
     We don't version the shared library itself.
-    :param target:
-    :param source:
-    :param env:
-    :param kw:
-    :return:
-    """
+
+    Args:
+        target:
+        source:
+        env:
+        kw:
+
+    Returns:
+        A tuple of target, source
+     """
     verbose = True
 
     if 'variable_prefix' in kw:

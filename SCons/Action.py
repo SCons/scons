@@ -332,11 +332,11 @@ def _object_instance_content(obj):
     """
     Returns consistant content for a action class or an instance thereof
 
-    :Parameters:
-      - `obj` Should be either and action class or an instance thereof
+    Args:
+        obj: Should be either an action class or an instance thereof
 
-    :Returns:
-      bytearray or bytes representing the obj suitable for generating a signature from.
+    Returns:
+        bytearray or bytes representing the obj suitable for generating a signature from.
     """
     retval = bytearray()
 

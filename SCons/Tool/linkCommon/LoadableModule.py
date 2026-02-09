@@ -30,14 +30,20 @@ def ldmod_symlink_emitter(target, source, env, **kw):
     return shlib_symlink_emitter(target, source, env, variable_prefix='LDMODULE')
 
 
-def _get_ldmodule_stem(target, source, env, for_signature):
-    """
-    Get the basename for a library (so for libxyz.so, return xyz)
-    :param target:
-    :param source:
-    :param env:
-    :param for_signature:
-    :return:
+def _get_ldmodule_stem(target, source, env, for_signature) -> str:
+    """Get the basename for a library.
+
+    Strips off the loadable module prefix and suffix defined in the
+    construction environment (e.g. ``libxyz.so`` -> ``xyz``)
+
+    Args:
+        target:
+        source:
+        env:
+        for_signature:
+
+    Returns:
+        The extracted basename
     """
     target_name = str(target)
     ldmodule_prefix = env.subst('$LDMODULEPREFIX')
@@ -83,17 +89,15 @@ def _LDMODULEVERSION(target, source, env, for_signature):
         return ""
 
 def setup_loadable_module_logic(env) -> None:
-    """
-    Just the logic for loadable modules
+    """Just the logic for loadable modules
 
     For most platforms, a loadable module is the same as a shared
     library.  Platforms which are different can override these, but
     setting them the same means that LoadableModule works everywhere.
 
-    :param env:
-    :return:
+    Args:
+        env:
     """
-
     createLoadableModuleBuilder(env)
 
     env['_get_ldmodule_stem'] = _get_ldmodule_stem
