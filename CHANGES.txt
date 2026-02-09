@@ -8,7 +8,7 @@ NOTE: The 4.0.0 release of SCons dropped Python 2.7 support. Use 3.1.2 if
   Python 2.7 support is required (but note old SCons releases are unsupported).
 NOTE: Since SCons 4.3.0, Python 3.6.0 or above is required.
 NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
-
+NOTE: The last release to support Python 3.7 or Python 3.8 is NEXT_RELEASE.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
@@ -27,11 +27,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Implement type hints for Node subclasses.
     - Ruff: Handle F401 exclusions more granularly, remove per-file exclusions.
     - Implement type hints for Environment and environment utilities.
+    - Deprecated Python 3.7 & 3.8 support.
 
   From William Deegan:
     - Fix SCons Docbook schema to work with lxml > 5
     - Update pyproject.toml to support Python 3.14 and remove restrictions on lxml version install
     - Used Gemini to refactor runtest.py to better organized the code and add docstrings.
+    - Added script for release process to find all contributors in a release and highlight
+      new contributors. (Using Gemini AI)
 
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
@@ -52,6 +55,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       need actual installed system programs (add -live suffix).
     - Test runner reworked to use Python logging; the portion of the test suite
       which tests the runner was adjusted to match.
+    - Switch remaining "original style" docstring parameter listings to
+      Google style.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
