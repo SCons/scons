@@ -73,12 +73,8 @@ def make_emit_compilation_DB_entry(comstr):
     * command line
     * source
     * target
-
-    Args:
-        comstr: unevaluated command line
-
-    Returns:
-        an emitter which has captured the above
+    :param comstr: unevaluated command line
+    :return: an emitter which has captured the above
     """
     user_action = SCons.Action.Action(comstr)
 
@@ -86,15 +82,12 @@ def make_emit_compilation_DB_entry(comstr):
         """
         This emitter will be added to each c/c++ object build to capture the info needed
         for clang tools
-
-        Args:
-            target: target node(s)
-            source: source node(s)
-            env: Environment for use building this node
-
-        Returns:
-            A tuple of target(s), source(s)
+        :param target: target node(s)
+        :param source: source node(s)
+        :param env: Environment for use building this node
+        :return: target(s), source(s)
         """
+
         dbtarget = __CompilationDbNode(source)
 
         entry = env.__COMPILATIONDB_Entry(
@@ -129,13 +122,13 @@ def compilation_db_entry_action(target, source, env, **kw) -> None:
     Create a dictionary with evaluated command line, target, source
     and store that info as an attribute on the target
     (Which has been stored in __COMPILATION_DB_ENTRIES array
-
-    Args:
-        target: target node(s)
-        source: source node(s)
-        env: Environment for use building this node
-        kw: additional keyword args (ignored)
+    :param target: target node(s)
+    :param source: source node(s)
+    :param env: Environment for use building this node
+    :param kw:
+    :return: None
     """
+
     command = env["__COMPILATIONDB_UACTION"].strfunction(
         target=env["__COMPILATIONDB_UOUTPUT"],
         source=env["__COMPILATIONDB_USOURCE"],
