@@ -45,7 +45,14 @@ from SCons.Tool.asm import ASPPSuffixes, ASSuffixes
 from SCons.Tool.cc import CSuffixes
 from SCons.Tool.cxx import CXXSuffixes
 
-DEFAULT_DB_NAME = 'compile_commands.json'
+DEFAULT_DB_NAME = "compile_commands.json"
+
+# TODO: Is there a better way to do this than this global? Right now this exists so that the
+# emitter we add can record all of the things it emits, so that the scanner for the top level
+# compilation database can access the complete list, and also so that the writer has easy
+# access to write all of the files. But it seems clunky. How can the emitter and the scanner
+# communicate more gracefully?
+__COMPILATION_DB_ENTRIES = []
 
 
 class CompDBTEMPFILE(TempFileMunge):
@@ -56,11 +63,11 @@ class CompDBTEMPFILE(TempFileMunge):
 def write_compilation_db(target, source, env) -> None:
     DIRECTORY = env.Dir("#").get_abspath()
     OVERRIDES = {"TEMPFILE": CompDBTEMPFILE}
-    USE_ABSPATH = env['COMPILATIONDB_USE_ABSPATH'] in [True, 1, 'True', 'true']
-    USE_PATH_FILTER = env.subst('$COMPILATIONDB_PATH_FILTER')
+    USE_ABSPATH = env["COMPILATIONDB_USE_ABSPATH"] in [True, 1, "True", "true"]
+    USE_PATH_FILTER = env.subst("$COMPILATIONDB_PATH_FILTER")
 
     entries = []
-    for db_target, db_source, db_env, db_action in env._compilation_db_entries:
+    for db_target, db_source, db_env, db_action in __COMPILATION_DB_ENTRIES:
         # Parse command before filtering.
         command = db_action.strfunction(db_target, db_source, db_env, None, OVERRIDES)
 
@@ -119,7 +126,7 @@ def generate(env, **kwargs) -> None:
         action = Action(command)
 
         def _compilation_db_entry_emitter(target, source, env):
-            env._compilation_db_entries.append((target[0], source[0], env, action))
+            __COMPILATION_DB_ENTRIES.append((target[0], source[0], env, action))
             return target, source
 
         return _compilation_db_entry_emitter
@@ -131,7 +138,6 @@ def generate(env, **kwargs) -> None:
     GEN_ASCOM = _generate_emitter("$ASCOM")
     GEN_ASPPCOM = _generate_emitter("$ASPPCOM")
 
-    env._compilation_db_entries = []
     static_obj, shared_obj = createObjBuilders(env)
 
     for suffix, (builder, emitter) in itertools.chain(
