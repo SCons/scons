@@ -49,14 +49,18 @@ class AppleLinkInvalidCompatibilityVersionException(Exception):
 
 
 def _applelib_check_valid_version(version_string):
-    """
-    Check that the version # is valid.
+    """Check that the version # is valid.
+
     X[.Y[.Z]]
     where X 0-65535
     where Y either not specified or 0-255
     where Z either not specified or 0-255
-    :param version_string:
-    :return:
+
+    Args:
+        version_string:
+
+    Returns:
+        A tuple of the outcome and an information string (empty if True)
     """
     parts = version_string.split('.')
     if len(parts) > 3:
@@ -83,11 +87,14 @@ def _applelib_currentVersionFromSoVersion(source, target, env, for_signature) ->
     Otherwise if APPLELINK_CURRENT_VERSION is not specified, env['SHLIBVERSION']
     will be used.
 
-    :param source:
-    :param target:
-    :param env:
-    :param for_signature:
-    :return: A string providing the flag to specify the current_version of the shared library
+    Args:
+        source:
+        target:
+        env:
+        for_signature:
+
+    Returns:
+        A string providing the flag to specify the current_version of the shared library
     """
     if env.get('APPLELINK_NO_CURRENT_VERSION', False):
         return ""
@@ -114,11 +121,14 @@ def _applelib_compatVersionFromSoVersion(source, target, env, for_signature) -> 
     Otherwise if APPLELINK_COMPATIBILITY_VERSION is not specified
     the first two parts of env['SHLIBVERSION'] will be used with a .0 appended.
 
-    :param source:
-    :param target:
-    :param env:
-    :param for_signature:
-    :return: A string providing the flag to specify the compatibility_version of the shared library
+    Args:
+        source:
+        target:
+        env:
+        for_signature:
+
+    Returns:
+        A string providing the flag to specify the compatibility_version of the shared library
     """
     if env.get('APPLELINK_NO_COMPATIBILITY_VERSION', False):
         return ""

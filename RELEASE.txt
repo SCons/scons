@@ -58,6 +58,9 @@ IMPROVEMENTS
 - Simplified and sped up compilation database generation. No longer requires
   each entry to have a dedicated node that's always built; instead, the database
   *itself* is set to always build.
+  
+- Switch remaining "original style" docstring parameter listings to Google style.
+
 
 PACKAGING
 ---------

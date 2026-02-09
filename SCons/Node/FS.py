@@ -48,10 +48,9 @@ import SCons.Debug
 import SCons.Errors
 import SCons.Memoize
 import SCons.Node
-import SCons.Node.Alias
+import SCons.SConsign
 import SCons.Subst
 import SCons.Util
-import SCons.Warnings
 from SCons.Debug import logInstanceCreation, Trace
 from SCons.Node import BuildInfoBase, Node, NodeInfoBase
 from SCons.Util import hash_signature, hash_file_signature, hash_collect
@@ -74,7 +73,6 @@ def sconsign_dir(node):
     """Return the .sconsign file info for this directory,
     creating it first if necessary."""
     if not node._sconsign:
-        import SCons.SConsign
         node._sconsign = SCons.SConsign.ForDirectory(node)
     return node._sconsign
 
@@ -382,8 +380,8 @@ MkdirBuilder: BuilderBase | None = None
 def get_MkdirBuilder() -> BuilderBase:
     global MkdirBuilder
     if MkdirBuilder is None:
-        import SCons.Builder
-        import SCons.Defaults
+        import SCons.Builder  # pylint: disable-msg=import-outside-toplevel
+        import SCons.Defaults  # pylint: disable-msg=import-outside-toplevel
         # "env" will get filled in by Executor.get_build_env()
         # calling SCons.Defaults.DefaultEnvironment() when necessary.
         MkdirBuilder = SCons.Builder.Builder(action = Mkdir,
@@ -432,8 +430,9 @@ class DiskChecker:
     def enable(self, disk_check_type_list: list[str]) -> None:
         """
         If the current object's disk_check_type matches any in the list passed
-        :param disk_check_type_list: List of disk checks to enable
-        :return:
+
+        Args:
+            disk_check_type_list: List of disk checks to enable
         """
         if self.disk_check_type in disk_check_type_list:
             self.func = self.do_check_function
@@ -1035,7 +1034,14 @@ class Entry(Base):
         pass
 
     def disambiguate(self, must_exist: bool = False) -> FileNode | DirNode:
-        """
+        """Disamgbiguate (and morph) the node and return it.
+
+        Args:
+            must_exist: if true, it is an error for there to be no
+                matching file on disk.
+
+        Raises:
+            :exc:`UserError`: nothing on disk and *must_exist* is true.
         """
         if self.isfile():
             self.__class__ = File  # type: ignore[assignment]
@@ -1055,9 +1061,11 @@ class Entry(Base):
             # with that name, in which case we can go ahead and call
             # self.srcnode() to create the right type of entry.
             srcdir = self.dir.srcnode()
-            if srcdir != self.dir and \
-               srcdir.entry_exists_on_disk(self.name) and \
-               self.srcnode().isdir():
+            if (
+                srcdir != self.dir
+                and srcdir.entry_exists_on_disk(self.name)
+                and self.srcnode().isdir()
+            ):
                 self.__class__ = Dir  # type: ignore[assignment]
                 self._morph()
             elif must_exist:
@@ -1080,7 +1088,7 @@ class Entry(Base):
     def scanner_key(self) -> str:
         return self.get_suffix()
 
-    def get_contents(self):
+    def get_contents(self) -> bytes:
         """Fetch the contents of the entry.  Returns the exact binary
         contents of the file."""
         return SCons.Node._get_contents_map[self._func_get_contents](self)
@@ -1492,7 +1500,7 @@ class FS(LocalFS):
         """
         return self._lookup(name, directory, Dir, create)
 
-    def VariantDir(self, variant_dir: str | DirNode, src_dir: str | DirNode, duplicate: int=1) -> None:
+    def VariantDir(self, variant_dir: str | DirNode, src_dir: str | DirNode, duplicate: bool = True) -> None:
         """Link the supplied variant directory to the source directory
         for purposes of building files."""
 
@@ -1846,12 +1854,13 @@ class Dir(Base):
 
         return result
 
+    # TODO: mutable default
     def get_env_scanner(self, env: Environment, kw: dict[str, Any] | None = {}) -> ScannerBase:
-        import SCons.Defaults
+        import SCons.Defaults  # pylint: disable=import-outside-toplevel
         return SCons.Defaults.DirEntryScanner
 
     def get_target_scanner(self) -> ScannerBase:
-        import SCons.Defaults
+        import SCons.Defaults  # pylint: disable=import-outside-toplevel
         return SCons.Defaults.DirEntryScanner
 
     def get_found_includes(self, env: Environment, scanner: ScannerBase | None, path: str) -> list[Node]:
@@ -1975,9 +1984,8 @@ class Dir(Base):
             for dir in self.dir.get_all_rdirs():
                 try: node = dir.entries[norm_name]
                 except KeyError: node = dir.dir_on_disk(self.name)
-                if node and node.exists() and \
-                    (isinstance(dir, Dir) or isinstance(dir, Entry)):
-                        return node
+                if node and node.exists() and isinstance(dir, (Dir, Entry)):
+                    return node
         return self
 
     def sconsign(self) -> SConsignDatabase:
@@ -2141,9 +2149,8 @@ class Dir(Base):
                 pass
 
         def func(node: Node) -> FileNode | None:
-            if (isinstance(node, File) or isinstance(node, Entry)) and \
-               (node.is_derived() or node.exists()):
-                    return node
+            if isinstance(node, (File, Entry)) and (node.is_derived() or node.exists()):
+                return node
             return None
 
         norm_name = _my_normcase(filename)
@@ -2407,7 +2414,7 @@ class RootDir(Dir):
 
         self._morph()
 
-        self.duplicate = 0
+        self.duplicate = False
         self._lookupDict = {'': self, '/': self}
 
         self.root = self
@@ -2604,7 +2611,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
         if os_sep_is_slash:
             node_to_str = str
         else:
-            def node_to_str(n):
+            def node_to_str(n) -> str:
                 try:
                     s = n.get_internal_path()
                 except AttributeError:
@@ -2612,6 +2619,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
                 else:
                     s = s.replace(OS_SEP, '/')
                 return s
+
         for attr in ['bsources', 'bdepends', 'bimplicit']:
             try:
                 val = getattr(self, attr)
@@ -2893,7 +2901,6 @@ class File(Base):
         # If it was actually a build signature, then it will cause a
         # rebuild anyway when it doesn't match the new content signature,
         # but that's probably the best we can do.
-        import SCons.SConsign
         new_entry = SCons.SConsign.SConsignEntry()
         new_entry.binfo = self.new_binfo()
         binfo = new_entry.binfo
@@ -2931,7 +2938,6 @@ class File(Base):
         try:
             sconsign_entry = self.dir.sconsign().get_entry(self.name)
         except (KeyError, OSError):
-            import SCons.SConsign
             sconsign_entry = SCons.SConsign.SConsignEntry()
             sconsign_entry.binfo = self.new_binfo()
             sconsign_entry.ninfo = self.new_ninfo()
@@ -2994,8 +3000,7 @@ class File(Base):
         self.dir._create()
 
     def push_to_cache(self) -> bool:
-        """Try to push the node into a cache
-        """
+        """Try to push the node into a cache."""
         # This should get called before the Nodes' .built() method is
         # called, which would clear the build signature if the file has
         # a source scanner.
@@ -3085,15 +3090,15 @@ class File(Base):
             self._memo.pop('rfile', None)
             self.prerequisites = None
             # Cleanup lists, but only if they're empty
-            if not len(self.ignore_set):
+            if not self.ignore_set:
                 self.ignore_set = None
-            if not len(self.implicit_set):
+            if not self.implicit_set:
                 self.implicit_set = None
-            if not len(self.depends_set):
+            if not self.depends_set:
                 self.depends_set = None
-            if not len(self.ignore):
+            if not self.ignore:
                 self.ignore = None
-            if not len(self.depends):
+            if not self.depends:
                 self.depends = None
             # Mark this node as done, we only have to release
             # the memory once...
@@ -3361,8 +3366,12 @@ class File(Base):
             len(binfo.bimplicitsigs)) == 0:
             return {}
 
-        binfo.dependency_map = { child:signature for child, signature in zip(chain(binfo.bsources, binfo.bdepends, binfo.bimplicit),
-                                     chain(binfo.bsourcesigs, binfo.bdependsigs, binfo.bimplicitsigs))}
+        binfo.dependency_map = dict(
+            zip(
+                chain(binfo.bsources, binfo.bdepends, binfo.bimplicit),
+                chain(binfo.bsourcesigs, binfo.bdependsigs, binfo.bimplicitsigs),
+            )
+        )
 
         return binfo.dependency_map
 
@@ -3377,8 +3386,8 @@ class File(Base):
 
         # print("DMAP:%s"%id(dmap))
         if first_string not in dmap:
-                string_dict = {str(child): signature for child, signature in dmap.items()}
-                dmap.update(string_dict)
+            string_dict = {str(child): signature for child, signature in dmap.items()}
+            dmap.update(string_dict)
         return dmap
 
     def _get_previous_signatures(self, dmap: dict[str | FileNode, BuildInfoBase]) -> BuildInfoBase | None:
@@ -3531,9 +3540,11 @@ class File(Base):
     def changed_timestamp_match(self, target: FileNode, prev_ni: NodeInfoBase, repo_node: Node | None = None) -> bool:
         """
         Return True if the timestamps don't match or if there is no previous timestamp
-        :param target:
-        :param prev_ni: Information about the node from the previous build
-        :return:
+
+        Args:
+            target:
+            prev_ni: Information about the node from the previous build
+            repo_node:
         """
         try:
             return self.get_timestamp() != prev_ni.timestamp
@@ -3590,8 +3601,7 @@ class File(Base):
                     node = repo_dir.file_on_disk(self.name)
 
                 if node and node.exists() and \
-                   (isinstance(node, File) or isinstance(node, Entry)
-                    or not node.is_derived()):
+                    (isinstance(node, (File, Entry)) or not node.is_derived()):
                         result = node
                         # Copy over our local attributes to the repository
                         # Node so we identify shared object files in the
@@ -3611,9 +3621,10 @@ class File(Base):
         return result
 
     def find_repo_file(self) -> list[FileNode]:
-        """
-        For this node, find if there exists a corresponding file in one or more repositories
-        :return: list of corresponding files in repositories
+        """For this node, find if there exists a corresponding file in one or more repositories
+
+        Returns:
+            list of corresponding files in repositories
         """
         retvals = []
 
@@ -3625,9 +3636,8 @@ class File(Base):
                 node = repo_dir.file_on_disk(self.name)
 
             if node and node.exists() and \
-                    (isinstance(node, File) or isinstance(node, Entry)
-                     or not node.is_derived()):
-                retvals.append(node)
+                (isinstance(node, (File, Entry)) or not node.is_derived()):
+                    retvals.append(node)
 
         return retvals
 
@@ -3824,7 +3834,7 @@ class FileFinder:
 find_file = FileFinder().find_file
 
 
-def invalidate_node_memos(targets: list[Base | str]) -> None:
+def invalidate_node_memos(targets: str | list[Base | str]) -> None:
     """
     Invalidate the memoized values of all Nodes (files or directories)
     that are associated with the given entries. Has been added to
