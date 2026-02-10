@@ -1042,6 +1042,9 @@ def _main(parser):
     SCons.Node.implicit_deps_changed = options.implicit_deps_changed
     SCons.Node.implicit_deps_unchanged = options.implicit_deps_unchanged
 
+    if options.cache_dir:
+        SCons.CacheDir.cli_cache_dir = options.cache_dir
+
     if options.no_exec:
         SCons.SConf.dryrun = 1
         SCons.Action.execute_actions = None

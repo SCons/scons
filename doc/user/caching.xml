@@ -73,12 +73,21 @@ CacheDir('/usr/local/build_cache')
     </scons_example>
 
     <para>
+    A cache directory can also be specified on the command line
+    (<literal>--cache-dir=CACHEDIR</literal>) - useful for the case
+    where you have a permanent &f-link-CacheDir; call
+    but want to override it temporarily for a given build.
+    You can also create a cache directory specific to a &consenv;
+    by using the <literal>env.CacheDir()</literal> form.
+    </para>
+
+    <para>
 
     The cache directory you specify must
     have read and write access for all developers
-    who will be accessing the cached files
-    (if <option>--cache-readonly</option> is used,
-    only read access is required).
+    who will be accessing the cached files.
+    If <option>--cache-readonly</option> is used,
+    only read access is required.
     It should also be in some central location
     that all builds will be able to access.
     In environments where developers are using separate systems
@@ -86,9 +95,11 @@ CacheDir('/usr/local/build_cache')
     this directory would typically be
     on a shared or NFS-mounted file system.
     While &SCons; will create the specified cache directory as needed,
-    in this multiuser scenario it is usually best
-    to create it ahead of time, so the access rights
-    can be set up correctly.
+    the underlying &Python; library function used for this will
+    create it accessbile only for the creating user ID,
+    so for a shared cache, it is usually best
+    to create it ahead of time, and manually set up
+    the access rights as needed.
 
     </para>
 
