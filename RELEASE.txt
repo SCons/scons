@@ -35,6 +35,7 @@ FIXES
 -----
 
 - List fixes of outright bugs
+- Fix multiple extension stripping for BibTeX and Biber processing
 
 - Fix --debug=includes for case of multiple source files.
 
