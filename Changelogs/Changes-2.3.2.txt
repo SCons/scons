@@ -1,0 +1,53 @@
+RELEASE 2.3.2
+
+  From Dirk Baechle:
+    - Update XML doc editor configuration
+    - Fix: Allow varlist to be specified as list of strings for Actions (#2754)
+
+  From veon on bitbucket:
+    - Fixed handling of nested ifs in CPP scanner PreProcessor class.
+
+  From Shane Gannon:
+    - Support for Visual Studio 2013 (12.0)
+
+  From Michael Haubenwallner:
+    - Respect user's CC/CXX values; don't always overwrite in generate()
+    - Delegate linker Tool.exists() to CC/CXX Tool.exists().
+
+  From Rob Managan:
+    - Updated the TeX builder to support use of the -synctex=1
+      option and the files it creates.
+    - Updated the TeX builder to correctly clean auxiliary files when
+      the biblatex package is used.
+
+  From Gary Oberbrunner:
+    - get default RPM architecture more robustly when building RPMs
+
+  From Amir Szekely:
+    - Fixed NoClean() for multi-target builders (#2353).
+
+  From Paweł Tomulik:
+    - Fix SConf tests that write output
+
+  From Russel Winder:
+    - Revamp of the D language support. Tools for DMD, GDC and LDC provided
+      and integrated with the C and C++ linking. NOTE: This is only tested
+      with D v2. Support for D v1 is now deprecated.
+
+  From Anatoly Techtonik:
+    - Several improvements for running scons.py from source:
+      * engine files form source directory take priority over all other
+        importable versions
+      * message about scons.py running from source is removed to fix tests
+        that were failing because of this extra line in the output
+      * error message when SCons import fails now lists lookup paths
+    - Remove support for QMTest harness from runtest.py
+    - Remove RPM and m4 from default tools on Windows
+    - BitKeeper, CVS, Perforce, RCS, SCCS are deprecated from default
+      tools and will be removed in future SCons versions to speed up
+      SCons initialization (it will still be possible to use these tools
+      explicitly)
+
+  From Sye van der Veen:
+    - Support for Visual Studio 12.0Exp, and fixes for earlier MSVS
+      versions.

@@ -1,0 +1,20 @@
+RELEASE 0.92 - Wed, 20 Aug 2003 03:45:28 -0500
+
+  From Charles Crain and Gary Oberbrunner:
+
+  - Fix Tool import problems with the Intel and PharLap linkers.
+
+  From Steven Knight
+
+  - Refactor the DictCmdGenerator class to be a Selector subclass.
+
+  - Allow the DefaultEnvironment() function to take arguments and pass
+    them to instantiation of the default construction environment.
+
+  - Update the Debian package so it uses Python 2.2 and more closely
+    resembles the currently official Debian packaging info.
+
+  From Gerard Patel
+
+  - When the yacc -d flag is used, take the .h file base name from the
+    target .c file, not the source (matching what yacc does).

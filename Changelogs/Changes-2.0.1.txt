@@ -1,0 +1,32 @@
+RELEASE 2.0.1 - Mon, 15 Aug 2010 15:46:32 -0700
+
+  From Dirk Baechle:
+
+    - Fix XML in documentation.
+
+  From Joe Zuntz:
+
+    - Fixed a case-sensitivity problem with Fortran modules.
+
+  From Bauke Conijn:
+
+    - Added Users Guide example for auto-generated source code
+
+  From Steven Knight:
+
+    - Fix explicit dependencies (Depends()) on Nodes that don't have
+      attached Builders.
+
+  From Matt Hughes:
+
+    - Fix the ability to append to default $*FLAGS values (which are
+      implemented as CLVar instances) in a copied construction environment
+      without affecting the original construction environment's value.
+
+  From Rob Managan:
+
+    - Updated the TeX command strings to include a /D on Windows in
+      case the new directory is on a different drive letter.
+
+    - Fixed the LaTeX scanner so dependencies are found in commands that
+      are broken across lines with a comment or have embedded spaces.

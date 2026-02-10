@@ -1,0 +1,145 @@
+RELEASE 0.09 - Thu,  5 Dec 2002 04:48:25 -0600
+
+  From Chad Austin:
+
+  - Add a Prepend() method to Environments, to append values to
+    the beginning of construction variables.
+
+  From Matt Balvin:
+
+  - Add long command-line support to the "lib" Tool (Microsoft library
+    archiver), too.
+
+  From Charles Crain:
+
+  - Allow $$ in a string to be passed through as $.
+
+  - Support file names with odd characters in them.
+
+  - Add support for construction variable substition on scanner
+    directories (in CPPPATH, F77PATH, LIBPATH, etc.).
+
+  From Charles Crain and Steven Knight:
+
+  - Add Repository() functionality, including the -Y option.
+
+  From Steven Knight:
+
+  - Fix auto-deduction of target names so that deduced targets end
+    up in the same subdirectory as the source.
+
+  - Don't remove source files specified on the command line!
+
+  - Suport the Intel Fortran Compiler (ifl.exe).
+
+  - Supply an error message if there are no command-line or
+    Default() targets specified.
+
+  - Fix the ASPPCOM values for the GNU assembler.
+    (Bug reported by Brett Polivka.)
+
+  - Fix an exception thrown when a Default() directory was specified
+    when using the -U option.
+
+  - Issue a warning when -c can't remove a target.
+
+  - Eliminate unnecessary Scanner calls by checking for the
+    existence of a file before scanning it.  (This adds a generic
+    hook to check an arbitrary condition before scanning.)
+
+  - Add explicit messages to tell when we're "Reading SConscript files
+    ...," "done reading SConscript files," "Building targets," and
+    "done building targets."  Add a -Q option to supress these.
+
+  - Add separate $SHOBJPREFIX and $SHOBJSUFFIX construction variables
+    (by default, the same as $OBJPREFIX and $OBJSUFFIX).
+
+  - Add Make-like error messages when asked to build a source file,
+    and before trying to build a file that doesn't have all its source
+    files (including when an invalid drive letter is used on WIN32).
+
+  - Add an scons-local-{version} package (in both .tar.gz and .zip
+    flavors) to help people who want to ship SCons as a stand-alone
+    build tool in their software packages.
+
+  - Prevent SCons from unlinking files in certain situations when
+    the -n option is used.
+
+  - Change the name of Tool/lib.py to Tool/mslib.py.
+
+  From Steven Knight and Anthony Roach:
+
+  - Man page:  document the fact that Builder calls return Node objects.
+
+  From Steve LeBlanc:
+
+  - Refactor option processing to use our own version of Greg Ward's
+    Optik module, modified to run under Python 1.5.2.
+
+  - Add a ParseConfig() command to modify an environment based on
+    parsing output from a *-config command.
+
+  From Jeff Petkau:
+
+  - Fix interpretation of '#/../foo' on Win32 systems.
+
+  From Anthony Roach:
+
+  - Fixed use of command lines with spaces in their arguments,
+    and use of Nodes with spaces in their string representation.
+
+  - Make access and modification times of files in a BuildDir match
+    the source file, even when hard linking isn't available.
+
+  - Make -U be case insensitive on Win32 systems.
+
+  - Issue a warning and continue when finding a corrupt .sconsign file.
+
+  - Fix using an alias as a dependency of a target so that if one of the
+    alias' dependencies gets rebuilt, the resulting target will, too.
+
+  - Fix differently ordered targets causing unnecessary rebuilds
+    on case insensitive systems.
+
+  - Use os.system() to execute external commands whenever the "env"
+    utility is available, which is much faster than fork()/exec(),
+    and fixes the -j option on several platforms.
+
+  - Fix use of -j with multiple targets.
+
+  - Add an Options() object for friendlier accomodation of command-
+    line arguments.
+
+  - Add support for Microsoft VC++ precompiled header (.pch) files,
+    debugger (.pdb) files, and resource (.rc) files.
+
+  - Don't compute the $_CPPINCFLAGS, $_F77INCFLAGS, $_LIBFLAGS and
+    $_LIBDIRFLAGS variables each time a command is executed, define
+    them so they're computed only as needed.  Add a new _concat
+    function to the Environment that allows people to define their
+    own similar variables.
+
+  - Fix dependency scans when $LIBS is overridden.
+
+  - Add EnsurePythonVersion() and EnsureSConsVersion() functions.
+
+  - Fix the overly-verbose stack trace on ListBuilder build errors.
+
+  - Add a SetContentSignatureType() function, allowing use of file
+    timestamps instead of MD5 signatures.
+
+  - Make -U and Default('source') fail gracefully.
+
+  - Allow the File() and Dir() methods to take a path-name string as
+    the starting directory, in addition to a Dir object.
+
+  - Allow the command handler to be selected via the SPAWN, SHELL
+    and ESCAPE construction variables.
+
+  - Allow construction variables to be overridden when a Builder
+    is called.
+
+  From sam th:
+
+  - Dynamically check for the existence of utilities with which to
+    initialize Environments by default.

@@ -1,0 +1,65 @@
+RELEASE 0.04 - Wed, 30 Jan 2002 11:09:42 -0600
+
+  From Charles Crain:
+
+  - Significant performance improvements in the Node.FS and
+    Scanner subsystems.
+
+  - Fix signatures of binary files on Win32 systems.
+
+  - Allow LIBS and LIBPATH to be strings, not just arrays.
+
+  - Print a traceback if a Python-function builder throws an exception.
+
+  From Steven Knight:
+
+  - Fix using a directory as a Default(), and allow Default() to
+    support white space in file names for strings in arrays.
+
+  - Man page updates:  corrected some mistakes, documented various
+    missing Environment methods, alphabetized the construction
+    variables and other functions, defined begin and end macros for
+    the example sections, regularized white space separation, fixed
+    the use of Export() in the Multiple Variants example.
+
+  - Function action fixes:  None is now a successful return value.
+    Exceptions are now reported.  Document function actions.
+
+  - Add 'Action' and 'Scanner' to the global keywords so SConscript
+    files can use them too.
+
+  - Removed the Wrapper class between Nodes and Walkers.
+
+  - Add examples using Library, LIBS, and LIBPATH.
+
+  - The C Scanner now always returns a sorted list of dependencies
+    so order changes don't cause unnecessary rebuilds.
+
+  - Strip $(-$) bracketed text from command lines.  Use this to
+    surround $_INCDIRS and $_LIBDIRS so we don't rebuild in response
+    to changes to -I or -L options.
+
+  - Add the Ignore() method to ignore dependencies.
+
+  - Provide an error message when a nonexistent target is specified
+    on the command line.
+
+  - Remove targets before building them, and add an Environment
+    Precious() method to override that.
+
+  - Eliminate redundant calls to the same builder when the target is a
+    list of targets:  Add a ListBuilder class that wraps Builders to
+    handle lists atomically.  Extend the Task class to support building
+    and updating multiple targets in a single Task.  Simplify the
+    interface between Task and Taskmaster.
+
+  - Add a --debug=pdb option to re-run SCons under the Python debugger.
+
+  - Only compute a build signature once for each node.
+
+  - Changes to our sys.path[] manipulation to support installation into
+    an arbitrary --prefix value.
+
+  From Steve Leblanc:
+
+  - Add var=value command-line arguments.
