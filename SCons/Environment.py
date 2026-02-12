@@ -2403,7 +2403,7 @@ class Base(SubstitutionEnvironment):
             executor.add_post_action(action)
         return nodes
 
-    def Alias(self, target: str, source: str | Node | list[str | Node] = [], action=None, **kw) -> list[Node]:
+    def Alias(self, target: str | Node | list[str | Node], source: str | Node | list[str | Node] = [], action=None, **kw) -> list[Node]:
         """Create an alias *target* that depends on *source*."""
         tlist = self.arg2nodes(target, self.ans.Alias)
         if not is_List(source):
@@ -2570,12 +2570,12 @@ class Base(SubstitutionEnvironment):
         return tlist
 
     @overload
-    def Dir(self, name: str, *args, **kw) -> DirNode: ...
+    def Dir(self, name: str | Node, *args, **kw) -> DirNode: ...
 
     @overload
-    def Dir(self, name: list[str], *args, **kw) -> list[DirNode]: ...
+    def Dir(self, name: list[str | Node], *args, **kw) -> list[DirNode]: ...
 
-    def Dir(self, name: str | list[str], *args, **kw) -> DirNode | list[DirNode]:
+    def Dir(self, name: str | Node | list[str | Node], *args, **kw) -> DirNode | list[DirNode]:
         """Create Dir node(s) for *name*."""
         s = self.subst(name)
         if is_Sequence(s):
@@ -2586,12 +2586,12 @@ class Base(SubstitutionEnvironment):
         return self.fs.Dir(cast(str, s), *args, **kw)
 
     @overload
-    def PyPackageDir(self, modulename: str) -> DirNode | None: ...
+    def PyPackageDir(self, modulename: str | Node) -> DirNode | None: ...
 
     @overload
-    def PyPackageDir(self, modulename: list[str]) -> list[DirNode | None]: ...
+    def PyPackageDir(self, modulename: list[str | Node]) -> list[DirNode | None]: ...
 
-    def PyPackageDir(self, modulename: str | list[str]) -> DirNode | list[DirNode | None] | None:
+    def PyPackageDir(self, modulename: str | Node | list[str | Node]) -> DirNode | list[DirNode | None] | None:
         """Create Dir node(s) for *modulename*."""
         s = self.subst(modulename)
         if is_Sequence(s):
@@ -2620,12 +2620,12 @@ class Base(SubstitutionEnvironment):
         return tlist
 
     @overload
-    def Entry(self, name: str, *args, **kw) -> EntryNode: ...
+    def Entry(self, name: str | Node, *args, **kw) -> EntryNode: ...
 
     @overload
-    def Entry(self, name: list[str], *args, **kw) -> list[EntryNode]: ...
+    def Entry(self, name: list[str | Node], *args, **kw) -> list[EntryNode]: ...
 
-    def Entry(self, name: str | list[str], *args, **kw) -> EntryNode | list[EntryNode]:
+    def Entry(self, name: str | Node | list[str | Node], *args, **kw) -> EntryNode | list[EntryNode]:
         """Create Entry node(s) for *name*."""
         s = self.subst(name)
         if is_Sequence(s):
@@ -2653,12 +2653,12 @@ class Base(SubstitutionEnvironment):
             return result
 
     @overload
-    def File(self, name: str, *args, **kw) -> FileNode: ...
+    def File(self, name: str | Node, *args, **kw) -> FileNode: ...
 
     @overload
-    def File(self, name: list[str], *args, **kw) -> list[FileNode]: ...
+    def File(self, name: list[str | Node], *args, **kw) -> list[FileNode]: ...
 
-    def File(self, name: str | list[str], *args, **kw) -> FileNode | list[FileNode]:
+    def File(self, name: str | Node | list[str | Node], *args, **kw) -> FileNode | list[FileNode]:
         """Create File node(s) for *name*."""
         s = self.subst(name)
         if is_Sequence(s):
@@ -2861,7 +2861,7 @@ class Base(SubstitutionEnvironment):
         """
         return SCons.Node.Python.ValueWithMemo(value, built_value, name)
 
-    def VariantDir(self, variant_dir: str, src_dir: str, duplicate: bool = True) -> None:
+    def VariantDir(self, variant_dir: str | Node, src_dir: str | Node, duplicate: bool = True) -> None:
         """Create a VariantDir mapping.
 
         This function creates a mapping from the source directory *src_dir* to the
@@ -2871,7 +2871,7 @@ class Base(SubstitutionEnvironment):
         """
         variant_dir = self.arg2nodes(variant_dir, self.fs.Dir)[0]  # type: ignore[assignment]
         src_dir = self.arg2nodes(src_dir, self.fs.Dir)[0]  # type: ignore[assignment]
-        self.fs.VariantDir(variant_dir, src_dir, duplicate)
+        self.fs.VariantDir(variant_dir, src_dir, duplicate)  # type: ignore[assignment]
 
     def FindSourceFiles(self, node: str | Node = ".") -> list[EntryNode]:
         """Return the list of all source files under *node*."""
@@ -3185,7 +3185,13 @@ def NoSubstitutionProxy(subject):
                 del mapping['raw']
                 mapping['mode'] = raw
 
-        def subst(self, string: str, *args, **kwargs) -> str:  # type: ignore[override]
+        @overload
+        def subst(self, string: str, *args, **kwargs) -> str: ...
+
+        @overload
+        def subst(self, string: list[str], *args, **kwargs) -> list[str]: ...
+
+        def subst(self, string: str | list[str], *args, **kwargs) -> str | list[str]:
             """Return *string* substituted."""
             return string
 
@@ -3193,7 +3199,7 @@ def NoSubstitutionProxy(subject):
             """Return *kw* with its values substituted."""
             return kw
 
-        def subst_list(self, string: str, *args, **kwargs) -> list[str]:
+        def subst_list(self, string: str | list[str], *args, **kwargs) -> list[str]:
             """Return *string* substituted as a list."""
             nargs = (string, self,) + args
             nkw = kwargs.copy()
@@ -3202,7 +3208,13 @@ def NoSubstitutionProxy(subject):
             self.raw_to_mode(nkw)
             return SCons.Subst.scons_subst_list(*nargs, **nkw)
 
-        def subst_target_source(self, string: str, *args, **kwargs) -> str:  # type: ignore[override]
+        @overload
+        def subst_target_source(self, string: str, *args, **kwargs) -> str: ...
+
+        @overload
+        def subst_target_source(self, string: list[str], *args, **kwargs) -> list[str]: ...
+
+        def subst_target_source(self, string: str | list[str], *args, **kwargs) -> str | list[str]:
             """Return *string* substituted for target/source."""
             nargs = (string, self,) + args
             nkw = kwargs.copy()

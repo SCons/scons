@@ -41,7 +41,7 @@ import stat
 import sys
 import time
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 import SCons.Action
 import SCons.Debug
@@ -3833,7 +3833,7 @@ class FileFinder:
 find_file = FileFinder().find_file
 
 
-def invalidate_node_memos(targets: str | list[Base | str]) -> None:
+def invalidate_node_memos(targets: str | Node | list[str | Node]) -> None:
     """
     Invalidate the memoized values of all Nodes (files or directories)
     that are associated with the given entries. Has been added to
@@ -3858,18 +3858,18 @@ def invalidate_node_memos(targets: str | list[Base | str]) -> None:
         return
 
     if not SCons.Util.is_List(targets):
-        targets = [targets]
+        targets = [targets]  # type: ignore[list-item]
 
-    for entry in targets:
+    for entry in cast(list, targets):
         # If the target is a Node object, clear the cache. If it is a
         # filename, look up potentially existing Node object first.
         try:
-            entry.clear_memoized_values()
+            cast(Node, entry).clear_memoized_values()
         except AttributeError:
             # Not a Node object, try to look up Node by filename.  XXX
             # This creates Node objects even for those filenames which
             # do not correspond to an existing Node object.
-            node = get_default_fs().Entry(entry)
+            node = get_default_fs().Entry(cast(str, entry))
             if node:
                 node.clear_memoized_values()
 
