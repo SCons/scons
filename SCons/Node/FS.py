@@ -41,7 +41,7 @@ import stat
 import sys
 import time
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 import SCons.Action
 import SCons.Debug
@@ -57,7 +57,7 @@ from SCons.Util import hash_signature, hash_file_signature, hash_collect
 
 if TYPE_CHECKING:
     from SCons.Builder import BuilderBase
-    from SCons.Environment import Base as Environment
+    from SCons.Environment import EnvironmentBase
     from SCons.Scanner import ScannerBase
     from SCons.SConsign import SConsignEntry, DB as SConsignDatabase
 
@@ -302,7 +302,7 @@ def set_duplicate(duplicate: str) -> None:
         if link_dict[func]:
             Link_Funcs.append(link_dict[func])
 
-def LinkFunc(target: list[Base], source: list[Base], env: Environment) -> int:
+def LinkFunc(target: list[Base], source: list[Base], env: EnvironmentBase) -> int:
     """
     Relative paths cause problems with symbolic links, so
     we use absolute paths, which may be a problem for people
@@ -342,7 +342,7 @@ def LocalString(target, source, env) -> str:
 
 LocalCopy = SCons.Action.Action(LinkFunc, LocalString)
 
-def UnlinkFunc(target: list[Base], source: list[Base], env: Environment) -> int:
+def UnlinkFunc(target: list[Base], source: list[Base], env: EnvironmentBase) -> int:
     t = target[0]
     file = t.get_abspath()
     try:
@@ -353,7 +353,7 @@ def UnlinkFunc(target: list[Base], source: list[Base], env: Environment) -> int:
 
 Unlink = SCons.Action.Action(UnlinkFunc, None)
 
-def MkdirFunc(target: list[Base], source: list[Base], env: Environment) -> int:
+def MkdirFunc(target: list[Base], source: list[Base], env: EnvironmentBase) -> int:
     t = target[0]
     # - It's possible when using Install() to install multiple
     #   dirs outside the source tree to get a case where t.exists()
@@ -1854,16 +1854,15 @@ class Dir(Base):
 
         return result
 
-    # TODO: mutable default
-    def get_env_scanner(self, env: Environment, kw: dict[str, Any] | None = {}) -> ScannerBase:
-        import SCons.Defaults  # pylint: disable=import-outside-toplevel
+    def get_env_scanner(self, env: EnvironmentBase, kw: dict[str, Any] | None = {}) -> ScannerBase:
+        import SCons.Defaults
         return SCons.Defaults.DirEntryScanner
 
     def get_target_scanner(self) -> ScannerBase:
         import SCons.Defaults  # pylint: disable=import-outside-toplevel
         return SCons.Defaults.DirEntryScanner
 
-    def get_found_includes(self, env: Environment, scanner: ScannerBase | None, path: str) -> list[Node]:
+    def get_found_includes(self, env: EnvironmentBase, scanner: ScannerBase | None, path: str) -> list[Node]:
         """Return this directory's implicit dependencies.
 
         We don't bother caching the results because the scan typically
@@ -2964,11 +2963,11 @@ class File(Base):
     def rel_path(self, other: Base) -> str:
         return self.dir.rel_path(other)
 
-    def _get_found_includes_key(self, env: Environment, scanner: ScannerBase | None, path):
+    def _get_found_includes_key(self, env: EnvironmentBase, scanner: ScannerBase | None, path):
         return (id(env), id(scanner), path)
 
     @SCons.Memoize.CountDictCall(_get_found_includes_key)
-    def get_found_includes(self, env: Environment, scanner: ScannerBase | None, path):
+    def get_found_includes(self, env: EnvironmentBase, scanner: ScannerBase | None, path):
         """Return the included implicit dependencies in this file.
         Cache results so we only scan the file once per path
         regardless of how many times this information is requested.
@@ -3834,7 +3833,7 @@ class FileFinder:
 find_file = FileFinder().find_file
 
 
-def invalidate_node_memos(targets: str | list[Base | str]) -> None:
+def invalidate_node_memos(targets: str | Node | list[str | Node]) -> None:
     """
     Invalidate the memoized values of all Nodes (files or directories)
     that are associated with the given entries. Has been added to
@@ -3859,18 +3858,18 @@ def invalidate_node_memos(targets: str | list[Base | str]) -> None:
         return
 
     if not SCons.Util.is_List(targets):
-        targets = [targets]
+        targets = [targets]  # type: ignore[list-item]
 
-    for entry in targets:
+    for entry in cast(list, targets):
         # If the target is a Node object, clear the cache. If it is a
         # filename, look up potentially existing Node object first.
         try:
-            entry.clear_memoized_values()
+            cast(Node, entry).clear_memoized_values()
         except AttributeError:
             # Not a Node object, try to look up Node by filename.  XXX
             # This creates Node objects even for those filenames which
             # do not correspond to an existing Node object.
-            node = get_default_fs().Entry(entry)
+            node = get_default_fs().Entry(cast(str, entry))
             if node:
                 node.clear_memoized_values()
 

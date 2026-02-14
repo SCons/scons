@@ -26,6 +26,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Purge vim/emac local variable bloat.
     - Implement type hints for Node subclasses.
     - Ruff: Handle F401 exclusions more granularly, remove per-file exclusions.
+    - Implement type hints for Environment and environment utilities.
     - Deprecated Python 3.7 & 3.8 support.
 
   From William Deegan:
