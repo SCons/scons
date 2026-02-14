@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         cfg: [
-          {os: 'ubuntu-22.04', py: '3.7'},
+          {os: 'ubuntu-22.04', py: '3.9'},
           {os: 'ubuntu-24.04', py: '3.13'},
         ]
 

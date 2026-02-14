@@ -1549,8 +1549,6 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
         # Since the python bytecode has per version differences, we need different expected results per version
         func_matches = {
-            (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
-            (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
@@ -1730,8 +1728,6 @@ class FunctionActionTestCase(unittest.TestCase):
             pass
 
         func_matches = {
-            (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
-            (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
@@ -1742,8 +1738,6 @@ class FunctionActionTestCase(unittest.TestCase):
         }
 
         meth_matches = {
-            (3, 7): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
-            (3, 8): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 10): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'1, 1, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
@@ -1983,8 +1977,6 @@ class LazyActionTestCase(unittest.TestCase):
             pass
 
         func_matches = {
-            (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
-            (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
@@ -2046,8 +2038,6 @@ class ActionCallerTestCase(unittest.TestCase):
             pass
 
         matches = {
-            (3, 7): b'd\x00S\x00',
-            (3, 8): b'd\x00S\x00',
             (3, 9): b'd\x00S\x00',
             (3, 10): b'd\x00S\x00',
             (3, 11): b'\x97\x00d\x00S\x00',
@@ -2249,8 +2239,6 @@ class ObjectContentsTestCase(unittest.TestCase):
         # we need different expected results per version
         # Note unlike the others, this result is a tuple, use assertIn
         expected = {
-            (3, 7): (bytearray(b"3, 3, 0, 0,(),(),(|\x00S\x00),(),()"),),
-            (3, 8): (bytearray(b"3, 3, 0, 0,(),(),(|\x00S\x00),(),()"),),
             (3, 9): (bytearray(b"3, 3, 0, 0,(),(),(|\x00S\x00),(),()"),),
             (3, 10): (  # 3.10.1, 3.10.2
                 bytearray(b"3, 3, 0, 0,(N.),(),(|\x00S\x00),(),()"),
@@ -2277,12 +2265,6 @@ class ObjectContentsTestCase(unittest.TestCase):
         # Since the python bytecode has per version differences,
         # we need different expected results per version
         expected = {
-            (3, 7): bytearray(
-                b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
-            ),
-            (3, 8): bytearray(
-                b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
-            ),
             (3, 9): bytearray(
                 b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
             ),
@@ -2312,12 +2294,6 @@ class ObjectContentsTestCase(unittest.TestCase):
 
         # Since the python bytecode has per version differences, we need different expected results per version
         expected = {
-            (3, 7): bytearray(
-                b"0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)"
-            ),
-            (3, 8): bytearray(
-                b"0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)"
-            ),
             (3, 9): bytearray(
                 b"0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)"
             ),
