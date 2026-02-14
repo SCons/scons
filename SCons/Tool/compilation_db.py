@@ -33,18 +33,19 @@ the compilation database, otherwise, the file defaults to
 ``compile_commands.json``, the name that most clang tools search for by default.
 """
 
-import json
-import itertools
 import fnmatch
-import SCons
+import itertools
+import json
 
+from SCons.Action import Action
+from SCons.Builder import Builder, ListEmitter
 from SCons.Platform import TempFileMunge
+from SCons.Tool import createObjBuilders
+from SCons.Tool.asm import ASPPSuffixes, ASSuffixes
+from SCons.Tool.cc import CSuffixes
+from SCons.Tool.cxx import CXXSuffixes
 
-from .cxx import CXXSuffixes
-from .cc import CSuffixes
-from .asm import ASSuffixes, ASPPSuffixes
-
-DEFAULT_DB_NAME = 'compile_commands.json'
+DEFAULT_DB_NAME = "compile_commands.json"
 
 # TODO: Is there a better way to do this than this global? Right now this exists so that the
 # emitter we add can record all of the things it emits, so that the scanner for the top level
@@ -54,142 +55,51 @@ DEFAULT_DB_NAME = 'compile_commands.json'
 __COMPILATION_DB_ENTRIES = []
 
 
-# We make no effort to avoid rebuilding the entries. Someday, perhaps we could and even
-# integrate with the cache, but there doesn't seem to be much call for it.
-class __CompilationDbNode(SCons.Node.Python.Value):
-    def __init__(self, value) -> None:
-        SCons.Node.Python.Value.__init__(self, value)
-        self.Decider(changed_since_last_build_node)
-
-
-def changed_since_last_build_node(child, target, prev_ni, node) -> bool:
-    """ Dummy decider to force always building"""
-    return True
-
-
-def make_emit_compilation_DB_entry(comstr):
-    """
-    Effectively this creates a lambda function to capture:
-    * command line
-    * source
-    * target
-    :param comstr: unevaluated command line
-    :return: an emitter which has captured the above
-    """
-    user_action = SCons.Action.Action(comstr)
-
-    def emit_compilation_db_entry(target, source, env):
-        """
-        This emitter will be added to each c/c++ object build to capture the info needed
-        for clang tools
-        :param target: target node(s)
-        :param source: source node(s)
-        :param env: Environment for use building this node
-        :return: target(s), source(s)
-        """
-
-        dbtarget = __CompilationDbNode(source)
-
-        entry = env.__COMPILATIONDB_Entry(
-            target=dbtarget,
-            source=[],
-            __COMPILATIONDB_UOUTPUT=target,
-            __COMPILATIONDB_USOURCE=source,
-            __COMPILATIONDB_UACTION=user_action,
-            __COMPILATIONDB_ENV=env,
-        )
-
-        # TODO: Technically, these next two lines should not be required: it should be fine to
-        # cache the entries. However, they don't seem to update properly. Since they are quick
-        # to re-generate disable caching and sidestep this problem.
-        env.AlwaysBuild(entry)
-        env.NoCache(entry)
-
-        __COMPILATION_DB_ENTRIES.append(dbtarget)
-
-        return target, source
-
-    return emit_compilation_db_entry
-
-
 class CompDBTEMPFILE(TempFileMunge):
     def __call__(self, target, source, env, for_signature):
         return self.cmd
 
 
-def compilation_db_entry_action(target, source, env, **kw) -> None:
-    """
-    Create a dictionary with evaluated command line, target, source
-    and store that info as an attribute on the target
-    (Which has been stored in __COMPILATION_DB_ENTRIES array
-    :param target: target node(s)
-    :param source: source node(s)
-    :param env: Environment for use building this node
-    :param kw:
-    :return: None
-    """
-
-    command = env["__COMPILATIONDB_UACTION"].strfunction(
-        target=env["__COMPILATIONDB_UOUTPUT"],
-        source=env["__COMPILATIONDB_USOURCE"],
-        env=env["__COMPILATIONDB_ENV"],
-        overrides={'TEMPFILE': CompDBTEMPFILE}
-    )
-
-    entry = {
-        "directory": env.Dir("#").abspath,
-        "command": command,
-        "file": env["__COMPILATIONDB_USOURCE"][0],
-        "output": env['__COMPILATIONDB_UOUTPUT'][0]
-    }
-
-    target[0].write(entry)
-
-
 def write_compilation_db(target, source, env) -> None:
+    DIRECTORY = env.Dir("#").get_abspath()
+    OVERRIDES = {"TEMPFILE": CompDBTEMPFILE}
+    USE_ABSPATH = env["COMPILATIONDB_USE_ABSPATH"] in [True, 1, "True", "true"]
+    USE_PATH_FILTER = env.subst("$COMPILATIONDB_PATH_FILTER")
+
     entries = []
+    for db_target, db_source, db_env, db_action in __COMPILATION_DB_ENTRIES:
+        # Parse command before filtering.
+        command = db_action.strfunction(db_target, db_source, db_env, None, OVERRIDES)
 
-    use_abspath = env['COMPILATIONDB_USE_ABSPATH'] in [True, 1, 'True', 'true']
-    use_path_filter = env.subst('$COMPILATIONDB_PATH_FILTER')
+        if not db_source.is_derived():
+            db_source = db_source.srcnode()
 
-    for s in __COMPILATION_DB_ENTRIES:
-        entry = s.read()
-        source_file = entry['file']
-        output_file = entry['output']
-
-        if not source_file.is_derived():
-            source_file = source_file.srcnode()
-
-        if use_abspath:
-            source_file = source_file.abspath
-            output_file = output_file.abspath
+        if USE_ABSPATH:
+            file = db_source.get_abspath()
+            output = db_target.get_abspath()
         else:
-            source_file = source_file.path
-            output_file = output_file.path
+            file = db_source.get_path()
+            output = db_target.get_path()
 
-        if use_path_filter and not fnmatch.fnmatch(output_file, use_path_filter):
+        if USE_PATH_FILTER and not fnmatch.fnmatch(output, USE_PATH_FILTER):
             continue
 
-        path_entry = {'directory': entry['directory'],
-                      'command': entry['command'],
-                      'file': source_file,
-                      'output': output_file}
-
-        entries.append(path_entry)
-
-    with open(target[0].path, "w") as output_file:
-        json.dump(
-            entries, output_file, sort_keys=True, indent=4, separators=(",", ": ")
+        entries.append(
+            {
+                "command": command,
+                "directory": DIRECTORY,
+                "file": file,
+                "output": output,
+            }
         )
+
+    with open(target[0].get_path(), "w", encoding="utf-8", newline="\n") as output_file:
+        json.dump(entries, output_file, sort_keys=True, indent=4)
         output_file.write("\n")
 
 
-def scan_compilation_db(node, env, path):
-    return __COMPILATION_DB_ENTRIES
-
-
 def compilation_db_emitter(target, source, env):
-    """ fix up the source/targets """
+    """Fix up the source/targets"""
 
     # Someone called env.CompilationDatabase('my_targetname.json')
     if not target and len(source) == 1:
@@ -202,75 +112,65 @@ def compilation_db_emitter(target, source, env):
     if source:
         source = []
 
+    # TODO: Should eventually have a way to allow the entries themselves to
+    #  function as dependencies.
+    env.AlwaysBuild(target)
+    env.NoCache(target)
+
     return target, source
 
 
 def generate(env, **kwargs) -> None:
-    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
+    def _generate_emitter(command):
+        # Construct new action to bypass `COMSTR`.
+        action = Action(command)
 
-    env["COMPILATIONDB_COMSTR"] = kwargs.get(
-        "COMPILATIONDB_COMSTR", "Building compilation database $TARGET"
-    )
+        def _compilation_db_entry_emitter(target, source, env):
+            __COMPILATION_DB_ENTRIES.append((target[0], source[0], env, action))
+            return target, source
 
-    components_by_suffix = itertools.chain(
+        return _compilation_db_entry_emitter
+
+    GEN_CCCOM = _generate_emitter("$CCCOM")
+    GEN_SHCCCOM = _generate_emitter("$SHCCCOM")
+    GEN_CXXCOM = _generate_emitter("$CXXCOM")
+    GEN_SHCXXCOM = _generate_emitter("$SHCXXCOM")
+    GEN_ASCOM = _generate_emitter("$ASCOM")
+    GEN_ASPPCOM = _generate_emitter("$ASPPCOM")
+
+    static_obj, shared_obj = createObjBuilders(env)
+
+    for suffix, (builder, emitter) in itertools.chain(
         itertools.product(
-            CSuffixes,
-            [
-                (static_obj, SCons.Defaults.StaticObjectEmitter, "$CCCOM"),
-                (shared_obj, SCons.Defaults.SharedObjectEmitter, "$SHCCCOM"),
-            ],
-        ),
-        itertools.product(
-            CXXSuffixes,
-            [
-                (static_obj, SCons.Defaults.StaticObjectEmitter, "$CXXCOM"),
-                (shared_obj, SCons.Defaults.SharedObjectEmitter, "$SHCXXCOM"),
-            ],
-        ),
-        itertools.product(
-            ASSuffixes,
-            [
-                (static_obj, SCons.Defaults.StaticObjectEmitter, "$ASCOM"),
-                (shared_obj, SCons.Defaults.SharedObjectEmitter, "$ASCOM")
-            ],
+            CSuffixes, [(static_obj, GEN_CCCOM), (shared_obj, GEN_SHCCCOM)]
         ),
         itertools.product(
-            ASPPSuffixes,
-            [
-                (static_obj, SCons.Defaults.StaticObjectEmitter, "$ASPPCOM"),
-                (shared_obj, SCons.Defaults.SharedObjectEmitter, "$ASPPCOM")
-            ],
+            CXXSuffixes, [(static_obj, GEN_CXXCOM), (shared_obj, GEN_SHCXXCOM)]
         ),
-    )
-
-    for entry in components_by_suffix:
-        suffix = entry[0]
-        builder, base_emitter, command = entry[1]
-
-        # Assumes a dictionary emitter
-        emitter = builder.emitter.get(suffix, False)
-        if emitter:
-            # We may not have tools installed which initialize all or any of
-            # cxx, cc, or assembly. If not skip resetting the respective emitter.
-            builder.emitter[suffix] = SCons.Builder.ListEmitter(
-                [emitter, make_emit_compilation_DB_entry(command), ]
-            )
-
-    env["BUILDERS"]["__COMPILATIONDB_Entry"] = SCons.Builder.Builder(
-        action=SCons.Action.Action(compilation_db_entry_action, None),
-    )
-
-    env["BUILDERS"]["CompilationDatabase"] = SCons.Builder.Builder(
-        action=SCons.Action.Action(write_compilation_db, "$COMPILATIONDB_COMSTR"),
-        target_scanner=SCons.Scanner.Scanner(
-            function=scan_compilation_db, node_class=None
+        itertools.product(
+            ASSuffixes, [(static_obj, GEN_ASCOM), (shared_obj, GEN_ASCOM)]
         ),
+        itertools.product(
+            ASPPSuffixes, [(static_obj, GEN_ASPPCOM), (shared_obj, GEN_ASPPCOM)]
+        ),
+    ):
+        emitter_old = builder.emitter.get(suffix)
+        # Only setup emitters for Tools supported by the environment.
+        if emitter_old:
+            builder.emitter[suffix] = ListEmitter(env.Flatten(emitter_old) + [emitter])
+
+    env["BUILDERS"]["CompilationDatabase"] = Builder(
+        action=Action(write_compilation_db, "$COMPILATIONDB_COMSTR"),
         emitter=compilation_db_emitter,
-        suffix='json',
+        suffix="json",
     )
 
-    env['COMPILATIONDB_USE_ABSPATH'] = False
-    env['COMPILATIONDB_PATH_FILTER'] = ''
+    env["COMPILATIONDB_USE_ABSPATH"] = env.get("COMPILATIONDB_USE_ABSPATH", False)
+    env["COMPILATIONDB_PATH_FILTER"] = env.get("COMPILATIONDB_PATH_FILTER", "")
+    env["COMPILATIONDB_COMSTR"] = env.get(
+        "COMPILATIONDB_COMSTR",
+        kwargs.get("COMPILATIONDB_COMSTR", "Building compilation database $TARGET"),
+    )
 
 
 def exists(env) -> bool:
