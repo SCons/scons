@@ -165,14 +165,12 @@ def generate(env, **kwargs) -> None:
         suffix="json",
     )
 
-    if "COMPILATIONDB_USE_ABSPATH" not in env:
-        env["COMPILATIONDB_USE_ABSPATH"] = False
-    if "COMPILATIONDB_PATH_FILTER" not in env:
-        env["COMPILATIONDB_PATH_FILTER"] = ""
-    if "COMPILATIONDB_COMSTR" not in env:
-        env["COMPILATIONDB_COMSTR"] = kwargs.get(
-            "COMPILATIONDB_COMSTR", "Building compilation database $TARGET"
-        )
+    env["COMPILATIONDB_USE_ABSPATH"] = env.get("COMPILATIONDB_USE_ABSPATH", False)
+    env["COMPILATIONDB_PATH_FILTER"] = env.get("COMPILATIONDB_PATH_FILTER", "")
+    env["COMPILATIONDB_COMSTR"] = env.get(
+        "COMPILATIONDB_COMSTR",
+        kwargs.get("COMPILATIONDB_COMSTR", "Building compilation database $TARGET"),
+    )
 
 
 def exists(env) -> bool:
