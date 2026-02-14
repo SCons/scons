@@ -38,7 +38,8 @@ import SCons.Platform
 import SCons.SConf
 import SCons.Tool
 from SCons.Util import is_List, is_String, is_Dict, flatten
-from SCons.Node import SConscriptNodes
+from SCons.Node import Node, SConscriptNodes
+from SCons.Node.FS import FS, FileNode
 from . import Main
 
 import os
@@ -47,13 +48,14 @@ import re
 import sys
 import traceback
 import time
+from typing import Any, NoReturn, TextIO
 
 class SConscriptReturn(Exception):
     pass
 
 launch_dir = os.path.abspath(os.curdir)
 
-GlobalDict = None
+GlobalDict: dict[str, Any] | None = None
 
 # global exports set by Export():
 global_exports = {}
@@ -106,12 +108,13 @@ def compute_exports(exports):
 
 class Frame:
     """A frame on the SConstruct/SConscript call stack"""
-    def __init__(self, fs, exports, sconscript) -> None:
-        self.globals = BuildDefaultGlobals()
-        self.retval = None
+    def __init__(self, fs: FS, exports, sconscript: str | Node) -> None:
+        self.globals: dict[str, Any] = BuildDefaultGlobals()
+        self.retval: Any | None = None
         self.prev_dir = fs.getcwd()
-        self.exports = compute_exports(exports)  # exports from the calling SConscript
+        self.exports: dict[str, Any] = compute_exports(exports)  # exports from the calling SConscript
         # make sure the sconscript attr is a Node.
+        self.sconscript: Node | None
         if isinstance(sconscript, SCons.Node.Node):
             self.sconscript = sconscript
         elif sconscript == '-':
@@ -120,7 +123,7 @@ class Frame:
             self.sconscript = fs.File(str(sconscript))
 
 # the SConstruct/SConscript call stack:
-call_stack = []
+call_stack: list[Frame] = []
 
 # For documentation on the methods in this file, see the scons man-page
 
@@ -147,7 +150,7 @@ def Return(*vars, **kw):
 
 stack_bottom = '% Stack boTTom %' # hard to define a variable w/this name :)
 
-def handle_missing_SConscript(f: str, must_exist: bool = True) -> None:
+def handle_missing_SConscript(f: FileNode, must_exist: bool = True) -> None:
     """Take appropriate action on missing file in SConscript() call.
 
     Print a warning or raise an exception on missing file, unless
@@ -174,7 +177,7 @@ def handle_missing_SConscript(f: str, must_exist: bool = True) -> None:
     raise SCons.Errors.UserError(msg)
 
 
-def _SConscript(fs, *files, **kw):
+def _SConscript(fs: FS, *files: str | Node, **kw) -> Any | list[Any]:
     top = fs.Top
     sd = fs.SConstruct_dir.rdir()
     exports = kw.get('exports', [])
@@ -333,7 +336,7 @@ def _SConscript(fs, *files, **kw):
     else:
         return tuple(results)
 
-def SConscript_exception(file=sys.stderr) -> None:
+def SConscript_exception(file: TextIO = sys.stderr) -> None:
     """Print an exception stack trace just for the SConscript file(s).
     This will show users who have Python errors where the problem is,
     without cluttering the output with all of the internal calls leading
@@ -358,7 +361,7 @@ def SConscript_exception(file=sys.stderr) -> None:
         file.write('  File "%s", line %d:\n' % (fname, line))
         file.write('    %s\n' % text)
 
-def annotate(node):
+def annotate(node: Node) -> None:
     """Annotate a node with the stack frame describing the
     SConscript file and line number that created it."""
     tb = sys.exc_info()[2]
@@ -402,7 +405,7 @@ class SConsEnvironment(SCons.Environment.Base):
             v_revision = 0
         return v_major, v_minor, v_revision
 
-    def _get_SConscript_filenames(self, ls, kw):
+    def _get_SConscript_filenames(self, ls, kw) -> tuple[list[str], list[str | Node]]:
         """
         Convert the parameters passed to SConscript() calls into a list
         of files and export variables.  If the parameters are invalid,
@@ -482,7 +485,7 @@ class SConsEnvironment(SCons.Environment.Base):
         kw['_depth'] = kw.get('_depth', 0) + 1
         return SCons.Environment.Base.Configure(self, *args, **kw)
 
-    def Default(self, *targets) -> None:
+    def Default(self, *targets: str | Node) -> None:
         SCons.Script._Set_Default_Targets(self, targets)
 
     @staticmethod
@@ -511,7 +514,7 @@ class SConsEnvironment(SCons.Environment.Base):
             sys.exit(2)
 
     @staticmethod
-    def EnsurePythonVersion(major, minor) -> None:
+    def EnsurePythonVersion(major: int, minor: int) -> None:
         """Exit abnormally if the Python version is not late enough."""
         if sys.version_info < (major, minor):
             v = sys.version.split()[0]
@@ -519,7 +522,7 @@ class SConsEnvironment(SCons.Environment.Base):
             sys.exit(2)
 
     @staticmethod
-    def Exit(value: int=0) -> None:
+    def Exit(value: int = 0) -> NoReturn:
         sys.exit(value)
 
     def Export(self, *vars, **kw) -> None:
@@ -528,15 +531,15 @@ class SConsEnvironment(SCons.Environment.Base):
         global_exports.update(kw)
 
     @staticmethod
-    def GetLaunchDir():
+    def GetLaunchDir() -> str:
         global launch_dir
         return launch_dir
 
-    def GetOption(self, name):
+    def GetOption(self, name: str) -> Any:
         name = self.subst(name)
         return SCons.Script.Main.GetOption(name)
 
-    def Help(self, text, append: bool = False, local_only: bool = False) -> None:
+    def Help(self, text: str, append: bool = False, local_only: bool = False) -> None:
         """Update the help text.
 
         The previous help text has *text* appended to it, except on the
@@ -558,14 +561,13 @@ class SConsEnvironment(SCons.Environment.Base):
         text = self.subst(text, raw=1)
         SCons.Script.HelpFunction(text, append=append, local_only=local_only)
 
-    def Import(self, *vars):
+    def Import(self, *vars: str) -> None:
         try:
             frame = call_stack[-1]
             globals = frame.globals
             exports = frame.exports
             for var in vars:
-                var = self.Split(var)
-                for v in var:
+                for v in self.Split(var):
                     if v == '*':
                         globals.update(global_exports)
                         globals.update(exports)
@@ -577,7 +579,7 @@ class SConsEnvironment(SCons.Environment.Base):
         except KeyError as x:
             raise SCons.Errors.UserError("Import of non-existent variable '%s'"%x)
 
-    def SConscript(self, *ls, **kw):
+    def SConscript(self, *ls: str | Node | list[str | Node], **kw):
         """Execute SCons configuration files.
 
         Parameters:
@@ -627,7 +629,7 @@ class SConsEnvironment(SCons.Environment.Base):
         global sconscript_chdir
         sconscript_chdir = flag
 
-    def SetOption(self, name, value) -> None:
+    def SetOption(self, name: str, value: Any | None) -> None:
         name = self.subst(name)
         SCons.Script.Main.SetOption(name, value)
 

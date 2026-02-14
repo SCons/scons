@@ -29,6 +29,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Simplified and sped up compilation database generation. No longer requires
       each entry to have a dedicated node that's always built; instead, the database
       *itself* is set to always build.
+    - Implement type hints for Environment and environment utilities.
     - Deprecated Python 3.7 & 3.8 support.
 
   From William Deegan:
