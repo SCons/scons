@@ -28,6 +28,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Ruff: Handle F401 exclusions more granularly, remove per-file exclusions.
     - Implement type hints for Environment and environment utilities.
     - Deprecated Python 3.7 & 3.8 support.
+    - Deprecated implicit imports in `SCons.Util`. While they're still functional, they no longer
+      contribute to intellisense unless the correct package is imported.
+    - Split `SCons.Util.UtilTests.py` to individual packages where appropriate.
 
   From William Deegan:
     - Fix SCons Docbook schema to work with lxml > 5

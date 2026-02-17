@@ -17,7 +17,7 @@ from collections.abc import Callable
 from types import FunctionType, MethodType
 from typing import Any, cast, overload
 
-from SCons.Util.sctypes import is_List, is_String, is_Tuple
+import SCons.Util.sctypes
 
 
 @overload
@@ -74,13 +74,13 @@ def PrependPath(
     orig = oldpath
     is_list = True
     paths = orig
-    if not is_List(orig) and not is_Tuple(orig):
+    if not SCons.Util.sctypes.is_List(orig) and not SCons.Util.sctypes.is_Tuple(orig):
         paths = cast(str, paths).split(sep)
         is_list = False
 
-    if is_String(newpath):
+    if SCons.Util.sctypes.is_String(newpath):
         newpaths = cast(str, newpath).split(sep)
-    elif is_List(newpath) or is_Tuple(newpath):
+    elif SCons.Util.sctypes.is_List(newpath) or SCons.Util.sctypes.is_Tuple(orig):
         newpaths = cast(list, newpath)
     else:
         newpaths = cast(list, [newpath])  # might be a Dir
@@ -185,13 +185,13 @@ def AppendPath(
     orig = oldpath
     is_list = True
     paths = orig
-    if not is_List(orig) and not is_Tuple(orig):
+    if not SCons.Util.sctypes.is_List(orig) and not SCons.Util.sctypes.is_Tuple(orig):
         paths = cast(str, paths).split(sep)
         is_list = False
 
-    if is_String(newpath):
+    if SCons.Util.sctypes.is_String(newpath):
         newpaths = cast(str, newpath).split(sep)
-    elif is_List(newpath) or is_Tuple(newpath):
+    elif SCons.Util.sctypes.is_List(newpath) or SCons.Util.sctypes.is_Tuple(orig):
         newpaths = cast(list, newpath)
     else:
         newpaths = cast(list, [newpath])  # might be a Dir
@@ -259,7 +259,7 @@ def AddPathIfNotExists(
     try:
         is_list = True
         paths = env_dict[key]
-        if not is_List(env_dict[key]):
+        if not SCons.Util.sctypes.is_List(env_dict[key]):
             paths = cast(str, paths).split(sep)
             is_list = False
         if os.path.normcase(path) not in list(map(os.path.normcase, paths)):
