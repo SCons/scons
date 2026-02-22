@@ -25,6 +25,9 @@ DEPRECATED FUNCTIONALITY
 
 - Deprecated Python 3.7 & 3.8 support.
 
+- Deprecated using signature-file-per-directory (aka old-style SConsign)
+  via the SConsignFile(name=None) call.
+
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 

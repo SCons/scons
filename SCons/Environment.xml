@@ -3247,10 +3247,16 @@ in a separate
 file in each directory,
 not in a single combined database file.
 This is a backwards-compatibility measure to support
-what was the default behavior
+the behavior that was the default
 prior to &SCons; 0.97 (i.e. before 2008).
-Use of this mode is discouraged and may be
-deprecated in a future &SCons; release.
+Use of this mode is deprecated and should
+not be used in new projects.
+</para>
+
+<para>
+<emphasis>Deprecated since version NEXT_RELEASE</emphasis>:
+the signature-file-per-directory mode is deprecated
+and will be removed in a future release.
 </para>
 
 <para>
