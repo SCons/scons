@@ -246,7 +246,7 @@ def get_system_root():
                 val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception:
                 pass
 
     _system_root = val
@@ -363,7 +363,7 @@ def generate(env):
                 cmd_interp = os.path.join(val, 'command.com')
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception:
                 pass
 
     # For the special case of not having access to the registry, we

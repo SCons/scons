@@ -102,7 +102,7 @@ def _update_pot_file(target, source, env):
         cmd = _CmdRunner('$XGETTEXTCOM', '$XGETTEXTCOMSTR')
         action = SCons.Action.Action(cmd, strfunction=cmd.strfunction)
         status = action([target[0]], source, env)
-    except:
+    except Exception:
         # Something went wrong.
         env.Execute(SCons.Action.Action(nop, "Leaving " + chdir_str))
         # Revert working dirs to previous state and re-throw exception.
@@ -274,7 +274,7 @@ def generate(env, **kw) -> None:
             )
     try:
         env['XGETTEXT'] = _detect_xgettext(env)
-    except:
+    except Exception:
         env['XGETTEXT'] = 'xgettext'
     # NOTE: sources="$SOURCES" would work as well. However, we use following
     # construction to convert absolute paths provided by scons onto paths
@@ -327,5 +327,5 @@ def exists(env):
     """ Check, whether the tool exists """
     try:
         return _xgettext_exists(env)
-    except:
+    except Exception:
         return False

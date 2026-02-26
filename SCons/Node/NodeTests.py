@@ -136,7 +136,7 @@ class Environment:
     def get_scanner(self, scanner_key):
         try:
             return self._dict['SCANNERS'][0]
-        except:
+        except Exception:
             pass
 
         return []
@@ -837,7 +837,7 @@ class NodeTestCase(unittest.TestCase):
 
         try:
             node.add_depends([[five, six]])
-        except:
+        except Exception:
             pass
         else:
             raise Exception("did not catch expected exception")
@@ -869,7 +869,7 @@ class NodeTestCase(unittest.TestCase):
 
         try:
             node.add_source([[five, six]])
-        except:
+        except Exception:
             pass
         else:
             raise Exception("did not catch expected exception")
@@ -900,7 +900,7 @@ class NodeTestCase(unittest.TestCase):
 
         try:
             node.add_ignore([[five, six]])
-        except:
+        except Exception:
             pass
         else:
             raise Exception("did not catch expected exception")

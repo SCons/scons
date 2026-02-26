@@ -130,7 +130,7 @@ def Jar(env, target=None, source=[], *args, **kw):
         try:
             # make target from the first source file
             target = os.path.splitext(str(source[0]))[0] + env.subst('$JARSUFFIX')
-        except:
+        except Exception:
             # TODO: W0702: No exception type(s) specified
             # something strange is happening but attempt anyways
             SCons.Warnings.warn(
@@ -193,7 +193,7 @@ def Jar(env, target=None, source=[], *args, **kw):
                 # source is string try to convert it to file
                 target_nodes.extend(file_to_class(env.fs.File(src)))
                 continue
-            except:
+            except Exception:
                 # TODO: W0702: No exception type(s) specified
                 pass
 
@@ -201,7 +201,7 @@ def Jar(env, target=None, source=[], *args, **kw):
                 # source is string try to covnert it to dir
                 target_nodes.extend(dir_to_class(env.fs.Dir(src)))
                 continue
-            except:
+            except Exception:
                 # TODO: W0702: No exception type(s) specified
                 pass
 

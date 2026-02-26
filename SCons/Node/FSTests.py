@@ -1128,7 +1128,7 @@ class FSTestCase(_tempdirTestCase):
             except TypeError as x:
                 assert str(x) == ("Tried to lookup File '%s' as a Dir." %
                                   d1_f1), x
-            except:
+            except Exception:
                 raise
 
             try:
@@ -1136,7 +1136,7 @@ class FSTestCase(_tempdirTestCase):
             except TypeError as x:
                 assert str(x) == ("Tried to lookup File '%s' as a Dir." %
                                   d1_f1), x
-            except:
+            except Exception:
                 raise
 
             try:
@@ -1144,7 +1144,7 @@ class FSTestCase(_tempdirTestCase):
             except TypeError as x:
                 assert str(x) == ("Tried to lookup Dir '%s' as a File." %
                                   'd1'), x
-            except:
+            except Exception:
                 raise
 
         # Test that just specifying the drive works to identify

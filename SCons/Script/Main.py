@@ -274,7 +274,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
                     raise SCons.Errors.BuildError(t, errstr)
                 except KeyboardInterrupt:
                     raise
-                except:
+                except Exception:
                     self.exception_set()
                 self.do_failed()
             else:
@@ -1542,7 +1542,7 @@ def main() -> None:
     except SCons.Errors.BuildError as e:
         print(e)
         exit_status = e.exitstatus
-    except:
+    except Exception:
         # An exception here is likely a builtin Python exception Python
         # code in an SConscript file.  Show them precisely what the
         # problem was and where it happened.

@@ -135,7 +135,7 @@ foopack_jar = env.Jar(target = 'foopack.jar', source = 'classes')
 # being defined but not used.
 try:
     test.run(arguments = '.', stderr=None)
-except:
+except Exception:
     # catch exception which is causing failure for issue not related to java.
     # Bug ticket reported also this seems work fine when running outsite
     # the test framework

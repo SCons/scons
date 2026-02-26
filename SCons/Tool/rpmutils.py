@@ -529,7 +529,7 @@ def updateRpmDicts(rpmrc, pyfile) -> None:
                             for arch in sorted(entries.keys()):
                                 out.write("  '%s' : ['%s'],\n" % (arch, "','".join(entries[arch])))
                             out.write("}\n\n")
-    except:
+    except Exception:
         pass
 
 def usage() -> None:

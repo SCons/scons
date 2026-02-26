@@ -830,7 +830,7 @@ class _GenerateV6DSP(_DSPGenerator):
             data = pickle.loads(datas)
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception:
             return # unable to unpickle any data for some reason
 
         self.sources.update(data)
@@ -1125,7 +1125,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
             data = pickle.loads(datas)
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception:
             return # unable to unpickle any data for some reason
 
         self.configs.update(data)
@@ -1145,7 +1145,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
             data = pickle.loads(datas)
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception:
             return # unable to unpickle any data for some reason
 
         self.sources.update(data)
@@ -1653,7 +1653,7 @@ class _GenerateV7DSW(_DSWGenerator):
             data = pickle.loads(datas)
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception:
             return # unable to unpickle any data for some reason
 
         self.configs.update(data)

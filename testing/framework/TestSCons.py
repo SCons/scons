@@ -1769,7 +1769,7 @@ try:
         # not clear this is useful: 'lib' does not contain linkable libs
         lib_path = os.path.join(exec_prefix, 'lib')
     print(lib_path)
-except:
+except Exception:
     include = os.path.join(sys.prefix, 'include', py_ver)
     print(include)
     lib_path = os.path.join(sys.prefix, 'lib', py_ver, 'config')

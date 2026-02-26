@@ -1854,14 +1854,14 @@ class read_TestCase(TestCmdTestCase):
             contents = test.read('no_file')
         except IOError:  # expect "No such file or directory"
             pass
-        except:
+        except Exception:
             raise
 
         try:
             test.read(test.workpath('file_x'), mode='w')
         except ValueError:  # expect "mode must begin with 'r'
             pass
-        except:
+        except Exception:
             raise
 
         def _file_matches(file, contents, expected) -> None:
@@ -3309,7 +3309,7 @@ class unlink_TestCase(TestCmdTestCase):
             contents = test.unlink('no_file')
         except OSError:  # expect "No such file or directory"
             pass
-        except:
+        except Exception:
             raise
 
         test.unlink("file1")
@@ -3338,7 +3338,7 @@ class unlink_TestCase(TestCmdTestCase):
                     test.unlink('file5')
                 except OSError:  # expect "Permission denied"
                     pass
-                except:
+                except Exception:
                     raise
             finally:
                 os.chmod(test.workdir, 0o700)
@@ -3416,7 +3416,7 @@ class unlink_files_TestCase(TestCmdTestCase):
                     test.unlink_files('', ['file5'])
                 except OSError:  # expect "Permission denied"
                     pass
-                except:
+                except Exception:
                     raise
             finally:
                 os.chmod(test.workdir, 0o700)
@@ -3496,7 +3496,7 @@ class workdir_TestCase(TestCmdTestCase):
             test = TestCmd.TestCmd(workdir=no_such_subdir)
         except OSError:  # expect "No such file or directory"
             pass
-        except:
+        except Exception:
             raise
 
         test = TestCmd.TestCmd(workdir='foo')
@@ -3511,7 +3511,7 @@ class workdir_TestCase(TestCmdTestCase):
             test.workdir_set(no_such_subdir)
         except OSError:
             pass  # expect "No such file or directory"
-        except:
+        except Exception:
             raise
         assert workdir_bar == test.workdir
 
@@ -3682,7 +3682,7 @@ class write_TestCase(TestCmdTestCase):
             test.write(['bar', 'file3'], "Test file #3 (should not get created)\n")
         except IOError:  # expect "No such file or directory"
             pass
-        except:
+        except Exception:
             raise
         test.write(test.workpath('file4'), "Test file #4.\n")
         test.write(test.workpath('foo', 'file5'), "Test file #5.\n")
@@ -3692,14 +3692,14 @@ class write_TestCase(TestCmdTestCase):
             )
         except IOError:  # expect "No such file or directory"
             pass
-        except:
+        except Exception:
             raise
 
         try:
             test.write('file7', "Test file #8.\n", mode='r')
         except ValueError:  # expect "mode must begin with 'w'
             pass
-        except:
+        except Exception:
             raise
 
         test.write('file8', "Test file #8.\n", mode='w')
@@ -3711,7 +3711,7 @@ class write_TestCase(TestCmdTestCase):
                 test.write('file10', "Test file #10 (should not get created).\n")
             except IOError:  # expect "Permission denied"
                 pass
-            except:
+            except Exception:
                 raise
 
         assert os.path.isdir(test.workpath('foo'))

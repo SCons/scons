@@ -530,7 +530,7 @@ class MsvcQueryVersionToolsetTests(unittest.TestCase):
                             version=vcver, prefer_newest=prefer_newest
                         )
                         break
-                    except:
+                    except Exception:
                         pass
                 self.assertTrue(msvc_version, "msvc_version is undefined for msvc version {}".format(repr(symbol)))
                 if version_def.msvc_vernum > 14.0:

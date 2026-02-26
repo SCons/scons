@@ -581,7 +581,7 @@ class TestCommon(TestCmd):
             )
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception:
             print(f"Unexpected contents of `{file}'")
             self.diff(expect, file_contents, 'contents ')
             raise
@@ -613,7 +613,7 @@ class TestCommon(TestCmd):
             )
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception:
             print(f"Unexpected contents of `{file}'")
             self.diff(golden_file_contents, file_contents, 'contents ')
             raise

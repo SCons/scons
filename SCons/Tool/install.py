@@ -201,7 +201,7 @@ def copyFuncVersionedLib(dest, source, env) -> int:
         # remove the link if it is already there
         try:
             os.remove(dest)
-        except:
+        except Exception:
             pass
         copy2(source, dest)
         st = os.stat(source)

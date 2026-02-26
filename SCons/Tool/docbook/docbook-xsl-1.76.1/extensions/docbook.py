@@ -24,7 +24,7 @@ def adjustColumnWidths(ctx, nodeset):
         pctxt = libxslt.xpathParserContext(_obj=ctx)
         ctxt = pctxt.context()
         tctxt = ctxt.transformContext()
-    except:
+    except Exception:
         pass
 
     # Get the nominal table width

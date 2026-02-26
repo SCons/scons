@@ -114,7 +114,7 @@ env2.Program(target='foo4', source='f4.c')
 
 try:
     fortran = env.subst('$FORTRAN')
-except:
+except Exception:
     fortran = None
 
 if fortran and env.Detect(fortran):

@@ -175,7 +175,7 @@ class SCons_XML:
     def write_mod(self, filename):
         try:
             description = self.values[0].description
-        except:
+        except Exception:
             description = ""
         if not filename:
             return

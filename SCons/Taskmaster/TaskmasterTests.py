@@ -1145,7 +1145,7 @@ class TaskmasterTestCase(unittest.TestCase):
 
         try:
             1 // 0
-        except:
+        except Exception:
             # Moved from below
             t.exception_set(None)
             # pass
@@ -1172,7 +1172,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t.exception_set((Exception1, ""))
         try:
             t.exception_raise()
-        except:
+        except Exception:
             exc_type, exc_value = sys.exc_info()[:2]
             assert exc_type == Exception1, exc_type
             assert str(exc_value) == '', "Expecting empty string got:%s (type %s)" % (exc_value, type(exc_value))
@@ -1185,7 +1185,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t.exception_set((Exception2, "xyzzy"))
         try:
             t.exception_raise()
-        except:
+        except Exception:
             exc_type, exc_value = sys.exc_info()[:2]
             assert exc_type == Exception2, exc_type
             assert str(exc_value) == "xyzzy", exc_value
@@ -1197,12 +1197,12 @@ class TaskmasterTestCase(unittest.TestCase):
 
         try:
             1 // 0
-        except:
+        except Exception:
             tb = sys.exc_info()[2]
         t.exception_set((Exception3, "arg", tb))
         try:
             t.exception_raise()
-        except:
+        except Exception:
             exc_type, exc_value, exc_tb = sys.exc_info()
             assert exc_type == Exception3, exc_type
             assert str(exc_value) == "arg", exc_value

@@ -29,7 +29,7 @@ def whereis(filename):
             if os.path.isfile(f_ext):
                 try:
                     st = os.stat(f_ext)
-                except:
+                except Exception:
                     continue
                 if stat.S_IMODE(st.st_mode) & stat.S_IXUSR:
                     return f_ext

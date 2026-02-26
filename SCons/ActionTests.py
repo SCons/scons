@@ -78,7 +78,7 @@ with open(sys.argv[1], 'w') as f:
     try:
         if sys.argv[3]:
             f.write("act.py: '" + os.environ[sys.argv[3]] + "'\\n")
-    except:
+    except Exception:
         pass
 
 if 'ACTPY_PIPE' in os.environ:

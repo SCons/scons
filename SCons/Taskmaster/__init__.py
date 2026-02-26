@@ -851,7 +851,7 @@ class Taskmaster:
             #
             # try:
             #     self._validate_pending_children()
-            # except:
+            # except Exception:
             #     self.ready_exc = sys.exc_info()
             #     return node
 
@@ -1004,7 +1004,7 @@ class Taskmaster:
             #
             # try:
             #     self._validate_pending_children()
-            # except:
+            # except Exception:
             #     self.ready_exc = sys.exc_info()
             #     return node
 

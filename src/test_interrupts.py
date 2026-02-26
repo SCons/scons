@@ -41,7 +41,7 @@ test = TestSCons.TestSCons()
 # try:
 #   # do something, e.g.
 #   return a['x']
-# except:
+# except Exception:
 #   # do the exception handling
 #   a['x'] = getx()
 #   return a['x']
@@ -97,7 +97,7 @@ for f in files:
         lastend = match.end()
         try:
             indent_list = try_except_lines[match.group('indent')]
-        except:
+        except Exception:
             indent_list = []
         line_num = 1 + contents[:match.start()].count('\n')
         indent_list.append( (line_num, match.group('try_or_except') ) )

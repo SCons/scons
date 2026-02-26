@@ -34,7 +34,7 @@ selection method.
 
 try:
     as_module = __import__('as', globals(), locals(), [])
-except:
+except Exception:
     as_module = __import__(__package__+'.as', globals(), locals(), ['*'])
 
 assemblers = ['as', 'gas']

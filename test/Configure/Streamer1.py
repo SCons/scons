@@ -48,7 +48,7 @@ def hello(target, source, env):
     print('hello!\\n') # this breaks the script
     with open(env.subst('$TARGET', target = target),'w') as f:
       f.write('yes')
-  except:
+  except Exception:
     # write to file, as stdout/stderr is broken
     traceback.print_exc(file=open('traceback','w'))
   return 0

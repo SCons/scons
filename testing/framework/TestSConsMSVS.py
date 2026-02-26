@@ -989,7 +989,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
     def validate_msvs_file(self, file) -> None:
         try:
             x = ElementTree.parse(file)
-        except:
+        except Exception:
             print("--------------------------------------------------------------")
             print("--------------------------------------------------------------")
             print(traceback.format_exc())

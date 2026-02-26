@@ -122,7 +122,7 @@ for name in zf.namelist():
     dir = os.path.dirname(dest)
     try:
         os.makedirs(dir)
-    except:
+    except Exception:
         pass
     printname(dest)
     # if the file exists, then delete it before writing

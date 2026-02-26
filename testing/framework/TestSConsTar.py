@@ -102,7 +102,7 @@ if sys.platform == 'win32':
         try:
             result = subprocess.run([f"{tar}", "--version"], capture_output=True, text=True, check=True)
             version_str = result.stdout.strip()
-        except:
+        except Exception:
             version_str = None
 
         if not version_str:
