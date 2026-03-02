@@ -24,14 +24,15 @@
 """
 A testing framework for the scons-time.py script
 
-A TestSCons_time environment object is created via the usual invocation:
+Create a TestSCons_time environment object by instantiating the class:
 
+    import TestSCons_time
     test = TestSCons_time()
 
-TestSCons_time is a subclass of TestCommon, which is in turn is a subclass
-of TestCmd), and hence has available all of the methods and attributes
-from those classes, as well as any overridden or additional methods or
-attributes defined in this subclass.
+TestSCons_time is a subclass of :class:`TestCommon`, which is in turn a
+subclass of :class:`TestCmd`, and hence has available all of the methods
+and attributes from those classes, as well as any overridden or additional
+methods or attributes defined in this subclass.
 """
 
 import os

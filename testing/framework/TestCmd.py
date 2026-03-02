@@ -1,4 +1,7 @@
-# Copyright 2000-2024 Steven Knight
+# SPDX-License-Identifier: PSF-2.0
+#
+# Copyright 2000-2010 Steven Knight
+# Copyright The SCons Foundation
 #
 # This module is free software, and you may redistribute it and/or modify
 # it under the same terms as Python itself, so long as this copyright message
@@ -16,24 +19,31 @@
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #
 # Python License: https://docs.python.org/3/license.html#psf-license
+#
+# This copy is vendored for the SCons project from a revision marked
+# "TestCmd.py 1.3.D001 2010/06/03 12:58:27 knight"
 
 """
 A testing framework for commands and scripts.
 
 The TestCmd module provides a framework for portable automated testing
 of executable commands and scripts (in any language, not just Python),
-especially commands and scripts that require file system interaction.
+particularly those that require file system interaction.
 
-In addition to running tests and evaluating conditions, the TestCmd
-module manages and cleans up one or more temporary workspace
-directories, and provides methods for creating files and directories in
-those workspace directories from in-line data, here-documents), allowing
-tests to be completely self-contained.
+Beyond running tests and evaluating conditions, the TestCmd module manages
+temporary workspace directories, providing methods to create files and
+directories from inline data (here-documents) and from fixture files.
 
-A TestCmd environment object is created via the usual invocation:
+Create a TestCmd environment object by instantiating the class:
 
     import TestCmd
     test = TestCmd.TestCmd()
+
+TestCmd is the bottom layer of an extensible stack. You will probably
+encounter it via derived classes such as the companion :class:`TestCommon`
+class, or, if used in the SCons project, via :class:`TestSCons` and
+other specializations, with the functionality implemented here provided
+via inheritance.
 
 There are a bunch of keyword arguments available at instantiation:
 
@@ -648,7 +658,7 @@ def match_re(
 def match_re_dotall(
     lines: str | list[str] | None = None,
     res: str | list[str] | None = None,
-) -> Match[str] | None:
+) -> re.Match[str] | None:
     """Match function using regular expression match.
 
     Unlike :math:`match_re`, the arguments are converted to strings (if necessary)

@@ -24,14 +24,19 @@
 """
 A testing framework for the SCons software construction tool.
 
-A TestSCons environment object is created via the usual invocation:
+Create a TestSCons environment object by instantiating the class:
 
-    test = TestSCons()
+    import TestSCons
+    test = TestSCons.TestSCons()
 
-TestScons is a subclass of TestCommon, which in turn is a subclass
-of TestCmd), and hence has available all of the methods and attributes
-from those classes, as well as any overridden or additional methods or
-attributes defined in this subclass.
+:class:`TestScons' is a subclass of :class:`TestCommon,` which in turn
+is a subclass of :class:`TestCmd`, and hence has available all of the
+methods and attributes from those classes, as well as any overridden or
+additional methods or attributes defined in this subclass.
+
+This class is further specialized for specific testing purposes in
+modules :mod:`TestSConsMSVS`, :mod:`TestSConsTar`, :mod:`TestSCons_time`,
+:mod:`TestSConsign` as well as in this file in :class:`TimeSCons`.
 """
 
 from __future__ import annotations
@@ -47,7 +52,7 @@ from collections import namedtuple
 
 from SCons.Util import get_hash_format, get_current_hash_algorithm_used
 from TestCommon import *
-from TestCommon import __all__, _python_
+from TestCommon import __all__
 
 # Some tests which verify that SCons has been packaged properly need to
 # look for specific version file names.  Replicating the version number
@@ -146,7 +151,7 @@ def re_escape(str):
 # Helper functions that we use as a replacement to the default re.match
 # when searching for special strings in stdout/stderr.
 #
-def search_re(out, l):
+def search_re(out: str, l: str) -> int | None:
     """Search the regular expression 'l' in the output 'out'
     and return the start index when successful.
     """
@@ -157,7 +162,7 @@ def search_re(out, l):
     return None
 
 
-def search_re_in_list(out, l):
+def search_re_in_list(out: str, l: str) -> int | None:
     """Search the regular expression 'l' in each line of
     the given string list 'out' and return the line's index
     when successful.
@@ -203,12 +208,20 @@ else:
     deprecated_python_msg = ""
 
 
-def initialize_sconsflags(ignore_python_version):
-    """
-    Add the --warn=no-python-version option to SCONSFLAGS for every
-    command so test scripts don't have to filter out Python version
-    deprecation warnings.
-    Same for --warn=no-visual-c-missing.
+def initialize_sconsflags(ignore_python_version: bool) -> str | None:
+    """Set up SCONSFLAGS for every command.
+
+    Used so test scripts don't need to worry about unexpected warnings
+    in their output.
+
+    ``--warn=no-python-version`` is used to suppress Python version
+    deprecation warnings while such are active.
+
+    ``--warn=no-visual-c-missing`` is used so Windows systems which don't
+    have Visual C++ installed don't get warnings about it.
+
+    Returns:
+      the original ``SCONSFLAGS`` value, if any, so it can be restored
     """
     save_sconsflags = os.environ.get('SCONSFLAGS')
     if save_sconsflags:
@@ -229,7 +242,8 @@ def initialize_sconsflags(ignore_python_version):
     return save_sconsflags
 
 
-def restore_sconsflags(sconsflags) -> None:
+def restore_sconsflags(sconsflags: str | None) -> None:
+    """Restore the original SCONSFLAGS value, if any."""
     if sconsflags is None:
         del os.environ['SCONSFLAGS']
     else:
@@ -249,18 +263,14 @@ ConfigCheckInfo = namedtuple(
 
 
 class NoMatch(Exception):
-    """
-    Exception for matchPart to indicate there was no match found in the passed logfile
-    """
+    """There was no match in the passed logfile."""
 
     def __init__(self, p) -> None:
         self.pos = p
 
 
 def match_part_of_configlog(log, logfile, lastEnd, NoMatch=NoMatch):
-    """
-    Match part of the logfile
-    """
+    """Match part of the logfile."""
     # print("Match:\n%s\n==============\n%s" % (log , logfile[lastEnd:]))
     m = re.match(log, logfile[lastEnd:])
     if not m:
@@ -368,8 +378,7 @@ class TestSCons(TestCommon):
         return None
 
     def detect(self, var, prog=None, ENV=None, norm=None):
-        """
-        Return the detected path to a tool program.
+        """Return the detected path to a tool program.
 
         Searches first the named construction variable, then
         the SCons path.
@@ -401,7 +410,7 @@ class TestSCons(TestCommon):
 
         return self.where_is(prog)
 
-    def detect_tool(self, tool, prog=None, ENV=None):
+    def detect_tool(self, tool, prog=None, ENV=None) -> bool:
         """
         Given a tool (i.e., tool specification that would be passed
         to the "tools=" parameter of Environment()) and a program that
@@ -410,12 +419,11 @@ class TestSCons(TestCommon):
 
         By default, prog is set to the value passed into the tools parameter.
         """
-
         if not prog:
             prog = tool
         env = self.Environment(ENV, tools=[tool])
         if env is None:
-            return None
+            return False
         return env.Detect([prog])
 
     def where_is(self, prog, path=None, pathext=None):
@@ -476,8 +484,9 @@ class TestSCons(TestCommon):
         )
 
     def run(self, *args, **kw) -> None:
-        """
-        Set up SCONSFLAGS for every command so test scripts don't need
+        """Run a command.
+
+        Sets up ``SCONSFLAGS`` first  so test scripts don't need
         to worry about unexpected warnings in their output.
         """
         sconsflags = initialize_sconsflags(self.ignore_python_version)
@@ -1810,9 +1819,8 @@ else:
 
         return (python, incpath, libpath, libname + _lib)
 
-    def start(self, *args, **kw):
-        """
-        Starts SCons in the test environment.
+    def start(self, *args, **kw) -> Popen:
+        """Starts SCons in the test environment.
 
         This method exists to tell Test{Cmd,Common} that we're going to
         use standard input without forcing every .start() call in the
