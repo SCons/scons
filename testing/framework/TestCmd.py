@@ -19,9 +19,6 @@
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #
 # Python License: https://docs.python.org/3/license.html#psf-license
-#
-# This copy is vendored for the SCons project from a revision marked
-# "TestCmd.py 1.3.D001 2010/06/03 12:58:27 knight"
 
 """
 A testing framework for commands and scripts.
