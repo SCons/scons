@@ -61,13 +61,13 @@ for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
     vcxproj = test.read(project_file, 'r')
     expect = test.msvs_substitute(expected_vcprojfile, vc_version, None, 'SConstruct')
     # don't compare the pickled data
-    assert vcxproj[:len(expect)] == expect, test.diff_substr(expect, vcxproj)
+    test.fail_test(vcxproj[:len(expect)] != expect, message=test.diff_substr(expect, vcxproj))
 
     test.must_exist(test.workpath('Test.sln'))
     sln = test.read('Test.sln', 'r')
     expect = test.msvs_substitute(expected_slnfile, vc_version, None, 'SConstruct')
     # don't compare the pickled data
-    assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+    test.fail_test(sln[:len(expect)] != expect, message=test.diff_substr(expect, sln))
 
     test.run(arguments='-c .')
 
@@ -102,7 +102,7 @@ for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
     expect = test.msvs_substitute(expected_vcprojfile, vc_version, None, 'SConstruct',
                                   python=python)
     # don't compare the pickled data
-    assert vcxproj[:len(expect)] == expect, test.diff_substr(expect, vcxproj)
+    test.fail_test(vcxproj[:len(expect)] != expect, message=test.diff_substr(expect, vcxproj))
 
     del os.environ['PYTHON_ROOT']
 
