@@ -29,11 +29,12 @@ It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
 """
 
+import SCons.Platform
 import SCons.Tool
 
 def generate(env) -> None:
     """Add default tools."""
-    for t in SCons.Tool.tool_list(env['PLATFORM'], env):
+    for t in SCons.Platform.DefaultToolList(env['PLATFORM'], env):
         SCons.Tool.Tool(t)(env)
 
 def exists(env) -> bool:
