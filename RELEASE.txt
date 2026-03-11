@@ -63,6 +63,8 @@ IMPROVEMENTS
 - Additional small tweaks to Environment.py type hints, fold some overly
 long function signature lines, and some linting-insipired cleanups.
 
+- Test framework: tweak module docstrings
+
 
 PACKAGING
 ---------

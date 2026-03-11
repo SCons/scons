@@ -24,15 +24,19 @@
 """
 A testing framework for the SCons software construction tool.
 
-A TestSConsTar environment object is created via the usual invocation:
+Create a TestSConsTar environment object by instantiating the class:
 
+    import TestSConsTar
     test = TestSConsTar()
 
-TestSConsTar is a subsclass of TestSCons, which is in turn a subclass
-of TestCommon, which is in turn is a subclass of TestCmd), and hence
-has available all of the methods and attributes from those classes,
-as well as any overridden or additional methods or attributes defined
-in this subclass.
+TestSConsTar is a subsclass of :class:`TestSCons`, which is in turn
+a subclass of :class:`TestCommon`, which is in turn is a subclass
+of :class:`TestCmd`, and hence has available all of the methods and
+attributes from those classes, as well as any overridden or additional
+methods or attributes defined in this subclass.
+
+This module exists to provide support for using ``tar`` on Windows,
+where the state is a bit unpredictable.
 """
 
 import os
@@ -68,6 +72,9 @@ if sys.platform == 'win32':
 
     # tar.exe --version (GH windows-2025):
     #   bsdtar 3.7.7 - libarchive 3.7.7 zlib/1.2.13.1-motley liblzma/5.4.3 bz2lib/1.0.8 libzstd/1.5.5
+
+    # Later versions may support even more, e.g;
+    #   bsdtar 3.8.4 - libarchive 3.8.4 zlib/1.2.13.1-motley liblzma/5.8.1 bz2lib/1.0.8 libzstd/1.5.7 cng/2.0 libb2/bundles
 
     def _is_windows_system_tar(tar):
 
