@@ -6,8 +6,8 @@
 
 image:
   # Test images unsupported by GitHub Actions.
-  - Visual Studio 2017
   - Visual Studio 2019
+  - Visual Studio 2022
 
 cache:
   - downloads -> appveyor.yml
@@ -18,8 +18,8 @@ cache:
 install:
   # direct choco install supposed to work, but not? still doing in install.bat
   #- cinst: dmd ldc swig vswhere ixsltproc winflexbison3
-  - cmd: .\.appveyor\install.bat
-  - cmd: if %COVERAGE% equ 1 .\.appveyor\install-cov.bat
+  - ps: .\.appveyor\install.ps1
+  - ps: if ($env:COVERAGE -eq 1) { .\.appveyor\install-cov.ps1 }
 
 # Build matrix will be number of images multiplied by #entries in matrix:,
 # less any excludes.
@@ -34,8 +34,8 @@ environment:
   SCONS_CACHE_MSVC_CONFIG: "true"
   matrix:
     # Test oldest and newest supported Pythons.
-    - WINPYTHON: "Python314"
-    - WINPYTHON: "Python39"
+    - WINPYTHON: "Python310"
+    - WINPYTHON: "Python312"
 
 # Remove some binaries we don't want to be found
 # Note this is no longer needed, git-windows bin/ is quite minimal now.
