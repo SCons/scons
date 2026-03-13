@@ -59,6 +59,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Google style.
     - Additional small tweaks to Environment.py type hints, fold some overly
       long function signature lines, and some linting-insipired cleanups.
+    - Deprecated using signature-file-per-directory (aka old-style SConsign)
+      via the SConsignFile(name=None) call.
     - Test framework: tweak module docstrings
 
 

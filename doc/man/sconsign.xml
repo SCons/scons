@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
 SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
 SPDX-License-Identifier: MIT
+SPDX-FileType: DOCUMENTATION
+
+This file is processed by the bin/SConsDoc.py module.
 -->
 
 <!DOCTYPE reference [
@@ -57,26 +59,24 @@ individual dependency entries are printed in the following format:</para>
 
 <screen>
 depfile: content-signature timestamp length
-        implicit-dependency-1: content-signature timestamp length
-        implicit-dependency-2: content-signature timestamp length
+        implicit-dependency-1: content-signature timestamp size
+        implicit-dependency-2: content-signature timestamp size
         ...
         build-signature [action-string]
 </screen>
 
 <para>
 <emphasis role="bold">content-signature</emphasis>
-is the hash of the file's contents (<firstterm>csig</firstterm>)
-and <emphasis role="bold">build-signature</emphasis>
+(displayed as <firstterm>csig</firstterm> in verbose mode)
+is the hash of the file's contents.
+<emphasis role="bold">build-signature</emphasis>
 is the hash of the command line or other build action
-used to build a target (<firstterm>bactsig</firstterm>).
+used to build a target.
 If provided,
 <emphasis role="bold">action-string</emphasis>
 is the unexpanded string action or the function called.
 <emphasis role="bold">None</emphasis>
-is printed in place of any missing timestamp,
-<emphasis role="bold">csig</emphasis>,
-or <emphasis role="bold">bactsig</emphasis>
-values for any entry or any of its dependencies.
+is printed in place of any missing timestamp or signature.
 If the entry has no implicit dependencies,
 or no build action,
 the corresponding lines are omitted.
@@ -124,6 +124,11 @@ If there are no
 arguments, the name
 <filename>.sconsign.dblite</filename>
 is assumed by default.
+</para>
+
+<para>
+<emphasis>Deprecated since version NEXT_RELEASE</emphasis>:
+The old-style signature-file-per-directory mode is deprecated.
 </para>
 
 </refsect1>

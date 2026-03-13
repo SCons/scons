@@ -2861,16 +2861,26 @@ class Base(SubstitutionEnvironment):
     def SConsignFile(
         self, name: str | None = "", dbm_module: ModuleType | None = None,
     ) -> None:
-        """Specify the name of the signature database to use for this environment.
+        """Specify the base name of the signature database.
 
-        For historical reasons, if *name* is ``None``, the database is
-        stored as one file per directory, rather than a single database
-        for the project.
+        If *name* is not specified, ``.sconsign`` is used as the base name.
+        The actual name *may* also include an indicator of the hash algorithm
+        used to calculate the signatures, and a suffix indicating the
+        storage format. If the hash algorithm is set via
+        :meth:`~SCons.Script.Main.SetOption`, that setting must occur
+        before this function is called.
 
-        If *dbm_module* is specified, it is the database module to use
-        (you need to pass the module object, not a string name).
+        If *dbm_module* is specified, it gives the database module to use.
+        The parameter must be an actual module object, not a string name.
         The module must follow the Python Database API specification
-        described in PEP 249.
+        described in PEP 249. The defaut is :mod:`SCons.dblite`.
+
+        For historical reasons, if *name* is ``None``, the signatures are
+        stored as one file per directory, rather than in a single project-wide
+        database.
+
+        .. deprecated:: NEXT_RELEASE
+           The signature-file-per-directory mode is deprecated.
         """
         if name is not None:
             if not name:
