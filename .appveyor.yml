@@ -6,8 +6,8 @@
 
 image:
   # Test images unsupported by GitHub Actions.
+  - Visual Studio 2017
   - Visual Studio 2019
-  - Visual Studio 2022
 
 cache:
   - downloads -> appveyor.yml
