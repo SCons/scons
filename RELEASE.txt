@@ -41,6 +41,8 @@ FIXES
 
 - Fix --debug=includes for case of multiple source files.
 
+- Fix CPPDEFINES test using pkg-config, which was failing on GH Actions.
+
 IMPROVEMENTS
 ------------
 
