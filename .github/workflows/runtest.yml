@@ -1,61 +1,92 @@
-# This is a basic workflow to help you get started with Actions
+name: Full Test Suite
+description: Runs the full test suite across various OS/Python configurations.
+on: [push, pull_request, workflow_dispatch]
 
-name: Full Test Suite on Linux
+concurrency:
+  group: ${{ github.workflow }}|${{ github.ref_name }}
+  cancel-in-progress: true
 
-# Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+defaults:
+  run:
+    shell: bash
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "runtest"
   runtest:
     strategy:
       fail-fast: false
       matrix:
-        cfg: [
-          {os: 'ubuntu-22.04', py: '3.7'},
-          {os: 'ubuntu-24.04', py: '3.13'},
-        ]
-
-    runs-on: ${{ matrix.cfg.os }}
+        os: [macos-15, ubuntu-22.04, ubuntu-24.04, windows-2022, windows-2025]
+        python: ["3.9", "3.14"]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v6
 
-      - name: Install Ubuntu packages ${{ matrix.cfg.os }}
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          pip-install: --group dev
+
+      - name: Setup Ubuntu dependencies
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo apt-get update
           sudo apt-get install libtirpc-dev
 
-      - name: Set up Python ${{ matrix.cfg.py }} ${{ matrix.cfg.os }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.cfg.py }}
-          cache: 'pip'
-
-      - name: Install Python ${{ matrix.cfg.py }} dependencies ${{ matrix.cfg.os }}
+      - name: Setup Windows dependencies
+        if: startsWith(matrix.os, 'windows')
         run: |
-          python -m pip install --progress-bar off --upgrade pip
-          python -m pip install --progress-bar off -r requirements-dev.txt
-          # sudo apt-get update
+          choco install --yes --no-progress dmd winflexbison3
+          # Environment variables to disable telemetry and enable MSVC caching.
+          echo "POWERSHELL_TELEMETRY_OPTOUT=1" >> $GITHUB_ENV
+          echo "PSDisableModuleAnalysisCacheCleanup=1" >> $GITHUB_ENV
+          echo "SCONS_CACHE_MSVC_CONFIG=1" >> $GITHUB_ENV
+          echo "VCPKG_DISABLE_METRICS=1" >> $GITHUB_ENV
+          echo "VSCMD_SKIP_SENDTELEMETRY=1" >> $GITHUB_ENV
+          # Populate the MSVC cache.
+          python testing/ci/windows_msvc_cache.py
 
-      - name: runtest ${{ matrix.cfg.os }} ${{ matrix.cfg.py }}
+      - name: Setup excluded tests
         run: |
-          python runtest.py --all --time --jobs=4
+          touch .excludes
+          if [[ "${{matrix.os}}" == "macos"* ]]; then
+            echo "test/Docbook/basic/epub/epub_live.py" >> .excludes
+            echo "test/Docbook/basic/html/html_live.py" >> .excludes
+            echo "test/Docbook/basic/htmlchunked/htmlchunked_live.py" >> .excludes
+            echo "test/Docbook/basic/htmlhelp/htmlhelp_live.py" >> .excludes
+            echo "test/Libs/LIBLITERALPREFIX.py" >> .excludes
+            echo "test/Rpcgen/live.py" >> .excludes
+            echo "test/builderrors.py" >> .excludes
+            echo "test/ninja/ninja_handle_control_c_rebuild.py" >> .excludes
+            echo "test/ninja/shutdown_scons_daemon.py" >> .excludes
+            echo "test/scons-time/run/option/verbose.py" >> .excludes
+          elif [[ "${{matrix.os}}" == "windows"* ]]; then
+            echo "test/CPPDEFINES/pkg-config.py" >> .excludes
+            echo "test/packaging/msi/explicit-target.py" >> .excludes
+            echo "test/packaging/msi/file-placement.py" >> .excludes
+            echo "test/packaging/msi/package.py" >> .excludes
+            if [[ "${{matrix.os}}" == "windows-2022" ]]; then
+              echo "test/scons-time/run/config/python.py" >> .excludes
+              echo "test/scons-time/run/option/python.py" >> .excludes
+              echo "test/sconsign/script/no-SConsignFile.py" >> .excludes
+              echo "test/sconsign/script/SConsignFile.py" >> .excludes
+              echo "test/sconsign/script/Signatures.py" >> .excludes
+            fi
+          fi
+          cat .excludes
 
-      - name: Archive Failed tests ${{ matrix.cfg.os }} ${{ matrix.cfg.py }}
-        uses: actions/upload-artifact@v4
-        if: failure()
+      - name: Run tests
+        id: run-tests
+        run: |
+          python runtest.py SCons test testing --time --jobs=0 --exclude-list=.excludes
+
+      - name: Archive failed tests
+        uses: actions/upload-artifact@v7
+        if: always() && steps.run-tests.outcome == 'failure'
         with:
-          name: ${{ matrix.cfg.os }}-${{ matrix.cfg.py }}-failed-tests
-          path: |
-            failed_tests.log
+          name: ${{ matrix.os }}-${{ matrix.python }}-failed-tests
+          path: failed_tests.log
