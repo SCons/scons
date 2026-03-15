@@ -82,9 +82,8 @@ AssertionError: [a-z0-9]+
         expected_dblite = test.workpath('.sconsign_sha256.dblite')
         test.run('.')
 
-    assert os.path.isfile(expected_dblite), \
-        "%s does not exist when running algorithm %s" % (expected_dblite,
-                                                         algorithm)
+    if not os.path.isfile(expected_dblite):
+        test.fail_test(message="%s does not exist when running algorithm %s" % (expected_dblite, algorithm))
 
     test.run('-C .')
     os.unlink(expected_dblite)

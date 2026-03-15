@@ -65,6 +65,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Deprecated using signature-file-per-directory (aka old-style SConsign)
       via the SConsignFile(name=None) call.
     - Test framework: tweak module docstrings
+    - Test suite: end to end tests don't use assert in result checks
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700

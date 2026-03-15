@@ -65,6 +65,8 @@ long function signature lines, and some linting-insipired cleanups.
 
 - Test framework: tweak module docstrings
 
+- Test suite: end to end tests don't use assert in result checks
+
 
 PACKAGING
 ---------

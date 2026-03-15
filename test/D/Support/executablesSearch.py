@@ -68,18 +68,18 @@ if __name__ == '__main__':
             self.assertRaises(KeyError, isExecutableOfToolAvailable, self.test, None)
 
         def test_dmd_tool(self):
-            self.assertEqual(
-                self.test.where_is('dmd', path) is not None or self.test.where_is('gdmd', path) is not None,
+            self.test.fail_test(
+                (self.test.where_is('dmd', path) is not None or self.test.where_is('gdmd', path) is not None) !=
                 isExecutableOfToolAvailable(self.test, 'dmd'))
 
         def test_gdc_tool(self):
-            self.assertEqual(
-                self.test.where_is('gdc', path) is not None,
+            self.test.fail_test(
+                (self.test.where_is('gdc', path) is not None) !=
                 isExecutableOfToolAvailable(self.test, 'gdc'))
 
         def test_ldc_tool(self):
-            self.assertEqual(
-                self.test.where_is('ldc2', path) is not None or self.test.where_is('ldc', path) is not None,
+            self.test.fail_test(
+                (self.test.where_is('ldc2', path) is not None or self.test.where_is('ldc', path) is not None) !=
                 isExecutableOfToolAvailable(self.test, 'ldc'))
 
     unittest.main()
