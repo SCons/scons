@@ -22,16 +22,31 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""SCons tool selection.
+"""SCons tool subsystem.
 
-Looks for modules that define a callable object that can modify a
-construction environment as appropriate for a given tool (or tool chain).
+Tool specification modules are callable objects that modify construction
+environments to dynamically enable specific types of builds. This module
+provides the support for handling tool modules:
 
-Note that because this subsystem just *selects* a callable that can
-modify a construction environment, it's possible for people to define
-their own "tool specification" in an arbitrary callable function.  No
-one needs to use or tie in to this subsystem in order to roll their own
-tool specifications.
+  - a Tool class to locate and load a tool module.
+  - lists of default tools for supported platform types and a mechanism to
+    select the available ones for the current platform.
+  - various rules for name remapping, special-cased toolchains, etc.
+  - utility functions for creating common Builders (eliminating duplication
+    when multiple tool modules could potentially create a Builder).
+  - create Scanners for common types used by the Builder utilities.
+
+This is not set up like a traditional Python package: this file implements
+the part that other subsystems can import and call. The remaining files
+are either dynamically loaded tool modules that present entry points
+(``exists()`` and ``generate()``) called through the Tool instance,
+or support files/common logic that can be imported by those tool
+modules. Neither are expected to be directly imported by any other SCons
+subsystem (test code may reach in and do so).
+
+Tool modules are simply callable objects that modify a construction
+environment. You can define custom tool specifications in any callable
+without needing to integrate with this subsystem.
 """
 
 from __future__ import annotations
@@ -50,6 +65,7 @@ import SCons.Scanner.Java
 import SCons.Scanner.LaTeX
 import SCons.Scanner.Prog
 import SCons.Scanner.SWIG
+import SCons.Util
 from SCons.Tool.linkCommon import LibSymlinksActionFunction, LibSymlinksStrFun
 
 DefaultToolpath = []
@@ -108,7 +124,25 @@ TOOL_ALIASES = {
 
 
 class Tool:
+    """A class for loading and applying tool modules.
+
+    *name* is looked up using standard paths plus any specified *toolpath*.
+    To avoid duplicate creation of instances, recognize if *name*
+    is actually an existing instance, if so, just return ourselves
+    without further setup.
+
+    .. versionchanged:: NEXT_RELEASE
+       Accept an exsiting instance at creation time and don't duplicate it.
+    """
+
+    def __new__(cls, name, toolpath=None, **kwargs) -> None:
+        if isinstance(name, Tool):
+            return name
+        return super().__new__(cls)
+
     def __init__(self, name, toolpath=None, **kwargs) -> None:
+        if isinstance(name, Tool):
+            return
         if toolpath is None:
             toolpath = []
 
@@ -269,6 +303,12 @@ class Tool:
 
     def __str__(self) -> str:
         return self.name
+
+    def __eq__(self, other) -> bool:
+        return str(other) == self.name
+
+    def __hash__(self) -> int:
+        return hash(self.name)
 
 
 LibSymlinksAction = SCons.Action.Action(LibSymlinksActionFunction, LibSymlinksStrFun)
@@ -671,18 +711,34 @@ def Initializers(env) -> None:
 
 def FindTool(tools, env):
     for tool in tools:
+        if not SCons.Util.is_String(tool):
+            # Already a Tool instance
+            if tool.exists(env):
+                return tool
+            continue
         t = Tool(tool)
         if t.exists(env):
-            return tool
+            return t
     return None
 
 
 def FindAllTools(tools, env):
     def ToolExists(tool, env=env):
-        return Tool(tool).exists(env)
+        if not SCons.Util.is_String(tool):
+            return tool.exists(env)
+        t = Tool(tool)
+        return t.exists(env)
 
-    return list(filter(ToolExists, tools))
-
+    results = []
+    for tool in tools:
+        if not SCons.Util.is_String(tool):
+            if tool.exists(env):
+                results.append(tool)
+            continue
+        t = Tool(tool)
+        if t.exists(env):
+            results.append(t)
+    return results
 
 def tool_list(platform, env):
     other_plat_tools = []
@@ -773,7 +829,7 @@ def tool_list(platform, env):
 
     # XXX this logic about what tool provides what should somehow be
     #     moved into the tool files themselves.
-    if c_compiler and c_compiler == 'mingw':
+    if c_compiler and str(c_compiler) == 'mingw':
         # MinGW contains a linker, C compiler, C++ compiler,
         # Fortran compiler, archiver and assembler:
         cxx_compiler = None
@@ -783,7 +839,7 @@ def tool_list(platform, env):
         ar = None
     else:
         # Don't use g++ if the C compiler has built-in C++ support:
-        if c_compiler in ('msvc', 'intelc', 'icc'):
+        if str(c_compiler) in ('msvc', 'intelc', 'icc'):
             cxx_compiler = None
         else:
             cxx_compiler = FindTool(cxx_compilers, env) or cxx_compilers[0]
