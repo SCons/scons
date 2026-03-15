@@ -67,6 +67,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Test framework: tweak module docstrings
     - Test suite: end to end tests don't use assert in result checks
 
+  From Keith F Prussing:
+    -  Fix multiple extension stripping for BibTeX and Biber processing
+
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
 
