@@ -28,6 +28,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Ruff: Handle F401 exclusions more granularly, remove per-file exclusions.
     - Implement type hints for Environment and environment utilities.
     - Deprecated Python 3.7 & 3.8 support.
+    - Deprecated implicit imports in `SCons.Util`. While they're still functional, they no longer
+      contribute to intellisense unless the correct package is imported.
+    - Split `SCons.Util.UtilTests.py` to individual packages where appropriate.
     - Modernized GitHub Actions test runner. This consolidates the logic of
       existing test environments into a single package. Adjusted AppVeyor to
       only run for targets unsupported by GitHub runners.

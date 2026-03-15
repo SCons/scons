@@ -59,57 +59,62 @@ import sys
 import time
 from collections import UserDict, UserList, deque
 from contextlib import suppress
-from typing import Any
 from logging import Formatter
+from typing import TYPE_CHECKING, Any
 
-# Util split into a package. Make sure things that used to work
-# when importing just Util itself still work:
-from .sctypes import (  # noqa: F401
-    DictTypes,
-    ListTypes,
-    SequenceTypes,
-    StringTypes,
-    BaseStringTypes,
-    Null,
-    NullSeq,
-    is_Dict,
-    is_List,
-    is_Sequence,
-    is_Tuple,
-    is_String,
-    is_Scalar,
-    to_String,
-    to_String_for_subst,
-    to_String_for_signature,
-    to_Text,
-    to_bytes,
-    to_str,
-    get_env_bool,
-    get_os_env_bool,
-    get_environment_var,
-)
-from .hashes import (  # noqa: F401
-    ALLOWED_HASH_FORMATS,
-    DEFAULT_HASH_FORMATS,
-    get_hash_format,
-    set_hash_format,
-    get_current_hash_algorithm_used,
-    hash_signature,
-    hash_file_signature,
-    hash_collect,
-    MD5signature,
-    MD5filesignature,
-    MD5collect,
-)
-from .envs import (  # noqa: F401
-    MethodWrapper,
-    PrependPath,
-    AppendPath,
-    AddPathIfNotExists,
-    AddMethod,
-    is_valid_construction_var,
-)
-from .filelock import FileLock, SConsLockFailure  # noqa: F401
+import SCons.Util.sctypes
+
+# HACK: Util split into a package. We want to gradually remove the implicit dependencies defined
+#  here, but we also want to ensure that anything currently importing just Util itself still works.
+#  As a compromise, we'll exclude these from a typed context. That way, while everything will still
+#  function as-is, IDEs and intellisense will throw a fit if attempting this legacy access.
+if not TYPE_CHECKING:
+    from SCons.Util.envs import (  # noqa: F401
+        AddMethod,
+        AddPathIfNotExists,
+        AppendPath,
+        MethodWrapper,
+        PrependPath,
+        is_valid_construction_var,
+    )
+    from SCons.Util.filelock import FileLock, SConsLockFailure  # noqa: F401
+    from SCons.Util.hashes import (  # noqa: F401
+        ALLOWED_HASH_FORMATS,
+        DEFAULT_HASH_FORMATS,
+        MD5collect,
+        MD5filesignature,
+        MD5signature,
+        get_current_hash_algorithm_used,
+        get_hash_format,
+        hash_collect,
+        hash_file_signature,
+        hash_signature,
+        set_hash_format,
+    )
+    from SCons.Util.sctypes import (  # noqa: F401
+        BaseStringTypes,
+        DictTypes,
+        ListTypes,
+        Null,
+        NullSeq,
+        SequenceTypes,
+        StringTypes,
+        get_env_bool,
+        get_environment_var,
+        get_os_env_bool,
+        is_Dict,
+        is_List,
+        is_Scalar,
+        is_Sequence,
+        is_String,
+        is_Tuple,
+        to_bytes,
+        to_str,
+        to_String,
+        to_String_for_signature,
+        to_String_for_subst,
+        to_Text,
+    )
 
 PYPY = hasattr(sys, 'pypy_translation_info')
 
@@ -452,8 +457,8 @@ def do_flatten(  # pylint: disable=redefined-outer-name,redefined-builtin
     sequence,
     result,
     isinstance=isinstance,
-    StringTypes=StringTypes,
-    SequenceTypes=SequenceTypes,
+    StringTypes=StringTypes, # type: ignore
+    SequenceTypes=SequenceTypes, # type: ignore
 ) -> None:
     for item in sequence:
         if isinstance(item, StringTypes) or not isinstance(item, SequenceTypes):
@@ -465,8 +470,8 @@ def do_flatten(  # pylint: disable=redefined-outer-name,redefined-builtin
 def flatten(  # pylint: disable=redefined-outer-name,redefined-builtin
     obj,
     isinstance=isinstance,
-    StringTypes=StringTypes,
-    SequenceTypes=SequenceTypes,
+    StringTypes=StringTypes, # type: ignore
+    SequenceTypes=SequenceTypes, # type: ignore
     do_flatten=do_flatten,
 ) -> list:
     """Flatten a sequence to a non-nested list.
@@ -489,8 +494,8 @@ def flatten(  # pylint: disable=redefined-outer-name,redefined-builtin
 def flatten_sequence(  # pylint: disable=redefined-outer-name,redefined-builtin
     sequence,
     isinstance=isinstance,
-    StringTypes=StringTypes,
-    SequenceTypes=SequenceTypes,
+    StringTypes=StringTypes, # type: ignore
+    SequenceTypes=SequenceTypes, # type: ignore
     do_flatten=do_flatten,
 ) -> list:
     """Flatten a sequence to a non-nested list.
@@ -700,14 +705,14 @@ if sys.platform == 'win32':
                 path = os.environ['PATH']
             except KeyError:
                 return None
-        if is_String(path):
+        if SCons.Util.sctypes.is_String(path):
             path = path.split(os.pathsep)
         if pathext is None:
             try:
                 pathext = os.environ['PATHEXT']
             except KeyError:
                 pathext = '.COM;.EXE;.BAT;.CMD'
-        if is_String(pathext):
+        if SCons.Util.sctypes.is_String(pathext):
             pathext = pathext.split(os.pathsep)
         for ext in pathext:
             if ext.lower() == file[-len(ext):].lower():
@@ -715,7 +720,7 @@ if sys.platform == 'win32':
                 break
         if reject is None:
             reject = []
-        if not is_List(reject) and not is_Tuple(reject):
+        if not SCons.Util.sctypes.is_List(reject) and not SCons.Util.sctypes.is_Tuple(reject):
             reject = [reject]
         for p in path:
             f = os.path.join(p, file)
@@ -737,7 +742,7 @@ elif os.name == 'os2':
                 path = os.environ['PATH']
             except KeyError:
                 return None
-        if is_String(path):
+        if SCons.Util.sctypes.is_String(path):
             path = path.split(os.pathsep)
         if pathext is None:
             pathext = ['.exe', '.cmd']
@@ -747,7 +752,7 @@ elif os.name == 'os2':
                 break
         if reject is None:
             reject = []
-        if not is_List(reject) and not is_Tuple(reject):
+        if not SCons.Util.sctypes.is_List(reject) and not SCons.Util.sctypes.is_Tuple(reject):
             reject = [reject]
         for p in path:
             f = os.path.join(p, file)
@@ -771,11 +776,11 @@ else:
                 path = os.environ['PATH']
             except KeyError:
                 return None
-        if is_String(path):
+        if SCons.Util.sctypes.is_String(path):
             path = path.split(os.pathsep)
         if reject is None:
             reject = []
-        if not is_List(reject) and not is_Tuple(reject):
+        if not SCons.Util.sctypes.is_List(reject) and not SCons.Util.sctypes.is_Tuple(reject):
             reject = [reject]
         for p in path:
             f = os.path.join(p, file)
@@ -858,10 +863,10 @@ def Split(arg) -> list:
     >>> print(Split(["stringlist", " preserving ", " spaces "]))
     ['stringlist', ' preserving ', ' spaces ']
     """
-    if is_List(arg) or is_Tuple(arg):
+    if SCons.Util.sctypes.is_List(arg) or SCons.Util.sctypes.is_Tuple(arg):
         return arg
 
-    if is_String(arg):
+    if SCons.Util.sctypes.is_String(arg):
         return arg.split()
 
     return [arg]
@@ -1400,7 +1405,7 @@ def sanitize_shell_env(execution_env: dict) -> dict:
     # Ensure that the ENV values are all strings:
     new_env = {}
     for key, value in execution_env.items():
-        if is_List(value):
+        if SCons.Util.sctypes.is_List(value):
             # If the value is a list, then we assume it is a path list,
             # because that's a pretty common list-like value to stick
             # in an environment variable:
