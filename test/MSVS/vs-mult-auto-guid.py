@@ -117,13 +117,13 @@ for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
         vcproj = test.read(project_file_1, 'r')
         expect = test.msvs_substitute(expected_vcprojfile_1, vc_version, None, 'SConstruct', project_guid=project_guid_1)
         # don't compare the pickled data
-        assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+        test.fail_test(vcproj[:len(expect)] != expect, message=test.diff_substr(expect, vcproj))
 
         test.must_exist(test.workpath(project_file_2))
         vcproj = test.read(project_file_2, 'r')
         expect = test.msvs_substitute(expected_vcprojfile_2, vc_version, None, 'SConstruct', project_guid=project_guid_2)
         # don't compare the pickled data
-        assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+        test.fail_test(vcproj[:len(expect)] != expect, message=test.diff_substr(expect, vcproj))
 
         test.must_exist(test.workpath(solution_file))
         sln = test.read(solution_file, 'r')
@@ -133,19 +133,19 @@ for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
             solution_guid_1=solution_guid_1, solution_guid_2=solution_guid_2,
         )
         # don't compare the pickled data
-        assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+        test.fail_test(sln[:len(expect)] != expect, message=test.diff_substr(expect, sln))
 
         test.must_exist(test.workpath(solution_file_1))
         sln = test.read(solution_file_1, 'r')
         expect = test.msvs_substitute(expected_slnfile_1, vc_version, subdir='src', project_guid=project_guid_1)
         # don't compare the pickled data
-        assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+        test.fail_test(sln[:len(expect)] != expect, message=test.diff_substr(expect, sln))
 
         test.must_exist(test.workpath(solution_file_2))
         sln = test.read(solution_file_2, 'r')
         expect = test.msvs_substitute(expected_slnfile_2, vc_version, subdir='src', project_guid=project_guid_2)
         # don't compare the pickled data
-        assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+        test.fail_test(sln[:len(expect)] != expect, message=test.diff_substr(expect, sln))
 
         if filters_file_expected:
             test.must_exist(test.workpath(filters_file_1))

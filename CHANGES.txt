@@ -31,6 +31,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Deprecated implicit imports in `SCons.Util`. While they're still functional, they no longer
       contribute to intellisense unless the correct package is imported.
     - Split `SCons.Util.UtilTests.py` to individual packages where appropriate.
+    - Modernized GitHub Actions test runner. This consolidates the logic of
+      existing test environments into a single package. Adjusted AppVeyor to
+      only run for targets unsupported by GitHub runners.
 
   From William Deegan:
     - Fix SCons Docbook schema to work with lxml > 5
@@ -60,6 +63,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       which tests the runner was adjusted to match.
     - Switch remaining "original style" docstring parameter listings to
       Google style.
+    - Additional small tweaks to Environment.py type hints, fold some overly
+      long function signature lines, and some linting-insipired cleanups.
+    - Deprecated using signature-file-per-directory (aka old-style SConsign)
+      via the SConsignFile(name=None) call.
+    - Test framework: tweak module docstrings
+    - Test suite: end to end tests don't use assert in result checks
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700

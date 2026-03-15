@@ -27,6 +27,8 @@ DEPRECATED FUNCTIONALITY
 
 - Deprecated implicit imports in `SCons.Util`. While they're still functional, they no longer
   contribute to intellisense unless the correct package is imported.
+- Deprecated using signature-file-per-directory (aka old-style SConsign)
+  via the SConsignFile(name=None) call.
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
@@ -59,6 +61,13 @@ IMPROVEMENTS
 - Used Gemini to refactor runtest.py to better organized the code and add docstrings.
 
 - Switch remaining "original style" docstring parameter listings to Google style.
+
+- Additional small tweaks to Environment.py type hints, fold some overly
+long function signature lines, and some linting-insipired cleanups.
+
+- Test framework: tweak module docstrings
+
+- Test suite: end to end tests don't use assert in result checks
 
 
 PACKAGING
@@ -112,6 +121,10 @@ DEVELOPMENT
 - Split `SCons.Util.UtilTests.py` to individual packages where appropriate.
 - MSVC: Added a host/target batch file configuration table for Visual
   Studio 2026.  Visual Studio 2026 removed support for 32-bit arm targets.
+
+- Modernized GitHub Actions test runner. This consolidates the logic of
+  existing test environments into a single package. Adjusted AppVeyor to
+  only run for targets unsupported by GitHub runners.
 
 
 Thanks to the following contributors listed below for their contributions to this release.
