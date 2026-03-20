@@ -13,7 +13,7 @@ from __future__ import annotations
 import hashlib
 import sys
 
-import SCons.Util.sctypes
+from .sctypes import to_bytes
 
 # Default hash function and format. SCons-internal.
 DEFAULT_HASH_FORMATS = ['md5', 'sha1', 'sha256']
@@ -309,9 +309,9 @@ def hash_signature(s, hash_format=None):
     """
     m = _get_hash_object(hash_format)
     try:
-        m.update(SCons.Util.sctypes.to_bytes(s))
+        m.update(to_bytes(s))
     except TypeError:
-        m.update(SCons.Util.sctypes.to_bytes(str(s)))
+        m.update(to_bytes(str(s)))
 
     return m.hexdigest()
 
@@ -333,10 +333,10 @@ def hash_file_signature(fname: str, chunksize: int=65536, hash_format=None) -> s
             blck = f.read(chunksize)
             if not blck:
                 break
-            m.update(SCons.Util.sctypes.to_bytes(blck))
+            m.update(to_bytes(blck))
         # TODO: can use this when base is Python 3.8+
         # while (blk := f.read(chunksize)) != b'':
-        #     m.update(SCons.Util.sctypes.to_bytes(blk))
+        #     m.update(to_bytes(blk))
 
     return m.hexdigest()
 

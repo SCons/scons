@@ -57,7 +57,7 @@ from SCons.Util import (
 )
 
 try:
-    import psutil
+    import psutil  # noqa: F401
     has_psutil = True
 except ImportError:
     has_psutil = False

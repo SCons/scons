@@ -69,7 +69,7 @@ import SCons.Util.sctypes
 #  As a compromise, we'll exclude these from a typed context. That way, while everything will still
 #  function as-is, IDEs and intellisense will throw a fit if attempting this legacy access.
 if not TYPE_CHECKING:
-    from SCons.Util.envs import (  # noqa: F401
+    from .envs import (  # noqa: F401
         AddMethod,
         AddPathIfNotExists,
         AppendPath,
@@ -77,8 +77,8 @@ if not TYPE_CHECKING:
         PrependPath,
         is_valid_construction_var,
     )
-    from SCons.Util.filelock import FileLock, SConsLockFailure  # noqa: F401
-    from SCons.Util.hashes import (  # noqa: F401
+    from .filelock import FileLock, SConsLockFailure  # noqa: F401
+    from .hashes import (  # noqa: F401
         ALLOWED_HASH_FORMATS,
         DEFAULT_HASH_FORMATS,
         MD5collect,
@@ -91,7 +91,7 @@ if not TYPE_CHECKING:
         hash_signature,
         set_hash_format,
     )
-    from SCons.Util.sctypes import (  # noqa: F401
+    from .sctypes import (  # noqa: F401
         BaseStringTypes,
         DictTypes,
         ListTypes,
@@ -705,14 +705,14 @@ if sys.platform == 'win32':
                 path = os.environ['PATH']
             except KeyError:
                 return None
-        if SCons.Util.sctypes.is_String(path):
+        if is_String(path): # type: ignore
             path = path.split(os.pathsep)
         if pathext is None:
             try:
                 pathext = os.environ['PATHEXT']
             except KeyError:
                 pathext = '.COM;.EXE;.BAT;.CMD'
-        if SCons.Util.sctypes.is_String(pathext):
+        if is_String(pathext): # type: ignore
             pathext = pathext.split(os.pathsep)
         for ext in pathext:
             if ext.lower() == file[-len(ext):].lower():
@@ -720,7 +720,7 @@ if sys.platform == 'win32':
                 break
         if reject is None:
             reject = []
-        if not SCons.Util.sctypes.is_List(reject) and not SCons.Util.sctypes.is_Tuple(reject):
+        if not is_List(reject) and not is_Tuple(reject): # type: ignore
             reject = [reject]
         for p in path:
             f = os.path.join(p, file)
@@ -742,7 +742,7 @@ elif os.name == 'os2':
                 path = os.environ['PATH']
             except KeyError:
                 return None
-        if SCons.Util.sctypes.is_String(path):
+        if is_String(path): # type: ignore
             path = path.split(os.pathsep)
         if pathext is None:
             pathext = ['.exe', '.cmd']
@@ -752,7 +752,7 @@ elif os.name == 'os2':
                 break
         if reject is None:
             reject = []
-        if not SCons.Util.sctypes.is_List(reject) and not SCons.Util.sctypes.is_Tuple(reject):
+        if not is_List(reject) and not is_Tuple(reject): # type: ignore
             reject = [reject]
         for p in path:
             f = os.path.join(p, file)
@@ -776,11 +776,11 @@ else:
                 path = os.environ['PATH']
             except KeyError:
                 return None
-        if SCons.Util.sctypes.is_String(path):
+        if is_String(path): # type: ignore
             path = path.split(os.pathsep)
         if reject is None:
             reject = []
-        if not SCons.Util.sctypes.is_List(reject) and not SCons.Util.sctypes.is_Tuple(reject):
+        if not is_List(reject) and not is_Tuple(reject): # type: ignore
             reject = [reject]
         for p in path:
             f = os.path.join(p, file)
@@ -863,10 +863,10 @@ def Split(arg) -> list:
     >>> print(Split(["stringlist", " preserving ", " spaces "]))
     ['stringlist', ' preserving ', ' spaces ']
     """
-    if SCons.Util.sctypes.is_List(arg) or SCons.Util.sctypes.is_Tuple(arg):
+    if is_List(arg) or is_Tuple(arg): # type: ignore
         return arg
 
-    if SCons.Util.sctypes.is_String(arg):
+    if is_String(arg): # type: ignore
         return arg.split()
 
     return [arg]
@@ -1405,7 +1405,7 @@ def sanitize_shell_env(execution_env: dict) -> dict:
     # Ensure that the ENV values are all strings:
     new_env = {}
     for key, value in execution_env.items():
-        if SCons.Util.sctypes.is_List(value):
+        if is_List(value): # type: ignore
             # If the value is a list, then we assume it is a path list,
             # because that's a pretty common list-like value to stick
             # in an environment variable:
