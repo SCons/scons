@@ -23,33 +23,24 @@
 
 from __future__ import annotations
 
-import functools
-import hashlib
 import io
 import os
 import subprocess
 import sys
 import unittest
-import unittest.mock
-import warnings
-from collections import UserDict, UserList, UserString, namedtuple
+from collections import UserDict
 from typing import Callable
 
 import TestCmd
 
-import SCons.Errors
-import SCons.compat
 from SCons.Util import (
-    ALLOWED_HASH_FORMATS,
-    AddPathIfNotExists,
-    AppendPath,
     CLVar,
     LogicalLines,
     NodeList,
-    PrependPath,
     Proxy,
     Selector,
     WhereIs,
+    _wait_for_process_to_die_non_psutil,
     adjustixes,
     containsAll,
     containsAny,
@@ -57,44 +48,23 @@ from SCons.Util import (
     dictify,
     display,
     flatten,
-    get_env_bool,
-    get_environment_var,
     get_native_path,
-    get_os_env_bool,
-    hash_collect,
-    hash_signature,
-    is_Dict,
-    is_List,
-    is_String,
-    is_Tuple,
     print_tree,
     render_tree,
-    set_hash_format,
     silent_intern,
     splitext,
-    to_String,
-    to_bytes,
-    to_str,
     wait_for_process_to_die,
-    _wait_for_process_to_die_non_psutil,
-)
-from SCons.Util.envs import is_valid_construction_var
-from SCons.Util.hashes import (
-    _attempt_init_of_python_3_9_hash_object,
-    _attempt_get_hash_function,
-    _get_hash_object,
-    _set_allowed_viable_default_hashes,
 )
 
 try:
-    import psutil
+    import psutil  # noqa: F401
     has_psutil = True
 except ImportError:
     has_psutil = False
 
 
 # These Util classes have no unit tests. Some don't make sense to test?
-# DisplayEngine, Delegate, MethodWrapper, UniqueList, Unbuffered, Null, NullSeq
+# DisplayEngine, Delegate, UniqueList, Unbuffered
 
 
 class OutBuffer:
@@ -304,89 +274,6 @@ class UtilTestCase(unittest.TestCase):
         finally:
             sys.stdout = save_stdout
 
-    def test_is_Dict(self) -> None:
-        assert is_Dict({})
-        assert is_Dict(UserDict())
-        try:
-            class mydict(dict):
-                pass
-        except TypeError:
-            pass
-        else:
-            assert is_Dict(mydict({}))
-        assert not is_Dict([])
-        assert not is_Dict(())
-        assert not is_Dict("")
-
-
-    def test_is_List(self) -> None:
-        assert is_List([])
-        assert is_List(UserList())
-        try:
-            class mylist(list):
-                pass
-        except TypeError:
-            pass
-        else:
-            assert is_List(mylist([]))
-        assert not is_List(())
-        assert not is_List({})
-        assert not is_List("")
-
-    def test_is_String(self) -> None:
-        assert is_String("")
-        assert is_String(UserString(''))
-        try:
-            class mystr(str):
-                pass
-        except TypeError:
-            pass
-        else:
-            assert is_String(mystr(''))
-        assert not is_String({})
-        assert not is_String([])
-        assert not is_String(())
-
-    def test_is_Tuple(self) -> None:
-        assert is_Tuple(())
-        try:
-            class mytuple(tuple):
-                pass
-        except TypeError:
-            pass
-        else:
-            assert is_Tuple(mytuple(()))
-        assert not is_Tuple([])
-        assert not is_Tuple({})
-        assert not is_Tuple("")
-
-    def test_to_Bytes(self) -> None:
-        """ Test the to_Bytes method"""
-        self.assertEqual(to_bytes('Hello'),
-                         bytearray('Hello', 'utf-8'),
-                         "Check that to_bytes creates byte array when presented with non byte string.")
-
-    def test_to_String(self) -> None:
-        """Test the to_String() method."""
-        assert to_String(1) == "1", to_String(1)
-        assert to_String([1, 2, 3]) == str([1, 2, 3]), to_String([1, 2, 3])
-        assert to_String("foo") == "foo", to_String("foo")
-        assert to_String(None) == 'None'
-        # test low level string converters too
-        assert to_str(None) == 'None'
-        assert to_bytes(None) == b'None'
-
-        s1 = UserString('blah')
-        assert to_String(s1) == s1, s1
-        assert to_String(s1) == 'blah', s1
-
-        class Derived(UserString):
-            pass
-
-        s2 = Derived('foo')
-        assert to_String(s2) == s2, s2
-        assert to_String(s2) == 'foo', s2
-
 
     def test_WhereIs(self) -> None:
         test = TestCmd.TestCmd(workdir='')
@@ -468,18 +355,6 @@ class UtilTestCase(unittest.TestCase):
         finally:
             os.environ['PATH'] = env_path
 
-    def test_get_env_var(self) -> None:
-        """Testing get_environment_var()."""
-        assert get_environment_var("$FOO") == "FOO", get_environment_var("$FOO")
-        assert get_environment_var("${BAR}") == "BAR", get_environment_var("${BAR}")
-        assert get_environment_var("$FOO_BAR1234") == "FOO_BAR1234", get_environment_var("$FOO_BAR1234")
-        assert get_environment_var("${BAR_FOO1234}") == "BAR_FOO1234", get_environment_var("${BAR_FOO1234}")
-        assert get_environment_var("${BAR}FOO") is None, get_environment_var("${BAR}FOO")
-        assert get_environment_var("$BAR ") is None, get_environment_var("$BAR ")
-        assert get_environment_var("FOO$BAR") is None, get_environment_var("FOO$BAR")
-        assert get_environment_var("$FOO[0]") is None, get_environment_var("$FOO[0]")
-        assert get_environment_var("${some('complex expression')}") is None, get_environment_var(
-            "${some('complex expression')}")
 
     def test_Proxy(self) -> None:
         """Test generic Proxy class."""
@@ -542,122 +417,6 @@ class UtilTestCase(unittest.TestCase):
                 os.unlink(filename)
             except OSError:
                 pass
-
-    def test_PrependPath(self) -> None:
-        """Test prepending to a path"""
-        # have to specify the pathsep when adding so it's cross-platform
-        # new duplicates existing - "moves to front"
-        with self.subTest():
-            p1: list | str = r'C:\dir\num\one;C:\dir\num\two'
-            p1 = PrependPath(p1, r'C:\dir\num\two', sep=';')
-            p1 = PrependPath(p1, r'C:\dir\num\three', sep=';')
-            self.assertEqual(p1, r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
-
-        # ... except with delete_existing false
-        with self.subTest():
-            p2: list | str = r'C:\dir\num\one;C:\dir\num\two'
-            p2 = PrependPath(p2, r'C:\dir\num\two', sep=';', delete_existing=False)
-            p2 = PrependPath(p2, r'C:\dir\num\three', sep=';', delete_existing=False)
-            self.assertEqual(p2, r'C:\dir\num\three;C:\dir\num\one;C:\dir\num\two')
-
-        # only last one is kept if there are dupes in new
-        with self.subTest():
-            p3: list | str = r'C:\dir\num\one'
-            p3 = PrependPath(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\two', sep=';')
-            self.assertEqual(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\one')
-
-        # try prepending a Dir Node
-        with self.subTest():
-            p4: list | str = r'C:\dir\num\one'
-            test = TestCmd.TestCmd(workdir='')
-            test.subdir('sub')
-            subdir = test.workpath('sub')
-            p4 = PrependPath(p4, subdir, sep=';')
-            self.assertEqual(p4, rf'{subdir};C:\dir\num\one')
-
-        # try with initial list, adding string (result stays a list)
-        with self.subTest():
-            p5: list = [r'C:\dir\num\one', r'C:\dir\num\two']
-            p5 = PrependPath(p5, r'C:\dir\num\two', sep=';')
-            self.assertEqual(p5, [r'C:\dir\num\two', r'C:\dir\num\one'])
-            p5 = PrependPath(p5, r'C:\dir\num\three', sep=';')
-            self.assertEqual(p5, [r'C:\dir\num\three', r'C:\dir\num\two', r'C:\dir\num\one'])
-
-        # try with initial string, adding list (result stays a string)
-        with self.subTest():
-            p6: list | str = r'C:\dir\num\one;C:\dir\num\two'
-            p6 = PrependPath(p6, [r'C:\dir\num\two', r'C:\dir\num\three'], sep=';')
-            self.assertEqual(p6, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\one')
-
-
-    def test_AppendPath(self) -> None:
-        """Test appending to a path."""
-        # have to specify the pathsep when adding so it's cross-platform
-        # new duplicates existing - "moves to end"
-        with self.subTest():
-            p1: list | str = r'C:\dir\num\one;C:\dir\num\two'
-            p1 = AppendPath(p1, r'C:\dir\num\two', sep=';')
-            p1 = AppendPath(p1, r'C:\dir\num\three', sep=';')
-            self.assertEqual(p1, r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
-
-        # ... except with delete_existing false
-        with self.subTest():
-            p2: list | str = r'C:\dir\num\one;C:\dir\num\two'
-            p2 = AppendPath(p1, r'C:\dir\num\one', sep=';', delete_existing=False)
-            p2 = AppendPath(p1, r'C:\dir\num\three', sep=';')
-            self.assertEqual(p2, r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
-
-        # only last one is kept if there are dupes in new
-        with self.subTest():
-            p3: list | str = r'C:\dir\num\one'
-            p3 = AppendPath(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\two', sep=';')
-            self.assertEqual(p3, r'C:\dir\num\one;C:\dir\num\three;C:\dir\num\two')
-
-        # try appending a Dir Node
-        with self.subTest():
-            p4: list | str = r'C:\dir\num\one'
-            test = TestCmd.TestCmd(workdir='')
-            test.subdir('sub')
-            subdir = test.workpath('sub')
-            p4 = AppendPath(p4, subdir, sep=';')
-            self.assertEqual(p4, rf'C:\dir\num\one;{subdir}')
-
-        # try with initial list, adding string (result stays a list)
-        with self.subTest():
-            p5: list = [r'C:\dir\num\one', r'C:\dir\num\two']
-            p5 = AppendPath(p5, r'C:\dir\num\two', sep=';')
-            p5 = AppendPath(p5, r'C:\dir\num\three', sep=';')
-            self.assertEqual(p5, [r'C:\dir\num\one', r'C:\dir\num\two', r'C:\dir\num\three'])
-
-        # try with initia string, adding list (result stays a string)
-        with self.subTest():
-            p6: list | str = r'C:\dir\num\one;C:\dir\num\two'
-            p6 = AppendPath(p6, [r'C:\dir\num\two', r'C:\dir\num\three'], sep=';')
-            self.assertEqual(p6, r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
-
-    def test_addPathIfNotExists(self) -> None:
-        """Test the AddPathIfNotExists() function"""
-        env_dict = {'FOO': os.path.normpath('/foo/bar') + os.pathsep + \
-                           os.path.normpath('/baz/blat'),
-                    'BAR': os.path.normpath('/foo/bar') + os.pathsep + \
-                           os.path.normpath('/baz/blat'),
-                    'BLAT': [os.path.normpath('/foo/bar'),
-                             os.path.normpath('/baz/blat')]}
-        AddPathIfNotExists(env_dict, 'FOO', os.path.normpath('/foo/bar'))
-        AddPathIfNotExists(env_dict, 'BAR', os.path.normpath('/bar/foo'))
-        AddPathIfNotExists(env_dict, 'BAZ', os.path.normpath('/foo/baz'))
-        AddPathIfNotExists(env_dict, 'BLAT', os.path.normpath('/baz/blat'))
-        AddPathIfNotExists(env_dict, 'BLAT', os.path.normpath('/baz/foo'))
-
-        assert env_dict['FOO'] == os.path.normpath('/foo/bar') + os.pathsep + \
-               os.path.normpath('/baz/blat'), env_dict['FOO']
-        assert env_dict['BAR'] == os.path.normpath('/bar/foo') + os.pathsep + \
-               os.path.normpath('/foo/bar') + os.pathsep + \
-               os.path.normpath('/baz/blat'), env_dict['BAR']
-        assert env_dict['BAZ'] == os.path.normpath('/foo/baz'), env_dict['BAZ']
-        assert env_dict['BLAT'] == [os.path.normpath('/baz/foo'),
-                                    os.path.normpath('/foo/bar'),
-                                    os.path.normpath('/baz/blat')], env_dict['BLAT']
 
     def test_CLVar(self) -> None:
         """Test the command-line construction variable class"""
@@ -914,201 +673,6 @@ bling
         wait_fn(p.pid)
 
 
-class HashTestCase(unittest.TestCase):
-
-    def test_collect(self) -> None:
-        """Test collecting a list of signatures into a new signature value
-        """
-        for algorithm, expected in {
-            'md5': ('698d51a19d8a121ce581499d7b701668',
-                    '8980c988edc2c78cc43ccb718c06efd5',
-                    '53fd88c84ff8a285eb6e0a687e55b8c7'),
-            'sha1': ('6216f8a75fd5bb3d5f22b6f9958cdede3fc086c2',
-                     '42eda1b5dcb3586bccfb1c69f22f923145271d97',
-                     '2eb2f7be4e883ebe52034281d818c91e1cf16256'),
-            'sha256': ('f6e0a1e2ac41945a9aa7ff8a8aaa0cebc12a3bcc981a929ad5cf810a090e11ae',
-                       '25235f0fcab8767b7b5ac6568786fbc4f7d5d83468f0626bf07c3dbeed391a7a',
-                       'f8d3d0729bf2427e2e81007588356332e7e8c4133fae4bceb173b93f33411d17'),
-        }.items():
-            # if the current platform does not support the algorithm we're looking at,
-            # skip the test steps for that algorithm, but display a warning to the user
-            if algorithm not in ALLOWED_HASH_FORMATS:
-                warnings.warn("Missing hash algorithm {} on this platform, cannot test with it".format(algorithm), ResourceWarning)
-            else:
-                hs = functools.partial(hash_signature, hash_format=algorithm)
-                s = list(map(hs, ('111', '222', '333')))
-
-                assert expected[0] == hash_collect(s[0:1], hash_format=algorithm)
-                assert expected[1] == hash_collect(s[0:2], hash_format=algorithm)
-                assert expected[2] == hash_collect(s, hash_format=algorithm)
-
-    def test_MD5signature(self) -> None:
-        """Test generating a signature"""
-        for algorithm, expected in {
-            'md5': ('698d51a19d8a121ce581499d7b701668',
-                    'bcbe3365e6ac95ea2c0343a2395834dd'),
-            'sha1': ('6216f8a75fd5bb3d5f22b6f9958cdede3fc086c2',
-                     '1c6637a8f2e1f75e06ff9984894d6bd16a3a36a9'),
-            'sha256': ('f6e0a1e2ac41945a9aa7ff8a8aaa0cebc12a3bcc981a929ad5cf810a090e11ae',
-                       '9b871512327c09ce91dd649b3f96a63b7408ef267c8cc5710114e629730cb61f'),
-        }.items():
-            # if the current platform does not support the algorithm we're looking at,
-            # skip the test steps for that algorithm, but display a warning to the user
-            if algorithm not in ALLOWED_HASH_FORMATS:
-                warnings.warn("Missing hash algorithm {} on this platform, cannot test with it".format(algorithm), ResourceWarning)
-            else:
-                s = hash_signature('111', hash_format=algorithm)
-                assert expected[0] == s, s
-
-                s = hash_signature('222', hash_format=algorithm)
-                assert expected[1] == s, s
-
-# this uses mocking out, which is platform specific, however, the FIPS
-# behavior this is testing is also platform-specific, and only would be
-# visible in hosts running Linux with the fips_mode kernel flag along
-# with using OpenSSL.
-
-class FIPSHashTestCase(unittest.TestCase):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-        ###############################
-        # algorithm mocks, can check if we called with usedforsecurity=False for python >= 3.9
-        self.fake_md5=lambda usedforsecurity=True: (usedforsecurity, 'md5')
-        self.fake_sha1=lambda usedforsecurity=True: (usedforsecurity, 'sha1')
-        self.fake_sha256=lambda usedforsecurity=True: (usedforsecurity, 'sha256')
-        ###############################
-
-        ###############################
-        # hashlib mocks
-        md5Available = unittest.mock.Mock(md5=self.fake_md5)
-        del md5Available.sha1
-        del md5Available.sha256
-        self.md5Available=md5Available
-
-        md5Default = unittest.mock.Mock(md5=self.fake_md5, sha1=self.fake_sha1)
-        del md5Default.sha256
-        self.md5Default=md5Default
-
-        sha1Default = unittest.mock.Mock(sha1=self.fake_sha1, sha256=self.fake_sha256)
-        del sha1Default.md5
-        self.sha1Default=sha1Default
-
-        sha256Default = unittest.mock.Mock(sha256=self.fake_sha256, **{'md5.side_effect': ValueError, 'sha1.side_effect': ValueError})
-        self.sha256Default=sha256Default
-
-        all_throw = unittest.mock.Mock(**{'md5.side_effect': ValueError, 'sha1.side_effect': ValueError, 'sha256.side_effect': ValueError})
-        self.all_throw=all_throw
-
-        no_algorithms = unittest.mock.Mock()
-        del no_algorithms.md5
-        del no_algorithms.sha1
-        del no_algorithms.sha256
-        del no_algorithms.nonexist
-        self.no_algorithms=no_algorithms
-
-        unsupported_algorithm = unittest.mock.Mock(unsupported=self.fake_sha256)
-        del unsupported_algorithm.md5
-        del unsupported_algorithm.sha1
-        del unsupported_algorithm.sha256
-        del unsupported_algorithm.unsupported
-        self.unsupported_algorithm=unsupported_algorithm
-        ###############################
-
-        ###############################
-        # system version mocks
-        VersionInfo = namedtuple('VersionInfo', 'major minor micro releaselevel serial')
-        v3_8 = VersionInfo(3, 8, 199, 'super-beta', 1337)
-        v3_9 = VersionInfo(3, 9, 0, 'alpha', 0)
-        v4_8 = VersionInfo(4, 8, 0, 'final', 0)
-
-        self.sys_v3_8 = unittest.mock.Mock(version_info=v3_8)
-        self.sys_v3_9 = unittest.mock.Mock(version_info=v3_9)
-        self.sys_v4_8 = unittest.mock.Mock(version_info=v4_8)
-        ###############################
-
-    def test_basic_failover_bad_hashlib_hash_init(self) -> None:
-        """Tests that if the hashing function is entirely missing from hashlib (hashlib returns None),
-        the hash init function returns None"""
-        assert _attempt_init_of_python_3_9_hash_object(None) is None
-
-    def test_basic_failover_bad_hashlib_hash_get(self) -> None:
-        """Tests that if the hashing function is entirely missing from hashlib (hashlib returns None),
-        the hash get function returns None"""
-        assert _attempt_get_hash_function("nonexist", self.no_algorithms) is None
-
-    def test_usedforsecurity_flag_behavior(self) -> None:
-        """Test usedforsecurity flag -> should be set to 'True' on older versions of python, and 'False' on Python >= 3.9"""
-        for version, expected in {
-            self.sys_v3_8: (True, 'md5'),
-            self.sys_v3_9: (False, 'md5'),
-            self.sys_v4_8: (False, 'md5'),
-        }.items():
-            assert _attempt_init_of_python_3_9_hash_object(self.fake_md5, version) == expected
-
-    def test_automatic_default_to_md5(self) -> None:
-        """Test automatic default to md5 even if sha1 available"""
-        for version, expected in {
-            self.sys_v3_8: (True, 'md5'),
-            self.sys_v3_9: (False, 'md5'),
-            self.sys_v4_8: (False, 'md5'),
-        }.items():
-            _set_allowed_viable_default_hashes(self.md5Default, version)
-            set_hash_format(None, self.md5Default, version)
-            assert _get_hash_object(None, self.md5Default, version) == expected
-
-    def test_automatic_default_to_sha256(self) -> None:
-        """Test automatic default to sha256 if other algorithms available but throw"""
-        for version, expected in {
-            self.sys_v3_8: (True, 'sha256'),
-            self.sys_v3_9: (False, 'sha256'),
-            self.sys_v4_8: (False, 'sha256'),
-        }.items():
-            _set_allowed_viable_default_hashes(self.sha256Default, version)
-            set_hash_format(None, self.sha256Default, version)
-            assert _get_hash_object(None, self.sha256Default, version) == expected
-
-    def test_automatic_default_to_sha1(self) -> None:
-        """Test automatic default to sha1 if md5 is missing from hashlib entirely"""
-        for version, expected in {
-            self.sys_v3_8: (True, 'sha1'),
-            self.sys_v3_9: (False, 'sha1'),
-            self.sys_v4_8: (False, 'sha1'),
-        }.items():
-            _set_allowed_viable_default_hashes(self.sha1Default, version)
-            set_hash_format(None, self.sha1Default, version)
-            assert _get_hash_object(None, self.sha1Default, version) == expected
-
-    def test_no_available_algorithms(self) -> None:
-        """expect exceptions on no available algorithms or when all algorithms throw"""
-        self.assertRaises(SCons.Errors.SConsEnvironmentError, _set_allowed_viable_default_hashes, self.no_algorithms)
-        self.assertRaises(SCons.Errors.SConsEnvironmentError, _set_allowed_viable_default_hashes, self.all_throw)
-        self.assertRaises(SCons.Errors.SConsEnvironmentError, _set_allowed_viable_default_hashes, self.unsupported_algorithm)
-
-    def test_bad_algorithm_set_attempt(self) -> None:
-        """expect exceptions on user setting an unsupported algorithm selections, either by host or by SCons"""
-
-        # nonexistant hash algorithm, not supported by SCons
-        _set_allowed_viable_default_hashes(self.md5Available)
-        self.assertRaises(SCons.Errors.UserError, set_hash_format, 'blah blah blah', hashlib_used=self.no_algorithms)
-
-        # md5 is default-allowed, but in this case throws when we attempt to use it
-        _set_allowed_viable_default_hashes(self.md5Available)
-        self.assertRaises(SCons.Errors.UserError, set_hash_format, 'md5', hashlib_used=self.all_throw)
-
-        # user attempts to use an algorithm that isn't supported by their current system but is supported by SCons
-        _set_allowed_viable_default_hashes(self.sha1Default)
-        self.assertRaises(SCons.Errors.UserError, set_hash_format, 'md5', hashlib_used=self.all_throw)
-
-        # user attempts to use an algorithm that is supported by their current system but isn't supported by SCons
-        _set_allowed_viable_default_hashes(self.sha1Default)
-        self.assertRaises(SCons.Errors.UserError, set_hash_format, 'unsupported', hashlib_used=self.unsupported_algorithm)
-
-    def tearDown(self) -> None:
-        """Return SCons back to the normal global state for the hashing functions."""
-        _set_allowed_viable_default_hashes(hashlib, sys)
-        set_hash_format(None)
-
 
 class NodeListTestCase(unittest.TestCase):
     def test_simple_attributes(self) -> None:
@@ -1176,137 +740,6 @@ class flattenTestCase(unittest.TestCase):
         items = {"a": 1, "b": 2, "c": 3}
         result = flatten(items.values())
         self.assertEqual(sorted(result), [1, 2, 3])
-
-
-class OsEnviron:
-    """Used to temporarily mock os.environ"""
-
-    def __init__(self, environ) -> None:
-        self._environ = environ
-
-    def start(self) -> None:
-        self._stored = os.environ
-        os.environ = self._environ
-
-    def stop(self) -> None:
-        os.environ = self._stored
-        del self._stored
-
-    def __enter__(self):
-        self.start()
-        return os.environ
-
-    def __exit__(self, *args) -> None:
-        self.stop()
-
-
-class get_env_boolTestCase(unittest.TestCase):
-    def test_missing(self) -> None:
-        env = {}
-        var = get_env_bool(env, 'FOO')
-        assert var is False, "var should be False, not %s" % repr(var)
-        env = {'FOO': '1'}
-        var = get_env_bool(env, 'BAR')
-        assert var is False, "var should be False, not %s" % repr(var)
-
-    def test_true(self) -> None:
-        for arg in ['TRUE', 'True', 'true',
-                    'YES', 'Yes', 'yes',
-                    'Y', 'y',
-                    'ON', 'On', 'on',
-                    '1', '20', '-1']:
-            env = {'FOO': arg}
-            var = get_env_bool(env, 'FOO')
-            assert var is True, 'var should be True, not %s' % repr(var)
-
-    def test_false(self) -> None:
-        for arg in ['FALSE', 'False', 'false',
-                    'NO', 'No', 'no',
-                    'N', 'n',
-                    'OFF', 'Off', 'off',
-                    '0']:
-            env = {'FOO': arg}
-            var = get_env_bool(env, 'FOO', True)
-            assert var is False, 'var should be True, not %s' % repr(var)
-
-    def test_default(self) -> None:
-        env = {'FOO': 'other'}
-        var = get_env_bool(env, 'FOO', True)
-        assert var is True, 'var should be True, not %s' % repr(var)
-        var = get_env_bool(env, 'FOO', False)
-        assert var is False, 'var should be False, not %s' % repr(var)
-
-
-class get_os_env_boolTestCase(unittest.TestCase):
-    def test_missing(self) -> None:
-        with OsEnviron({}):
-            var = get_os_env_bool('FOO')
-            assert var is False, "var should be False, not %s" % repr(var)
-        with OsEnviron({'FOO': '1'}):
-            var = get_os_env_bool('BAR')
-            assert var is False, "var should be False, not %s" % repr(var)
-
-    def test_true(self) -> None:
-        for arg in ['TRUE', 'True', 'true',
-                    'YES', 'Yes', 'yes',
-                    'Y', 'y',
-                    'ON', 'On', 'on',
-                    '1', '20', '-1']:
-            with OsEnviron({'FOO': arg}):
-                var = get_os_env_bool('FOO')
-                assert var is True, 'var should be True, not %s' % repr(var)
-
-    def test_false(self) -> None:
-        for arg in ['FALSE', 'False', 'false',
-                    'NO', 'No', 'no',
-                    'N', 'n',
-                    'OFF', 'Off', 'off',
-                    '0']:
-            with OsEnviron({'FOO': arg}):
-                var = get_os_env_bool('FOO', True)
-                assert var is False, 'var should be True, not %s' % repr(var)
-
-    def test_default(self) -> None:
-        with OsEnviron({'FOO': 'other'}):
-            var = get_os_env_bool('FOO', True)
-            assert var is True, 'var should be True, not %s' % repr(var)
-            var = get_os_env_bool('FOO', False)
-            assert var is False, 'var should be False, not %s' % repr(var)
-
-
-class EnvironmentVariableTestCase(unittest.TestCase):
-
-    def test_is_valid_construction_var(self) -> None:
-        """Testing is_valid_construction_var()"""
-        r = is_valid_construction_var("_a")
-        assert r, r
-        r = is_valid_construction_var("z_")
-        assert r, r
-        r = is_valid_construction_var("X_")
-        assert r, r
-        r = is_valid_construction_var("2a")
-        assert not r, r
-        r = is_valid_construction_var("a2_")
-        assert r, r
-        r = is_valid_construction_var("/")
-        assert not r, r
-        r = is_valid_construction_var("_/")
-        assert not r, r
-        r = is_valid_construction_var("a/")
-        assert not r, r
-        r = is_valid_construction_var(".b")
-        assert not r, r
-        r = is_valid_construction_var("_.b")
-        assert not r, r
-        r = is_valid_construction_var("b1._")
-        assert not r, r
-        r = is_valid_construction_var("-b")
-        assert not r, r
-        r = is_valid_construction_var("_-b")
-        assert not r, r
-        r = is_valid_construction_var("b1-_")
-        assert not r, r
-
 
 
 if __name__ == "__main__":

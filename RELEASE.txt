@@ -124,6 +124,8 @@ DEVELOPMENT
   existing test environments into a single package. Adjusted AppVeyor to
   only run for targets unsupported by GitHub runners.
 
+- Split `SCons.Util.UtilTests.py` to individual packages where appropriate.
+
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
