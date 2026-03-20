@@ -28,6 +28,12 @@ DEPRECATED FUNCTIONALITY
 - Deprecated using signature-file-per-directory (aka old-style SConsign)
   via the SConsignFile(name=None) call.
 
+REMOVED FUNCTIONALITY
+---------------------
+
+- The qt3 tool module, deprecated since version 4.3, is removed due to
+  the general unavailablility of the obsolete build-time Qt3 package.
+
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
