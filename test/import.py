@@ -123,6 +123,10 @@ intel_warnings = [
     re.compile(intel_no_top_dir_warning + intel_license_warning),
 ]
 
+error_output = {
+    'icl': intel_warnings,
+    'intelc': intel_warnings,
+}
 # An SConstruct for importing Tool names that have illegal characters
 # for Python variable names.
 indirect_import = """\
