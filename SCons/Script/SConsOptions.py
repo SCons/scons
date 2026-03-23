@@ -405,9 +405,18 @@ class SConsOptionParser(optparse.OptionParser):
                                % (opt, nargs))
             elif nargs == 1:
                 value = rargs.pop(0)
+                if not had_explicit_value:
+                    SCons.Script._Remove_Target(value)
+                    if '=' in value:
+                        SCons.Script._Remove_Argument(value)
             else:
                 value = tuple(rargs[0:nargs])
                 del rargs[0:nargs]
+                for i in range(len(value)):
+                    if not had_explicit_value or i > 0:
+                        SCons.Script._Remove_Target(value[i])
+                        if '=' in value[i]:
+                            SCons.Script._Remove_Argument(value[i])
 
         elif had_explicit_value:
             self.error(_("%s option does not take a value") % opt)
@@ -447,11 +456,13 @@ class SConsOptionParser(optparse.OptionParser):
                 raise
 
             if option.takes_value():
+                had_explicit_value = False
                 # Any characters left in arg?  Pretend they're the
                 # next arg, and stop consuming characters of arg.
                 if i < len(arg):
                     rargs.insert(0, arg[i:])
                     stop = True
+                    had_explicit_value = True
 
                 nargs = option.nargs
                 if len(rargs) < nargs:
@@ -462,9 +473,19 @@ class SConsOptionParser(optparse.OptionParser):
                                    % (opt, nargs))
                 elif nargs == 1:
                     value = rargs.pop(0)
+                    if not had_explicit_value:
+                        SCons.Script._Remove_Target(value)
+                        if '=' in value:
+                            SCons.Script._Remove_Argument(value)
                 else:
                     value = tuple(rargs[0:nargs])
                     del rargs[0:nargs]
+                    for i in range(len(value)):
+                        if not had_explicit_value or i > 0:
+                            SCons.Script._Remove_Target(value[i])
+                            if '=' in value[i]:
+                                SCons.Script._Remove_Argument(value[i])
+
 
             else:                       # option doesn't take a value
                 value = None
@@ -475,6 +496,7 @@ class SConsOptionParser(optparse.OptionParser):
                 break
 
 
+    # TODO: this is now unused, remove?
     def reparse_local_options(self) -> None:
         """Re-parse the leftover command-line options.
 
@@ -574,7 +596,7 @@ class SConsOptionParser(optparse.OptionParser):
             # right away.
             # TODO: what if dest is None?
             setattr(self.values.__defaults__, result.dest, result.default)
-            self.reparse_local_options()
+            self.parse_args(self.largs, self.values)
             if result.settable:
                 SConsValues.settable.append(result.dest)
 
