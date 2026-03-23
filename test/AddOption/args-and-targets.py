@@ -323,9 +323,9 @@ print(COMMAND_LINE_TARGETS)
 expect = r"""AttributeError: 'Values' object has no attribute 'foo':
   File ".+SConstruct4", line \d+:
     print\(str\(GetOption\('foo'\)\)\)
-  File ".+SCons/Script/Main.py", line \d+:
+  File "[^"]+Main.py", line \d+:
     return getattr\(OptionsParser.values, name\)
-  File ".+SCons/Script/SConsOptions.py", line \d+:
+  File "[^"]+SConsOptions.py", line \d+:
     return getattr\(self.__dict__\['__defaults__'\], attr\)
 """
 test.run(
@@ -416,9 +416,9 @@ print(COMMAND_LINE_TARGETS)
 expect=r"""AttributeError: 'Values' object has no attribute 'foo':
   File ".+SConstruct6", line \d+:
     print\(str\(GetOption\('foo'\)\)\)
-  File ".+SCons/Script/Main.py", line \d+:
+  File "[^"]+Main.py", line \d+:
     return getattr\(OptionsParser.values, name\)
-  File ".+SCons/Script/SConsOptions.py", line \d+:
+  File "[^"]+SConsOptions.py", line \d+:
     return getattr\(self.__dict__\['__defaults__'\], attr\)
 """
 test.run(
