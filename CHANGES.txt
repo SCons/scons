@@ -66,6 +66,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       via the SConsignFile(name=None) call.
     - Test framework: tweak module docstrings
     - Test suite: end to end tests don't use assert in result checks
+    - A few more typing cleanups in Environment (and in one case which
+      affected it in the Node package).
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
