@@ -47,6 +47,10 @@ FIXES
 
 - Fix --debug=includes for case of multiple source files.
 
+- Adjust race protection for CacheDir - now uses a unique temporary
+  directory for each writer before doing the move, instead of depending
+  on a one-time uuid to make a path to the file.
+
 IMPROVEMENTS
 ------------
 
