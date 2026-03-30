@@ -66,6 +66,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       via the SConsignFile(name=None) call.
     - Test framework: tweak module docstrings
     - Test suite: end to end tests don't use assert in result checks
+    - The qt3 tool module, deprecated since version 4.3, is removed due to
+      the general unavailablility of the obsolete build-time Qt3 package.
     - A few more typing cleanups in Environment (and in one case which
       affected it in the Node package).
 
