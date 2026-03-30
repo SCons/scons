@@ -85,7 +85,6 @@ from SCons.Util.sctypes import _null
 
 if TYPE_CHECKING:
     from SCons.Action import ActionBase
-    from SCons.CacheDir import CacheDir
     from SCons.Executor import Executor
     from SCons.Node import Node, NodeInfoBase
     from SCons.Node.FS import DirNode, EntryNode, FileNode
@@ -159,7 +158,7 @@ future_reserved_construction_var_names: list[str] = [
 def copy_non_reserved_keywords(dict_: dict[str, Any]) -> dict[str, Any]:
     """Copy a dict excluding reserved construction variable names."""
     result = semi_deepcopy(dict_)
-    for k in result.copy().keys():
+    for k in list(result.keys()):
         if k in reserved_construction_var_names:
             msg = "Ignoring attempt to set reserved variable `$%s'"
             SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning, msg % k)
@@ -181,7 +180,7 @@ def _set_BUILDERS(env: EnvironmentBase, key: str, value):
     """Set the BUILDERS construction variable."""
     try:
         bd = env._dict[key]
-        for k in bd.copy().keys():
+        for k in list(bd.keys()):
             del bd[k]
     except KeyError:
         bd = BuilderDict(bd, env)  # XXX use-before-set?
@@ -330,7 +329,7 @@ def _add_cppdefines(
         env_dict[key] = deque(defines.split())
     elif is_Tuple(defines):
         if len(defines) > 2:
-            raise SCons.Errors.UserError(
+            raise UserError(
                 f"Invalid tuple in CPPDEFINES: {defines!r}, must be a two-tuple"
             )
         env_dict[key] = deque([defines])
@@ -378,15 +377,15 @@ def _add_cppdefines(
 
     # A tuple appended to anything should yield -Dkey=value
     elif is_Tuple(val):
-        if len(val) > 2:
-            raise SCons.Errors.UserError(
+        if len(val) == 0 or len(val) > 2:
+            raise UserError(
                 f"Invalid tuple added to CPPDEFINES: {val!r}, "
                 "must be a two-tuple"
             )
         if len(val) == 1:
             val = (val[0], None)  # normalize
         if not is_Scalar(val[0]) or not is_Scalar(val[1]):
-            raise SCons.Errors.UserError(
+            raise UserError(
                 f"Invalid tuple added to CPPDEFINES: {val!r}, "
                 "values must be scalar"
             )
@@ -522,19 +521,19 @@ class BuilderDict(UserDict):
         # object, and indeed just copying would modify the original builder
         raise TypeError( 'cannot semi_deepcopy a BuilderDict' )
 
-    def __setitem__(self, item: str, val) -> None:
+    def __setitem__(self, key: str, item) -> None:
         try:
-            method = getattr(self.env, item).method
+            method = getattr(self.env, key).method
         except AttributeError:
             pass
         else:
             self.env.RemoveMethod(method)
-        super().__setitem__(item, val)
-        BuilderWrapper(self.env, val, item)
+        super().__setitem__(key, item)
+        BuilderWrapper(self.env, item, key)
 
-    def __delitem__(self, item: str) -> None:
-        super().__delitem__(item)
-        delattr(self.env, item)
+    def __delitem__(self, key: str) -> None:
+        super().__delitem__(key)
+        delattr(self.env, key)
 
     # MutableMapping.update() should be fine here with our own __setitem__.
     # def update(self, mapping: dict[str, Any]) -> None:  # type: ignore[override]
@@ -693,7 +692,7 @@ class SubstitutionEnvironment:
     def arg2nodes(
         self,
         args: str | Node | list[str | Node],
-        node_factory: Callable[[str], Node | list[Node]] = _null,  # type: ignore[assignment]
+        node_factory: Callable[[str], Node | list[Node]] | None = _null,  # type: ignore[assignment]
         lookup_list: list[Callable[[str], Node | None]] = _null,  # type: ignore[assignment]
         **kw
     ) -> list[Node]:
@@ -730,11 +729,11 @@ class SubstitutionEnvironment:
                     if is_String(n):
                         # n = self.subst(n, raw=1, **kw)
                         kw['raw'] = 1
-                        n = self.subst(n, **kw)
+                        n = self.subst(cast(str, n), **kw)
                         if node_factory:
                             n = node_factory(n)
                     if is_List(n):
-                        nodes.extend(n)
+                        nodes.extend(cast(list, n))
                     else:
                         nodes.append(n)
                 elif node_factory:
@@ -742,7 +741,7 @@ class SubstitutionEnvironment:
                     kw['raw'] = 1
                     v = node_factory(self.subst(v, **kw))
                     if is_List(v):
-                        nodes.extend(v)
+                        nodes.extend(cast(list, v))
                     else:
                         nodes.append(v)
             else:
@@ -828,7 +827,7 @@ class SubstitutionEnvironment:
         for k, v in kw.items():
             k = self.subst(k, raw, target, source)
             if is_String(v):
-                v = self.subst(v, raw, target, source)
+                v = self.subst(cast(str, v), raw, target, source)
             nkw[k] = v
         return nkw
 
@@ -1260,7 +1259,7 @@ class SubstitutionEnvironment:
                         # the cleanup loops at the end of the outer for loop,
                         # which implicitly gives us a new object.
                         if isinstance(orig, deque):
-                            self[key] = self[key].copy()
+                            self[key] = deque(orig)
                             cast(EnvironmentBase, self).AppendUnique(CPPDEFINES=value, delete_existing=True)
                             continue
                         try:
@@ -1465,13 +1464,13 @@ class Base(SubstitutionEnvironment):
     def validate_CacheDir_class(self, custom_class: type | None = None) -> type:
         """Return a validated custom CacheDir class.
 
-        Validate *custom_class*, which must be derived from
+        Validate that *custom_class*, is derived from
         :class:`SCons.CacheDir.CacheDir`. If *custom_class* is not
         supplied, use the ``CACHEDIR_CLASS`` entry from the environment.
         Return the class if there was no error.
 
         Raises:
-           UserError: if the class is not derived from ``CacheDir``.
+           UserError: if the class is not derived from :class:`~SConsCache.CacheDir`.
         """
         if custom_class is None:
             custom_class = self.get("CACHEDIR_CLASS", SCons.CacheDir.CacheDir)
@@ -1479,7 +1478,7 @@ class Base(SubstitutionEnvironment):
             raise UserError("Custom CACHEDIR_CLASS %s not derived from CacheDir" % str(custom_class))
         return custom_class
 
-    def get_CacheDir(self) -> CacheDir:
+    def get_CacheDir(self) -> SCons.CacheDir.CacheDir:
         """Return the CacheDir object for this environment, instantiating it if necessary."""
         try:
             path = self._CacheDir_path
@@ -1500,7 +1499,7 @@ class Base(SubstitutionEnvironment):
 
         cd = cachedir_class(path)
         self._last_CacheDir_path: str | None = path
-        self._last_CacheDir: CacheDir = cd
+        self._last_CacheDir: SCons.CacheDir.CacheDir = cd
         return cd
 
     def get_factory(self, factory, default: str = 'File'):
@@ -1576,14 +1575,14 @@ class Base(SubstitutionEnvironment):
         except KeyError:
             pass
 
-    def _update(self, other: EnvironmentBase) -> None:
+    def _update(self, other: dict[str, Any]) -> None:
         """Private method to update an environment's consvar dict directly.
 
         Bypasses the normal checks that occur when users try to set items.
         """
         self._dict.update(other)
 
-    def _update_onlynew(self, other: EnvironmentBase) -> None:
+    def _update_onlynew(self, other: dict[str, Any]) -> None:
         """Private method to add new items to an environment's consvar dict.
 
         Only adds items from *other* whose keys do not already appear in
@@ -2001,10 +2000,10 @@ class Base(SubstitutionEnvironment):
             class DumpEncoder(json.JSONEncoder):
                 """SCons special json Dump formatter."""
 
-                def default(self, obj):
-                    if isinstance(obj, (UserList, UserDict)):
-                        return obj.data
-                    return f'<<non-serializable: {type(obj).__qualname__}>>'
+                def default(self, o):
+                    if isinstance(o, (UserList, UserDict)):
+                        return o.data
+                    return f'<<non-serializable: {type(o).__qualname__}>>'
 
             return json.dumps(cvars, indent=4, cls=DumpEncoder, sort_keys=True)
 
@@ -2057,7 +2056,7 @@ class Base(SubstitutionEnvironment):
             function = parse_conf
         if is_List(command):
             command = ' '.join(command)
-        command = self.subst(command)
+        command = self.subst(cast(str, command))
         return function(self, self.backtick(command), unique)
 
 
@@ -2419,10 +2418,10 @@ class Base(SubstitutionEnvironment):
         """Create and return an Action object."""
         def subst_string(a, self=self):
             if is_String(a):
-                a = self.subst(a)
+                a = self.subst(cast(str, a))
             return a
 
-        nargs = list(map(subst_string, args))
+        nargs = tuple(map(subst_string, args))
         nkw = self.subst_kw(kw)
         return SCons.Action.Action(*nargs, **nkw)
 
@@ -2703,7 +2702,7 @@ class Base(SubstitutionEnvironment):
 
     def Environment(self, **kw) -> EnvironmentBase:
         """Create a construction environment object."""
-        return SCons.Environment.Environment(**self.subst_kw(kw))
+        return Environment(**self.subst_kw(kw))
 
     def Execute(self, action, *args, **kw):
         """Directly execute *action* through an Environment."""
@@ -2822,10 +2821,10 @@ class Base(SubstitutionEnvironment):
             t.set_pseudo()
         return tlist
 
-    def Repository(self, *dirs: str | DirNode | list[str | DirNode], **kw) -> None:
+    def Repository(self, *dirs: str | DirNode | list[str | DirNode]) -> None:
         """Specify Repository directories to search."""
-        dirs = self.arg2nodes(list(dirs), self.fs.Dir)
-        self.fs.Repository(*dirs, **kw)
+        dirs = self.arg2nodes(dirs, self.fs.Dir)
+        self.fs.Repository(*dirs)
 
     def Requires(
         self,
@@ -2950,7 +2949,7 @@ class Base(SubstitutionEnvironment):
         if is_List(arg):
             return list(map(self.subst, arg))  # type: ignore[arg-type]
         if is_String(arg):
-            return self.subst(arg).split()  # type: ignore[arg-type]
+            return self.subst(cast(str, arg)).split()  # type: ignore[arg-type]
         return [self.subst(arg)]  # type: ignore[arg-type]
 
     def Value(
@@ -2970,12 +2969,12 @@ class Base(SubstitutionEnvironment):
 
         This function creates a mapping from the source directory *src_dir* to the
         variant directory *variant_dir*.  If *duplicate* is true (the default),
-        the source files are duplicated into the variant directory; if false,
+        the source files are duplicated into the variant directory; otherwise
         they are not.
         """
-        variant_dir = self.arg2nodes(variant_dir, self.fs.Dir)[0]  # type: ignore[assignment]
-        src_dir = self.arg2nodes(src_dir, self.fs.Dir)[0]  # type: ignore[assignment]
-        self.fs.VariantDir(variant_dir, src_dir, duplicate)  # type: ignore[assignment]
+        variant_dirs = self.arg2nodes(variant_dir, self.fs.Dir)
+        src_dirs = self.arg2nodes(src_dir, self.fs.Dir)
+        self.fs.VariantDir(variant_dirs[0], src_dirs[0], duplicate)
 
     def FindSourceFiles(self, node: str | Node = ".") -> list[EntryNode]:
         """Return the list of all source files under *node*."""
