@@ -362,9 +362,3 @@ if os.path.exists(ninja_builddir / "scons_daemon_dirty"):
     os.unlink(ninja_builddir / "scons_daemon_dirty")
 if os.path.exists(daemon_dir / "pidfile"):
     os.unlink(daemon_dir / "pidfile")
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

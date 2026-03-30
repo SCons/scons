@@ -69,8 +69,7 @@ Features:
 Documentation
 =============
 
-Documentation for SCons is available at
-http://www.scons.org/documentation.html.
+See the `SCons documentation page <https://scons.org/documentation.html>`_.
 
 
 Latest Version
@@ -87,12 +86,13 @@ Execution Requirements
 Running SCons requires Python 3.7 or higher. There should be no other
 dependencies or requirements to run standard SCons.
 
+The last release to support Python 3.7 or Python 3.8 is NEXT_RELEASE.
 The last release to support Python 3.6 was 4.8.1.
 The last release to support Python 3.5 was 4.2.0.
 
 Some experimental features may require additional Python packages
 to be installed - at the moment the Ninja feature requires the
-supporting `ninja package <https://pypi.org/project/ninja/>`_.
+supporting `ninja package <https://pypi.org/project/ninja>`_.
 
 The default SCons configuration assumes use of the Microsoft Visual C++
 compiler suite on Win32 systems, and assumes a C compiler named ``cc``, a C++
@@ -124,10 +124,10 @@ Installation
 ============
 
 The preferred way to install SCons is through the Python installer, ``pip``
-(or equivalent alternatives, such as the Anaconda installer, ``conda``).
+(or equivalent alternatives, such as ``uv`` or the Anaconda installer, ``conda``).
 You can install either from a wheel package or from the source directory.
-To work on a project that builds using SCons, installation lets you
-just use ``scons`` as a command and not worry about things.  In this
+To work on a project that builds using SCons, "installing" lets you
+just use ``scons`` as a command and not worry about paths.  In this
 case, we usually suggest using a virtualenv, to isolate the Python
 environment to that project
 (some notes on that:
@@ -154,7 +154,7 @@ Some installation examples::
 Note that on Windows, SCons installed via ``pip`` puts an executable
 ``scons.exe`` in the script directory of the Python installation,
 or in a shadow script directory if you did a User Install.
-To run ``scons`` as a command, you'll need this in your search path.
+To run ``scons`` as a command, you'll need this directory in your search path.
 
 Fortunately, ``pip`` will warn you about this - pay attention to any
 messages during installation like this::
@@ -168,9 +168,9 @@ messages during installation like this::
 If you are running on a system which uses a package manager
 (for example most Linux distributions), you may, at your option,
 use the package manager (e.g. ``apt``, ``dnf``, ``yum``,
-``zypper``, ``brew``, ``pacman`` etc.) to install a version
-of SCons.  Some distributions keep up to date with SCons releases
-very quickly, while others may delay, so the version of SCons
+``zypper``, ``brew``, ``pacman`` etc.) to install a system-wide version
+of SCons.  Some distributions keep up to date with SCons releases,
+while others may delay, so the version of SCons
 you want to run may factor into your choice.
 
 
@@ -202,7 +202,7 @@ The SCons project welcomes bug reports and feature requests.
 
 Please make sure you send email with the problem or feature request to
 the SCons users mailing list, which you can join at
-https://two.pairlist.net/mailman/listinfo/scons-users,
+https://mail.python.org/mailman3/lists/scons-users.python.org/,
 or on the SCons Discord server in
 `#scons-help <https://discord.gg/bXVpWAy#scons-help>`_.
 
@@ -221,8 +221,9 @@ Bug-fix Policy
 
 At this time, the application of bug-fix pull requests *normally* happens
 at the head of the main branch. In other words fixes are likely to appear
-in the next regular release and there probably won't be a bugfix update
-to a past release.  Consumers are of course free to internally maintain
+in a bugfix to the current release or in the next regular release
+and there probably won't be a bugfix update to older releases.
+Consumers are of course free to internally maintain
 releases on their own by taking submitted patches and applying them.
 
 
@@ -231,11 +232,11 @@ Mailing Lists and Other Contacts
 
 In addition to the scons-users list, an active mailing list for developers
 of SCons is available.  You may send questions or comments to the list
-at scons-dev@scons.org.
+at scons-dev@python.org.
 
 You may subscribe to the developer's mailing list using the form at
-https://two.pairlist.net/mailman/listinfo/scons-dev.  The same page
-contains archives of past postings.
+https://mail.python.org/mailman3/lists/scons-dev.python.org.
+The same page contains archives of past postings.
 
 Subscription to the developer's mailing list is by approval.  In practice, no
 one is refused list membership, but we reserve the right to limit membership
@@ -250,7 +251,7 @@ https://scons.org/contact.html.
 Reproducible Builds
 ===================
 SCons itself is set up to do "reproducible builds"
-(see (https://reproducible-builds.org/specs/source-date-epoch/)
+(see (https://reproducible-builds.org/specs/source-date-epoch)
 if environment variables ``SOURCE_DATE_EPOCH`` is set - that is,
 fields in the package which could change each time the package is
 constructed are forced to constant values.
@@ -265,14 +266,14 @@ Donations
 =========
 
 If you find SCons helpful, please consider making a donation (of cash,
-software, or hardware) to support continued work on the project.  Information
-is available at https://www.scons.org/donate.html
-or the GitHub Sponsors button on https://github.com/scons/scons.
+software, or hardware) to support continued work on the project.
+See `Donation information <https://scons.org/donate.html>`_
+or the `GitHub Sponsors button <https://github.com/scons/scons>`_.
 
 For More Information
 ====================
 
-Check the SCons web site at https://www.scons.org/
+Check the `SCons web site <https://scons.org>`_.
 
 
 Author Info
@@ -301,4 +302,4 @@ many contributors, including but not at all limited to:
 
 \... and many others.
 
-Copyright (c) 2001 - 2024 The SCons Foundation
+Copyright (c) 2001 - 2026 The SCons Foundation

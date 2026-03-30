@@ -115,11 +115,7 @@ from SCons.Debug import logInstanceCreation
 from SCons.Errors import InternalError, UserError
 from SCons.Executor import Executor
 from SCons.Node import Node
-
-class _Null:
-    pass
-
-_null = _Null
+from SCons.Util.sctypes import _null
 
 def match_splitext(path, suffixes = []):
     if suffixes:
@@ -670,8 +666,8 @@ class BuilderBase:
         else:
             env_kw = self.overrides
 
-        # TODO if env_kw: then the following line. there's no purpose in calling if no overrides.
-        env = env.Override(env_kw)
+        if env_kw:  # there's no purpose in calling if no overrides.
+            env = env.Override(env_kw)
         return self._execute(env, target, source, OverrideWarner(kw), ekw)
 
     def adjust_suffix(self, suff):
@@ -910,9 +906,3 @@ def is_a_Builder(obj) -> bool:
     return (isinstance(obj, BuilderBase)
             or isinstance(obj, CompositeBuilder)
             or callable(obj))
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

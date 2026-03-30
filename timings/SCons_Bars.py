@@ -1,5 +1,8 @@
+#!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,7 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 """
 A quick module for central collection of information about which
@@ -55,17 +57,17 @@ class Bars(dict):
 Release_Bars = Bars(
     color = 7,
     dict = {
-        1232 : '0.96.90', 
-        1344 : '0.96.91', 
-        1435 : '0.96.92', 
-        1674 : '0.96.93', 
-        1765 : '0.96.94', 
-        1835 : '0.96.95', 
-        1882 : '0.96.96', 
-        1901 : '0.97', 
-        2242 : '0.97.0d20070809', 
-        2454 : '0.97.0d20070918', 
-        2527 : '0.97.0d20071212', 
+        1232 : '0.96.90',
+        1344 : '0.96.91',
+        1435 : '0.96.92',
+        1674 : '0.96.93',
+        1765 : '0.96.94',
+        1835 : '0.96.95',
+        1882 : '0.96.96',
+        1901 : '0.97',
+        2242 : '0.97.0d20070809',
+        2454 : '0.97.0d20070918',
+        2527 : '0.97.0d20071212',
     },
 )
 
@@ -115,9 +117,3 @@ Revision_Bars = Bars(
         2380 : 'The Big Signature Refactoring hits branches/core.',
     },
 )
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

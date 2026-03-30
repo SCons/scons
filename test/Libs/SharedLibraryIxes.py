@@ -290,9 +290,3 @@ for t in tests:
     test.run(program = test.workpath(t[3]), stdout=expected)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

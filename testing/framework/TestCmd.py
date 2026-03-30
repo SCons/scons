@@ -1,4 +1,7 @@
-# Copyright 2000-2024 Steven Knight
+# SPDX-License-Identifier: PSF-2.0
+#
+# Copyright 2000-2010 Steven Knight
+# Copyright The SCons Foundation
 #
 # This module is free software, and you may redistribute it and/or modify
 # it under the same terms as Python itself, so long as this copyright message
@@ -22,18 +25,22 @@ A testing framework for commands and scripts.
 
 The TestCmd module provides a framework for portable automated testing
 of executable commands and scripts (in any language, not just Python),
-especially commands and scripts that require file system interaction.
+particularly those that require file system interaction.
 
-In addition to running tests and evaluating conditions, the TestCmd
-module manages and cleans up one or more temporary workspace
-directories, and provides methods for creating files and directories in
-those workspace directories from in-line data, here-documents), allowing
-tests to be completely self-contained.
+Beyond running tests and evaluating conditions, the TestCmd module manages
+temporary workspace directories, providing methods to create files and
+directories from inline data (here-documents) and from fixture files.
 
-A TestCmd environment object is created via the usual invocation:
+Create a TestCmd environment object by instantiating the class:
 
     import TestCmd
     test = TestCmd.TestCmd()
+
+TestCmd is the bottom layer of an extensible stack. You will probably
+encounter it via derived classes such as the companion :class:`TestCommon`
+class, or, if used in the SCons project, via :class:`TestSCons` and
+other specializations, with the functionality implemented here provided
+via inheritance.
 
 There are a bunch of keyword arguments available at instantiation:
 
@@ -534,7 +541,7 @@ def pass_test(self=None, condition: bool = True, function=None) -> None:
     a condition argument is supplied; if so the completion processing
     takes place only if the condition is true.
 
-    the test passes only if the condition is true.
+    The test passes only if the condition is true.
 
     Args:
         self: a test class instance. Must be passed in explicitly
@@ -551,16 +558,20 @@ def pass_test(self=None, condition: bool = True, function=None) -> None:
     sys.exit(0)
 
 
-def match_exact(lines=None, matches=None, newline=os.sep):
+def match_exact(
+    lines: str | list[str] | None = None,
+    matches: str | list[str] | None = None,
+    newline: str = os.sep,
+) -> int | None:
     """Match function using exact match.
 
-    :param lines: data lines
-    :type lines: str or list[str]
-    :param matches: expected lines to match
-    :type matches: str or list[str]
-    :param newline: line separator
-    :returns: None on failure, 1 on success.
+    Args:
+        lines: Data lines.
+        matches: Expected lines to match.
+        newline: Line separator.
 
+    Returns:
+        None on failure, 1 on success.
     """
     if isinstance(lines, bytes):
         newline = to_bytes(newline)
@@ -577,19 +588,22 @@ def match_exact(lines=None, matches=None, newline=os.sep):
     return 1
 
 
-def match_caseinsensitive(lines=None, matches=None):
+def match_caseinsensitive(
+    lines: str | list[str] | None = None,
+    matches: str | list[str] | None = None,
+) -> int | None:
     """Match function using case-insensitive matching.
 
     Only a simplistic comparison is done, based on casefolding
     the strings. This may still fail but is the suggestion of
     the Unicode Standard.
 
-    :param lines: data lines
-    :type lines: str or list[str]
-    :param matches: expected lines to match
-    :type matches: str or list[str]
-    :returns: None on failure, 1 on success.
+    Args:
+        lines: Data lines.
+        matches: Expected lines to match.
 
+    Returns:
+        None on failure, 1 on success.
     """
     if not is_List(lines):
         lines = lines.split("\n")
@@ -603,15 +617,18 @@ def match_caseinsensitive(lines=None, matches=None):
     return 1
 
 
-def match_re(lines=None, res=None):
+def match_re(
+    lines: str | list[str] | None = None,
+    res: str | list[str] | None = None,
+) -> int | None:
     """Match function using line-by-line regular expression match.
 
-    :param lines: data lines
-    :type lines: str or list[str]
-    :param res: regular expression(s) for matching
-    :type res: str or list[str]
-    :returns: None on failure, 1 on success.
+    Args:
+        lines: Data lines.
+        res: Regular expression(s) for matching.
 
+    Returns:
+        None on failure, 1 on success.
     """
     if not is_List(lines):
         # CRs mess up matching (Windows) so split carefully
@@ -635,18 +652,21 @@ def match_re(lines=None, res=None):
     return 1
 
 
-def match_re_dotall(lines=None, res=None):
+def match_re_dotall(
+    lines: str | list[str] | None = None,
+    res: str | list[str] | None = None,
+) -> re.Match[str] | None:
     """Match function using regular expression match.
 
-    Unlike match_re, the arguments are converted to strings (if necessary)
+    Unlike :math:`match_re`, the arguments are converted to strings (if necessary)
     and must match exactly.
 
-    :param lines: data lines
-    :type lines: str or list[str]
-    :param res: regular expression(s) for matching
-    :type res: str or list[str]
-    :returns: a match object on match, else None, like re.match
+    Args:
+        lines: Data lines.
+        res: Regular expression(s) for matching.
 
+    Returns:
+        A match object on match, else None, like :meth:`re.match`.
     """
     if not isinstance(lines, str):
         lines = "\n".join(lines)
@@ -735,7 +755,7 @@ def diff_re(
     are regular expressions.  This is a really dumb thing that
     just compares each line in turn, so it doesn't look for
     chunks of matching lines and the like--but at least it lets
-    you know exactly which line first didn't compare correctl...
+    you know exactly which line first didn't compare correctly.
 
     Raises:
         re.error: if a regex fails to compile
@@ -2152,7 +2172,7 @@ class TestCmd:
                     do_chmod(os.path.join(dirpath, name))
             do_chmod(top)
 
-    def write(self, file, content, mode: str = 'wb'):
+    def write(self, file: str | list[str], content: str | bytes, mode: str = 'wb'):
         """Writes data to file.
 
         The file is created under the temporary working directory.
@@ -2160,13 +2180,11 @@ class TestCmd:
         write is converted to the required type rather than failing
         if there is a str/bytes mistmatch.
 
-        :param file: name of file to write to. If a list, treated
-            as components of a path and concatenated into a path.
-        :type file: str or list(str)
-        :param content: data to write.
-        :type  content: str or bytes
-        :param mode: file mode, default is binary.
-        :type mode: str
+        Args:
+            file: Name of file to write to. If a list, treated as
+                components of a path and concatenated into a path.
+            content: Data to write.
+            mode: File mode, default is binary.
         """
         file = self.canonicalize(file)
         if mode[0] != 'w':
@@ -2176,10 +2194,3 @@ class TestCmd:
                 f.write(content)
             except TypeError as e:
                 f.write(bytes(content, 'utf-8'))
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

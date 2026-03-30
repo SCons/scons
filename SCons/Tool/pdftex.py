@@ -1,16 +1,7 @@
-"""SCons.Tool.pdftex
-
-Tool-specific initialization for pdftex.
-Generates .pdf files from .tex files
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -30,9 +21,17 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""SCons.Tool.pdftex
+
+Tool-specific initialization for pdftex.
+Generates .pdf files from .tex files
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+
+"""
 
 import os
 import SCons.Action
@@ -92,7 +91,7 @@ def generate(env) -> None:
     bld.add_action('.tex', PDFTeXLaTeXAction)
     bld.add_emitter('.tex', SCons.Tool.tex.tex_pdf_emitter)
 
-    # Add the epstopdf builder after the pdftex builder 
+    # Add the epstopdf builder after the pdftex builder
     # so pdftex is the default for no source suffix
     pdf.generate2(env)
 
@@ -101,9 +100,3 @@ def generate(env) -> None:
 def exists(env):
     SCons.Tool.tex.generate_darwin(env)
     return env.Detect('pdftex')
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

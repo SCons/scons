@@ -34,7 +34,7 @@ test = TestSCons.TestSCons()
 
 if not (sys.platform.startswith('linux') and
         os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl')):
-    test.skip_test('Wrong OS or no stylesheets installed, skipping test.\n')
+    test.skip_test('Wrong OS or no stylesheets found, skipping test.\n')
 
 try:
     import lxml
@@ -56,9 +56,3 @@ test.must_not_exist(test.workpath('htmlhelp.hhp'))
 test.must_not_exist(test.workpath('toc.hhc'))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

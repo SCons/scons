@@ -87,7 +87,7 @@ Checking for C library hopefullynolib2... no
 expected_build_str = """\
 scons: Configure: creating config.h
 """
-    
+
 expected_stdout = test.wrap_stdout(build_str=expected_build_str,
                                        read_str=expected_read_str)
 
@@ -174,7 +174,7 @@ expected_stdout = test.wrap_stdout(build_str=expected_build_str,
                                    read_str=expected_read_str)
 #expected_stdout = expected_stdout.replace("\n", os.linesep)
 
-test.run(stdout=expected_stdout)    
+test.run(stdout=expected_stdout)
 
 config_h = test.read(test.workpath('config.h'),mode='r')
 if expected_config_h != config_h:
@@ -194,9 +194,3 @@ if expected_config_h != config_h:
     test.fail_test()
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

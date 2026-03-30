@@ -1,3 +1,4 @@
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -86,9 +87,3 @@ def generate(env) -> None:
 
 def exists(env) -> bool:
     return True
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

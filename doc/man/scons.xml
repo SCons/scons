@@ -103,6 +103,20 @@ support for &Python; 3.6 is removed.
 The CPython project retired 3.6 in Sept 2021:
 <ulink url="https://peps.python.org/pep-0494"/>.
 </para>
+<para>
+<emphasis>Changed in version NEXT_RELEASE:</emphasis>
+support for &Python; 3.7 is deprecated and will be removed
+in a future &SCons; release.
+The CPython project retired 3.7 in June 2023:
+<ulink url="https://peps.python.org/pep-0537"/>.
+</para>
+<para>
+<emphasis>Changed in version NEXT_RELEASE:</emphasis>
+support for &Python; 3.8 is deprecated and will be removed
+in a future &SCons; release.
+The CPython project retired 3.8 in Sept 2024:
+<ulink url="https://peps.python.org/pep-0569"/>.
+</para>
 
 <para>
 You set up an &SCons; build by writing a script
@@ -2354,7 +2368,7 @@ can themselves refer to lists of names or nodes.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <!--varlistentry>  Qt3 removed entirely in NEXT_RELEASE
   <term><emphasis role="bold">tool-qt-deprecated</emphasis></term>
   <listitem>
 <para>Warnings about the &t-link-qt; tool being deprecated.
@@ -2364,7 +2378,7 @@ of this tool module.
 <emphasis>New in version 4.3.</emphasis>
 </para>
   </listitem>
-  </varlistentry>
+  </varlistentry-->
 
   <!--varlistentry>   Removed in 4.6.0
   <term><emphasis role="bold">missing-sconscript</emphasis></term>
@@ -3000,12 +3014,23 @@ env.Program('bar', source='bar.c foo.c'.split())
 
 <note>
 <para>
-Top-relative paths <emphasis role="bold">only</emphasis> work
+Top-relative paths only work
 where &SCons; will interpret the path (see examples).
-To be used in other contexts the string must first be converted
-to a relative or absolute path.
+The string must first be converted
+to a relative or absolute path
+to be used in other contexts
+(such as pure &Python; code that does not
+involve an &SCons; API call),
 A suitable string can be extracted from the Node
-created from the top-relative path.
+created from a top-relative path.
+Additionally, some paths are handled by &SCons; but
+are not directly build participants,
+so are not evaluated for the <literal>#</literal>
+since no Nodes are created.
+You can explcitly create a &f-link-File; or &f-link-Dir;
+node to force evaluation,
+such as when specifying a path to the derived-file cache:
+<literal>CacheDir(Dir('#cache'))</literal>.
 </para>
 </note>
 
@@ -3031,9 +3056,12 @@ env.Program('#/bar', 'bar.c')
 # SConstruct directory) from "subdir/foo.c":
 env.Program('#other/foo', 'foo.c')
 
-# This will not work, only SCons interfaces understand '#',
-# os.path.exists is pure Python:
+# os.path.exists() is pure Python, so this fails:
 if os.path.exists('#inc/foo.h'):
+    env.Append(CPPPATH='#inc')
+
+# create a Node to make it work:
+if os.path.exists(File('#inc/foo.h')):
     env.Append(CPPPATH='#inc')
 </programlisting>
 
@@ -9132,7 +9160,7 @@ its present value in 4.4, and contents were expanded.</emphasis>
     </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <!--varlistentry>  Removed in NEXT_RELEASE: handled entirely by tool.
     <term><envar>QTDIR</envar></term>
     <listitem>
 <para>If using the &t-link-qt; tool, this is the path to
@@ -9140,7 +9168,7 @@ the Qt installation to build against. &SCons; respects this
 setting because it is a long-standing convention in the Qt world,
 where multiple Qt installations are possible.</para>
     </listitem>
-  </varlistentry>
+  </varlistentry-->
 </variablelist>
 </refsect1>
 
@@ -9180,7 +9208,7 @@ where multiple Qt installations are possible.</para>
     and Anthony Roach <email>aroach@electriceyeball.com</email>.
   </para>
   <para>
-    Since 2010: The SCons Development Team <email>scons-dev@scons.org</email>.
+    Since 2010: The SCons Development Team <email>scons-dev@python.org</email>.
   </para>
 </refsect1>
 </refentry>

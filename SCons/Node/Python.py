@@ -23,7 +23,14 @@
 
 """Python nodes."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 import SCons.Node
+
+if TYPE_CHECKING:
+    from SCons.Node.FS import Dir
 
 _memo_lookup_map = {}
 
@@ -34,7 +41,7 @@ class ValueNodeInfo(SCons.Node.NodeInfoBase):
 
     field_list = ['csig']
 
-    def str_to_node(self, s):
+    def str_to_node(self, s: str) -> Value:
         return ValueWithMemo(s)
 
 
@@ -56,7 +63,7 @@ class Value(SCons.Node.Node):
     NodeInfo = ValueNodeInfo
     BuildInfo = ValueBuildInfo
 
-    def __init__(self, value, built_value=None, name=None) -> None:
+    def __init__(self, value: Any | None, built_value: Any | None = None, name: str | None = None) -> None:
         super().__init__()
         self.value = value
         self.changed_since_last_build = 6
@@ -71,7 +78,7 @@ class Value(SCons.Node.Node):
         else:
             self.name = str(value)
 
-    def str_for_display(self):
+    def str_for_display(self) -> str:
         return repr(self.value)
 
     def __str__(self) -> str:
@@ -86,17 +93,17 @@ class Value(SCons.Node.Node):
 
     is_up_to_date = SCons.Node.Node.children_are_up_to_date
 
-    def is_under(self, dir) -> bool:
+    def is_under(self, dir: Dir) -> bool:
         # Make Value nodes get built regardless of
         # what directory scons was run from. Value nodes
         # are outside the filesystem:
         return True
 
-    def write(self, built_value) -> None:
+    def write(self, built_value: Any | None) -> None:
         """Set the value of the node."""
         self.built_value = built_value
 
-    def read(self):
+    def read(self) -> Any | None:
         """Return the value. If necessary, the value is built."""
         self.build()
         if not hasattr(self, 'built_value'):
@@ -111,7 +118,7 @@ class Value(SCons.Node.Node):
         cannot use the actual node.built_value."""
         ###TODO: something reasonable about universal newlines
         contents = str(self.value)
-        for kid in self.children(None):
+        for kid in self.children(scan=True):
             # Get csig() value of child as this is more efficent
             contents = contents + kid.get_csig()
         return contents
@@ -120,11 +127,8 @@ class Value(SCons.Node.Node):
         """Get contents for signature calculations."""
         return self.get_text_contents().encode()
 
-    def get_csig(self, calc=None):
-        """Because we're a Python value node and don't have a real
-        timestamp, we get to ignore the calculator and just use the
-        value contents.
-
+    def get_csig(self) -> str:
+        """
         Returns string. Ideally string of hex digits. (Not bytes)
         """
         try:
@@ -138,7 +142,7 @@ class Value(SCons.Node.Node):
         return contents
 
 
-def ValueWithMemo(value, built_value=None, name=None):
+def ValueWithMemo(value: Any | None, built_value: Any | None = None, name: str | None = None) -> Value:
     """Memoized :class:`Value` node factory.
 
     .. versionchanged:: 4.0
@@ -162,10 +166,3 @@ def ValueWithMemo(value, built_value=None, name=None):
         v = Value(value, built_value, name)
         _memo_lookup_map[memo_lookup_key] = v
         return v
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

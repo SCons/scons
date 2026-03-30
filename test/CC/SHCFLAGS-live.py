@@ -42,7 +42,7 @@ barflags = e['SHCFLAGS'] + ' -DBAR'
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
-if sys.platform.find('irix') > -1:
+if 'irix' in sys.platform:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
 test.write('SConstruct', f"""\
@@ -134,9 +134,3 @@ test.run(program=test.workpath('fooprog'), stdout="prog.c:  BAR\n")
 test.run(program=test.workpath('barprog'), stdout="prog.c:  BAR\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -23,19 +23,29 @@ DEPRECATED FUNCTIONALITY
 
 - List anything that's been deprecated since the last release
 
+- Deprecated Python 3.7 & 3.8 support.
+
+- Deprecated using signature-file-per-directory (aka old-style SConsign)
+  via the SConsignFile(name=None) call.
+
+REMOVED FUNCTIONALITY
+---------------------
+
+- The qt3 tool module, deprecated since version 4.3, is removed due to
+  the general unavailablility of the obsolete build-time Qt3 package.
+
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
 - List modifications to existing features, where the previous behavior
   wouldn't actually be considered a bug
 
-- Switch test framework from using profile to cProfile. profile
-  generates deprecation warnings starting with Python 3.15.
-
 FIXES
 -----
 
 - List fixes of outright bugs
+
+- Fix --debug=includes for case of multiple source files.
 
 IMPROVEMENTS
 ------------
@@ -44,10 +54,33 @@ IMPROVEMENTS
   documentation:  performance improvements (describe the circumstances
   under which they would be observed), or major code cleanups
 
+- Reduce unneeded computation of overrides. The Mkdir builder used an
+  unknown argument ('explain') on creation, causing it to be considered
+  an override. Also, if override dict is empty, don't even call the
+  Override factory function.
+
+- Test runner reworked to use Python logging; the portion of the test suite
+  which tests the runner was adjusted to match.
+
+- Used Gemini to refactor runtest.py to better organized the code and add docstrings.
+
+- Switch remaining "original style" docstring parameter listings to Google style.
+
+- Additional small tweaks to Environment.py type hints, fold some overly
+long function signature lines, and some linting-insipired cleanups.
+
+- Test framework: tweak module docstrings
+
+- Test suite: end to end tests don't use assert in result checks
+
+
 PACKAGING
 ---------
 
 - List changes in the way SCons is packaged and/or released
+
+- Added script for release process to find all contributors in a release and highlight
+  new contributors. (Using Gemini AI)
 
 DOCUMENTATION
 -------------
@@ -56,14 +89,47 @@ DOCUMENTATION
   typo fixes, even if they're mentioned in src/CHANGES.txt to give
   the contributor credit)
 
-- Improve documentation of builder methods and builder objects.
+- Fix SCons Docbook schema to work with lxml > 5
 
-- Make links clickable in the SetOption and GetOption manpage entries.
+- More clarifications in manpage Builder Methods section.
+
+- Handle the default (unset) ProgressObject differently for the sole
+  purpose of avoiding Sphinx 9.0+ blowing up on it (it's been giving
+  a warning for years, but now it's a fatal error). Affects only the
+  API doc build.
+
+- Improve covarage of API doc build by ignoring any setting of
+  __all__ in a package and not showing inherited members from optparse.
+
+- All functions/classes/non-dunder methods in Environment now have docstrings.
+
+- Add possible build failure when targeting 32-bit arm using Visual
+  Studio 2022 with Windows SDK version 10.0.26100.0 or later installed
+  to the known issues in SCons/Tool/MSCommon/README.rst.
 
 DEVELOPMENT
 -----------
 
 - List visible changes in the way SCons is developed
+
+- Introduce some unit tests for the file locking utility routines
+
+- Purge vim/emac local variable bloat.
+- Implement type hints for Node subclasses.
+- Ruff: Handle F401 exclusions more granularly, remove per-file exclusions.
+- Update pyproject.toml to support Python 3.14 and remove restrictions on lxml version install
+- Unify internal "_null" sentinel usage.
+- Docbook tests: improve skip message, more clearly indicate which test
+  need actual installed system programs (add -live suffix).
+- Implement type hints for Environment and environment utilities.
+
+- MSVC: Added a host/target batch file configuration table for Visual
+  Studio 2026.  Visual Studio 2026 removed support for 32-bit arm targets.
+
+- Modernized GitHub Actions test runner. This consolidates the logic of
+  existing test environments into a single package. Adjusted AppVeyor to
+  only run for targets unsupported by GitHub runners.
+
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

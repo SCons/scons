@@ -85,6 +85,16 @@ scons: warning: Setting stack size is unsupported by this version of Python:
 File .*
 """
 
+expect_invalid_size="""
+scons: warning: Setting stack size failed:
+    size (not valid: 16384 bytes|must be at least 53248 bytes)
+File .*
+
+scons: warning: Setting stack size failed:
+    size (not valid: 16384 bytes|must be at least 53248 bytes)
+File .*
+"""
+
 
 #
 # Test without any options
@@ -170,30 +180,14 @@ if isStackSizeAvailable:
              arguments = '-j2 --stack-size=16 .',
              match=TestSCons.match_re,
              stdout=re_expected_stdout,
-             stderr="""
-scons: warning: Setting stack size failed:
-    size not valid: 16384 bytes
-File .*
-
-scons: warning: Setting stack size failed:
-    size not valid: 16384 bytes
-File .*
-""")
+             stderr=expect_invalid_size)
     test.must_exist(['work1', 'f1.out'])
     test.must_exist(['work1', 'f2.out'])
 
     test.run(chdir='work1',
              arguments = '-j2 --stack-size=16 -c .',
              match=TestSCons.match_re,
-             stderr="""
-scons: warning: Setting stack size failed:
-    size not valid: 16384 bytes
-File .*
-
-scons: warning: Setting stack size failed:
-    size not valid: 16384 bytes
-File .*
-""")
+             stderr=expect_invalid_size)
     test.must_not_exist(['work1', 'f1.out'])
     test.must_not_exist(['work1', 'f2.out'])
 
@@ -359,9 +353,3 @@ else:
     test.must_not_exist(['work2', 'f2.out'])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

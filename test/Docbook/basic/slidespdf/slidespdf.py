@@ -32,13 +32,15 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-if not (sys.platform.startswith('linux') and
-        os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl/slides')):
-    test.skip_test('Wrong OS or no "slides" stylesheets installed, skipping test.\n')
+if not (
+    sys.platform.startswith('linux')
+    and os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl/slides')
+):
+    test.skip_test('Wrong OS or no slides stylesheets found, skipping test.\n')
 
 fop = test.where_is('fop')
 if not fop:
-    test.skip_test('No fop executable found, skipping test.\n')
+    test.skip_test("No 'fop' executable found, skipping test.\n")
 
 try:
     import lxml
@@ -58,9 +60,3 @@ test.must_not_exist(test.workpath('virt.fo'))
 test.must_not_exist(test.workpath('virt.pdf'))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

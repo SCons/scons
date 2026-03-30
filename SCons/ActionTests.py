@@ -312,7 +312,7 @@ def test_positional_args(pos_callback, cmd, **kw):
         except SCons.Errors.UserError as e:
             s = str(e)
             m = 'Invalid command display variable'
-            assert s.find(m) != -1, 'Unexpected string:  %s' % s
+            assert m in s, f'Unexpected string: {s}'
         else:
             raise Exception("did not catch expected UserError")
 
@@ -540,7 +540,7 @@ class _ActionActionTestCase(unittest.TestCase):
         except SCons.Errors.UserError as e:
             s = str(e)
             m = 'Cannot have both strfunction and cmdstr args to Action()'
-            assert s.find(m) != -1, 'Unexpected string:  %s' % s
+            assert m in s, f'Unexpected string: {s}'
         else:
             raise Exception("did not catch expected UserError")
 
@@ -2360,9 +2360,6 @@ class ObjectContentsTestCase(unittest.TestCase):
     @mock.patch("subprocess.run", mock_subprocess_run)
     def test_scons_subproc_run(self):
         """Test the argument remapping options."""
-        # set phony Python versions to trigger the logic in scons_subproc_run:
-        # any version greater than 3.6, really
-        save_info, sys.version_info = sys.version_info, (3, 11, 1)
         env = Environment()
         self.assertEqual(scons_subproc_run(env), {"check": False})
         with self.subTest():
@@ -2381,31 +2378,6 @@ class ObjectContentsTestCase(unittest.TestCase):
                 {"text": True, "check": False},
             )
 
-        # 3.7:
-        sys.version_info = (3, 7, 2)
-        with self.subTest():
-            self.assertEqual(
-                scons_subproc_run(env, capture_output=True),
-                {"capture_output": True, "check": False},
-            )
-        with self.subTest():
-            self.assertEqual(
-                scons_subproc_run(env, text=True),
-                {"check": False, "text": True},
-            )
-        with self.subTest():
-            self.assertEqual(
-                scons_subproc_run(env, universal_newlines=True),
-                {"universal_newlines": True, "check": False},
-            )
-        sys.version_info = save_info
-
 
 if __name__ == "__main__":
     unittest.main()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

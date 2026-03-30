@@ -66,9 +66,3 @@ test.must_match('my.rc', "generate_rc\nmy.in\n", mode='r')
 test.must_match('my.res', "fake_rc.py\ngenerate_rc\nmy.in\n", mode='r')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

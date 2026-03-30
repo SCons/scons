@@ -1,3 +1,4 @@
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -313,9 +314,3 @@ def stripinstallbuilder(target, source, env):
                 ss.Tag('PACKAGING_INSTALL_LOCATION', s.get_path())
 
     return target, n_source
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

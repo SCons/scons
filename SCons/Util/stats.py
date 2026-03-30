@@ -215,10 +215,3 @@ def write_scons_stats_file():
 
     with open(JSON_OUTPUT_FILE, 'w') as sf:
         sf.write(json.dumps(json_structure, indent=4))
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

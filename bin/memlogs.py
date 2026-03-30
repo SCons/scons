@@ -40,9 +40,3 @@ for fname in sys.argv[1:]:
     lines = [l for l in open(fname).readlines() if l[:7] == 'Memory ']
     t = tuple([l.split()[-1] for l in lines]) + (fname,)
     print(fmt % t)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -34,8 +34,7 @@ test = TestSCons.TestSCons()
 SConstruct_path = test.workpath('SConstruct')
 
 def check(expect):
-    result = test.stdout().split('\n')
-    assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
+    test.must_contain_all_lines(test.stdout(), expect)
 
 test.write(SConstruct_path, """\
 from SCons.Variables.EnumVariable import EnumVariable as EV
@@ -98,9 +97,3 @@ test.run(arguments=['some=zwei Wörter'])
 check(['no', 'gtk', 'zwei wörter'])  # case-lowering converter
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

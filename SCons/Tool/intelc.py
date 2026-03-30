@@ -1,3 +1,4 @@
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -569,7 +570,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose: int=0):
         for ld in [envlicdir, reglicdir]:
             # If the string contains an '@', then assume it's a network
             # license (port@system) and good by definition.
-            if ld and (ld.find('@') != -1 or os.path.exists(ld)):
+            if ld and ('@' in ld or os.path.exists(ld)):
                 licdir = ld
                 break
         if not licdir:
@@ -609,9 +610,3 @@ def exists(env):
     return detected
 
 # end of file
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

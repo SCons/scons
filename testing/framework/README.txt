@@ -46,5 +46,4 @@ the pieces here are local to SCons.
 
         Test infrastructure for the sconsign.py script.
 
-__COPYRIGHT__
-__FILE__ __REVISION__ __DATE__ __DEVELOPER__
+

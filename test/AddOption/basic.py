@@ -85,9 +85,3 @@ test.run('-Q -q . --set --prefix=/home/foo', stdout="None\n/home/foo\n/home/foo\
 test.run('-Q -q . --zcount=22', stdout="None\nNone\n22\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -8,18 +8,89 @@ NOTE: The 4.0.0 release of SCons dropped Python 2.7 support. Use 3.1.2 if
   Python 2.7 support is required (but note old SCons releases are unsupported).
 NOTE: Since SCons 4.3.0, Python 3.6.0 or above is required.
 NOTE: Since SCons 4.9.0, Python 3.7.0 or above is required.
-
+NOTE: The last release to support Python 3.7 or Python 3.8 is NEXT_RELEASE.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From John Doe:
     - Whatever John Doe did.
 
+  From Joseph Brill:
+    - Add possible build failure when targeting 32-bit arm using
+      Visual Studio 2022 with Windows SDK version 10.0.26100.0 or later
+      installed to the known issues in SCons/Tool/MSCommon/README.rst.
+    - MSVC: Added a host/target batch file configuration table for Visual
+      Studio 2026.  Visual Studio 2026 removed support for 32-bit arm targets.
+
+  From Thaddeus Crews:
+    - Purge vim/emac local variable bloat.
+    - Implement type hints for Node subclasses.
+    - Ruff: Handle F401 exclusions more granularly, remove per-file exclusions.
+    - Implement type hints for Environment and environment utilities.
+    - Deprecated Python 3.7 & 3.8 support.
+    - Modernized GitHub Actions test runner. This consolidates the logic of
+      existing test environments into a single package. Adjusted AppVeyor to
+      only run for targets unsupported by GitHub runners.
+
+  From William Deegan:
+    - Fix SCons Docbook schema to work with lxml > 5
+    - Update pyproject.toml to support Python 3.14 and remove restrictions on lxml version install
+    - Used Gemini to refactor runtest.py to better organized the code and add docstrings.
+    - Added script for release process to find all contributors in a release and highlight
+      new contributors. (Using Gemini AI)
+
+  From Mats Wichmann:
+    - Introduce some unit tests for the file locking utility routines
+    - More clarifications in manpage Builder Methods section.
+    - Reduce unneeded computation of overrides. The Mkdir builder used an
+      unknown argument ('explain') on creation, causing it to be considered
+      an override. Also, if override dict is empty, don't even call the
+      Override factory function.
+    - Handle the default (unset) ProgressObject differently for the sole
+      purpose of avoiding Sphinx 9.0+ blowing up on it (it's been giving
+      a warning for years, but now it's a fatal error).
+    - Improve covarage of API doc build by ignoring any setting of
+      __all__ in a package and not showing inherited members from optparse.
+    - Fix --debug=includes for case of multiple source files.
+    - Unify internal "_null" sentinel usage.
+    - All functions/classes/non-dunder methods in Environment have docstrings.
+    - Docbook tests: improve skip message, more clearly indicate which test
+      need actual installed system programs (add -live suffix).
+    - Test runner reworked to use Python logging; the portion of the test suite
+      which tests the runner was adjusted to match.
+    - Switch remaining "original style" docstring parameter listings to
+      Google style.
+    - Additional small tweaks to Environment.py type hints, fold some overly
+      long function signature lines, and some linting-insipired cleanups.
+    - Deprecated using signature-file-per-directory (aka old-style SConsign)
+      via the SConsignFile(name=None) call.
+    - Test framework: tweak module docstrings
+    - Test suite: end to end tests don't use assert in result checks
+    - The qt3 tool module, deprecated since version 4.3, is removed due to
+      the general unavailablility of the obsolete build-time Qt3 package.
+    - A few more typing cleanups in Environment (and in one case which
+      affected it in the Node package).
+
+
+RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
+
+  From Thaddeus Crews:
+    - Add support for Visual Studio 2026.
+
+  From William Deegan:
+    - Fix copyright date in API docs to match that in the rest of the build.
+
   From Mats Wichmann:
     - Switch test framework from using profile to cProfile. profile
       generates deprecation warnings starting with Python 3.15.
     - Improve documentation of builder methods and builder objects.
     - Make links clickable in the SetOption and GetOption manpage entries.
+    - Enable membership tests on instances of Literal (non-substituting string).
+    - In the SequenceTypes tuple used for dynamic type checks, include
+      the dict contents views, exclude the dictionary view itself as it
+      is not an iterable sequence type.
+    - Internal: where the find method on a string was used to determine
+      if a substring is present, use the more readable "in" and "not in".
 
 
 RELEASE 4.10.0 -  Thu, 02 Oct 2025 11:40:20 -0700

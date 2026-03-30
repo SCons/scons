@@ -1531,11 +1531,11 @@ class FSTestCase(_tempdirTestCase):
 
         d = fs.Dir('dir')
         r = d.remove()
-        assert r is None, r
+        assert not r, r
 
         f = fs.File('does_not_exist')
         r = f.remove()
-        assert r is None, r
+        assert not r, r
 
         test.write('exists', "exists\n")
         f = fs.File('exists')
@@ -2044,7 +2044,7 @@ class DirTestCase(_tempdirTestCase):
         fs.Dir(os.path.join('ddd', 'd1', 'f4'))
         fs.Dir(os.path.join('ddd', 'd1', 'f5'))
         dir.scan()
-        kids = sorted([x.get_internal_path() for x in dir.children(None)])
+        kids = sorted([x.get_internal_path() for x in dir.children(scan=False)])
         assert kids == [os.path.join('ddd', 'd1'),
                         os.path.join('ddd', 'f1'),
                         os.path.join('ddd', 'f2'),
@@ -3471,7 +3471,7 @@ class find_fileTestCase(unittest.TestCase):
 
             sio = io.StringIO()
             sys.stdout = sio
-            SCons.Node.FS.find_file('baz2', paths, verbose=1)
+            SCons.Node.FS.find_file('baz2', paths, verbose=True)
             expect = "  find_file: looking for 'baz2' in '.' ...\n" + \
                      "  find_file: looking for 'baz2' in 'same' ...\n" + \
                      "  find_file: looking for 'baz2' in 'bar' ...\n"
@@ -3480,7 +3480,7 @@ class find_fileTestCase(unittest.TestCase):
 
             sio = io.StringIO()
             sys.stdout = sio
-            SCons.Node.FS.find_file('on_disk', paths, verbose=1)
+            SCons.Node.FS.find_file('on_disk', paths, verbose=True)
             expect = "  find_file: looking for 'on_disk' in '.' ...\n" + \
                      "  find_file: looking for 'on_disk' in 'same' ...\n" + \
                      "  find_file: looking for 'on_disk' in 'bar' ...\n" + \
@@ -4041,7 +4041,7 @@ class SaveStringsTestCase(unittest.TestCase):
         expect = list(map(os.path.normpath, ['src/f', 'src/f', 'd0/b', 'd1/b']))
         assert s == expect, s
 
-        SCons.Node.FS.save_strings(1)
+        SCons.Node.FS.save_strings(True)
         fs2 = SCons.Node.FS.FS(test.workpath('fs2'))
         nodes = setup(fs2)
         fs2.VariantDir('d0', 'src', duplicate=0)
@@ -4094,9 +4094,3 @@ class PyPackageDir(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -1,4 +1,5 @@
-@REM __COPYRIGHT__
+@REM SPDX-License-Identifier: MIT
+@REM Copyright The SCons Foundation
 @echo off
 set SCONS_ERRORLEVEL=
 if "%OS%" == "Windows_NT" goto WinNT

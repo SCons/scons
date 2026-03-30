@@ -78,9 +78,3 @@ def DSharedObjectEmitter(target,source,env):
     for tgt in target:
         tgt.attributes.shared = 1
     return DObjectEmitter(target,source,env)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -1,3 +1,4 @@
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -124,9 +125,3 @@ if __name__ == "__main__":
     loader.testMethodPrefix = 'test_'
     suite = loader.loadTestsFromTestCase(ToolTestCase)
     TestUnit.run(suite)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

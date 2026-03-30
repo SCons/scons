@@ -21,7 +21,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
 """SCons.Tool.gnulink
 
 Tool-specific initialization for the gnu linker.
@@ -65,9 +65,3 @@ def exists(env):
             return SCons.Tool.FindTool(linktools, env)
         alltools.extend(linktools)
     return SCons.Tool.FindTool(alltools, env)  # find CXX or CC
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

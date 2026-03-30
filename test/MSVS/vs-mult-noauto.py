@@ -83,19 +83,19 @@ for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
     vcproj = test.read(project_file_1, 'r')
     expect = test.msvs_substitute(expected_vcprojfile_1, vc_version, None, 'SConstruct', project_guid=project_guid_1)
     # don't compare the pickled data
-    assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+    test.fail_test(vcproj[:len(expect)] != expect, message=test.diff_substr(expect, vcproj))
 
     test.must_exist(test.workpath(project_file_2))
     vcproj = test.read(project_file_2, 'r')
     expect = test.msvs_substitute(expected_vcprojfile_2, vc_version, None, 'SConstruct', project_guid=project_guid_2)
     # don't compare the pickled data
-    assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+    test.fail_test(vcproj[:len(expect)] != expect, message=test.diff_substr(expect, vcproj))
 
     test.must_exist(test.workpath(solution_file))
     sln = test.read(solution_file, 'r')
     expect = test.msvs_substitute_projects(expected_slnfile, subdir='src')
     # don't compare the pickled data
-    assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+    test.fail_test(sln[:len(expect)] != expect, message=test.diff_substr(expect, sln))
 
     if filters_file_expected:
         test.must_exist(test.workpath(filters_file_1))
@@ -108,9 +108,3 @@ for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
 
 if test:
     test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

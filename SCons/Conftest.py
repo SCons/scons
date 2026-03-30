@@ -765,11 +765,11 @@ def _YesNoResult(context, ret, key, text, comment = None) -> None:
     r"""
     Handle the result of a test with a "yes" or "no" result.
 
-    :Parameters:
-      - `ret` is the return value: empty if OK, error message when not.
-      - `key` is the name of the symbol to be defined (HAVE_foo).
-      - `text` is the source code of the program used for testing.
-      - `comment` is the C comment to add above the line defining the symbol (the comment is automatically put inside a /\* \*/). If None, no comment is added.
+    Args:
+        ret: the return value, empty if OK, error message when not.
+        key: the name of the symbol to be defined (HAVE_foo).
+        text: the source code of the program used for testing.
+        comment: the C comment to add above the line defining the symbol (the comment is automatically put inside a /\* \*/). If None, no comment is added.
     """
     if key:
         _Have(context, key, not ret, comment)
@@ -784,10 +784,10 @@ def _Have(context, key, have, comment = None) -> None:
     r"""
     Store result of a test in context.havedict and context.headerfilename.
 
-    :Parameters:
-      - `key` - is a "HAVE_abc" name.  It is turned into all CAPITALS and non-alphanumerics are replaced by an underscore.
-      - `have`   - value as it should appear in the header file, include quotes when desired and escape special characters!
-      - `comment` is the C comment to add above the line defining the symbol (the comment is automatically put inside a /\* \*/). If None, no comment is added.
+    Args:
+        key: a "HAVE_abc" name.  It is turned into all CAPITALS and non-alphanumerics are replaced by an underscore.
+        have: value as it should appear in the header file, include quotes when desired and escape special characters!
+        comment: is the C comment to add above the line defining the symbol (the comment is automatically put inside a /\* \*/). If None, no comment is added.
 
 
     The value of "have" can be:
@@ -795,8 +795,6 @@ def _Have(context, key, have, comment = None) -> None:
       - 0      - Feature is not defined, add "/\* #undef key \*/". Adding "undef" is what autoconf does.  Not useful for the compiler, but it shows that the test was done.
       - number - Feature is defined to this number "#define key have". Doesn't work for 0 or 1, use a string then.
       - string - Feature is defined to this string "#define key have".
-
-
     """
     key_up = key.upper()
     key_up = re.sub('[^A-Z0-9_]', '_', key_up)
@@ -849,9 +847,9 @@ def _lang2suffix(lang):
     For an unrecognized language returns (None, None, msg).
 
     Where:
-      - lang   = the unified language name
-      - suffix = the suffix, including the leading dot
-      - msg    = an error message
+        lang: the unified language name
+        suffix: the suffix, including the leading dot
+        msg: an error message
     """
     if not lang or lang in ["C", "c"]:
         return ("C", ".c", None)
@@ -859,12 +857,3 @@ def _lang2suffix(lang):
         return ("C++", ".cpp", None)
 
     return None, None, "Unsupported language: %s" % lang
-
-
-# vim: set sw=4 et sts=4 tw=79 fo+=l:
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

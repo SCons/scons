@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 
@@ -84,7 +83,7 @@ test.write('src/BarObject.h','''
 
 #include "resource.h"
 
-class ATL_NO_VTABLE CBarObject : 
+class ATL_NO_VTABLE CBarObject :
         public CComObjectRootEx<CComSingleThreadModel>,
         public CComCoClass<CBarObject, &CLSID_BarObject>,
         public IDispatchImpl<IBarObject, &IID_IBarObject, &LIBID_BARLib>
@@ -284,18 +283,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 #ifdef APSTUDIO_INVOKED
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE DISCARDABLE
 BEGIN
     "resource.h\\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE DISCARDABLE
 BEGIN
     "#include ""winres.h""\\r\\n"
     "\\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE DISCARDABLE
 BEGIN
     "1 TYPELIB ""bar.tlb""\\r\\n"
     "\\0"
@@ -344,7 +343,7 @@ END
 
 IDR_BAROBJECT           REGISTRY DISCARDABLE    "BarObject.rgs"
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     IDS_PROJNAME            "bar"
 END
@@ -437,9 +436,3 @@ test.must_not_exist(['build2','bar.lib'])
 test.must_not_exist(['build2','bar.exp'])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

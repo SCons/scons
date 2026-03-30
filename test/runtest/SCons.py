@@ -48,21 +48,15 @@ test.write_passing_test(['SCons', 'suite', 'passTests.py'])
 expect_stdout = f"""\
 {pythonstring}{pythonflags} {src_passTests_py}
 PASSING TEST STDOUT
+PASSING TEST STDERR
+
 {pythonstring}{pythonflags} {src_suite_passTests_py}
 PASSING TEST STDOUT
+PASSING TEST STDERR
+
+Summary: 2 selected, 0 failed, 0 no result
 """
 
-expect_stderr = """\
-PASSING TEST STDERR
-PASSING TEST STDERR
-"""
-
-test.run(arguments='-k SCons', stdout=expect_stdout, stderr=expect_stderr)
+test.run(arguments='-k SCons', stdout=expect_stdout, stderr=None)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

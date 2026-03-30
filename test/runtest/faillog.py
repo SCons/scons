@@ -44,16 +44,16 @@ test.write_passing_test(test_pass_py)
 expect_stdout = f"""\
 {pythonstring}{pythonflags} {test_fail_py}
 FAILING TEST STDOUT
+FAILING TEST STDERR
+
 {pythonstring}{pythonflags} {test_pass_py}
 PASSING TEST STDOUT
+PASSING TEST STDERR
+
+Summary: 2 selected, 1 failed, 0 no result
 
 Failed the following test:
 \t{test_fail_py}
-"""
-
-expect_stderr = """\
-FAILING TEST STDERR
-PASSING TEST STDERR
 """
 
 testlist = [
@@ -65,16 +65,10 @@ test.run(
     arguments='-k --faillog=fail.log %s' % ' '.join(testlist),
     status=1,
     stdout=expect_stdout,
-    stderr=expect_stderr,
+    stderr=None,
 )
 test.must_exist('fail.log')
 test.must_contain('fail.log', test_fail_py)
 test.must_not_exist('failed_tests.log')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

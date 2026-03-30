@@ -58,9 +58,3 @@ test.must_contain_single_instance_of(test.stdout(), ["MY_CUSTOM_CACHEDIR_CLASS2"
 test.must_not_contain_any_line(test.stdout(), ["MY_CUSTOM_CACHEDIR_CLASS1"])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

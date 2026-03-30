@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,14 +22,11 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 test = TestSCons.TestSCons()
 
-# also exclude these tests since it overides the exit function which doesnt work with coverage 
+# also exclude these tests since it overides the exit function which doesnt work with coverage
 # # more info here: https://coverage.readthedocs.io/en/coverage-4.4.2/subprocess.html#
 # TODO: figure out how to cover tests which use exit functions
 if test.coverage_run():
@@ -73,9 +72,3 @@ sys.exitfunc = f
 test.run(arguments='-f SConstruct .', stdout = expected_output)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

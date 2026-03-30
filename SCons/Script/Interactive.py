@@ -215,7 +215,7 @@ version                 Prints SCons version information.
         def get_unseen_children(node, parent, seen_nodes=seen_nodes):
             def is_unseen(node, seen_nodes=seen_nodes) -> bool:
                 return node not in seen_nodes
-            return [child for child in node.children(scan=1) if is_unseen(child)]
+            return [child for child in node.children(scan=True) if is_unseen(child)]
 
         def add_to_seen_nodes(node, parent, seen_nodes=seen_nodes) -> None:
             seen_nodes[node] = 1
@@ -369,9 +369,3 @@ def interact(fs, parser, options, targets, target_top) -> None:
                             targets = targets,
                             target_top = target_top)
     c.cmdloop()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

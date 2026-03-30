@@ -21,7 +21,7 @@ to hop onto the `SCons Discord Server <https://discord.gg/bXVpWAy>`_
 to chat.  You don't have to use the Discord app,
 as there is a web interface (does require an account).
 You can also use the
-`SCons Users Mailing List <https://pairlist4.pair.net/mailman/listinfo/scons-users>`_.
+`SCons Users Mailing List <https://mail.python.org/mailman3/lists/scons-users.python.org/>`_.
 
 Resources
 =========
@@ -33,7 +33,7 @@ Here are some important pointers to other resources:
   * `Bugs and Feature Requests <https://scons.org/bugs.html>`_
   * `Development <https://scons.org/dev.html>`_
   * `SCons Developer's Guidelines <https://scons.org/guidelines.html>`_
-  * `Contacts <(https://scons.org/contact.html>`_
+  * `Contacts <https://scons.org/contact.html>`_
 
 Reporting Bugs
 ==============
@@ -101,6 +101,21 @@ information:
         together in a reasonable development workflow.
 
 
+Editor Setup
+============
+
+The project includes a ``.editorconfig`` file which follows the
+standard described at https://spec.editorconfig.org/. Many editors
+will use this file by default, and apply the editing standards
+described therein.  Many other editors do know about the standard,
+but require some configuration to enable enforcement. There's a
+list here: https://editorconfig.org/#pre-installed. Scroll down
+to see the editors that require a plugin.  Be aware those lists
+aren't version-specific, older versions of some editors may be
+less aware than current ones. You may need to do some configuration
+of your editor to concince it to follow these prescriptions.
+
+
 Executing SCons Without Installing
 ==================================
 
@@ -113,12 +128,11 @@ Documentation is written in a markup language which is a
 light extension of Docbook-XML, and the doc build consists
 of translating to pure docbook, then using standard tools to
 generate HTML and PDF outputs from that. There's lots more
-on the documentation process at the Documentation Toolchain page:
+on the documentation process at the
+`Documentation Toolchain page <https://github.com/SCons/scons/blob/master/doc/overview.rst>`_
 
-    https://github.com/SCons/scons/blob/master/doc/overview.rst
-
-
-You can execute SCons directly from this repository. For Linux/UNIX/MacOS::
+You can execute SCons directly from the git checkout without "installing".
+For Linux/UNIX/MacOS::
 
     $ python scripts/scons.py [arguments]
 
@@ -191,29 +205,47 @@ requirements, you can get these with::
 The requirements are inclusive so you only need the latter to get
 everything installed.
 
+If you have a modern version of ``pip`` (v25.1 or later), you can
+also install dependencies directly from the ``pyproject.toml`` file::
+
+    $ python -m pip install --group dev
+    $ python -m pip install --group pkg
+
 There are other, non-Python requirements to do a doc build. These
-are system-specific. See bin/scons_dev_master.py for the set up that
-works for Ubuntu systems.
+are system-specific. See ``bin/scons_dev_master.py`` for a setup that
+works for Ubuntu systems; it should give hints usable for other
+systems though the specific package names will often differ.
 
 
 Making Changes
 ==============
 
-Virtually all of the SCons functionality exists in the "build engine," the
-``SCons`` subdirectory hierarchy that contains all of the modules that
-make up SCons.  The ``scripts/scons.py`` wrapper script exists mainly to find
+Early versions of SCons maintained an intentional separation between
+the "build engine," and the user interface code, so the build
+engine could potentially be embedded in other tools.
+This separation of responsibilities is no longer an active goal,
+though the handling of command line arguments,
+processing sconscript files,
+and the implementation of interactive mode remain in
+``SCons/Script``; the build engine is the rest of the code in
+``SCons`` except for ``SCons/Tools`` which provides
+run-time initialization.
+``scripts/scons.py`` is a thin wrapper which exists mainly to find
 the appropriate build engine module and execute it.
 
 In order to make your own changes locally and test them by hand, simply edit
-modules in the local ``SCons`` subdirectory tree and then run
+modules in the local ``SCons`` subdirectory and then run
 (see the section `Executing SCons Without Installing`_)::
 
     $ python scripts/scons.py [arguments]
 
-Or, if using the virtualenv/editable approach: ``scons [arguments]``
+Or, if using the virtualenv/editable approach::
+
+    $ scons [arguments]
 
 Note that the regular SCons development process makes heavy use of automated
-testing.  See the `Testing`_ and `Typical Development Workflow`_ sections below for more
+testing.
+See the `Testing`_ and `Typical Development Workflow`_ sections below for more
 information about the automated regression tests and how they can be used in a
 development cycle to validate that your changes don't break existing
 functionality.
@@ -496,22 +528,6 @@ bin/
     - scripts and a Python module for translating the SCons home-brew XML
       documentation tags into DocBook and man page format
 
-bootstrap.py
-    Obsolete packaging logic - ignore this.
-
-debian/
-    Files needed to construct a Debian package.
-    The contents of this directory are dictated by the
-    `Debian Policy Manual <https://www.debian.org/doc/debian-policy>`).
-    The package will not be accepted into the Debian distribution unless
-    the contents of this directory satisfy the relevant Debian policies.
-    At this point, this is a sample; SCons is packaged for Debian by the
-    Debian project itself (and thus inherited by projects which derive from it,
-    if they haven't made their own packages). See:
-
-    - `Debian scons packages <https://packages.debian.org/search?keywords=scons&searchon=names&suite=all&section=all>`_
-    - `Ubuntu scons packages <https://packages.ubuntu.com/search?keywords=scons&searchon=names&suite=all&section=all>`_
-
 doc/
     SCons documentation.  A variety of things here, in various stages of
     (in)completeness. Note not all of the documentation is in ``doc`` -
@@ -568,3 +584,35 @@ test/
 
 testing/
     SCons testing framework.
+
+
+Policy for AI-generated contributions
+=====================================
+
+It is acceptable to use AI assistance when working on SCons.
+This may be particularly valuable in building understanding of the code,
+although historically various LLMs do get some things wrong because
+they don't have enough current information to work off, so be careful.
+A pre-generated high-level code analysis currently
+exists at https://deepwiki.com/SCons/scons
+(this is externally generated and the SCons project has no
+responsibility for the contents beyond some small condiguration
+tweaks in ``.devin/wiki.json``).
+
+If you contribute code that has been partly developed by AI tools,
+there are two fundamental principles you need to follow:
+
+1. you take full responsibility for the contribution,
+   including quality, license compatibility, coding styles, etc.
+   You, as the human, are considered the full author.
+2. you must disclose the use of AI tools when a significant portion
+   of the contribution is AI-written without human changes.
+
+A good way to acknowledge these two rules is to include boilerplate
+in the commit message, along these lines::
+
+    Signed-off-by: John Doe <jdoe@example.com>
+    Assisted-by: FakeGPTv1
+
+Git can automatically generate the signed-off line for you
+(``git commit -s``  or ``git commit --signoff``).

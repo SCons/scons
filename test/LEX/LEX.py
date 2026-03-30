@@ -56,9 +56,3 @@ test.must_match('ccc.cc', "ccc.ll\nmylex.py\n", mode='r')
 test.must_match('ddd.m', "ddd.lm\nmylex.py\n", mode='r')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

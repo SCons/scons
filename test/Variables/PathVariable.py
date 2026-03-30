@@ -37,8 +37,7 @@ test = TestSCons.TestSCons()
 SConstruct_path = test.workpath('SConstruct')
 
 def check(expect):
-    result = test.stdout().split('\n')
-    assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
+    test.must_contain_all_lines(test.stdout(), expect)
 
 
 test.subdir('lib', 'qt', ['qt', 'lib'], 'nolib')
@@ -282,9 +281,3 @@ check([non_existing_subdir])
 test.must_exist(non_existing_subdir)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

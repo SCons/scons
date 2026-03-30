@@ -51,26 +51,20 @@ test.write_passing_test(['test', 'test_three.py'])
 expect_stdout = f"""\
 {pythonstring}{pythonflags} {one}
 PASSING TEST STDOUT
+PASSING TEST STDERR
+
 {pythonstring}{pythonflags} {two}
 PASSING TEST STDOUT
-"""
+PASSING TEST STDERR
 
-expect_stderr = """\
-PASSING TEST STDERR
-PASSING TEST STDERR
+Summary: 2 selected, 0 failed, 0 no result
 """
 
 test.run(
     arguments='--no-progress test/subdir',
     status=0,
     stdout=expect_stdout,
-    stderr=expect_stderr,
+    stderr=None,
 )
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

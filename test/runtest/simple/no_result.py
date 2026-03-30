@@ -42,31 +42,24 @@ test.write_no_result_test(['test', 'no_result.py'])
 expect_stdout = f"""\
 {pythonstring}{pythonflags} {test_no_result_py}
 NO RESULT TEST STDOUT
-"""
-
-expect_stderr = """\
 NO RESULT TEST STDERR
+
+Summary: 1 selected, 0 failed, 1 no result
 """
 
 test.run(
     arguments='--no-ignore-skips -k test/no_result.py',
     status=2,
     stdout=expect_stdout,
-    stderr=expect_stderr,
+    stderr=None,
 )
 
 test.run(
     arguments='-k test/no_result.py',
     status=0,
     stdout=expect_stdout,
-    stderr=expect_stderr,
+    stderr=None,
 )
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -38,9 +38,7 @@ test = TestSCons.TestSCons()
 SConstruct_path = test.workpath('SConstruct')
 
 def check(expect: list[str]) -> None:
-    result = test.stdout().split('\n')
-    # skip first line and any lines beyond the length of expect
-    assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
+    test.must_contain_all_lines(test.stdout(), expect)
 
 test.write(SConstruct_path, """\
 from SCons.Variables.PackageVariable import PackageVariable as PV
@@ -111,9 +109,3 @@ test.run(arguments=['-f', 'SConstruct.path', 'tinycbor=yes'])
 check([tinycbor_path])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

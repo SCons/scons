@@ -2,4 +2,4 @@
 #
 # Copyright The SCons Foundation
 
-from nested1 import module, nested2  # noqa: F401
+from nested1 import module, nested2

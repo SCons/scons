@@ -72,9 +72,3 @@ def generate(env) -> None:
     env['MAXLINELENGTH']  = 21576
     env['SHLIBSUFFIX'] = '.a'
     env['HOST_OS'] = 'aix'
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

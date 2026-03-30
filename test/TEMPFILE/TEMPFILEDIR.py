@@ -66,9 +66,3 @@ test.run(arguments='-n -Q .',
 # dirname = os.path.basename(os.path.dirname(tempfile))
 # test.fail_test('my_temp_files' != dirname, message="Temp file not created in \"my_temp_files\" directory")
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

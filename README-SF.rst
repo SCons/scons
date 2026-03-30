@@ -41,7 +41,7 @@ Latest Version
 Before going further, you can check that the package you have is the latest
 version at the SCons download page:
 
-        http://www.scons.org/pages/download.html
+        https://scons.org/pages/download.html
 
 
 Execution Requirements
@@ -50,6 +50,7 @@ Execution Requirements
 Running SCons requires Python 3.7 or higher. There should be no other
 dependencies or requirements to run standard SCons.
 
+The last release to support Python 3.7 or Python 3.8 is NEXT_RELEASE.
 The last release to support Python 3.6 was 4.8.1.
 The last release to support Python 3.5 was 4.2.0.
 
@@ -448,7 +449,7 @@ bootstrap.py
 debian/
     Files needed to construct a Debian package. The contents of this directory
     are dictated by the Debian Policy Manual
-    (http://www.debian.org/doc/debian-policy). The package will not be
+    (https://www.debian.org/doc/debian-policy). The package will not be
     accepted into the Debian distribution unless the contents of this
     directory satisfy the relevant Debian policies.
 
@@ -513,7 +514,7 @@ section of small examples for getting started using SCons.
 
 Additional documentation for SCons is available at:
 
-        http://www.scons.org/documentation.html
+        https://scons.org/documentation.html
 
 
 Licensing
@@ -531,7 +532,7 @@ The SCons project welcomes bug reports and feature requests.
 Please make sure you send email with the problem or feature request to
 the SCons users mailing list, which you can join via the link below:
 
-        http://two.pairlist.net/mailman/listinfo/scons-users
+        https://mail.python.org/mailman3/lists/scons-users.python.org
 
 Once you have discussed your issue on the users mailing list and the
 community has confirmed that it is either a new bug or a duplicate of an
@@ -551,11 +552,11 @@ In addition to the scons-users list which is appropriate for almost any
 question, there is a mailing list specifically for developers of SCons
 You may send questions or comments to the list at:
 
-        scons-dev@scons.org
+        scons-dev@python.org
 
 You may subscribe to the developer's mailing list using form on this page:
 
-        http://two.pairlist.net/mailman/listinfo/scons-dev
+        https://mail.python.org/mailman3/lists/scons-dev.python.org
 
 Subscription to the developer's mailing list is by approval.  In practice, no
 one is refused list membership, but we reserve the right to limit membership
@@ -573,13 +574,8 @@ Donations
 
 If you find SCons helpful, please consider making a donation (of cash,
 software, or hardware) to support continued work on the project.  Information
-is available at:
-
-        http://www.scons.org/donate.html
-
-or
-
-GitHub Sponsors button on https://github.com/scons/scons
+is available at https://scons.org/donate.html
+or use the GitHub Sponsors button on https://github.com/scons/scons
 
 
 For More Information
@@ -587,7 +583,7 @@ For More Information
 
 Check the SCons web site at:
 
-        http://www.scons.org/
+        https://scons.org/
 
 
 Author Info
@@ -616,5 +612,5 @@ many contributors, including but not at all limited to:
 
 \... and many others.
 
-Copyright (c) 2001 - 2024 The SCons Foundation
+Copyright (c) 2001 - 2026 The SCons Foundation
 

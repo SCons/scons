@@ -35,7 +35,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 # TODO(sgk):  get this to work everywhere by using fake compilers
-if sys.platform.find('sunos') != -1:
+if 'sunos' in sys.platform:
     msg = 'SunOS C compiler does not handle this case; skipping test.\n'
     test.skip_test(msg)
 
@@ -66,9 +66,3 @@ test.run(arguments = '.')
 test.up_to_date(arguments = '.')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -1,3 +1,4 @@
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -52,10 +53,10 @@ def midl_emitter(target, source, env):
 
     midlcom = env['MIDLCOM']
 
-    if midlcom.find('/proxy') != -1:
+    if '/proxy' in midlcom:
         proxy = base + '_p.c'
         targets.append(proxy)
-    if midlcom.find('/dlldata') != -1:
+    if '/dlldata' in midlcom:
         dlldata = base + '_data.c'
         targets.append(dlldata)
 
@@ -84,9 +85,3 @@ def generate(env) -> None:
 
 def exists(env):
     return msvc_setup_env_tool(env, tool=tool_name)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

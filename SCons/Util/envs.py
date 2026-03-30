@@ -11,21 +11,42 @@ that don't need the specifics of the Environment class.
 
 from __future__ import annotations
 
-import re
 import os
-from types import MethodType, FunctionType
-from typing import Callable, Any
+import re
+from collections.abc import Callable
+from types import FunctionType, MethodType
+from typing import Any, cast, overload
 
-from .sctypes import is_List, is_Tuple, is_String
+from SCons.Util.sctypes import is_List, is_String, is_Tuple
+
+
+@overload
+def PrependPath(
+    oldpath: str,
+    newpath: str | list[str],
+    sep: str = ...,
+    delete_existing: bool = ...,
+    canonicalize: Callable[[str], str] | None = ...,
+) -> str: ...
+
+
+@overload
+def PrependPath(
+    oldpath: list[str],
+    newpath: str | list[str],
+    sep: str = ...,
+    delete_existing: bool = ...,
+    canonicalize: Callable[[str], str] | None = ...,
+) -> list[str]: ...
 
 
 def PrependPath(
-    oldpath,
-    newpath,
-    sep=os.pathsep,
+    oldpath: str | list[str],
+    newpath: str | list[str],
+    sep: str = os.pathsep,
     delete_existing: bool = True,
-    canonicalize: Callable | None = None,
-) -> list | str:
+    canonicalize: Callable[[str], str] | None = None,
+) -> str | list[str]:
     """Prepend *newpath* path elements to *oldpath*.
 
     Will only add any particular path once (leaving the first one it
@@ -54,15 +75,15 @@ def PrependPath(
     is_list = True
     paths = orig
     if not is_List(orig) and not is_Tuple(orig):
-        paths = paths.split(sep)
+        paths = cast(str, paths).split(sep)
         is_list = False
 
     if is_String(newpath):
-        newpaths = newpath.split(sep)
+        newpaths = cast(str, newpath).split(sep)
     elif is_List(newpath) or is_Tuple(newpath):
-        newpaths = newpath
+        newpaths = cast(list, newpath)
     else:
-        newpaths = [newpath]  # might be a Dir
+        newpaths = cast(list, [newpath])  # might be a Dir
 
     if canonicalize:
         newpaths = list(map(canonicalize, newpaths))
@@ -93,7 +114,7 @@ def PrependPath(
         paths = result
 
     else:
-        newpaths = newpaths + paths  # prepend new paths
+        newpaths = newpaths + cast(list, paths)  # prepend new paths
 
         normpaths = []
         paths = []
@@ -110,13 +131,33 @@ def PrependPath(
     return sep.join(paths)
 
 
+@overload
 def AppendPath(
-    oldpath,
-    newpath,
-    sep=os.pathsep,
+    oldpath: str,
+    newpath: str | list[str],
+    sep: str = ...,
+    delete_existing: bool = ...,
+    canonicalize: Callable[[str], str] | None = ...,
+) -> str: ...
+
+
+@overload
+def AppendPath(
+    oldpath: list[str],
+    newpath: str | list[str],
+    sep: str = ...,
+    delete_existing: bool = ...,
+    canonicalize: Callable[[str], str] | None = ...,
+) -> list[str]: ...
+
+
+def AppendPath(
+    oldpath: str | list[str],
+    newpath: str | list[str],
+    sep: str = os.pathsep,
     delete_existing: bool = True,
-    canonicalize: Callable | None = None,
-) -> list | str:
+    canonicalize: Callable[[str], str] | None = None,
+) -> str | list[str]:
     """Append *newpath* path elements to *oldpath*.
 
     Will only add any particular path once (leaving the last one it
@@ -145,15 +186,15 @@ def AppendPath(
     is_list = True
     paths = orig
     if not is_List(orig) and not is_Tuple(orig):
-        paths = paths.split(sep)
+        paths = cast(str, paths).split(sep)
         is_list = False
 
     if is_String(newpath):
-        newpaths = newpath.split(sep)
+        newpaths = cast(str, newpath).split(sep)
     elif is_List(newpath) or is_Tuple(newpath):
-        newpaths = newpath
+        newpaths = cast(list, newpath)
     else:
-        newpaths = [newpath]  # might be a Dir
+        newpaths = cast(list, [newpath])  # might be a Dir
 
     if canonicalize:
         newpaths = list(map(canonicalize, newpaths))
@@ -182,7 +223,7 @@ def AppendPath(
     else:
         # start w/ new paths, add old ones if not present,
         # then reverse.
-        newpaths = paths + newpaths  # append new paths
+        newpaths = cast(list, paths) + newpaths  # append new paths
         newpaths.reverse()
 
         normpaths = []
@@ -201,7 +242,9 @@ def AppendPath(
     return sep.join(paths)
 
 
-def AddPathIfNotExists(env_dict, key, path, sep: str = os.pathsep) -> None:
+def AddPathIfNotExists(
+    env_dict: dict[str, str | list[str]], key: str, path: str, sep: str = os.pathsep
+) -> None:
     """Add a path element to a construction variable.
 
     `key` is looked up in `env_dict`, and `path` is added to it if it
@@ -217,10 +260,10 @@ def AddPathIfNotExists(env_dict, key, path, sep: str = os.pathsep) -> None:
         is_list = True
         paths = env_dict[key]
         if not is_List(env_dict[key]):
-            paths = paths.split(sep)
+            paths = cast(str, paths).split(sep)
             is_list = False
         if os.path.normcase(path) not in list(map(os.path.normcase, paths)):
-            paths = [path] + paths
+            paths = [path] + cast(list, paths)
         if is_list:
             env_dict[key] = paths
         else:
@@ -243,7 +286,10 @@ class MethodWrapper:
     a new underlying object being copied (without which we wouldn't need
     to save that info).
     """
-    def __init__(self, obj: Any, method: Callable, name: str | None = None) -> None:
+
+    def __init__(
+        self, obj: Any, method: Callable[..., Any | None], name: str | None = None
+    ) -> None:
         if name is None:
             name = method.__name__
         self.object = obj
@@ -279,7 +325,9 @@ class MethodWrapper:
 #   is not needed, the remaining bit is now used inline in AddMethod.
 
 
-def AddMethod(obj, function: Callable, name: str | None = None) -> None:
+def AddMethod(
+    obj, function: Callable[..., Any | None], name: str | None = None
+) -> None:
     """Add a method to an object.
 
     Adds *function* to *obj* if *obj* is a class object.
@@ -339,12 +387,7 @@ def AddMethod(obj, function: Callable, name: str | None = None) -> None:
 # isidentifier() string method so there's really not any need for it now.
 _is_valid_var_re = re.compile(r'[_a-zA-Z]\w*$')
 
+
 def is_valid_construction_var(varstr: str) -> bool:
     """Return True if *varstr* is a legitimate name of a construction variable."""
     return bool(_is_valid_var_re.match(varstr))
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -123,33 +123,10 @@ intel_warnings = [
     re.compile(intel_no_top_dir_warning + intel_license_warning),
 ]
 
-moc = test.where_is('moc')
-if moc:
-    import os.path
-
-    qtdir = os.path.dirname(os.path.dirname(moc))
-    qt3_err = fr"""
-scons: warning: Could not detect qt3, using moc executable as a hint \(QT3DIR={qtdir}\)
-"""
-else:
-    qt3_err = r"""
-scons: warning: Could not detect qt3, using empty QT3DIR
-"""
-
-qt_moved = r"""
-scons: \*\*\* Deprecated tool 'qt' renamed to 'qt3'. Please update your build accordingly. 'qt3' will be removed entirely in a future release.
-"""
-
-qt3_warnings = [re.compile(qt3_err + TestSCons.file_expr)]
-qt_error = [re.compile(qt_moved + TestSCons.file_expr)]
-
 error_output = {
     'icl': intel_warnings,
     'intelc': intel_warnings,
-    'qt3': qt3_warnings,
-    'qt': qt_error,
 }
-
 # An SConstruct for importing Tool names that have illegal characters
 # for Python variable names.
 indirect_import = """\
@@ -197,9 +174,3 @@ for tool in tools:
 test.fail_test(len(failures))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

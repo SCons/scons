@@ -139,7 +139,7 @@ vcproj = test.read(['work1', 'Test.vcproj'], 'r')
 expected_vcprojfile = vcproj_template % locals()
 expect = test.msvs_substitute(expected_vcprojfile, '8.0', 'work1', 'SConstruct')
 # don't compare the pickled data
-assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+test.fail_test(vcproj[:len(expect)] != expect, message=test.diff_substr(expect, vcproj))
 
 test.subdir('work2')
 
@@ -165,12 +165,6 @@ vcproj = test.read(['work2', 'Test.vcproj'], 'r')
 expected_vcprojfile = vcproj_template % locals()
 expect = test.msvs_substitute(expected_vcprojfile, '8.0', 'work2', 'SConstruct')
 # don't compare the pickled data
-assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+test.fail_test(vcproj[:len(expect)] != expect, message=test.diff_substr(expect, vcproj))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

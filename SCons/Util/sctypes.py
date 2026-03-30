@@ -15,7 +15,7 @@ import re
 import sys
 
 from collections import UserDict, UserList, UserString, deque
-from collections.abc import MappingView, Iterable
+from collections.abc import Iterable, KeysView, ValuesView, ItemsView
 
 # Functions for deciding if things are like various types, mainly to
 # handle UserDict, UserList and UserString like their underlying types.
@@ -40,7 +40,7 @@ ListTypes = (list, UserList, deque)
 # sequences are range and bytearray.  What we don't want is strings: while
 # they are iterable sequences, in SCons usage iterating over a string is
 # almost never what we want. So basically iterable-but-not-string:
-SequenceTypes = (list, tuple, deque, UserList, MappingView)
+SequenceTypes = (list, tuple, deque, UserList, KeysView, ValuesView, ItemsView)
 
 # Note that profiling data shows a speed-up when comparing
 # explicitly with str instead of simply comparing
@@ -58,7 +58,7 @@ if sys.version_info >= (3, 13):
 
     DictTypeRet: TypeAlias = TypeIs[dict | UserDict]
     ListTypeRet: TypeAlias = TypeIs[list | UserList | deque]
-    SequenceTypeRet: TypeAlias = TypeIs[list | tuple | deque | UserList | MappingView]
+    SequenceTypeRet: TypeAlias = TypeIs[list | tuple | deque | UserList | KeysView | ValuesView | ItemsView]
     TupleTypeRet: TypeAlias = TypeIs[tuple]
     StringTypeRet: TypeAlias = TypeIs[str | UserString]
 elif sys.version_info >= (3, 10):
@@ -66,7 +66,7 @@ elif sys.version_info >= (3, 10):
 
     DictTypeRet: TypeAlias = TypeGuard[dict | UserDict]
     ListTypeRet: TypeAlias = TypeGuard[list | UserList | deque]
-    SequenceTypeRet: TypeAlias = TypeGuard[list | tuple | deque | UserList | MappingView]
+    SequenceTypeRet: TypeAlias = TypeGuard[list | tuple | deque | UserList | KeysView | ValuesView | ItemsView]
     TupleTypeRet: TypeAlias = TypeGuard[tuple]
     StringTypeRet: TypeAlias = TypeGuard[str | UserString]
 else:
@@ -132,11 +132,21 @@ def is_Scalar(  # pylint: disable=redefined-outer-name,redefined-builtin
     return isinstance(obj, StringTypes) or not isinstance(obj, Iterable)
 
 
+# Sentinels for use when None is needed for something else
+# 1. Simple:
+
+class _Null:
+    pass
+
+_null = _Null()
+
+# 2. More complex - when we don't necessarily want to check for the
+# sentinel, and don't want it to fail if used as the "real" class:
+
 # From Dinu C. Gherman,
 # Python Cookbook, second edition, recipe 6.17, p. 277.
 # Also: https://code.activestate.com/recipes/68205
 # ASPN: Python Cookbook: Null Object Design Pattern
-
 
 class Null:
     """Null objects always and reliably 'do nothing'."""
@@ -167,6 +177,9 @@ class Null:
     def __delattr__(self, name):
         return self
 
+# 3. Refining the previous, to add iteration capability.
+# You'd want to combine these two, but there are uses of _Null that
+# don't seem to work right with _NullSeq - a TODO
 
 class NullSeq(Null):
     """A Null object that can also be iterated over."""
@@ -374,10 +387,3 @@ def get_environment_var(varstr) -> str | None:
         return var
 
     return None
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

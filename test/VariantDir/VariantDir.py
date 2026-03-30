@@ -236,7 +236,7 @@ def blank_output(err):
         return 1
     stderrlines = [l for l in err.split('\n') if l]
     msg = "warning: tempnam() possibly used unsafely"
-    stderrlines = [l for l in stderrlines if l.find(msg) == -1]
+    stderrlines = [l for l in stderrlines if msg not in l]
     return len(stderrlines) == 0
 
 test.run(chdir='work1', arguments = '. ../build', stderr=None)
@@ -409,9 +409,3 @@ non_existing.h:
 """)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

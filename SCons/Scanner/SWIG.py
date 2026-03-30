@@ -31,9 +31,3 @@ def SWIGScanner():
     expr = r'^[ \t]*%[ \t]*(?:include|import|extern)[ \t]*(<|"?)([^>\s"]+)(?:>|"?)'
     scanner = ClassicCPP("SWIGScanner", ".i", "SWIGPATH", expr)
     return scanner
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

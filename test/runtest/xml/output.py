@@ -49,53 +49,50 @@ test.write_passing_test(['test', 'pass.py'])
 
 test.run(arguments='--xml xml.out test', status=1)
 
-expect = f"""\
-  <results>
+expect = \
+fr"""<scons_testsuite>
+  <tests>
     <test>
       <file_name>{test_fail_py}</file_name>
       <command_line>{pythonstring}{pythonflags} {test_fail_py}</command_line>
       <exit_status>1</exit_status>
-      <stdout>FAILING TEST STDOUT
-</stdout>
-      <stderr>FAILING TEST STDERR
-</stderr>
-      <time>\\d+\\.\\d</time>
+      <stdout>FAILING TEST STDOUT</stdout>
+      <stderr>FAILING TEST STDERR</stderr>
+      <time>\d+\.\d</time>
     </test>
     <test>
       <file_name>{test_no_result_py}</file_name>
       <command_line>{pythonstring}{pythonflags} {test_no_result_py}</command_line>
       <exit_status>2</exit_status>
-      <stdout>NO RESULT TEST STDOUT
-</stdout>
-      <stderr>NO RESULT TEST STDERR
-</stderr>
-      <time>\\d+\\.\\d</time>
+      <stdout>NO RESULT TEST STDOUT</stdout>
+      <stderr>NO RESULT TEST STDERR</stderr>
+      <time>\d+\.\d</time>
     </test>
     <test>
       <file_name>{test_pass_py}</file_name>
       <command_line>{pythonstring}{pythonflags} {test_pass_py}</command_line>
       <exit_status>0</exit_status>
-      <stdout>PASSING TEST STDOUT
-</stdout>
-      <stderr>PASSING TEST STDERR
-</stderr>
-      <time>\\d+\\.\\d</time>
+      <stdout>PASSING TEST STDOUT</stdout>
+      <stderr>PASSING TEST STDERR</stderr>
+      <time>\d+\.\d</time>
     </test>
-  <time>\\d+\\.\\d</time>
-  </results>
+  </tests>
+  <summary>
+    <tests>3</tests>
+    <failed>1</failed>
+    <no_result>1</no_result>
+    <interpreter>{pythonstring}</interpreter>
+    <threads>1</threads>
+    <time>\d+\.\d+</time>
+    <timestamp>\d+-\d\d-\d\d \d\d:\d\d:\d\d\.\d+</timestamp>
+  </summary>
+</scons_testsuite>
 """
 
-# Just strip carriage returns so the regular expression matching works.
+# Rewrite xml file so OS differences don't break the regex matching
 contents = test.read('xml.out')
 contents = contents.replace(b'\r', b'')
 test.write('xml.out', contents)
-
-test.must_match('xml.out', expect)
+test.must_match('xml.out', expect, mode='r')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

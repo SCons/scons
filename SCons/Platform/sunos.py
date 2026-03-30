@@ -39,9 +39,3 @@ def generate(env) -> None:
     env['PKGCHK'] = '/usr/sbin/pkgchk'
     env['ENV']['PATH'] = env['ENV']['PATH'] + ':/opt/SUNWspro/bin:/usr/ccs/bin'
     env['HOST_OS'] = 'sunos'
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

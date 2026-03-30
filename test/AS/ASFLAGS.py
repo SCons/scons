@@ -98,9 +98,3 @@ test.must_match('test5' + _exe, "%s\nThis is a .spp file.\n" % o_c)
 test.must_match('test6' + _exe, "%s\nThis is a .SPP file.\n" % o_c)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

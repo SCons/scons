@@ -73,8 +73,8 @@ test.checkLogAndStdout(["Checking for C library %s... " % lib,
                       [[((".c", NCR), (_obj, NCR), (_exe, NCR))]]*4 +
                         [[((".c", NCR), (_obj, NCR))]] +
                         [[((".cpp", NCR), (_obj, NCR))]],
-                      "config.log", ".sconf_temp", "SConstruct")    
-    
+                      "config.log", ".sconf_temp", "SConstruct")
+
 
 test.run()
 test.checkLogAndStdout(["Checking for C library %s... " % lib,
@@ -102,7 +102,7 @@ test.checkLogAndStdout(["Checking for C library %s... " % lib,
                       [[((".c", NCR), (_obj, NCR), (_exe, NCR))]]*4 +
                         [[((".c", NCR), (_obj, NCR))]] +
                         [[((".cpp", NCR), (_obj, NCR))]],
-                      "config.log", ".sconf_temp", "SConstruct")    
+                      "config.log", ".sconf_temp", "SConstruct")
 
 test.run(arguments='target_signatures_content=1')
 test.checkLogAndStdout(["Checking for C library %s... " % lib,
@@ -115,12 +115,6 @@ test.checkLogAndStdout(["Checking for C library %s... " % lib,
                       [[((".c", CR), (_obj, CR), (_exe, CR))]]*4 +
                        [[((".c", CR), (_obj, CR))]] +
                        [[((".cpp", CR), (_obj, CR))]],
-                      "config.log", ".sconf_temp", "SConstruct")    
+                      "config.log", ".sconf_temp", "SConstruct")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -74,9 +74,3 @@ test.must_exist('test2%s' % _exe)
 test.must_exist('test2.pdb')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

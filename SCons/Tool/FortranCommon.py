@@ -1,3 +1,4 @@
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -58,7 +59,7 @@ def isfortran(env, source) -> bool:
     return False
 
 
-def _fortranEmitter(target, source, env) -> Tuple:
+def _fortranEmitter(target, source, env) -> tuple:
     """Common code for Fortran emitter.
 
     Called by both the static and shared object emitters,
@@ -85,13 +86,13 @@ def _fortranEmitter(target, source, env) -> Tuple:
     return target, source
 
 
-def FortranEmitter(target, source, env) -> Tuple:
+def FortranEmitter(target, source, env) -> tuple:
     """Create emitter for static objects."""
     target, source = _fortranEmitter(target, source, env)
     return StaticObjectEmitter(target, source, env)
 
 
-def ShFortranEmitter(target, source, env) -> Tuple:
+def ShFortranEmitter(target, source, env) -> tuple:
     """Create emitter for shared objects."""
     target, source = _fortranEmitter(target, source, env)
     return SharedObjectEmitter(target, source, env)
@@ -245,9 +246,3 @@ def add_all_to_env(env) -> None:
     add_f95_to_env(env)
     add_f03_to_env(env)
     add_f08_to_env(env)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

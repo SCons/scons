@@ -104,9 +104,3 @@ test.must_match(['out3', 'f3a.out'], "f3a.in\n")
 test.must_match(['out3', 'f3b.out'], "f3b.in\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -56,20 +56,13 @@ test.write_passing_test(['test', 'pass.py'])
 expect_stdout = f"""\
 {mypython}{pythonflags} {test_pass_py}
 PASSING TEST STDOUT
-"""
-
-expect_stderr = """\
 PASSING TEST STDERR
+
+Summary: 1 selected, 0 failed, 0 no result
 """
 
 test.run(
-    arguments=['-k', '-P', mypython, 'test'], stdout=expect_stdout, stderr=expect_stderr
+    arguments=['-k', '-P', mypython, 'test'], stdout=expect_stdout, stderr=None
 )
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

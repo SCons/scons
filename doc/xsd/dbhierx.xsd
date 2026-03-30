@@ -96,7 +96,6 @@
         <xs:group minOccurs="0" ref="div.title.content"/>
         <xs:element minOccurs="0" ref="articleinfo"/>
         <xs:element minOccurs="0" ref="tocchap"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="lot"/>
         <xs:group ref="bookcomponent.content"/>
         <xs:choice minOccurs="0" maxOccurs="unbounded">
           <xs:group ref="nav.class"/>
@@ -279,19 +278,17 @@
     </xs:choice>
   </xs:group>
   <xs:group name="refinline.char.mix">
-    <xs:sequence>
-      <xs:choice minOccurs="0">
-        <xs:element ref="xref.char.class"/>
-        <xs:element ref="gen.char.class"/>
-        <xs:element ref="link.char.class"/>
-        <xs:element ref="tech.char.class"/>
-        <xs:group ref="base.char.class"/>
-        <xs:element ref="docinfo.char.class"/>
-        <xs:group ref="other.char.class"/>
-        <xs:element ref="ndxterm.class"/>
-        <xs:element ref="beginpage"/>
-      </xs:choice>
-    </xs:sequence>
+    <xs:choice>
+      <xs:element ref="xref.char.class"/>
+      <xs:element ref="gen.char.class"/>
+      <xs:element ref="link.char.class"/>
+      <xs:element ref="tech.char.class"/>
+      <xs:group ref="base.char.class"/>
+      <xs:element ref="docinfo.char.class"/>
+      <xs:group ref="other.char.class"/>
+      <xs:element ref="ndxterm.class"/>
+      <xs:element ref="beginpage"/>
+    </xs:choice>
   </xs:group>
   <xs:group name="refclass.char.mix">
     <xs:sequence>

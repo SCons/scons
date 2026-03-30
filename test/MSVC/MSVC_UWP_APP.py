@@ -31,7 +31,6 @@ import re
 
 from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 from SCons.Tool.MSCommon.vc import get_native_host_platform
-from SCons.Tool.MSCommon.vc import _GE2022_HOST_TARGET_CFG
 from SCons.Tool.MSCommon.MSVC.Kind import (
     msvc_version_is_express,
     msvc_version_is_btdispatch,
@@ -68,11 +67,11 @@ for v in installed_versions:
 # By default, 2015 Express supports the store argument only for x86 targets.
 # Using MSVC_SCRIPT_ARGS to set the store argument is not validated and
 # will result in the store paths not found on 64-bit hosts when using the
-# default target architecture. 
+# default target architecture.
 
 # By default, 2015 BTDispatch silently ignores the store argument.
 # Using MSVC_SCRIPT_ARGS to set the store argument is not validated and
-# will result in the store paths not found. 
+# will result in the store paths not found.
 
 re_lib_eq2015exp_1 = re.compile(r'\\vc\\lib\\store', re.IGNORECASE)
 
@@ -251,9 +250,3 @@ if LT_VS2015_unsupported_versions:
                     test.fail_test(message='Expected MSVCArgumentError')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

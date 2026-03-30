@@ -754,9 +754,3 @@ class NewParallel:
             # depending on whether `task` is set. Do not perturb
             # the value of the `task` variable if you add new code
             # after this comment.
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

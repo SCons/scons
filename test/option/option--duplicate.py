@@ -85,9 +85,9 @@ description = {
 def testLink(file, type):
     nl = os.stat(file).st_nlink
     islink = os.path.islink(file)
-    assert criterion[type](nl, islink), \
-           "Expected %s to be %s (nl %d, islink %d)" \
-           % (file, description[type], nl, islink)
+    if not criterion[type](nl, islink):
+        test.fail_test(message="Expected %s to be %s (nl %d, islink %d)"
+                       % (file, description[type], nl, islink))
 
 def RunTest(order, type, bss):
     # Test the command-line --duplicate option.
@@ -131,9 +131,3 @@ SCons Error: `nonsense' is not a valid duplication option type, try:
 """)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

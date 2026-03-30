@@ -23,8 +23,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#  Amended by Russel Winder <russel@russel.org.uk> 2010-05-05
-
 import TestSCons
 
 _exe = TestSCons._exe
@@ -55,9 +53,3 @@ test.run(program=test.workpath('foo'+_exe))
 test.fail_test(not test.stdout() == 'Hello!')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

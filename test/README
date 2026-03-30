@@ -1,4 +1,5 @@
-__COPYRIGHT__
+MIT License
+Copyright The SCons Foundation
 
 This directory contains our end-to-end SCons tests.
 

@@ -25,7 +25,7 @@
 
 """
 Test a combination of a passing test, failing test, and no-result
-test with no argument on the command line.
+test while requesting test times.
 """
 
 import os
@@ -46,17 +46,20 @@ test.write_failing_test(['test', 'fail.py'])
 test.write_no_result_test(['test', 'no_result.py'])
 test.write_passing_test(['test', 'pass.py'])
 
-expect_stdout = f"""\
-{pythonstring}{pythonflags} {test_fail_py}
+expect_stdout = \
+fr"""{pythonstring}{pythonflags} {test_fail_py}
 FAILING TEST STDOUT
-Test execution time: \\d+.\\d seconds
+FAILING TEST STDERR
+Test execution time: \d+.\d seconds
 {pythonstring}{pythonflags} {test_no_result_py}
 NO RESULT TEST STDOUT
-Test execution time: \\d+.\\d seconds
+NO RESULT TEST STDERR
+Test execution time: \d+.\d seconds
 {pythonstring}{pythonflags} {test_pass_py}
 PASSING TEST STDOUT
-Test execution time: \\d+.\\d seconds
-Total execution time for all tests: \\d+.\\d seconds
+PASSING TEST STDERR
+Test execution time: \d+.\d seconds
+Summary: \d+ selected, \d+ failed, \d+ no result, total execution time \d+\.\d seconds
 
 Failed the following test:
 \t{test_fail_py}
@@ -65,18 +68,6 @@ NO RESULT from the following test:
 \t{test_no_result_py}
 """
 
-expect_stderr = """\
-FAILING TEST STDERR
-NO RESULT TEST STDERR
-PASSING TEST STDERR
-"""
-
-test.run(arguments='-k -t test', status=1, stdout=expect_stdout, stderr=expect_stderr)
+test.run(arguments='-k -t test', status=1, stdout=expect_stdout, stderr=None)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

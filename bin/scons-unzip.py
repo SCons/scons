@@ -67,9 +67,3 @@ for name in zf.namelist():
         os.unlink(dest)
     if not os.path.isdir(dest):
         open(dest, 'w').write(zf.read(name))
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -338,9 +338,3 @@ if __name__ == "__main__":
     rel_info = ReleaseInfo(options)
     UpdateFile.rel_info = rel_info
     main(options, rel_info)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

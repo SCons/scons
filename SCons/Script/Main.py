@@ -68,7 +68,7 @@ from SCons import __version__ as SConsVersion
 
 # these define the range of versions SCons supports
 minimum_python_version = (3, 7, 0)
-deprecated_python_version = (3, 7, 0)
+deprecated_python_version = (3, 9, 0)
 
 # ordered list of SConstruct names to look for if there is no -f flag
 KNOWN_SCONSTRUCT_NAMES = [
@@ -144,7 +144,7 @@ class Progressor:
             self.func = obj
         elif SCons.Util.is_List(obj):
             self.func = self.spinner
-        elif obj.find(self.target_string) != -1:
+        elif self.target_string in obj:
             self.func = self.replace_string
         else:
             self.func = self.string
@@ -178,7 +178,7 @@ class Progressor:
                 self.erase_previous()
             self.func(node)
 
-ProgressObject = SCons.Util.Null()
+ProgressObject = None
 
 def Progress(*args, **kw) -> None:
     """Show progress during building - Public API."""
@@ -203,7 +203,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
         display('scons: ' + message)
 
     def prepare(self):
-        if not isinstance(self.progress, SCons.Util.Null):
+        if self.progress is not None:
             for target in self.targets:
                 self.progress(target)
         return SCons.Taskmaster.OutOfDateTask.prepare(self)
@@ -644,7 +644,7 @@ def find_deepest_user_frame(tb):
     # of SCons:
     for frame in tb:
         filename = frame[0]
-        if filename.find(os.sep+'SCons'+os.sep) == -1:
+        if f'{os.sep}SCons{os.sep}' not in filename:
             return frame
     return tb[0]
 
@@ -1158,7 +1158,7 @@ def _main(parser):
         msg = (
             f"Support for Python older than {deprecated_version_string}"
             f" is deprecated ({python_version_string()} detected).\n"
-            "    If this will cause hardship, contact scons-dev@scons.org"
+            "    If this will cause hardship, contact scons-dev@python.org"
         )
         SCons.Warnings.warn(SCons.Warnings.PythonVersionWarning, msg)
 
@@ -1198,7 +1198,7 @@ def _main(parser):
 
     fs.chdir(fs.Top)
 
-    SCons.Node.FS.save_strings(1)
+    SCons.Node.FS.save_strings(True)
 
     # Now that we've read the SConscripts we can set the options
     # that are SConscript settable:
@@ -1590,9 +1590,3 @@ def main() -> None:
         write_scons_stats_file()
 
     sys.exit(exit_status)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -24,15 +24,16 @@
 """
 A testing framework for the SCons software construction tool.
 
-A TestSConsMSVS environment object is created via the usual invocation:
+Create a TestSConsMSVS environment object by instantiating the class:
 
+    import TestSConsMSVS
     test = TestSConsMSVS()
 
-TestSConsMSVS is a subsclass of TestSCons, which is in turn a subclass
-of TestCommon, which is in turn is a subclass of TestCmd), and hence
-has available all of the methods and attributes from those classes,
-as well as any overridden or additional methods or attributes defined
-in this subclass.
+TestSConsMSVS is a subsclass of :class:`TestSCons`, which is a subclass of
+:class:`TestCommon`, which is in turn is a subclass of :class:`TestCmd`,
+and hence has available all of the methods and attributes from those
+classes, as well as any overridden or additional methods or attributes
+defined in this subclass.
 """
 
 import os
@@ -1047,6 +1048,8 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
             return '16'
         elif major == 14 and minor == 3:
             return '17'
+        elif major == 14 and minor == 5:
+            return '18'
         else:
             raise SCons.Errors.UserError(f'Received unexpected VC version {vc_version}')
 
@@ -1078,6 +1081,9 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         elif vc_version == '14.3':
             # ToolsVersion='17'
             return '17.0'
+        elif vc_version == '14.5':
+            # ToolsVersion='18'
+            return '18.0'
         else:
             raise SCons.Errors.UserError(f'Received unexpected VC version {vc_version}')
 
@@ -1270,10 +1276,3 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
                 }
             )
         return format % values
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

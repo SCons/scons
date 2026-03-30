@@ -28,7 +28,7 @@ import os
 import TestCmd
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestCmd.match_re_dotall,ignore_python_version=0)
+test = TestSCons.TestSCons(match=TestCmd.match_re_dotall, ignore_python_version=False)
 
 wpath = test.workpath()
 
@@ -36,7 +36,8 @@ test.write('SConstruct', r"""
 Help("Help text.\n")
 """)
 
-expect = """scons: Reading SConscript files ...
+expect_help = """\
+scons: Reading SConscript files ...
 scons: done reading SConscript files.
 Help text.
 
@@ -45,37 +46,33 @@ Use scons -H for help about SCons built-in command-line options.
 
 os.environ['SCONSFLAGS'] = ''
 
-test.run(arguments = '-h',
-         stdout = expect,
-         stderr = TestSCons.deprecated_python_expr)
+test.run(arguments='-h',
+         stdout=expect_help,
+         stderr=TestSCons.deprecated_python_expr)
 
 os.environ['SCONSFLAGS'] = '-h'
 
-test.run(stdout = expect,
-         stderr = TestSCons.deprecated_python_expr)
+test.run(stdout=expect_help,
+         stderr=TestSCons.deprecated_python_expr)
 
-# No TestSCons.deprecated_python_expr because the -H option gets
+# Don't check for deprecated_python_expr because the -H option gets
 # processed before the SConscript files and therefore before we check
 # for the deprecation warning.
-test.run(arguments = "-H")
+os.environ['SCONSFLAGS'] = ''
+test.run(arguments="-H")
 
 test.must_not_contain_any_line(test.stdout(), ['Help text.'])
 test.must_contain_all_lines(test.stdout(), ['-H, --help-options'])
 
-expect = r"""usage: scons [OPTIONS] [VARIABLES] [TARGETS]
+expect_no_opt = TestSCons.deprecated_python_expr + \
+r"""usage: scons \[OPTIONS\] \[VARIABLES\] \[TARGETS\]
 
 SCons Error: no such option: -Z
 """
 
-test.run(arguments="-Z", status=2, stderr=expect, match=TestSCons.match_exact)
+test.run(arguments="-Z", status=2, stdout=None, stderr=expect_no_opt)
 
 os.environ['SCONSFLAGS'] = '-Z'
-test.run(status=2, stderr=expect, match=TestSCons.match_exact)
+test.run(status=2, stdout=None, stderr=expect_no_opt)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

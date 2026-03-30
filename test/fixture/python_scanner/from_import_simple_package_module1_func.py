@@ -2,4 +2,4 @@
 #
 # Copyright The SCons Foundation
 
-from simple_package.module1 import somefunc  # noqa: F401
+from simple_package.module1 import somefunc

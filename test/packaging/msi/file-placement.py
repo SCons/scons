@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test the msi packagers ability to put files into distinct directories.
@@ -114,7 +113,7 @@ test.fail_test( not files[0].parentNode.parentNode.attributes['LongName'].value 
 test.fail_test( not files[1].parentNode.parentNode.attributes['LongName'].value == 'bin' )
 test.fail_test( not files[2].parentNode.parentNode.attributes['LongName'].value == 'lib' )
 test.fail_test( not files[3].parentNode.parentNode.attributes['LongName'].value == 'lib' )
-  
+
 test.fail_test( not files[4].parentNode.parentNode.attributes['LongName'].value == 'teco' )
 test.fail_test( not files[4].parentNode.parentNode.parentNode.attributes['LongName'].value == 'edu' )
 test.fail_test( not files[4].parentNode.parentNode.parentNode.parentNode.attributes['LongName'].value == 'java' )
@@ -160,19 +159,13 @@ dom      = parse( test.workpath( 'foo-1.2.wxs' ) )
 features = dom.getElementsByTagName( 'Feature' )
 
 test.fail_test( not features[1].attributes['Title'].value == 'Core Part' )
-componentrefs = features[1].getElementsByTagName( 'ComponentRef' ) 
+componentrefs = features[1].getElementsByTagName( 'ComponentRef' )
 test.fail_test( not componentrefs[0].attributes['Id'].value == 'file1.exe' )
 test.fail_test( not componentrefs[1].attributes['Id'].value == 'file2.exe' )
 test.fail_test( not componentrefs[2].attributes['Id'].value == 'file3.dll1' )
 
 test.fail_test( not features[2].attributes['Title'].value == 'Java Part' )
-componentrefs = features[2].getElementsByTagName( 'ComponentRef' ) 
+componentrefs = features[2].getElementsByTagName( 'ComponentRef' )
 test.fail_test( not componentrefs[0].attributes['Id'].value == 'file3.dll' )
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

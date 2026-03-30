@@ -98,7 +98,7 @@ def main(argv=None):
     long_options = ['help', 'no-exec', 'quiet']
 
     helpstr = """\
-Usage:  script-template.py [-hnq] 
+Usage:  script-template.py [-hnq]
 
   -h, --help                    Print this help and exit
   -n, --no-exec                 No execute, just print command lines
@@ -134,9 +134,3 @@ Usage:  script-template.py [-hnq]
 
 if __name__ == "__main__":
     sys.exit(main())
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

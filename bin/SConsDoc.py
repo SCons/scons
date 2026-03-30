@@ -129,7 +129,9 @@ import importlib
 
 try:
     from lxml import etree
+    HAS_LXML = True
 except ImportError:
+    HAS_LXML = False
     try:
         import xml.etree.ElementTree as etree
     except ImportError:
@@ -344,6 +346,11 @@ class TreeFactory:
 
     @staticmethod
     def validateXml(fpath, xmlschema_context):
+        if not HAS_LXML:
+            raise RuntimeError(
+                "lxml is required for XML validation but is not installed. "
+                "Install it with: pip install lxml"
+            )
 
         if TreeFactory.xmlschema is None:
             TreeFactory.xmlschema = etree.XMLSchema(xmlschema_context)
@@ -622,9 +629,3 @@ def importfile(path):
         return importlib._bootstrap._load(spec)
     except ImportError:
         raise Exception(path, sys.exc_info())
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -29,6 +29,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Operating System :: POSIX :: Linux",
@@ -51,15 +52,15 @@ scons = "SCons.Script.Main:main"
 sconsign = "SCons.Utilities.sconsign:main"
 scons-configure-cache = "SCons.Utilities.ConfigureCache:main"
 
-[project.optional-dependencies]
+# Extra deps for development.
+[dependency-groups]
 dev = [
     "ninja",
     "psutil",
-    "lxml < 5; sys_platform != 'win32' and python_version < '3.13'",
+    "lxml",
 ]
 pkg = [
-    "ninja",
-    "psutil",
+    { include-group = "dev" },
     "readme-renderer",
     "sphinx",
     "sphinx-book-theme",
@@ -67,7 +68,12 @@ pkg = [
     "build",
     "twine",
     "packaging",
+    # pdf doc build suggests this for better results, excluded for now:
+    # "matplotlib",
 ]
+
+# Features users can opt into. Currently none.
+# [project.optional-dependencies]
 
 [tool.setuptools]
 zip-safe = false
@@ -117,16 +123,10 @@ extend-safe-fixes = ["FA", "UP006", "UP007"]
 [tool.ruff.format]
 quote-style = "preserve" # Equivalent to black's "skip-string-normalization"
 
-[tool.ruff.lint.per-file-ignores]
-"SCons/Util/__init__.py" = [
-    "F401",  # Module imported but unused
-]
-"SCons/Variables/__init__.py" = [
-    "F401",  # Symbol imported but unused
-]
-
 [tool.mypy]
-python_version = "3.8"
+# version should be oldest supported by SCons, but mypy has moved on.
+# can't *run* mypy with 3.9, but can still check against it, for now.
+python_version = "3.9"
 exclude = [
     "^bench/",
     "^bin/",
@@ -138,3 +138,5 @@ exclude = [
     "^timings/",
     "^SCons/Tool/docbook/docbook-xsl-1.76.1/",
 ]
+
+# TODO: need a matching section for pyright? (doesn't read [tool.mypy]

@@ -3184,7 +3184,7 @@ SConscript('bar/SConscript')	# will chdir to bar
 </arguments>
 <summary>
 <para>
-Specify where to store the &SCons; file signature database,
+Specify where to store the &SCons; signature database,
 and which database format to use.
 This may be useful to specify alternate
 database files and/or file locations for different types of builds.
@@ -3192,15 +3192,16 @@ database files and/or file locations for different types of builds.
 <para>
 The optional <parameter>name</parameter> argument
 is the base name of the database file(s).
-If not an absolute path name,
-these are placed relative to the directory containing the
-top-level &SConstruct; file.
+The database is placed relative to the directory containing the
+top-level &SConstruct; file, unless <parameter>name</parameter>
+is an absolute path name.
 The default is
 <filename>.sconsign</filename>.
 The actual database file(s) stored on disk
-may have an appropriate suffix appended
-by the chosen
-<parameter>dbm_module</parameter>
+may have an appropriate suffix appended by the chosen
+<parameter>dbm_module</parameter>,
+and may also include the name of the hash format
+(see <link linkend="opt-hash-format"><option>--hash-format</option></link>).
 </para>
 <para>
 The optional <parameter>dbm_module</parameter>
@@ -3246,10 +3247,16 @@ in a separate
 file in each directory,
 not in a single combined database file.
 This is a backwards-compatibility measure to support
-what was the default behavior
+the behavior that was the default
 prior to &SCons; 0.97 (i.e. before 2008).
-Use of this mode is discouraged and may be
-deprecated in a future &SCons; release.
+Use of this mode is deprecated and should
+not be used in new projects.
+</para>
+
+<para>
+<emphasis>Deprecated since version NEXT_RELEASE</emphasis>:
+the signature-file-per-directory mode is deprecated
+and will be removed in a future release.
 </para>
 
 <para>

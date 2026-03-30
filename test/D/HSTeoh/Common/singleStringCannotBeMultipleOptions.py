@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -64,9 +66,3 @@ def testForTool(tool):
     test.run(status=2, stdout=None, stderr=result, match=TestSCons.match_re_dotall)
 
     test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

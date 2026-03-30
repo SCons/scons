@@ -2,4 +2,4 @@
 #
 # Copyright The SCons Foundation
 
-from . import helper  # noqa: F401
+from . import helper

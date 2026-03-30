@@ -26,15 +26,21 @@
 This creates a hash of global Aliases (dummy targets).
 """
 
+from __future__ import annotations
+
 import collections
+from typing import TYPE_CHECKING
 
 import SCons.Errors
 import SCons.Node
 import SCons.Util
 from SCons.Util import hash_signature
 
+if TYPE_CHECKING:
+    from SCons.Node.FS import Dir
+
 class AliasNameSpace(collections.UserDict):
-    def Alias(self, name, **kw):
+    def Alias(self, name: str | Alias, **kw) -> Alias:
         if isinstance(name, SCons.Node.Alias.Alias):
             return name
         try:
@@ -44,7 +50,7 @@ class AliasNameSpace(collections.UserDict):
             self[name] = a
         return a
 
-    def lookup(self, name, **kw):
+    def lookup(self, name: str, **kw) -> Alias | None:
         try:
             return self[name]
         except KeyError:
@@ -66,13 +72,13 @@ class Alias(SCons.Node.Node):
     NodeInfo = AliasNodeInfo
     BuildInfo = AliasBuildInfo
 
-    def __init__(self, name) -> None:
+    def __init__(self, name: str) -> None:
         super().__init__()
         self.name = name
         self.changed_since_last_build = 1
         self.store_info = 0
 
-    def str_for_display(self):
+    def str_for_display(self) -> str:
         return '"' + self.__str__() + '"'
 
     def __str__(self) -> str:
@@ -84,13 +90,13 @@ class Alias(SCons.Node.Node):
     really_build = SCons.Node.Node.build
     is_up_to_date = SCons.Node.Node.children_are_up_to_date
 
-    def is_under(self, dir) -> bool:
+    def is_under(self, dir: Dir) -> bool:
         # Make Alias nodes get built regardless of
         # what directory scons was run from. Alias nodes
         # are outside the filesystem:
         return True
 
-    def get_contents(self):
+    def get_contents(self) -> str:
         """The contents of an alias is the concatenation
         of the content signatures of all its sources."""
         childsigs = [n.get_csig() for n in self.children()]
@@ -120,7 +126,7 @@ class Alias(SCons.Node.Node):
         self.reset_executor()
         self.build = self.really_build
 
-    def get_csig(self):
+    def get_csig(self) -> str:
         """
         Generate a node's content signature, the digested signature
         of its content.
@@ -142,9 +148,3 @@ class Alias(SCons.Node.Node):
 default_ans = AliasNameSpace()
 
 SCons.Node.arg2nodes_lookups.append(default_ans.lookup)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

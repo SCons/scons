@@ -36,7 +36,7 @@ test = TestSCons.TestSCons()
 
 if not IS_WINDOWS:
     try:
-        import resource  # noqa: F401
+        import resource
     except ImportError:
         x = "Python version has no 'resource' skipping tests.\n"
         test.skip_test(x)
@@ -76,9 +76,3 @@ test.fail_test(re.match(r'Memory after reading SConscript files: +\d+', lines[-2
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -29,7 +29,7 @@ import SCons.Util
 from . import ScannerBase, FindPathDirs
 
 # global, set by --debug=findlibs
-print_find_libs = None
+print_find_libs = ""
 
 def ProgramScanner(**kwargs):
     """Return a prototype Scanner instance for scanning executable
@@ -106,9 +106,3 @@ def scan(node, env, libpath = ()):
             result.append(lib)
 
     return result
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

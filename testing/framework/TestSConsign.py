@@ -22,17 +22,18 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-A testing framework for the "sconsign" script tool.
+A testing framework for the "sconsign" tool.
 
-A TestSConsign environment object is created via the usual invocation:
+Create a TestSConsign environment object by instantiating the class:
 
+    import TestSConsign
     test = TestSConsign()
 
-TestSconsign is a subclass of TestSCons, which is a subclass of
-TestCommon, which is in turn is a subclass of TestCmd), and hence
-has available all of the methods and attributes from those classes,
-as well as any overridden or additional methods or attributes defined
-in this subclass.
+TestSConsign is a subsclass of :class:`TestSCons`, which is a subclass of
+:class:`TestCommon`, which is in turn is a subclass of :class:`TestCmd`,
+and hence has available all of the methods and attributes from those
+classes, as well as any overridden or additional methods or attributes
+defined in this subclass.
 """
 
 import os
@@ -100,10 +101,3 @@ class TestSConsign(TestSCons):
     def run_sconsign(self, *args, **kw):
         kw.update(self.my_kw)
         return self.run(*args, **kw)
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

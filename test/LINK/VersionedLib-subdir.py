@@ -70,7 +70,8 @@ elif 'cyglink' in tool_list:
 else:
     subdir = 'blah.so.0.1.2.blah'
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment()
 env.AppendUnique(LIBPATH = [ '%s' ])
 env.SharedLibrary('%s/foo', 'foo.c', SHLIBVERSION = '0.1.2')
@@ -88,7 +89,7 @@ if platform == 'cygwin' or platform == 'win32':
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = subdir
-if sys.platform.find('irix') != -1:
+if 'irix' in sys.platform:
     os.environ['LD_LIBRARYN32_PATH'] = subdir
 
 test.run(program = test.workpath('main'))
@@ -152,9 +153,3 @@ test.must_exist(['foo.c'])
 test.must_exist(['SConstruct'])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

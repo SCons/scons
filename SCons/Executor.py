@@ -168,21 +168,18 @@ class Executor(metaclass=NoSlotsPyPy):
                  '_do_execute',
                  '_execute_str')
 
-    def __init__(self, action, env=None, overridelist=[{}],
-                 targets=[], sources=[], builder_kw={}) -> None:
+    def __init__(self, action, env=None, overridelist=None,
+                 targets=[], sources=[], builder_kw=None) -> None:
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Executor.Executor')
         self.set_action_list(action)
         self.pre_actions = []
         self.post_actions = []
         self.env = env
-        self.overridelist = overridelist
-        if targets or sources:
-            self.batches = [Batch(targets[:], sources[:])]
-        else:
-            self.batches = []
-        self.builder_kw = builder_kw
-        self._do_execute = 1
-        self._execute_str = 1
+        self.overridelist = [{}] if overridelist is None else overridelist
+        self.batches = [Batch(targets[:], sources[:])] if targets or sources else []
+        self.builder_kw = {} if builder_kw is None else builder_kw
+        self._do_execute: int = 1  # map key
+        self._execute_str: int = 1  # map key
         self._memo = {}
 
     def get_lvars(self):
@@ -358,7 +355,7 @@ class Executor(metaclass=NoSlotsPyPy):
 
         import SCons.Defaults
         env = self.env or SCons.Defaults.DefaultEnvironment()
-        build_env = env.Override(overrides)
+        build_env = env.Override(overrides) if overrides else env
 
         self._memo['get_build_env'] = build_env
 
@@ -657,9 +654,3 @@ class Null(metaclass=NoSlotsPyPy):
     def set_action_list(self, action) -> None:
         self._morph()
         self.set_action_list(action)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

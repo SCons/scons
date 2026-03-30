@@ -1,3 +1,4 @@
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -42,6 +43,7 @@ import SCons.Node
 import SCons.Node.FS
 import SCons.Util
 import SCons.Scanner.LaTeX
+from SCons.Util.sctypes import _null
 
 Verbose = False
 
@@ -143,9 +145,6 @@ MakeAcronymsAction = None
 
 # An action to run MakeIndex (for newglossary commands) on a file.
 MakeNewGlossaryAction = None
-
-# Used as a return value of modify_env_var if the variable is not set.
-_null = SCons.Scanner.LaTeX._null
 
 modify_env_var = SCons.Scanner.LaTeX.modify_env_var
 
@@ -337,7 +336,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 if os.path.isfile(target_aux):
                     with open(target_aux) as f:
                         content = f.read()
-                    if content.find("bibdata") != -1:
+                    if 'bibdata' in content:
                         if Verbose:
                             print("Need to run bibtex on ",auxfilename)
                         bibfile = env.fs.File(SCons.Util.splitext(target_aux)[0])
@@ -361,7 +360,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 if os.path.isfile(target_bcf):
                     with open(target_bcf) as f:
                         content = f.read()
-                    if content.find("bibdata") != -1:
+                    if 'bibdata' in content:
                         if Verbose:
                             print("Need to run biber on ",bcffilename)
                         bibfile = env.fs.File(SCons.Util.splitext(target_bcf)[0])
@@ -990,9 +989,3 @@ def generate_common(env) -> None:
 def exists(env):
     generate_darwin(env)
     return env.Detect('tex')
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

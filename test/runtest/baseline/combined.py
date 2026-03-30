@@ -48,10 +48,17 @@ test.write_passing_test(['test', 'pass.py'])
 expect_stdout = f"""\
 {pythonstring}{pythonflags} {test_fail_py}
 FAILING TEST STDOUT
+FAILING TEST STDERR
+
 {pythonstring}{pythonflags} {test_no_result_py}
 NO RESULT TEST STDOUT
+NO RESULT TEST STDERR
+
 {pythonstring}{pythonflags} {test_pass_py}
 PASSING TEST STDOUT
+PASSING TEST STDERR
+
+Summary: 3 selected, 1 failed, 1 no result
 
 Failed the following test:
 \t{test_fail_py}
@@ -60,18 +67,6 @@ NO RESULT from the following test:
 \t{test_no_result_py}
 """
 
-expect_stderr = """\
-FAILING TEST STDERR
-NO RESULT TEST STDERR
-PASSING TEST STDERR
-"""
-
-test.run(arguments='-k -b . test', status=1, stdout=expect_stdout, stderr=expect_stderr)
+test.run(arguments='-k -b . test', status=1, stdout=expect_stdout, stderr=None)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

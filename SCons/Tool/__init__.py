@@ -1,3 +1,4 @@
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -866,9 +867,3 @@ def find_program_path(env, key_program, default_paths=None, add_path: bool=False
         env.AppendENVPath('PATH', os.path.dirname(path))
 
     return path
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

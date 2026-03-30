@@ -29,7 +29,7 @@ Replace this with a description of the test.
 """
 
 import textwrap
-import os 
+import os
 
 import TestSCons
 
@@ -61,9 +61,3 @@ os.environ['SCONSFLAGS'] = ''
 test.up_to_date(read_str=conf_text.format(arg1='(cached) ', arg2='(cached) '))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -24,14 +24,19 @@
 """
 A testing framework for the SCons software construction tool.
 
-A TestSCons environment object is created via the usual invocation:
+Create a TestSCons environment object by instantiating the class:
 
-    test = TestSCons()
+    import TestSCons
+    test = TestSCons.TestSCons()
 
-TestScons is a subclass of TestCommon, which in turn is a subclass
-of TestCmd), and hence has available all of the methods and attributes
-from those classes, as well as any overridden or additional methods or
-attributes defined in this subclass.
+:class:`TestScons' is a subclass of :class:`TestCommon,` which in turn
+is a subclass of :class:`TestCmd`, and hence has available all of the
+methods and attributes from those classes, as well as any overridden or
+additional methods or attributes defined in this subclass.
+
+This class is further specialized for specific testing purposes in
+modules :mod:`TestSConsMSVS`, :mod:`TestSConsTar`, :mod:`TestSCons_time`,
+:mod:`TestSConsign` as well as in this file in :class:`TimeSCons`.
 """
 
 from __future__ import annotations
@@ -47,19 +52,19 @@ from collections import namedtuple
 
 from SCons.Util import get_hash_format, get_current_hash_algorithm_used
 from TestCommon import *
-from TestCommon import __all__, _python_
+from TestCommon import __all__
 
 # Some tests which verify that SCons has been packaged properly need to
 # look for specific version file names.  Replicating the version number
 # here provides some independent verification that what we packaged
 # conforms to what we expect.
 
-default_version = '4.12.0ayyyymmdd'
+default_version = '4.10.2ayyyymmdd'
 
 # TODO: these need to be hand-edited when there are changes
 python_version_unsupported = (3, 7, 0)
-python_version_deprecated = (3, 7, 0)
-python_version_supported_str = "3.7.0"  # str of lowest non-deprecated Python
+python_version_deprecated = (3, 9, 0)
+python_version_supported_str = "3.9.0"  # str of lowest non-deprecated Python
 
 SConsVersion = default_version
 
@@ -146,7 +151,7 @@ def re_escape(str):
 # Helper functions that we use as a replacement to the default re.match
 # when searching for special strings in stdout/stderr.
 #
-def search_re(out, l):
+def search_re(out: str, l: str) -> int | None:
     """Search the regular expression 'l' in the output 'out'
     and return the start index when successful.
     """
@@ -157,7 +162,7 @@ def search_re(out, l):
     return None
 
 
-def search_re_in_list(out, l):
+def search_re_in_list(out: str, l: str) -> int | None:
     """Search the regular expression 'l' in each line of
     the given string list 'out' and return the line's index
     when successful.
@@ -190,25 +195,33 @@ def deprecated_python_version(version=sys.version_info):
 
 
 if deprecated_python_version():
-    msg = r"""
-scons: warning: Support for Python older than %s is deprecated (%s detected).
-    If this will cause hardship, contact scons-dev@scons.org
+    deprecated_python_msg = rf"""
+scons: warning: Support for Python older than {python_version_supported_str} is deprecated ({python_version_string()} detected).
+    If this will cause hardship, contact scons-dev@python.org
 """
     deprecated_python_expr = (
-        re_escape(msg % (python_version_supported_str, python_version_string()))
+        re_escape(deprecated_python_msg )
         + file_expr
     )
-    del msg
 else:
     deprecated_python_expr = ""
+    deprecated_python_msg = ""
 
 
-def initialize_sconsflags(ignore_python_version):
-    """
-    Add the --warn=no-python-version option to SCONSFLAGS for every
-    command so test scripts don't have to filter out Python version
-    deprecation warnings.
-    Same for --warn=no-visual-c-missing.
+def initialize_sconsflags(ignore_python_version: bool) -> str | None:
+    """Set up SCONSFLAGS for every command.
+
+    Used so test scripts don't need to worry about unexpected warnings
+    in their output.
+
+    ``--warn=no-python-version`` is used to suppress Python version
+    deprecation warnings while such are active.
+
+    ``--warn=no-visual-c-missing`` is used so Windows systems which don't
+    have Visual C++ installed don't get warnings about it.
+
+    Returns:
+      the original ``SCONSFLAGS`` value, if any, so it can be restored
     """
     save_sconsflags = os.environ.get('SCONSFLAGS')
     if save_sconsflags:
@@ -229,7 +242,8 @@ def initialize_sconsflags(ignore_python_version):
     return save_sconsflags
 
 
-def restore_sconsflags(sconsflags) -> None:
+def restore_sconsflags(sconsflags: str | None) -> None:
+    """Restore the original SCONSFLAGS value, if any."""
     if sconsflags is None:
         del os.environ['SCONSFLAGS']
     else:
@@ -249,18 +263,14 @@ ConfigCheckInfo = namedtuple(
 
 
 class NoMatch(Exception):
-    """
-    Exception for matchPart to indicate there was no match found in the passed logfile
-    """
+    """There was no match in the passed logfile."""
 
     def __init__(self, p) -> None:
         self.pos = p
 
 
 def match_part_of_configlog(log, logfile, lastEnd, NoMatch=NoMatch):
-    """
-    Match part of the logfile
-    """
+    """Match part of the logfile."""
     # print("Match:\n%s\n==============\n%s" % (log , logfile[lastEnd:]))
     m = re.match(log, logfile[lastEnd:])
     if not m:
@@ -368,8 +378,7 @@ class TestSCons(TestCommon):
         return None
 
     def detect(self, var, prog=None, ENV=None, norm=None):
-        """
-        Return the detected path to a tool program.
+        """Return the detected path to a tool program.
 
         Searches first the named construction variable, then
         the SCons path.
@@ -401,7 +410,7 @@ class TestSCons(TestCommon):
 
         return self.where_is(prog)
 
-    def detect_tool(self, tool, prog=None, ENV=None):
+    def detect_tool(self, tool, prog=None, ENV=None) -> bool:
         """
         Given a tool (i.e., tool specification that would be passed
         to the "tools=" parameter of Environment()) and a program that
@@ -410,12 +419,11 @@ class TestSCons(TestCommon):
 
         By default, prog is set to the value passed into the tools parameter.
         """
-
         if not prog:
             prog = tool
         env = self.Environment(ENV, tools=[tool])
         if env is None:
-            return None
+            return False
         return env.Detect([prog])
 
     def where_is(self, prog, path=None, pathext=None):
@@ -476,8 +484,9 @@ class TestSCons(TestCommon):
         )
 
     def run(self, *args, **kw) -> None:
-        """
-        Set up SCONSFLAGS for every command so test scripts don't need
+        """Run a command.
+
+        Sets up ``SCONSFLAGS`` first  so test scripts don't need
         to worry about unexpected warnings in their output.
         """
         sconsflags = initialize_sconsflags(self.ignore_python_version)
@@ -954,7 +963,7 @@ if True:
                     if os.path.exists(home):
                         return home
             else:
-                if java_home.find(f'jdk{version}') != -1:
+                if f'jdk{version}' in java_home:
                     return java_home
                 for home in [
                     f'/System/Library/Frameworks/JavaVM.framework/Versions/{version}/Home',
@@ -1066,7 +1075,7 @@ if True:
         stderr = self.stderr() or ""
         if version:
             verf = f'javac {version}'
-            if stderr.find(verf) == -1 and stdout.find(verf) == -1:
+            if verf not in stderr and verf not in stdout:
                 fmt = "Could not find javac for Java version %s, skipping test(s).\n"
                 self.skip_test(fmt % version, from_fw=True)
         else:
@@ -1080,7 +1089,7 @@ if True:
                 self.javac_is_gcj = False
                 return where_javac, version
 
-            if stderr.find('gcj') != -1:
+            if 'gcj' in stderr:
                 version = '1.2'
                 self.javac_is_gcj = True
             else:
@@ -1140,176 +1149,6 @@ if True:
                 if fname.endswith('.class'):
                     result.append(os.path.join(dirpath, fname))
         return sorted(result)
-
-    def Qt_dummy_installation(self, dir: str = 'qt') -> None:
-        # create a dummy qt installation
-
-        self.subdir(dir, [dir, 'bin'], [dir, 'include'], [dir, 'lib'])
-
-        self.write(
-            [dir, 'bin', 'mymoc.py'],
-            """\
-import getopt
-import sys
-import re
-
-# -w and -z are fake options used in test/QT/QTFLAGS.py
-cmd_opts, args = getopt.getopt(sys.argv[1:], 'io:wz', [])
-impl = 0
-opt_string = ''
-for opt, arg in cmd_opts:
-    if opt == '-o':
-        outfile = arg
-    elif opt == '-i':
-        impl = 1
-    else:
-        opt_string = opt_string + ' ' + opt
-
-with open(outfile, 'w') as ofp:
-    ofp.write("/* mymoc.py%s */\\n" % opt_string)
-    for a in args:
-        with open(a, 'r') as ifp:
-            contents = ifp.read()
-        a = a.replace('\\\\', '\\\\\\\\')
-        subst = r'{ my_qt_symbol( "' + a + '\\\\n" ); }'
-        if impl:
-            contents = re.sub(r'#include.*', '', contents)
-        ofp.write(contents.replace('Q_OBJECT', subst))
-sys.exit(0)
-""",
-        )
-
-        self.write(
-            [dir, 'bin', 'myuic.py'],
-            """\
-import os.path
-import re
-import sys
-
-output_arg = 0
-impl_arg = 0
-impl = None
-source = None
-opt_string = ''
-for arg in sys.argv[1:]:
-    if output_arg:
-        outfile = arg
-        output_arg = 0
-    elif impl_arg:
-        impl = arg
-        impl_arg = 0
-    elif arg == "-o":
-        output_arg = 1
-    elif arg == "-impl":
-        impl_arg = 1
-    elif arg[0:1] == "-":
-        opt_string = opt_string + ' ' + arg
-    else:
-        if source:
-            sys.exit(1)
-        source = sourceFile = arg
-
-with open(outfile, 'w') as ofp, open(source, 'r') as ifp:
-    ofp.write("/* myuic.py%s */\\n" % opt_string)
-    if impl:
-        ofp.write('#include "' + impl + '"\\n')
-        includes = re.findall('<include.*?>(.*?)</include>', ifp.read())
-        for incFile in includes:
-            # this is valid for ui.h files, at least
-            if os.path.exists(incFile):
-                ofp.write('#include "' + incFile + '"\\n')
-    else:
-        ofp.write('#include "my_qobject.h"\\n' + ifp.read() + " Q_OBJECT \\n")
-sys.exit(0)
-""",
-        )
-
-        self.write(
-            [dir, 'include', 'my_qobject.h'],
-            """\
-#define Q_OBJECT ;
-void my_qt_symbol(const char *arg);
-""",
-        )
-
-        self.write(
-            [dir, 'lib', 'my_qobject.cpp'],
-            """\
-#include "../include/my_qobject.h"
-#include <stdio.h>
-void my_qt_symbol(const char *arg) {
-  fputs(arg, stdout);
-}
-""",
-        )
-
-        self.write(
-            [dir, 'lib', 'SConstruct'],
-            r"""
-import sys
-DefaultEnvironment(tools=[])  # test speedup
-env = Environment()
-if sys.platform == 'win32':
-    env.StaticLibrary('myqt', 'my_qobject.cpp')
-else:
-    env.SharedLibrary('myqt', 'my_qobject.cpp')
-""",
-        )
-
-        self.run(
-            chdir=self.workpath(dir, 'lib'),
-            arguments='.',
-            stderr=noisy_ar,
-            match=self.match_re_dotall,
-        )
-
-        self.QT = self.workpath(dir)
-        self.QT_LIB = 'myqt'
-        self.QT_MOC = f"{_python_} {self.workpath(dir, 'bin', 'mymoc.py')}"
-        self.QT_UIC = f"{_python_} {self.workpath(dir, 'bin', 'myuic.py')}"
-        self.QT_LIB_DIR = self.workpath(dir, 'lib')
-
-    def Qt_create_SConstruct(self, place, qt_tool: str = 'qt3') -> None:
-        if isinstance(place, list):
-            place = self.workpath(*place)
-
-        var_prefix = qt_tool.upper()
-        self.write(
-            place,
-            f"""\
-if ARGUMENTS.get('noqtdir', 0):
-    {var_prefix}DIR = None
-else:
-    {var_prefix}DIR = r'{self.QT}'
-DefaultEnvironment(tools=[])  # test speedup
-env = Environment(
-    {var_prefix}DIR={var_prefix}DIR,
-    {var_prefix}_LIB=r'{self.QT_LIB}',
-    {var_prefix}_MOC=r'{self.QT_MOC}',
-    {var_prefix}_UIC=r'{self.QT_UIC}',
-    tools=['default', '{qt_tool}'],
-)
-dup = 1
-if ARGUMENTS.get('variant_dir', 0):
-    if ARGUMENTS.get('chdir', 0):
-        SConscriptChdir(1)
-    else:
-        SConscriptChdir(0)
-    dup = int(ARGUMENTS.get('dup', 1))
-    if dup == 0:
-        builddir = 'build_dup0'
-        env['QT_DEBUG'] = 1
-    else:
-        builddir = 'build'
-    VariantDir(builddir, '.', duplicate=dup)
-    print(builddir, dup)
-    sconscript = Dir(builddir).File('SConscript')
-else:
-    sconscript = File('SConscript')
-Export("env dup")
-SConscript(sconscript)
-""",
-        )
 
     NCR = 0  # non-cached rebuild
     CR = 1  # cached rebuild (up to date)
@@ -1393,10 +1232,8 @@ SConscript(sconscript)
 
             if (
                 doCheckLog
-                and logfile.find(
-                    "scons: warning: The stored build information has an unexpected class."
-                )
-                >= 0
+                and "scons: warning: The stored build information has an unexpected class."
+                in logfile
             ):
                 self.fail_test()
 
@@ -1559,10 +1396,8 @@ SConscript(sconscript)
 
             if (
                 doCheckLog
-                and logfile.find(
-                    "scons: warning: The stored build information has an unexpected class."
-                )
-                >= 0
+                and "scons: warning: The stored build information has an unexpected class."
+                in logfile
             ):
                 self.fail_test()
 
@@ -1814,9 +1649,8 @@ else:
 
         return (python, incpath, libpath, libname + _lib)
 
-    def start(self, *args, **kw):
-        """
-        Starts SCons in the test environment.
+    def start(self, *args, **kw) -> Popen:
+        """Starts SCons in the test environment.
 
         This method exists to tell Test{Cmd,Common} that we're going to
         use standard input without forcing every .start() call in the
@@ -2224,9 +2058,3 @@ class TimeSCons(TestSCons):
 # test/AR.py for sample usage).
 
 noisy_ar = r'(ar: creating( archive)? \S+\n?)*'
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

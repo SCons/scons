@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,13 +22,12 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test that the --debug=includes option prints the implicit
 dependencies of a target.
+
+This is currently a "live" test, requiring a C toolchain to execute.
 """
 
 import TestSCons
@@ -35,13 +36,14 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
-env = Environment(OBJSUFFIX = '.obj',
-                  SHOBJSUFFIX = '.shobj',
-                  LIBPREFIX = '',
-                  LIBSUFFIX = '.lib',
-                  SHLIBPREFIX = '',
-                  SHLIBSUFFIX = '.shlib',
-                  )
+env = Environment(
+    OBJSUFFIX='.obj',
+    SHOBJSUFFIX='.shobj',
+    LIBPREFIX='',
+    LIBSUFFIX='.lib',
+    SHLIBPREFIX='',
+    SHLIBSUFFIX='.shlib',
+)
 env.Program('foo.exe', ['foo.c', 'bar.c'])
 env.StaticLibrary('foo', ['foo.c', 'bar.c'])
 env.SharedLibrary('foo', ['foo.c', 'bar.c'], no_import_lib=True)
@@ -83,11 +85,9 @@ includes = """
   +-foo.h
     +-bar.h
 """
-test.run(arguments = "--debug=includes foo.obj")
+test.run(arguments="--debug=includes foo.obj")
 
 test.must_contain_all_lines(test.stdout(), [includes])
-
-
 
 # In an ideal world, --debug=includes would also work when there's a build
 # failure, but this would require even more complicated logic to scan
@@ -108,21 +108,12 @@ test.must_contain_all_lines(test.stdout(), [includes])
 #         stderr = None)
 #test.must_contain_all_lines(test.stdout(), [includes])
 
-
-
 # These shouldn't print out anything in particular, but
 # they shouldn't crash either:
-test.run(arguments = "--debug=includes .")
-test.run(arguments = "--debug=includes foo.c")
-test.run(arguments = "--debug=includes foo.lib")
-test.run(arguments = "--debug=includes foo.shlib")
-
-
+# TODO: not really true... the two library ones do emit something. Check?
+test.run(arguments="--debug=includes .")
+test.run(arguments="--debug=includes foo.c")
+test.run(arguments="--debug=includes foo.lib")
+test.run(arguments="--debug=includes foo.shlib")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -1,3 +1,4 @@
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -30,7 +31,6 @@ import SCons.Action
 import SCons.Tool
 import SCons.Util
 import SCons.Warnings
-from SCons.Environment import _null
 from SCons.Errors import StopError
 from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
@@ -41,6 +41,7 @@ from SCons.Tool.GettextCommon import (
     # MsginitToolWarning,
     _POFileBuilder,
 )
+from SCons.Util.sctypes import _null
 
 
 def _optional_no_translator_flag(env):
@@ -129,9 +130,3 @@ def exists(env):
         return _msginit_exists(env)
     except StopError:
         return False
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

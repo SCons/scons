@@ -303,10 +303,6 @@
       <xs:element ref="linespecific.class"/>
       <xs:element ref="informal.class"/>
       <xs:element ref="formal.class"/>
-      <xs:element ref="sconstruct"/>
-      <xs:element ref="scons_example"/>
-      <xs:element ref="scons_example_file"/>
-      <xs:element ref="scons_output"/>
       <xs:element ref="sconsdoc"/>
     </xs:choice>
   </xs:group>
@@ -318,17 +314,12 @@
   <xs:group name="tool.mix">
     <xs:choice>
       <xs:element ref="summary"/>
-      <xs:element ref="sets"/>
-      <xs:element ref="uses"/>
-    </xs:choice>  
+    </xs:choice>
   </xs:group>
   <xs:group name="scons_function.mix">
     <xs:choice>
-      <xs:element ref="arguments"/>
       <xs:element ref="summary"/>
-      <xs:element ref="sets"/>
-      <xs:element ref="uses"/>
-    </xs:choice>  
+    </xs:choice>
   </xs:group>
   <xs:group name="admon.mix">
     <xs:choice>
@@ -433,106 +424,92 @@
     d. Just Acronym, Emphasis, and Trademark; no other word elements.
   -->
   <xs:group name="para.char.mix">
-    <xs:sequence>
-      <xs:choice minOccurs="0">
-        <xs:element ref="xref.char.class"/>
-        <xs:element ref="gen.char.class"/>
-        <xs:element ref="link.char.class"/>
-        <xs:element ref="tech.char.class"/>
-        <xs:group ref="base.char.class"/>
-        <xs:element ref="docinfo.char.class"/>
-        <xs:group ref="other.char.class"/>
-        <xs:element ref="inlineobj.char.class"/>
-        <xs:element ref="synop.class"/>
-        <xs:element ref="ndxterm.class"/>
-        <xs:element ref="beginpage"/>
-      </xs:choice>
-    </xs:sequence>
+    <xs:choice>
+      <xs:element ref="xref.char.class"/>
+      <xs:element ref="gen.char.class"/>
+      <xs:element ref="link.char.class"/>
+      <xs:element ref="tech.char.class"/>
+      <xs:group ref="base.char.class"/>
+      <xs:element ref="docinfo.char.class"/>
+      <xs:group ref="other.char.class"/>
+      <xs:element ref="inlineobj.char.class"/>
+      <xs:element ref="synop.class"/>
+      <xs:element ref="ndxterm.class"/>
+      <xs:element ref="beginpage"/>
+    </xs:choice>
   </xs:group>
   <xs:group name="title.char.mix">
-    <xs:sequence>
-      <xs:choice minOccurs="0">
-        <xs:element ref="xref.char.class"/>
-        <xs:element ref="gen.char.class"/>
-        <xs:element ref="link.char.class"/>
-        <xs:element ref="tech.char.class"/>
-        <xs:group ref="base.char.class"/>
-        <xs:element ref="docinfo.char.class"/>
-        <xs:group ref="other.char.class"/>
-        <xs:element ref="inlineobj.char.class"/>
-        <xs:element ref="ndxterm.class"/>
-      </xs:choice>
-    </xs:sequence>
+    <xs:choice>
+      <xs:element ref="xref.char.class"/>
+      <xs:element ref="gen.char.class"/>
+      <xs:element ref="link.char.class"/>
+      <xs:element ref="tech.char.class"/>
+      <xs:group ref="base.char.class"/>
+      <xs:element ref="docinfo.char.class"/>
+      <xs:group ref="other.char.class"/>
+      <xs:element ref="inlineobj.char.class"/>
+      <xs:element ref="ndxterm.class"/>
+    </xs:choice>
   </xs:group>
   <xs:group name="ndxterm.char.mix">
-    <xs:sequence>
-      <xs:choice minOccurs="0">
-        <xs:element ref="xref.char.class"/>
-        <xs:element ref="gen.char.class"/>
-        <xs:element ref="link.char.class"/>
-        <xs:element ref="tech.char.class"/>
-        <xs:group ref="base.char.class"/>
-        <xs:element ref="docinfo.char.class"/>
-        <xs:group ref="other.char.class"/>
-        <xs:element ref="inlinegraphic"/>
-        <xs:element ref="inlinemediaobject"/>
-      </xs:choice>
-    </xs:sequence>
+    <xs:choice>
+      <xs:element ref="xref.char.class"/>
+      <xs:element ref="gen.char.class"/>
+      <xs:element ref="link.char.class"/>
+      <xs:element ref="tech.char.class"/>
+      <xs:group ref="base.char.class"/>
+      <xs:element ref="docinfo.char.class"/>
+      <xs:group ref="other.char.class"/>
+      <xs:element ref="inlinegraphic"/>
+      <xs:element ref="inlinemediaobject"/>
+    </xs:choice>
   </xs:group>
   <xs:group name="cptr.char.mix">
-    <xs:sequence>
-      <xs:choice minOccurs="0">
-        <xs:element ref="link.char.class"/>
-        <xs:element ref="tech.char.class"/>
-        <xs:group ref="base.char.class"/>
-        <xs:group ref="other.char.class"/>
-        <xs:element ref="inlinegraphic"/>
-        <xs:element ref="inlinemediaobject"/>
-        <xs:element ref="ndxterm.class"/>
-        <xs:element ref="beginpage"/>
-      </xs:choice>
-    </xs:sequence>
+    <xs:choice>
+      <xs:element ref="link.char.class"/>
+      <xs:element ref="tech.char.class"/>
+      <xs:group ref="base.char.class"/>
+      <xs:group ref="other.char.class"/>
+      <xs:element ref="inlinegraphic"/>
+      <xs:element ref="inlinemediaobject"/>
+      <xs:element ref="ndxterm.class"/>
+      <xs:element ref="beginpage"/>
+    </xs:choice>
   </xs:group>
   <xs:group name="smallcptr.char.mix">
-    <xs:sequence>
-      <xs:choice minOccurs="0">
-        <xs:element ref="replaceable"/>
-        <xs:element ref="inlinegraphic"/>
-        <xs:element ref="inlinemediaobject"/>
-        <xs:element ref="ndxterm.class"/>
-        <xs:element ref="beginpage"/>
-      </xs:choice>
-    </xs:sequence>
+    <xs:choice>
+      <xs:element ref="replaceable"/>
+      <xs:element ref="inlinegraphic"/>
+      <xs:element ref="inlinemediaobject"/>
+      <xs:element ref="ndxterm.class"/>
+      <xs:element ref="beginpage"/>
+    </xs:choice>
   </xs:group>
   <xs:group name="word.char.mix">
-    <xs:sequence>
-      <xs:choice minOccurs="0">
-        <xs:element ref="acronym"/>
-        <xs:element ref="emphasis"/>
-        <xs:element ref="trademark"/>
-        <xs:element ref="link.char.class"/>
-        <xs:group ref="base.char.class"/>
-        <xs:group ref="other.char.class"/>
-        <xs:element ref="inlinegraphic"/>
-        <xs:element ref="inlinemediaobject"/>
-        <xs:element ref="ndxterm.class"/>
-        <xs:element ref="beginpage"/>
-      </xs:choice>
-    </xs:sequence>
+    <xs:choice>
+      <xs:element ref="acronym"/>
+      <xs:element ref="emphasis"/>
+      <xs:element ref="trademark"/>
+      <xs:element ref="link.char.class"/>
+      <xs:group ref="base.char.class"/>
+      <xs:group ref="other.char.class"/>
+      <xs:element ref="inlinegraphic"/>
+      <xs:element ref="inlinemediaobject"/>
+      <xs:element ref="ndxterm.class"/>
+      <xs:element ref="beginpage"/>
+    </xs:choice>
   </xs:group>
   <xs:group name="docinfo.char.mix">
-    <xs:sequence>
-      <xs:choice minOccurs="0">
-        <xs:element ref="link.char.class"/>
-        <xs:element ref="emphasis"/>
-        <xs:element ref="trademark"/>
-        <xs:element ref="replaceable"/>
-        <xs:group ref="other.char.class"/>
-        <xs:element ref="inlinegraphic"/>
-        <xs:element ref="inlinemediaobject"/>
-        <xs:element ref="ndxterm.class"/>
-      </xs:choice>
-    </xs:sequence>
+    <xs:choice>
+      <xs:element ref="link.char.class"/>
+      <xs:element ref="emphasis"/>
+      <xs:element ref="trademark"/>
+      <xs:element ref="replaceable"/>
+      <xs:group ref="other.char.class"/>
+      <xs:element ref="inlinegraphic"/>
+      <xs:element ref="inlinemediaobject"/>
+      <xs:element ref="ndxterm.class"/>
+    </xs:choice>
   </xs:group>
   <!-- ENTITY % bibliocomponent.mix (see Bibliographic section, below) -->
   <!-- ENTITY % person.ident.mix (see Bibliographic section, below) -->
@@ -2454,7 +2431,6 @@
       </xs:annotation>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:group ref="component.mix"/>
-        <xs:group ref="summary.mix"/>
       </xs:choice>
       <xs:attributeGroup ref="summary.attlist"/>
     </xs:complexType>

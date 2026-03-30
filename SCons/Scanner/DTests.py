@@ -237,7 +237,7 @@ class DScannerTestCase(unittest.TestCase):
 
     def test_publicImport(self) -> None:
         self.helper('public.d', ['A.d'])
-    
+
     def test_RenameImport(self) -> None:
         self.helper('rename.d', ['A.d'])
 
@@ -264,9 +264,3 @@ class DScannerTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify the -c option's ability to clean generated Visual Studio 7.1
@@ -74,13 +73,13 @@ test.must_exist(test.workpath('Test.vcproj'))
 vcproj = test.read('Test.vcproj', 'r')
 expect = test.msvs_substitute(expected_vcprojfile, '7.1', None, 'SConstruct')
 # don't compare the pickled data
-assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+test.fail_test(vcproj[:len(expect)] != expect, message=test.diff_substr(expect, vcproj))
 
 test.must_exist(test.workpath('Test.sln'))
 sln = test.read('Test.sln', 'r')
 expect = test.msvs_substitute(expected_slnfile, '7.1', None, 'SConstruct')
 # don't compare the pickled data
-assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+test.fail_test(sln[:len(expect)] != expect, message=test.diff_substr(expect, sln))
 
 test.run(arguments='-c .')
 
@@ -108,9 +107,3 @@ test.must_not_exist(test.workpath('Test.vcproj'))
 test.must_not_exist(test.workpath('Test.sln'))
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

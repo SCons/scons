@@ -36,9 +36,7 @@ test = TestSCons.TestSCons()
 SConstruct_path = test.workpath('SConstruct')
 
 def check(expected):
-    result = test.stdout().split('\n')
-    r = result[1 : len(expected) + 1]
-    assert r == expected, (r, expected)
+    test.must_contain_all_lines(test.stdout(), expected)
 
 
 test.write(SConstruct_path, """\
@@ -191,9 +189,3 @@ scons: Nothing to be done for `dummy'.
 )
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

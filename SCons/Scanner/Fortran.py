@@ -312,9 +312,3 @@ def FortranScan(path_variable: str="FORTRANPATH"):
                          include_regex,
                          def_regex)
     return scanner
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

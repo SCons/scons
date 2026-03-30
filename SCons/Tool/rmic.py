@@ -1,3 +1,4 @@
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -126,9 +127,3 @@ def exists(env) -> bool:
     # javac Builder).
     # TODO: Come up with a proper detect() routine...and enable it.
     return True
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

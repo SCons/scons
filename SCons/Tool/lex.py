@@ -1,3 +1,4 @@
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -168,9 +169,3 @@ def exists(env) -> str | None:
         return get_lex_path(env)
     else:
         return env.Detect(BINS)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

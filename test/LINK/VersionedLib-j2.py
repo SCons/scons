@@ -55,7 +55,8 @@ int foo();
 int main(void) { return foo(); }
 """)
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment()
 env.AppendUnique(LIBPATH = ['.'])
 env.Program('main.c', LIBS = ['foo'])
@@ -77,7 +78,7 @@ if platform == 'cygwin':
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = test.workpath('.')
-if sys.platform.find('irix') != -1:
+if 'irix' in sys.platform:
     os.environ['LD_LIBRARYN32_PATH'] = test.workpath('.')
 
 test.run(program = test.workpath('main'))
@@ -138,9 +139,3 @@ test.must_exist(['foo.c'])
 test.must_exist(['SConstruct'])
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

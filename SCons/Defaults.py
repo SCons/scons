@@ -45,6 +45,7 @@ import SCons.Builder
 import SCons.CacheDir
 import SCons.Environment
 import SCons.Errors
+import SCons.Node.FS
 import SCons.PathList
 import SCons.Scanner.Dir
 import SCons.Subst
@@ -606,7 +607,7 @@ def processDefines(defs) -> list[str]:
             # TODO: do we need to quote value if it contains space?
             dlist.append(f"{name}={value[0]}")
         else:
-            dlist.append(str(define[0]))
+            dlist.append(str(defs[0]))
     elif is_Dict(defs):
         for macro, value in defs.items():
             if value is None:
@@ -685,10 +686,13 @@ class Variable_Method_Caller:
 def __libversionflags(env, version_var, flags_var):
     """
     if version_var is not empty, returns env[flags_var], otherwise returns None
-    :param env:
-    :param version_var:
-    :param flags_var:
-    :return:
+
+    Args:
+        env:
+        version_var:
+        flags_var:
+
+    Returns:
     """
     try:
         if env.subst('$' + version_var):
@@ -701,11 +705,14 @@ def __libversionflags(env, version_var, flags_var):
 def __lib_either_version_flag(env, version_var1, version_var2, flags_var):
     """
     if $version_var1 or $version_var2 is not empty, returns env[flags_var], otherwise returns None
-    :param env:
-    :param version_var1:
-    :param version_var2:
-    :param flags_var:
-    :return:
+
+    Args:
+        env:
+        version_var1:
+        version_var2:
+        flags_var:
+
+    Returns:
     """
     try:
         if env.subst('$' + version_var1) or env.subst('$' + version_var2):
@@ -751,9 +758,3 @@ ConstructionEnvironment = {
     'File': Variable_Method_Caller('TARGET', 'File'),
     'RDirs': Variable_Method_Caller('TARGET', 'RDirs'),
 }
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

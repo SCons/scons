@@ -54,7 +54,8 @@ import SCons.Warnings
 VS_VC_VARS = [
     'COMSPEC',  # path to "shell"
     'OS', # name of OS family: Windows_NT or undefined (95/98/ME)
-    'VS170COMNTOOLS',  # path to common tools for given version
+    'VS180COMNTOOLS',  # path to common tools for given version
+    'VS170COMNTOOLS',
     'VS160COMNTOOLS',
     'VS150COMNTOOLS',
     'VS140COMNTOOLS',
@@ -622,10 +623,3 @@ def get_pch_node(env, target, source):
         pch_subst = target[0].dir.File(pch_subst)
 
     return pch_subst
-
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

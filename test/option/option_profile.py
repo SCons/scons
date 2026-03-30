@@ -95,16 +95,10 @@ test.must_contain_all_lines(test.stdout(), expect)
 
 expect = 'Memory before reading SConscript files'
 lines = test.stdout().split('\n')
-memory_lines = [l for l in lines if l.find(expect) != -1]
+memory_lines = [l for l in lines if expect in l]
 
 test.fail_test(len(memory_lines) != 1)
 
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

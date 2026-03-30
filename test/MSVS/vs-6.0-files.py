@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test that we can generate Visual Studio 6 project (.dsp) and solution
@@ -51,12 +50,12 @@ test.must_exist(test.workpath('Test.dsp'))
 dsp = test.read('Test.dsp', 'r')
 expect = test.msvs_substitute(expected_dspfile, '6.0', None, 'SConstruct')
 # don't compare the pickled data
-assert dsp[:len(expect)] == expect, test.diff_substr(expect, dsp)
+test.fail_test(dsp[:len(expect)] != expect, message=test.diff_substr(expect, dsp))
 
 test.must_exist(test.workpath('Test.dsw'))
 dsw = test.read('Test.dsw', 'r')
 expect = test.msvs_substitute(expected_dswfile, '6.0', None, 'SConstruct')
-assert dsw == expect, test.diff_substr(expect, dsw)
+test.fail_test(dsw != expect, message=test.diff_substr(expect, dsw))
 
 test.run(arguments='-c .')
 
@@ -76,9 +75,3 @@ test.must_not_exist(test.workpath('Test.dsw'))
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

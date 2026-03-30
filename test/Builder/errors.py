@@ -40,11 +40,11 @@ DefaultEnvironment(tools=[])
 def buildop(env, source, target):
     with open(target[0], 'wb') as outf, open(source[0], 'r') as infp:
         for line in inpf.readlines():
-            if line.find(str(target[0])) == -1:
+            if target[0] not in line:
                 outf.write(line)
 b1 = Builder(action=buildop, src_suffix='.a', suffix='.b')
 %s
-env=Environment(tools=[], BUILDERS={'b1':b1, 'b2':b2})
+env = Environment(tools=[], BUILDERS={'b1':b1, 'b2':b2})
 foo_b = env.b1(source='foo.a')
 env.b2(source=foo_b)
 """
@@ -95,9 +95,3 @@ test.run(arguments='test2', stderr=expect_stderr, status = 2)
 
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

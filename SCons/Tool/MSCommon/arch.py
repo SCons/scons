@@ -58,9 +58,3 @@ for a in SupportedArchitectureList:
     SupportedArchitectureMap[a.arch] = a
     for s in a.synonyms:
         SupportedArchitectureMap[s] = a
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

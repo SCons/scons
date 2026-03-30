@@ -57,7 +57,7 @@ from SCons.Util import hash_signature, is_List, UniqueList, render_tree
 
 if TYPE_CHECKING:
     from SCons.Builder import BuilderBase
-    from SCons.Environment import Base as Environment
+    from SCons.Environment import EnvironmentBase
     from SCons.Scanner import ScannerBase
     from SCons.SConsign import SConsignEntry
 
@@ -598,7 +598,7 @@ class Node(metaclass=NoSlotsPyPy):
         self.ref_count = 0
         self.wkids: list[Node] | None = None       # Kids yet to walk, when it's an array
 
-        self.env: Environment | None = None
+        self.env: EnvironmentBase | None = None
         self.state = no_state
         self.precious = False
         self.pseudo = False
@@ -638,7 +638,7 @@ class Node(metaclass=NoSlotsPyPy):
         return ''
 
     @SCons.Memoize.CountMethodCall
-    def get_build_env(self) -> Environment:
+    def get_build_env(self) -> EnvironmentBase:
         """Fetch the appropriate Environment to build this node.
         """
         try:
@@ -974,7 +974,7 @@ class Node(metaclass=NoSlotsPyPy):
         """
         return [], None
 
-    def get_found_includes(self, env: Environment, scanner: ScannerBase | None, path) -> list[Node]:
+    def get_found_includes(self, env: EnvironmentBase, scanner: ScannerBase | None, path) -> list[Node]:
         """Return the scanned include lines (implicit dependencies)
         found in this node.
 
@@ -984,7 +984,7 @@ class Node(metaclass=NoSlotsPyPy):
         """
         return []
 
-    def get_implicit_deps(self, env: Environment, initial_scanner: ScannerBase | None, path_func, kw = {}) -> list[Node]:
+    def get_implicit_deps(self, env: EnvironmentBase, initial_scanner: ScannerBase | None, path_func, kw = {}) -> list[Node]:
         """Return a list of implicit dependencies for this node.
 
         This method exists to handle recursive invocation of the scanner
@@ -1019,7 +1019,7 @@ class Node(metaclass=NoSlotsPyPy):
 
         return dependencies
 
-    def _get_scanner(self, env: Environment, initial_scanner: ScannerBase | None, root_node_scanner: ScannerBase | None, kw: dict[str, Any] | None) -> ScannerBase | None:
+    def _get_scanner(self, env: EnvironmentBase, initial_scanner: ScannerBase | None, root_node_scanner: ScannerBase | None, kw: dict[str, Any] | None) -> ScannerBase | None:
         if initial_scanner:
             # handle explicit scanner case
             scanner = initial_scanner.select(self)
@@ -1036,7 +1036,7 @@ class Node(metaclass=NoSlotsPyPy):
 
         return scanner
 
-    def get_env_scanner(self, env: Environment, kw: dict[str, Any] | None = {}) -> ScannerBase | None:
+    def get_env_scanner(self, env: EnvironmentBase, kw: dict[str, Any] | None = {}) -> ScannerBase | None:
         return env.get_scanner(self.scanner_key())
 
     def get_target_scanner(self) -> ScannerBase | None:
@@ -1143,7 +1143,7 @@ class Node(metaclass=NoSlotsPyPy):
         """
         return scanner.select(self)
 
-    def env_set(self, env: Environment, safe: bool = False) -> None:
+    def env_set(self, env: EnvironmentBase, safe: bool = False) -> None:
         if safe and self.env:
             return
         self.env = env
@@ -1288,9 +1288,9 @@ class Node(metaclass=NoSlotsPyPy):
                not self.linked and \
                not self.rexists()
 
-    def remove(self) -> None:
+    def remove(self) -> bool:
         """Remove this Node:  no-op by default."""
-        return None
+        return False
 
     def add_dependency(self, depend: list[Node]) -> None:
         """Adds dependencies."""
@@ -1438,7 +1438,7 @@ class Node(metaclass=NoSlotsPyPy):
     def get_state(self) -> int:
         return self.state
 
-    def get_env(self) -> Environment:
+    def get_env(self) -> EnvironmentBase:
         env = self.env
         if not env:
             import SCons.Defaults
@@ -1547,7 +1547,7 @@ class Node(metaclass=NoSlotsPyPy):
         if self.always_build:
             return False
         state = 0
-        for kid in self.children(False):
+        for kid in self.children(scan=False):
             s = kid.get_state()
             if s and (not state or s > state):
                 state = s
@@ -1558,25 +1558,26 @@ class Node(metaclass=NoSlotsPyPy):
         the command interpreter literally."""
         return True
 
-    def render_include_tree(self):
+    def render_include_tree(self) -> str:
         """
         Return a text representation, suitable for displaying to the
         user, of the include tree for the sources of this node.
         """
-        if self.is_derived():
-            env = self.get_build_env()
-            if env:
-                for s in self.sources:
-                    scanner = self.get_source_scanner(s)
-                    if scanner:
-                        path = self.get_build_scanner_path(scanner)
-                    else:
-                        path = None
-                    def f(node: Node, env: Environment = env, scanner: ScannerBase = scanner, path=path):
-                        return node.get_found_includes(env, scanner, path)
-                    return render_tree(s, f, 1)
-        else:
-            return None
+        if not self.is_derived():  # quick bailout
+            return ""
+
+        tree = ""
+        env = self.get_build_env()
+        if env:
+            for s in self.sources:
+                scanner = self.get_source_scanner(s)
+                if scanner:
+                    path = self.get_build_scanner_path(scanner)
+                else:
+                    path = None
+                tree += render_tree(s, lambda node: node.get_found_includes(env, scanner, path), prune=True)
+
+        return tree
 
     def get_abspath(self) -> str:
         """
@@ -1798,10 +1799,4 @@ class Walker:
         return not self.stack
 
 
-arg2nodes_lookups = []
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
+arg2nodes_lookups: list[Callable[[str], Node | None]] = []

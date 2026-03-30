@@ -193,10 +193,6 @@ class DeprecatedOptionsWarning(MandatoryDeprecatedWarning):
 class DeprecatedDebugOptionsWarning(MandatoryDeprecatedWarning):
     """Option-arguments to --debug that are deprecated."""
 
-class ToolQtDeprecatedWarning(DeprecatedWarning):  # TODO: unused
-    pass
-
-
 def suppressWarningClass(clazz) -> None:
     """Suppresses all warnings of type *clazz* or derived from *clazz*."""
     _enabled.insert(0, (clazz, False))
@@ -292,9 +288,3 @@ def process_warn_strings(arguments: Sequence[str]) -> None:
                 sys.stderr.write(f"Can not disable mandataory warning: {arg!r}\n")
             else:
                 suppressWarningClass(clazz)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

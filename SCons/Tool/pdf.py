@@ -1,3 +1,4 @@
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -67,9 +68,3 @@ def exists(env) -> bool:
     # This only puts a skeleton Builder in place, so if someone
     # references this Tool directly, it's always "available."
     return True
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
