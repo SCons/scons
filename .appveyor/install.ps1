@@ -18,8 +18,19 @@ if (-not $pyVersionSucceeded) {
     choco install --allow-empty-checksums $env:WINPYTHON
 }
 
+# Ensure we have the correct path to the python executable
+if (Get-Command $env:WINPYTHON -ErrorAction SilentlyContinue) {
+    $pythonExe = (Get-Command $env:WINPYTHON).Path
+} elseif (Get-Command python.exe -ErrorAction SilentlyContinue) {
+    $pythonExe = (Get-Command python.exe).Path
+}
+
+# Set SCONS_PYTHON_BIN for future steps
+Set-AppveyorBuildVariable -Name "SCONS_PYTHON_BIN" -Value "$pythonExe"
+
 # Set PYSITEDIR
 $env:PYSITEDIR = & $pythonExe -c "import sys; print(sys.path[-1])"
+Set-AppveyorBuildVariable -Name "PYSITEDIR" -Value "$env:PYSITEDIR"
 
 # Use mingw 32 bit until #3291 is resolved
 # Add python and python user-base to path for pip installs
