@@ -68,6 +68,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Test suite: end to end tests don't use assert in result checks
     - The qt3 tool module, deprecated since version 4.3, is removed due to
       the general unavailablility of the obsolete build-time Qt3 package.
+    - A few more typing cleanups in Environment (and in one case which
+      affected it in the Node package).
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
