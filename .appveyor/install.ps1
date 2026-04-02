@@ -25,6 +25,13 @@ if (Get-Command $env:WINPYTHON -ErrorAction SilentlyContinue) {
     $pythonExe = (Get-Command python.exe).Path
 }
 
+if (-not $pythonExe -or -not (Test-Path $pythonExe)) {
+    Write-Error "Could not find a valid Python executable (WINPYTHON=$env:WINPYTHON). Aborting."
+    exit 1
+}
+
+Write-Host "Using Python at: $pythonExe"
+
 # Set SCONS_PYTHON_BIN for future steps
 Set-AppveyorBuildVariable -Name "SCONS_PYTHON_BIN" -Value "$pythonExe"
 
