@@ -32,6 +32,8 @@ if (-not $pythonExe -or -not (Test-Path $pythonExe)) {
 
 Write-Host "Using Python at: $pythonExe"
 
+Write-Host "PATH: $env:PATH"
+
 # Set SCONS_PYTHON_BIN for future steps
 Set-AppveyorBuildVariable -Name "SCONS_PYTHON_BIN" -Value "$pythonExe"
 
