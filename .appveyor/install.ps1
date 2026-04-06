@@ -49,19 +49,28 @@ $toolPaths = @(
 )
 
 $env:PATH = ($pythonPaths + $toolPaths + @($env:PATH)) -join ';'
-
-# Ensure we have the correct path to the python executable,
+# Ensure we have the correct path to the python executable, 
 # explicitly avoiding MSYS/Cygwin versions.
 $pythonExe = $null
-$checkNames = @($env:WINPYTHON, "python.exe", "python3.exe")
+
+# Derive a version-specific shim name (e.g. Python310 -> python3.10.exe)
+$pyVersion = $env:WINPYTHON -replace "Python", "" # e.g. "310"
+if ($pyVersion -match "^(\d)(\d+)$") {
+    $specName = "python$($Matches[1]).$($Matches[2]).exe" # e.g. "python3.10.exe"
+} else {
+    $specName = "python.exe"
+}
+
+$checkNames = @("$env:WINPYTHON.exe", $specName, "python.exe", "python3.exe")
 
 foreach ($name in $checkNames) {
+    Write-Host "Checking for Python shim: $name"
     $cmds = Get-Command $name -ErrorAction SilentlyContinue | Where-Object { $_.Path -notlike "*\msys64\*" -and $_.Path -notlike "*\cygwin\*" }
     if ($cmds) {
         $pythonExe = ($cmds | Select-Object -First 1).Path
         break
     } else {
-        write-host "Didn't find $name"
+        Write-Host "Didn't find $name"
     }
 }
 
