@@ -1,4 +1,5 @@
 Write-Host "Entering .appveyor/install.ps1"
+Write-Host "Build using $env:WINPYTHON"
 $pythonExe = "C:\$($env:WINPYTHON)\python.exe"
 
 # If the initial call to python --version fails, call "choco install %WINPYTHON%"
@@ -59,6 +60,8 @@ foreach ($name in $checkNames) {
     if ($cmds) {
         $pythonExe = ($cmds | Select-Object -First 1).Path
         break
+    } else {
+        write-host "Didn't find $name"
     }
 }
 
