@@ -17,7 +17,7 @@ try {
 
 if (-not $pyVersionSucceeded) {
     Write-Host "Python version check failed or Python not found at $pythonExe. Installing $env:WINPYTHON via Chocolatey..."
-    choco install --allow-empty-checksums $env:WINPYTHON
+    choco install --force --allow-empty-checksums $env:WINPYTHON
     dir C:\ProgramData\chocolatey\bin\python*.exe
     dir c:\python*
 }
@@ -69,7 +69,7 @@ foreach ($name in $checkNames) {
     $cmds = Get-Command $name -ErrorAction SilentlyContinue | Where-Object { $_.Path -notlike "*\msys64\*" -and $_.Path -notlike "*\cygwin\*" }
     if ($cmds) {
         $pythonExe = ($cmds | Select-Object -First 1).Path
-        $pythonExe --version
+        & "$env:SCONS_PYTHON_BIN" --version
         break
     } else {
         Write-Host "Didn't find $name"
