@@ -23,17 +23,14 @@ if (-not $pyVersionSucceeded) {
 }
 
 # Add python and python user-base to path for pip installs
-if ($pyVersionSucceeded) {
-    $pythonPaths = @(
-        "C:\$($env:WINPYTHON)"
-    )
-} else {
-    # If we had to use choco, don't add the potentially missing/broken C:\Python paths
-    $pythonPaths = @()
+$pythonPaths = @()
+if (Test-Path "C:\$($env:WINPYTHON)") {
+    $pythonPaths += "C:\$($env:WINPYTHON)"
 }
 
-# Always add chocolatey bin, but prioritize it if we just installed python there
-if (-not $pyVersionSucceeded) {
+# Always add chocolatey bin
+# Prioritize it if we just installed python there AND C:\PythonXX wasn't found
+if (-not $pyVersionSucceeded -and -not (Test-Path "C:\$($env:WINPYTHON)")) {
     $pythonPaths = @("C:\ProgramData\chocolatey\bin") + $pythonPaths
 } else {
     $pythonPaths += "C:\ProgramData\chocolatey\bin"
