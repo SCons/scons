@@ -19,6 +19,7 @@ if (-not $pyVersionSucceeded) {
     Write-Host "Python version check failed or Python not found at $pythonExe. Installing $env:WINPYTHON via Chocolatey..."
     choco install --allow-empty-checksums $env:WINPYTHON
     dir C:\ProgramData\chocolatey\bin\python*.exe
+    dir c:\python*
 }
 
 # Add python and python user-base to path for pip installs
@@ -49,7 +50,7 @@ $toolPaths = @(
 )
 
 $env:PATH = ($pythonPaths + $toolPaths + @($env:PATH)) -join ';'
-# Ensure we have the correct path to the python executable, 
+# Ensure we have the correct path to the python executable,
 # explicitly avoiding MSYS/Cygwin versions.
 $pythonExe = $null
 
