@@ -19,11 +19,26 @@ if (-not $pyVersionSucceeded) {
     choco install --allow-empty-checksums $env:WINPYTHON
 }
 
-# Use mingw 32 bit until #3291 is resolved
 # Add python and python user-base to path for pip installs
-$extraPaths = @(
-    "C:\$($env:WINPYTHON)",
-    "C:\$($env:WINPYTHON)\Scripts",
+if ($pyVersionSucceeded) {
+    $pythonPaths = @(
+        "C:\$($env:WINPYTHON)",
+        "C:\$($env:WINPYTHON)\Scripts"
+    )
+} else {
+    # If we had to use choco, don't add the potentially missing/broken C:\Python paths
+    $pythonPaths = @()
+}
+
+# Always add chocolatey bin, but prioritize it if we just installed python there
+if (-not $pyVersionSucceeded) {
+    $pythonPaths = @("C:\ProgramData\chocolatey\bin") + $pythonPaths
+} else {
+    $pythonPaths += "C:\ProgramData\chocolatey\bin"
+}
+
+# Add tools AFTER python paths to avoid picking up MSYS/Cygwin python shims
+$toolPaths = @(
     "C:\MinGW\bin",
     "C:\MinGW\msys\1.0\bin",
     "C:\cygwin\bin",
@@ -31,19 +46,19 @@ $extraPaths = @(
     "C:\msys64\mingw64\bin"
 )
 
-if (-not $pyVersionSucceeded) {
-    $extraPaths = @("C:\ProgramData\chocolatey\bin") + $extraPaths
-} else {
-    $extraPaths += "C:\ProgramData\chocolatey\bin"
-}
+$env:PATH = ($pythonPaths + $toolPaths + @($env:PATH)) -join ';'
 
-$env:PATH = ($extraPaths + @($env:PATH)) -join ';'
+# Ensure we have the correct path to the python executable, 
+# explicitly avoiding MSYS/Cygwin versions.
+$pythonExe = $null
+$checkNames = @($env:WINPYTHON, "python.exe", "python3.exe")
 
-# Ensure we have the correct path to the python executable
-if (Get-Command $env:WINPYTHON -ErrorAction SilentlyContinue) {
-    $pythonExe = (Get-Command $env:WINPYTHON).Path
-} elseif (Get-Command python.exe -ErrorAction SilentlyContinue) {
-    $pythonExe = (Get-Command python.exe).Path
+foreach ($name in $checkNames) {
+    $cmds = Get-Command $name -ErrorAction SilentlyContinue | Where-Object { $_.Path -notlike "*\msys64\*" -and $_.Path -notlike "*\cygwin\*" }
+    if ($cmds) {
+        $pythonExe = ($cmds | Select-Object -First 1).Path
+        break
+    }
 }
 
 if (-not $pythonExe -or -not (Test-Path $pythonExe)) {
