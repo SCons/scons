@@ -1,3 +1,4 @@
+Write-Host "Entering .appveyor/coverage_setup.ps1"
 if ($env:COVERAGE -eq 1) {
     $env:COVERAGE_PROCESS_START = "$($env:APPVEYOR_BUILD_FOLDER)\.coveragerc";
     $env:COVERAGE_FILE = "$($env:APPVEYOR_BUILD_FOLDER)\.coverage";
@@ -13,3 +14,4 @@ if ($env:COVERAGE -eq 1) {
     Write-Host "$($env:COVERAGE_PROCESS_START)";
     Get-Content -Path "$($env:COVERAGE_PROCESS_START)";
 }
+Write-Host "Exiting .appveyor/coverage_setup.ps1"

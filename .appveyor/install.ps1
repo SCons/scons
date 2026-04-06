@@ -1,3 +1,4 @@
+Write-Host "Entering .appveyor/install.ps1"
 $pythonExe = "C:\$($env:WINPYTHON)\python.exe"
 
 # If the initial call to python --version fails, call "choco install %WINPYTHON%"
@@ -66,3 +67,4 @@ choco install --allow-empty-checksums dmd ldc swig vswhere xsltproc winflexbison
 
 # Show environment variables
 Get-ChildItem Env: | Sort-Object Name
+Write-Host "Exiting .appveyor/install.ps1"
