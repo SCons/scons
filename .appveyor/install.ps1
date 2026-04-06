@@ -37,6 +37,8 @@ if (-not $pyVersionSucceeded) {
     $extraPaths += "C:\ProgramData\chocolatey\bin"
 }
 
+$env:PATH = ($extraPaths + @($env:PATH)) -join ';'
+
 # Ensure we have the correct path to the python executable
 if (Get-Command $env:WINPYTHON -ErrorAction SilentlyContinue) {
     $pythonExe = (Get-Command $env:WINPYTHON).Path
@@ -59,10 +61,6 @@ Set-AppveyorBuildVariable -Name "SCONS_PYTHON_BIN" -Value "$pythonExe"
 # Set PYSITEDIR
 $env:PYSITEDIR = & $pythonExe -c "import sys; print(sys.path[-1])"
 Set-AppveyorBuildVariable -Name "PYSITEDIR" -Value "$env:PYSITEDIR"
-
-
-
-$env:PATH = ($extraPaths + @($env:PATH)) -join ';'
 
 # pip installs
 & $pythonExe -m pip install -U --progress-bar off pip setuptools wheel
