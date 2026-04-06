@@ -69,6 +69,7 @@ foreach ($name in $checkNames) {
     $cmds = Get-Command $name -ErrorAction SilentlyContinue | Where-Object { $_.Path -notlike "*\msys64\*" -and $_.Path -notlike "*\cygwin\*" }
     if ($cmds) {
         $pythonExe = ($cmds | Select-Object -First 1).Path
+        $pythonExe --version
         break
     } else {
         Write-Host "Didn't find $name"
