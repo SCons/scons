@@ -5,7 +5,7 @@ Write-Host "SCONS_PYTHON_BIN: $env:SCONS_PYTHON_BIN"
 if ($env:COVERAGE -eq 1) {
     & "$env:SCONS_PYTHON_BIN" -m coverage run -p --rcfile "$env:COVERAGE_PROCESS_START" runtest.py -j 2 -t --exclude-list exclude_list.txt -a
 } else {
-    & "$env:SCONS_PYTHON_BIN" runtest.py -j 2 -t --exclude-list exclude_list.txt
+    & "$env:SCONS_PYTHON_BIN" runtest.py -j 2 -t --exclude-list exclude_list.txt -a
 }
 
 # Treat exit code 2 (some tests failed) as success for AppVeyor
