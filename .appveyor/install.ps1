@@ -47,13 +47,19 @@ Set-AppveyorBuildVariable -Name "PYSITEDIR" -Value "$env:PYSITEDIR"
 $extraPaths = @(
     "C:\$($env:WINPYTHON)",
     "C:\$($env:WINPYTHON)\Scripts",
-    "C:\ProgramData\chocolatey\bin",
     "C:\MinGW\bin",
     "C:\MinGW\msys\1.0\bin",
     "C:\cygwin\bin",
     "C:\msys64\usr\bin",
     "C:\msys64\mingw64\bin"
 )
+
+if (-not $pyVersionSucceeded) {
+    $extraPaths = @("C:\ProgramData\chocolatey\bin") + $extraPaths
+} else {
+    $extraPaths += "C:\ProgramData\chocolatey\bin"
+}
+
 $env:PATH = ($extraPaths + @($env:PATH)) -join ';'
 
 # pip installs
