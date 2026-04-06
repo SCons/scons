@@ -25,8 +25,7 @@ if (-not $pyVersionSucceeded) {
 # Add python and python user-base to path for pip installs
 if ($pyVersionSucceeded) {
     $pythonPaths = @(
-        "C:\$($env:WINPYTHON)",
-        "C:\$($env:WINPYTHON)\Scripts"
+        "C:\$($env:WINPYTHON)"
     )
 } else {
     # If we had to use choco, don't add the potentially missing/broken C:\Python paths
@@ -50,7 +49,7 @@ $toolPaths = @(
 )
 
 $env:PATH = ($pythonPaths + $toolPaths + @($env:PATH)) -join ';'
-# Ensure we have the correct path to the python executable,
+# Ensure we have the correct path to the python executable, 
 # explicitly avoiding MSYS/Cygwin versions.
 $pythonExe = $null
 
@@ -69,13 +68,20 @@ foreach ($name in $checkNames) {
     $cmds = Get-Command $name -ErrorAction SilentlyContinue | Where-Object { $_.Path -notlike "*\msys64\*" -and $_.Path -notlike "*\cygwin\*" }
     if ($cmds) {
         $pythonExe = ($cmds | Select-Object -First 1).Path
-        & "$env:SCONS_PYTHON_BIN" --version
+
+        $pyDir = Split-Path -Parent $pythonExe
+        $pyScripts = Join-Path $pyDir "Scripts"
+        if (Test-Path $pyScripts) {
+            Write-Host "Adding $pyScripts to PATH"
+            $env:PATH = "$pyScripts;$env:PATH"
+        }
+
+        & $pythonExe --version
         break
     } else {
         Write-Host "Didn't find $name"
     }
 }
-
 if (-not $pythonExe -or -not (Test-Path $pythonExe)) {
     Write-Error "Could not find a valid Python executable (WINPYTHON=$env:WINPYTHON). Aborting."
     exit 1
