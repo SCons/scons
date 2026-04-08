@@ -1362,6 +1362,12 @@ class Base(SubstitutionEnvironment):
         self._init_special()
         self.added_methods = []
 
+        # If user specifies a --cache-dir on the command line, then
+        # use that for all created Environments, user can alter this
+        # by specifying CacheDir() per environment.
+        if SCons.CacheDir.cli_cache_dir:
+            self.CacheDir(SCons.CacheDir.cli_cache_dir)
+
         # We don't use AddMethod, or define these as methods in this
         # class, because we *don't* want these functions to be bound
         # methods.  They need to operate independently so that the
