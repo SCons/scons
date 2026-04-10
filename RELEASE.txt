@@ -107,6 +107,9 @@ DOCUMENTATION
   Studio 2022 with Windows SDK version 10.0.26100.0 or later installed
   to the known issues in SCons/Tool/MSCommon/README.rst.
 
+- Clarify VariantDir behavior when switching to not duplicate sources
+  and tweak wording a bit.
+
 DEVELOPMENT
 -----------
 

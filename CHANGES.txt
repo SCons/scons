@@ -72,6 +72,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       the general unavailablility of the obsolete build-time Qt3 package.
     - A few more typing cleanups in Environment (and in one case which
       affected it in the Node package).
+    - Clarify VariantDir behavior when switching to not duplicate sources
+      and tweak wording a bit.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
