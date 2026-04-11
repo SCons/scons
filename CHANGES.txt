@@ -72,6 +72,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       the general unavailablility of the obsolete build-time Qt3 package.
     - A few more typing cleanups in Environment (and in one case which
       affected it in the Node package).
+    - Adjust race protection for CacheDir - now uses a unique temporary
+      directory for each writer before doing the move, instead of depending
+      on a one-time uuid to make a path to the file.
     - Clarify VariantDir behavior when switching to not duplicate sources
       and tweak wording a bit.
 

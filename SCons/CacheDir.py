@@ -31,10 +31,10 @@ import shutil
 import stat
 import sys
 import tempfile
-import uuid
 
 import SCons.Action
 import SCons.Errors
+# import SCons.Node.FS  # used for hash_chunksice, but causes import loop
 import SCons.Warnings
 import SCons.Util
 
@@ -49,7 +49,6 @@ cache_debug = False
 cache_force = False
 cache_show = False
 cache_readonly = False
-cache_tmp_uuid = uuid.uuid4().hex
 
 def CacheRetrieveFunc(target, source, env) -> int:
     t = target[0]
@@ -110,7 +109,6 @@ def CachePushFunc(target, source, env) -> None:
 
     cd.CacheDebug('CachePush(%s):  pushing to %s\n', t, cachefile)
 
-    tempfile = "%s.tmp%s"%(cachefile,cache_tmp_uuid)
     errfmt = "Unable to copy %s to cache. Cache file is %s"
 
     try:
@@ -119,11 +117,13 @@ def CachePushFunc(target, source, env) -> None:
         msg = errfmt % (str(target), cachefile)
         raise SCons.Errors.SConsEnvironmentError(msg)
     try:
-        if fs.islink(t.get_internal_path()):
-            fs.symlink(fs.readlink(t.get_internal_path()), tempfile)
-        else:
-            cd.copy_to_cache(env, t.get_internal_path(), tempfile)
-        fs.rename(tempfile, cachefile)
+        with tempfile.TemporaryDirectory(dir=cachedir) as temp_dir:
+            temp_file = os.path.join(temp_dir, os.path.basename(cachefile))
+            if fs.islink(t.get_internal_path()):
+                fs.symlink(fs.readlink(t.get_internal_path()), temp_file)
+            else:
+                cd.copy_to_cache(env, t.get_internal_path(), temp_file)
+            fs.rename(temp_file, cachefile)
 
     except OSError:
         # It's possible someone else tried writing the file at the
