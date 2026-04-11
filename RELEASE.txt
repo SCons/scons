@@ -111,6 +111,9 @@ DOCUMENTATION
   Studio 2022 with Windows SDK version 10.0.26100.0 or later installed
   to the known issues in SCons/Tool/MSCommon/README.rst.
 
+- Clarify VariantDir behavior when switching to not duplicate sources
+  and tweak wording a bit.
+
 DEVELOPMENT
 -----------
 
@@ -133,6 +136,9 @@ DEVELOPMENT
 - Modernized GitHub Actions test runner. This consolidates the logic of
   existing test environments into a single package. Adjusted AppVeyor to
   only run for targets unsupported by GitHub runners.
+
+- Fix Appveyor scripting to install unavailable python versions when needed and use them
+  for testing.
 
 
 Thanks to the following contributors listed below for their contributions to this release.
