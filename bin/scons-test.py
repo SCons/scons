@@ -198,7 +198,6 @@ if format == '--xml':
         'SCONSFLAGS',
         'SCONS_LIB_DIR',
         'PYTHON_ROOT',
-        'QTDIR',
 
         'COMSPEC',
         'INTEL_LICENSE_FILE',

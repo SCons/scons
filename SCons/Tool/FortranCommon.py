@@ -59,7 +59,7 @@ def isfortran(env, source) -> bool:
     return False
 
 
-def _fortranEmitter(target, source, env) -> Tuple:
+def _fortranEmitter(target, source, env) -> tuple:
     """Common code for Fortran emitter.
 
     Called by both the static and shared object emitters,
@@ -86,13 +86,13 @@ def _fortranEmitter(target, source, env) -> Tuple:
     return target, source
 
 
-def FortranEmitter(target, source, env) -> Tuple:
+def FortranEmitter(target, source, env) -> tuple:
     """Create emitter for static objects."""
     target, source = _fortranEmitter(target, source, env)
     return StaticObjectEmitter(target, source, env)
 
 
-def ShFortranEmitter(target, source, env) -> Tuple:
+def ShFortranEmitter(target, source, env) -> tuple:
     """Create emitter for shared objects."""
     target, source = _fortranEmitter(target, source, env)
     return SharedObjectEmitter(target, source, env)

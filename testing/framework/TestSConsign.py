@@ -22,17 +22,18 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-A testing framework for the "sconsign" script tool.
+A testing framework for the "sconsign" tool.
 
-A TestSConsign environment object is created via the usual invocation:
+Create a TestSConsign environment object by instantiating the class:
 
+    import TestSConsign
     test = TestSConsign()
 
-TestSconsign is a subclass of TestSCons, which is a subclass of
-TestCommon, which is in turn is a subclass of TestCmd), and hence
-has available all of the methods and attributes from those classes,
-as well as any overridden or additional methods or attributes defined
-in this subclass.
+TestSConsign is a subsclass of :class:`TestSCons`, which is a subclass of
+:class:`TestCommon`, which is in turn is a subclass of :class:`TestCmd`,
+and hence has available all of the methods and attributes from those
+classes, as well as any overridden or additional methods or attributes
+defined in this subclass.
 """
 
 import os

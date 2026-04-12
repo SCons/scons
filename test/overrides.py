@@ -87,8 +87,8 @@ with open('hello.not_exe', 'w') as f:
 
 test.run(arguments='hello.not_exe')
 
-assert test.read('hello.not_obj', mode='r') == 'this is no object file!'
-assert test.read('hello.not_exe', mode='r') == 'this is not a program!'
+test.must_match('hello.not_obj', expect='this is no object file!')
+test.must_match('hello.not_exe', expect='this is not a program!')
 
 test.up_to_date(arguments='hello.not_exe')
 
@@ -124,8 +124,8 @@ scons: warning: Did you mean to use `(target|source)' instead of `(targets|sourc
 scons: warning: Did you mean to use `(target|source)' instead of `(targets|sources)'\?
 """ + TestSCons.file_expr))
 
-assert test.read('goodbye.not_obj', mode='r') == 'this is no object file!'
-assert test.read('goodbye.not_exe', mode='r') == 'this is not a program!'
+test.must_match('goodbye.not_obj', expect='this is no object file!')
+test.must_match('goodbye.not_exe', expect='this is not a program!')
 
 
 

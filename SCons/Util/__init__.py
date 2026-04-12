@@ -59,7 +59,7 @@ import sys
 import time
 from collections import UserDict, UserList, deque
 from contextlib import suppress
-from typing import Any
+from typing import Any, TypeVar
 from logging import Formatter
 
 # Util split into a package. Make sure things that used to work
@@ -112,6 +112,8 @@ from .envs import (  # noqa: F401
 from .filelock import FileLock, SConsLockFailure  # noqa: F401
 
 PYPY = hasattr(sys, 'pypy_translation_info')
+
+T = TypeVar('T')
 
 # this string will be hashed if a Node refers to a file that doesn't exist
 # in order to distinguish from a file that exists but is empty.
@@ -539,7 +541,7 @@ _semi_deepcopy_dispatch = {
 }
 
 
-def semi_deepcopy(obj):
+def semi_deepcopy(obj: T) -> T:
     copier = _semi_deepcopy_dispatch.get(type(obj))
     if copier:
         return copier(obj)

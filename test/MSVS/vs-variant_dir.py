@@ -62,13 +62,13 @@ SConscript('src/SConscript', variant_dir='build')
     vcproj = test.read(['src', project_file], 'r')
     expect = test.msvs_substitute(expected_vcprojfile, vc_version, None, 'SConstruct')
     # don't compare the pickled data
-    assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+    test.fail_test(vcproj[:len(expect)] != expect, message=test.diff_substr(expect, vcproj))
 
     test.must_exist(test.workpath('src', 'Test.sln'))
     sln = test.read(['src', 'Test.sln'], 'r')
     expect = test.msvs_substitute(expected_slnfile, '8.0', 'src')
     # don't compare the pickled data
-    assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+    test.fail_test(sln[:len(expect)] != expect, message=test.diff_substr(expect, sln))
 
     test.must_match(['build', project_file], """\
 This is just a placeholder file.

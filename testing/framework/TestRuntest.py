@@ -24,14 +24,17 @@
 """
 A testing framework for the runtest.py command used to invoke SCons tests.
 
-A TestRuntest environment object is created via the usual invocation:
+Create a TestRuntest environment object by instantiating the class:
+
+    import TestRuntest
+    test = TestRuntest()
 
     test = TestRuntest()
 
-TestRuntest is a subclass of TestCommon, which is in turn is a subclass
-of TestCmd), and hence has available all of the methods and attributes
-from those classes, as well as any overridden or additional methods or
-attributes defined in this subclass.
+TestRuntest is a subclass of :class:`TestCommon`, which is in turn is a
+subclass of :class:`TestCmd`, and hence has available all of the methods
+and attributes from those classes, as well as any overridden or additional
+methods or attributes defined in this subclass.
 """
 
 import os

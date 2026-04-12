@@ -1,4 +1,7 @@
+# SPDX-License-Identifier: PSF-2.0
+#
 # Copyright 2000-2010 Steven Knight
+# Copyright The SCons Foundation
 #
 # This module is free software, and you may redistribute it and/or modify
 # it under the same terms as Python itself, so long as this copyright message
@@ -27,12 +30,12 @@ exit on failure, with useful error messages.  This makes a number of
 explicit checks unnecessary, making the test scripts themselves simpler
 to write and easier to read.
 
-The TestCommon class is a subclass of the TestCmd class.  In essence,
-TestCommon is a wrapper that handles common TestCmd error conditions in
-useful ways.  You can use TestCommon directly, or subclass it for your
-program and add additional (or override) methods to tailor it to your
-program's specific needs.  Alternatively, the TestCommon class serves
-as a useful example of how to define your own TestCmd subclass.
+The TestCommon class is a subclass of the :mod:`TestCmd:mod:` class.
+In essence, TestCommon` is a wrapper that handles common TestCmd` error
+conditions in useful ways.  You can use TestCommon directly, or subclass
+it for your program and add additional (or override) methods to tailor
+it to your program's specific needs.  Alternatively, the TestCommon class
+serves as a useful example of how to define your own TestCmd subclass.
 
 As a subclass of TestCmd, TestCommon provides access to all of the
 variables and methods from the TestCmd module.  Consequently, you can
@@ -771,7 +774,7 @@ class TestCommon(TestCmd):
         arguments=None,
         universal_newlines=None,
         **kw,
-    ):
+    ) -> Popen:
         """
         Starts a program or script for the test environment, handling
         any exceptions.

@@ -25,6 +25,15 @@ DEPRECATED FUNCTIONALITY
 
 - Deprecated Python 3.7 & 3.8 support.
 
+- Deprecated using signature-file-per-directory (aka old-style SConsign)
+  via the SConsignFile(name=None) call.
+
+REMOVED FUNCTIONALITY
+---------------------
+
+- The qt3 tool module, deprecated since version 4.3, is removed due to
+  the general unavailablility of the obsolete build-time Qt3 package.
+
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
@@ -37,6 +46,10 @@ FIXES
 - List fixes of outright bugs
 
 - Fix --debug=includes for case of multiple source files.
+
+- Adjust race protection for CacheDir - now uses a unique temporary
+  directory for each writer before doing the move, instead of depending
+  on a one-time uuid to make a path to the file.
 
 IMPROVEMENTS
 ------------
@@ -60,6 +73,13 @@ IMPROVEMENTS
   *itself* is set to always build.
   
 - Switch remaining "original style" docstring parameter listings to Google style.
+
+- Additional small tweaks to Environment.py type hints, fold some overly
+long function signature lines, and some linting-insipired cleanups.
+
+- Test framework: tweak module docstrings
+
+- Test suite: end to end tests don't use assert in result checks
 
 
 PACKAGING
@@ -95,6 +115,9 @@ DOCUMENTATION
   Studio 2022 with Windows SDK version 10.0.26100.0 or later installed
   to the known issues in SCons/Tool/MSCommon/README.rst.
 
+- Clarify VariantDir behavior when switching to not duplicate sources
+  and tweak wording a bit.
+
 DEVELOPMENT
 -----------
 
@@ -113,6 +136,13 @@ DEVELOPMENT
 
 - MSVC: Added a host/target batch file configuration table for Visual
   Studio 2026.  Visual Studio 2026 removed support for 32-bit arm targets.
+
+- Modernized GitHub Actions test runner. This consolidates the logic of
+  existing test environments into a single package. Adjusted AppVeyor to
+  only run for targets unsupported by GitHub runners.
+
+- Fix Appveyor scripting to install unavailable python versions when needed and use them
+  for testing.
 
 
 Thanks to the following contributors listed below for their contributions to this release.

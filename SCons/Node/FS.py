@@ -1570,7 +1570,7 @@ class FS(LocalFS):
             message = fmt % ' '.join(map(str, targets))
         return targets, message
 
-    def Glob(self, pathname: str, ondisk: bool = True, source: bool = True, strings: bool = False, exclude: list[str] | None = None, cwd: DirNode | None = None) -> list[Node] | list[str]:
+    def Glob(self, pathname: str, ondisk: bool = True, source: bool = True, strings: bool = False, exclude: str | list[str] | None = None, cwd: DirNode | None = None) -> list[Node] | list[str]:
         """
         Globs
 
@@ -2221,7 +2221,7 @@ class Dir(Base):
         for dirname in [n for n in names if isinstance(entries[n], Dir)]:
             entries[dirname].walk(func, arg)
 
-    def glob(self, pathname: str, ondisk: bool = True, source: bool = False, strings: bool = False, exclude: list[str] | None = None) -> list[Node] | list[str]:
+    def glob(self, pathname: str, ondisk: bool = True, source: bool = False, strings: bool = False, exclude: str | list[str] | None = None) -> list[Node] | list[str]:
         """Returns a list of Nodes (or strings) matching a pathname pattern.
 
         Pathname patterns follow POSIX shell syntax::

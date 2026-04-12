@@ -1,6 +1,9 @@
+Write-Host "Entering .appveyor/coverage_setup.ps1"
 if ($env:COVERAGE -eq 1) {
     $env:COVERAGE_PROCESS_START = "$($env:APPVEYOR_BUILD_FOLDER)\.coveragerc";
     $env:COVERAGE_FILE = "$($env:APPVEYOR_BUILD_FOLDER)\.coverage";
+    Set-AppveyorBuildVariable -Name "COVERAGE_PROCESS_START" -Value "$env:COVERAGE_PROCESS_START"
+    Set-AppveyorBuildVariable -Name "COVERAGE_FILE" -Value "$env:COVERAGE_FILE"
     New-Item -ItemType Directory -Force -Path "$($env:PYSITEDIR)";
 
     (Get-Content -path .coverage_templates\.coveragerc.template -Raw) -replace '\$PWD',"$((Get-Location) -replace '\\', '/')" | Set-Content -Path "$($env:COVERAGE_PROCESS_START)";
@@ -11,3 +14,4 @@ if ($env:COVERAGE -eq 1) {
     Write-Host "$($env:COVERAGE_PROCESS_START)";
     Get-Content -Path "$($env:COVERAGE_PROCESS_START)";
 }
+Write-Host "Exiting .appveyor/coverage_setup.ps1"

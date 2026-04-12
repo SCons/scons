@@ -54,13 +54,13 @@ test.run(arguments=".")
 vcproj = test.read(['src', 'Test.vcproj'], 'r')
 expect = test.msvs_substitute(expected_vcprojfile, '7.0', None, 'SConstruct')
 # don't compare the pickled data
-assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+test.fail_test(vcproj[:len(expect)] != expect, message=test.diff_substr(expect, vcproj))
 
 test.must_exist(test.workpath('src', 'Test.sln'))
 sln = test.read(['src', 'Test.sln'], 'r')
 expect = test.msvs_substitute(expected_slnfile, '7.0', 'src')
 # don't compare the pickled data
-assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
+test.fail_test(sln[:len(expect)] != expect, message=test.diff_substr(expect, sln))
 
 test.must_match(['build', 'Test.vcproj'], """\
 This is just a placeholder file.
