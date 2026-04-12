@@ -133,7 +133,7 @@ class Tool:
     without further setup.
 
     .. versionchanged:: NEXT_RELEASE
-       Accept an exsiting instance at creation time and don't duplicate it.
+       Accept an existing instance at creation time and don't duplicate it.
     """
 
     def __new__(cls, name, toolpath=None, **kwargs) -> None:
