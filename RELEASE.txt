@@ -28,6 +28,12 @@ DEPRECATED FUNCTIONALITY
 - Deprecated using signature-file-per-directory (aka old-style SConsign)
   via the SConsignFile(name=None) call.
 
+REMOVED FUNCTIONALITY
+---------------------
+
+- The qt3 tool module, deprecated since version 4.3, is removed due to
+  the general unavailablility of the obsolete build-time Qt3 package.
+
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
@@ -40,6 +46,10 @@ FIXES
 - List fixes of outright bugs
 
 - Fix --debug=includes for case of multiple source files.
+
+- Adjust race protection for CacheDir - now uses a unique temporary
+  directory for each writer before doing the move, instead of depending
+  on a one-time uuid to make a path to the file.
 
 IMPROVEMENTS
 ------------
@@ -101,6 +111,9 @@ DOCUMENTATION
   Studio 2022 with Windows SDK version 10.0.26100.0 or later installed
   to the known issues in SCons/Tool/MSCommon/README.rst.
 
+- Clarify VariantDir behavior when switching to not duplicate sources
+  and tweak wording a bit.
+
 DEVELOPMENT
 -----------
 
@@ -123,6 +136,9 @@ DEVELOPMENT
 - Modernized GitHub Actions test runner. This consolidates the logic of
   existing test environments into a single package. Adjusted AppVeyor to
   only run for targets unsupported by GitHub runners.
+
+- Fix Appveyor scripting to install unavailable python versions when needed and use them
+  for testing.
 
 - Split `SCons.Util.UtilTests.py` to individual packages where appropriate.
 

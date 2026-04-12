@@ -39,6 +39,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Used Gemini to refactor runtest.py to better organized the code and add docstrings.
     - Added script for release process to find all contributors in a release and highlight
       new contributors. (Using Gemini AI)
+    - Fix Appveyor scripting to install unavailable python versions when needed and use them
+      for testing.
 
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
@@ -67,6 +69,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       via the SConsignFile(name=None) call.
     - Test framework: tweak module docstrings
     - Test suite: end to end tests don't use assert in result checks
+    - The qt3 tool module, deprecated since version 4.3, is removed due to
+      the general unavailablility of the obsolete build-time Qt3 package.
+    - A few more typing cleanups in Environment (and in one case which
+      affected it in the Node package).
+    - Adjust race protection for CacheDir - now uses a unique temporary
+      directory for each writer before doing the move, instead of depending
+      on a one-time uuid to make a path to the file.
+    - Clarify VariantDir behavior when switching to not duplicate sources
+      and tweak wording a bit.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700

@@ -1,5 +1,7 @@
+Write-Host "Entering .appveyor/coverage_report.ps1"
 if ($env:COVERAGE -eq 1) {
-    & coverage combine;
-    & coverage report;
-    & coverage xml -i -o coverage_xml.xml;
+    & $env:SCONS_PYTHON_BIN -m coverage combine;
+    & $env:SCONS_PYTHON_BIN -m coverage report;
+    & $env:SCONS_PYTHON_BIN -m coverage xml -i -o coverage_xml.xml;
 }
+Write-Host "Exiting .appveyor/coverage_report.ps1"

@@ -193,10 +193,6 @@ class DeprecatedOptionsWarning(MandatoryDeprecatedWarning):
 class DeprecatedDebugOptionsWarning(MandatoryDeprecatedWarning):
     """Option-arguments to --debug that are deprecated."""
 
-class ToolQtDeprecatedWarning(DeprecatedWarning):  # TODO: unused
-    pass
-
-
 def suppressWarningClass(clazz) -> None:
     """Suppresses all warnings of type *clazz* or derived from *clazz*."""
     _enabled.insert(0, (clazz, False))
