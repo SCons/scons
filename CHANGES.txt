@@ -82,6 +82,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Clarify VariantDir behavior when switching to not duplicate sources
       and tweak wording a bit.
 
+  From Keith F Prussing:
+    -  Fix multiple extension stripping for BibTeX and Biber processing
+
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
 
