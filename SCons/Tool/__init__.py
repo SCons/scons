@@ -55,6 +55,7 @@ import sys
 import os
 import importlib.util
 
+import SCons.Action
 import SCons.Builder
 import SCons.Errors
 import SCons.Node.FS
@@ -288,7 +289,7 @@ class Tool:
                 kw.update(call_kw)
             else:
                 kw = self.init_kw
-        env.AppendUnique(TOOLS=[self.name])
+        env.AppendUnique(TOOLS=[str(self.name)])
         if hasattr(self, 'options'):
             import SCons.Variables
             if 'options' not in env:

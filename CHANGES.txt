@@ -77,6 +77,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       on a one-time uuid to make a path to the file.
     - Clarify VariantDir behavior when switching to not duplicate sources
       and tweak wording a bit.
+    - Don't duplicate the cration of Tool objects if "default" is part of
+      the tool list.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
