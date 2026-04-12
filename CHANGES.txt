@@ -31,6 +31,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Modernized GitHub Actions test runner. This consolidates the logic of
       existing test environments into a single package. Adjusted AppVeyor to
       only run for targets unsupported by GitHub runners.
+    - Split `SCons.Util.UtilTests.py` to individual packages where appropriate.
 
   From William Deegan:
     - Fix SCons Docbook schema to work with lxml > 5

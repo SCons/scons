@@ -140,6 +140,8 @@ DEVELOPMENT
 - Fix Appveyor scripting to install unavailable python versions when needed and use them
   for testing.
 
+- Split `SCons.Util.UtilTests.py` to individual packages where appropriate.
+
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
