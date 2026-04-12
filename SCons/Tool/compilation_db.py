@@ -61,33 +61,33 @@ class CompDBTEMPFILE(TempFileMunge):
 
 
 def write_compilation_db(target, source, env) -> None:
-    DIRECTORY = env.Dir("#").get_abspath()
-    OVERRIDES = {"TEMPFILE": CompDBTEMPFILE}
-    USE_ABSPATH = env["COMPILATIONDB_USE_ABSPATH"] in [True, 1, "True", "true"]
-    USE_PATH_FILTER = env.subst("$COMPILATIONDB_PATH_FILTER")
+    directory = env.Dir("#").get_abspath()
+    overrides = {"TEMPFILE": CompDBTEMPFILE}
+    use_abspath = env["COMPILATIONDB_USE_ABSPATH"] in [True, 1, "True", "true"]
+    use_path_filter = env.subst("$COMPILATIONDB_PATH_FILTER")
 
     entries = []
     for db_target, db_source, db_env, db_action in __COMPILATION_DB_ENTRIES:
         # Parse command before filtering.
-        command = db_action.strfunction(db_target, db_source, db_env, None, OVERRIDES)
+        command = db_action.strfunction(db_target, db_source, db_env, None, overrides)
 
         if not db_source.is_derived():
             db_source = db_source.srcnode()
 
-        if USE_ABSPATH:
+        if use_abspath:
             file = db_source.get_abspath()
             output = db_target.get_abspath()
         else:
             file = db_source.get_path()
             output = db_target.get_path()
 
-        if USE_PATH_FILTER and not fnmatch.fnmatch(output, USE_PATH_FILTER):
+        if use_path_filter and not fnmatch.fnmatch(output, use_path_filter):
             continue
 
         entries.append(
             {
                 "command": command,
-                "directory": DIRECTORY,
+                "directory": directory,
                 "file": file,
                 "output": output,
             }
@@ -131,27 +131,27 @@ def generate(env, **kwargs) -> None:
 
         return _compilation_db_entry_emitter
 
-    GEN_CCCOM = _generate_emitter("$CCCOM")
-    GEN_SHCCCOM = _generate_emitter("$SHCCCOM")
-    GEN_CXXCOM = _generate_emitter("$CXXCOM")
-    GEN_SHCXXCOM = _generate_emitter("$SHCXXCOM")
-    GEN_ASCOM = _generate_emitter("$ASCOM")
-    GEN_ASPPCOM = _generate_emitter("$ASPPCOM")
+    cc_emitter = _generate_emitter("$CCCOM")
+    shcc_emitter = _generate_emitter("$SHCCCOM")
+    cxx_emitter = _generate_emitter("$CXXCOM")
+    shcxx_emitter = _generate_emitter("$SHCXXCOM")
+    as_emitter = _generate_emitter("$ASCOM")
+    aspp_emitter = _generate_emitter("$ASPPCOM")
 
     static_obj, shared_obj = createObjBuilders(env)
 
     for suffix, (builder, emitter) in itertools.chain(
         itertools.product(
-            CSuffixes, [(static_obj, GEN_CCCOM), (shared_obj, GEN_SHCCCOM)]
+            CSuffixes, [(static_obj, cc_emitter), (shared_obj, shcc_emitter)]
         ),
         itertools.product(
-            CXXSuffixes, [(static_obj, GEN_CXXCOM), (shared_obj, GEN_SHCXXCOM)]
+            CXXSuffixes, [(static_obj, cxx_emitter), (shared_obj, shcxx_emitter)]
         ),
         itertools.product(
-            ASSuffixes, [(static_obj, GEN_ASCOM), (shared_obj, GEN_ASCOM)]
+            ASSuffixes, [(static_obj, as_emitter), (shared_obj, as_emitter)]
         ),
         itertools.product(
-            ASPPSuffixes, [(static_obj, GEN_ASPPCOM), (shared_obj, GEN_ASPPCOM)]
+            ASPPSuffixes, [(static_obj, aspp_emitter), (shared_obj, aspp_emitter)]
         ),
     ):
         emitter_old = builder.emitter.get(suffix)
