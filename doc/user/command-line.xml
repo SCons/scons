@@ -741,51 +741,34 @@ foo.in
       </scons_output>
 
       <note>
+
       <para>
-      The <systemitem>optparse</systemitem> parser which &SCons; uses
-      allows option-arguments to follow their options after either
-      an <literal>=</literal> or space separator,
-      however the latter form does not work well in &SCons; for
-      added options and should be avoided.
-      &SCons; does not place an ordering constraint on the
-      types of command-line arguments,
-      so while <option>--input=ARG</option> is unambiguous,
-      for <option>--input ARG</option>
-      it is not possible to tell without instructions whether
-      <parameter>ARG</parameter> is an argument belonging to the
-      <parameter>input</parameter> option or a standalone word.
-      &SCons; considers words on the command line which do not
-      begin with hyphen as either command-line build variables
-      or command-line targets,
-      both of which are made available for use in an &SConscript;
-      (see the immediately following sections for details).
-      Thus, they must be collected before &SConscript; processing
-      takes place. &AddOption; calls do provide the
-      necessary instructions to resolve the ambiguity,
-      but as they appear in &SConscript; files,
-      &SCons; does not have the information early enough,
-      and unexpected things may happen,
-      such as option-arguments appearing in the list of targets,
-      and processing exceptions due to missing option-arguments.
+      Prior to version NEXT_RELEASE,
+      the behavior when options added by &AddOption;
+      are specified on the command line with spaces was undefined,
+      and such usage was discouraged.
+      This applies to both using a space as the separator
+      (<literal>--opt arg</literal> vs
+      <literal>--opt=arg</literal>),
+      and when more than one option arguments is required.
+      In case your project may need to be built with an older
+      &SCons; version, you can take steps to avoid problems.
+      You cannot programmatically avoid the former case,
+      since it is allowed by the underlying &Python; module
+      that performs the command-line parsing,
+      but you can tell your users not to call that way.
+      For the latter case,
+      you can set the <parameter>nargs</parameter> to <literal>1</literal>,
+      tell users to supply the arguments in comma-separated form
+      (<literal>--opt=arg1,arg2</literal> instead of
+      <literal>--opt arg1 arg2</literal>),
+      and validate/parse that in the build script,
+      or alternatively,
+      allow the option to be specified multiple times by setting
+      <literal>action='append'</literal>.
+      Both methods can be supported at the same time.
       </para>
-      <para>
-      As a result,
-      this usage style should be avoided when invoking &scons;.
-      For single-argument options,
-      tell your users to use the <option>--input=ARG</option>
-      form on the command line.
-      For multiple-argument options
-      (<parameter>nargs</parameter> value greater than one),
-      set <parameter>nargs</parameter> to one in the
-      &AddOption; call and either: combine the option-arguments into one word
-      with a separator, and parse the result in your own code
-      (see the built-in <option>--debug</option> option, which
-      allows specifying multiple arguments as a single comma-separated
-      word, for an example of such usage); or allow the option to
-      be specified multiple times by setting
-      <literal>action='append'</literal>. Both methods can be
-      supported at the same time.
-      </para>
+
       </note>
 
     </section>

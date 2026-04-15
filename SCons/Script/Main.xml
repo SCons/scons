@@ -172,22 +172,17 @@ see the &f-Help; documentation for details.
 
 <note>
 <para>
-As an artifact of the internal implementation,
-the behavior of options added by &AddOption;
-which take option arguments is undefined
-<emphasis>if</emphasis> whitespace
-(rather than an <literal>=</literal> sign) is used as
-the separator on the command line.
-Users should avoid such usage; it is recommended
-to add a note to this effect to project documentation
-if the situation is likely to arise.
-In addition, if the <parameter>nargs</parameter>
-keyword is used to specify more than one following
-option argument (that is, with a value of <constant>2</constant>
-or greater), such arguments would necessarily
-be whitespace separated, triggering the issue.
-Developers should not use &AddOption; this way.
-Future versions of &SCons; will likely forbid such usage.
+Prior to version NEXT_RELEASE,
+the behavior when options added by &AddOption;
+are specified with whitespace was undefined and discouraged.
+Such usage covers both the use of a space as the separator
+(<literal>--opt arg</literal> vs
+<literal>--opt=arg</literal>),
+and where the number of option arguments
+(<parameter>nargs</parameter>) is specified as greater than one.
+While this issue has been corrected,
+developers should be aware of it in case the
+project is built with an older &SCons; version.
 </para>
 </note>
 
