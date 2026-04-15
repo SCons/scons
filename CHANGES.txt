@@ -45,6 +45,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix Appveyor scripting to install unavailable python versions when needed and use them
       for testing.
 
+  From Dillan Mills:
+    - Fix handling of AddOption for option-arguments with spaces
+      (when omitting the = sign or when an option takes multiple
+      option-arguments). Arguments unknown at the time the first pass
+      splits the command line into arguments and targets would put such
+      arguments into targets, and they remained there even after the
+      AddOption calls were seen. Closes #2748, #2805, #2977.
+
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
     - More clarifications in manpage Builder Methods section.
@@ -81,6 +89,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       on a one-time uuid to make a path to the file.
     - Clarify VariantDir behavior when switching to not duplicate sources
       and tweak wording a bit.
+    - Complete the work from PR #3799 on AddOption handling (original work
+      credited to Dillan Mills)
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700

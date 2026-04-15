@@ -405,9 +405,18 @@ class SConsOptionParser(optparse.OptionParser):
                                % (opt, nargs))
             elif nargs == 1:
                 value = rargs.pop(0)
+                if not had_explicit_value:
+                    SCons.Script._Remove_Target(value)
+                    if '=' in value:
+                        SCons.Script._Remove_Argument(value)
             else:
                 value = tuple(rargs[0:nargs])
                 del rargs[0:nargs]
+                for i in range(len(value)):
+                    if not had_explicit_value or i > 0:
+                        SCons.Script._Remove_Target(value[i])
+                        if '=' in value[i]:
+                            SCons.Script._Remove_Argument(value[i])
 
         elif had_explicit_value:
             self.error(_("%s option does not take a value") % opt)
@@ -447,11 +456,13 @@ class SConsOptionParser(optparse.OptionParser):
                 raise
 
             if option.takes_value():
+                had_explicit_value = False
                 # Any characters left in arg?  Pretend they're the
                 # next arg, and stop consuming characters of arg.
                 if i < len(arg):
                     rargs.insert(0, arg[i:])
                     stop = True
+                    had_explicit_value = True
 
                 nargs = option.nargs
                 if len(rargs) < nargs:
@@ -462,9 +473,19 @@ class SConsOptionParser(optparse.OptionParser):
                                    % (opt, nargs))
                 elif nargs == 1:
                     value = rargs.pop(0)
+                    if not had_explicit_value:
+                        SCons.Script._Remove_Target(value)
+                        if '=' in value:
+                            SCons.Script._Remove_Argument(value)
                 else:
                     value = tuple(rargs[0:nargs])
                     del rargs[0:nargs]
+                    for i in range(len(value)):
+                        if not had_explicit_value or i > 0:
+                            SCons.Script._Remove_Target(value[i])
+                            if '=' in value[i]:
+                                SCons.Script._Remove_Argument(value[i])
+
 
             else:                       # option doesn't take a value
                 value = None
@@ -474,67 +495,6 @@ class SConsOptionParser(optparse.OptionParser):
             if stop:
                 break
 
-
-    def reparse_local_options(self) -> None:
-        """Re-parse the leftover command-line options.
-
-        Leftover options are stored in ``self.largs``, so that any value
-        overridden on the command line is immediately available
-        if the user turns around and does a :func:`~SCons.Script.Main.GetOption`
-        right away.
-
-        We mimic the processing of the single args
-        in the original OptionParser :func:`_process_args`, but here we
-        allow exact matches for long-opts only (no partial argument names!).
-        Otherwise there could be  problems in :meth:`add_local_option`
-        below. When called from there, we try to reparse the
-        command-line arguments that haven't been processed so far
-        (``self.largs``), but are possibly not added to the options list yet.
-
-        So, when we only have a value for ``--myargument`` so far,
-        a command-line argument of ``--myarg=test`` would set it,
-        per the behaviour of :func:`_match_long_opt`,
-        which allows for partial matches of the option name,
-        as long as the common prefix appears to be unique.
-        This would lead to further confusion, because we might want
-        to add another option ``--myarg`` later on (see issue #2929).
-        """
-        rargs = []
-        largs_restore = []
-        # Loop over all remaining arguments
-        skip = False
-        for larg in self.largs:
-            if skip:
-                # Accept all remaining arguments as they are
-                largs_restore.append(larg)
-            else:
-                if len(larg) > 2 and larg[0:2] == "--":
-                    # Check long option
-                    lopt = [larg]
-                    if "=" in larg:
-                        # Split into option and value
-                        lopt = larg.split("=", 1)
-
-                    if lopt[0] in self._long_opt:
-                        # Argument is already known
-                        rargs.append('='.join(lopt))
-                    else:
-                        # Not known yet, so reject for now
-                        largs_restore.append('='.join(lopt))
-                else:
-                    if larg in("--", "-"):
-                        # Stop normal processing and don't
-                        # process the rest of the command-line opts
-                        largs_restore.append(larg)
-                        skip = True
-                    else:
-                        rargs.append(larg)
-
-        # Parse the filtered list
-        self.parse_args(rargs, self.values)
-        # Restore the list of leftover arguments for the
-        # next call of AddOption/add_local_option...
-        self.largs = self.largs + largs_restore
 
     def add_local_option(self, *args, **kw) -> SConsOption:
         """Add a local option to the parser.
@@ -574,7 +534,7 @@ class SConsOptionParser(optparse.OptionParser):
             # right away.
             # TODO: what if dest is None?
             setattr(self.values.__defaults__, result.dest, result.default)
-            self.reparse_local_options()
+            self.parse_args(self.largs, self.values)
             if result.settable:
                 SConsValues.settable.append(result.dest)
 
