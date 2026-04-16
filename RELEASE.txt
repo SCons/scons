@@ -75,11 +75,14 @@ IMPROVEMENTS
 - Switch remaining "original style" docstring parameter listings to Google style.
 
 - Additional small tweaks to Environment.py type hints, fold some overly
-long function signature lines, and some linting-insipired cleanups.
+long function signature lines, and some linting-inspired cleanups.
 
 - Test framework: tweak module docstrings
 
 - Test suite: end to end tests don't use assert in result checks
+
+- Don't duplicate the creation of Tool objects if "default" is part of
+  the tool list.
 
 
 PACKAGING
@@ -106,7 +109,7 @@ DOCUMENTATION
   a warning for years, but now it's a fatal error). Affects only the
   API doc build.
 
-- Improve covarage of API doc build by ignoring any setting of
+- Improve coverage of API doc build by ignoring any setting of
   __all__ in a package and not showing inherited members from optparse.
 
 - All functions/classes/non-dunder methods in Environment now have docstrings.
@@ -131,7 +134,7 @@ DEVELOPMENT
 - Update pyproject.toml to support Python 3.14 and remove restrictions on lxml version install
 - Unify internal "_null" sentinel usage.
 - Docbook tests: improve skip message, more clearly indicate which test
-  need actual installed system programs (add -live suffix).
+  needs actual installed system programs (add -live suffix).
 - Implement type hints for Environment and environment utilities.
 
 - MSVC: Added a host/target batch file configuration table for Visual
