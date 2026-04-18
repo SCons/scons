@@ -81,6 +81,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       on a one-time uuid to make a path to the file.
     - Clarify VariantDir behavior when switching to not duplicate sources
       and tweak wording a bit.
+    - Update documentation of the three file-finding functions in the API
+      (FindFile, FindInstalledFiles, FindSourceFilse) as well as FindPathDirs.
+      Also add a test for FindFile to be sure it locates non-existing
+      derived files as advertised.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
