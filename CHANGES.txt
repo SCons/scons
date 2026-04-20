@@ -81,6 +81,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       on a one-time uuid to make a path to the file.
     - Clarify VariantDir behavior when switching to not duplicate sources
       and tweak wording a bit.
+    - Test suite: add support for Python 3.15 in the Action unit tests.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
