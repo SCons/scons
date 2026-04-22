@@ -71,7 +71,7 @@ IMPROVEMENTS
 - Simplified and sped up compilation database generation. No longer requires
   each entry to have a dedicated node that's always built; instead, the database
   *itself* is set to always build.
-  
+
 - Switch remaining "original style" docstring parameter listings to Google style.
 
 - Additional small tweaks to Environment.py type hints, fold some overly
@@ -117,6 +117,9 @@ DOCUMENTATION
 
 - Clarify VariantDir behavior when switching to not duplicate sources
   and tweak wording a bit.
+
+- Update documentation for linking-related construction variables.
+  Add a few more live links.
 
 DEVELOPMENT
 -----------

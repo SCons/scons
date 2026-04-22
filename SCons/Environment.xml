@@ -2783,7 +2783,7 @@ and added to the following &consvars;:
 Any other strings not associated with options
 are assumed to be the names of libraries
 and added to the
-&cv-LIBS; &consvar;.
+&cv-link-LIBS; &consvar;.
 </para>
 
 <para>

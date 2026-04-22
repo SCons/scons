@@ -69,7 +69,8 @@ in this case.
 </para>
 
 <para>
-If the <option>--install-sandbox</option> command line
+If the
+<link linkend="opt-install-sandbox"><option>--install-sandbox</option></link>
 option is given, the target directory will be prefixed
 by the directory path specified.
 This is useful to test installation behavior without installing to
