@@ -83,6 +83,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and tweak wording a bit.
     - zip tool now uses zipfile module's "from_file" method to populate
       ZipInfo records, rather than doing manually.
+    - Update documentation for linking-related construction variables.
+      Add a few more live links.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700

@@ -278,7 +278,7 @@ file is found.
 <para>
 Adds <parameter>text</parameter> to the help message shown when
 &scons; is called with the
-<option>-h</option> or <option>--help</option>
+<link linkend="opt-"><option>-h</option> or <option>--help</option></link>
 argument.
 </para>
 <para>

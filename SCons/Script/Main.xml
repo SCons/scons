@@ -82,7 +82,7 @@ as long as they can be unambiguously resolved.
 For example, if
 <function>add_option</function> is called to
 define a <option>--devicename</option> option,
-it will recognize <option>--device</option>,
+it will also recognize <option>--device</option>,
 <option>--dev</option>
 and so forth as long as there is no other option
 which could also match to the same abbreviation.
@@ -200,9 +200,11 @@ Future versions of &SCons; will likely forbid such usage.
 </arguments>
 <summary>
 <para>
-Allows setting options for SCons debug options. Currently, the only supported value is
-  <emphasis>json</emphasis> which sets the path to the JSON file created when
-  <literal>--debug=json</literal> is set.
+Allows setting values for SCons debug options.
+Currently, the only supported value is
+<emphasis>json</emphasis> which sets the path to the JSON file created when the
+<link linkend="opt-debug"><option>--debug=json</option></link>
+argument is given.
 </para>
   <example_commands>
 DebugOptions(json='#/build/output/scons_stats.json')
@@ -436,7 +438,7 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
 </row>
 <row>
   <entry><varname>config</varname></entry>
-  <entry><option>--config</option></entry>
+  <entry><link linkend="opt-config"><option>--config</option></link></entry>
 </row>
 <row>
   <entry><varname>debug</varname></entry>
@@ -1171,13 +1173,13 @@ SetOption('max_drift', 0)
       </para>
 
       <screen>
-$ <userinput>scons --compilers=mingw</userinput>  # the correct flag is --compiler
+$ <userinput>scons --complier=mingw</userinput>  # the correct flag is --compiler
       </screen>
 
       <para>
-        Here &SCons; could go off and run a bunch of configure steps with
-        the default value of <literal>--compiler</literal>, since the
-        incorrect command line did not actually supply a value to it,
+        Here &SCons; could go off and run a bunch of configure steps using
+        the default value of <option>--compiler</option>, since the
+        misspelled option causes it not to be supplied the intended value,
         costing developer time to track down why the configure logic
         made the "wrong" choices.  This example shows catching this:
       </para>
