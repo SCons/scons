@@ -81,6 +81,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       on a one-time uuid to make a path to the file.
     - Clarify VariantDir behavior when switching to not duplicate sources
       and tweak wording a bit.
+    - Update documentation for linking-related construction variables.
+      Add a few more live links.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
