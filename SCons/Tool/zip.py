@@ -29,41 +29,36 @@ Tool-specific initialization for zip.
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
-
 """
 
 import os
 
+import SCons.Action
 import SCons.Builder
 import SCons.Defaults
 import SCons.Node.FS
 import SCons.Util
 
-import time
 import zipfile
 
 
 zip_compression = zipfile.ZIP_DEFLATED
 
 
-def _create_zipinfo_for_file(fname, arcname, date_time, compression):
-    st = os.stat(fname)
-    if not date_time:
-        mtime = time.localtime(st.st_mtime)
-        date_time = mtime[0:6]
-    zinfo = zipfile.ZipInfo(filename=arcname, date_time=date_time)
-    zinfo.external_attr = (st.st_mode & 0xFFFF) << 16  # Unix attributes
+def _create_zipinfo_for_file(fname: str, arcname: str, date_time: tuple, compression: int) -> zipfile.ZipInfo:
+    zinfo = zipfile.ZipInfo.from_file(fname, arcname)
+    if date_time:
+        zinfo.date_time = date_time
     zinfo.compress_type = compression
-    zinfo.file_size = st.st_size
     return zinfo
 
 
 def zip_builder(target, source, env) -> None:
-    compression = env.get('ZIPCOMPRESSION', zipfile.ZIP_STORED)
-    zip_root = str(env.get('ZIPROOT', ''))
-    date_time = env.get('ZIP_OVERRIDE_TIMESTAMP')
+    compression: int = env.get('ZIPCOMPRESSION', zipfile.ZIP_STORED)
+    zip_root: str = str(env.get('ZIPROOT', ''))
+    date_time: tuple = env.get('ZIP_OVERRIDE_TIMESTAMP')
 
-    files = []
+    files: list[str] = []
     for s in source:
         if s.isdir():
             for dirpath, dirnames, filenames in os.walk(str(s)):
@@ -74,10 +69,9 @@ def zip_builder(target, source, env) -> None:
         else:
             files.append(str(s))
 
-    with zipfile.ZipFile(str(target[0]), 'w', compression) as zf:
+    with zipfile.ZipFile(str(target[0]), mode='w', compression=compression) as zf:
         for fname in files:
             arcname = os.path.relpath(fname, zip_root)
-            # TODO: Switch to ZipInfo.from_file when 3.6 becomes the base python version
             zinfo = _create_zipinfo_for_file(fname, arcname, date_time, compression)
             with open(fname, "rb") as f:
                 zf.writestr(zinfo, f.read())
@@ -92,7 +86,7 @@ ZipBuilder = SCons.Builder.Builder(action=SCons.Action.Action('$ZIPCOM', '$ZIPCO
                                    source_factory=SCons.Node.FS.Entry,
                                    source_scanner=SCons.Defaults.DirScanner,
                                    suffix='$ZIPSUFFIX',
-                                   multi=1)
+                                   multi=True)
 
 
 def generate(env) -> None:
