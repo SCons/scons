@@ -71,7 +71,7 @@ IMPROVEMENTS
 - Simplified and sped up compilation database generation. No longer requires
   each entry to have a dedicated node that's always built; instead, the database
   *itself* is set to always build.
-  
+
 - Switch remaining "original style" docstring parameter listings to Google style.
 
 - Additional small tweaks to Environment.py type hints, fold some overly
@@ -80,6 +80,9 @@ long function signature lines, and some linting-insipired cleanups.
 - Test framework: tweak module docstrings
 
 - Test suite: end to end tests don't use assert in result checks
+
+- zip tool now uses zipfile module's "from_file" method to populate ZipInfo
+  records, rather than doing manually.
 
 
 PACKAGING
