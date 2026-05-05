@@ -81,6 +81,9 @@ long function signature lines, and some linting-insipired cleanups.
 
 - Test suite: end to end tests don't use assert in result checks
 
+- zip tool now uses zipfile module's "from_file" method to populate ZipInfo
+  records, rather than doing manually.
+
 
 PACKAGING
 ---------
@@ -120,6 +123,8 @@ DOCUMENTATION
 
 - Update documentation of the three file-finding functions in the API
   (FindFile, FindInstalledFiles, FindSourceFilse) as well as FindPathDirs.
+- Update documentation for linking-related construction variables.
+  Add a few more live links.
 
 DEVELOPMENT
 -----------
