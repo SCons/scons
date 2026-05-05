@@ -82,7 +82,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Clarify VariantDir behavior when switching to not duplicate sources
       and tweak wording a bit.
     - Update documentation of the three file-finding functions in the API
-      (FindFile, FindInstalledFiles, FindSourceFilse) as well as FindPathDirs.
+      (FindFile, FindInstalledFiles, FindSourceFiles) as well as FindPathDirs.
       Also add a test for FindFile to be sure it locates non-existing
       derived files as advertised.
     - zip tool now uses zipfile module's "from_file" method to populate
