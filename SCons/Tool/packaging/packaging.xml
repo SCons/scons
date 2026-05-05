@@ -28,8 +28,9 @@ This file is processed by the bin/SConsDoc.py module
 <summary>
 <para>
 Sets construction variables for the &b-link-Package; Builder.
-If this tool is enabled, the <option>--package-type</option>
-command-line option is also enabled.
+If this tool is enabled, the
+<link linkend="opt-package-type"><option>--package-type</option></link>
+command-line option is made available.
 </para>
 </summary>
 <sets>
@@ -56,7 +57,9 @@ env = Environment(tools=['default', 'packaging'])
 &SCons; can build packages in a number of well known packaging formats.
 The target package type may be selected with the
 &cv-link-PACKAGETYPE; construction variable
-or the <option>--package-type</option> command line option.
+or the
+<link linkend="opt-package-type"><option>--package-type</option></link>
+command line option.
 The package type may be a list, in which case &SCons; will attempt
 to build packages for each type in the list. Example:
 </para>

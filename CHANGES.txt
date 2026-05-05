@@ -91,6 +91,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and tweak wording a bit.
     - Complete the work from PR #3799 on AddOption handling (original work
       credited to Dillan Mills)
+    - Update documentation of the three file-finding functions in the API
+      (FindFile, FindInstalledFiles, FindSourceFiles) as well as FindPathDirs.
+      Also add a test for FindFile to be sure it locates non-existing
+      derived files as advertised.
+    - zip tool now uses zipfile module's "from_file" method to populate
+      ZipInfo records, rather than doing manually.
+    - Update documentation for linking-related construction variables.
+      Add a few more live links.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
