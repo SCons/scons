@@ -31,46 +31,32 @@ This file is processed by the bin/SConsDoc.py module.
 </arguments>
 <summary>
 <para>
-Returns a function
-(actually a callable Python object)
-intended to be used as the
-<varname>path_function</varname>
-of a Scanner object.
-The returned object will look up the specified
-<varname>variable</varname>
-in a construction environment
-and treat the construction variable's value as a list of
-directory paths that should be searched
-(like
-&cv-link-CPPPATH;,
-&cv-link-LIBPATH;,
-etc.).
+Return a callable object for use as the
+<varname>path_function</varname> of a
+<link linkend='scanner_objects'>Scanner object</link>.
+When called, it looks up the specified
+<varname>variable</varname> in the &consenv;
+and treats its value as a list of
+directory paths to search
+(like &cv-link-CPPPATH; or &cv-link-LIBPATH;).
 </para>
 
 <para>
-Note that use of
-&f-FindPathDirs;
-is generally preferable to
-writing your own
+Using &f-FindPathDirs;
+is generally preferable to writing your own
 <varname>path_function</varname>
-for the following reasons:
-1) The returned list will contain all appropriate directories
-found in source trees
-(when
-&f-link-VariantDir;
-is used)
-or in code repositories
-(when
-&f-Repository;
-or the
-<option>-Y</option>
-option are used).
-2) scons will identify expansions of
-<varname>variable</varname>
-that evaluate to the same list of directories as,
-in fact, the same list,
-and avoid re-scanning the directories for files,
-when possible.
+because it handles common &SCons;
+scanning cases correctly and efficiently:
+(1) it returns all appropriate directories
+from source trees when a variant directory is used,
+and from repositories when
+&f-link-Repository; or the
+<link linkend="opt-repository"><option>-Y/--repository</option></link>
+option is in effect.
+(2) it detects when different values of
+<varname>variable</varname> resolve to the same directory list and
+reuses that result instead of rescanning the same directories,
+avoiding redundant work.
 </para>
 
 <para>
@@ -82,9 +68,9 @@ def my_scan(node, env, path, arg):
     # Code to scan file contents goes here...
     return include_files
 
-scanner = Scanner(name = 'myscanner',
-                  function = my_scan,
-                  path_function = FindPathDirs('MYPATH'))
+scanner = Scanner(
+    name='myscanner', function=my_scan, path_function=FindPathDirs('MYPATH')
+)
 </example_commands>
 </summary>
 </scons_function>

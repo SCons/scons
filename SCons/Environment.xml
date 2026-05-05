@@ -1974,6 +1974,7 @@ Example:
 </para>
 
 <example_commands>
+# Searches for 'foo' in 'dir1' and 'dir2', returning the node if found
 foo = env.FindFile('foo', ['dir1', 'dir2'])
 </example_commands>
 </summary>
@@ -1985,16 +1986,16 @@ foo = env.FindFile('foo', ['dir1', 'dir2'])
 </arguments>
 <summary>
 <para>
-Returns the list of targets set up by the
+Return the list of targets set up by the
 &b-link-Install;
-or
+and
 &b-link-InstallAs;
 builders.
-</para>
-
-<para>
 This function serves as a convenient method to select the contents of
 a binary package.
+The list is populated as &b-Install; and &b-InstallAs; are executed -
+that is, the return reflects builder calls already seen
+but not any calls that may occur later.
 </para>
 
 <para>
@@ -2004,13 +2005,13 @@ Example:
 <example_commands>
 Install('/bin', ['executable_a', 'executable_b'])
 
-# will return the file node list
+# Returns the file node list
 # ['/bin/executable_a', '/bin/executable_b']
 FindInstalledFiles()
 
 Install('/lib', ['some_library'])
 
-# will return the file node list
+# Returns the file node list
 # ['/bin/executable_a', '/bin/executable_b', '/lib/some_library']
 FindInstalledFiles()
 </example_commands>
@@ -2019,22 +2020,17 @@ FindInstalledFiles()
 
 <scons_function name="FindSourceFiles">
 <arguments>
-(node='"."')
+([node])
 </arguments>
 <summary>
 <para>
-Returns the list of nodes which serve as the source of the built files.
-It does so by inspecting the dependency tree starting at the optional
-argument
-<parameter>node</parameter>
-which defaults to the '"."'-node. It will then return all leaves of
-<parameter>node</parameter>.
-These are all children which have no further children.
-</para>
-
-<para>
-This function is a convenient method to select the contents of a Source
-Package.
+Return the list of nodes which represent the sources of the built files.
+It does so by recursively inspecting the dependency tree starting at the optional
+argument <parameter>node</parameter>,
+which defaults to the current directory (<literal>"."</literal>).
+It returns all leaf nodes (files with no further dependencies) from the tree.
+This function serves as a convenient method to select the contents of
+a source package.
 </para>
 
 <para>
@@ -2054,8 +2050,9 @@ FindSourceFiles('src')
 </example_commands>
 
 <para>
-As you can see, build support files (&SConstruct; in the above example)
-will also be returned by this function.
+Notice that build support files in the tree
+(&SConstruct; in the above example)
+are also returned.
 </para>
 </summary>
 </scons_function>

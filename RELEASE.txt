@@ -32,7 +32,7 @@ REMOVED FUNCTIONALITY
 ---------------------
 
 - The qt3 tool module, deprecated since version 4.3, is removed due to
-  the general unavailablility of the obsolete build-time Qt3 package.
+  the general unavailability of the obsolete build-time Qt3 package.
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
@@ -109,7 +109,7 @@ DOCUMENTATION
   a warning for years, but now it's a fatal error). Affects only the
   API doc build.
 
-- Improve covarage of API doc build by ignoring any setting of
+- Improve coverage of API doc build by ignoring any setting of
   __all__ in a package and not showing inherited members from optparse.
 
 - All functions/classes/non-dunder methods in Environment now have docstrings.
@@ -121,6 +121,8 @@ DOCUMENTATION
 - Clarify VariantDir behavior when switching to not duplicate sources
   and tweak wording a bit.
 
+- Update documentation of the three file-finding functions in the API
+  (FindFile, FindInstalledFiles, FindSourceFiles) as well as FindPathDirs.
 - Update documentation for linking-related construction variables.
   Add a few more live links.
 
