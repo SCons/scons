@@ -81,6 +81,7 @@ long function signature lines, and some linting-insipired cleanups.
 
 - Test suite: end to end tests don't use assert in result checks
 
+- Test suite: add support for Python 3.15 in the Action unit tests.
 - zip tool now uses zipfile module's "from_file" method to populate ZipInfo
   records, rather than doing manually.
 
