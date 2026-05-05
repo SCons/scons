@@ -35,33 +35,41 @@ test.write('testfile1', 'test 1\n')
 test.write(['foo', 'testfile2'], 'test 2\n')
 test.write(['bar', 'testfile1'], 'test 3\n')
 test.write(['bar', 'baz', 'testfile2'], 'test 4\n')
+test.write('source.txt', 'source content\n')
 
 test.write('SConstruct', """
-env = Environment(FILE = 'file', BAR = 'bar')
-file1 = FindFile('testfile1', [ 'foo', '.', 'bar', 'bar/baz' ])
+env = Environment(FILE='file', BAR='bar')
+file1 = FindFile('testfile1', ['foo', '.', 'bar', 'bar/baz'])
 with open(file1, 'r') as f:
-    print(f.read())
-file2 = env.FindFile('test${FILE}1', [ 'bar', 'foo', '.', 'bar/baz' ])
+    print(f.read(), end='')
+file2 = env.FindFile('test${FILE}1', ['bar', 'foo', '.', 'bar/baz'])
 with open(file2, 'r') as f:
-    print(f.read())
-file3 = FindFile('testfile2', [ 'foo', '.', 'bar', 'bar/baz' ])
+    print(f.read(), end='')
+file3 = FindFile('testfile2', ['foo', '.', 'bar', 'bar/baz'])
 with open(file3, 'r') as f:
-    print(f.read())
-file4 = env.FindFile('testfile2', [ '$BAR/baz', 'foo', '.', 'bar' ])
+    print(f.read(), end='')
+file4 = env.FindFile('testfile2', ['$BAR/baz', 'foo', '.', 'bar'])
 with open(file4, 'r') as f:
-    print(f.read())
+    print(f.read(), end='')
+
+# Test finding unbuilt derived files
+derived = env.Command('derived.txt', 'source.txt', Copy('$TARGET', '$SOURCE'))
+found_derived = FindFile('derived.txt', ['.'])
+print('Found derived:', str(found_derived))
 """)
 
-expect = test.wrap_stdout(read_str = """test 1
-
+expect = test.wrap_stdout(
+    read_str="""\
+test 1
 test 3
-
 test 2
-
 test 4
+Found derived: derived.txt
+""",
+    build_str="""Copy("derived.txt", "source.txt")
+""",
+)
 
-""", build_str = "scons: `.' is up to date.\n")
-
-test.run(arguments = ".", stdout = expect)
+test.run(arguments=".", stdout=expect)
 
 test.pass_test()

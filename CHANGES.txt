@@ -26,11 +26,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Purge vim/emac local variable bloat.
     - Implement type hints for Node subclasses.
     - Ruff: Handle F401 exclusions more granularly, remove per-file exclusions.
+    - Simplified and sped up compilation database generation. No longer requires
+      each entry to have a dedicated node that's always built; instead, the database
+      *itself* is set to always build.
     - Implement type hints for Environment and environment utilities.
     - Deprecated Python 3.7 & 3.8 support.
     - Modernized GitHub Actions test runner. This consolidates the logic of
       existing test environments into a single package. Adjusted AppVeyor to
       only run for targets unsupported by GitHub runners.
+    - Split `SCons.Util.UtilTests.py` to individual packages where appropriate.
 
   From William Deegan:
     - Fix SCons Docbook schema to work with lxml > 5
@@ -79,6 +83,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and tweak wording a bit.
     - Don't duplicate the creation of Tool objects if "default" is part of
       the tool list.
+    - Update documentation of the three file-finding functions in the API
+      (FindFile, FindInstalledFiles, FindSourceFiles) as well as FindPathDirs.
+      Also add a test for FindFile to be sure it locates non-existing
+      derived files as advertised.
+    - zip tool now uses zipfile module's "from_file" method to populate
+      ZipInfo records, rather than doing manually.
+    - Update documentation for linking-related construction variables.
+      Add a few more live links.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700

@@ -32,7 +32,7 @@ REMOVED FUNCTIONALITY
 ---------------------
 
 - The qt3 tool module, deprecated since version 4.3, is removed due to
-  the general unavailablility of the obsolete build-time Qt3 package.
+  the general unavailability of the obsolete build-time Qt3 package.
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
@@ -68,6 +68,10 @@ IMPROVEMENTS
 
 - Used Gemini to refactor runtest.py to better organized the code and add docstrings.
 
+- Simplified and sped up compilation database generation. No longer requires
+  each entry to have a dedicated node that's always built; instead, the database
+  *itself* is set to always build.
+
 - Switch remaining "original style" docstring parameter listings to Google style.
 
 - Additional small tweaks to Environment.py type hints, fold some overly
@@ -79,6 +83,8 @@ long function signature lines, and some linting-inspired cleanups.
 
 - Don't duplicate the creation of Tool objects if "default" is part of
   the tool list.
+- zip tool now uses zipfile module's "from_file" method to populate ZipInfo
+  records, rather than doing manually.
 
 
 PACKAGING
@@ -117,6 +123,11 @@ DOCUMENTATION
 - Clarify VariantDir behavior when switching to not duplicate sources
   and tweak wording a bit.
 
+- Update documentation of the three file-finding functions in the API
+  (FindFile, FindInstalledFiles, FindSourceFiles) as well as FindPathDirs.
+- Update documentation for linking-related construction variables.
+  Add a few more live links.
+
 DEVELOPMENT
 -----------
 
@@ -142,6 +153,8 @@ DEVELOPMENT
 
 - Fix Appveyor scripting to install unavailable python versions when needed and use them
   for testing.
+
+- Split `SCons.Util.UtilTests.py` to individual packages where appropriate.
 
 
 Thanks to the following contributors listed below for their contributions to this release.
