@@ -83,8 +83,10 @@ if &cv-link-SHLIBVERSION; is set. Otherwise, it evaluates to an empty string.
 <cvar name="_LDMODULESONAME">
 <summary>
 <para>
-A macro that automatically generates loadable module's SONAME based on $TARGET,
-$LDMODULEVERSION and $LDMODULESUFFIX. Used by &b-link-LoadableModule; builder
+A macro that automatically generates a loadable module's &cv-link-SONAME;
+based on <literal>$TARGET</literal>,
+&cv-link-LDMODULEVERSION; and &cv-link-LDMODULESUFFIX;.
+Used by the &b-link-LoadableModule; builder
 when the linker tool supports SONAME (e.g. &t-link-gnulink;).
 </para>
 </summary>
@@ -94,11 +96,12 @@ when the linker tool supports SONAME (e.g. &t-link-gnulink;).
 <summary>
 <para>
 This macro automatically introduces extra flags to &cv-link-LDMODULECOM; when
-building versioned &b-link-LoadableModule; (that is when
-&cv-link-LDMODULEVERSION; is set). <literal>_LDMODULEVERSIONFLAGS</literal>
+building a versioned &b-link-LoadableModule;
+(that is, when &cv-link-LDMODULEVERSION; is set).
+&cv-_LDMODULEVERSIONFLAGS;
 usually adds &cv-link-SHLIBVERSIONFLAGS; and some extra dynamically generated
-options (such as <literal>-Wl,-soname=$_LDMODULESONAME</literal>).  It is unused
-by plain (unversioned) loadable modules.
+options (such as <literal>-Wl,-soname=$_LDMODULESONAME</literal>).
+It is unused by plain (unversioned) loadable modules.
 </para>
 </summary>
 </cvar>
@@ -107,11 +110,12 @@ by plain (unversioned) loadable modules.
 <summary>
 <para>
 This macro automatically introduces extra flags to &cv-link-SHLINKCOM; when
-building versioned &b-link-SharedLibrary; (that is when &cv-link-SHLIBVERSION;
-is set). <literal>_SHLIBVERSIONFLAGS</literal> usually adds &cv-link-SHLIBVERSIONFLAGS;
-and some extra dynamically generated options (such as
-<literal>-Wl,-soname=$_SHLIBSONAME</literal>. It is unused by "plain"
-(unversioned) shared libraries.
+building a versioned &b-link-SharedLibrary;
+(that is, when &cv-link-SHLIBVERSION; is set).
+&cv-_SHLIBVERSIONFLAGS; usually adds &cv-link-SHLIBVERSIONFLAGS;
+and some extra dynamically generated options
+(such as <literal>-Wl,-soname=$_SHLIBSONAME</literal>).
+It is unused by "plain" (unversioned) shared libraries.
 </para>
 </summary>
 </cvar>
@@ -119,8 +123,10 @@ and some extra dynamically generated options (such as
 <cvar name="_SHLIBSONAME">
 <summary>
 <para>
-A macro that automatically generates shared library's SONAME based on $TARGET,
-$SHLIBVERSION and $SHLIBSUFFIX. Used by &b-link-SharedLibrary; builder when
+A macro that automatically generates a shared library's &cv-link-SONAME;
+based on <literal>$TARGET</literal>,
+&cv-link-SHLIBVERSION; and &cv-link-SHLIBSUFFIX;.
+Used by the &b-link-SharedLibrary; builder when
 the linker tool supports SONAME (e.g. &t-link-gnulink;).
 </para>
 </summary>
@@ -202,8 +208,9 @@ General user options passed to the linker for building loadable modules.
 <cvar name="LDMODULENOVERSIONSYMLINKS">
 <summary>
 <para>
-Instructs the &b-link-LoadableModule; builder to not automatically create symlinks
-for versioned modules. Defaults to <literal>$SHLIBNOVERSIONSYMLINKS</literal>
+Instructs the &b-link-LoadableModule; builder
+not to automatically create symlinks for versioned modules.
+Defaults to &cv-link-SHLIBNOVERSIONSYMLINKS;.
 </para>
 </summary>
 </cvar>
@@ -234,8 +241,8 @@ the same as $SHLIBSUFFIX.
 <summary>
 <para>
 Extra flags added to &cv-link-LDMODULECOM; when building versioned
-&b-link-LoadableModule;. These flags are only used when &cv-link-LDMODULEVERSION; is
-set.
+&b-link-LoadableModule;.
+These flags are only used when &cv-link-LDMODULEVERSION; is set.
 </para>
 </summary>
 </cvar>
@@ -399,11 +406,18 @@ See also &cv-link-LINKFLAGS;  for linking static objects.
 <cvar name="SONAME">
 <summary>
 <para>
-Variable used to hard-code SONAME for versioned shared library/loadable module.
+The name of a versioned shared library/loadable module.
+If specified, it is an explicit statement of the name;
+if unspecified, the value is generated.
+&cv-SONAME; and &cv-link-SOVERSION; may not both be specified
+in the same &consenv; or override.
 <example_commands>
+# Will cause libtest.so.2 to exist and be a symlink to libtest.so.0.1.2
 env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SONAME='libtest.so.2')
 </example_commands>
-The variable is used, for example, by &t-link-gnulink; linker tool.
+</para>
+<para>
+This variable is used by toolchains that support versioned shared objects.
 </para>
 </summary>
 </cvar>
@@ -411,17 +425,18 @@ The variable is used, for example, by &t-link-gnulink; linker tool.
 <cvar name="SOVERSION">
 <summary>
 <para>
-This will construct the <varname>SONAME</varname> using on the base library name
-(<parameter>test</parameter> in the example below) and use specified <varname>SOVERSION</varname>
-to create <varname>SONAME</varname>.
+Version string used in construction of &cv-link-SONAME;.
+The version is added to the base library name
+(<parameter>test</parameter> in the example below).
+&cv-SONAME; and &cv-SOVERSION; may not both be specified
+in the same &consenv; or override.
 <example_commands>
+# SONAME will be libtest.so.2, and will be a symlink to libtest.so.0.1.2
 env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SOVERSION='2')
 </example_commands>
-The variable is used, for example, by &t-link-gnulink; linker tool.
 </para>
 <para>
-In the example above <varname>SONAME</varname> would be <filename>libtest.so.2</filename>
-which would be a symlink and point to <filename>libtest.so.0.1.2</filename>
+This variable is used by toolchains that support versioned shared objects.
 </para>
 </summary>
 </cvar>
