@@ -124,8 +124,11 @@ DOCUMENTATION
 
 - Update documentation of the three file-finding functions in the API
   (FindFile, FindInstalledFiles, FindSourceFiles) as well as FindPathDirs.
+
 - Update documentation for linking-related construction variables.
   Add a few more live links.
+
+- Update documentation for CacheDir and related option flags
 
 DEVELOPMENT
 -----------

@@ -715,10 +715,11 @@ If
 <replaceable>file</replaceable>
 is a hyphen
 (<literal>-</literal>),
-the debug information is printed to the standard output.
-The printed messages describe what signature-file names
-are being looked for in, retrieved from, or written to the
-derived-file cache specified by &f-link-CacheDir;.</para>
+the debug information is printed to standard output.
+The messages describe cache operations,
+such as which &buildsig; is being sarched for,
+retrieved, or stored in the cache specified by &f-link-CacheDir;.
+</para>
   </listitem>
   </varlistentry>
 
@@ -731,9 +732,9 @@ derived-file cache specified by &f-link-CacheDir;.</para>
 <para>Disable derived-file caching.
 &scons;
 will neither retrieve files from the cache
-nor copy files to the cache.  This option can
-be used to temporarily disable the cache without
-modifying the build scripts.
+nor copy files to the cache.
+This option allows temporarily disabling the cache without
+modifying build scripts.
 </para>
   </listitem>
   </varlistentry>
@@ -745,15 +746,14 @@ modifying the build scripts.
   </term>
   <listitem>
 <para>When using &f-link-CacheDir;,
-populate a derived-file cache by copying any already-existing,
-up-to-date derived files to the cache,
-in addition to files built by this invocation.
-This is useful to populate a new cache with
-all the current derived files,
-or to add to the cache any derived files
-recently built with caching disabled via the
-<option>--cache-disable</option>
-option.</para>
+populate a derived-file cache by copying any existing,
+up-to-date derived files to it,
+in addition to files built during this invocation.
+This is useful for initializing a new cache with
+current derived files or
+adding files that were recently built with caching disabled
+(via the <option>--cache-disable</option> option.
+</para>
   </listitem>
   </varlistentry>
 
@@ -761,7 +761,7 @@ option.</para>
   <term><option>--cache-readonly</option></term>
   <listitem>
 <para>Use the derived-file cache, if enabled, to retrieve files,
-but do not not update the cache with any files actually
+but do not not update the cache with any files
 built during this invocation.
 </para>
   </listitem>
@@ -770,15 +770,14 @@ built during this invocation.
   <varlistentry id="opt-cache-show">
   <term><option>--cache-show</option></term>
   <listitem>
-<para>When using a derived-file cache, show the command
+<para>When using a derived-file cache, display the command
 that would have been executed to build the file
 (or the corresponding <literal>*COMSTR</literal>
-contents if set)
-even if the file is retrieved from cache.
-Without this option, &scons; shows a cache retrieval message
-if the file is fetched from cache.
-This allows producing consistent output for build logs,
-regardless of whether a target
+contents if set),
+even if the file is retrieved from the cache.
+Without this option, &scons; shows a cache retrieval message.
+This ensures consistent output in build logs,
+regardless of whether the
 file was rebuilt or retrieved from the cache.</para>
   </listitem>
   </varlistentry>
