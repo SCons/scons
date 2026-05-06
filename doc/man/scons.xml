@@ -717,7 +717,7 @@ is a hyphen
 (<literal>-</literal>),
 the debug information is printed to standard output.
 The messages describe cache operations,
-such as which &buildsig; is being sarched for,
+such as which &buildsig; is being searched for,
 retrieved, or stored in the cache specified by &f-link-CacheDir;.
 </para>
   </listitem>
