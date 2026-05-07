@@ -32,7 +32,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- List fixes of outright bugs
+- Fix compile_commands.json having incorrect include paths for clean builds when a
+  variant dir is used, duplicate=0, and a relative CPPPATH is used in a child SConscript.
 
 IMPROVEMENTS
 ------------
