@@ -51,6 +51,9 @@ FIXES
   directory for each writer before doing the move, instead of depending
   on a one-time uuid to make a path to the file.
 
+- Fix compile_commands.json having incorrect include paths for clean builds when a
+  variant dir is used, duplicate=0, and a relative CPPPATH is used in a child SConscript.
+
 IMPROVEMENTS
 ------------
 
