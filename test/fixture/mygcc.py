@@ -33,7 +33,7 @@ def fake_gcc():
         sys.exit(0)
 
     compiler = sys.argv[1].encode('utf-8')
-    opts, args = getopt.getopt(sys.argv[2:], 'co:xf:K:')
+    opts, args = getopt.getopt(sys.argv[2:], 'co:xf:K:I:')
     for opt, arg in opts:
         if opt == '-o':
             out = arg
