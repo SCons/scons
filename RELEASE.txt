@@ -83,6 +83,7 @@ long function signature lines, and some linting-inspired cleanups.
 
 - Don't duplicate the creation of Tool objects if "default" is part of
   the tool list.
+- Test suite: add support for Python 3.15 in the Action unit tests.
 - zip tool now uses zipfile module's "from_file" method to populate ZipInfo
   records, rather than doing manually.
 
@@ -125,8 +126,11 @@ DOCUMENTATION
 
 - Update documentation of the three file-finding functions in the API
   (FindFile, FindInstalledFiles, FindSourceFiles) as well as FindPathDirs.
+
 - Update documentation for linking-related construction variables.
   Add a few more live links.
+
+- Update documentation for CacheDir and related option flags
 
 DEVELOPMENT
 -----------

@@ -917,121 +917,83 @@ Direct
 &scons;
 to maintain a derived-file cache in
 <parameter>cache_dir</parameter>.
-The derived files in the cache will be shared
-among all the builds specifying the same
+Cached files are shared across builds that specify the same
 <parameter>cache_dir</parameter>.
-Specifying a
-<parameter>cache_dir</parameter>
-of
-<constant>None</constant>
-disables derived file caching.
+Setting <parameter>cache_dir</parameter>
+to <constant>None</constant> disables caching.
 </para>
 
 <para>
-Calling the environment method
+The environment method
 &f-link-env-CacheDir;
-limits the effect to targets built
-through the specified &consenv;.
-Calling the global function
-&f-link-CacheDir;
-sets a global default
-that will be used by all targets built
-through &consenvs;
-that do not set up environment-specific
-caching by calling &f-env-CacheDir;.
+applies caching only to targets built
+through that specific &consenv;.
+The global function &f-link-CacheDir;
+sets a default that applies
+to all targets unless overridden by an
+environment-specific call.
 </para>
 
 <para>
-Caching behavior can be configured by passing a specialized cache
-class as the optional <parameter>custom_class</parameter> parameter.
-This class must be a subclass of
-<classname>SCons.CacheDir.CacheDir</classname>.
-&SCons; will internally invoke the custom class for performing
-caching operations.
-If the parameter is omitted or set to
-<constant>None</constant>, &SCons; will use the default
-<classname>SCons.CacheDir.CacheDir</classname> class.
+Caching behavior can be customized by passing a subclass of
+<classname>SCons.CacheDir.CacheDir</classname>
+as the optional <parameter>custom_class</parameter> parameter.
+If omitted or set to <constant>None</constant>,
+&SCons; uses the default class.
 </para>
 
 <para>
-When derived-file caching
-is being used and
-&scons;
-finds a derived file that needs to be rebuilt,
-it will first look in the cache to see if a
-file with matching &buildsig; exists
-(indicating the input file(s) and build action(s)
-were identical to those for the current target),
-and if so, will retrieve the file from the cache.
-&scons;
-will report
+When caching is enabled and &scons;
+needs to rebuild a derived file,
+it first checks the cache for a matching &buildsig;
+(indicating identical inputs and build actions).
+If found, the file is retrieved from the cache.
+Otherwise, &scons; builds the file and
+stores a copy the cache under its &buildsig;.
+</para>
+
+<para>
+By default, &scons; reports
 <computeroutput>Retrieved `file' from cache</computeroutput>
-instead of the normal build message.
-If the derived file is not present in the cache,
-&scons;
-will build it and
-then place a copy of the built file in the cache,
-identified by its &buildsig;, for future use.
+on cache hits.
+Use the
+<link linkend="opt-cache-show"><option>--cache-show</option></link>
+option to hide that the cache was involved
+and display the normal build string instead,
+for consistent log output.
+</para>
+
+<para>
+Disable caching for a specific invocation with the
+<link linkend="opt-cache-disable"><option>--cache-disable</option></link>
+option.
+To allow retreival but prevent updates, use
+<link linkend="opt-cache-readonly"><option>--cache-readonly</option></link>.
 </para>
 
 <para>
 The
-<computeroutput>Retrieved `file' from cache</computeroutput>
-messages are useful for human consumption,
-but less useful when comparing log files between
-&scons; runs which will show differences that are
-noisy and not actually significant.
-To disable,
-use the <option>--cache-show</option> option.
-With this option, &scons; changes printing
-to always show the action that would
-have been used to build the file without caching.
+<link linkend="opt-cache-force"><option>--cache-force</option></link>
+option copies <emphasis>all</emphasis> derived files into the cache,
+even pre-existing ones.
+This helps populate a new cache or update it
+after building with cache updating disabled
+(<link linkend="opt-cache-disable"><option>--cache-disable</option></link>
+or <link linkend="opt-cache-readonly"><option>--cache-readonly</option></link>).
 </para>
 
 <para>
-Derived-file caching
-may be disabled for any invocation
-of &scons; by giving the
-<option>--cache-disable</option>
-command line option;
-cache updating may be disabled, leaving cache
-fetching enabled, by giving the
-<option>--cache-readonly</option> option.
-</para>
-
-<para>
-If the
-<option>--cache-force</option>
-option is used,
-&scons;
-will place a copy of
-<emphasis>all</emphasis>
-derived files into the cache,
-even if they already existed
-and were not built by this invocation.
-This is useful to populate a cache
-the first time a
-<parameter>cache_dir</parameter>
-is used for a build,
-or to bring a cache up to date after
-a build with cache updating disabled
-(<option>--cache-disable</option>
-or <option>--cache-readonly</option>)
-has been done.
-</para>
-
-<para>
-The
+Use
 &f-link-NoCache;
-method can be used to disable caching of specific files.  This can be
-useful if inputs and/or outputs of some tool are impossible to
-predict or prohibitively large.
+to exclude specific files from caching,
+such as those with unpredictable inputs or outputs,
+or excessively large output files.
 </para>
 
 <para>
-Note that (at this time) &SCons; provides no facilities
-for managing the derived-file cache. It is up to the developer
-to arrange for cache pruning, expiry, access control, etc. if needed.
+&SCons; does not provide built-in tools for cache management.
+You will need to handle pruning, expiration,
+access control, and other maintenance tasks manually.
 </para>
 
 </summary>
