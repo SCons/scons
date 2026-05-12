@@ -56,8 +56,8 @@ value of the
 the line separator is not emitted after the last string.
 Nested lists of source strings
 are flattened.
-Source strings need not literally be Python strings:
-they can be Nodes or Python objects that convert cleanly
+Source strings need not literally be &Python; strings:
+they can be Nodes or &Python; objects that convert cleanly
 to &f-link-Value; nodes.
 </para>
 
@@ -149,7 +149,7 @@ are automatically added to the target if they are not already present.
 
 <para>
 If a construction variable named &cv-link-SUBST_DICT; is present,
-it may be either a Python dictionary or a sequence of
+it may be either a &Python; dictionary or a sequence of
 (<replaceable>key</replaceable>, <replaceable>value</replaceable>) tuples.
 If it is a dictionary it is converted into a list of tuples
 with unspecified order,
@@ -161,7 +161,7 @@ it is unpredictable whether the expansion will occur.
 <para>
 Any occurrences of a key in the source
 are replaced by the corresponding value,
-which may be a Python callable function or a string.
+which may be a &Python; callable function or a string.
 If the value is a callable, it is called with no arguments to get a string.
 Strings are <emphasis>subst</emphasis>-expanded
 and the result replaces the key.

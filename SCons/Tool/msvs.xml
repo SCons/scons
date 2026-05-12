@@ -61,7 +61,7 @@ This file is processed by the bin/SConsDoc.py module.
         Note &SCons; does not know how to construct project files for
         other languages (e.g. <filename>.csproj</filename> for C#,
         <filename>.vbproj</filename> for Visual Basic or
-        <filename>.pyproject</filename> for Python).
+        <filename>.pyproject</filename> for &Python;).
         </para>
       <para>
         For the <filename>.vcxproj</filename> file, the underlying

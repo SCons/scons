@@ -86,7 +86,7 @@ The zip compression and file packaging utility.
 <summary>
 <para>
 The command line used to call the zip utility,
-or the internal Python function used to create a
+or the internal &Python; function used to create a
 zip archive.
 </para>
 </summary>
@@ -98,7 +98,7 @@ zip archive.
 The string displayed when archiving files
 using the zip utility.
 If this is not set, then &cv-link-ZIPCOM;
-(the command line or internal Python function) is displayed.
+(the command line or internal &Python; function) is displayed.
 </para>
 
 <example_commands>
@@ -112,10 +112,9 @@ env = Environment(ZIPCOMSTR = "Zipping $TARGET")
 <para>
 The
 <varname>compression</varname>
-flag
-from the Python
-<filename>zipfile</filename>
-module used by the internal Python function
+flag from the &Python;
+<systemitem>zipfile</systemitem>
+module used by the internal &Python; function
 to control whether the zip archive
 is compressed or not.
 The default value is
