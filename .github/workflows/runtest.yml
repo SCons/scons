@@ -65,7 +65,6 @@ jobs:
             echo "test/ninja/shutdown_scons_daemon.py" >> .excludes
             echo "test/scons-time/run/option/verbose.py" >> .excludes
           elif [[ "${{matrix.os}}" == "windows"* ]]; then
-            echo "test/CPPDEFINES/pkg-config.py" >> .excludes
             echo "test/packaging/msi/explicit-target.py" >> .excludes
             echo "test/packaging/msi/file-placement.py" >> .excludes
             echo "test/packaging/msi/package.py" >> .excludes
