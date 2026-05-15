@@ -91,6 +91,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Update documentation for linking-related construction variables.
       Add a few more live links.
     - Update documentation for CacheDir and related option flags
+    - Drop old example section from manpage. This has been commented out
+      since release 4.0, when the content was used to populate the new
+      SCons Cookbook.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
