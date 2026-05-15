@@ -81,6 +81,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       on a one-time uuid to make a path to the file.
     - Clarify VariantDir behavior when switching to not duplicate sources
       and tweak wording a bit.
+    - Don't duplicate the creation of Tool objects if "default" is part of
+      the tool list.
     - Test suite: add support for Python 3.15 in the Action unit tests.
     - Update documentation of the three file-finding functions in the API
       (FindFile, FindInstalledFiles, FindSourceFiles) as well as FindPathDirs.

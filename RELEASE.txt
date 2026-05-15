@@ -75,12 +75,14 @@ IMPROVEMENTS
 - Switch remaining "original style" docstring parameter listings to Google style.
 
 - Additional small tweaks to Environment.py type hints, fold some overly
-long function signature lines, and some linting-insipired cleanups.
+long function signature lines, and some linting-inspired cleanups.
 
 - Test framework: tweak module docstrings
 
 - Test suite: end to end tests don't use assert in result checks
 
+- Don't duplicate the creation of Tool objects if "default" is part of
+  the tool list.
 - Test suite: add support for Python 3.15 in the Action unit tests.
 - zip tool now uses zipfile module's "from_file" method to populate ZipInfo
   records, rather than doing manually.
@@ -146,7 +148,7 @@ DEVELOPMENT
 - Update pyproject.toml to support Python 3.14 and remove restrictions on lxml version install
 - Unify internal "_null" sentinel usage.
 - Docbook tests: improve skip message, more clearly indicate which test
-  need actual installed system programs (add -live suffix).
+  needs actual installed system programs (add -live suffix).
 - Implement type hints for Environment and environment utilities.
 
 - MSVC: Added a host/target batch file configuration table for Visual
