@@ -21,7 +21,7 @@ def check_test_state():
     response.read()
     status = response.status
     return status == Response.OK.value
-    
+
 while not check_test_state() and count < WAIT:
     time.sleep(0.1)
     count += 0.1

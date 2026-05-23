@@ -393,4 +393,3 @@ def verify():
         if vc_version not in MSVC_VERSION_INTERNAL:
             err_msg = f'vc_version {vc_version!r} not in MSVC_VERSION_INTERNAL'
             raise MSVCInternalError(err_msg)
-
