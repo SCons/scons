@@ -36,7 +36,7 @@ def test_help_function():
     # Before anything else, make sure we get valid --debug=action-timestamps results
     # when just running the help option.
     test.run(arguments = "-h --debug=action-timestamps")
-    
+
 def build():
     # Execute build
     test.run(arguments='--debug=action-timestamps')
@@ -65,7 +65,7 @@ def test_correctness_of_timestamps(build_output):
     # Check if difference between timestamps is equal to duration
     matches = get_matches_from_output(build_output)
 
-    def match_to_float(m): 
+    def match_to_float(m):
         return float(m[1][1])
 
     execution_time = match_to_float(matches[0])

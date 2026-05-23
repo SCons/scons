@@ -12,7 +12,7 @@
  */
 function Coordinates(plotData) {
   this.plotData = plotData;
-  
+
   height = window.innerHeight - 16;
   width = window.innerWidth - 16;
 
@@ -76,7 +76,7 @@ Coordinates.prototype.xPoints = function(value) {
  */
 Coordinates.prototype.yPoints = function(value) {
   /* Converts value to canvas Y position in pixels. */
-  return this.heightMax  - this.heightMax * (value - this.yMinValue) / 
+  return this.heightMax  - this.heightMax * (value - this.yMinValue) /
     this.yValueRange();
 };
 
@@ -94,7 +94,7 @@ Coordinates.prototype.xValue = function(position) {
  * @param {number} position vertical point on canvas.
  */
 Coordinates.prototype.yValue = function(position) {
-  /* Converts canvas Y pixels to value. 
+  /* Converts canvas Y pixels to value.
   position is point value is from top.
   */
   var position = this.heightMax - position;

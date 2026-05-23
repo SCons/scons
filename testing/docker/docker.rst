@@ -89,7 +89,7 @@ which should result in an output similar to::
      Insecure Registries:
       127.0.0.0/8
      Live Restore Enabled: false
-    
+
     WARNING: No swap limit support
 
 Setup resolv.conf if necessary
@@ -98,4 +98,3 @@ Setup resolv.conf if necessary
 Docker uses `etc/resolv.conf` DNS information and passes that automatically to containers. If the file is not configured
 properly or if entries are not valid, the server adds automatically public Google DNS nameservers
 (8.8.8.8 and 8.8.4.4) to the container's DNS configuration.
-
