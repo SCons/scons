@@ -23,6 +23,9 @@ sys.path.insert(0, os.path.abspath('../../testing/framework'))
 sys.path.insert(0, os.path.abspath('../../bin'))
 sys.path.insert(0, os.path.abspath('../../'))
 
+# Set a marker in case code needs to know it's running under sphinx-build
+os.environ.setdefault("SPHINX_BUILD", "1")
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.

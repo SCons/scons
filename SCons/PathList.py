@@ -30,6 +30,7 @@ still keeping the evaluation delayed so that we Do the Right Thing
 """
 
 import os
+import sys
 
 import SCons.Memoize
 import SCons.Node
@@ -216,6 +217,7 @@ class PathListCache:
 
 PathList = PathListCache().PathList
 
-# TODO: removing the class object here means Sphinx doesn't pick up its
-#   docstrings: they're fine for reading here, but are not in API Docs.
-del PathListCache
+# Some trickery here so Sphinx can still see the class when building API docs
+_SPHINX_BUILD = os.environ.get("SPHINX_BUILD") == "1"
+if not _SPHINX_BUILD:
+    del PathListCache
