@@ -135,6 +135,8 @@ DOCUMENTATION
 - Drop old example section from manpage. This has been commented out since
   release 4.0, when the content was used to populate the new SCons Cookbook.
 
+- Update documentation for IMPLICIT_COMMAND_DEPENDENCIES construction variable.
+
 DEVELOPMENT
 -----------
 

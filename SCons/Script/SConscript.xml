@@ -90,11 +90,11 @@ env.Default(hello)
 </arguments>
 <summary>
 <para>
-Ensure that the Python version is at least
+Ensure that the &Python; version is at least
 <varname>major</varname>.<varname>minor</varname>.
 This function will
-print out an error message and exit SCons with a non-zero exit code if the
-actual Python version is not late enough.
+print out an error message and exit &SCons; with a non-zero exit code if the
+actual &Python; version is not late enough.
 </para>
 
 <para>
