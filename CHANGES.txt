@@ -54,8 +54,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Handle the default (unset) ProgressObject differently for the sole
       purpose of avoiding Sphinx 9.0+ blowing up on it (it's been giving
       a warning for years, but now it's a fatal error).
-    - Improve coverage of API doc build by ignoring any setting of
+    - Improve coverage of "API docs" build by ignoring any setting of
       __all__ in a package and not showing inherited members from optparse.
+      Add a trick to make sure the build sees PathListCache while
+      generating docs (in normal operation, it's removed so was not visible).
     - Fix --debug=includes for case of multiple source files.
     - Unify internal "_null" sentinel usage.
     - All functions/classes/non-dunder methods in Environment have docstrings.
