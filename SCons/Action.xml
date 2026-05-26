@@ -27,109 +27,66 @@ This file is processed by the bin/SConsDoc.py module.
 <cvar name="IMPLICIT_COMMAND_DEPENDENCIES">
 <summary>
 <para>
-Controls whether or not &SCons; will
-add implicit dependencies for the commands
-executed to build targets.
+Controls how &SCons; adds implicit dependencies from action strings
+(the commands executed to build targets).
+These implicit dependencies allow &SCons; to trigger target rebuilds
+when the compilers, tools, or scripts that affect build outcomes change
+(for example, when a new version of a compiler is installed).
+By default, &SCons; adds an implicit dependency on the executable
+represented by the first argument of the command line.
+This executable is first checked as a path;
+if not found, it is searched for in the execution environment's search path
+(<literal>env['ENV']['PATH']</literal>).
 </para>
 
 <para>
-By default, &SCons; will add to each target
-an implicit dependency on the command
-represented by the first argument of any
-command line it executes (which is typically
-the command itself). By setting such
-a dependency, &SCons; can determine that
-a target should be rebuilt if the command changes,
-such as when a compiler is upgraded to a new version.
-The specific file for the dependency is
-found by searching the
-<varname>PATH</varname>
-variable in the
-<varname>ENV</varname> dictionary
-in the &consenv; used to execute the command.
-The default is the same as
-setting the &consvar;
+If &cv-IMPLICIT_COMMAND_DEPENDENCIES; is set to a falsy value
+(<literal>"none"</literal>, <literal>"false"</literal>,
+<literal>"no"</literal>, <literal>"off"</literal>,
+<literal>"0"</literal> or integer <literal>0</literal>),
+no implicit dependencies from action strings are added.
+If set to an integer value greater than <literal>1</literal>,
+or to <literal>"all"</literal>,
+additional command-line arguments are checked.
+A numeric value <emphasis>N</emphasis>
+checks the first <emphasis>N</emphasis> arguments,
+while <literal>"all"</literal> checks every argument.
+A checked argument beyond the first is added as a dependency
+if it is an absolute path or it refers to
+an existing file in the filesystem;
+unlike the first argument, these additional arguments are not searched
+using the execution environment's search path.
+All other values of &cv-IMPLICIT_COMMAND_DEPENDENCIES;
+are treated the same as the default.
+The value of
 &cv-IMPLICIT_COMMAND_DEPENDENCIES;
-to a True-like value (<quote>true</quote>,
-<quote>yes</quote>,
-or <quote>1</quote> - but not a number
-greater than one, as that has a different meaning).
+is subject to substitution before it is used,
+so it can contain a &consvar; reference.
 </para>
 
 <para>
-Action strings can be segmented by the
-use of an AND operator, <literal>&amp;&amp;</literal>.
-In a segmented string, each segment is a separate
-<quote>command line</quote>, these are run
-sequentially until one fails, or the entire
-sequence has been executed. If an
-action string is segmented, then the selected
-behavior of &cv-IMPLICIT_COMMAND_DEPENDENCIES;
-is applied to each segment.
+Action strings may be segmented with a logical AND operator
+(<literal>&amp;&amp;</literal>),
+indicating each segment is executed sequentially,
+but only if the previous segment succeeded.
+If &cv-IMPLICIT_COMMAND_DEPENDENCIES; is set to
+<literal>"all"</literal> or an integer greater than <literal>1</literal>,
+each segment is treated as a separate command line
+for computing dependencies;
+otherwise, only the first segment is checked.
 </para>
-
-<para>
-If &cv-IMPLICIT_COMMAND_DEPENDENCIES;
-is set to a False-like value
-(<quote>none</quote>,
-<quote>false</quote>,
-<quote>no</quote>,
-<quote>0</quote>,
-etc.),
-then the implicit dependency will
-not be added to the targets
-built with that &consenv;.
-</para>
-
-<para>
-If &cv-IMPLICIT_COMMAND_DEPENDENCIES;
-is set to <quote>2</quote> or higher,
-then that number of arguments in the command line
-will be scanned for relative or absolute paths.
-If any are present, they will be added as
-implicit dependencies to the targets built
-with that &consenv;.
-The first argument in the command line will be
-searched for using the <varname>PATH</varname>
-variable in the <varname>ENV</varname> dictionary
-in the &consenv; used to execute the command.
-The other arguments will only be found if they
-are absolute paths or valid paths relative
-to the working directory.
-</para>
-
-<para>
-If &cv-IMPLICIT_COMMAND_DEPENDENCIES;
-is set to <quote>all</quote>,
-then all arguments in the command line will be
-scanned for relative or absolute paths.
-If any are present, they will be added as
-implicit dependencies to the targets built
-with that &consenv;.
-The first argument in the command line will be
-searched for using the <varname>PATH</varname>
-variable in the <varname>ENV</varname> dictionary
-in the &consenv; used to execute the command.
-The other arguments will only be found if they
-are absolute paths or valid paths relative
-to the working directory.
-</para>
-
-<example_commands>
-env = Environment(IMPLICIT_COMMAND_DEPENDENCIES=False)
-</example_commands>
 </summary>
 </cvar>
 
 <cvar name="PRINT_CMD_LINE_FUNC">
 <summary>
 <para>
-A Python function used to print the command lines as they are executed
-(assuming command printing is not disabled by the
-<option>-q</option>
+A &Python; function used to print the command lines as they are executed
+(unless command printing is disabled by the
+<link linkend="opt-question"><option>-q</option>/<option>--question</option></link>
 or
-<option>-s</option>
-options or their equivalents).
+<link linkend="opt-silent"><option>-s</option>/<option>--silent</option></link>
+options).
 The function must accept four arguments:
 <varname>s</varname>,
 <varname>target</varname>,

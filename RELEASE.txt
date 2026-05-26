@@ -88,6 +88,7 @@ long function signature lines, and some linting-insipired cleanups.
 
 - Test suite: end to end tests don't use assert in result checks
 
+- Test suite: add support for Python 3.15 in the Action unit tests.
 - zip tool now uses zipfile module's "from_file" method to populate ZipInfo
   records, rather than doing manually.
 
@@ -116,8 +117,10 @@ DOCUMENTATION
   a warning for years, but now it's a fatal error). Affects only the
   API doc build.
 
-- Improve coverage of API doc build by ignoring any setting of
+- Improve coverage of "API doc" build by ignoring any setting of
   __all__ in a package and not showing inherited members from optparse.
+  Add a trick to make sure build sees PathListCache while generating
+  docs (in normal operation, it's removed so was not visible).
 
 - All functions/classes/non-dunder methods in Environment now have docstrings.
 
@@ -130,8 +133,16 @@ DOCUMENTATION
 
 - Update documentation of the three file-finding functions in the API
   (FindFile, FindInstalledFiles, FindSourceFiles) as well as FindPathDirs.
+
 - Update documentation for linking-related construction variables.
   Add a few more live links.
+
+- Update documentation for CacheDir and related option flags
+
+- Drop old example section from manpage. This has been commented out since
+  release 4.0, when the content was used to populate the new SCons Cookbook.
+
+- Update documentation for IMPLICIT_COMMAND_DEPENDENCIES construction variable.
 
 DEVELOPMENT
 -----------
