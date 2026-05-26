@@ -47,7 +47,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
-    - More clarifications in manpage Builder Methods section.
     - Reduce unneeded computation of overrides. The Mkdir builder used an
       unknown argument ('explain') on creation, causing it to be considered
       an override. Also, if override dict is empty, don't even call the
@@ -55,7 +54,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Handle the default (unset) ProgressObject differently for the sole
       purpose of avoiding Sphinx 9.0+ blowing up on it (it's been giving
       a warning for years, but now it's a fatal error).
-    - Improve covarage of API doc build by ignoring any setting of
+    - Improve coverage of API doc build by ignoring any setting of
       __all__ in a package and not showing inherited members from optparse.
     - Fix --debug=includes for case of multiple source files.
     - Unify internal "_null" sentinel usage.
@@ -79,21 +78,23 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Adjust race protection for CacheDir - now uses a unique temporary
       directory for each writer before doing the move, instead of depending
       on a one-time uuid to make a path to the file.
-    - Clarify VariantDir behavior when switching to not duplicate sources
-      and tweak wording a bit.
     - Test suite: add support for Python 3.15 in the Action unit tests.
-    - Update documentation of the three file-finding functions in the API
-      (FindFile, FindInstalledFiles, FindSourceFiles) as well as FindPathDirs.
-      Also add a test for FindFile to be sure it locates non-existing
-      derived files as advertised.
+    - Add a test for FindFile to be sure it locates non-existing derived
+      files as advertised.
     - zip tool now uses zipfile module's "from_file" method to populate
       ZipInfo records, rather than doing manually.
-    - Update documentation for linking-related construction variables.
-      Add a few more live links.
-    - Update documentation for CacheDir and related option flags
-    - Drop old example section from manpage. This has been commented out
-      since release 4.0, when the content was used to populate the new
-      SCons Cookbook.
+    - Reference manual improvements:
+      * More clarifications in Builder Methods section.
+      * Clarify VariantDir behavior when switching from duplicate=True (the
+        default) to duplicate=False, and tweak wording a bit.
+      * Update documentation of the three file-finding functions (FindFile,
+        FindInstalledFiles, FindSourceFiles) as well as FindPathDirs.
+      * Update linking-related construction variables.
+      * Add a few more live links.
+      * Clarify CacheDir and related option flags.
+      * Drop old example section from manpage (not a visible change: has been
+        commented out since v4.0, when the content moved to the new Cookbook)
+      * Reword IMPLICIT_COMMAND_DEPENDENCIES construction variable.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700

@@ -266,8 +266,8 @@ directly into &cv-link-CCFLAGS; or &cv-link-CXXFLAGS;
 as the result will be non-portable
 and the directories will not be searched by the dependency scanner.
 &cv-CPPPATH; should be a list of path strings,
-or a single string, not a pathname list joined by
-Python's <systemitem>os.pathsep</systemitem>.
+or a single string, not a pathname list joined by the
+&Python; <systemitem>os.pathsep</systemitem> character.
 </para>
 
 <para>
@@ -527,7 +527,7 @@ The list of directories that will be searched for libraries
 specified by the &cv-link-LIBS; &consvar;.
 &cv-LIBPATH; should be a list of path strings,
 or a single string, not a pathname list joined by
-Python's <systemitem>os.pathsep</systemitem>.
+the &Python; <systemitem>os.pathsep</systemitem> character.
 <!-- XXX OLD
 The implicit dependency scanner will search these
 directories for include files. Don't explicitly put include directory

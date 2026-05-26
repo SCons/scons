@@ -37,7 +37,7 @@ the strings representing how the option can be called,
 while the keyword arguments define attributes of the option.
 For the most part these are the same as for the
 <function>OptionParser.add_option</function>
-method in the standard Python library module
+method in the standard &Python; library module
 <systemitem>optparse</systemitem>,
 but with a few additional capabilities noted below.
 See the
@@ -240,7 +240,7 @@ when the build failure occurred.
 <para>
 <literal>.status</literal>
 The numeric exit status
-returned by the command or Python function
+returned by the command or &Python; function
 that failed when trying to build the
 specified Node.
 </para>
@@ -322,8 +322,8 @@ Its primary intended use is
 for functions that will be
 executed before SCons exits
 by passing them to the
-standard Python
-<function>atexit.register</function>()
+standard &Python;
+<function>atexit.register</function>
 function.
 Example:
 </para>
@@ -706,7 +706,7 @@ evaluating Nodes (e.g. files).
 </para>
 
 <para>
-If the first specified argument is a Python callable
+If the first specified argument is a &Python; callable
 (a function or an object that has a
 <methodname>__call__</methodname> method),
 the function will be called
