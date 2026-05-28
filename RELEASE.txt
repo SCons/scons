@@ -139,6 +139,8 @@ DOCUMENTATION
 
 - Fix typo in preface
 
+- Fix broken links in Chapter 1 of User Guide
+
 DEVELOPMENT
 -----------
 
