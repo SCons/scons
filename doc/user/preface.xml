@@ -230,8 +230,8 @@ This file is processed by the bin/SConsDoc.py module.
     It may also be useful to keep the &SCons; man page open in a separate
     browser tab or window to refer to as a complement to this Guide,
     which can avoid some jumping back and forth.
-    The four important manpage sections describiing the
-    of &consvars;, builders, tools and environment methods
+    The four important manpage sections describing the
+    &consvars;, builders, tools and environment methods
     are actually duplicated as appendices in the User Guide,
     to avoid inter-document links.
 

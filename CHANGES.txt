@@ -45,6 +45,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix Appveyor scripting to install unavailable python versions when needed and use them
       for testing.
 
+  From Prabhu S. Khalsa:
+    - Fix typo in preface
+
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
     - Reduce unneeded computation of overrides. The Mkdir builder used an
