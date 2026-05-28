@@ -138,6 +138,8 @@ DOCUMENTATION
 - Update documentation for IMPLICIT_COMMAND_DEPENDENCIES construction variable.
 
 - Fix typo in preface
+- Remove word "below" when content is not actually located below
+
 
 DEVELOPMENT
 -----------

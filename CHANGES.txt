@@ -47,6 +47,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Prabhu S. Khalsa:
     - Fix typo in preface
+    - Remove word "below" when content is not actually located below
 
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
