@@ -138,6 +138,7 @@ DOCUMENTATION
 - Update documentation for IMPLICIT_COMMAND_DEPENDENCIES construction variable.
 
 - Fix typo in preface
+- Fix typo in Chapter 9 of User Guide
 
 DEVELOPMENT
 -----------
