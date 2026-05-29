@@ -47,6 +47,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Prabhu S. Khalsa:
     - Fix typo in preface
+    - Fix typo in Chapter 10 of User Guide
 
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
