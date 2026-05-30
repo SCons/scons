@@ -131,7 +131,7 @@ Python 3.9.15
     <para>
     The link for downloading &Python; installers (Windows and Mac)
     from the project's own website is:
-    <ulink url="https://www.python.org/download">https://www.python.org/download</ulink>.
+    <ulink url="https://www.python.org/downloads">https://www.python.org/downloads</ulink>.
     There are useful system-specific entries on setup and
     usage to be found at:
     <ulink url="https://docs.python.org/3/using">https://docs.python.org/3/using</ulink>
@@ -330,7 +330,7 @@ $ <userinput>python <replaceable>/path/to/unpacked</replaceable>/scripts/scons.p
       in the environment stays in that environment.
       The &Python; standard library provides a module called
       <systemitem>venv</systemitem> for creating these
-      (<ulink url="https://docs.python.org/e/library/venv.html"/>),
+      (<ulink url="https://docs.python.org/3/library/venv.html"/>),
       although there are also other tools which provide more precise
       control of the setup.
       </para>

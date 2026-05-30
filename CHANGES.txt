@@ -47,6 +47,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Prabhu S. Khalsa:
     - Fix typos in preface, Chapter 6, Chapter 9 and Chapter 10 of User Guide
+    - Fix broken links in Chapter 1 of User Guide
 
 
   From Mats Wichmann:
