@@ -46,7 +46,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       for testing.
 
   From Prabhu S. Khalsa:
-    - Fix typo in preface, Chapter 6 and Chapter 10 of User Guide
+    - Fix typos in preface, Chapter 6, Chapter 9 and Chapter 10 of User Guide
+
 
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
