@@ -48,7 +48,7 @@ This file is processed by the bin/SConsDoc.py module.
     <para>
 
     Command-line arguments that begin with a
-    <literal>-</literal> (hyphen) characters
+    <literal>-</literal> (hyphen) character
     are called <firstterm>options</firstterm>.
     &SCons; provides ways for you to examine
     and act on options and their values,

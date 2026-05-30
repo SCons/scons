@@ -1084,7 +1084,7 @@ SetOption('implicit_cache', 1)
     Sometimes a file depends on another file
     that is not detected by an &SCons; scanner.
     For this situation,
-    &SCons; allows you to specific explicitly that one file
+    &SCons; allows you to specify explicitly that one file
     depends on another file,
     and must be rebuilt whenever that file changes.
     This is specified using the &f-link-Depends; method:
