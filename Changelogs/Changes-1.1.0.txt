@@ -1,0 +1,129 @@
+RELEASE 1.1.0 - Thu, 09 Oct 2008 08:33:47 -0700
+
+  From Chris AtLee
+
+    - Use the specified environment when checking for the GCC compiler
+      version.
+
+  From Ian P. Cardenas:
+
+    - Fix Glob() polluting LIBPATH by returning copy of list
+
+  From David Cournapeau:
+
+    - Add CheckCC, CheckCXX, CheckSHCC and CheckSHCXX tests to
+      configuration contexts.
+
+    - Have the --profile= argument use the much faster cProfile module
+      (if it's available in the running Python version).
+
+    - Reorder MSVC compilation arguments so the /Fo is first.
+
+  From Bill Deegan:
+
+    - Add scanning Windows resource (.rc) files for implicit dependencies.
+
+  From John Gozde:
+
+    - When scanning for a #include file, don't use a directory that
+      has the same name as the file.
+
+  From Ralf W. Grosse-Kunstleve
+
+    - Suppress error output when checking for the GCC compiler version.
+
+  From Jared Grubb:
+
+    - Fix VariantDir duplication of #included files in subdirectories.
+
+  From Ludwig Hï¿½hne:
+
+    - Reduce memory usage when a directory is used as a dependency of
+      another Node (such as an Alias) by returning a concatenation
+      of the children's signatures + names, not the children's contents,
+      as the directory contents.
+
+    - Raise AttributeError, not KeyError, when a Builder can't be found.
+
+    - Invalidate cached Node information (such as the contenst returned
+      by the get_contents() method) when calling actions with Execute().
+
+    - Avoid object reference cycles from frame objects.
+
+    - Reduce memory usage from Null Executor objects.
+
+    - Compute MD5 checksums of large files without reading the entire
+      file contents into memory.  Add a new --md5-chunksize option to
+      control the size of each chunk read into memory.
+
+  From Steven Knight:
+
+    - Fix the ability of the add_src_builder() method to add a new
+      source builder to any other builder.
+
+    - Avoid an infinite loop on non-Windows systems trying to find the
+      SCons library directory if the Python library directory does not
+      begin with the string "python".
+
+    - Search for the SCons library directory in "scons-local" (with
+      no version number) after "scons-local-{VERSION}".
+
+  From Rob Managan:
+
+    - Fix the user's ability to interrupt the TeX build chain.
+
+    - Fix the TeX builder's allowing the user to specify the target name,
+      instead of always using its default output name based on the source.
+
+    - Iterate building TeX output files until all warning are gone
+      and the auxiliary files stop changing, or until we reach the
+      (configurable) maximum number of retries.
+
+    - Add TeX scanner support for:  glossaries, nomenclatures, lists of
+      figures, lists of tables, hyperref and beamer.
+
+    - Use the $BIBINPUTS, $BSTINPUTS, $TEXINPUTS and $TEXPICTS construction
+      variables as search paths for the relevant types of input file.
+
+    - Fix building TeX with VariantDir(duplicate=0) in effect.
+
+    - Fix the LaTeX scanner to search for graphics on the TEXINPUTS path.
+
+    - Have the PDFLaTeX scanner search for .gif files as well.
+
+  From Greg Noel:
+
+    - Fix typos and format bugs in the man page.
+
+    - Add a first draft of a wrapper module for Python's subprocess
+      module.
+
+    - Refactor use of the SCons.compat module so other modules don't
+      have to import it individually.
+
+    - Add .sx as a suffix for assembly language files that use the
+      C preprocessor.
+
+  From Gary Oberbrunner:
+
+    - Make Glob() sort the returned list of Files or Nodes
+      to prevent spurious rebuilds.
+
+    - Add a delete_existing keyword argument to the AppendENVPath()
+      and PrependENVPath() Environment methods.
+
+    - Add ability to use "$SOURCE" when specifying a target to a builder
+
+  From Damyan Pepper:
+
+    - Add a test case to verify that SConsignFile() files can be
+      created in previously non-existent subdirectories.
+
+  From Jim Randall:
+
+    - Make the subdirectory in which the SConsignFile() file will
+      live, if the subdirectory doesn't already exist.
+
+  From Ali Tofigh:
+
+    - Add a test to verify duplication of files in VariantDir subdirectories.
