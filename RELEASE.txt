@@ -139,8 +139,10 @@ DOCUMENTATION
 
 - Fix typos in preface, Chapter 6, Chapter 9 and Chapter 10 of User Guide
 
-
 - Fix broken links in Chapter 1 of User Guide
+
+- Tighten up the doc for Variables-Add() and add a note on file contents
+  not being preserved to Variables-Save()
 
 DEVELOPMENT
 -----------
