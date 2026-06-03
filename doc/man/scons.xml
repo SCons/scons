@@ -5009,48 +5009,48 @@ the first item in the sequence is taken as the variable name,
 and any remaining values are considered aliases for the variable.
 <parameter>key</parameter> is mandatory,
 the other fields are optional.
+</para>
+
+<para>
 <parameter>help</parameter>
-is the help text for the variable
-(defaults to an empty string).
+is the help text for the variable (default is an empty string).
+</para>
+
+<para>
 <parameter>default</parameter>
-is the default value of the variable
-(defaults to <constant>None</constant>).
-The variable will be set to the value of
-<parameter>default</parameter> if it does
-not appear in the input sources,
-except if <parameter>default</parameter>
-is <literal>None</literal>,
-in which case it is not added to the &consenv;
-unless it has been set in the input sources.
+is the value assigned to the variable in the &consenv;
+if no value is provided in the input sources.
+If <parameter>default</parameter> is <literal>None</literal> (the default),
+the variable is not added to the &consenv;
+unless explicitly set in the input sources.
+The default value can be of the intended type,
+or a string that the <parameter>converter</parameter>
+can transform into that type.
 </para>
 
 <para>
 If the <parameter>validator</parameter> argument is supplied,
-it is a callback function to validate the value of the variable
-when the variables are processed
-(that is, when the <link linkend='v-Update'>&Update;</link>
-method runs).
-A validator function must accept three arguments:
+it is a callback function to validate the value of the variable.
+The validator is called when the <link linkend='v-Update'>&Update;</link>
+method is called.
+A validator must accept three arguments:
 <parameter>key</parameter>,
-<parameter>value</parameter>
-and <parameter>env</parameter>,
-and should raise an exception (with a helpful error message)
-if <parameter>value</parameter> is invalid.
-No return value is expected from the validator.
+<parameter>value</parameter>,
+and <parameter>env</parameter>.
+It should raise an exception (with a helpful error message)
+if the value is invalid; no return value is expected.
 </para>
 
 <para>
 If the <parameter>converter</parameter> argument is supplied,
-it is a callback function to convert the value into
-one suitable for adding to the &consenv;.
-A converter function must accept the
-<parameter>value</parameter> argument,
-and may declare <parameter>env</parameter>
-as a second argument if it needs access to the
-&consenv; while validating - the function will be called appropriately.
-The converter is called before the validator;
-it must return a value, which is then passed to the
-<parameter>validator</parameter> (if any) for checking.
+it is a callback function to transform the value into
+the format desired for the &consenv;.
+A converter is called before the validator.
+It must return a value, which is then passed to the
+<parameter>validator</parameter> (if any).
+A converter must accept at least a <parameter>value</parameter> argument,
+and may optionally accept <parameter>env</parameter>
+as a second argument if it needs access to the &consenv;.
 In general, the converter should not fail,
 leaving validation checks to the validator,
 although if an operation is impossible to complete
@@ -5059,10 +5059,11 @@ it can raise a <exceptionname>ValueError</exceptionname>.
 </para>
 
 <para>
-Substitution will be performed on the variable value
-before the converter and validator are called,
-unless the optional <parameter>subst</parameter> parameter
-is false (the default is <literal>True</literal>).
+If the <parameter>subst</parameter> argument is supplied,
+it is a boolean that indicates whether to perform
+substitution on the value before passing it to the
+converter and validator functions.
+The default is <literal>True</literal>.
 Suppressing substitution may be useful if the variable value
 looks like a &consvar; reference (e.g. <literal>$VAR</literal>)
 and the validator and/or converter should see it unexpanded.
@@ -5071,12 +5072,13 @@ and the validator and/or converter should see it unexpanded.
 <para>
 As a special case, if <parameter>key</parameter>
 is a sequence and is the <emphasis>only</emphasis>
-argument to &Add;, it is unpacked into the five parameters
+argument to &Add;, it is unpacked into the six parameters
 <parameter>key</parameter>,
 <parameter>help</parameter>,
 <parameter>default</parameter>,
-<parameter>validator</parameter> and
+<parameter>validator</parameter>,
 <parameter>converter</parameter>,
+and <parameter>subst</parameter>,
 with any missing members from the right filled in with
 the respective default values.
 This form allows it
@@ -5236,13 +5238,16 @@ Help(vars.GenerateHelpText(env, sort=cmp))
   <term><replaceable>vars</replaceable>.<function>Save</function>(<parameter>filename, env</parameter>)</term>
   <listitem>
 <para>Saves the currently set variables into a script file named
-by <parameter>filename</parameter>.
-This provides a way to cache particular variable settings for reuse.
-Only variables that are set to non-default values are saved.
+<parameter>filename</parameter>.
 You can load these saved variables on a subsequent run
-by passing <parameter>filename</parameter> to the
-<link linkend='v-Variables'>&Variables;</link> function,
-
+by passing the file to the
+<link linkend='v-Variables'>&Variables;</link> function.
+This provides a way to cache particular variable settings for reuse.
+Only variables set to non-default values are saved.
+Each selected variable is saved as a &Python; assignment statement.
+Previous contents of the save file are not preserved
+except if they were used to populate the
+<classname>Variables</classname> object.
 </para>
 
 <programlisting language="python">
