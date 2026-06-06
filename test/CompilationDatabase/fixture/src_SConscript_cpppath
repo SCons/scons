@@ -1,0 +1,2 @@
+Import('env')
+env.Object('test_main.c', CPPPATH=['inc'])

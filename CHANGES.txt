@@ -105,6 +105,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
         commented out since v4.0, when the content moved to the new Cookbook)
       * Reword IMPLICIT_COMMAND_DEPENDENCIES construction variable.
 
+  From Will Toohey:
+    - Fix compile_commands.json having incorrect include paths for clean builds
+      when a variant dir is used, duplicate=0, and a relative CPPPATH is used in
+      a child SConscript.
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
 

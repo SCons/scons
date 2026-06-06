@@ -3305,7 +3305,6 @@ class File(Base):
             self._specific_sources = False
             self._labspath = ""
             self._save_str()
-            self.cwd = None
 
             self.scanner_paths = None
 
