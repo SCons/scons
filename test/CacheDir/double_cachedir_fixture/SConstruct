@@ -37,4 +37,3 @@ cloned = env.Clone()
 cloned.Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
 
 env.CacheDir('cache1', CustomCacheDir1)
-

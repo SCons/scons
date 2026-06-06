@@ -196,4 +196,3 @@ Check the SCons web site at https://scons.org
 
 
 Copyright (c) 2001 - 2026 The SCons Foundation
-

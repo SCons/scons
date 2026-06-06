@@ -2883,4 +2883,3 @@ def msvc_query_version_toolset(version=None, prefer_newest: bool=True, vswhere_e
 
 # internal consistency check (should be last)
 MSVC._verify()
-
