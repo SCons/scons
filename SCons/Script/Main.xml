@@ -425,9 +425,9 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
 <row>
   <entry><varname>climb_up</varname></entry>
   <entry>
+    <link linkend="opt-D"><option>-D</option></link>,
+    <link linkend="opt-U"><option>-U</option></link>,
     <link linkend="opt-up">
-      <option>-D</option>,
-      <option>-U</option>,
       <option>-u</option>,
       <option>--up</option>,
       <option>--search_up</option>
