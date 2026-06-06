@@ -533,7 +533,7 @@ void bar2() { printf("bar2.c\n"); }
     the individual object files must be built
     before the resulting program can be built.
     (This will be covered in greater detail in
-    <xref linkend="chap-depends"/>, below.)
+    <xref linkend="chap-depends"/>.)
 
     </para>
 
@@ -550,7 +550,7 @@ void bar2() { printf("bar2.c\n"); }
     from the common source files,
     which can then be linked into resulting programs.
     (Creating libraries is discussed in
-    <xref linkend="chap-libraries"></xref>, below.)
+    <xref linkend="chap-libraries"></xref>.)
 
     </para>
 

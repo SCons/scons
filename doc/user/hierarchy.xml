@@ -433,7 +433,7 @@ x
 
     (Notice that the <literal>lib/foo1.o</literal> object file
     is built in the same directory as its source file.
-    See <xref linkend="chap-separate"></xref>, below,
+    See <xref linkend="chap-separate"></xref>,
     for information about
     how to build the object file in a different subdirectory.)
 
@@ -532,7 +532,7 @@ x
     (As was the case with top-relative path names,
     notice that the <literal>/usr/joe/lib/foo1.o</literal> object file
     is built in the same directory as its source file.
-    See <xref linkend="chap-separate"></xref>, below,
+    See <xref linkend="chap-separate"></xref>,
     for information about
     how to build the object file in a different subdirectory.)
 
