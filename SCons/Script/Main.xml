@@ -350,16 +350,9 @@ atexit.register(print_build_failures)
 Query the value of settable option <parameter>name</parameter>,
 which may have been set on the command line, via option defaults,
 or using the &f-link-SetOption; function.
-The value of the option is returned in a type matching how the
-option was declared - see the documentation of the
-corresponding command line option for information about each specific
-option.
-</para>
-
-<para>
-<parameter>name</parameter> can be an entry from the following table,
-which shows the corresponding command line arguments
+The table shows the corresponding command line arguments
 that could affect the value.
+Options are stored using the indicated type.
 <parameter>name</parameter> can be also be the destination
 variable name from a project-specific option added using the
 &f-link-AddOption; function, as long as that addition has been
@@ -382,7 +375,7 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
   <entry>
     <link linkend="opt-cache-debug"><option>--cache-debug</option></link>
   </entry>
-
+  <entry>String (filename)</entry>
 </row>
 <row>
   <entry><varname>cache_disable</varname></entry>
@@ -392,6 +385,7 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
       <option>--no-cache</option>
     </link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>cache_force</varname></entry>
@@ -401,18 +395,21 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
       <option>--cache-populate</option>
     </link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>cache_readonly</varname></entry>
   <entry>
     <link linkend="opt-cache-readonly"><option>--cache-readonly</option></link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>cache_show</varname></entry>
   <entry>
     <link linkend="opt-cache-show"><option>--cache-show</option></link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>clean</varname></entry>
@@ -423,26 +420,35 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
       <option>--remove</option>
     </link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>climb_up</varname></entry>
   <entry>
+    <link linkend="opt-D"><option>-D</option></link>,
+    <link linkend="opt-U"><option>-U</option></link>,
     <link linkend="opt-up">
-      <option>-D</option>,
-      <option>-U</option>,
       <option>-u</option>,
       <option>--up</option>,
       <option>--search_up</option>
     </link>
   </entry>
+  <entry>
+    Integer.
+    1 means <option>-u</option> was given,
+    2 is <option>-D</option>,
+    3 is <option>-U</option>.
+  </entry>
 </row>
 <row>
   <entry><varname>config</varname></entry>
   <entry><link linkend="opt-config"><option>--config</option></link></entry>
+  <entry>String</entry>
 </row>
 <row>
   <entry><varname>debug</varname></entry>
   <entry><link linkend="opt-debug"><option>--debug</option></link></entry>
+  <entry>List</entry>
 </row>
 <row>
   <entry><varname>directory</varname></entry>
@@ -452,27 +458,31 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
       <option>--directory</option>
     </link>
   </entry>
+  <entry>List (paths)</entry>
 </row>
 <row>
   <entry><varname>diskcheck</varname></entry>
   <entry><link linkend="opt-diskcheck"><option>--diskcheck</option></link></entry>
+  <entry>List</entry>
 </row>
 <row>
   <entry><varname>duplicate</varname></entry>
   <entry><link linkend="opt-duplicate"><option>--duplicate</option></link></entry>
+  <entry>String</entry>
 </row>
 <row>
   <entry><varname>enable_virtualenv</varname></entry>
   <entry>
     <link linkend="opt-enable-virtualenv"><option>--enable-virtualenv</option></link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>experimental</varname></entry>
   <entry>
     <link linkend="opt-experimental"><option>--experimental</option></link>
   </entry>
-  <entry><emphasis>Since 4.2</emphasis>.</entry>
+  <entry>Set. <emphasis>Since 4.2</emphasis>.</entry>
 </row>
 <row>
   <entry><varname>file</varname></entry>
@@ -484,6 +494,7 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
       <option>--sconstruct</option>
     </link>
   </entry>
+  <entry>List (filenames)</entry>
 </row>
 <row>
   <entry><varname>hash_chunksize</varname></entry>
@@ -491,13 +502,14 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
     <link linkend="opt-hash-chunksize"><option>--hash-chunksize</option></link>
   </entry>
   <entry>
-    Replaces <option>md5_chunksize</option>. <emphasis>Since 4.2</emphasis>
+    Integer. Supersedes <option>md5_chunksize</option>.
+    <emphasis>Since 4.2</emphasis>
   </entry>
 </row>
 <row>
   <entry><varname>hash_format</varname></entry>
   <entry><link linkend="opt-hash-format"><option>--hash-format</option></link></entry>
-  <entry><emphasis>Since 4.2</emphasis></entry>
+  <entry>String. <emphasis>Since 4.2</emphasis></entry>
 </row>
 <row>
   <entry><varname>help</varname></entry>
@@ -506,6 +518,7 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
         <option>-h</option>, <option>--help</option>
       </link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>ignore_errors</varname></entry>
@@ -515,24 +528,28 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
       <option>--ignore-errors</option>
     </link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>ignore_virtualenv</varname></entry>
   <entry>
     <link linkend="opt-ignore-virtualenv"><option>--ignore-virtualenv</option></link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>implicit_cache</varname></entry>
   <entry>
     <link linkend="opt-implicit-cache"><option>--implicit-cache</option></link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>implicit_deps_changed</varname></entry>
   <entry>
     <link linkend="opt-implicit-deps-changed"><option>--implicit-deps-changed</option></link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>implicit_deps_unchanged</varname></entry>
@@ -541,6 +558,7 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
       <option>--implicit-deps-unchanged</option>
     </link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>include_dir</varname></entry>
@@ -550,13 +568,14 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
       <option>--include-dir</option>
     </link>
   </entry>
+  <entry>List (paths)</entry>
 </row>
 <row>
   <entry><varname>install_sandbox</varname></entry>
   <entry>
     <link linkend="opt-install-sandbox"><option>--install-sandbox</option></link>
   </entry>
-  <entry>Available only if the &t-link-install; tool has been called</entry>
+  <entry>String (filename). Available only if the &t-link-install; tool has been called</entry>
 </row>
 <row>
   <entry><varname>keep_going</varname></entry>
@@ -566,10 +585,12 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
       <option>--keep-going</option>
     </link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>max_drift</varname></entry>
   <entry><link linkend="opt-max-drift"><option>--max-drift</option></link></entry>
+  <entry>Integer</entry>
 </row>
 <row>
   <entry><varname>md5_chunksize</varname></entry>
@@ -577,7 +598,7 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
     <link linkend="opt-hash-chunksize"><option>--hash-chunksize</option></link>
   </entry>
   <entry>
-    Replaced by <option>hash_chunksize</option>.
+    Integer. Superseded by <option>hash_chunksize</option>.
     <emphasis>Deprecated since 4.2</emphasis>
   </entry>
 </row>
@@ -592,27 +613,31 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
       <option>--recon</option>
     </link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>no_progress</varname></entry>
   <entry><link linkend="opt-Q"><option>-Q</option></link></entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>num_jobs</varname></entry>
   <entry>
     <link linkend="opt-jobs"><option>-j</option>, <option>--jobs</option></link>
   </entry>
+  <entry>Integer</entry>
 </row>
 <row>
   <entry><varname>package_type</varname></entry>
   <entry>
     <link linkend="opt-package-type"><option>--package-type</option></link>
   </entry>
-  <entry>Available only if the &t-link-packaging; tool has been called</entry>
+  <entry>String. Available only if the &t-link-packaging; tool has been called</entry>
 </row>
 <row>
   <entry><varname>profile_file</varname></entry>
   <entry><link linkend="opt-profile"><option>--profile</option></link></entry>
+  <entry>String (filename)</entry>
 </row>
 <row>
   <entry><varname>question</varname></entry>
@@ -622,12 +647,14 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
       <option>--question</option>
     </link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>random</varname></entry>
   <entry>
     <link linkend="opt-random"><option>--random</option></link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>repository</varname></entry>
@@ -638,6 +665,7 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
       <option>--srcdir</option>
     </link>
   </entry>
+  <entry>List (paths)</entry>
 </row>
 <row>
   <entry><varname>silent</varname></entry>
@@ -648,6 +676,7 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
       <option>--quiet</option>
     </link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 <row>
   <entry><varname>site_dir</varname></entry>
@@ -655,22 +684,26 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
     <link linkend="opt-site-dir"><option>--site-dir</option></link>,
     <link linkend="opt-no-site-dir"><option>--no-site-dir</option></link>
   </entry>
+  <entry>String (path), False or None</entry>
 </row>
 <row>
   <entry><varname>stack_size</varname></entry>
   <entry>
     <link linkend="opt-stack-size"><option>--stack-size</option></link>
   </entry>
+  <entry>Integer</entry>
 </row>
 <row>
   <entry><varname>taskmastertrace_file</varname></entry>
   <entry>
     <link linkend="opt-taskmastertrace"><option>--taskmastertrace</option></link>
   </entry>
+  <entry>String (filename)</entry>
 </row>
 <row>
   <entry><varname>tree_printers</varname></entry>
   <entry><link linkend="opt-tree"><option>--tree</option></link></entry>
+  <entry>List</entry>
 </row>
 <row>
   <entry><varname>warn</varname></entry>
@@ -680,6 +713,7 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
       <option>--warning</option>
     </link>
   </entry>
+  <entry>List</entry>
 </row>
 
 </tbody>
@@ -883,22 +917,24 @@ in many situations when defining target names that are not directly built.
 <para>
 Set option variable <parameter>name</parameter>
 to <parameter>value</parameter>.
-Settable  options have corresponding command-line
-arguments, which can be used for one-time overrides,
-as a value set via command-line option will take
+Settable options have corresponding command-line options,
+as shown in the table,
+which can be used for one-time overrides -
+a value set via the command line will take
 precedence over one set with &f-SetOption;.
-The table shows the correspondence between the
-option name and the command-line argument(s).
+In addition to SConscript files,
 &f-SetOption; calls can also be placed in a
 <filename>site_init.py</filename> file.
+The current value can be queried with
+&f-link-GetOption;.
 </para>
 
 <para>
 The behavior of the options is described in the
-manpage entry for the command-line version.
+manpage entry for the associated command-line option.
 The <parameter>value</parameter> parameter is mandatory;
-for option values which are boolean in nature
-(that is, the command line option does not take an argument)
+for boolean option values
+(where the command-line option does not take an option-argument)
 use a <parameter>value</parameter>
 which evaluates to true (e.g. <constant>True</constant>,
 <constant>1</constant>) or false (e.g. <constant>False</constant>,
@@ -915,7 +951,7 @@ be read in order to find the &f-SetOption; call in the first place.
 For project-specific options (sometimes called
 <firstterm>local options</firstterm>)
 added via an &f-link-AddOption; call,
-&f-SetOption; is available only after the
+&f-SetOption; is allowed only after the
 &f-AddOption; call has completed successfully,
 and only if that call included the
 <parameter>settable=True</parameter> keyword argument.
@@ -948,6 +984,7 @@ The settable variables with their associated command-line options are:
       <option>--remove</option>
     </link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 
 <row>
@@ -955,6 +992,7 @@ The settable variables with their associated command-line options are:
   <entry>
     <link linkend="opt-diskcheck"><option>--diskcheck</option></link>
   </entry>
+  <entry>List</entry>
 </row>
 
 <row>
@@ -962,6 +1000,7 @@ The settable variables with their associated command-line options are:
   <entry>
     <link linkend="opt-duplicate"><option>--duplicate</option></link>
   </entry>
+  <entry>String</entry>
 </row>
 
 <row>
@@ -969,7 +1008,7 @@ The settable variables with their associated command-line options are:
   <entry>
     <link linkend="opt-experimental"><option>--experimental</option></link>
   </entry>
-  <entry><emphasis>Since 4.2</emphasis>.</entry>
+  <entry>Set. <emphasis>Since 4.2</emphasis>.</entry>
 </row>
 
 <row>
@@ -978,7 +1017,8 @@ The settable variables with their associated command-line options are:
     <link linkend="opt-hash-chunksize"><option>--hash-chunksize</option></link>
   </entry>
   <entry>
-    Replaces <option>md5_chunksize</option>. <emphasis>Since 4.2</emphasis>
+    Integer. Supersedes <option>md5_chunksize</option>.
+    <emphasis>Since 4.2</emphasis>
   </entry>
 </row>
 
@@ -987,7 +1027,7 @@ The settable variables with their associated command-line options are:
   <entry>
     <link linkend="opt-hash-format"><option>--hash-format</option></link>
   </entry>
-  <entry><emphasis>Since 4.2</emphasis></entry>
+  <entry>String. <emphasis>Since 4.2</emphasis></entry>
 </row>
 
 <row>
@@ -995,6 +1035,7 @@ The settable variables with their associated command-line options are:
   <entry>
     <link linkend="opt-H"><option>-h</option>, <option>--help</option></link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 
 <!-- XXX   <varlistentry id="opt-ignore-errors"> ?? -->
@@ -1004,6 +1045,7 @@ The settable variables with their associated command-line options are:
   <entry>
     <link linkend="opt-implicit-cache"><option>--implicit-cache</option></link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 
 <row>
@@ -1014,7 +1056,7 @@ The settable variables with their associated command-line options are:
     </link>
   </entry>
   <entry>
-    Also sets <varname>implicit_cache</varname>.
+    Boolean. Also sets <varname>implicit_cache</varname>.
     <emphasis>Settable since 4.2</emphasis>
   </entry>
 </row>
@@ -1027,7 +1069,7 @@ The settable variables with their associated command-line options are:
     </link>
   </entry>
   <entry>
-    Also sets <varname>implicit_cache</varname>.
+    Boolean. Also sets <varname>implicit_cache</varname>.
     <emphasis>Settable since 4.2</emphasis>
   </entry>
 </row>
@@ -1039,6 +1081,7 @@ The settable variables with their associated command-line options are:
   <entry>
     <link linkend="opt-max-drift"><option>--max-drift</option></link>
   </entry>
+  <entry>Integer</entry>
 </row>
 
 <row>
@@ -1047,7 +1090,7 @@ The settable variables with their associated command-line options are:
     <link linkend="opt-hash-chunksize"><option>--hash-chunksize</option></link>
   </entry>
   <entry>
-    Synonym for <option>hash_chunksize</option>.
+    Integer. Superseded by <option>hash_chunksize</option>.
     <emphasis>Deprecated since 4.2</emphasis>
   </entry>
 </row>
@@ -1063,6 +1106,7 @@ The settable variables with their associated command-line options are:
       <option>--recon</option>
     </link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 
 <row>
@@ -1070,7 +1114,7 @@ The settable variables with their associated command-line options are:
   <entry>
     <link linkend="opt-Q"><option>-Q</option></link>
   </entry>
-  <entry>See
+  <entry>Boolean. See
     <footnote>
       <para>If <varname>no_progress</varname> is set via &f-SetOption;
       in an SConscript file
@@ -1089,11 +1133,13 @@ The settable variables with their associated command-line options are:
   <entry>
     <link linkend="opt-jobs"><option>-j</option>, <option>--jobs</option></link>
   </entry>
+  <entry>Integer</entry>
 </row>
 
 <row>
   <entry><varname>random</varname></entry>
   <entry><link linkend="opt-random"><option>--random</option></link></entry>
+  <entry>Boolean</entry>
 </row>
 
 <row>
@@ -1105,6 +1151,7 @@ The settable variables with their associated command-line options are:
       <option>--quiet</option>
     </link>
   </entry>
+  <entry>Boolean</entry>
 </row>
 
 <row>
@@ -1112,11 +1159,13 @@ The settable variables with their associated command-line options are:
   <entry>
     <link linkend="opt-stack-size"><option>--stack-size</option></link>
   </entry>
+  <entry>Integer</entry>
 </row>
 
 <row>
   <entry><varname>warn</varname></entry>
   <entry><link linkend="opt-warn"><option>--warn</option></link></entry>
+  <entry>List</entry>
 </row>
 
 </tbody>

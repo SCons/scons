@@ -104,6 +104,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       * Drop old example section from manpage (not a visible change: has been
         commented out since v4.0, when the content moved to the new Cookbook)
       * Reword IMPLICIT_COMMAND_DEPENDENCIES construction variable.
+      * Add info on the type of an option variable to GetOption and SetOption.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700

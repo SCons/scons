@@ -142,8 +142,10 @@ DOCUMENTATION
 
 - Fix typos in preface, Chapter 6, Chapter 9 and Chapter 10 of User Guide
 
-
 - Fix broken links in Chapter 1 of User Guide
+
+* Add info on the type of an option variable to GetOption and SetOption.
+
 
 DEVELOPMENT
 -----------
