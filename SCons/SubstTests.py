@@ -31,10 +31,13 @@ from functools import partial
 import SCons.Errors
 
 from SCons.Subst import (
+    CmdStringHolder,
+    ListSubber,
     Literal,
     SUBST_CMD,
     SUBST_RAW,
     SUBST_SIG,
+    SetAllowableExceptions,
     SpecialAttrWrapper,
     escape_list,
     quote_spaces,
@@ -700,6 +703,39 @@ class scons_subst_TestCase(SubstTestCase):
         result = scons_subst('$XXX', env, gvars={'XXX' : 'yyy'})
         assert result == 'yyy', result
 
+    def test_subst_builtins_not_leaked(self) -> None:
+        """Test scons_subst():  gvars is clean even after a failed substitution"""
+        env = DummyEnv(self.loc)
+        gvars = {'ZERO': 0}
+        try:
+            scons_subst('${1 / ZERO}', env, gvars=gvars)
+        except SCons.Errors.UserError:
+            pass
+        else:
+            raise AssertionError("did not catch expected UserError")
+        assert '__builtins__' not in gvars, gvars.keys()
+
+    def test_subst_overrides_does_not_mutate_lvars(self) -> None:
+        """Test scons_subst():  overrides must not leak into a caller's lvars"""
+        env = DummyEnv({'XXX': 'xxx'})
+        lvars = {'TARGET': 't'}
+        result = scons_subst('$XXX', env, gvars=env.Dictionary(),
+                             lvars=lvars, overrides={'XXX': 'yyy'})
+        assert result == 'yyy', result
+        assert lvars == {'TARGET': 't'}, lvars
+
+    def test_subst_callable_no_signature(self) -> None:
+        """Test scons_subst():  callable that inspect.signature() rejects
+
+        Some C/builtin callables (e.g. time.time) make
+        inspect.signature() raise; they must be treated as not matching
+        the subst calling convention rather than crashing.
+        """
+        import time
+        env = DummyEnv({'TT': time.time})
+        result = scons_subst('$TT', env, mode=SUBST_CMD, gvars=env.Dictionary())
+        assert isinstance(result, str), result
+
 class CLVar_TestCase(unittest.TestCase):
     def test_CLVar(self) -> None:
         """Test scons_subst() and scons_subst_list() with CLVar objects"""
@@ -1125,6 +1161,50 @@ class scons_subst_list_TestCase(SubstTestCase):
         env = DummyEnv({'XXX':'xxx'})
         result = scons_subst_list('$XXX', env, gvars=env.Dictionary(), overrides={'XXX': 'yyy'})
         assert result == [['yyy']], result
+
+    def test_subst_list_expanded(self) -> None:
+        """Test ListSubber.expanded():  detect fully expanded single words"""
+        env = DummyEnv()
+        ls = ListSubber(env, SUBST_CMD, SCons.Util.to_String_for_subst, {})
+        assert ls.expanded('abc'), "plain word should be expanded"
+        assert ls.expanded('a/b/c.txt'), "plain path should be expanded"
+        assert not ls.expanded('$X'), "string with $ needs expansion"
+        assert not ls.expanded('a$X'), "string with $ needs expansion"
+        assert not ls.expanded('a b'), "string with whitespace needs word-splitting"
+        assert not ls.expanded(''), "empty string must not become an empty word"
+        assert not ls.expanded(CmdStringHolder('abc')), "CmdStringHolder is excluded"
+        assert not ls.expanded(123), "non-strings are excluded"
+
+    def test_subst_list_empty_value_no_empty_word(self) -> None:
+        """Test scons_subst_list():  empty variable values don't create empty words"""
+        env = DummyEnv({'EMPTY': '', 'XXX': 'xxx'})
+        result = scons_subst_list('a $EMPTY $XXX b', env, gvars=env.Dictionary())
+        assert result == [['a', 'xxx', 'b']], result
+
+    def test_subst_list_name_error_includes_key(self) -> None:
+        """Test scons_subst_list():  NameError message names the variable"""
+        env = DummyEnv()
+        SetAllowableExceptions()
+        try:
+            scons_subst_list('$NOSUCHVAR', env, gvars={})
+        except SCons.Errors.UserError as e:
+            assert 'NOSUCHVAR' in str(e), str(e)
+        else:
+            raise AssertionError("did not catch expected UserError")
+        finally:
+            SetAllowableExceptions(IndexError, NameError)
+
+    def test_subst_list_builtins_not_leaked(self) -> None:
+        """Test scons_subst_list():  gvars is clean even after a failed substitution"""
+        env = DummyEnv()
+        gvars = {'ZERO': 0}
+        try:
+            scons_subst_list('${1 / ZERO}', env, gvars=gvars)
+        except SCons.Errors.UserError:
+            pass
+        else:
+            raise AssertionError("did not catch expected UserError")
+        assert '__builtins__' not in gvars, gvars.keys()
 
 
 class scons_subst_once_TestCase(unittest.TestCase):

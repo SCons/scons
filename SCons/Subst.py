@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import re
 from collections import UserList, UserString
+from functools import lru_cache
 from inspect import signature, Parameter
 
 import SCons.Errors
@@ -45,7 +46,7 @@ AllowableExceptions = (IndexError, NameError)
 
 def SetAllowableExceptions(*excepts) -> None:
     global AllowableExceptions
-    AllowableExceptions = [_f for _f in excepts if _f]
+    AllowableExceptions = tuple(_f for _f in excepts if _f)
 
 
 def raise_exception(exception, target, s):
@@ -83,9 +84,6 @@ class Literal:
         if not isinstance(other, Literal):
             return False
         return self.lstr == other.lstr
-
-    def __neq__(self, other) -> bool:
-        return not self.__eq__(other)
 
     def __hash__(self) -> int:
         return hash(self.lstr)
@@ -340,6 +338,49 @@ def subst_dict(target, source):
 
 _callable_args_set = {'target', 'source', 'env', 'for_signature'}
 
+
+def _check_callable_subst_args(s) -> bool:
+    """Check if callable *s* matches the subst calling convention.
+
+    A callable construction variable must be callable with exactly the
+    arguments (target, source, env, for_signature); any additional
+    parameters must have default values (which also allows
+    functools.partial objects to work).
+    """
+    try:
+        params = signature(s).parameters.items()
+    except (ValueError, TypeError):
+        # signature() can fail on some C/builtin callables; treat them
+        # as not matching our calling convention.
+        return False
+    return {
+        k for k, v in params if k in _callable_args_set or v.default is Parameter.empty
+    } == _callable_args_set
+
+
+_callable_subst_args_cache: dict = {}
+
+
+def _callable_matches_subst_args(s) -> bool:
+    """Cached version of :func:`_check_callable_subst_args`.
+
+    Inspecting a signature is expensive and the same callables are
+    expanded over and over (once or more per target), so cache the
+    result per callable.  The cache holds strong references, but these
+    callables are construction-variable values which normally live as
+    long as the build anyway.
+    """
+    try:
+        return _callable_subst_args_cache[s]
+    except KeyError:
+        pass
+    except TypeError:
+        # unhashable callable: do the check each time
+        return _check_callable_subst_args(s)
+    result = _callable_subst_args_cache[s] = _check_callable_subst_args(s)
+    return result
+
+
 class StringSubber:
     """A class to construct the results of a scons_subst() call.
 
@@ -382,9 +423,8 @@ class StringSubber:
                 return s
             else:
                 key = s[1:]
-                if key[0] == '{' or '.' in key:
-                    if key[0] == '{':
-                        key = key[1:-1]
+                if key[0] == '{':
+                    key = key[1:-1]
 
                 # Store for error messages if we fail to expand the
                 # value
@@ -409,20 +449,18 @@ class StringSubber:
                 elif s is None:
                      return ''
 
+                # A plain string with no more expansions needs no
+                # further processing, so skip the copy/recursion below.
+                if isinstance(s, str) and '$' not in s:
+                    return s
+
                 # Before re-expanding the result, handle
                 # recursive expansion by copying the local
                 # variable dictionary and overwriting a null
                 # string for the value of the variable name
                 # we just expanded.
-                #
-                # This could potentially be optimized by only
-                # copying lvars when s contains more expansions,
-                # but lvars is usually supposed to be pretty
-                # small, and deeply nested variable expansions
-                # are probably more the exception than the norm,
-                # so it should be tolerable for now.
                 lv = lvars.copy()
-                var = key.split('.')[0]
+                var = key.partition('.')[0]
                 lv[var] = ''
                 return self.substitute(s, lv)
         elif is_Sequence(s):
@@ -436,8 +474,7 @@ class StringSubber:
             # string if called on, so we make an exception in this condition for Null class
             # Also allow callables where the only non default valued args match the expected defaults
             # this should also allow functools.partial's to work.
-            if isinstance(s, SCons.Util.Null) or {k for k, v in signature(s).parameters.items() if
-                                                  k in _callable_args_set or v.default == Parameter.empty} == _callable_args_set:
+            if isinstance(s, SCons.Util.Null) or _callable_matches_subst_args(s):
 
                 s = s(target=lvars['TARGETS'],
                      source=lvars['SOURCES'],
@@ -526,12 +563,19 @@ class ListSubber(UserList):
         method is used to determine if a string is already fully
         expanded and if so exit the loop early to prevent these
         recursive calls.
+
+        Only a string without any ``$`` (no further expansion) and
+        without any whitespace (no word-splitting needed) can safely
+        be appended directly as a single word.
         """
         if not is_String(s) or isinstance(s, CmdStringHolder):
             return False
 
         s = str(s)  # in case it's a UserString
-        return _separate_args.findall(s) is None
+        if not s:
+            # an empty string must not be appended as an empty word
+            return False
+        return _unexpandable.search(s) is None
 
     def expand(self, s, lvars, within_list):
         """Expand a single "token" as necessary, appending the
@@ -561,9 +605,8 @@ class ListSubber(UserList):
                 self.close_strip('$)')
             else:
                 key = s[1:]
-                if key.startswith('{') or '.' in key:
-                    if key.startswith('{'):
-                        key = key[1:-1]
+                if key[0] == '{':
+                    key = key[1:-1]
 
                 # Store for error messages if we fail to expand the
                 # value
@@ -584,7 +627,7 @@ class ListSubber(UserList):
                          raise_exception(e, lvars['TARGETS'], old_s)
 
                 if s is None and NameError not in AllowableExceptions:
-                     raise_exception(NameError(), lvars['TARGETS'], old_s)
+                     raise_exception(NameError(key), lvars['TARGETS'], old_s)
                 elif s is None:
                      return
 
@@ -600,7 +643,7 @@ class ListSubber(UserList):
                 # string for the value of the variable name
                 # we just expanded.
                 lv = lvars.copy()
-                var = key.split('.')[0]
+                var = key.partition('.')[0]
                 lv[var] = ''
                 self.substitute(s, lv, 0)
                 self.this_word()
@@ -614,8 +657,7 @@ class ListSubber(UserList):
             # string if called on, so we make an exception in this condition for Null class
             # Also allow callables where the only non default valued args match the expected defaults
             # this should also allow functools.partial's to work.
-            if isinstance(s, SCons.Util.Null) or {k for k, v in signature(s).parameters.items() if
-                                                  k in _callable_args_set or v.default == Parameter.empty} == _callable_args_set:
+            if isinstance(s, SCons.Util.Null) or _callable_matches_subst_args(s):
 
                 s = s(target=lvars['TARGETS'],
                      source=lvars['SOURCES'],
@@ -815,12 +857,16 @@ _dollar_exps_str = r'\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*}'
 _dollar_exps = re.compile(r'(%s)' % _dollar_exps_str)
 _separate_args = re.compile(r'(%s|\s+|[^\s$]+|\$)' % _dollar_exps_str)
 
+# Matches strings which may need further expansion ('$') or
+# word-splitting (whitespace); see ListSubber.expanded().
+_unexpandable = re.compile(r'[\s$]')
+
 # This regular expression is used to replace strings of multiple white
 # space characters in the string result from the scons_subst() function.
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
 
-def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None, overrides: dict | None = None):
+def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars=None, lvars=None, conv=None, overrides: dict | None = None):
     """Expand a string or list containing construction variable
     substitutions.
 
@@ -831,6 +877,11 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     """
     if (isinstance(strSubst, str) and '$' not in strSubst) or isinstance(strSubst, CmdStringHolder):
         return strSubst
+
+    if gvars is None:
+        gvars = {}
+    if lvars is None:
+        lvars = {}
 
     if conv is None:
         conv = _strconv[mode]
@@ -850,25 +901,28 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
             lvars = lvars.copy()
             lvars.update(d)
 
-    # Allow last ditch chance to override lvars
+    # Allow last ditch chance to override lvars; don't mutate the
+    # caller's dictionary doing so.
     if overrides:
-        lvars.update(overrides)
+        lvars = {**lvars, **overrides}
 
     # We're (most likely) going to eval() things.  If Python doesn't
     # find a __builtins__ value in the global dictionary used for eval(),
     # it copies the current global values for you.  Avoid this by
     # setting it explicitly and then deleting, so we don't pollute the
     # construction environment Dictionary(ies) that are typically used
-    # for expansion.
+    # for expansion.  gvars is usually the live env dict, so make sure
+    # the deletion happens even if substitution raises.
     gvars['__builtins__'] = __builtins__
 
     ss = StringSubber(env, mode, conv, gvars)
-    result = ss.substitute(strSubst, lvars)
-
     try:
-        del gvars['__builtins__']
-    except KeyError:
-        pass
+        result = ss.substitute(strSubst, lvars)
+    finally:
+        try:
+            del gvars['__builtins__']
+        except KeyError:
+            pass
 
     res = result
     if is_String(result):
@@ -902,7 +956,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
 
     return result
 
-def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None, overrides: dict | None = None):
+def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars=None, lvars=None, conv=None, overrides: dict | None = None):
     """Substitute construction variables in a string (or list or other
     object) and separate the arguments into a command list.
 
@@ -910,6 +964,11 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
     substitutions within strings, so see that function instead
     if that's what you're looking for.
     """
+    if gvars is None:
+        gvars = {}
+    if lvars is None:
+        lvars = {}
+
     if conv is None:
         conv = _strconv[mode]
 
@@ -928,25 +987,28 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
             lvars = lvars.copy()
             lvars.update(d)
 
-    # Allow caller to specify last ditch override of lvars
+    # Allow caller to specify last ditch override of lvars; don't
+    # mutate the caller's dictionary doing so.
     if overrides:
-        lvars.update(overrides)
+        lvars = {**lvars, **overrides}
 
     # We're (most likely) going to eval() things.  If Python doesn't
     # find a __builtins__ value in the global dictionary used for eval(),
     # it copies the current global values for you.  Avoid this by
     # setting it explicitly and then deleting, so we don't pollute the
     # construction environment Dictionary(ies) that are typically used
-    # for expansion.
+    # for expansion.  gvars is usually the live env dict, so make sure
+    # the deletion happens even if substitution raises.
     gvars['__builtins__'] = __builtins__
 
     ls = ListSubber(env, mode, conv, gvars)
-    ls.substitute(strSubst, lvars, 0)
-
     try:
-        del gvars['__builtins__']
-    except KeyError:
-        pass
+        ls.substitute(strSubst, lvars, 0)
+    finally:
+        try:
+            del gvars['__builtins__']
+        except KeyError:
+            pass
 
     return ls.data
 
