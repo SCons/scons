@@ -895,16 +895,13 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars=N
     # If we dropped that behavior (or found another way to cover it),
     # we could get rid of this call completely and just rely on the
     # Executor setting the variables.
+    # Build any special TARGET/SOURCE vars and apply overrides.
+    # Only copy the caller's lvars once if we need to modify it.
+    d = {}
     if 'TARGET' not in lvars:
         d = subst_dict(target, source)
-        if d:
-            lvars = lvars.copy()
-            lvars.update(d)
-
-    # Allow last ditch chance to override lvars; don't mutate the
-    # caller's dictionary doing so.
-    if overrides:
-        lvars = {**lvars, **overrides}
+    if d or overrides:
+        lvars = {**lvars, **d, **overrides}
 
     # We're (most likely) going to eval() things.  If Python doesn't
     # find a __builtins__ value in the global dictionary used for eval(),

@@ -80,6 +80,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
+    - Subst: Improved variable substitution by consolidating dictionary
+      merging operations, reducing unnecessary copy operations when no
+      TARGET/SOURCE variables or overrides need to be applied.
     - Reduce unneeded computation of overrides. The Mkdir builder used an
       unknown argument ('explain') on creation, causing it to be considered
       an override. Also, if override dict is empty, don't even call the
