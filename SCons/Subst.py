@@ -901,7 +901,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars=N
     if 'TARGET' not in lvars:
         d = subst_dict(target, source)
     if d or overrides:
-        lvars = {**lvars, **d, **overrides}
+        lvars = {**lvars, **d, **(overrides or {})}
 
     # We're (most likely) going to eval() things.  If Python doesn't
     # find a __builtins__ value in the global dictionary used for eval(),
