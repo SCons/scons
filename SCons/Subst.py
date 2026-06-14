@@ -51,7 +51,7 @@ def SetAllowableExceptions(*excepts) -> None:
 
 def raise_exception(exception, target, s):
     name = exception.__class__.__name__
-    msg = "%s `%s' trying to evaluate `%s'" % (name, exception, s)
+    msg = f"{name} `{exception}' trying to evaluate `{s}'"
     if target:
         raise SCons.Errors.BuildError(target[0], msg)
     else:
@@ -131,7 +131,7 @@ def quote_spaces(arg):
     """Generic function for putting double quotes around any string that
     has white space in it."""
     if ' ' in arg or '\t' in arg:
-        return '"%s"' % arg
+        return f'"{arg}"'
     else:
         return str(arg)
 
@@ -251,7 +251,7 @@ class Target_or_Source:
         except IndexError:
             # If there is nothing in the list, then we have no attributes to
             # pass through, so raise AttributeError for everything.
-            raise AttributeError("NodeList has no attribute: %s" % attr)
+            raise AttributeError(f"NodeList has no attribute: {attr}")
         return getattr(nl0, attr)
     def __str__(self) -> str:
         nl = self.nl._create_nodelist()
@@ -854,8 +854,8 @@ _list_remove = [ _rm_list, None, _remove_list ]
 #       "$"                     [single dollar sign]
 #
 _dollar_exps_str = r'\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*}'
-_dollar_exps = re.compile(r'(%s)' % _dollar_exps_str)
-_separate_args = re.compile(r'(%s|\s+|[^\s$]+|\$)' % _dollar_exps_str)
+_dollar_exps = re.compile(rf'({_dollar_exps_str})')
+_separate_args = re.compile(rf'({_dollar_exps_str}|\s+|[^\s$]+|\$)')
 
 # Matches strings which may need further expansion ('$') or
 # word-splitting (whitespace); see ListSubber.expanded().
