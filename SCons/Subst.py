@@ -662,7 +662,7 @@ class ListSubber(UserList):
                 s = s(target=lvars['TARGETS'],
                      source=lvars['SOURCES'],
                      env=self.env,
-                     for_signature=(self.mode != SUBST_CMD))
+                     for_signature=(self.mode == SUBST_SIG))
             else:
                 # This probably indicates that it's a callable
                 # object that doesn't match our calling arguments
