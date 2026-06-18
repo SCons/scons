@@ -358,27 +358,17 @@ def _check_callable_subst_args(s) -> bool:
     } == _callable_args_set
 
 
-_callable_subst_args_cache: dict = {}
-
-
+@lru_cache(maxsize=256)
 def _callable_matches_subst_args(s) -> bool:
     """Cached version of :func:`_check_callable_subst_args`.
 
     Inspecting a signature is expensive and the same callables are
     expanded over and over (once or more per target), so cache the
-    result per callable.  The cache holds strong references, but these
+    result per callable. The LRU cache holds strong references, but these
     callables are construction-variable values which normally live as
     long as the build anyway.
     """
-    try:
-        return _callable_subst_args_cache[s]
-    except KeyError:
-        pass
-    except TypeError:
-        # unhashable callable: do the check each time
-        return _check_callable_subst_args(s)
-    result = _callable_subst_args_cache[s] = _check_callable_subst_args(s)
-    return result
+    return _check_callable_subst_args(s)
 
 
 class StringSubber:
@@ -390,7 +380,7 @@ class StringSubber:
     """
 
 
-    def __init__(self, env, mode, conv, gvars) -> None:
+    def __init__(self, env, mode: int, conv, gvars: dict) -> None:
         self.env = env
         self.mode = mode
         self.conv = conv
@@ -541,7 +531,7 @@ class ListSubber(UserList):
     and the rest of the object takes care of doing the right thing
     internally.
     """
-    def __init__(self, env, mode, conv, gvars) -> None:
+    def __init__(self, env, mode: int, conv, gvars: dict) -> None:
         super().__init__([])
         self.env = env
         self.mode = mode
