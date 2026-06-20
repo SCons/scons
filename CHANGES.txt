@@ -58,7 +58,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Subst: variable values which are plain strings with no further '$'
       expansions are now returned directly, skipping an unneeded dict copy
       and recursive substitution pass. Combined, the substitution speedups
-      measured on a representative command line
+      measured on a representative command line (this from a micro benchmark
+      and not on a full build) are:
       ('$CC $CCFLAGS $CPPDEFINES $GEN -c -o $TARGET $SOURCES'):
                             old         new       improvement
         scons_subst         20.7 us     12.8 us   ~38% faster
@@ -85,8 +86,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       TARGET/SOURCE variables or overrides need to be applied. Combined
       with other substitution improvements (lru_cache for callable signature
       caching, action hashability, for_signature bug fix, f-string
-      modernization), typical builds see 8-12% improvement with larger gains
-      (20-30%) on builds with many callable construction variables.
+      modernization), typical builds see up to 8-12% improvement with larger gains
+      (up to 20-30%) on builds with many callable construction variables.
     - Reduce unneeded computation of overrides. The Mkdir builder used an
       unknown argument ('explain') on creation, causing it to be considered
       an override. Also, if override dict is empty, don't even call the
