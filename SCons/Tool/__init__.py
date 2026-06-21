@@ -136,7 +136,7 @@ class Tool:
        Accept an existing instance at creation time and don't duplicate it.
     """
 
-    def __new__(cls, name, toolpath=None, **kwargs) -> None:
+    def __new__(cls, name, toolpath=None, **kwargs) -> "Tool":
         if isinstance(name, Tool):
             return name
         return super().__new__(cls)
@@ -306,7 +306,18 @@ class Tool:
         return self.name
 
     def __eq__(self, other) -> bool:
-        return str(other) == self.name
+        """Compare a Tool by name.
+
+        A Tool is equal to another Tool with the same name, and to a
+        string matching its name (so a Tool can be used interchangeably
+        with its name in membership tests and sets). Comparison against
+        any other type is deferred (returns ``NotImplemented``).
+        """
+        if isinstance(other, Tool):
+            return self.name == other.name
+        if isinstance(other, str):
+            return self.name == other
+        return NotImplemented
 
     def __hash__(self) -> int:
         return hash(self.name)
