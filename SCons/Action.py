@@ -1001,6 +1001,7 @@ class CommandAction(_ActionAction):
         return str(self.cmd_list)
 
     def __hash__(self) -> int:
+        """ Added so CommandAction can be used as a key in a dict and/or cached. """
         return id(self)
 
     def process(self, target, source, env, executor: Executor | None = None, overrides: dict | None = None) -> tuple[list, bool, bool]:
@@ -1424,6 +1425,7 @@ class FunctionAction(_ActionAction):
         return "%s(target, source, env)" % name
 
     def __hash__(self) -> int:
+        """ Added so FunctionAction can be used as a key in a dict and/or cached. """
         return id(self)
 
     def execute(self, target, source, env, executor: Executor | None = None):
@@ -1488,6 +1490,7 @@ class ListAction(ActionBase):
         return '\n'.join(map(str, self.list))
 
     def __hash__(self) -> int:
+        """ Added so ListAction can be used as a key in a dict and/or cached. """
         return id(self)
 
     def presub_lines(self, env):
