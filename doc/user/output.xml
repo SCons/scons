@@ -651,7 +651,7 @@ atexit.register(print_build_failures)
     the same file as the <literal>node</literal>; the
     <literal>node</literal> is the target that was
     being built when the error occurred, while the
-    <literal>filename</literal>is the file or dir that
+    <literal>filename</literal> is the file or dir that
     actually caused the error.
     Note:  only call &GetBuildFailures; at the end of the
     build; calling it at any other time is undefined.
