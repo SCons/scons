@@ -44,6 +44,33 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       new contributors. (Using Gemini AI)
     - Fix Appveyor scripting to install unavailable python versions when needed and use them
       for testing.
+    - Subst: Fixed ListSubber.expanded(), which never detected an already-expanded
+      string (dead code since its 2019 introduction), so fully-expanded values are
+      no longer recursively re-processed during scons_subst_list().
+    - Subst: scons_subst() and scons_subst_list() no longer leak a __builtins__
+      key into the construction environment's dictionary if an exception is
+      raised during substitution.
+    - Subst: the result of the inspect.signature() check for callable
+      construction variables is now cached per callable, speeding up expansion
+      of function-valued variables. Callables whose signature cannot be
+      determined (some C/builtin callables) are now treated as not matching
+      the (target, source, env, for_signature) convention instead of raising.
+    - Subst: variable values which are plain strings with no further '$'
+      expansions are now returned directly, skipping an unneeded dict copy
+      and recursive substitution pass. Combined, the substitution speedups
+      measured on a representative command line (this from a micro benchmark
+      and not on a full build) are:
+      ('$CC $CCFLAGS $CPPDEFINES $GEN -c -o $TARGET $SOURCES'):
+                            old         new       improvement
+        scons_subst         20.7 us     12.8 us   ~38% faster
+        scons_subst_list    37.4 us     25.1 us   ~33% faster
+    - Subst: a NameError raised during scons_subst_list() now includes the
+      name of the unknown variable in the error message.
+    - Subst: the overrides argument to scons_subst()/scons_subst_list() no
+      longer mutates a caller-supplied lvars dictionary; also removed mutable
+      default arguments. Removed Literal.__neq__, a misspelled (and therefore
+      never-invoked) version of __ne__; Python derives inequality from
+      Literal.__eq__.
 
   From Prabhu S. Khalsa:
     - Fix typo in preface
@@ -54,6 +81,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
+    - Subst: Improved variable substitution by consolidating dictionary
+      merging operations, reducing unnecessary copy operations when no
+      TARGET/SOURCE variables or overrides need to be applied. Combined
+      with other substitution improvements (lru_cache for callable signature
+      caching, action hashability, for_signature bug fix, f-string
+      modernization), typical builds see up to 8-12% improvement with larger gains
+      (up to 20-30%) on builds with many callable construction variables.
     - Reduce unneeded computation of overrides. The Mkdir builder used an
       unknown argument ('explain') on creation, causing it to be considered
       an override. Also, if override dict is empty, don't even call the
