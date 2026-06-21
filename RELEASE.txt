@@ -156,6 +156,8 @@ DOCUMENTATION
 
 - Fix broken links in Chapter 1 of User Guide
 
+- Add info on the type of an option variable to GetOption and SetOption.
+
 - Tighten up the doc for Variables-Add() and add a note on file contents
   not being preserved to Variables-Save()
 
