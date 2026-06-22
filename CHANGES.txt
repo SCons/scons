@@ -121,6 +121,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Adjust race protection for CacheDir - now uses a unique temporary
       directory for each writer before doing the move, instead of depending
       on a one-time uuid to make a path to the file.
+    - Clarify VariantDir behavior when switching to not duplicate sources
+      and tweak wording a bit.
+    - Don't duplicate the creation of Tool objects if "default" is part of
+      the tool list.
     - Test suite: add support for Python 3.15 in the Action unit tests.
     - Add a test for FindFile to be sure it locates non-existing derived
       files as advertised.
