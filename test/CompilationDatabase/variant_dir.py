@@ -40,6 +40,7 @@ test.file_fixture('mygcc.py')
 
 test.verbose_set(1)
 test.file_fixture('fixture/SConstruct_variant', 'SConstruct')
+test.file_fixture('fixture/src_SConscript_cpppath', 'src/SConscript_cpppath')
 test.file_fixture('test_main.c', 'src/test_main.c')
 test.run()
 
@@ -84,6 +85,12 @@ example_rel_file = """[
         "directory": "%(workdir)s",
         "file": "%(variant3_src_file)s",
         "output": "%(output3_file)s"
+    },
+    {
+        "command": "%(exe)s mygcc.py cc -o %(output4_file)s -c -I%(inc_build4)s -I%(inc_src)s %(src_file)s",
+        "directory": "%(workdir)s",
+        "file": "%(src_file)s",
+        "output": "%(output4_file)s"
     }
 ]
 """ % {'exe': sys.executable,
@@ -92,8 +99,11 @@ example_rel_file = """[
         'output_file': os.path.join('build', 'test_main.o'),
         'output2_file': os.path.join('build2', 'test_main.o'),
         'output3_file': os.path.join('build3', 'test_main_copy.o'),
+        'output4_file': os.path.join('build4', 'test_main.o'),
         'variant_src_file': os.path.join('build', 'test_main.c'),
-        'variant3_src_file': os.path.join('build3', 'test_main_copy.c')
+        'variant3_src_file': os.path.join('build3', 'test_main_copy.c'),
+        'inc_build4': os.path.join('build4', 'inc'),
+        'inc_src': os.path.join('src', 'inc'),
         }
 
 if sys.platform == 'win32':
@@ -122,6 +132,12 @@ example_abs_file = """[
         "directory": "%(workdir)s",
         "file": "%(abs_variant3_src_file)s",
         "output": "%(abs_output3_file)s"
+    },
+    {
+        "command": "%(exe)s mygcc.py cc -o %(output4_file)s -c -I%(inc_build4)s -I%(inc_src)s %(src_file)s",
+        "directory": "%(workdir)s",
+        "file": "%(abs_src_file)s",
+        "output": "%(abs_output4_file)s"
     }
 ]
 """ % {'exe': sys.executable,
@@ -131,12 +147,16 @@ example_abs_file = """[
         'abs_output_file': os.path.join(test.workdir, 'build', 'test_main.o'),
         'abs_output2_file': os.path.join(test.workdir, 'build2', 'test_main.o'),
         'abs_output3_file': os.path.join(test.workdir, 'build3', 'test_main_copy.o'),
+        'abs_output4_file': os.path.join(test.workdir, 'build4', 'test_main.o'),
         'output_file': os.path.join('build', 'test_main.o'),
         'output2_file': os.path.join('build2', 'test_main.o'),
         'output3_file': os.path.join('build3', 'test_main_copy.o'),
+        'output4_file': os.path.join('build4', 'test_main.o'),
         'abs_variant3_src_file': os.path.join(test.workdir, 'build3', 'test_main_copy.c'),
         'variant_src_file': os.path.join('build', 'test_main.c'),
-        'variant3_src_file': os.path.join('build3', 'test_main_copy.c')
+        'variant3_src_file': os.path.join('build3', 'test_main_copy.c'),
+        'inc_build4': os.path.join('build4', 'inc'),
+        'inc_src': os.path.join('src', 'inc'),
         }
 
 if sys.platform == 'win32':

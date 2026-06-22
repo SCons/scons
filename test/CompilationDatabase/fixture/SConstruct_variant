@@ -49,3 +49,5 @@ env.Program('build2/main', 'build2/test_main.c')
 env.VariantDir('build3','src', duplicate=0)
 env.InstallAs('build3/test_main_copy.c', 'src/test_main.c')
 env.Program('build3/main', 'build3/test_main_copy.c')
+
+SConscript('src/SConscript_cpppath', variant_dir='build4', duplicate=0, exports={'env': env})
