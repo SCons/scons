@@ -279,7 +279,7 @@ int main() { printf("Hello, world!\n"); }
     then to look in the directories in the preprocessor search path.
     Add to this that the &SCons; implementation of
     support for code repositories
-    (described below)
+    (described later)
     means not all of the files
     will be found in the same directory hierarchy,
     and the simplest way to make sure

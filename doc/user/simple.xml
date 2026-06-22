@@ -439,7 +439,7 @@ Program("#goodbye.c") # the # in "#goodbye" does not indicate a comment
      take those steps if/when it's necessary.
      you'll learn more about how
      &SCons; decides when building or rebuilding a target
-     is necessary in <xref linkend="chap-depends"></xref>, below.
+     is necessary in <xref linkend="chap-depends"></xref>.
 
      </para>
 

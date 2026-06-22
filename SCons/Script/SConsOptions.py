@@ -801,7 +801,7 @@ def Parser(version):
                   metavar="MODE")
 
     op.add_option('-D',
-                  dest="climb_up", default=None,
+                  dest="climb_up", default=0,
                   action="store_const", const=2,
                   help="Search up directory tree for SConstruct, "
                        "build all Default() targets")

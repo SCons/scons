@@ -380,7 +380,7 @@ environment, of directory names, suffixes, etc.
     is the ability to create multiple &consenvs;,
     including the ability to clone a new, customized
     &consenv; from an existing &consenv;.
-    See <xref linkend="sect-construction-environments"></xref>, below.
+    See <xref linkend="sect-construction-environments"></xref>.
 
     </para>
     </listitem>
@@ -400,7 +400,7 @@ environment, of directory names, suffixes, etc.
     Note that this is not the same as
     the external environment
     (see above).
-    See <xref linkend="sect-execution-environments"></xref>, below.
+    See <xref linkend="sect-execution-environments"></xref>.
 
     </para>
     </listitem>
