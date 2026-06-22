@@ -79,6 +79,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix broken links in Chapter 1 of User Guide
 
 
+  From Dillan Mills:
+    - Fix handling of AddOption for option-arguments with spaces
+      (when omitting the = sign or when an option takes multiple
+      option-arguments). Arguments unknown at the time the first pass
+      splits the command line into arguments and targets would put such
+      arguments into targets, and they remained there even after the
+      AddOption calls were seen. Closes #2748, #2805, #2977.
+
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
     - Subst: Improved variable substitution by consolidating dictionary
@@ -123,6 +131,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       on a one-time uuid to make a path to the file.
     - Clarify VariantDir behavior when switching to not duplicate sources
       and tweak wording a bit.
+    - Complete the work from PR #3799 on AddOption handling (original work
+      credited to Dillan Mills)
+    - Update documentation of the three file-finding functions in the API
+      (FindFile, FindInstalledFiles, FindSourceFiles) as well as FindPathDirs.
+      Also add a test for FindFile to be sure it locates non-existing
+      derived files as advertised.
     - Don't duplicate the creation of Tool objects if "default" is part of
       the tool list.
     - Test suite: add support for Python 3.15 in the Action unit tests.
