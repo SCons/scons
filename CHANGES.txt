@@ -146,6 +146,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       * Tighten up the doc for Variables-Add() and add a note on file contents
         not being preserved to Variables-Save()
 
+  From Keith F Prussing:
+    -  Fix multiple extension stripping for BibTeX and Biber processing
+
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
 
