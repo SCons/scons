@@ -13,4 +13,3 @@ docker build --network=host --file Dockerfile \
   -t scons-build-fedora32:latest -t scons-build-fedora32:0.0.1 "$@" .
 
 cd $OLD_WD
-

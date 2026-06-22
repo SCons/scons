@@ -46,7 +46,7 @@ $toolPaths = @(
 )
 
 $env:PATH = ($pythonPaths + $toolPaths + @($env:PATH)) -join ';'
-# Ensure we have the correct path to the python executable, 
+# Ensure we have the correct path to the python executable,
 # explicitly avoiding MSYS/Cygwin versions.
 $pythonExe = $null
 
