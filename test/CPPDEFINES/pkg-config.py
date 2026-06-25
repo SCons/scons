@@ -25,104 +25,74 @@
 
 """
 Verify merging with MergeFlags to CPPPDEFINES with various data types.
+
+Now uses a mocked pkg-config to avoid some weird problems,
+but is still a "live" test because we do expansion on $_CPPDEFFLAGS,
+which needs to have been set up with a compiler tool so have something
+to subst into.
 """
+
+import pathlib
+import sys
 
 import TestSCons
 import TestCmd
 
 test = TestSCons.TestSCons()
+_python_ = TestSCons._python_
 
-pkg_config_path = test.where_is('pkg-config')
-if not pkg_config_path:
-    test.skip_test("Could not find 'pkg-config' in system PATH, skipping test.\n")
-pkg_config_path = pkg_config_path.replace("\\", "/")
-
-test.write('bug.pc', """\
-prefix=/usr
-exec_prefix=${prefix}
-libdir=${exec_prefix}/lib
-includedir=${prefix}/include
-
-Name: bug
-Description: A test case .pc file
-Version: 1.2
-Cflags: -DSOMETHING -DVARIABLE=2
+mock_pkg_config = test.workpath('mock-pkg-config.py')
+test.write(mock_pkg_config, f"""\
+import sys
+if '--cflags' in sys.argv:
+    print("-DSOMETHING -DVARIABLE=2")
+sys.exit(0)
 """)
 
-test.write('main.c', """\
-int main(int argc, char *argv[])
-{
-  return 0;
-}
-""")
+# Since the mock pkg-config is a Python script, use the selected Python to
+# run it to avoid execution problems (esp. on Windows)
+pc_path = (_python_ + ' ' + mock_pkg_config).replace("\\", "/")
 
+# We need a toolset:
 if TestCmd.IS_WINDOWS:
-    pkg_config_file = 'bug.pc'
-    pkg_config_tools = 'mingw'
-    pkg_config_cl_path = ""
+    pc_tools = 'mingw'
 else:
-    pkg_config_file = 'bug'
-    pkg_config_tools = 'default'
-    pkg_config_cl_path = "PKG_CONFIG_PATH=."
+    pc_tools = 'default'
 
-test.write('SConstruct', """\
+# these are no longer really needed, leave so it looks like a "real" pkg-config
+pc_file = 'bug'
+pc_cl_path = ""
+
+test.write('SConstruct', f"""\
 import os
 import sys
 
-# Python3 dicts dont preserve order. Hence we supply subclass of OrderedDict
-# whose __str__ and __repr__ act like a normal dict.
-from collections import OrderedDict
-
-class OrderedPrintingDict(OrderedDict):
-    def __repr__(self):
-        return '{' + ', '.join(['%r: %r' % (k, v) for (k, v) in self.items()]) + '}'
-
-    __str__ = __repr__
-
-    # Because dict-like objects (except dict and UserDict) are not deep copied
-    # directly when constructing Environment(CPPDEFINES = OrderedPrintingDict(...))
-    def __semi_deepcopy__(self):
-        return self.copy()
-""" + """
+DefaultEnvironment(tools=[])
 # https://github.com/SCons/scons/issues/2671
 # Passing test cases
-env_1 = Environment(CPPDEFINES=[('DEBUG', '1'), 'TEST'], tools=['%(pkg_config_tools)s'])
-if sys.platform == 'win32':
-    os.environ['PKG_CONFIG_PATH'] = env_1.Dir('.').abspath.replace("\\\\", "/")
-env_1.ParseConfig(
-    '%(pkg_config_cl_path)s "%(pkg_config_path)s" --cflags %(pkg_config_file)s'
-)
+env_1 = Environment(CPPDEFINES=[('DEBUG', '1'), 'TEST'], tools=['{pc_tools}'])
+env_1.ParseConfig('{pc_path} {pc_cl_path} --cflags {pc_file}')
 print(env_1.subst('$_CPPDEFFLAGS'))
 
-env_2 = Environment(CPPDEFINES=[('DEBUG', '1'), 'TEST'], tools=['%(pkg_config_tools)s'])
+env_2 = Environment(CPPDEFINES=[('DEBUG', '1'), 'TEST'], tools=['{pc_tools}'])
 env_2.MergeFlags('-DSOMETHING -DVARIABLE=2')
 print(env_2.subst('$_CPPDEFFLAGS'))
 
 # Failing test cases
-env_3 = Environment(
-    CPPDEFINES=OrderedPrintingDict([('DEBUG', 1), ('TEST', None)]),
-    tools=['%(pkg_config_tools)s'],
-)
-env_3.ParseConfig(
-    '%(pkg_config_cl_path)s "%(pkg_config_path)s" --cflags %(pkg_config_file)s'
-)
+env_3 = Environment(CPPDEFINES=dict([('DEBUG', 1), ('TEST', None)]), tools=['{pc_tools}'])
+env_3.ParseConfig('{pc_path} {pc_cl_path} --cflags {pc_file}')
 print(env_3.subst('$_CPPDEFFLAGS'))
 
-env_4 = Environment(
-    CPPDEFINES=OrderedPrintingDict([('DEBUG', 1), ('TEST', None)]),
-    tools=['%(pkg_config_tools)s'],
-)
+env_4 = Environment(CPPDEFINES=dict([('DEBUG', 1), ('TEST', None)]), tools=['{pc_tools}'])
 env_4.MergeFlags('-DSOMETHING -DVARIABLE=2')
 print(env_4.subst('$_CPPDEFFLAGS'))
 
 # https://github.com/SCons/scons/issues/1738
-env_1738_1 = Environment(tools=['%(pkg_config_tools)s'])
-env_1738_1.ParseConfig(
-    '%(pkg_config_cl_path)s "%(pkg_config_path)s" --cflags --libs %(pkg_config_file)s'
-)
-env_1738_1.Append(CPPDEFINES={'value': '1'})
+env_1738_1 = Environment(tools=['{pc_tools}'])
+env_1738_1.ParseConfig('{pc_path} {pc_cl_path} --cflags {pc_file}')
+env_1738_1.Append(CPPDEFINES={{'value': '1'}})
 print(env_1738_1.subst('$_CPPDEFFLAGS'))
-"""%locals() )
+""")
 
 expect_print_output="""\
 -DDEBUG=1 -DTEST -DSOMETHING -DVARIABLE=2

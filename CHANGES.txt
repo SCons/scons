@@ -130,6 +130,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       files as advertised.
     - zip tool now uses zipfile module's "from_file" method to populate
       ZipInfo records, rather than doing manually.
+    - Fix CPPDEFINES test using pkg-config, which was failing on GH Actions.
     - Reference manual improvements:
       * More clarifications in Builder Methods section.
       * Clarify VariantDir behavior when switching from duplicate=True (the
