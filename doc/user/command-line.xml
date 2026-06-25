@@ -48,7 +48,7 @@ This file is processed by the bin/SConsDoc.py module.
     <para>
 
     Command-line arguments that begin with a
-    <literal>-</literal> (hyphen) characters
+    <literal>-</literal> (hyphen) character
     are called <firstterm>options</firstterm>.
     &SCons; provides ways for you to examine
     and act on options and their values,
@@ -76,7 +76,7 @@ This file is processed by the bin/SConsDoc.py module.
     including defining types, default values, help text,
     and automatic validation,
     as well as applying those to a &consenv;.
-    See <xref linkend="sect-command-line-variables"></xref>, below.
+    See <xref linkend="sect-command-line-variables"></xref>.
 
     </para>
     </listitem>
@@ -97,7 +97,7 @@ This file is processed by the bin/SConsDoc.py module.
     &SCons; provides access to the list of specified targets,
     as well as ways to set the default list of targets
     from within the &SConscript; files.
-    See <xref linkend="sect-command-line-targets"></xref>, below.
+    See <xref linkend="sect-command-line-targets"></xref>.
 
     </para>
     </listitem>

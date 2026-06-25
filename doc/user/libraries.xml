@@ -147,7 +147,7 @@ object file
 
       Of course, in this example, the object files
       must already exist for the build to succeed.
-      See <xref linkend="chap-nodes"></xref>, below,
+      See <xref linkend="chap-nodes"></xref>,
       for information about how you can
       build object files explicitly
       and include the built files in a library.

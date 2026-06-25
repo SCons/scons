@@ -100,6 +100,28 @@ class ToolTestCase(unittest.TestCase):
         assert exc_caught, "did not catch expected UserError"
 
 
+    def test_Tool_instance(self) -> None:
+        """Test Tool instance passthrough and equality/hash behavior."""
+
+        # Passing an existing Tool instance back to Tool() returns the
+        # same instance rather than creating a duplicate.
+        t = SCons.Tool.Tool('g++')
+        assert SCons.Tool.Tool(t) is t, "Tool() did not return the passed-in instance"
+
+        # A Tool compares equal to its name string and to another Tool
+        # with the same name, but not to unrelated types.
+        assert t == 'g++', t
+        assert t == SCons.Tool.Tool('g++'), t
+        assert t != 'gcc', t
+        assert t != 1, t
+        assert t != None, t  # noqa: E711  (explicitly exercising __eq__)
+
+        # __hash__ is consistent with the name, so a Tool and its name
+        # collapse together in a set.
+        assert hash(t) == hash('g++'), hash(t)
+        assert len({t, 'g++', SCons.Tool.Tool('g++')}) == 1
+
+
     def test_pathfind(self) -> None:
         """Test that find_program_path() alters PATH only if add_path is true"""
 
