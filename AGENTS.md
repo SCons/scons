@@ -1,88 +1,99 @@
 # SCons - Software Construction Tool
 
-## Project Overview
-SCons is an open-source software construction tool (build tool) implemented in Python. It is designed to be easier to use and more reliable than the traditional `make` utility. SCons configuration files are Python scripts, allowing users to use the full power of Python to solve build problems.
+## Build & Run
 
-**Key Features:**
-*   Configuration files are Python scripts.
-*   Built-in support for C, C++, D, Java, Fortran, Yacc, Lex, Qt, SWIG, and TeX/LaTeX.
-*   Reliable dependency analysis (implicit and explicit).
-*   Support for parallel builds.
-*   Cross-platform (Linux, POSIX, Windows, macOS).
-
-## Building and Running
-
-### Prerequisites
-*   Python 3.7 or higher.
-*   Development dependencies: `python -m pip install -r requirements-dev.txt`
-
-### Running SCons (Development)
-You do not need to install SCons to run it from the source tree.
-
-**Linux/macOS:**
 ```bash
-python scripts/scons.py [arguments]
+python scripts/scons.py            # build packages (wheels, tarballs, zips → build/)
+python scripts/scons.py doc        # docs only
+python scripts/scons.py [args]     # run SCons from source (no install needed)
 ```
-
-**Windows:**
-```cmd
-py -3 scripts\scons.py [arguments]
-```
-
-### Building SCons
-SCons uses itself to build its own packages.
-
-**Full Build (Packages & Docs):**
-```bash
-python scripts/scons.py
-```
-This produces artifacts (wheels, tarballs, zips) in the `build/` directory.
-
-**Build Documentation Only:**
-```bash
-python scripts/scons.py doc
-```
+SCons builds itself. The repo root `SConstruct` is the build script for packaging.
 
 ## Testing
-The project uses a custom test runner script, `runtest.py`.
 
-**Run All Tests:**
 ```bash
-python runtest.py -a
+python runtest.py -a               # all tests
+python runtest.py SCons/SConfTests.py              # unit test
+python runtest.py test/Configure/ConfigureDryRunError.py  # e2e test
+python runtest.py --retry          # re-run last failures (reads failed_tests.log)
+python runtest.py -j 0             # parallel (cpu_count)
+python runtest.py -t               # print timing
 ```
 
-**Run Specific Tests:**
+For more complete testing, the dependency set `[dev]` from `pyproject.toml`
+is useful.
+
 ```bash
-python runtest.py SCons/BuilderTests.py       # Unit test
-python runtest.py test/option/option-j.py     # End-to-end test
+python bin/docs-validate.py
+python scripts/scons.py doc SKIP_DOC=pdf,api
 ```
 
-**Run Failed Tests (Retry):**
+| Type | Location | Pattern |
+|------|----------|---------|
+| E2E  | `test/**/*.py` | Custom `TestSCons` (subclass of `TestCmd`) with `test.run()` / `test.pass_test()` |
+| Unit | `SCons/*Tests.py` | Standard `unittest.TestCase`, also use `TestCmd`/`TestSCons` for setup |
+
+The test runner (`runtest.py`) adds `SCons/` and `testing/` to `PYTHONPATH` automatically. E2E tests create a temp workdir per run. Use `SCons.Debug.Trace()` for print debugging (won't interfere with test output capture).
+
+## Codebase Architecture
+
+**Core engine (`SCons/`):**
+- `Script/Main.py` - entry point (`main()`).
+- `Environment.py` - `Environment` class; construction variable management.
+- `Builder.py` + `Action.py` - define how targets are built and what commands execute.
+- `Node/` — dependency graph: `FS.py` (File, Dir, Entry), `Alias.py`, `Python.py`.
+- `Taskmaster/` - parallel job scheduling and task execution.
+- `SConsign.py` - `.sconsign.dblite` persistence (single file at build top, keyed by dir path).
+- `Subst.py` - variable substitution (`$CC`, `$CFLAGS`, etc.).
+- `Scanner/` - dependency scanners (C/C++ `#include`, etc.).
+- `CacheDir.py` - shared build-artifact cache.
+- `SConf.py` - `Configure()` logic.
+- `Warnings.py` - warning hierarchy (stderr via `warn()`).
+- `Tool/` - compiler/linker integrations (CC, CXX, MSVC, Ninja, Docbook, etc.).
+- `Script/` - CLI entry points, option parsing (`SConsOptions.py`).
+- `Platform/` - OS-specific adaptations.
+- `Variables/` - `PathVariable`, `BoolVariable`, etc., for build configuration.
+
+**Tests:**
+- `testing/framework/` — `TestSCons.py`, `TestCmd.py` (e2e test base classes).
+- `test/` — ~200+ e2e tests organized by feature.
+- `SCons/*Tests.py` — unit tests alongside source, standard `unittest.TestCase`.
+
+**Documentation:**
+-  `doc` documentation sources, tools, extended DocBook schema
+-  `SCons/*.xml` - module-specific documentation sources
+
+## Documentation
+
+The doc build requires the dependency set `[doc]` from `pyproject.toml`.
+For validating just that the Docbook xml documents build, use
+
 ```bash
-python runtest.py --retry
+python bin/docs-validate.py
+python scripts/scons.py doc SKIP_DOC=pdf,api
 ```
 
-**Test Types:**
-*   **Unit Tests:** Located in `SCons/` alongside the source files (e.g., `SCons/Builder.py` -> `SCons/BuilderTests.py`).
-*   **End-to-End Tests:** Located in the `test/` directory. These run SCons against sample projects.
+Individual xml files are not syntactically complete DocBook,
+they require the context of xincluded files (`.mod` and `.gen`
+from `doc` and `doc/generated`), the SCons schema extension
+(`doc/xsd`), and the framework from `bin/SConsDoc.py`,
+which also contains information on some of the extensions.
 
-## Development Conventions
+## Lint & Type
 
-*   **Code Style:** Follows Python PEP 8 (mostly). The project includes a `.editorconfig` file.
-*   **Version Control:** Git is used. Commits should be signed off (`git commit -s`).
-*   **Debugging:**
-    *   Use `--debug=pdb` when running SCons to drop into the Python debugger.
-    *   Use `SCons.Debug.Trace()` for print debugging in a way that doesn't interfere with test output capturing.
-*   **Directory Structure:**
-    *   `SCons/`: Core engine source code and unit tests.
-    *   `test/`: End-to-end system tests.
-    *   `scripts/`: Wrapper scripts (e.g., `scons.py`).
-    *   `bin/`: Development utilities.
-    *   `doc/`: Documentation source (DocBook/XML).
-    *   `template/`: Templates for file generation.
-    *   `testing/framework`: Test framework used by the end-to-end tests.
+```bash
+python -m ruff check .              # lint (target-version py37, skips test/ bench/ doc/ etc.)
+python -m ruff format --check .     # formatting check
+python -m mypy SCons/               # type check
+```
 
-## AI Contribution Policy
-If contributing AI-generated code:
-1.  You take full responsibility for the code quality and license.
-2.  Disclose AI use in the commit message (e.g., `Assisted-by: ModelName`).
+`.editorconfig` enforces: indent 4 spaces, 88-char line limit (Python/SConstruct/SConscript), LF line endings, trailing comma, parentheses for multiline.
+
+## Conventions
+
+- Git commits signed off (`git commit -s`). Add `Assisted-by:` to message for AI-generated changes.
+- Version in `SCons/__init__.py` (`__version__`) - automatically generated, do not edit.
+- CI: GitHub Actions (`runtest.yml` - test suite; `scons-package.yml` — packaging), AppVeyor (Windows, legacy).
+- Python >= 3.7 required.
+- Config log for `Configure()` lives at `config.log` in the build dir.
+- `.sconsign.dblite` persists across builds; deleting build dirs from disk doesn't clear sconsign entries.
