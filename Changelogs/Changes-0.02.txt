@@ -1,0 +1,42 @@
+RELEASE 0.02 - Sun, 23 Dec 2001 19:05:09 -0600
+
+  From Charles Crain:
+
+  - Added the Install(), BuildDir(), and Export() methods.
+
+  - Fix the -C option by delaying setting the top of the FS tree.
+
+  - Avoid putting the directory path on the libraries in the LIBS
+    construction variable.
+
+  - Added a GetBuildPath() method to return the full path to the
+    Node for a specified string.
+
+  - Fixed variable substitution in CPPPATH and LIBPATH.
+
+  From Steven Knight:
+
+  - Fixed the version comment in the scons.bat (the UNIX geek used
+    # instead of @rem).
+
+  - Fix to setup.py so it doesn't require a sys.argv[1] argument.
+
+  - Provide make-like warning message for "command not found" and
+    similar errors.
+
+  - Added an EXAMPLES section to the man page.
+
+  - Make Default() targets properly relative to their SConscript
+    file's subdirectory.
+
+  From Anthony Roach:
+
+  - Documented CXXFLAGS, CXXCOM, and CPPPATH.
+
+  - Fixed SCONS_LIB_DIR to work as documented.
+
+  - Made Default() accept Nodes as arguments.
+
+  - Changed Export() to make it easier to use.
+
+  - Added the Import() and Return() methods.

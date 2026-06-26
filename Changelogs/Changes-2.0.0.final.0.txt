@@ -1,0 +1,89 @@
+RELEASE 2.0.0.final.0 - Mon, 14 Jun 2010 22:01:37 -0700
+
+  From Dirk Baechle:
+
+    - Fix XML in documentation.
+
+  From Steven Knight:
+
+    - Provide forward compatibility for the 'profile' module.
+
+    - Provide forward compatibility for the 'pickle' module.
+
+    - Provide forward compatibility for the 'io' module.
+
+    - Provide forward compatibility for the 'queue' module.
+
+    - Provide forward compatibility for the 'collections' module.
+
+    - Provide forward compatibility for the 'builtins' module.
+
+    - Provide forward compatibility for 'sys.intern()'.
+
+    - Convert to os.walk() from of os.path.walk().
+
+    - Remove compatibility logic no longer needed.
+
+    - Add a '-3' option to runtest to print 3.x incompatibility warnings.
+
+    - Convert old-style classes into new-style classes.
+
+    - Fix "Ignoring corrupt sconsign entry" warnings when building
+      in a tree with a pre-2.0 .sconsign file.
+
+    - Fix propagation from environment of VS*COMNTOOLS to resolve issues
+      initializing MSVC/MSVS/SDK issues.
+
+    - Handle detecting Visual C++ on Python versions with upper-case
+      platform architectures like 'AMD64'.
+
+  From W. Trevor King:
+
+    - Revisions to README.
+
+  From Greg Noel:
+
+    - Apply numerous Python fixers to update code to more modern idioms.
+      Find where fixers should be applied to code in test strings and
+      apply the fixers there, too.
+
+    - Write a fixer to convert string functions to string methods.
+
+    - Modify the 'dict' fixer to be less conservative.
+
+    - Modify the 'apply' fixer to handle more cases.
+
+    - Create a modified 'types' fixer that converts types to 2.x
+      equivalents rather than 3.x equivalents.
+
+    - Write a 'division' fixer to highlight uses of the old-style
+      division operator.  Correct usage where needed.
+
+    - Add forward compatibility for the new 'memoryview' function
+      (which replaces the 'buffer' function).
+
+    - Add forward compatibility for the 'winreg' module.
+
+    - Remove no-longer-needed 'platform' module.
+
+    - Run tests with the '-3' option to Python 2.6 and clear up
+      various reported incompatibilities.
+
+    - Comb out code paths specialized to Pythons older than 2.4.
+
+    - Update deprecation warnings; most now become mandatory.
+
+    - Start deprecation cycle for BuildDir() and build_dir.
+
+    - Start deprecation cycle for SourceCode() and related factories
+
+    - Fixed a problem with is_Dict() not identifying some objects derived
+      from UserDict.
+
+  From Jim Randall:
+
+    - Document the AllowSubstExceptions() function in the User's Guide.
+
+  From William Deegan:
+
+    - Migrate MSVC/MSVS/SDK improvements from 1.3 branch.
