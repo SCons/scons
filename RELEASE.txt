@@ -74,6 +74,7 @@ IMPROVEMENTS
   * Fix for_signature logic bug in ListSubber.expand() for correct signature
     generation
   * Modernize string formatting to f-strings
+  Also, separately, some code-style cleanups in Subst.py.
 
 - Test runner reworked to use Python logging; the portion of the test suite
   which tests the runner was adjusted to match.
@@ -95,9 +96,12 @@ long function signature lines, and some linting-inspired cleanups.
 
 - Don't duplicate the creation of Tool objects if "default" is part of
   the tool list.
+
 - Test suite: add support for Python 3.15 in the Action unit tests.
+
 - zip tool now uses zipfile module's "from_file" method to populate ZipInfo
   records, rather than doing manually.
+
 
 
 PACKAGING

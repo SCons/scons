@@ -130,6 +130,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       files as advertised.
     - zip tool now uses zipfile module's "from_file" method to populate
       ZipInfo records, rather than doing manually.
+    - Some cleanups in Subst.py. Functionality does not change.
     - Reference manual improvements:
       * More clarifications in Builder Methods section.
       * Clarify VariantDir behavior when switching from duplicate=True (the
