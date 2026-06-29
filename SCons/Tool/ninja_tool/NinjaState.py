@@ -407,6 +407,11 @@ class NinjaState:
 
         ninja.variable("builddir", get_path(self.env.Dir(self.env['NINJA_DIR']).path))
 
+        ninja.build(
+            "SconsAlwaysBuildPhony",
+            rule="phony",
+        )
+
         for pool_name, size in sorted(self.pools.items()):
             ninja.pool(pool_name, min(self.env.get('NINJA_MAX_JOBS', size), size))
 
@@ -782,6 +787,9 @@ class SConsToNinjaTranslator:
             node_callback = node.check_attributes("ninja_build_callback")
             if callable(node_callback):
                 node_callback(env, node, build)
+
+        if node.always_build:
+            build["inputs"] = build.get("inputs", []) + ["SconsAlwaysBuildPhony"]
 
         return build
 
