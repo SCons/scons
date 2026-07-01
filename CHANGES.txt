@@ -14,6 +14,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From John Doe:
     - Whatever John Doe did.
+  
+  From Paul Movall:
+    - Fix a problem where AlwaysBuild is now honored by ninja
 
   From Joseph Brill:
     - Add possible build failure when targeting 32-bit arm using
