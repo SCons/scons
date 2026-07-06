@@ -1,0 +1,177 @@
+RELEASE 0.93 - Thu, 23 Oct 2003 07:26:55 -0500
+
+  From J.T. Conklin:
+
+  - On POSIX, execute commands with the more modern os.spawnvpe()
+    function, if it's available.
+
+  - Scan .S, .spp and .SPP files for C preprocessor dependencies.
+
+  - Refactor the Job.Parallel() class to use a thread pool without a
+    condition variable.  This improves parallel build performance and
+    handles keyboard interrupts properly when -j is used.
+
+  From Charles Crain:
+
+  - Add support for a JARCHDIR variable to control changing to a
+    directory using the jar -C option.
+
+  - Add support for detecting Java manifest files when using jar,
+    and specifying them using the jar m flag.
+
+  - Fix some Python 2.2 specific things in various tool modules.
+
+  - Support directories as build sources, so that a rebuild of a target
+    can be triggered if anything underneath the directory changes.
+
+  - Have the scons.bat and scons.py files look for the SCons modules
+    in site-packages as well.
+
+  From Christian Engel:
+
+  - Support more flexible inclusion of separate C and C++ compilers.
+
+  - Use package management tools on AIX and Solaris to find where
+    the comilers are installed, and what version they are.
+
+  - Add support for CCVERSION and CXXVERSION variables for a number
+    of C and C++ compilers.
+
+  From Sergey Fogel:
+
+  - Add test cases for the new capabilities to run bibtex and to rerun
+    latex as needed.
+
+  From Ralf W. Grosse-Kunstleve:
+
+  - Accomodate anydbm modules that don't have a sync() method.
+
+  - Allow SConsignFile() to take an argument specifying the DBM
+    module to be used.
+
+  From Stephen Kennedy:
+
+  - Add support for a configurable global .sconsign.dbm file which
+    can be used to avoid cluttering each directory with an individual
+    .sconsign file.
+
+  From John Johnson:
+
+  - Fix (re-)scanning of dependencies in generated or installed
+    header files.
+
+  From Steven Knight:
+
+  - The -Q option suppressed too many messages; fix it so that it only
+    suppresses the Reading/Building messages.
+
+  - Support #include when there's no space before the opening quote
+    or angle bracket.
+
+  - Accomodate alphanumeric version strings in EnsurePythonVersion().
+
+  - Support arbitrary expansion of construction variables within
+    file and directory arguments to Builder calls and Environment methods.
+
+  - Add Environment-method versions of the following global functions:
+    Action(), AddPostAction(), AddPreAction(), Alias(), Builder(),
+    BuildDir(), CacheDir(), Clean(), Configure(), Default(),
+    EnsurePythonVersion(), EnsureSConsVersion(), Environment(),
+    Exit(), Export(), FindFile(), GetBuildPath(), GetOption(), Help(),
+    Import(), Literal(), Local(), Platform(), Repository(), Scanner(),
+    SConscriptChdir(), SConsignFile(), SetOption(), SourceSignatures(),
+    Split(), TargetSignatures(), Tool(), Value().
+
+  - Add the following global functions that correspond to the same-named
+    Environment methods:  AlwaysBuild(), Command(), Depends(), Ignore(),
+    Install(), InstallAs(), Precious(), SideEffect() and SourceCode().
+
+  - Add the following global functions that correspond to the default
+    Builder methods supported by SCons: CFile(), CXXFile(), DVI(), Jar(),
+    Java(), JavaH(), Library(), M4(), MSVSProject(), Object(), PCH(),
+    PDF(), PostScript(), Program(), RES(), RMIC(), SharedLibrary(),
+    SharedObject(), StaticLibrary(), StaticObject(), Tar(), TypeLibrary()
+    and Zip().
+
+  - Rearrange the man page to show construction environment methods and
+    global functions in the same list, and to explain the difference.
+
+  - Alphabetize the explanations of the builder methods in the man page.
+
+  - Rename the Environment.Environment class to Enviroment.Base.
+    Allow the wrapping interface to extend an Environment by using its own
+    subclass of Environment.Base and setting a new Environment.Environment
+    variable as the calling entry point.
+
+  - Deprecate the ParseConfig() global function in favor of a same-named
+    construction environment method.
+
+  - Allow the Environment.WhereIs() method to take explicit path and
+    pathext arguments (like the underlying SCons.Util.WhereIs() function).
+
+  - Remove the long-obsolete {Get,Set}CommandHandler() functions.
+
+  - Enhance env.Append() to suppress null values when appropriate.
+
+  - Fix ParseConfig() so it works regardless of initial construction
+    variable values.
+
+    Extend CheckHeader(), CheckCHeader(), CheckCXXHeader() and
+    CheckLibWithHeader() to accept a list of header files that will be
+    #included in the test.  The last one in the list is assumed to be
+    the one being checked for.  (Prototype code contributed by Gerard
+    Patel and Niall Douglas).
+
+  - Supply a warning when -j is used and threading isn't built in to
+    the current version of Python.
+
+  - First release of the User's Guide (finally, and despite a lot
+    of things still missing from it...).
+
+  From Clark McGrew:
+
+  - Generalize the action for .tex files so that it will decide whether
+    a file is TeX or LaTeX, check the .aux output to decide if it should
+    run bibtex, and check the .log output to re-run LaTeX if needed.
+
+  From Bram Moolenaar:
+
+  - Split the non-SCons-specific functionality from SConf.py to a new,
+    re-usable Conftest.py module.
+
+  From Gary Oberbrunner:
+
+  - Allow a directory to be the target or source or dependency of a
+    Depends(), Ignore(), Precious() or SideEffect() call.
+
+  From Gerard Patel:
+
+  - Use the %{_mandir} macro when building our RPM package.
+
+  From Marko Rauhamaa:
+
+  - Have the closing message say "...terminated because of errors" if
+    there were any.
+
+  From Anthony Roach:
+
+  - On Win32 systems, only use "rm" to delete files if Cygwin is being
+    used.   ("rm" doesn't understand Win32-format path names.)
+
+  From Christoph Wiedemann:
+
+  - Fix test/SWIG.py to find the Python include directory in all cases.
+
+  - Fix a bug in detection of Qt installed on the local system.
+
+  - Support returning Python 2.3 BooleanType values from Configure checks.
+
+  - Provide an error message if someone mistakenly tries to call a
+    Configure check from within a Builder function.
+
+  - Support calling a Builder when a Configure context is still open.
+
+  - Handle interrupts better by eliminating all try:-except: blocks
+    which caught any and all exceptions, including KeyboardInterrupt.
+
+  - Add a --duplicate= option to control how files are duplicated.
