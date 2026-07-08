@@ -15,6 +15,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From John Doe:
     - Whatever John Doe did.
 
+  From Cornelii Sandberg:
+    - Fix Variables() not reading a saved-variables file (e.g. custom.py)
+      from the source directory when building in a separate variant
+      directory. The file is now resolved through the File() node
+      infrastructure, so it is found in the source directory or a
+      repository (issue #816).
+
   From Joseph Brill:
     - Add possible build failure when targeting 32-bit arm using
       Visual Studio 2022 with Windows SDK version 10.0.26100.0 or later

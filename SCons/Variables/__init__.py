@@ -271,18 +271,25 @@ class Variables:
 
         # next set the values specified in any saved-variables script(s)
         for filename in self.files:
-            # TODO: issue #816 use Node to access saved-variables file?
-            if os.path.exists(filename):
+            # Resolve the saved-variables file through the File() node so it
+            # is found in the source directory (or a repository) as well as
+            # the build directory, e.g. when using a variant dir (issue #816).
+            node = env.File(filename)
+            if not node.rexists():
+                node = node.srcnode()
+            if node.rexists():
+                # rfile() resolves to the actual on-disk file, which may live
+                # in a repository rather than the local (build) directory.
+                rfile = node.rfile()
                 # issue #4645: don't exec directly into values,
                 #   so we can iterate through for unknown variables.
                 temp_values = {}
-                dirname = os.path.split(os.path.abspath(filename))[0]
+                dirname = os.path.split(rfile.get_abspath())[0]
                 if dirname:
                     sys.path.insert(0, dirname)
                 try:
                     temp_values['__name__'] = filename
-                    with open(filename) as f:
-                        contents = f.read()
+                    contents = rfile.get_text_contents()
                     exec(contents, {}, temp_values)
                 finally:
                     if dirname:

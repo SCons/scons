@@ -27,6 +27,7 @@ import TestSCons
 
 import SCons.Variables
 import SCons.Subst
+import SCons.Node.FS
 import SCons.Warnings
 from SCons.Util import cmp
 from SCons.Variables import *
@@ -43,6 +44,11 @@ class Environment:
         return self.dict[key]
     def __contains__(self, key) -> bool:
         return key in self.dict
+    def File(self, name):
+        # Real Environments resolve files through the File() node
+        # infrastructure; provide the same here so Variables.Update() can
+        # locate saved-variables files (issue #816).
+        return SCons.Node.FS.get_default_fs().File(name)
 
 
 def check(key, value, env) -> None:
