@@ -67,8 +67,8 @@ def SetBuildType(buildtype) -> None:
     global build_type
     build_type = buildtype
 
-# to be set, if we are in dry-run mode
-dryrun = 0
+# Set to True by Main.py if dryrun mode is requested
+dryrun = False
 
 AUTO=0  # use SCons dependency scanning for up-to-date checks
 FORCE=1 # force all tests to be rebuilt

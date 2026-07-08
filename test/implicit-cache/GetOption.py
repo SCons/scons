@@ -35,7 +35,7 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 assert not GetOption('implicit_cache')
-SetOption('implicit_cache', 1)
+SetOption('implicit_cache', True)
 assert GetOption('implicit_cache')
 """)
 
@@ -44,7 +44,7 @@ test.run()
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 assert GetOption('implicit_cache')
-SetOption('implicit_cache', 0)
+SetOption('implicit_cache', False)
 assert GetOption('implicit_cache')
 """)
 

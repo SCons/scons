@@ -24,7 +24,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Verify that SetOption('implicit_cache', 1) actually enables implicit
+Verify that SetOption('implicit_cache', True) actually enables implicit
 caching by detecting the case where implicit caching causes inaccurate
 builds:  a same-named file dropped into a directory earlier in the
 CPPPATH list will *not* be detected because we use what's in the cache.
@@ -36,7 +36,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
-SetOption('implicit_cache', 1)
+SetOption('implicit_cache', True)
 env=Environment(CPPPATH=['i1', 'i2'])
 env.Object('foo.c')
 """)

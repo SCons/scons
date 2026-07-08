@@ -1044,10 +1044,10 @@ def _main(parser):
     SCons.Node.implicit_deps_unchanged = options.implicit_deps_unchanged
 
     if options.no_exec:
-        SCons.SConf.dryrun = 1
+        SCons.SConf.dryrun = True
         SCons.Action.execute_actions = None
     if options.question:
-        SCons.SConf.dryrun = 1
+        SCons.SConf.dryrun = True
     if options.clean:
         SCons.SConf.SetBuildType('clean')
     if options.help:

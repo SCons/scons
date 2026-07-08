@@ -94,14 +94,10 @@ StateString = {
     5 : "failed",
 }
 
-# controls whether implicit dependencies are cached:
-implicit_cache = 0
-
-# controls whether implicit dep changes are ignored:
-implicit_deps_unchanged = 0
-
-# controls whether the cached implicit deps are ignored:
-implicit_deps_changed = 0
+# These values are overwritten from the options data at runtime by Main.py
+implicit_cache = False  # whether implicit dependencies are cached
+implicit_deps_unchanged = False  # whether implicit dep changes are ignored
+implicit_deps_changed = False  # whether the cached implicit deps are ignored
 
 # A variable that can be set to an interface-specific function be called
 # to annotate a Node with information about its creation.

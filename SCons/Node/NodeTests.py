@@ -1054,9 +1054,9 @@ class NodeTestCase(unittest.TestCase):
         save_implicit_cache = SCons.Node.implicit_cache
         save_implicit_deps_changed = SCons.Node.implicit_deps_changed
         save_implicit_deps_unchanged = SCons.Node.implicit_deps_unchanged
-        SCons.Node.implicit_cache = 1
-        SCons.Node.implicit_deps_changed = None
-        SCons.Node.implicit_deps_unchanged = None
+        SCons.Node.implicit_cache = True
+        SCons.Node.implicit_deps_changed = False
+        SCons.Node.implicit_deps_unchanged = False
         try:
             sn = StoredNode("eee")
             sn.builder_set(Builder())

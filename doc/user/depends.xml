@@ -943,7 +943,7 @@ int main() { printf("Hello, world!\n"); }
     </para>
 
     <sconstruct>
-SetOption('implicit_cache', 1)
+SetOption('implicit_cache', True)
     </sconstruct>
 
     <para>

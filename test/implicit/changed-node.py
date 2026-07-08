@@ -40,7 +40,7 @@ test.subdir('d',
 
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
-SetOption('implicit_cache', 1)
+SetOption('implicit_cache', True)
 SetOption('max_drift', 1)
 
 def lister(target, source, env):
@@ -76,7 +76,7 @@ test.run('--debug=stacktrace')
 
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
-SetOption('implicit_cache', 1)
+SetOption('implicit_cache', True)
 SetOption('max_drift', 1)
 
 def lister(target, source, env):
