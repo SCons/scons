@@ -81,32 +81,36 @@ otherwise, only the first segment is checked.
 <cvar name="PRINT_CMD_LINE_FUNC">
 <summary>
 <para>
-A &Python; function used to print the command lines as they are executed
-(unless command printing is disabled by the
+The function to print command lines as they are executed.
+Called unless command printing is disabled by the
 <link linkend="opt-question"><option>-q</option>/<option>--question</option></link>
 or
 <link linkend="opt-silent"><option>-s</option>/<option>--silent</option></link>
-options).
-The function must accept four arguments:
+options.
+The function will be called with four arguments:
 <varname>s</varname>,
 <varname>target</varname>,
 <varname>source</varname> and
 <varname>env</varname>.
 <varname>s</varname>
-is a string showing the command being executed,
+is the command line string to be executed,
 <varname>target</varname>,
-is the target being built (file node, list, or string name(s)),
+is the target(s) being built
 <varname>source</varname>,
-is the source(s) used (file node, list, or string name(s)),
+is the source(s) used
 and <varname>env</varname>
 is the environment being used.
 </para>
 
 <para>
-The function must do the printing itself.
-The default implementation,
-used if this variable is not set or is <constant>None</constant>,
-is to just print the string, as in:
+Any or all of the arguments can be used in composing the message.
+<varname>source</varname> and
+<varname>target</varname> will be lists of nodes,
+and need to be suitably converted for printing (see example).
+The default,
+used if the variable is not set or set to <constant>None</constant>,
+is to print only the string <parameter>s</parameter>,
+equivalent to:
 </para>
 <example_commands>
 def print_cmd_line(s, target, source, env):
@@ -114,7 +118,8 @@ def print_cmd_line(s, target, source, env):
 </example_commands>
 
 <para>
-Here is an example of a more interesting function:
+This example uses the source and target
+parameters to format a custom message:
 </para>
 
 <example_commands>
@@ -145,7 +150,9 @@ scons: done building targets.
 </screen>
 
 <para>
-Another example could be a function that logs the actual commands to a file.
+Another possible use for a print function is to show
+a very brief message on the console while logging
+the full command line to a file.
 </para>
 </summary>
 </cvar>

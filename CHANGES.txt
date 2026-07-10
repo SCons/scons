@@ -146,6 +146,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       * Add info on the type of an option variable to GetOption and SetOption.
       * Tighten up the doc for Variables-Add() and add a note on file contents
         not being preserved to Variables-Save()
+      * Tweak the wording for $PRINT_CMD_LINE_FUNC.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
