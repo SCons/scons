@@ -102,7 +102,8 @@ long function signature lines, and some linting-inspired cleanups.
 - zip tool now uses zipfile module's "from_file" method to populate ZipInfo
   records, rather than doing manually.
 
-
+- Add RequiredPackage to the LaTeX scanner for recursive scanning of custom
+  LaTeX packages.
 
 PACKAGING
 ---------
