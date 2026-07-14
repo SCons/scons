@@ -15,9 +15,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From John Doe:
     - Whatever John Doe did.
   
-  From Paul Movall:
-    - Fix a problem where AlwaysBuild is now honored by ninja
-
   From Joseph Brill:
     - Add possible build failure when targeting 32-bit arm using
       Visual Studio 2022 with Windows SDK version 10.0.26100.0 or later
@@ -81,6 +78,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix typos in preface, Chapter 6, Chapter 9 and Chapter 10 of User Guide
     - Fix broken links in Chapter 1 of User Guide
 
+  From Paul Movall:
+    - Fix a problem where AlwaysBuild is now honored by ninja
 
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines

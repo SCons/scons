@@ -789,7 +789,7 @@ class SConsToNinjaTranslator:
                 node_callback(env, node, build)
 
         if node.always_build:
-            build["inputs"] = build.get("inputs", []) + ["SconsAlwaysBuildPhony"]
+            build["implicit"] = build.get("implicit", []) + ["SconsAlwaysBuildPhony"]
 
         return build
 
