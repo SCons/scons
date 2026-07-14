@@ -200,7 +200,7 @@ class LaTeXScannerTestCase5(unittest.TestCase):
                   ('color', 'font', 'inner', 'outer', '')]
          deps_match(self, deps, files)
 
-class LaTeXScannerTestCase5(unittest.TestCase):
+class LaTeXScannerTestCase6(unittest.TestCase):
      def runTest(self) -> None:
          env = DummyEnvironment(TEXINPUTS=[test.workpath("subdir")],LATEXSUFFIXES = [".tex", ".ltx", ".latex"])
          s = SCons.Scanner.LaTeX.LaTeXScanner()
