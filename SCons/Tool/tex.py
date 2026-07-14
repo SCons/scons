@@ -960,11 +960,11 @@ def generate_common(env) -> None:
 
     env['BIBTEX']      = 'bibtex'
     env['BIBTEXFLAGS'] = SCons.Util.CLVar('')
-    env['BIBTEXCOM']   = CDCOM + '${TARGET.dir} && $BIBTEX $BIBTEXFLAGS ${SOURCE.filebase}'
+    env['BIBTEXCOM']   = CDCOM + '${TARGET.dir} && $BIBTEX $BIBTEXFLAGS ${SOURCE.file}'
 
     env['BIBER']      = 'biber'
     env['BIBERFLAGS'] = SCons.Util.CLVar('')
-    env['BIBERCOM']   = CDCOM + '${TARGET.dir} && $BIBER $BIBERFLAGS ${SOURCE.filebase}'
+    env['BIBERCOM']   = CDCOM + '${TARGET.dir} && $BIBER $BIBERFLAGS ${SOURCE.file}'
 
     env['MAKEINDEX']      = 'makeindex'
     env['MAKEINDEXFLAGS'] = SCons.Util.CLVar('')
