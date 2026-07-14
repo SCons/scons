@@ -101,6 +101,15 @@ test.subdir('subdir2')
 
 test.write(['subdir2', 'inc3.tex'], "\\input{inc2}\n")
 
+test.write('test7.latex',r"""
+\usepackage{scons}
+""")
+test.write('scons.sty',r"""
+\RequirePackage[option]{other}
+\RequirePackage{system}
+""")
+test.write('other.sty', "\n")
+
 # define some helpers:
 #   copied from CTest.py
 class DummyEnvironment(collections.UserDict):
@@ -216,6 +225,15 @@ class LaTeXScannerTestCase6(unittest.TestCase):
              deps_match(self, deps, files_win)
          else:
              deps_match(self, deps, files)
+
+class LaTeXScannerTestCase7(unittest.TestCase):
+     def runTest(self) -> None:
+         env = DummyEnvironment(TEXINPUTS=[test.workpath("subdir")],LATEXSUFFIXES = [".tex", ".ltx", ".latex"])
+         s = SCons.Scanner.LaTeX.LaTeXScanner()
+         path = s.path(env)
+         deps = s(env.File('test7.latex'), env, path)
+         files = ["other.sty", "scons.sty"]
+         deps_match(self, deps, files)
 
 if __name__ == "__main__":
     unittest.main()
