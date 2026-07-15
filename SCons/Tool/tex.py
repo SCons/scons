@@ -363,7 +363,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                     if 'bibdata' in content:
                         if Verbose:
                             print("Need to run biber on ",bcffilename)
-                        bibfile = env.fs.File(SCons.Util.splitext(target_aux)[0])
+                        bibfile = env.fs.File(SCons.Util.splitext(target_bcf)[0])
                         result = BiberAction(bibfile, bibfile, env)
                         if result != 0:
                             check_file_error_message(env['BIBER'], 'blg')
