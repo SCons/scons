@@ -28,6 +28,13 @@ DEPRECATED FUNCTIONALITY
 - Deprecated using signature-file-per-directory (aka old-style SConsign)
   via the SConsignFile(name=None) call.
 
+- The legacy job scheduler, which was superseded by a new scheduler in
+  SCons 4.7  but remained available as a fallback, is deprecated and
+  will be removed in the next release. The --experimental feature flag
+  to select the legacy scheduler is renamed to "legacy_sched_deprecated"
+  to give a clear indication of the status change; the flag will also
+  be removed in the next release.
+
 REMOVED FUNCTIONALITY
 ---------------------
 

@@ -1258,14 +1258,33 @@ the mechanisms in the specified order.</para>
         the special tokens <literal>all</literal> or <literal>none</literal>.
         A comma-separated string can be used to select multiple features.
         The default setting is <literal>none</literal>.</para>
-      <para>Current available features are:
-        <literal>ninja</literal> (<emphasis>New in version 4.2</emphasis>),
-        <literal>legacy_sched</literal> (<emphasis>New in version 4.6.0</emphasis>).
+
+      <para>Current available features are
+        <literal>ninja</literal> (<emphasis>new in version 4.2</emphasis>)
+        and
+        <literal>legacy_sched_deprecated</literal>
+        (<emphasis>new in, and deprecated since, version NEXT_RELEASE</emphasis>).
       </para>
+      <note>
+      <para>
+        The legacy scheduler is not strictly an experimental feature.
+        The feature flag selects the job scheduler which was
+        the &SCons; default prior to version 4.7.
+        The feature flag was introduced as <literal>legacy_sched</literal>
+        in version 4.7.
+        The legacy scheduler is due to be removed in a future release,
+        so the feature flag is now deprecated. In version NEXT_RELEASE,
+        it was renamed to <literal>legacy_sched_deprecated</literal>,
+        so that existing users will receive a signal - due to the nature
+        of experimental feature flags it is not possible to use the
+        standard &SCons; deprecation warning mechanism here.
+      </para></note>
       <caution><para>
-        No Support offered for any features or tools enabled by this flag.
+        Experimental features come with no compatibility promises -
+        a given feature could change significantly in a future release,
+        or disappear completely.
       </para></caution>
-      <para><emphasis>New in version 4.2 (experimental).</emphasis></para>
+      <para><emphasis>Option added in version 4.2.</emphasis></para>
     </listitem>
   </varlistentry>
 
