@@ -28,6 +28,13 @@ DEPRECATED FUNCTIONALITY
 - Deprecated using signature-file-per-directory (aka old-style SConsign)
   via the SConsignFile(name=None) call.
 
+- The legacy job scheduler, which was superseded by a new scheduler in
+  SCons 4.7  but remained available as a fallback, is deprecated and
+  will be removed in the next release. The --experimental feature flag
+  to select the legacy scheduler is renamed to "legacy_sched_deprecated"
+  to give a clear indication of the status change; the flag will also
+  be removed in the next release.
+
 REMOVED FUNCTIONALITY
 ---------------------
 
@@ -76,6 +83,7 @@ IMPROVEMENTS
   * Fix for_signature logic bug in ListSubber.expand() for correct signature
     generation
   * Modernize string formatting to f-strings
+  Also, separately, some code-style cleanups and docstring work in Subst.py.
 
 - Test runner reworked to use Python logging; the portion of the test suite
   which tests the runner was adjusted to match.
@@ -97,10 +105,14 @@ long function signature lines, and some linting-inspired cleanups.
 
 - Don't duplicate the creation of Tool objects if "default" is part of
   the tool list.
+
 - Test suite: add support for Python 3.15 in the Action unit tests.
+
 - zip tool now uses zipfile module's "from_file" method to populate ZipInfo
   records, rather than doing manually.
 
+- Add RequiredPackage to the LaTeX scanner for recursive scanning of custom
+  LaTeX packages.
 
 PACKAGING
 ---------
@@ -164,6 +176,8 @@ DOCUMENTATION
 
 - Tighten up the doc for Variables-Add() and add a note on file contents
   not being preserved to Variables-Save()
+
+* Tweak the wording for $PRINT_CMD_LINE_FUNC.
 
 DEVELOPMENT
 -----------

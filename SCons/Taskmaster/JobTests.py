@@ -313,7 +313,7 @@ class ParallelTestCase(JobTestCase):
 
         try:
             taskmaster = Taskmaster(3, self, SleepTask)
-            OptionsParser.values.experimental.append('legacy_sched')
+            OptionsParser.values.experimental.append('legacy_sched_deprecated')
             jobs = SCons.Taskmaster.Job.Jobs(2, taskmaster)
             OptionsParser.values.experimental.pop()
             jobs.run()
@@ -529,7 +529,7 @@ class SerialTaskTest(_SConsTaskTest):
         self._test_seq(1)
 
         # Now run test with LegacyParallel
-        OptionsParser.values.experimental=['legacy_sched']
+        OptionsParser.values.experimental=['legacy_sched_deprecated']
         self._test_seq(1)
 
 class ParallelTaskTest(_SConsTaskTest):
@@ -538,7 +538,7 @@ class ParallelTaskTest(_SConsTaskTest):
         self._test_seq(num_jobs)
 
         # Now run test with LegacyParallel
-        OptionsParser.values.experimental=['legacy_sched']
+        OptionsParser.values.experimental=['legacy_sched_deprecated']
         self._test_seq(num_jobs)
 
 

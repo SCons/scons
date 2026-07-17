@@ -14,7 +14,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From John Doe:
     - Whatever John Doe did.
-  
+
+  From Cornelii Sandberg:
+    - Fix Variables() not reading a saved-variables file (e.g. custom.py)
+      from the source directory when building in a separate variant
+      directory. The file is now resolved through the File() node
+      infrastructure, so it is found in the source directory or a
+      repository (issue #816).
+
   From Joseph Brill:
     - Add possible build failure when targeting 32-bit arm using
       Visual Studio 2022 with Windows SDK version 10.0.26100.0 or later
@@ -81,6 +88,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Paul Movall:
     - Fix a problem where AlwaysBuild is now honored by ninja
 
+  From Keith F. Prussing:
+    - Add RequiredPackage to the LaTeX scanner for recursive scanning of
+      custom LaTeX packages.
+
   From Mats Wichmann:
     - Introduce some unit tests for the file locking utility routines
     - Subst: Improved variable substitution by consolidating dictionary
@@ -132,6 +143,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       files as advertised.
     - zip tool now uses zipfile module's "from_file" method to populate
       ZipInfo records, rather than doing manually.
+    - Some cleanups in Subst.py. Functionality does not change.
+    - Deprecate the legacy job scheduler and feature flag. The feature flag
+      is renamed to "legacy_sched_deprecated".
     - Reference manual improvements:
       * More clarifications in Builder Methods section.
       * Clarify VariantDir behavior when switching from duplicate=True (the
@@ -147,6 +161,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       * Add info on the type of an option variable to GetOption and SetOption.
       * Tighten up the doc for Variables-Add() and add a note on file contents
         not being preserved to Variables-Save()
+      * Tweak the wording for $PRINT_CMD_LINE_FUNC.
 
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700

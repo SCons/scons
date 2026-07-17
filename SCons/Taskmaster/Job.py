@@ -72,12 +72,15 @@ class Jobs:
     """
 
     def __init__(self, num, taskmaster) -> None:
-        """
-        Create 'num' jobs using the given taskmaster. The exact implementation
-        used varies with the number of jobs requested and the state of the `legacy_sched` flag
-        to `--experimental`.
-        """
+        """Create *num* jobs using the given taskmaster.
 
+        The exact implementation used varies with the number of jobs
+        requested and the scheduler selected - the old scheduler is
+        available through CLI ``--experimental=legacy_sched_deprecated``.
+
+        .. versionchanged: NEXT_RELEASE
+           Legacy scheduler deprecated, flag renamed to ``legacy_sched_deprecated``
+        """
         # Importing GetOption here instead of at top of file to avoid
         # circular imports
         # pylint: disable=import-outside-toplevel
@@ -88,7 +91,7 @@ class Jobs:
             stack_size = default_stack_size
 
         experimental_option = GetOption('experimental') or []
-        if 'legacy_sched' in experimental_option:
+        if 'legacy_sched_deprecated' in experimental_option:
             if num > 1:
                 self.job = LegacyParallel(taskmaster, num, stack_size)
             else:
