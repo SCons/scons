@@ -160,6 +160,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
         not being preserved to Variables-Save()
       * Tweak the wording for $PRINT_CMD_LINE_FUNC.
 
+  From Keith F Prussing:
+    -  Fix multiple extension stripping for BibTeX and Biber processing
+
 
 RELEASE 4.10.1 - Sun, 16 Nov 2025 10:51:57 -0700
 
