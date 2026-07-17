@@ -154,13 +154,17 @@ class Environment:
             self.d[k] = v
 
     # Just use the underlying scons_subst*() utility methods.
-    def subst(self, strSubst, raw: int=0, target=[], source=[], conv=None, overrides: bool=False):
+    def subst(self, strSubst, raw: int=0, target=[], source=[], conv=None, overrides: dict | None = None):
+        if overrides is None:
+            overrides = {}
         return SCons.Subst.scons_subst(strSubst, self, raw,
                                        target, source, self.d, conv=conv, overrides=overrides)
 
     subst_target_source = subst
 
-    def subst_list(self, strSubst, raw: int=0, target=[], source=[], conv=None, overrides: bool=False):
+    def subst_list(self, strSubst, raw: int=0, target=[], source=[], conv=None, overrides: dict | None = None):
+        if overrides is None:
+            overrides = {}
         return SCons.Subst.scons_subst_list(strSubst, self, raw,
                                             target, source, self.d, conv=conv, overrides=overrides)
 

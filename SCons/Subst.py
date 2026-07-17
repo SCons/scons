@@ -28,11 +28,12 @@ from __future__ import annotations
 import re
 from collections import UserList, UserString
 from functools import lru_cache
-from inspect import signature, Parameter
+from inspect import Parameter, signature
+from typing import Callable
 
 import SCons.Errors
 import SCons.Util
-from SCons.Util import is_String, is_Sequence
+from SCons.Util import is_Sequence, is_String
 
 # Indexed by the SUBST_* constants below.
 _strconv = [
@@ -58,11 +59,11 @@ def raise_exception(exception, target, s):
 
 
 class Literal:
-    """A string wrapper for a string to prevent expansion.
+    """A wrapper for non-subsitutable strings.
 
-    If you use this object wrapped around a string, then it will
-    be interpreted as literal.  When passed to the command interpreter,
-    all special characters will be escaped.
+    The substitution logic will not change the wrapped string.
+    When passed to the command interpreter, all special
+    characters will be escaped and/or the string quoted.
     """
 
     def __init__(self, lstr) -> None:
@@ -71,7 +72,7 @@ class Literal:
     def __str__(self) -> str:
         return self.lstr
 
-    def escape(self, escape_func):
+    def escape(self, escape_func: Callable) -> str:
         return escape_func(self.lstr)
 
     def for_signature(self):
@@ -97,18 +98,20 @@ class Literal:
         return key in self.lstr
 
 class SpecialAttrWrapper:
-    """This is a wrapper for what we call a 'Node special attribute.'
-    This is any of the attributes of a Node that we can reference from
-    Environment variable substitution, such as $TARGET.abspath or
-    $SOURCES[1].filebase.  We implement the same methods as Literal
-    so we can handle special characters, plus a for_signature method,
-    such that we can return some canonical string during signature
-    calculation to avoid unnecessary rebuilds."""
+    """A wrapper for Node special attributes.
 
-    def __init__(self, lstr, for_signature=None) -> None:
-        """The for_signature parameter, if supplied, will be the
-        canonical string we return from for_signature().  Else
-        we will simply return lstr."""
+    "Special" are any attributes of a Node that we can reference from
+    Environment variable substitution, such as ``$TARGET.abspath`` or
+    ``$SOURCES[1].filebase``.  Implements the same methods as :class:`Literal
+    so we can handle special characters, plus a :meth:`for_signature` method,
+    so we can return some canonical string during signature
+    calculation to avoid unnecessary rebuilds.
+
+    If the *for_signature* parameter is supplied at creation time,
+    it is the "signature" :meth:`for_signature` will return.
+    """
+
+    def __init__(self, lstr: str, for_signature: str | None = None) -> None:
         self.lstr = lstr
         if for_signature:
             self.forsig = for_signature
@@ -118,22 +121,21 @@ class SpecialAttrWrapper:
     def __str__(self) -> str:
         return self.lstr
 
-    def escape(self, escape_func):
+    def escape(self, escape_func: Callable) -> str:
         return escape_func(self.lstr)
 
-    def for_signature(self):
+    def for_signature(self) -> str:
         return self.forsig
 
     def is_literal(self) -> bool:
         return True
 
-def quote_spaces(arg):
+def quote_spaces(arg: str) -> str:
     """Generic function for putting double quotes around any string that
     has white space in it."""
     if ' ' in arg or '\t' in arg:
         return f'"{arg}"'
-    else:
-        return str(arg)
+    return str(arg)
 
 class CmdStringHolder(UserString):
     """Holder for substituted strings intended for the command line.
@@ -152,14 +154,19 @@ class CmdStringHolder(UserString):
     def is_literal(self) -> bool:
         return self.literal
 
-    def escape(self, escape_func, quote_func=quote_spaces) -> str:
-        """Escape the string with the supplied function.  The
-        function is expected to take an arbitrary string, then
-        return it with all special characters escaped and ready
-        for passing to the command interpreter.
+    def escape(self, escape_func: Callable, quote_func: Callable = quote_spaces) -> str:
+        """Escape characters in a saved string.
 
-        After calling this function, the next call to str() will
-        return the escaped string.
+        Like ``escape`` methods in other subst-related classes, this is
+        indirect - you call ``object.escape``, but have to pass a function
+        which actually performs the escaping - this is because the approach
+        needed is platform-specific.
+
+        Args:
+            escape_func: function to escape special characters.
+            quote_func: function for quoting the string. Used only if
+               the string is not marked as "literal".  Defaults to
+               :func:`quote_spaces`.
         """
         data = self.data
         if self.literal:
@@ -168,11 +175,11 @@ class CmdStringHolder(UserString):
             return quote_func(data)
         return data
 
-def escape_list(mylist, escape_func) -> list[str]:
+def escape_list(mylist: list, escape_func: Callable) -> list[str]:
     """Escape a list of arguments by running the specified escape_func
     on every object in the list that has an escape() method."""
 
-    def escape(obj, escape_func=escape_func):
+    def escape(obj, escape_func: Callable = escape_func):
         try:
             e = obj.escape
         except AttributeError:
@@ -403,7 +410,7 @@ class StringSubber:
     the expansion.
     """
 
-    def __init__(self, env, mode: int, conv, gvars: dict) -> None:
+    def __init__(self, env, mode: int, conv: Callable, gvars: dict) -> None:
         self.env = env
         self.mode = mode
         self.conv = conv
@@ -559,7 +566,7 @@ class ListSubber(UserList):
     internally.
     """
 
-    def __init__(self, env, mode: int, conv, gvars: dict) -> None:
+    def __init__(self, env, mode: int, conv: Callable, gvars: dict) -> None:
         super().__init__([])
         self.env = env
         self.mode = mode
@@ -595,8 +602,8 @@ class ListSubber(UserList):
             return False
         return _unexpandable.search(s) is None
 
-    def expand(self, s, lvars, within_list):
-        """Expand a single "token" as necessary, appending the
+    def expand(self, s, lvars, within_list) -> None:
+        """Expand a single token *s* as necessary, appending the
         expansion to the current result.
 
         This handles expanding different types of things (strings,
@@ -696,7 +703,7 @@ class ListSubber(UserList):
         else:
             self.append(s)
 
-    def substitute(self, args, lvars, within_list) -> None:
+    def substitute(self, args, lvars, within_list: bool) -> None:
         """Substitute expansions in an argument or list of arguments.
 
         This serves as a wrapper for splitting up a string into
@@ -884,9 +891,18 @@ _unexpandable = re.compile(r'[\s$]')
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
 
-def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars=None, lvars=None, conv=None, overrides: dict | None = None):
-    """Expand a string or list containing construction variable
-    substitutions.
+def scons_subst(
+    strSubst,
+    env,
+    mode=SUBST_RAW,
+    target=None,
+    source=None,
+    gvars: dict | None = None,
+    lvars: dict | None = None,
+    conv: Callable | None = None,
+    overrides: dict | None = None,
+):
+    """Expand a string or list containing construction variable substitutions.
 
     This is the work-horse function for substitutions in file names
     and the like.  The companion scons_subst_list() function (below)
@@ -902,9 +918,10 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars=N
         gvars = {}
     if lvars is None:
         lvars = {}
-
     if conv is None:
         conv = _strconv[mode]
+    if overrides is None:
+        overrides = {}
 
     # Doing this every time is a bit of a waste, since the Executor
     # has typically already populated the OverrideEnvironment with
@@ -973,7 +990,17 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars=N
 
     return result
 
-def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars=None, lvars=None, conv=None, overrides: dict | None = None):
+def scons_subst_list(
+    strSubst,
+    env,
+    mode=SUBST_RAW,
+    target=None,
+    source=None,
+    gvars: dict | None = None,
+    lvars: dict | None = None,
+    conv: Callable | None = None,
+    overrides: dict | None = None,
+):
     """Substitute construction variables in a string (or list or other
     object) and separate the arguments into a command list.
 
@@ -985,9 +1012,10 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
         gvars = {}
     if lvars is None:
         lvars = {}
-
     if conv is None:
         conv = _strconv[mode]
+    if overrides is None:
+        overrides = {}
 
     # Doing this every time is a bit of a waste, since the Executor
     # has typically already populated the OverrideEnvironment with
@@ -1070,5 +1098,5 @@ def scons_subst_once(strSubst, env, key):
 
     if is_String(strSubst):
         return _dollar_exps.sub(sub_match, strSubst)
-    else:
-        return strSubst
+
+    return strSubst
