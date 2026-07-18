@@ -143,6 +143,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Some cleanups in Subst.py. Functionality does not change.
     - Deprecate the legacy job scheduler and feature flag. The feature flag
       is renamed to "legacy_sched_deprecated".
+    - Java tool recognizes all released versions, and no longer needs manual
+      updating as new releases are made. Default is now latest LTS - v25.
     - Reference manual improvements:
       * More clarifications in Builder Methods section.
       * Clarify VariantDir behavior when switching from duplicate=True (the
