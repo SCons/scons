@@ -112,6 +112,9 @@ long function signature lines, and some linting-inspired cleanups.
 - Add RequiredPackage to the LaTeX scanner for recursive scanning of custom
   LaTeX packages.
 
+- Java tool recognizes all released versions, and no longer needs manual
+  updating as new releases are made. Default is now latest LTS - v25.
+
 PACKAGING
 ---------
 
