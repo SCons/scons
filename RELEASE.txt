@@ -146,6 +146,8 @@ IMPROVEMENTS
 
 - Change a few more bool-like variables to explictly use bool.
 
+- Introduce unit tests for SCons-specific framework modules.
+
 PACKAGING
 ---------
 
