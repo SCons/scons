@@ -58,6 +58,8 @@ FIXES
   directory for each writer before doing the move, instead of depending
   on a one-time uuid to make a path to the file.
 
+- Fix CPPDEFINES test using pkg-config, which was failing on GH Actions.
+
 IMPROVEMENTS
 ------------
 
