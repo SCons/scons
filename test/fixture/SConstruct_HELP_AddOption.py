@@ -19,4 +19,3 @@ elif ARGUMENTS.get('LOCAL_ONLY',False):
     Help(vars.GenerateHelpText(env), append=True, local_only=True)
 else:
     Help(vars.GenerateHelpText(env), append=True)
-

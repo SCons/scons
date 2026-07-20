@@ -210,6 +210,9 @@ DEVELOPMENT
 
 - Split `SCons.Util.UtilTests.py` to individual packages where appropriate.
 
+- Added `prek.toml` to support pre-commit hooks.
+
+- Added prek job to `runtest.yml`, ensuring pre-commit hooks are enforced.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

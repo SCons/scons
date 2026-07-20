@@ -5,4 +5,3 @@
 DefaultEnvironment(tools=[])
 env = Environment(tools=['docbook'])
 env.DocbookHtmlChunked('manual')
-
