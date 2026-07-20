@@ -33,46 +33,50 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 # First, test an option with nargs=2 and no others:
-test.write(
-    'SConstruct',
-    """\
+test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
-AddOption('--extras',
-          nargs=2,
-          dest='extras',
-          action='store',
-          type='string',
-          metavar='FILE1 FILE2',
-          default=(),
-          help='two extra files to install')
-print(str(GetOption('extras')))
-""",
+AddOption(
+    '-x',
+    '--extras',
+    nargs=2,
+    dest='extras',
+    action='store',
+    type='string',
+    metavar='FILE1 FILE2',
+    default=(),
+    help='two extra files to install',
 )
+print(str(GetOption('extras')))
+print(COMMAND_LINE_TARGETS)
+""")
 
 # no args
-test.run('-Q -q .', stdout="()\n")
+test.run('-Q -q .', stdout="()\n['.']\n")
 # one arg, should fail
-test.run(
-    '-Q -q . --extras A',
-    status=2,
-    stderr="""\
+test.run('-Q -q . --extras A', status=2, stderr="""\
 usage: scons [OPTIONS] [VARIABLES] [TARGETS]
 
 SCons Error: --extras option requires 2 arguments
-""",
-)
+""")
+#one arg, short option
+test.run('-Q -q . -x A', status=2, stderr="""\
+usage: scons [OPTIONS] [VARIABLES] [TARGETS]
+
+SCons Error: -x option requires 2 arguments
+""")
 # two args
-test.run('-Q -q . --extras A B', status=1, stdout="('A', 'B')\n")
+test.run('-Q -q . --extras A B', stdout="('A', 'B')\n['.']\n")
+# two args, short option
+test.run('-Q -q . -x A B', stdout="('A', 'B')\n['.']\n")
 # -- means the rest are not processed as args
-test.run('-Q -q . -- --extras A B', status=1, stdout="()\n")
+test.run('-Q -q . -- --extras A B', status=1, stdout="()\n['.', '--extras', 'A', 'B']\n")
 
 # Now test what has been a bug: another option is
 # also defined, this impacts the collection of args for the nargs>1 opt
-test.write(
-    'SConstruct',
-    """\
+test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 AddOption(
+    '-P',
     '--prefix',
     nargs=1,
     dest='prefix',
@@ -82,6 +86,7 @@ AddOption(
     help='installation prefix',
 )
 AddOption(
+    '-x',
     '--extras',
     nargs=2,
     dest='extras',
@@ -93,26 +98,38 @@ AddOption(
 )
 print(str(GetOption('prefix')))
 print(str(GetOption('extras')))
-""",
-)
-
-# no options
-test.run('-Q -q .', stdout="None\n()\n")
-# one single-arg option
-test.run('-Q -q . --prefix=/home/foo', stdout="/home/foo\n()\n")
-# one two-arg option
-test.run('-Q -q . --extras A B', status=2, stdout="None\n('A', 'B')\n")
-# single-arg option followed by two-arg option
+print(COMMAND_LINE_TARGETS)
+""")
+# no opts
+test.run('-Q -q .', stdout="None\n()\n['.']\n")
+# first opt long, one arg
+test.run('-Q -q . --prefix=/home/foo', stdout="/home/foo\n()\n['.']\n")
+test.run('-Q -q . --prefix /home/foo', stdout="/home/foo\n()\n['.']\n")
+# first opt short, one arg
+test.run('-Q -q . -P/home/foo', stdout="/home/foo\n()\n['.']\n")
+test.run('-Q -q . -P /home/foo', stdout="/home/foo\n()\n['.']\n")
+# second opt long, two args
+test.run('-Q -q . --extras=A B', stdout="None\n('A', 'B')\n['.']\n")
+test.run('-Q -q . --extras A B', stdout="None\n('A', 'B')\n['.']\n")
+# second opt short, two args
+test.run('-Q -q . -xA B', stdout="None\n('A', 'B')\n['.']\n")
+test.run('-Q -q . -x A B', stdout="None\n('A', 'B')\n['.']\n")
+# both opts long
+test.run('-Q -q . --prefix=/home/foo --extras=A B', stdout="/home/foo\n('A', 'B')\n['.']\n")
+test.run('-Q -q . --prefix /home/foo --extras A B', stdout="/home/foo\n('A', 'B')\n['.']\n")
+# both opts short
+test.run('-Q -q . -P/home/foo -xA B', stdout="/home/foo\n('A', 'B')\n['.']\n")
+test.run('-Q -q . -P /home/foo -x A B', stdout="/home/foo\n('A', 'B')\n['.']\n")
+# don't process
 test.run(
-    '-Q -q . --prefix=/home/foo --extras A B',
+    '-Q -q . -- --prefix=/home/foo --extras=A B',
     status=1,
-    stdout="/home/foo\n('A', 'B')\n",
+    stdout="None\n()\n['.', '--prefix=/home/foo', '--extras=A', 'B']\n",
 )
-# two-arg option followed by single-arg option
 test.run(
-    '-Q -q . --extras A B --prefix=/home/foo',
+    '-Q -q . -- --prefix /home/foo --extras A B',
     status=1,
-    stdout="/home/foo\n('A', 'B')\n",
+    stdout="None\n()\n['.', '--prefix', '/home/foo', '--extras', 'A', 'B']\n",
 )
 
 test.pass_test()
