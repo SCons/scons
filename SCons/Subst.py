@@ -28,11 +28,12 @@ from __future__ import annotations
 import re
 from collections import UserList, UserString
 from functools import lru_cache
-from inspect import signature, Parameter
+from inspect import Parameter, signature
+from typing import Callable
 
 import SCons.Errors
 import SCons.Util
-from SCons.Util import is_String, is_Sequence
+from SCons.Util import is_Sequence, is_String
 
 # Indexed by the SUBST_* constants below.
 _strconv = [
@@ -54,24 +55,24 @@ def raise_exception(exception, target, s):
     msg = f"{name} `{exception}' trying to evaluate `{s}'"
     if target:
         raise SCons.Errors.BuildError(target[0], msg)
-    else:
-        raise SCons.Errors.UserError(msg)
+    raise SCons.Errors.UserError(msg)
 
 
 class Literal:
-    """A string wrapper for a string to prevent expansion.
+    """A wrapper for non-subsitutable strings.
 
-    If you use this object wrapped around a string, then it will
-    be interpreted as literal.  When passed to the command interpreter,
-    all special characters will be escaped.
+    The substitution logic will not change the wrapped string.
+    When passed to the command interpreter, all special
+    characters will be escaped and/or the string quoted.
     """
+
     def __init__(self, lstr) -> None:
         self.lstr = lstr
 
     def __str__(self) -> str:
         return self.lstr
 
-    def escape(self, escape_func):
+    def escape(self, escape_func: Callable) -> str:
         return escape_func(self.lstr)
 
     def for_signature(self):
@@ -97,18 +98,20 @@ class Literal:
         return key in self.lstr
 
 class SpecialAttrWrapper:
-    """This is a wrapper for what we call a 'Node special attribute.'
-    This is any of the attributes of a Node that we can reference from
-    Environment variable substitution, such as $TARGET.abspath or
-    $SOURCES[1].filebase.  We implement the same methods as Literal
-    so we can handle special characters, plus a for_signature method,
-    such that we can return some canonical string during signature
-    calculation to avoid unnecessary rebuilds."""
+    """A wrapper for Node special attributes.
 
-    def __init__(self, lstr, for_signature=None) -> None:
-        """The for_signature parameter, if supplied, will be the
-        canonical string we return from for_signature().  Else
-        we will simply return lstr."""
+    "Special" are any attributes of a Node that we can reference from
+    Environment variable substitution, such as ``$TARGET.abspath`` or
+    ``$SOURCES[1].filebase``.  Implements the same methods as :class:`Literal
+    so we can handle special characters, plus a :meth:`for_signature` method,
+    so we can return some canonical string during signature
+    calculation to avoid unnecessary rebuilds.
+
+    If the *for_signature* parameter is supplied at creation time,
+    it is the "signature" :meth:`for_signature` will return.
+    """
+
+    def __init__(self, lstr: str, for_signature: str | None = None) -> None:
         self.lstr = lstr
         if for_signature:
             self.forsig = for_signature
@@ -118,22 +121,21 @@ class SpecialAttrWrapper:
     def __str__(self) -> str:
         return self.lstr
 
-    def escape(self, escape_func):
+    def escape(self, escape_func: Callable) -> str:
         return escape_func(self.lstr)
 
-    def for_signature(self):
+    def for_signature(self) -> str:
         return self.forsig
 
     def is_literal(self) -> bool:
         return True
 
-def quote_spaces(arg):
+def quote_spaces(arg: str) -> str:
     """Generic function for putting double quotes around any string that
     has white space in it."""
     if ' ' in arg or '\t' in arg:
         return f'"{arg}"'
-    else:
-        return str(arg)
+    return str(arg)
 
 class CmdStringHolder(UserString):
     """Holder for substituted strings intended for the command line.
@@ -144,6 +146,7 @@ class CmdStringHolder(UserString):
     will be escaped, quoted, or neither depending on the value of
     *literal* and the string contents.
     """
+
     def __init__(self, cmd, literal: bool = False) -> None:
         super().__init__(cmd)
         self.literal = literal
@@ -151,32 +154,38 @@ class CmdStringHolder(UserString):
     def is_literal(self) -> bool:
         return self.literal
 
-    def escape(self, escape_func, quote_func=quote_spaces) -> str:
-        """Escape the string with the supplied function.  The
-        function is expected to take an arbitrary string, then
-        return it with all special characters escaped and ready
-        for passing to the command interpreter.
+    def escape(self, escape_func: Callable, quote_func: Callable = quote_spaces) -> str:
+        """Escape characters in a saved string.
 
-        After calling this function, the next call to str() will
-        return the escaped string.
+        Like ``escape`` methods in other subst-related classes, this is
+        indirect - you call ``object.escape``, but have to pass a function
+        which actually performs the escaping - this is because the approach
+        needed is platform-specific.
+
+        Args:
+            escape_func: function to escape special characters.
+            quote_func: function for quoting the string. Used only if
+               the string is not marked as "literal".  Defaults to
+               :func:`quote_spaces`.
         """
-        if self.is_literal():
-            return escape_func(self.data)
-        elif ' ' in self.data or '\t' in self.data:
-            return quote_func(self.data)
-        else:
-            return self.data
+        data = self.data
+        if self.literal:
+            return escape_func(data)
+        if ' ' in data or '\t' in data:
+            return quote_func(data)
+        return data
 
-def escape_list(mylist, escape_func) -> list[str]:
+def escape_list(mylist: list, escape_func: Callable) -> list[str]:
     """Escape a list of arguments by running the specified escape_func
     on every object in the list that has an escape() method."""
-    def escape(obj, escape_func=escape_func):
+
+    def escape(obj, escape_func: Callable = escape_func):
         try:
             e = obj.escape
         except AttributeError:
             return obj
-        else:
-            return e(escape_func)
+        return e(escape_func)
+
     return list(map(escape, mylist))
 
 class NLWrapper:
@@ -195,8 +204,10 @@ class NLWrapper:
     def __init__(self, list, func) -> None:
         self.list = list
         self.func = func
+
     def _return_nodelist(self):
         return self.nodelist
+
     def _gen_nodelist(self):
         mylist = self.list
         if mylist is None:
@@ -208,6 +219,7 @@ class NLWrapper:
         self.nodelist = SCons.Util.NodeList(list(map(self.func, mylist)))
         self._create_nodelist = self._return_nodelist
         return self.nodelist
+
     _create_nodelist = _gen_nodelist
 
 
@@ -221,17 +233,22 @@ class Targets_or_Sources(UserList):
     class as a list during variable expansion.  We're not really using any
     :class:`~collections.UserList` methods in practice.
     """
+
     def __init__(self, nl) -> None:
         self.nl = nl
+
     def __getattr__(self, attr):
         nl = self.nl._create_nodelist()
         return getattr(nl, attr)
+
     def __getitem__(self, i):
         nl = self.nl._create_nodelist()
         return nl[i]
+
     def __str__(self) -> str:
         nl = self.nl._create_nodelist()
         return str(nl)
+
     def __repr__(self) -> str:
         nl = self.nl._create_nodelist()
         return repr(nl)
@@ -242,8 +259,10 @@ class Target_or_Source:
     to access an individual proxy Node, calling the NLWrapper to create
     a proxy on demand.
     """
+
     def __init__(self, nl) -> None:
         self.nl = nl
+
     def __getattr__(self, attr):
         nl = self.nl._create_nodelist()
         try:
@@ -253,20 +272,27 @@ class Target_or_Source:
             # pass through, so raise AttributeError for everything.
             raise AttributeError(f"NodeList has no attribute: {attr}")
         return getattr(nl0, attr)
+
     def __str__(self) -> str:
         nl = self.nl._create_nodelist()
         if nl:
             return str(nl[0])
         return ''
+
     def __repr__(self) -> str:
         nl = self.nl._create_nodelist()
         if nl:
             return repr(nl[0])
         return ''
 
+
 class NullNodeList(SCons.Util.NullSeq):
-  def __call__(self, *args, **kwargs) -> str: return ''
-  def __str__(self) -> str: return ''
+    def __call__(self, *args, **kwargs) -> str:
+        return ''
+
+    def __str__(self) -> str:
+        return ''
+
 
 NullNodesList = NullNodeList()
 
@@ -284,30 +310,33 @@ def subst_dict(target, source):
              used to generate the SOURCES and SOURCE
              construction variables
     """
-    dict = {}
+    substitutions = {}
 
     if target:
+
         def get_tgt_subst_proxy(thing):
             try:
                 subst_proxy = thing.get_subst_proxy()
             except AttributeError:
-                subst_proxy = thing # probably a string, just return it
+                subst_proxy = thing  # probably a string, just return it
             return subst_proxy
+
         tnl = NLWrapper(target, get_tgt_subst_proxy)
-        dict['TARGETS'] = Targets_or_Sources(tnl)
-        dict['TARGET'] = Target_or_Source(tnl)
+        substitutions['TARGETS'] = Targets_or_Sources(tnl)
+        substitutions['TARGET'] = Target_or_Source(tnl)
 
         # This is a total cheat, but hopefully this dictionary goes
         # away soon anyway.  We just let these expand to $TARGETS
         # because that's "good enough" for the use of ToolSurrogates
         # (see test/ToolSurrogate.py) to generate documentation.
-        dict['CHANGED_TARGETS'] = '$TARGETS'
-        dict['UNCHANGED_TARGETS'] = '$TARGETS'
+        substitutions['CHANGED_TARGETS'] = '$TARGETS'
+        substitutions['UNCHANGED_TARGETS'] = '$TARGETS'
     else:
-        dict['TARGETS'] = NullNodesList
-        dict['TARGET'] = NullNodesList
+        substitutions['TARGETS'] = NullNodesList
+        substitutions['TARGET'] = NullNodesList
 
     if source:
+
         def get_src_subst_proxy(node):
             try:
                 rfile = node.rfile
@@ -318,22 +347,23 @@ def subst_dict(target, source):
             try:
                 return node.get_subst_proxy()
             except AttributeError:
-                return node     # probably a String, just return it
+                return node  # probably a String, just return it
+
         snl = NLWrapper(source, get_src_subst_proxy)
-        dict['SOURCES'] = Targets_or_Sources(snl)
-        dict['SOURCE'] = Target_or_Source(snl)
+        substitutions['SOURCES'] = Targets_or_Sources(snl)
+        substitutions['SOURCE'] = Target_or_Source(snl)
 
         # This is a total cheat, but hopefully this dictionary goes
         # away soon anyway.  We just let these expand to $TARGETS
         # because that's "good enough" for the use of ToolSurrogates
         # (see test/ToolSurrogate.py) to generate documentation.
-        dict['CHANGED_SOURCES'] = '$SOURCES'
-        dict['UNCHANGED_SOURCES'] = '$SOURCES'
+        substitutions['CHANGED_SOURCES'] = '$SOURCES'
+        substitutions['UNCHANGED_SOURCES'] = '$SOURCES'
     else:
-        dict['SOURCES'] = NullNodesList
-        dict['SOURCE'] = NullNodesList
+        substitutions['SOURCES'] = NullNodesList
+        substitutions['SOURCE'] = NullNodesList
 
-    return dict
+    return substitutions
 
 
 _callable_args_set = {'target', 'source', 'env', 'for_signature'}
@@ -380,8 +410,7 @@ class StringSubber:
     the expansion.
     """
 
-
-    def __init__(self, env, mode: int, conv, gvars: dict) -> None:
+    def __init__(self, env, mode: int, conv: Callable, gvars: dict) -> None:
         self.env = env
         self.mode = mode
         self.conv = conv
@@ -407,70 +436,73 @@ class StringSubber:
             if s1 == '$':
                 # In this case keep the double $'s which we'll later
                 # swap for a single dollar sign as we need to retain
-                # this information to properly avoid matching "$("" when
-                # the actual text was "$$(""  (or "$)"" when "$$)"" )
+                # this information to properly avoid matching "$(" when
+                # the actual text was "$$("  (or "$)" from "$$)" )
                 return '$$'
-            elif s1 in '()':
+            if s1 in '()':
                 return s
+            key = s[1:]
+            if key[0] == '{':
+                key = key[1:-1]
+
+            # Store for error messages if we fail to expand the value
+            old_s = s
+            s = None
+            if key in lvars:
+                s = lvars[key]
+            elif key in self.gvars:
+                s = self.gvars[key]
             else:
-                key = s[1:]
-                if key[0] == '{':
-                    key = key[1:-1]
+                try:
+                    s = eval(key, self.gvars, lvars)
+                except KeyboardInterrupt:
+                    raise
+                except Exception as e:
+                    if e.__class__ in AllowableExceptions:
+                        return ''
+                    raise_exception(e, lvars['TARGETS'], old_s)
 
-                # Store for error messages if we fail to expand the
-                # value
-                old_s = s
-                s = None
-                if key in lvars:
-                     s = lvars[key]
-                elif key in self.gvars:
-                     s = self.gvars[key]
-                else:
-                     try:
-                          s = eval(key, self.gvars, lvars)
-                     except KeyboardInterrupt:
-                          raise
-                     except Exception as e:
-                          if e.__class__ in AllowableExceptions:
-                               return ''
-                          raise_exception(e, lvars['TARGETS'], old_s)
+            if s is None and NameError not in AllowableExceptions:
+                raise_exception(NameError(key), lvars['TARGETS'], old_s)
 
-                if s is None and NameError not in AllowableExceptions:
-                     raise_exception(NameError(key), lvars['TARGETS'], old_s)
-                elif s is None:
-                     return ''
+            if s is None:
+                return ''
 
-                # A plain string with no more expansions needs no
-                # further processing, so skip the copy/recursion below.
-                if isinstance(s, str) and '$' not in s:
-                    return s
+            # A plain string with no more expansions needs no
+            # further processing, so skip the copy/recursion below.
+            if isinstance(s, str) and '$' not in s:
+                return s
 
-                # Before re-expanding the result, handle
-                # recursive expansion by copying the local
-                # variable dictionary and overwriting a null
-                # string for the value of the variable name
-                # we just expanded.
-                lv = lvars.copy()
-                var = key.partition('.')[0]
-                lv[var] = ''
-                return self.substitute(s, lv)
-        elif is_Sequence(s):
+            # Before re-expanding the result, handle
+            # recursive expansion by copying the local
+            # variable dictionary and overwriting a null
+            # string for the value of the variable name
+            # we just expanded.
+            lv = lvars.copy()
+            var = key.partition('.')[0]
+            lv[var] = ''
+            return self.substitute(s, lv)
+
+        if is_Sequence(s):
+
             def func(l, conv=self.conv, substitute=self.substitute, lvars=lvars):
                 return conv(substitute(l, lvars))
-            return list(map(func, s))
-        elif callable(s):
 
+            return list(map(func, s))
+
+        if callable(s):
             # SCons has the unusual Null class where any __getattr__ call returns it's self,
             # which does not work the signature module, and the Null class returns an empty
             # string if called on, so we make an exception in this condition for Null class
             # Also allow callables where the only non default valued args match the expected defaults
             # this should also allow functools.partial's to work.
             if isinstance(s, SCons.Util.Null) or _callable_matches_subst_args(s):
-
-                s = s(target=lvars['TARGETS'],
-                     source=lvars['SOURCES'],
-                     env=self.env,
-                     for_signature=(self.mode == SUBST_SIG))
+                s = s(
+                    target=lvars['TARGETS'],
+                    source=lvars['SOURCES'],
+                    env=self.env,
+                    for_signature=(self.mode == SUBST_SIG)
+                )
             else:
                 # This probably indicates that it's a callable
                 # object that doesn't match our calling arguments
@@ -479,10 +511,11 @@ class StringSubber:
                     return s
                 s = self.conv(s)
             return self.substitute(s, lvars)
-        elif s is None:
+
+        if s is None:
             return ''
-        else:
-            return s
+
+        return s
 
     def substitute(self, args, lvars):
         """Substitute expansions in an argument or list of arguments.
@@ -490,11 +523,12 @@ class StringSubber:
         This serves as a wrapper for splitting up a string into
         separate tokens.
         """
+
         def sub_match(match):
             return self.conv(self.expand(match.group(1), lvars))
 
         if is_String(args) and not isinstance(args, CmdStringHolder):
-            args = str(args)        # In case it's a UserString.
+            args = str(args)  # In case it's a UserString.
             try:
                 result = _dollar_exps.sub(sub_match, args)
             except TypeError:
@@ -512,9 +546,8 @@ class StringSubber:
                 else:
                     result = ''.join(map(str, result))
             return result
-        else:
-            return self.expand(args, lvars)
 
+        return self.expand(args, lvars)
 
 class ListSubber(UserList):
     """A class to construct the results of a scons_subst_list() call.
@@ -532,7 +565,8 @@ class ListSubber(UserList):
     and the rest of the object takes care of doing the right thing
     internally.
     """
-    def __init__(self, env, mode: int, conv, gvars: dict) -> None:
+
+    def __init__(self, env, mode: int, conv: Callable, gvars: dict) -> None:
         super().__init__([])
         self.env = env
         self.mode = mode
@@ -543,7 +577,7 @@ class ListSubber(UserList):
             self.add_strip = lambda x: self.append(x)
         else:
             self.add_strip = lambda x: None
-        self.in_strip = None
+        self.in_strip = False
         self.next_line()
 
     def expanded(self, s) -> bool:
@@ -568,8 +602,8 @@ class ListSubber(UserList):
             return False
         return _unexpandable.search(s) is None
 
-    def expand(self, s, lvars, within_list):
-        """Expand a single "token" as necessary, appending the
+    def expand(self, s, lvars, within_list) -> None:
+        """Expand a single token *s* as necessary, appending the
         expansion to the current result.
 
         This handles expanding different types of things (strings,
@@ -578,7 +612,6 @@ class ListSubber(UserList):
         the results of expansions of side-by-side strings still get
         re-evaluated separately, not smushed together.
         """
-
         if is_String(s):
             try:
                 s0, s1 = s[:2]
@@ -604,23 +637,23 @@ class ListSubber(UserList):
                 old_s = s
                 s = None
                 if key in lvars:
-                     s = lvars[key]
+                    s = lvars[key]
                 elif key in self.gvars:
-                     s = self.gvars[key]
+                    s = self.gvars[key]
                 else:
-                     try:
-                         s = eval(key, self.gvars, lvars)
-                     except KeyboardInterrupt:
-                         raise
-                     except Exception as e:
-                         if e.__class__ in AllowableExceptions:
-                             return
-                         raise_exception(e, lvars['TARGETS'], old_s)
+                    try:
+                        s = eval(key, self.gvars, lvars)
+                    except KeyboardInterrupt:
+                        raise
+                    except Exception as e:
+                        if e.__class__ in AllowableExceptions:
+                            return
+                        raise_exception(e, lvars['TARGETS'], old_s)
 
                 if s is None and NameError not in AllowableExceptions:
-                     raise_exception(NameError(key), lvars['TARGETS'], old_s)
+                    raise_exception(NameError(key), lvars['TARGETS'], old_s)
                 elif s is None:
-                     return
+                    return
 
                 # If the string is already full expanded there's no
                 # need to continue recursion.
@@ -650,10 +683,12 @@ class ListSubber(UserList):
             # this should also allow functools.partial's to work.
             if isinstance(s, SCons.Util.Null) or _callable_matches_subst_args(s):
 
-                s = s(target=lvars['TARGETS'],
-                     source=lvars['SOURCES'],
-                     env=self.env,
-                     for_signature=(self.mode == SUBST_SIG))
+                s = s(
+                    target=lvars['TARGETS'],
+                    source=lvars['SOURCES'],
+                    env=self.env,
+                    for_signature=(self.mode == SUBST_SIG)
+                )
             else:
                 # This probably indicates that it's a callable
                 # object that doesn't match our calling arguments
@@ -668,7 +703,7 @@ class ListSubber(UserList):
         else:
             self.append(s)
 
-    def substitute(self, args, lvars, within_list) -> None:
+    def substitute(self, args, lvars, within_list: bool) -> None:
         """Substitute expansions in an argument or list of arguments.
 
         This serves as a wrapper for splitting up a string into
@@ -676,7 +711,7 @@ class ListSubber(UserList):
         """
 
         if is_String(args) and not isinstance(args, CmdStringHolder):
-            args = str(args)        # In case it's a UserString.
+            args = str(args)  # In case it's a UserString.
             args = _separate_args.findall(args)
             for a in args:
                 if a[0] in ' \t\n\r\f\v':
@@ -747,11 +782,11 @@ class ListSubber(UserList):
                     # so we'll take this out but leave it commented
                     # for now in case there's a problem not covered
                     # by the test cases and we need to resurrect this.
-                    #literal1 = self.literal(self[-1][-1])
-                    #literal2 = self.literal(x)
+                    # literal1 = self.literal(self[-1][-1])
+                    # literal2 = self.literal(x)
                     y = self.conv(y)
                     if is_String(y):
-                        #y = CmdStringHolder(y, literal1 or literal2)
+                        # y = CmdStringHolder(y, literal1 or literal2)
                         y = CmdStringHolder(y, literal=False)
                     self[-1][-1] = y
 
@@ -769,18 +804,17 @@ class ListSubber(UserList):
             l = x.is_literal
         except AttributeError:
             return None
-        else:
-            return l()
+        return l()
 
     def open_strip(self, x) -> None:
         """Handle the "open strip" $( token."""
         self.add_strip(x)
-        self.in_strip = 1
+        self.in_strip = True
 
     def close_strip(self, x) -> None:
         """Handle the "close strip" $) token."""
         self.add_strip(x)
-        self.in_strip = None
+        self.in_strip = False
 
 
 # Constants for the "mode" parameter to scons_subst_list() and
@@ -799,7 +833,7 @@ _rm = re.compile(r'\$[()]')
 _rm_split = re.compile(r'(?<!\$)(\$[()])')
 
 # Indexed by the SUBST_* constants above.
-_regex_remove = [ _rm, None, _rm_split ]
+_regex_remove = [_rm, None, _rm_split]
 
 def _rm_list(list):
     return [l for l in list if l not in ('$(', '$)')]
@@ -821,7 +855,7 @@ def _remove_list(list):
     return result
 
 # Indexed by the SUBST_* constants above.
-_list_remove = [ _rm_list, None, _remove_list ]
+_list_remove = [_rm_list, None, _remove_list]
 
 # Regular expressions for splitting strings and handling substitutions,
 # for use by the scons_subst() and scons_subst_list() functions:
@@ -857,25 +891,37 @@ _unexpandable = re.compile(r'[\s$]')
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
 
-def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars=None, lvars=None, conv=None, overrides: dict | None = None):
-    """Expand a string or list containing construction variable
-    substitutions.
+def scons_subst(
+    strSubst,
+    env,
+    mode=SUBST_RAW,
+    target=None,
+    source=None,
+    gvars: dict | None = None,
+    lvars: dict | None = None,
+    conv: Callable | None = None,
+    overrides: dict | None = None,
+):
+    """Expand a string or list containing construction variable substitutions.
 
     This is the work-horse function for substitutions in file names
     and the like.  The companion scons_subst_list() function (below)
     handles separating command lines into lists of arguments, so see
     that function if that's what you're looking for.
     """
-    if (isinstance(strSubst, str) and '$' not in strSubst) or isinstance(strSubst, CmdStringHolder):
+    if (isinstance(strSubst, str) and '$' not in strSubst) or isinstance(
+        strSubst, CmdStringHolder
+    ):
         return strSubst
 
     if gvars is None:
         gvars = {}
     if lvars is None:
         lvars = {}
-
     if conv is None:
         conv = _strconv[mode]
+    if overrides is None:
+        overrides = {}
 
     # Doing this every time is a bit of a waste, since the Executor
     # has typically already populated the OverrideEnvironment with
@@ -934,7 +980,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars=N
         # This is needed because we now retain $$ instead of
         # replacing them during substition to avoid
         # improperly trying to escape "$$(" as being "$("
-        result = result.replace('$$','$')
+        result = result.replace('$$', '$')
     elif is_Sequence(result):
         remove = _list_remove[mode]
         if remove:
@@ -944,7 +990,17 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars=N
 
     return result
 
-def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars=None, lvars=None, conv=None, overrides: dict | None = None):
+def scons_subst_list(
+    strSubst,
+    env,
+    mode=SUBST_RAW,
+    target=None,
+    source=None,
+    gvars: dict | None = None,
+    lvars: dict | None = None,
+    conv: Callable | None = None,
+    overrides: dict | None = None,
+):
     """Substitute construction variables in a string (or list or other
     object) and separate the arguments into a command list.
 
@@ -956,9 +1012,10 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
         gvars = {}
     if lvars is None:
         lvars = {}
-
     if conv is None:
         conv = _strconv[mode]
+    if overrides is None:
+        overrides = {}
 
     # Doing this every time is a bit of a waste, since the Executor
     # has typically already populated the OverrideEnvironment with
@@ -1014,14 +1071,14 @@ def scons_subst_once(strSubst, env, key):
 
     matchlist = ['$' + key, '${' + key + '}']
     val = env.get(key, '')
+
     def sub_match(match, val=val, matchlist=matchlist):
         a = match.group(1)
         if a in matchlist:
             a = val
         if is_Sequence(a):
             return ' '.join(map(str, a))
-        else:
-            return str(a)
+        return str(a)
 
     if is_Sequence(strSubst):
         result = []
@@ -1038,7 +1095,8 @@ def scons_subst_once(strSubst, env, key):
             else:
                 result.append(arg)
         return result
-    elif is_String(strSubst):
+
+    if is_String(strSubst):
         return _dollar_exps.sub(sub_match, strSubst)
-    else:
-        return strSubst
+
+    return strSubst

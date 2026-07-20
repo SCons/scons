@@ -48,8 +48,8 @@ from typing import TYPE_CHECKING
 from unittest import mock
 
 # If assertEqual truncates strings so it's hard to see the diff, enable this:
-# if 'unittest.util' in __import__('sys').modules:
-#     __import__('sys').modules['unittest.util']._MAX_LENGTH = 99999999
+if 'unittest.util' in __import__('sys').modules:
+    __import__('sys').modules['unittest.util']._MAX_LENGTH = 99999999
 
 import SCons.Action
 import SCons.Environment
@@ -154,13 +154,17 @@ class Environment:
             self.d[k] = v
 
     # Just use the underlying scons_subst*() utility methods.
-    def subst(self, strSubst, raw: int=0, target=[], source=[], conv=None, overrides: bool=False):
+    def subst(self, strSubst, raw: int=0, target=[], source=[], conv=None, overrides: dict | None = None):
+        if overrides is None:
+            overrides = {}
         return SCons.Subst.scons_subst(strSubst, self, raw,
                                        target, source, self.d, conv=conv, overrides=overrides)
 
     subst_target_source = subst
 
-    def subst_list(self, strSubst, raw: int=0, target=[], source=[], conv=None, overrides: bool=False):
+    def subst_list(self, strSubst, raw: int=0, target=[], source=[], conv=None, overrides: dict | None = None):
+        if overrides is None:
+            overrides = {}
         return SCons.Subst.scons_subst_list(strSubst, self, raw,
                                             target, source, self.d, conv=conv, overrides=overrides)
 
@@ -1557,7 +1561,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             (3, 12): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00y\x00),(),()'),
             (3, 13): bytearray(b'0, 0, 0, 0,(),(),(\x95\x00g\x00),(),()'),
             (3, 14): bytearray(b'0, 0, 0, 0,(),(),(\x80\x00R\x00#\x00),(),()'),
-            (3, 15): bytearray(b'0, 0, 0, 0,(),(),(\x80\x00\x00\x00Q\x00!\x00),(),()'),
+            (3, 15): bytearray(b'0, 0, 0, 0,(),(),(\x80\x00\x00\x00P\x07!\x00),(),()'),
         }
 
         meth_matches = [
@@ -1739,7 +1743,7 @@ class FunctionActionTestCase(unittest.TestCase):
             (3, 12): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00y\x00),(),()'),
             (3, 13): bytearray(b'0, 0, 0, 0,(),(),(\x95\x00g\x00),(),()'),
             (3, 14): bytearray(b'0, 0, 0, 0,(),(),(\x80\x00R\x00#\x00),(),()'),
-            (3, 15): bytearray(b'0, 0, 0, 0,(),(),(\x80\x00\x00\x00Q\x00!\x00),(),()'),
+            (3, 15): bytearray(b'0, 0, 0, 0,(),(),(\x80\x00\x00\x00P\x07!\x00),(),()'),
 
         }
 
@@ -1752,7 +1756,7 @@ class FunctionActionTestCase(unittest.TestCase):
             (3, 12): bytearray(b'1, 1, 0, 0,(),(),(\x97\x00y\x00),(),()'),
             (3, 13): bytearray(b'1, 1, 0, 0,(),(),(\x95\x00g\x00),(),()'),
             (3, 14): bytearray(b'1, 1, 0, 0,(),(),(\x80\x00R\x00#\x00),(),()'),
-            (3, 15): bytearray(b'1, 1, 0, 0,(),(),(\x80\x00\x00\x00Q\x00!\x00),(),()'),
+            (3, 15): bytearray(b'1, 1, 0, 0,(),(),(\x80\x00\x00\x00P\x07!\x00),(),()'),
 
         }
 
@@ -1995,7 +1999,7 @@ class LazyActionTestCase(unittest.TestCase):
             (3, 12): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00y\x00),(),()'),
             (3, 13): bytearray(b'0, 0, 0, 0,(),(),(\x95\x00g\x00),(),()'),
             (3, 14): bytearray(b'0, 0, 0, 0,(),(),(\x80\x00R\x00#\x00),(),()'),
-            (3, 15): bytearray(b'0, 0, 0, 0,(),(),(\x80\x00\x00\x00Q\x00!\x00),(),()'),
+            (3, 15): bytearray(b'0, 0, 0, 0,(),(),(\x80\x00\x00\x00P\x07!\x00),(),()'),
         }
 
         meth_matches = [
@@ -2059,7 +2063,7 @@ class ActionCallerTestCase(unittest.TestCase):
             (3, 12): b'\x97\x00y\x00',
             (3, 13): b'\x95\x00g\x00',
             (3, 14): b'\x80\x00R\x00#\x00',
-            (3, 15): b'\x80\x00\x00\x00Q\x00!\x00',
+            (3, 15): b'\x80\x00\x00\x00P\x07!\x00',
         }
 
         with self.subTest():
@@ -2309,7 +2313,7 @@ class ObjectContentsTestCase(unittest.TestCase):
                 b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x80\x00R\x00V\x00n\x00\x00\x00\x00\x00\x00\x00\x00\x00R\x01V\x00n\x01\x00\x00\x00\x00\x00\x00\x00\x00R\x02#\x00),(),(),2, 2, 0, 0,(),(),(\x80\x00R\x00#\x00),(),()}}{{{a=a,b=b}}}"
             ),
             (3, 15): bytearray(
-                b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x80\x00\x00\x00Q\x00U\x00m\x00\x00\x00\x00\x00\x00\x00\x00\x00Q\x01U\x00m\x01\x00\x00\x00\x00\x00\x00\x00\x00Q\x02!\x00),(),(),2, 2, 0, 0,(),(),(\x80\x00\x00\x00Q\x00!\x00),(),()}}{{{a=a,b=b}}}"
+                b"{TestClass:__main__}[[[(<class 'object'>, ()), [(<class '__main__.TestClass'>, (<class 'object'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x80\x00\x00\x00Q\x00U\x00m\x00\x00\x00\x00\x00\x00\x00\x00\x00Q\x01U\x00m\x01\x00\x00\x00\x00\x00\x00\x00\x00P\x07!\x00),(),(),2, 2, 0, 0,(),(),(\x80\x00\x00\x00P\x07!\x00),(),()}}{{{a=a,b=b}}}"
             ),
         }
         self.assertEqual(c, expected[sys.version_info[:2]])
@@ -2347,7 +2351,7 @@ class ObjectContentsTestCase(unittest.TestCase):
                 b"0, 0, 0, 0,(Hello, World!),(print),(\x80\x00]\x00!\x00R\x004\x01\x00\x00\x00\x00\x00\x00\x1f\x00R\x01#\x00)"
             ),
             (3, 15): bytearray(
-                b"0, 0, 0, 0,(Hello, World!),(print),(\x80\x00\x00\x00\\\x00\x1f\x00Q\x002\x01\x00\x00\x00\x00\x00\x00\x1d\x00Q\x01!\x00)"
+                b'0, 0, 0, 0,(Hello, World!),(print),(\x80\x00\x00\x00\\\x00\x1f\x00Q\x002\x01\x00\x00\x00\x00\x00\x00\x1d\x00P\x07!\x00)'
             ),
         }
 

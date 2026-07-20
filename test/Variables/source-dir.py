@@ -24,35 +24,39 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test the --experimental option.
+Test that a Variables() saved-variables file (e.g. custom.py) is read from
+the source tree when it is not present in the build directory, i.e. when
+building against a separate source directory via Repository() (issue #816).
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.file_fixture('fixture/SConstruct__experimental', 'SConstruct')
+test.subdir('repository', 'work')
 
-tests = [
-    ('.', []),
-    ('--experimental=ninja', ['ninja']),
-    ('--experimental=legacy_sched_deprecated', ['legacy_sched_deprecated']),
-    ('--experimental=all', ['legacy_sched_deprecated', 'ninja', 'transporter', 'warp_speed']),
-    ('--experimental=none', []),
-]
+opts = "-Y " + test.workpath('repository')
 
-for args, exper in tests:
-    read_string = """All Features=legacy_sched_deprecated,ninja,transporter,warp_speed
-Experimental=%s
-""" % (exper)
-    test.run(arguments=args,
-             stdout=test.wrap_stdout(read_str=read_string, build_str="scons: `.' is up to date.\n"))
+# The saved-variables file lives only in the source tree (the repository),
+# not in the 'work' directory where SCons is actually invoked.
+test.write(['repository', 'custom.py'], """\
+MY_VARIABLE = 'from_source_tree'
+""")
 
-test.run(arguments='--experimental=warp_drive',
-         stderr="""usage: scons [OPTIONS] [VARIABLES] [TARGETS]
+test.write(['repository', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
+vars = Variables('custom.py')
+vars.Add('MY_VARIABLE', 'a test variable', 'default_value')
+env = Environment(variables=vars, tools=[])
+print("MY_VARIABLE =", env['MY_VARIABLE'])
+""")
 
-SCons Error: option --experimental: invalid choice: 'warp_drive' (choose from 'all','none','legacy_sched_deprecated','ninja','transporter','warp_speed')
-""",
-         status=2)
+# Before the issue #816 fix, custom.py was looked up relative to the build
+# directory only, so it was not found here and the default value was used.
+test.run(chdir='work', options=opts, arguments='.')
+
+expect = "MY_VARIABLE = from_source_tree"
+if expect not in test.stdout():
+    test.fail_test()
 
 test.pass_test()

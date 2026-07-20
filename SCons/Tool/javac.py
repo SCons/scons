@@ -85,7 +85,7 @@ def emit_java_classes(target, source, env):
         else:
             raise SCons.Errors.UserError("Java source must be File or Dir, not '%s'" % entry.__class__)
 
-    version = env.get('JAVAVERSION', '1.4')
+    version = env.get('JAVAVERSION', '25.0')
     full_tlist = []
     for f in slist:
         tlist = []
