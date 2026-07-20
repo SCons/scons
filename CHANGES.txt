@@ -146,6 +146,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       is renamed to "legacy_sched_deprecated".
     - Java tool recognizes all released versions, and no longer needs manual
       updating as new releases are made. Default is now latest LTS - v25.
+    - Clarify internal usage of zipimporter (not user-visible code)
     - Reference manual improvements:
       * More clarifications in Builder Methods section.
       * Clarify VariantDir behavior when switching from duplicate=True (the

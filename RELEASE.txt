@@ -117,6 +117,8 @@ long function signature lines, and some linting-inspired cleanups.
 - Java tool recognizes all released versions, and no longer needs manual
   updating as new releases are made. Default is now latest LTS - v25.
 
+- Clarify internal usage of zipimporter (not user-visible code)
+
 PACKAGING
 ---------
 
