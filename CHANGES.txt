@@ -85,6 +85,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix typos in preface, Chapter 6, Chapter 9 and Chapter 10 of User Guide
     - Fix broken links in Chapter 1 of User Guide
 
+  From Paul Movall:
+    - Fix a problem where AlwaysBuild is now honored by ninja
+
   From Keith F. Prussing:
     - Add RequiredPackage to the LaTeX scanner for recursive scanning of
       custom LaTeX packages.

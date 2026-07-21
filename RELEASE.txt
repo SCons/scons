@@ -60,6 +60,8 @@ FIXES
 
 - Fix CPPDEFINES test using pkg-config, which was failing on GH Actions.
 
+- Fix ninja to honor AlwaysBuild on a target
+
 IMPROVEMENTS
 ------------
 
