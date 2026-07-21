@@ -142,10 +142,13 @@ def DialectAddToEnv(
     Args:
         dialect: dialect name
         suffixes: suffixes associated with this dialect
-        ppsuffixes: suffixes using cpp associated with this dialect
+        ppsuffixes: suffixes for preprocessing associated with this dialect
         support_mods: whether this dialect supports modules
     """
     ComputeFortranSuffixes(suffixes, ppsuffixes)
+
+    if dialect != "FORTRAN":
+       env.AppendUnique(**{f'{dialect}PATH': ['$FORTRANPATH']})
 
     fscan = SCons.Scanner.Fortran.FortranScan(f"{dialect}PATH")
     for suffix in suffixes + ppsuffixes:

@@ -146,6 +146,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       is renamed to "legacy_sched_deprecated".
     - Java tool recognizes all released versions, and no longer needs manual
       updating as new releases are made. Default is now latest LTS - v25.
+    - Fortran dialect *PATH and *FLAGS settings fall back to generic
+      dialect's settings if not explicitly set, bringing the behavior in line
+      with long-standing documentation claims.
     - Reference manual improvements:
       * More clarifications in Builder Methods section.
       * Clarify VariantDir behavior when switching from duplicate=True (the
