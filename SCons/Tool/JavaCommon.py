@@ -35,11 +35,40 @@ import SCons.Util
 
 java_parsing = True
 
-default_java_version = '1.4'
+default_java_version = '25.0'
 
-# a switch for which jdk versions to use the Scope state for smarter
-# anonymous inner class parsing.
-scopeStateVersions = ('1.8',)
+# Ancient Java versions that require special handling for anonymous inner classes.
+# Versions from 1.5 onwards use the modern stack-based behavior.
+ANCIENT_JAVA_VERSIONS = ('1.1', '1.2', '1.3', '1.4')
+
+
+def _version_uses_scope_state(version: str) -> bool:
+    """Determine if a Java version uses ScopeState for anonymous inner classes.
+
+    Only Java 1.8 and newer versions benefit from ScopeState tracking.
+
+    Args:
+        version: Java version string (e.g., '1.8', '11.0', '21', '26.0')
+
+    Returns:
+        True if the version should use ScopeState, False otherwise.
+    """
+    # Ancient versions never use ScopeState
+    if version in ANCIENT_JAVA_VERSIONS:
+        return False
+
+    try:
+        # Handle "1.X" format (e.g., "1.5", "1.6", "1.7", "1.8")
+        if version.startswith('1.'):
+            minor = int(version[2:].split('.')[0])
+            return minor >= 8  # 1.8 and later
+        else:
+            # Handle "X" or "X.Y" format (e.g., "9", "11.0", "21")
+            major = int(version.split('.')[0])
+            return major >= 9  # Java 9 and later (which is Java 1.9, so >= 1.8)
+    except (ValueError, IndexError):
+        # If we can't parse it, assume it's a modern version
+        return True
 
 # Glob patterns for use in finding where the JDK is.
 #
@@ -105,33 +134,18 @@ if java_parsing:
         interfaces, and anonymous inner classes."""
 
         def __init__(self, version=default_java_version) -> None:
-            if version not in (
-                '1.1',
-                '1.2',
-                '1.3',
-                '1.4',
-                '1.5',
-                '1.6',
-                '1.7',
-                '1.8',
-                '5',
-                '6',
-                '9.0',
-                '10.0',
-                '11.0',
-                '12.0',
-                '13.0',
-                '14.0',
-                '15.0',
-                '16.0',
-                '17.0',
-                '18.0',
-                '19.0',
-                '20.0',
-                '21.0',
-            ):
-                msg = "Java version %s not supported" % version
-                raise NotImplementedError(msg)
+            # Validate that this is a recognized Java version format.
+            # We accept any reasonable version string; only ancient versions (1.1-1.4)
+            # require special handling. Assume future Java versions are fine until
+            # proven otherwise (this replaces earlier explicit lists of "good" versions).
+            try:
+                if version not in ANCIENT_JAVA_VERSIONS:
+                    # For modern versions, do basic validation of format
+                    parts = version.split('.')
+                    if not parts[0].isdigit():
+                        raise ValueError(f"Invalid Java version format: {version}")
+            except (AttributeError, ValueError):
+                raise ValueError(f"Invalid Java version format: {version}")
 
             self.version = version
             self.listClasses = []
@@ -197,7 +211,7 @@ if java_parsing:
                 self.stackBrackets.pop()
             if len(self.stackAnonClassBrackets) and \
                     self.brackets == self.stackAnonClassBrackets[-1] and \
-                    self.version not in scopeStateVersions:
+                    not _version_uses_scope_state(self.version):
                 self._getAnonStack().pop()
                 self.stackAnonClassBrackets.pop()
 
@@ -232,32 +246,16 @@ if java_parsing:
             return self
 
         def addAnonClass(self) -> None:
-            """Add an anonymous inner class"""
-            if self.version in ('1.1', '1.2', '1.3', '1.4'):
+            """Add an anonymous inner class.
+
+            Modern versions (1.5+) use scope-based parsing for more accurate handling.
+            Ancient versions (1.1-1.4) use simple sequential numbering.
+            """
+            if self.version in ANCIENT_JAVA_VERSIONS:
+                # Ancient Java versions: simple sequential numbering
                 clazz = self.listClasses[0]
                 self.listOutputs.append('%s$%d' % (clazz, self.nextAnon))
-            # TODO: shouldn't need to repeat versions here and in OuterState
-            elif self.version in (
-                '1.5',
-                '1.6',
-                '1.7',
-                '1.8',
-                '5',
-                '6',
-                '9.0',
-                '10.0',
-                '11.0',
-                '12.0',
-                '13.0',
-                '14.0',
-                '15.0',
-                '16.0',
-                '17.0',
-                '18.0',
-                '19.0',
-                '20.0',
-                '21.0',
-            ):
+            else:
                 self.stackAnonClassBrackets.append(self.brackets)
                 className = []
                 className.extend(self.listClasses)
@@ -376,7 +374,7 @@ if java_parsing:
                 return self
             if token == '{':
                 self.outer_state.addAnonClass()
-                if self.outer_state.version in scopeStateVersions:
+                if _version_uses_scope_state(self.outer_state.version):
                     return ScopeState(old_state=self.old_state).parseToken(token)
             return self.old_state.parseToken(token)
 
