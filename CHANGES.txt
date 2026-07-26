@@ -146,6 +146,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       is renamed to "legacy_sched_deprecated".
     - Java tool recognizes all released versions, and no longer needs manual
       updating as new releases are made. Default is now latest LTS - v25.
+    - Fixed an old problem in PDF doc generation where the path to an
+      image file ended up with a "not found" error.
     - Reference manual improvements:
       * More clarifications in Builder Methods section.
       * Clarify VariantDir behavior when switching from duplicate=True (the

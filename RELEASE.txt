@@ -182,6 +182,9 @@ DOCUMENTATION
 
 * Tweak the wording for $PRINT_CMD_LINE_FUNC.
 
+- Fixed an old problem in PDF doc generation where the path to an
+  image file ended up with a "not found" error.
+
 DEVELOPMENT
 -----------
 
