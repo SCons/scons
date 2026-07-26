@@ -187,6 +187,8 @@ DOCUMENTATION
 - Fixed an old problem in PDF doc generation where the path to an
   image file ended up with a "not found" error.
 
+- Fixed a PDF doc build problem relating to illegal margin widths ("").
+
 DEVELOPMENT
 -----------
 
