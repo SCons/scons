@@ -15,7 +15,7 @@ env = Environment(
     ENV={'PATH': os.environ['PATH']},
     tools=['docbook', 'gs', 'zip'],
     toolpath=['../../SCons/Tool'],
-    # DOCBOOK_XSLTPROCFLAGS="--stringparam  fop.extensions  1",
+    # DOCBOOK_XSLTPROCFLAGS="--stringparam fop.extensions 1",
     DOCBOOK_DEFAULT_XSL_HTML='html.xsl',
     DOCBOOK_DEFAULT_XSL_HTMLCHUNKED='chtml.xsl',
     DOCBOOK_DEFAULT_XSL_PDF='pdf.xsl',
@@ -26,9 +26,7 @@ has_pdf = False
 if not skip_pdf and any((env.WhereIs('fop'), env.WhereIs('xep'))):
     has_pdf = True
 
-#
 # UserGuide for SCons
-#
 env.DocbookXInclude('scons_xi.xml', 'main.xml')
 env.DocbookXslt('scons_ex.xml', 'scons_xi.xml', xsl='../xslt/xinclude_examples.xslt')
 env.DocbookXInclude('scons_exi.xml', 'scons_ex.xml')
@@ -42,9 +40,6 @@ has_gs = False
 if env.WhereIs('gs'):
     has_gs = True
 
-#
-# Create the EPUB format
-#
 if has_gs and has_pdf:
     jpg = env.Gs(
         'OEBPS/cover.jpg',
