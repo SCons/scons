@@ -5112,8 +5112,6 @@ SPDX-License-Identifier: MIT
                            margin-bottom="0mm"
                            margin-left="0mm"
                            margin-right="0mm">
-      <xsl:attribute name="margin-{$direction.align.start}" select="0mm"/>
-      <xsl:attribute name="margin-{$direction.align.end}" select="0mm"/>
       <xsl:if test="$axf.extensions != 0">
         <xsl:call-template name="axf-page-master-properties">
           <xsl:with-param name="page.master">scons-titlepage-first</xsl:with-param>
@@ -5142,10 +5140,12 @@ SPDX-License-Identifier: MIT
                            margin-top="{$page.margin.top}"
                            margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5174,10 +5174,12 @@ SPDX-License-Identifier: MIT
                            margin-top="{$page.margin.top}"
                            margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5207,10 +5209,12 @@ SPDX-License-Identifier: MIT
                            margin-top="{$page.margin.top}"
                            margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5239,10 +5243,12 @@ SPDX-License-Identifier: MIT
                            margin-top="{$page.margin.top}"
                            margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5271,10 +5277,12 @@ SPDX-License-Identifier: MIT
                            margin-top="{$page.margin.top}"
                            margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5306,10 +5314,12 @@ SPDX-License-Identifier: MIT
                            margin-top="{$page.margin.top}"
                            margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5349,10 +5359,12 @@ SPDX-License-Identifier: MIT
                              margin-top="{$page.margin.top}"
                              margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5392,10 +5404,12 @@ SPDX-License-Identifier: MIT
                              margin-top="{$page.margin.top}"
                              margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5436,10 +5450,12 @@ SPDX-License-Identifier: MIT
                              margin-top="{$page.margin.top}"
                              margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5479,10 +5495,12 @@ SPDX-License-Identifier: MIT
                              margin-top="{$page.margin.top}"
                              margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5522,10 +5540,12 @@ SPDX-License-Identifier: MIT
                              margin-top="{$page.margin.top}"
                              margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
