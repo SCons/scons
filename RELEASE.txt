@@ -187,7 +187,8 @@ DOCUMENTATION
 - Fixed an old problem in PDF doc generation where the path to an
   image file ended up with a "not found" error.
 
-- Fixed a PDF doc build problem relating to illegal margin widths ("").
+- Fixed PDF doc build problems relating to illegal margin widths ("")
+  and table column alignment.
 
 DEVELOPMENT
 -----------
