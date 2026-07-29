@@ -15,6 +15,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From John Doe:
     - Whatever John Doe did.
 
+  From Vassili Tchersky:
+    - Add 'bsd' platform definition.
+    - The default tool search order now prefers the LLVM/clang toolchain
+      over GCC on FreeBSD and OpenBSD (PR #4887).
+
   From Cornelii Sandberg:
     - Fix Variables() not reading a saved-variables file (e.g. custom.py)
       from the source directory when building in a separate variant

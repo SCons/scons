@@ -482,6 +482,12 @@ On SGI IRIX, IBM AIX, Hewlett Packard HP-UX, and Oracle Solaris systems,
 searches for the native compiler tools
 (MIPSpro, Visual Age, aCC, and Forte tools respectively)
 and the GCC tool chain.
+On FreeBSD and OpenBSD,
+&scons;
+searches in order
+for the LLVM/clang tools,
+the GCC tool chain,
+and the Intel compiler tools.
 On all other platforms,
 including POSIX (Linux and UNIX) and macOS platforms,
 &scons;
