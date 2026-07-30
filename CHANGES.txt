@@ -15,6 +15,17 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From John Doe:
     - Whatever John Doe did.
 
+  From Vassili Tchersky:
+    - The C/C++ dependency scanners now recognise the C23 #embed directive,
+      so changing an embedded resource file rebuilds the source that embeds
+      it. A quoted name is looked for relative to the including file, a
+      bracketed name in $CPPPATH. The resource itself is not scanned, as
+      its contents are embedded as data rather than preprocessed.
+    - The conditional C scanner (SCons.cpp) no longer includes trailing
+      text in a resolved filename, so the parameters of a #embed line
+      (limit, prefix, suffix, if_empty) and trailing comments on an
+      #include line no longer produce an unusable name.
+
   From Cornelii Sandberg:
     - Fix Variables() not reading a saved-variables file (e.g. custom.py)
       from the source directory when building in a separate variant

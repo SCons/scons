@@ -145,7 +145,7 @@ for the variable that expands to those options.
 <para>
 The list of suffixes of files that will be scanned
 for C preprocessor implicit dependencies
-(#include lines).
+(#include, #import and #embed lines).
 The default list is:
 </para>
 

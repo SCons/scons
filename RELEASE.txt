@@ -18,6 +18,15 @@ NEW FUNCTIONALITY
 
 - List new features (presumably why a checkpoint is being released)
 
+- The C/C++ dependency scanners now recognise the C23 #embed directive.
+  An embedded resource is tracked as an implicit dependency, so changing
+  it rebuilds the source file that embeds it. A quoted resource name is
+  looked for relative to the including file, a bracketed name in
+  $CPPPATH; note compilers use a separate search path for the bracketed
+  form (--embed-dir=), so those directories need to be added to $CPPPATH
+  as well. The resource itself is not scanned for dependencies of its
+  own, since its contents are embedded as data, not preprocessed.
+
 DEPRECATED FUNCTIONALITY
 ------------------------
 

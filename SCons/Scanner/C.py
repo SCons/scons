@@ -36,6 +36,25 @@ import SCons.Util
 from . import ClassicCPP, FindPathDirs
 
 
+def _tag_embedded_resource(node) -> None:
+    """Mark *node* as a resource named by a ``#embed`` directive.
+
+    A ``#embed`` resource is spliced into the translation unit as data:
+    unlike an included file, its contents are never preprocessed, so it must
+    not be scanned for dependencies of its own.  :func:`_scannable` drops
+    tagged nodes when a scanner recurses into what it found.
+    """
+    node.attributes.embedded_resource = True
+
+
+def _scannable(nodes):
+    """Filter out ``#embed`` resources from *nodes*."""
+    return [
+        n for n in nodes
+        if not getattr(n.attributes, 'embedded_resource', False)
+    ]
+
+
 class SConsCPPScanner(SCons.cpp.PreProcessor):
     """SCons-specific subclass of the cpp.py module's processing.
 
@@ -58,6 +77,8 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
         result = SCons.Node.FS.find_file(fname, self.searchpath[quote])
         if not result:
             self.missing.append((fname, self.current_file))
+        elif keyword == 'embed':
+            _tag_embedded_resource(result)
         return result
 
     def read_file(self, file) -> str:
@@ -211,14 +232,52 @@ class SConsCPPScannerWrapper:
         return result
 
     def recurse_nodes(self, nodes):
-        return nodes
+        return _scannable(nodes)
 
     def select(self, node):
         return self
 
+
+class _ClassicCPPEmbed(ClassicCPP):
+    """A :class:`ClassicCPP` scanner which also tracks the directive keyword.
+
+    The regular expression passed to the constructor must return the
+    preprocessor keyword in group 0, the leading bracket in group 1 and the
+    contained filename in group 2.  Knowing the keyword lets the scanner tell
+    a resource named by a C23 ``#embed`` directive from an included file: the
+    resource is recorded as a dependency, but is not scanned in turn, since
+    its contents are embedded as data rather than preprocessed.
+
+    .. versionadded:: NEXT_RELEASE
+    """
+
+    @staticmethod
+    def find_include(include, source_dir, path):
+        keyword, quote, fname, _ = include
+        n, i = ClassicCPP.find_include((quote, fname), source_dir, path)
+        if n is not None and keyword == 'embed':
+            _tag_embedded_resource(n)
+        return n, i
+
+    @staticmethod
+    def sort_key(include):
+        # Drop the keyword: which directive named a file must not influence
+        # the order in which the scan results come back.
+        return ClassicCPP.sort_key(include[1:])
+
+
 def CScanner():
     """Return a prototype Scanner instance for scanning source files
-    that use the C pre-processor"""
+    that use the C pre-processor.
+
+    Recognizes ``#include``, ``#import`` and ``#embed`` directives.
+    A quoted name is looked for relative to the including file first, a
+    bracketed name in ``$CPPPATH`` first.
+
+    .. versionchanged:: NEXT_RELEASE
+       ``#embed`` directives are now recognized.  The named resource becomes
+       a dependency of the including file, but is not itself scanned.
+    """
 
     # Here's how we would (or might) use the CPP scanner code above that
     # knows how to evaluate #if/#ifdef/#else/#elif lines when searching
@@ -226,11 +285,12 @@ def CScanner():
     # right configurability to let users pick between the scanners.
     # return SConsCPPScannerWrapper("CScanner", "CPPPATH")
 
-    cs = ClassicCPP(
+    cs = _ClassicCPPEmbed(
         "CScanner",
         "$CPPSUFFIXES",
         "CPPPATH",
-        r'^[ \t]*#[ \t]*(?:include|import)[ \t]*(<|")([^>"]+)(>|")',
+        r'^[ \t]*#[ \t]*(include|embed|import)[ \t]*(<|")([^>"]+)(>|")',
+        recursive=_scannable,
     )
     return cs
 
@@ -263,6 +323,8 @@ class SConsCPPConditionalScanner(SCons.cpp.PreProcessor):
             paths = (self.current_file.dir,) + paths
         result = SCons.Node.FS.find_file(fname, paths)
         if result:
+            if keyword == 'embed':
+                _tag_embedded_resource(result)
             result_path = result.get_abspath()
             for p in self.searchpath[quote]:
                 if result_path.startswith(p.get_abspath()):
@@ -310,7 +372,7 @@ class SConsCPPConditionalScannerWrapper:
         return result
 
     def recurse_nodes(self, nodes):
-        return nodes
+        return _scannable(nodes)
 
     def select(self, node):
         return self
@@ -322,5 +384,9 @@ def CConditionalScanner():
 
     Interprets C/C++ Preprocessor conditional syntax
     (#ifdef, #if, defined, #else, #elif, etc.).
+
+    .. versionchanged:: NEXT_RELEASE
+       ``#embed`` directives are now recognised.  The named resource becomes
+       a dependency of the including file, but is not itself scanned.
     """
     return SConsCPPConditionalScannerWrapper("CConditionalScanner", "CPPPATH")
