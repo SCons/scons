@@ -60,6 +60,8 @@ FIXES
 
 - Fix CPPDEFINES test using pkg-config, which was failing on GH Actions.
 
+- Fix -n / --no-exec support when using ninja tool
+
 IMPROVEMENTS
 ------------
 
