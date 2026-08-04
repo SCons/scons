@@ -123,6 +123,15 @@ long function signature lines, and some linting-inspired cleanups.
 
 - Handle missing/malformed manifest in mslink more gracefully (issue 4866).
 
+- Default D compiler (ldc variant) shared object link line $SHDLINKCOM now
+  references libary "druntime-ldc-shared" to reflect how libraries are
+  currently named (shared and debug variants have those tags in the name).
+  If this causes problems with a library not found, set $SHDLINKCOM back
+  to not using the -shared part. In systems available for our testing, the
+  old way was linking against the static library despite the variable being
+  specifically intended to select the shared library.
+  No change to the other two D variants (dmd and gdc).
+
 PACKAGING
 ---------
 
