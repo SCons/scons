@@ -119,6 +119,8 @@ long function signature lines, and some linting-inspired cleanups.
 
 - Clarify internal usage of zipimporter (not user-visible code)
 
+- Handle missing/malformed manifest in mslink more gracefully (issue 4866).
+
 PACKAGING
 ---------
 
