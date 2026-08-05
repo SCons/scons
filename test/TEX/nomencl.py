@@ -56,24 +56,14 @@ test.write('nomencl.tex', r"""
 
 \usepackage[refpage]{nomencl}
 
-%handle old version of nomencl.sty
-\ifdefined\makenomenclature
-\makenomenclature
-\else
-\makeglossary
-\fi
+    \makenomenclature
 
 \begin{document}
 
 A nomenclature entry \nomenclature{gnu}{an animal or software group}
 and another\nomenclature{nix}{not sure}.
 
-%handle old version of nomencl.sty
-\ifdefined\printnomenclature
-\printnomenclature
-\else
-\printglossary
-\fi
+    \printnomenclature
 \end{document}
 """)
 
