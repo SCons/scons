@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
+env = Environment()
+env.Tool('ninja')
+
+# Compile source to object
+obj = env.Object('test2.cpp')
+# Force rebuild of object file every time
+env.AlwaysBuild(obj)
+
+# Link object to executable
+env.Program(target='always_build', source=obj)

@@ -86,6 +86,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix broken links in Chapter 1 of User Guide
 
   From Paul Movall:
+    - Fix a problem where AlwaysBuild was not honored by ninja
     - Fix --no-exec when using ninja tool
 
   From Keith F. Prussing:
