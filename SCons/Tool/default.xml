@@ -118,6 +118,18 @@ It also selects all found from the list
 </para>
 
 <para>
+On the BSD systems whose base compiler is LLVM/clang
+(FreeBSD and OpenBSD), the default tools list matches
+the Linux one except that the C compiler is selected
+(first-found) from
+&t-link-clang;, &t-link-gcc;, &t-link-intelc;, &t-link-icc;,
+&t-link-cc;
+and the C++ compiler from
+&t-link-clangxx;, &t-link-gXX;, &t-link-intelc;, &t-link-icc;,
+&t-link-cXX;.
+</para>
+
+<para>
 Default lists for other platforms can be found by
 examining the &scons;
 source code (see

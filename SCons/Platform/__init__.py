@@ -84,6 +84,8 @@ def platform_default():
             return 'aix'
         elif 'darwin' in sys.platform:
             return 'darwin'
+        elif sys.platform.startswith(('freebsd', 'openbsd')):
+            return 'bsd'
         else:
             return 'posix'
     elif os.name == 'os2':

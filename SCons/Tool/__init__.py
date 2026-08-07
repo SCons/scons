@@ -827,6 +827,14 @@ def tool_list(platform, env):
         assemblers = ['gas', 'nasm', 'masm']
         fortran_compilers = ['gfortran', 'g77', 'ifort', 'ifl', 'f95', 'f90', 'f77']
         ars = ['ar', 'mslib']
+    elif str(platform) == 'bsd':
+        "prefer Clang tools on the BSDs whose base toolchain is LLVM"
+        linkers = ['gnulink', 'ilink']
+        c_compilers = ['clang', 'gcc', 'intelc', 'icc', 'cc']
+        cxx_compilers = ['clang++', 'g++', 'intelc', 'icc', 'cxx']
+        assemblers = ['gas', 'nasm', 'masm']
+        fortran_compilers = ['gfortran', 'g77', 'ifort', 'ifl', 'f95', 'f90', 'f77']
+        ars = ['ar', ]
     else:
         "prefer GNU tools on all other platforms"
         linkers = ['gnulink', 'ilink']
