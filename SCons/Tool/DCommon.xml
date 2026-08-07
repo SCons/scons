@@ -28,6 +28,12 @@ This file is processed by the bin/SConsDoc.py module.
 <summary>
 <para>
 The D compiler to use.
+&SCons; provides tool modules for three D compilation systems:
+DMD (&t-link-dmd;), the reference compiler;
+LDC (&t-link-ldc;), the LLVM-based D compiler;
+and GDC (&t-link-gdc;), from the GNU Compiler Collection,
+searched in that order.
+Use a tool specifier if you need to prefer a specific compiler.
 See also &cv-link-SHDC; for compiling to shared objects.
 </para>
 </summary>
@@ -58,7 +64,7 @@ See also &cv-link-SHDCOMSTR; for compiling to shared objects.
 <cvar name="DDEBUG">
 <summary>
 <para>
-List of debug tags to enable when compiling.
+Debug tags to enable when compiling.
 </para>
 </summary>
 </cvar>
@@ -66,7 +72,7 @@ List of debug tags to enable when compiling.
 <cvar name="DDEBUGPREFIX">
 <summary>
 <para>
-DDEBUGPREFIX.
+Command-line prefix for debug tags.
 </para>
 </summary>
 </cvar>
@@ -74,7 +80,7 @@ DDEBUGPREFIX.
 <cvar name="DDEBUGSUFFIX">
 <summary>
 <para>
-DDEBUGSUFFIX.
+Command-line suffix for debug tags.
 </para>
 </summary>
 </cvar>
@@ -82,7 +88,7 @@ DDEBUGSUFFIX.
 <cvar name="DFILESUFFIX">
 <summary>
 <para>
-DFILESUFFIX.
+The suffix that indicates a D source file.
 </para>
 </summary>
 </cvar>
@@ -90,7 +96,7 @@ DFILESUFFIX.
 <cvar name="DFLAGPREFIX">
 <summary>
 <para>
-DFLAGPREFIX.
+The command-line prefix for D compiler flags.
 </para>
 </summary>
 </cvar>
@@ -106,7 +112,7 @@ General options that are passed to the D compiler.
 <cvar name="DFLAGSUFFIX">
 <summary>
 <para>
-DFLAGSUFFIX.
+The command-line suffix for D compiler flags.
 </para>
 </summary>
 </cvar>
@@ -114,7 +120,7 @@ DFLAGSUFFIX.
 <cvar name="DINCSUFFIX">
 <summary>
 <para>
-DLIBFLAGSUFFIX.
+The command-line suffix for D include file directories.
 </para>
 </summary>
 </cvar>
@@ -122,7 +128,7 @@ DLIBFLAGSUFFIX.
 <cvar name="DINCPREFIX">
 <summary>
 <para>
-DINCPREFIX.
+The command-line prefix for D include file directories.
 </para>
 </summary>
 </cvar>
@@ -130,7 +136,7 @@ DINCPREFIX.
 <cvar name="DLIB">
 <summary>
 <para>
-Name of the lib tool to use for D codes.
+Name of the lib tool to use for D code.
 </para>
 </summary>
 </cvar>
@@ -146,7 +152,7 @@ The command line to use when creating libraries.
 <cvar name="DLIBDIRPREFIX">
 <summary>
 <para>
-DLIBLINKPREFIX.
+The command-line prefix for D library directories.
 </para>
 </summary>
 </cvar>
@@ -154,7 +160,7 @@ DLIBLINKPREFIX.
 <cvar name="DLIBDIRSUFFIX">
 <summary>
 <para>
-DLIBLINKSUFFIX.
+The command-line suffix for D library directories.
 </para>
 </summary>
 </cvar>
@@ -212,7 +218,7 @@ See also &cv-link-SHDLINKCOM; for linking shared objects.
 <cvar name="DLINKFLAGS">
 <summary>
 <para>
-List of linker flags.
+Linker flags.
 See also &cv-link-SHDLINKFLAGS; for linking shared objects.
 </para>
 </summary>
@@ -261,7 +267,7 @@ DRPATHSUFFIX.
 <cvar name="DVERPREFIX">
 <summary>
 <para>
-DVERPREFIX.
+Command-line prefix for version tag.
 </para>
 </summary>
 </cvar>
@@ -277,7 +283,7 @@ List of version tags to enable when compiling.
 <cvar name="DVERSUFFIX">
 <summary>
 <para>
-DVERSUFFIX.
+Command-line suffix for version tag.
 </para>
 </summary>
 </cvar>
@@ -345,7 +351,7 @@ See also &cv-link-DLINKCOM; for linking static objects.
 <cvar name="SHDLINKFLAGS">
 <summary>
 <para>
-The list of flags to use when generating a shared object.
+The flags to use when generating a shared object for the D language.
 See also &cv-link-DLINKFLAGS; for linking static objects.
 </para>
 </summary>
