@@ -93,7 +93,8 @@ def ninja_builder(env, target, source):
 
     if str(env.get("NINJA_DISABLE_AUTO_RUN")).lower() not in ['1', 'true']:
         num_jobs = env.get('NINJA_MAX_JOBS', env.GetOption("num_jobs"))
-        cmd += ['-j' + str(num_jobs)] + env.get('NINJA_CMD_ARGS', '').split() + NINJA_CMDLINE_TARGETS
+        ninja_default_cmd_args = '-n' if env.GetOption("no_exec") else ''
+        cmd += ['-j' + str(num_jobs)] + env.get('NINJA_CMD_ARGS', ninja_default_cmd_args).split() + NINJA_CMDLINE_TARGETS
         print(f"ninja will be run with command line targets: {' '.join(NINJA_CMDLINE_TARGETS)}")
         print("Executing:", str(' '.join(cmd)))
 
