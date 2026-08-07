@@ -313,13 +313,13 @@ function position_details() {
   // Change to the first detail tab
   for (var tab in Config.detailTabs) {
     change_view(tab);
-    break; 
+    break;
   }
 }
 
 function change_view(target) {
   for (var tab in Config.detailTabs) {
-    document.getElementById(tab).style.display = 
+    document.getElementById(tab).style.display =
         (tab == target ? "block" : "none");
   }
 }
@@ -389,7 +389,7 @@ axis is the revision number being tested.
 	} else {
 	  document.write("style=\"border-top: none\" ");
 	}
-	document.write("class=\"selector\" onclick=\"change_view('" 
+	document.write("class=\"selector\" onclick=\"change_view('"
 	    + tab + "')\">" + Config.detailTabs[tab] + "</div>");
       }
     </script>

@@ -11,6 +11,17 @@ defaults:
     shell: bash
 
 jobs:
+  prek:
+    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Style checks via prek
+        uses: j178/prek-action@v2
+
   runtest:
     strategy:
       fail-fast: false

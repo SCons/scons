@@ -752,4 +752,3 @@ into the current document format as appropriate.
     - Since msvc_exists chain of calls does not look at version, we
       can proceed to compiler setup if *any* msvc was found, even if the
       one requested wasn't found.
-

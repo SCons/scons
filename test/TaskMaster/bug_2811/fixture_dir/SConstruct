@@ -7,7 +7,7 @@ This issue requires the following.
 1. Generated source file which outputs 2 (or more) files
 2. Action string gets scanned providing only compiler as part of implicit scan
 3. Generated file gets built. Without the bugfix only the first target's .implicit list is cleared.
-4. builder/executor/action gets tried again and implicits scanned. 2nd to Nth targets end up 
+4. builder/executor/action gets tried again and implicits scanned. 2nd to Nth targets end up
    with the compiler at the beginning of the implicit list and the rest of the scanned files added to that list.
 5. That bimplicit gets saved into sconsign
 6. Second run loads sconsign, now with generated file present a regular implicit scan occurs. This yields 2nd through

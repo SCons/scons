@@ -17,4 +17,3 @@ env.Command(
     action=Action('echo $SOURCE > ${TARGETS[0]};echo $SOURCE > ${TARGETS[1]}', None),
 )
 Progress(ProgressTest())
-

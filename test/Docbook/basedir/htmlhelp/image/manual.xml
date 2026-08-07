@@ -232,7 +232,7 @@ env.EnableQt4Modules([
                      ])
 # Add your CCFLAGS and CPPPATHs to env here...
 
-env.Program('foo', Glob('*.cpp')) 
+env.Program('foo', Glob('*.cpp'))
 </screen>
   </section>
 

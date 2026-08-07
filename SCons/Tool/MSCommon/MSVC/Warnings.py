@@ -32,4 +32,3 @@ class VisualCWarning(SCons.Warnings.WarningOnByDefault):
 
 class MSVCScriptExecutionWarning(VisualCWarning):
     pass
-

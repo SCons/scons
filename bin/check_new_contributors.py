@@ -47,7 +47,7 @@ def get_contributors_since(tag: str) -> Set[Tuple[str, str]]:
     # Format: Name|Email
     cmd = ['git', 'log', f'{tag}..HEAD', '--format=%aN|%aE']
     output = get_git_output(cmd)
-    
+
     contributors = set()
     if output:
         for line in output.split('\n'):
@@ -72,7 +72,7 @@ def get_prior_emails(tag: str) -> Set[str]:
     print("Gathering prior contributors (this may take a moment)...")
     cmd = ['git', 'log', tag, '--format=%aE']
     output = get_git_output(cmd)
-    
+
     prior_emails = set()
     if output:
         for line in output.split('\n'):
@@ -102,30 +102,30 @@ def main() -> None:
 
     # Get all prior emails
     prior_emails = get_prior_emails(args.tag)
-    
+
     # Prepare data for display with deduplication
     # Map: display_name -> is_new (boolean)
     contributor_status: Dict[str, bool] = {}
-    
+
     for name, email in recent_contributors:
         display_name = name if name else email
         is_new_email = email.lower() not in prior_emails
-        
+
         if display_name not in contributor_status:
             contributor_status[display_name] = is_new_email
         else:
-            # If the contributor was previously marked as new, but this email 
+            # If the contributor was previously marked as new, but this email
             # is NOT new, then the contributor is not new.
             # If they were already marked as not new, they stay not new.
             if contributor_status[display_name] and not is_new_email:
                 contributor_status[display_name] = False
-    
+
     # Convert to list for sorting and display
     display_list = [(name, is_new) for name, is_new in contributor_status.items()]
-    
+
     # Sort by display name (case insensitive)
     display_list.sort(key=lambda x: x[0].lower())
-    
+
     # Calculate max length for alignment
     if display_list:
         max_length = max(len(x[0]) for x in display_list)
@@ -134,7 +134,7 @@ def main() -> None:
 
     print(f"\nContributors since {args.tag}:")
     print("-" * 40)
-    
+
     for display_name, is_new in display_list:
         # Align left with padding
         if is_new:
