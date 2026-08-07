@@ -94,6 +94,6 @@ python -m mypy SCons/               # type check
 - Git commits signed off (`git commit -s`). Add `Assisted-by:` to message for AI-generated changes.
 - Version in `SCons/__init__.py` (`__version__`) - automatically generated, do not edit.
 - CI: GitHub Actions (`runtest.yml` - test suite; `scons-package.yml` — packaging), AppVeyor (Windows, legacy).
-- Python >= 3.7 required.
+- Python >= 3.9 required.
 - Config log for `Configure()` lives at `config.log` in the build dir.
 - `.sconsign.dblite` persists across builds; deleting build dirs from disk doesn't clear sconsign entries.

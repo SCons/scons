@@ -67,7 +67,7 @@ from SCons.Util.stats import count_stats, memory_stats, time_stats, ENABLE_JSON,
 from SCons import __version__ as SConsVersion
 
 # these define the range of versions SCons supports
-minimum_python_version = (3, 7, 0)
+minimum_python_version = (3, 9, 0)
 deprecated_python_version = (3, 9, 0)
 
 # ordered list of SConstruct names to look for if there is no -f flag

@@ -330,14 +330,8 @@ def hash_file_signature(fname: str, chunksize: int=65536, hash_format=None) -> s
     """
     m = _get_hash_object(hash_format)
     with open(fname, "rb") as f:
-        while True:
-            blck = f.read(chunksize)
-            if not blck:
-                break
-            m.update(to_bytes(blck))
-        # TODO: can use this when base is Python 3.8+
-        # while (blk := f.read(chunksize)) != b'':
-        #     m.update(to_bytes(blk))
+        while (blk := f.read(chunksize)):
+            m.update(to_bytes(blk))
 
     return m.hexdigest()
 

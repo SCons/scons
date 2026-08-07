@@ -1216,8 +1216,7 @@ class UniqueList(UserList):
         self.__make_unique()
         super().reverse()
 
-    # TODO: Py3.8: def sort(self, /, *args, **kwds):
-    def sort(self, *args, **kwds):
+    def sort(self, /, *args, **kwds):
         self.__make_unique()
         return super().sort(*args, **kwds)
 
