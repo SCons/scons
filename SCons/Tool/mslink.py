@@ -304,11 +304,8 @@ def generate(env) -> None:
     env['MT'] = 'mt'
     # env['MTFLAGS'] = ['-hashupdate']
     env['MTFLAGS'] = SCons.Util.CLVar('/nologo')
-    # Note: use - here to prevent build failure if no manifest produced.
-    # This seems much simpler than a fancy system using a function action to see
-    # if the manifest actually exists before trying to run mt with it.
-    env['MTEXECOM'] = '-$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;1'
-    env['MTSHLIBCOM'] = '-$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;2'
+    env['MTEXECOM'] = '$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;1'
+    env['MTSHLIBCOM'] = '$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;2'
     # TODO Future work garyo 27-Feb-11
     env['_MANIFEST_SOURCES'] = None  # _windowsManifestSources
 

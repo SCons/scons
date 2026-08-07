@@ -86,7 +86,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix broken links in Chapter 1 of User Guide
 
   From Paul Movall:
-    - Fix a problem where AlwaysBuild is now honored by ninja
+    - Fix a problem where AlwaysBuild was not honored by ninja
+    - Fix --no-exec when using ninja tool
 
   From Keith F. Prussing:
     - Add RequiredPackage to the LaTeX scanner for recursive scanning of
@@ -149,6 +150,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       is renamed to "legacy_sched_deprecated".
     - Java tool recognizes all released versions, and no longer needs manual
       updating as new releases are made. Default is now latest LTS - v25.
+    - Clarify internal usage of zipimporter (not user-visible code)
+    - Fixed an old problem in PDF doc generation where the path to an
+      image file ended up with a "not found" error.
+    - Fixed PDF doc build problems relating to illegal margin widths ("")
+      and table column alignment.
+    - Handle missing/malformed manifest in mslink more gracefully (issue 4866).
     - Reference manual improvements:
       * More clarifications in Builder Methods section.
       * Clarify VariantDir behavior when switching from duplicate=True (the

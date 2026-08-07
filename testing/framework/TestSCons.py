@@ -580,7 +580,7 @@ class TestSCons(TestCommon):
 
         This method expects a SConscript to be present that will causes
         the warning.  The method writes a SConstruct that calls the
-        SConsscript and looks to see what type of result occurs.
+        SConscript and looks to see what type of result occurs.
 
         The pattern that matches the warning is returned.
 

@@ -1,31 +1,13 @@
 <?xml version="1.0"?>
+
 <!--
-
-  __COPYRIGHT__
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:exsl="http://exslt.org/common"
-		xmlns:fo="http://www.w3.org/1999/XSL/Format" 
+		xmlns:fo="http://www.w3.org/1999/XSL/Format"
 	        version="1.0" exclude-result-prefixes="exsl">
 
 <!-- This stylesheet was created by template/titlepage.xsl; do not edit it by hand. -->
@@ -385,14 +367,14 @@
 	<fo:block-container height="4cm">
 		<fo:block></fo:block>
 	</fo:block-container>
-	
+
 <fo:block>
     <fo:table table-layout="fixed" width="100%" border-width="0pt" border-style="none">
 
       <fo:table-column column-width="10mm"/>
       <fo:table-column column-width="{$scons.inner.twidthc}"/>
       <fo:table-column column-width="20mm"/>
-	    
+
        <fo:table-body>
          <fo:table-row text-align="center">
           <fo:table-cell>
@@ -436,7 +418,7 @@
       <fo:table-column column-width="10mm"/>
       <fo:table-column column-width="{$scons.inner.twidthc}"/>
       <fo:table-column column-width="20mm"/>
-	    
+
        <fo:table-body>
          <fo:table-row text-align="center">
           <fo:table-cell>
@@ -471,7 +453,7 @@
       <fo:table-column column-width="10mm"/>
       <fo:table-column column-width="{$scons.inner.twidthc}"/>
       <fo:table-column column-width="20mm"/>
-	    
+
        <fo:table-body>
          <fo:table-row text-align="center">
           <fo:table-cell>
@@ -513,7 +495,7 @@
       <fo:table-column column-width="10mm"/>
       <fo:table-column column-width="{$scons.inner.twidthc}"/>
       <fo:table-column column-width="20mm"/>
-	    
+
        <fo:table-body>
          <fo:table-row text-align="center">
           <fo:table-cell>
@@ -1005,14 +987,14 @@
     <fo:block-container height="4cm">
         <fo:block></fo:block>
     </fo:block-container>
-    
+
 <fo:block>
     <fo:table table-layout="fixed" width="100%" border-width="0pt" border-style="none">
 
       <fo:table-column column-width="10mm"/>
       <fo:table-column column-width="{$scons.inner.twidthc}"/>
       <fo:table-column column-width="20mm"/>
-        
+
        <fo:table-body>
          <fo:table-row text-align="center">
           <fo:table-cell>
@@ -1056,7 +1038,7 @@
       <fo:table-column column-width="10mm"/>
       <fo:table-column column-width="{$scons.inner.twidthc}"/>
       <fo:table-column column-width="20mm"/>
-        
+
        <fo:table-body>
          <fo:table-row text-align="center">
           <fo:table-cell>
@@ -1091,7 +1073,7 @@
       <fo:table-column column-width="10mm"/>
       <fo:table-column column-width="{$scons.inner.twidthc}"/>
       <fo:table-column column-width="20mm"/>
-        
+
        <fo:table-body>
          <fo:table-row text-align="center">
           <fo:table-cell>
@@ -1133,7 +1115,7 @@
       <fo:table-column column-width="10mm"/>
       <fo:table-column column-width="{$scons.inner.twidthc}"/>
       <fo:table-column column-width="20mm"/>
-        
+
        <fo:table-body>
          <fo:table-row text-align="center">
           <fo:table-cell>
@@ -4839,7 +4821,7 @@
     </xsl:if>
     <xsl:call-template name="table.of.contents.titlepage.separator"/>
   </fo:block>
-  
+
 </xsl:template>
 
 <xsl:template match="*" mode="table.of.contents.titlepage.recto.mode">
@@ -5267,8 +5249,6 @@
                            margin-bottom="0mm"
                            margin-left="0mm"
                            margin-right="0mm">
-      <xsl:attribute name="margin-{$direction.align.start}" select="0mm"/>
-      <xsl:attribute name="margin-{$direction.align.end}" select="0mm"/>
       <xsl:if test="$axf.extensions != 0">
         <xsl:call-template name="axf-page-master-properties">
           <xsl:with-param name="page.master">scons-titlepage-first</xsl:with-param>
@@ -5297,10 +5277,12 @@
                            margin-top="{$page.margin.top}"
                            margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5329,10 +5311,12 @@
                            margin-top="{$page.margin.top}"
                            margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5362,10 +5346,12 @@
                            margin-top="{$page.margin.top}"
                            margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5394,10 +5380,12 @@
                            margin-top="{$page.margin.top}"
                            margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5426,10 +5414,12 @@
                            margin-top="{$page.margin.top}"
                            margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5461,10 +5451,12 @@
                            margin-top="{$page.margin.top}"
                            margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5504,10 +5496,12 @@
                              margin-top="{$page.margin.top}"
                              margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5547,10 +5541,12 @@
                              margin-top="{$page.margin.top}"
                              margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5591,10 +5587,12 @@
                              margin-top="{$page.margin.top}"
                              margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5634,10 +5632,12 @@
                              margin-top="{$page.margin.top}"
                              margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5677,10 +5677,12 @@
                              margin-top="{$page.margin.top}"
                              margin-bottom="{$page.margin.bottom}">
       <xsl:attribute name="margin-{$direction.align.start}">
-        <xsl:value-of select="$page.margin.outer"/>
 	<xsl:if test="$fop.extensions != 0">
-	  <xsl:value-of select="concat(' - (',$title.margin.left,')')"/>
-        </xsl:if>
+	  <xsl:text>0pt</xsl:text>
+	</xsl:if>
+	<xsl:if test="$fop.extensions = 0">
+	  <xsl:value-of select="$page.margin.outer"/>
+	</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="margin-{$direction.align.end}">
         <xsl:value-of select="$page.margin.inner"/>
@@ -5722,7 +5724,7 @@
                                               page-position="first"/>
         <fo:conditional-page-master-reference master-reference="scons-titlepage-odd"
                                               odd-or-even="odd"/>
-        <fo:conditional-page-master-reference 
+        <fo:conditional-page-master-reference
                                               odd-or-even="even">
           <xsl:attribute name="master-reference">
             <xsl:choose>
@@ -5744,7 +5746,7 @@
                                               page-position="first"/>
         <fo:conditional-page-master-reference master-reference="body-odd-draft"
                                               odd-or-even="odd"/>
-        <fo:conditional-page-master-reference 
+        <fo:conditional-page-master-reference
                                               odd-or-even="even">
           <xsl:attribute name="master-reference">
             <xsl:choose>
@@ -5756,7 +5758,7 @@
       </fo:repeatable-page-master-alternatives>
     </fo:page-sequence-master>
     </xsl:if>
-    
+
     <!-- setup for chapter pages -->
     <fo:page-sequence-master master-name="scons-chapter">
       <fo:repeatable-page-master-alternatives>
@@ -5764,7 +5766,7 @@
                                               page-position="first"/>
         <fo:conditional-page-master-reference master-reference="scons-chapter-odd"
                                               odd-or-even="odd"/>
-        <fo:conditional-page-master-reference 
+        <fo:conditional-page-master-reference
                                               odd-or-even="even">
           <xsl:attribute name="master-reference">
             <xsl:choose>
@@ -5784,7 +5786,7 @@
                                               page-position="first"/>
         <fo:conditional-page-master-reference master-reference="scons-chapter-odd-draft"
                                               odd-or-even="odd"/>
-        <fo:conditional-page-master-reference 
+        <fo:conditional-page-master-reference
                                               odd-or-even="even">
           <xsl:attribute name="master-reference">
             <xsl:choose>
@@ -5809,15 +5811,15 @@
     <xsl:when test="$default-pagemaster = 'titlepage'">
       <xsl:value-of select="'scons-titlepage'" />
     </xsl:when>
-    <xsl:when test="$element = 'reference' and 
+    <xsl:when test="$element = 'reference' and
                     $default-pagemaster = 'body'">
       <xsl:value-of select="'scons-titlepage'" />
     </xsl:when>
-    <xsl:when test="$element = 'reference' and 
+    <xsl:when test="$element = 'reference' and
                     $default-pagemaster = 'body-draft'">
       <xsl:value-of select="'scons-titlepage-draft'" />
     </xsl:when>
-    <xsl:when test="$element = 'chapter' and 
+    <xsl:when test="$element = 'chapter' and
                     $default-pagemaster = 'body-draft'">
       <xsl:value-of select="'scons-chapter-draft'" />
     </xsl:when>
@@ -5953,7 +5955,7 @@
       <fo:table-column column-width="17mm"/>
       <fo:table-column/>
       <fo:table-column column-width="17mm"/>
-	    
+
        <fo:table-body>
          <fo:table-row text-align="center">
           <fo:table-cell>
@@ -5965,7 +5967,7 @@
     <fo:inline xsl:use-attribute-sets="chap.label.properties" font-size="57pt"><xsl:apply-templates select="$node"
         mode="label.markup"/></fo:inline>
 
-    <fo:inline xsl:use-attribute-sets="chap.title.properties"><xsl:apply-templates select="$node" 
+    <fo:inline xsl:use-attribute-sets="chap.title.properties"><xsl:apply-templates select="$node"
           mode="title.markup"/></fo:inline>
   </fo:block>
          </fo:table-cell>
@@ -6168,22 +6170,22 @@
 
       <xsl:when test="$double.sided != 0 and $sequence = 'even'
                       and $position='left'">
-        <fo:retrieve-marker 
+        <fo:retrieve-marker
       retrieve-class-name="section.head.marker"
       retrieve-position="first-including-carryover"
       retrieve-boundary="page-sequence"/>
       </xsl:when>
 
-      <xsl:when test="$double.sided != 0 and 
+      <xsl:when test="$double.sided != 0 and
                       ($sequence = 'odd' or $sequence = 'first' or $sequence = 'blank')
                       and $position='right'">
-        <fo:retrieve-marker 
+        <fo:retrieve-marker
       retrieve-class-name="section.head.marker"
       retrieve-position="first-including-carryover"
       retrieve-boundary="page-sequence"/>
       </xsl:when>
 
-      <xsl:when test="$double.sided != 0 and 
+      <xsl:when test="$double.sided != 0 and
                       ($sequence = 'odd' or $sequence = 'first' or $sequence = 'blank')
                       and $position='left'">
         <xsl:value-of select="/book/title"/>
@@ -6207,7 +6209,7 @@
 
       <xsl:when test="$double.sided = 0 and ($sequence = 'odd' or $sequence = 'first')
                       and $position='right'">
-        <fo:retrieve-marker 
+        <fo:retrieve-marker
       retrieve-class-name="section.head.marker"
       retrieve-position="first-including-carryover"
       retrieve-boundary="page-sequence"/>
@@ -6220,7 +6222,7 @@
 
       <xsl:when test="$double.sided = 0 and $sequence = 'even'
                       and $position='right'">
-        <fo:retrieve-marker 
+        <fo:retrieve-marker
       retrieve-class-name="section.head.marker"
       retrieve-position="first-including-carryover"
       retrieve-boundary="page-sequence"/>
@@ -6228,7 +6230,7 @@
 
 
       <xsl:when test="$position='center'">
-<!--      <xsl:apply-templates select="." 
+<!--      <xsl:apply-templates select="."
   mode="titleabbrev.markup"/>
 -->
 	  </xsl:when>

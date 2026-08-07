@@ -116,15 +116,17 @@ def platform_module(name=platform_default()):
 
                 platform = sys.modules['SCons.Platform'].__path__[0]
                 importer = zipimport.zipimporter(platform)
-                if not hasattr(importer, 'find_spec'):
-                    # zipimport only added find_spec, exec_module in 3.10,
-                    # unlike importlib, where they've been around since 3.4.
-                    # If we don't have 'em, use the old way.
-                    mod = importer.load_module(full_name)
-                else:
+                # TODO: remove this check when Python 3.10 becomes base version
+                if hasattr(importer, 'find_spec'):
+                    # Note zipimporter got these methods later than importlib
                     spec = importer.find_spec(full_name)
                     mod = importlib.util.module_from_spec(spec)
                     importer.exec_module(mod)
+                else:
+                    # Older Pythons. load_module dropped entirely from
+                    # zimpiporter in 3.15, but a new Python won't take this
+                    # branch anyway so it's okay to ignore checker gripes here.
+                    mod = importer.load_module(full_name)
                 sys.modules[full_name] = mod
             except zipimport.ZipImportError:
                 raise SCons.Errors.UserError("No platform named '%s'" % name)

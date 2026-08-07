@@ -313,12 +313,24 @@ def __build_lxml(target, source, env):
     xsl_tree = etree.parse(xsl_style)
     transform = etree.XSLT(xsl_tree, access_control=xslt_ac)
     doc = etree.parse(str(source[0]))
-    # Support for additional parameters
+    # NOTE: if someone ever wants to pass XSLT params via DOCBOOK_XSLTPROCFLAGS
+    # we should actually parse that here - look for --stringparam flags.
     parampass = {}
     if parampass:
         result = transform(doc, **parampass)
     else:
         result = transform(doc)
+
+    # Ensure all fo:table elements have table-layout="fixed".
+    # FOP uses proportional-column-width(1) for unspecified columns even
+    # without table-layout="fixed", which is invalid per XSL-FO spec and
+    # produces SEVERE errors. The docbook-xsl stylesheets only add
+    # table-layout="fixed" when there are proportional columns or fop
+    # extensions are enabled; FOP extension params generate fox: namespace
+    # elements that FOP itself warns about, so we fix it here instead.
+    for table in result.iter('{http://www.w3.org/1999/XSL/Format}table'):
+        if table.get('table-layout') is None:
+            table.set('table-layout', 'fixed')
 
     try:
         with open(str(target[0]), "wb") as of:
