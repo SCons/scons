@@ -46,9 +46,9 @@ cpp_lines_dict = {
     # separated from the keyword by white space.
     ('ifdef', 'ifndef',): r'\s+(.+)',
 
-    # Fetch the rest of a #import/#include/#include_next line as one
+    # Fetch the rest of a #embed/#import/#include/#include_next line as one
     # argument, with white space optional.
-    ('import', 'include', 'include_next',)
+    ('embed', 'import', 'include', 'include_next',)
                         : r'\s*(.+)',
 
     # We don't care what comes after a #else or #endif line.
@@ -270,6 +270,7 @@ class PreProcessor:
         # Return all includes without resolving
         if all:
             self.do_include = self.all_include
+            self.do_embed = self.all_include
 
         # Max depth of nested includes:
         # -1 = unlimited
@@ -447,7 +448,7 @@ class PreProcessor:
 
     def start_handling_includes(self, t=None) -> None:
         """
-        Causes the PreProcessor object to start processing #import,
+        Causes the PreProcessor object to start processing #embed, #import,
         #include and #include_next lines.
 
         This method will be called when a #if, #ifdef, #ifndef or #elif
@@ -459,12 +460,12 @@ class PreProcessor:
         d = self.dispatch_table
         p = self.stack[-1] if self.stack else self.default_table
 
-        for k in ('import', 'include', 'include_next', 'define', 'undef'):
+        for k in ('embed', 'import', 'include', 'include_next', 'define', 'undef'):
             d[k] = p[k]
 
     def stop_handling_includes(self, t=None) -> None:
         """
-        Causes the PreProcessor object to stop processing #import,
+        Causes the PreProcessor object to stop processing #embed, #import,
         #include and #include_next lines.
 
         This method will be called when a #if, #ifdef, #ifndef or #elif
@@ -472,6 +473,7 @@ class PreProcessor:
         #ifndef or #elif block where a condition already evaluated True.
         """
         d = self.dispatch_table
+        d['embed'] = self.do_nothing
         d['import'] = self.do_nothing
         d['include'] =  self.do_nothing
         d['include_next'] =  self.do_nothing
@@ -573,6 +575,22 @@ class PreProcessor:
         # XXX finish this -- maybe borrow/share logic from do_include()...?
         pass
 
+    def do_embed(self, t) -> None:
+        """
+        Default handling of a #embed line.
+
+        Like a #include, except the named resource is embedded as data:
+        its contents are never preprocessed, so unlike do_include() we
+        record the resource without descending into it.
+        """
+        t = self.resolve_include(t)
+        if not t:
+            return
+        embed_file = self.find_include_file(t)
+        if not embed_file or embed_file in self.result:
+            return
+        self.result.append(embed_file)
+
     def do_include(self, t) -> None:
         """
         Default handling of a #include line.
@@ -627,6 +645,10 @@ class PreProcessor:
         This handles recursive expansion of values without "" or <>
         surrounding the name until an initial " or < is found, to handle
         #include FILE where FILE is a #define somewhere else.
+
+        Anything following the closing delimiter is dropped, so that
+        trailing text - the parameters of a #embed line, a comment -
+        does not end up as part of the name.
         """
         s = t[1].strip()
         while not s[0] in '<"':
@@ -653,7 +675,10 @@ class PreProcessor:
                     s = s(*args)
             if not s:
                 return None
-        return (t[0], s[0], s[1:-1])
+        end = s.find('>' if s[0] == '<' else '"', 1)
+        if end == -1:
+            return None
+        return (t[0], s[0], s[1:end])
 
     def all_include(self, t) -> None:
         """
