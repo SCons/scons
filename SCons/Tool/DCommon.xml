@@ -28,6 +28,12 @@ This file is processed by the bin/SConsDoc.py module.
 <summary>
 <para>
 The D compiler to use.
+&SCons; provides tool modules for three D compilation systems:
+DMD (&t-link-dmd;), the reference compiler;
+LDC (&t-link-ldc;), the LLVM-based D compiler;
+and GDC (&t-link-gdc;), from the GNU Compiler Collection,
+searched in that order.
+Use a tool specifier if you need to prefer a specific compiler.
 See also &cv-link-SHDC; for compiling to shared objects.
 </para>
 </summary>
@@ -38,8 +44,11 @@ See also &cv-link-SHDC; for compiling to shared objects.
 <para>
 The command line used to compile a D file to an object file.
 Any options specified in the &cv-link-DFLAGS; construction variable
-is included on this command line.
+are included on this command line.
 See also &cv-link-SHDCOM; for compiling to shared objects.
+See also the &b-link-ProgramAllAtOnce; builder
+for how to compile directly to an executable without
+making intermediate object files.
 </para>
 </summary>
 </cvar>
@@ -48,7 +57,7 @@ See also &cv-link-SHDCOM; for compiling to shared objects.
 <summary>
 <para>
 If set, the string displayed when a D source file
-is compiled to a (static) object file.
+is compiled to an object file.
 If not set, then &cv-link-DCOM; (the command line) is displayed.
 See also &cv-link-SHDCOMSTR; for compiling to shared objects.
 </para>
@@ -58,7 +67,7 @@ See also &cv-link-SHDCOMSTR; for compiling to shared objects.
 <cvar name="DDEBUG">
 <summary>
 <para>
-List of debug tags to enable when compiling.
+Debug tags to enable when compiling.
 </para>
 </summary>
 </cvar>
@@ -66,7 +75,8 @@ List of debug tags to enable when compiling.
 <cvar name="DDEBUGPREFIX">
 <summary>
 <para>
-DDEBUGPREFIX.
+Prefix used for debug tags from &cv-link-DDEBUG;.
+Defaults vary by D compiler.
 </para>
 </summary>
 </cvar>
@@ -74,7 +84,7 @@ DDEBUGPREFIX.
 <cvar name="DDEBUGSUFFIX">
 <summary>
 <para>
-DDEBUGSUFFIX.
+Suffix used for debug tags from &cv-link-DDEBUG;.
 </para>
 </summary>
 </cvar>
@@ -82,7 +92,8 @@ DDEBUGSUFFIX.
 <cvar name="DFILESUFFIX">
 <summary>
 <para>
-DFILESUFFIX.
+File suffix for D source files.
+The default is <literal>.d</literal>.
 </para>
 </summary>
 </cvar>
@@ -90,7 +101,7 @@ DFILESUFFIX.
 <cvar name="DFLAGPREFIX">
 <summary>
 <para>
-DFLAGPREFIX.
+Prefix added to each element of &cv-link-DFLAGS;.
 </para>
 </summary>
 </cvar>
@@ -106,7 +117,7 @@ General options that are passed to the D compiler.
 <cvar name="DFLAGSUFFIX">
 <summary>
 <para>
-DFLAGSUFFIX.
+Suffix added to each element of &cv-link-DFLAGS;.
 </para>
 </summary>
 </cvar>
@@ -114,7 +125,7 @@ DFLAGSUFFIX.
 <cvar name="DINCSUFFIX">
 <summary>
 <para>
-DLIBFLAGSUFFIX.
+Suffix added to each path in &cv-link-DPATH;.
 </para>
 </summary>
 </cvar>
@@ -122,7 +133,7 @@ DLIBFLAGSUFFIX.
 <cvar name="DINCPREFIX">
 <summary>
 <para>
-DINCPREFIX.
+Prefix added to each path in &cv-link-DPATH;.
 </para>
 </summary>
 </cvar>
@@ -130,7 +141,7 @@ DINCPREFIX.
 <cvar name="DLIB">
 <summary>
 <para>
-Name of the lib tool to use for D codes.
+Name of the static library tool for D code.
 </para>
 </summary>
 </cvar>
@@ -138,7 +149,15 @@ Name of the lib tool to use for D codes.
 <cvar name="DLIBCOM">
 <summary>
 <para>
-The command line to use when creating libraries.
+The command line to use when linking a static library.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBFLAGS">
+<summary>
+<para>
+The flags to pass to the library tool.
 </para>
 </summary>
 </cvar>
@@ -146,7 +165,8 @@ The command line to use when creating libraries.
 <cvar name="DLIBDIRPREFIX">
 <summary>
 <para>
-DLIBLINKPREFIX.
+The command-line prefix for library search directories
+from &cv-link-LIBPATH; when linking D code.
 </para>
 </summary>
 </cvar>
@@ -154,7 +174,8 @@ DLIBLINKPREFIX.
 <cvar name="DLIBDIRSUFFIX">
 <summary>
 <para>
-DLIBLINKSUFFIX.
+The command-line suffix for library search directories
+from &cv-link-LIBPATH; when linking D code.
 </para>
 </summary>
 </cvar>
@@ -162,7 +183,7 @@ DLIBLINKSUFFIX.
 <cvar name="DLIBFLAGSUFFIX">
 <summary>
 <para>
-DLIBFLAGSUFFIX.
+Suffix added to each element of &cv-link-DLIBFLAGS;.
 </para>
 </summary>
 </cvar>
@@ -170,7 +191,7 @@ DLIBFLAGSUFFIX.
 <cvar name="DLIBFLAGPREFIX">
 <summary>
 <para>
-DLIBFLAGPREFIX.
+Prefix added to each element of &cv-link-DLIBFLAGS;.
 </para>
 </summary>
 </cvar>
@@ -178,7 +199,7 @@ DLIBFLAGPREFIX.
 <cvar name="DLIBLINKPREFIX">
 <summary>
 <para>
-DLIBLINKPREFIX.
+Prefix added to each library name from &cv-link-LIBS;.
 </para>
 </summary>
 </cvar>
@@ -186,7 +207,7 @@ DLIBLINKPREFIX.
 <cvar name="DLIBLINKSUFFIX">
 <summary>
 <para>
-DLIBLINKSUFFIX.
+Suffix added to each library name from &cv-link-LIBS;.
 </para>
 </summary>
 </cvar>
@@ -212,7 +233,7 @@ See also &cv-link-SHDLINKCOM; for linking shared objects.
 <cvar name="DLINKFLAGS">
 <summary>
 <para>
-List of linker flags.
+Linker flags.
 See also &cv-link-SHDLINKFLAGS; for linking shared objects.
 </para>
 </summary>
@@ -221,7 +242,7 @@ See also &cv-link-SHDLINKFLAGS; for linking shared objects.
 <cvar name="DLINKFLAGSUFFIX">
 <summary>
 <para>
-DLINKFLAGSUFFIX.
+Suffix added to each element of &cv-link-DLINKFLAGS;.
 </para>
 </summary>
 </cvar>
@@ -229,7 +250,7 @@ DLINKFLAGSUFFIX.
 <cvar name="DLINKFLAGPREFIX">
 <summary>
 <para>
-DLINKFLAGPREFIX.
+Prefix added to each element of &cv-link-DLINKFLAGS;.
 </para>
 </summary>
 </cvar>
@@ -245,7 +266,7 @@ DLINKFLAGPREFIX.
 <cvar name="DRPATHPREFIX">
 <summary>
 <para>
-DRPATHPREFIX.
+Prefix added to rpath entries when generating shared objects.
 </para>
 </summary>
 </cvar>
@@ -253,7 +274,7 @@ DRPATHPREFIX.
 <cvar name="DRPATHSUFFIX">
 <summary>
 <para>
-DRPATHSUFFIX.
+Suffix added to rpath entries when generating shared objects.
 </para>
 </summary>
 </cvar>
@@ -261,7 +282,7 @@ DRPATHSUFFIX.
 <cvar name="DVERPREFIX">
 <summary>
 <para>
-DVERPREFIX.
+Prefix added to each element of &cv-link-DVERSIONS;.
 </para>
 </summary>
 </cvar>
@@ -277,7 +298,7 @@ List of version tags to enable when compiling.
 <cvar name="DVERSUFFIX">
 <summary>
 <para>
-DVERSUFFIX.
+Suffix added to each element of &cv-link-DVERSIONS;.
 </para>
 </summary>
 </cvar>
@@ -326,8 +347,7 @@ set.
 <cvar name="SHDLINK">
 <summary>
 <para>
-The linker to use when creating shared objects for code bases
-include D sources.
+The linker to use when creating shared objects from dlang code.
 See also &cv-link-DLINK; for linking static objects.
 </para>
 </summary>
@@ -345,7 +365,7 @@ See also &cv-link-DLINKCOM; for linking static objects.
 <cvar name="SHDLINKFLAGS">
 <summary>
 <para>
-The list of flags to use when generating a shared object.
+The flags to use when generating a shared object for the D language.
 See also &cv-link-DLINKFLAGS; for linking static objects.
 </para>
 </summary>
@@ -354,7 +374,9 @@ See also &cv-link-DLINKFLAGS; for linking static objects.
 <cvar name="DI_FILE_SUFFIX">
 <summary>
 <para>
-Suffix of d include files default is .di
+Suffix for D interface files,
+which are translations of C header files.
+The default is <literal>.di</literal>.
 </para>
 </summary>
 </cvar>
@@ -362,7 +384,8 @@ Suffix of d include files default is .di
 <cvar name="DI_FILE_DIR">
 <summary>
 <para>
-Path where .di files will be generated
+Path to search for D interface files,
+which are translations of C header files.
 </para>
 </summary>
 </cvar>
@@ -370,7 +393,8 @@ Path where .di files will be generated
 <cvar name="DI_FILE_DIR_PREFIX">
 <summary>
 <para>
-Prefix to send the di path argument to compiler
+Prefix added to the name of the D interface file
+directory from &cv-link-DI_FILE_DIR;.
 </para>
 </summary>
 </cvar>
@@ -378,7 +402,8 @@ Prefix to send the di path argument to compiler
 <cvar name="DI_FILE_DIR_SUFFFIX">
 <summary>
 <para>
-Suffix to send the di path argument to compiler
+Suffix added to the name of the D interface file
+directory from &cv-link-DI_FILE_DIR;.
 </para>
 </summary>
 </cvar>
@@ -391,7 +416,8 @@ Suffix to send the di path argument to compiler
   </para>
   <para>
     D sources can be compiled file-by-file as C and C++ source are, and
-    D is integrated into the &scons; Object and Program builders for
+    D is integrated into the &scons;
+    &b-link-Object; and &b-link-Program; builders for
     this model of build. D codes can though do whole source
     meta-programming (some of the testing frameworks do this). For this
     it is imperative that all sources are compiled and linked in a single

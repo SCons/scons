@@ -39,8 +39,10 @@ test = TestSCons.TestSCons()
 
 _obj = TestSCons._obj
 
+# Why is this test limited to only 'dmd'?
+# It's been tested to work with the other two compilers and no dmd...
 if not isExecutableOfToolAvailable(test, 'dmd'):
-    test.skip_test("Could not find 'dmd'; skipping test.\n")
+   test.skip_test("Could not find 'dmd'; skipping test.\n")
 
 test.subdir(['p'])
 

@@ -123,6 +123,13 @@ long function signature lines, and some linting-inspired cleanups.
 
 - Handle missing/malformed manifest in mslink more gracefully (issue 4866).
 
+- Change the way ldc D compiler specifies including libdruntime when
+  making a shared object. ldc version 1.3 (2017) introduced shared
+  druntime on some platforms, with an odd library naming scheme. SCons
+  specification was "too precise" to work cross-platform with the new
+  scheme, now let the linker pass pick. Adjust $SHDLINKFLAGS to change this,
+  or choose other schemes, such as LTO libs.
+
 PACKAGING
 ---------
 
