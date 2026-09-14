@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-License-Identifier: MIT
+
+Copyright The SCons Foundation
+-->
+<!DOCTYPE article [
+  <!ENTITY % scons-ents SYSTEM "entities.mod">
+  %scons-ents;
+]>
+<article>
+  <title>External entity module test</title>
+
+  <section id="basics">
+    <title>Basics</title>
+
+    <para>&included-text;</para>
+  </section>
+
+</article>

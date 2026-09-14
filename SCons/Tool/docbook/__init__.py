@@ -75,6 +75,32 @@ if has_lxml and lmxl_xslt_global_max_depth:
 #
 # Helper functions
 #
+def _make_xml_parser():
+    """Return an XML parser set up to resolve external entities.
+
+    As of lxml 6.1.3 external *parameter* entities are no longer resolved
+    unless asked for explicitly (see
+    https://bugs.launchpad.net/lxml/+bug/2165901), which breaks DocBook sources
+    that pull in their entity definitions with a construct like::
+
+        <!ENTITY % myents SYSTEM "entities.mod">
+        %myents;
+
+    resolve_entities=True is spelled as a bool on purpose: the string forms
+    ("internal"/"always") only exist from lxml 6.0 on, while the bool is
+    accepted by every version we support.
+
+    load_dtd stays False on purpose as well. It controls loading the *external*
+    DTD subset - the internal subset holding the entity declarations above is
+    read either way - and turning it on makes libxml2 try to fetch the remote
+    DTD of any document declaring one (as DocBook documents commonly do), which
+    no_network then refuses.
+    """
+    from lxml import etree
+
+    return etree.XMLParser(load_dtd=False, resolve_entities=True, no_network=True)
+
+
 def __extend_targets_sources(target, source):
     """ Prepare the lists of target and source files. """
     if not SCons.Util.is_List(target):
@@ -248,7 +274,7 @@ def __xml_scan(node, env, path, arg):
     from lxml import etree
 
     xsl_tree = etree.parse(xsl_file)
-    doc = etree.parse(str(node))
+    doc = etree.parse(str(node), _make_xml_parser())
     result = doc.xslt(xsl_tree)
 
     depfiles = [x.strip() for x in str(result).splitlines() if x.strip() != "" and not x.startswith("<?xml ")]
@@ -312,7 +338,7 @@ def __build_lxml(target, source, env):
     xsl_style = env.subst('$DOCBOOK_XSL')
     xsl_tree = etree.parse(xsl_style)
     transform = etree.XSLT(xsl_tree, access_control=xslt_ac)
-    doc = etree.parse(str(source[0]))
+    doc = etree.parse(str(source[0]), _make_xml_parser())
     # NOTE: if someone ever wants to pass XSLT params via DOCBOOK_XSLTPROCFLAGS
     # we should actually parse that here - look for --stringparam flags.
     parampass = {}
@@ -356,7 +382,7 @@ def __build_lxml_noresult(target, source, env):
     xsl_style = env.subst('$DOCBOOK_XSL')
     xsl_tree = etree.parse(xsl_style)
     transform = etree.XSLT(xsl_tree, access_control=xslt_ac)
-    doc = etree.parse(str(source[0]))
+    doc = etree.parse(str(source[0]), _make_xml_parser())
     # Support for additional parameters
     parampass = {}
     if parampass:
@@ -373,7 +399,7 @@ def __xinclude_lxml(target, source, env):
     """
     from lxml import etree
 
-    doc = etree.parse(str(source[0]))
+    doc = etree.parse(str(source[0]), _make_xml_parser())
     doc.xinclude()
     try:
         doc.write(str(target[0]), xml_declaration=True,
@@ -470,7 +496,7 @@ def DocbookEpub(env, target, source=None, *args, **kw):
         if has_lxml:
             from lxml import etree
 
-            opf = etree.parse(content_file)
+            opf = etree.parse(content_file, _make_xml_parser())
             # All the opf:item elements are resources
             for item in opf.xpath('//opf:item',
                     namespaces= { 'opf': 'http://www.idpf.org/2007/opf' }):

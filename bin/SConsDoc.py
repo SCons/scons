@@ -176,6 +176,33 @@ def isSConsXml(fpath):
 
     return False
 
+def make_xml_parser():
+    """Return an XML parser set up to resolve the entities used by the docs.
+
+    The doc sources pull in their entity definitions through external
+    *parameter* entities (see DoctypeDeclaration below)::
+
+        <!DOCTYPE sconsdoc [
+            <!ENTITY % scons SYSTEM "../scons.mod">
+            %scons;
+
+    As of lxml 6.1.3 those are no longer resolved unless asked for explicitly
+    (see https://bugs.launchpad.net/lxml/+bug/2165901), so every parse of a doc
+    file has to be handed this parser - the default one fails with
+    "Entity 'scons' not defined".
+
+    resolve_entities=True is spelled as a bool on purpose: the string forms
+    ("internal"/"always") only exist from lxml 6.0 on, while the bool is
+    accepted by every version we support.
+
+    load_dtd stays False on purpose as well. It controls loading the *external*
+    DTD subset - the internal subset holding the entity declarations above is
+    read either way - and turning it on makes libxml2 try to fetch the remote
+    DTD of any document declaring one, which no_network then refuses.
+    """
+    return etree.XMLParser(load_dtd=False, resolve_entities=True, no_network=True)
+
+
 def remove_entities(content):
     # Cut out entity inclusions
     content = re_entity_header.sub("", content, re.M)
@@ -355,7 +382,7 @@ class TreeFactory:
         if TreeFactory.xmlschema is None:
             TreeFactory.xmlschema = etree.XMLSchema(xmlschema_context)
         try:
-            doc = etree.parse(fpath)
+            doc = etree.parse(fpath, make_xml_parser())
         except Exception as e:
             print(f"ERROR: {fpath} fails to parse:")
             print(e)
@@ -423,7 +450,7 @@ class SConsDocTree:
 
     def parseXmlFile(self, fpath):
         # Create domtree from file
-        parser = etree.XMLParser(load_dtd=True, resolve_entities=False)
+        parser = make_xml_parser()
         domtree = etree.parse(fpath, parser)
         self.root = domtree.getroot()
 

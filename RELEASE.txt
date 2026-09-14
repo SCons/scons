@@ -41,6 +41,11 @@ FIXES
 
 - Fix ninja to honor AlwaysBuild on a target
 
+- Fix documentation processing to work with lxml 6.1.3 and newer, which no
+  longer resolves external parameter entities by default. This affects both
+  the SCons documentation build and the docbook tool, which failed on any
+  DocBook source pulling in an external entity module.
+
 IMPROVEMENTS
 ------------
 
@@ -76,6 +81,12 @@ DEVELOPMENT
 - List visible changes in the way SCons is
 
 - ty: Initial support setup within `pyproject.toml`.
+
+- The DocBook slides tests now pass on Debian and Ubuntu, whose docbook-xsl
+  package writes "snapshot" instead of a number in the stylesheets' VERSION
+  file. The test helper read that as version (0, 0, 0) and so handed the
+  plain, non-namespaced input to namespace-aware stylesheets, which quietly
+  produced an empty document; it now falls back to the <fm:Branch> field.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
