@@ -966,6 +966,13 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         version under test) in its own scratch subdir, separate from the
         real project under test in the calling test file.
         """
+        # Only probe for a usable license where we know it can be a problem
+        # (currently: AppVeyor's Windows builders). Everywhere else this is
+        # skipped by default to avoid the extra devenv/msdev build overhead.
+        # Set SCONS_MSVS_CHECK_LICENSE=1 to opt in.
+        if os.environ.get('SCONS_MSVS_CHECK_LICENSE') != '1':
+            return True
+
         cache = self._read_license_probe_cache()
         if version in cache:
             return cache[version]
