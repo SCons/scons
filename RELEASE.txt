@@ -80,6 +80,13 @@ DEVELOPMENT
   plain, non-namespaced input to namespace-aware stylesheets, which quietly
   produced an empty document; it now falls back to the <fm:Branch> field.
 
+- MSVS end-to-end tests now detect expired/invalid Visual Studio licenses
+  and skip cleanly instead of failing with confusing build errors. The probe
+  is opt-in via the SCONS_MSVS_CHECK_LICENSE environment variable (enabled
+  on AppVeyor, where license expiry is known to occur; disabled by default
+  elsewhere). This avoids overhead on environments where the license is
+  always valid.
+
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text

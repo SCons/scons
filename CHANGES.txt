@@ -28,6 +28,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       stylesheets and silently produced an empty document. The helper now
       falls back to the <fm:Branch> field, which names the XSL-NS branch
       outright.
+    - Add MSVS license validity detection to end-to-end tests. When Visual
+      Studio's license or trial has expired, devenv.exe/msdev.exe exit
+      non-zero even though the toolchain is otherwise present. The 17
+      test/MSVS/*-exec.py tests now probe for a usable license and skip
+      cleanly when unavailable, rather than failing with confusing build
+      errors. Probing is opt-in via SCONS_MSVS_CHECK_LICENSE environment
+      variable (enabled on AppVeyor, disabled elsewhere by default).
 
   From Mats Wichmann:
     - Reference manual improvements:
