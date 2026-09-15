@@ -40,6 +40,9 @@ import os
 import sys
 import platform
 import traceback
+import json
+import tempfile
+from pathlib import Path
 from xml.etree import ElementTree
 
 try:
@@ -51,6 +54,8 @@ import SCons.Errors
 from TestSCons import *
 from TestSCons import __all__
 
+
+_LICENSE_PROBE_CACHE = Path(tempfile.gettempdir()) / "scons" / "msvs_license_probe_cache.json"
 
 PROJECT_GUID = "{00000000-0000-0000-0000-000000000000}"
 PROJECT_GUID_1 = "{11111111-1111-1111-1111-111111111111}"
@@ -926,6 +931,94 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
         if not msvs:
             return None
         return msvs.get_executable()
+
+    def _read_license_probe_cache(self):
+        try:
+            return json.loads(_LICENSE_PROBE_CACHE.read_text())
+        except (OSError, ValueError):
+            return {}
+
+    def _write_license_probe_cache(self, cache):
+        _LICENSE_PROBE_CACHE.parent.mkdir(exist_ok=True)
+        tmp = _LICENSE_PROBE_CACHE.with_suffix(f'.{os.getpid()}.tmp')
+        tmp.write_text(json.dumps(cache))
+        os.replace(tmp, _LICENSE_PROBE_CACHE)
+
+    def _get_msvs_project_ext_and_args(self, version):
+        version_num = float(version.split('.')[0])
+        if version_num < 8.0:
+            return 'dsp', ['foo.dsp', '/MAKE', 'foo - Win32 Release']
+        elif version_num < 10.0:
+            return 'vcproj', ['foo.sln', '/build', 'Release']
+        else:
+            return 'vcxproj', ['foo.sln', '/build', 'Release']
+
+    def msvs_build_usable(self, version, env=None):
+        """
+        Returns True if a real devenv/msdev build succeeds for this MSVS
+        version, False otherwise (most likely cause: expired/invalid
+        license). Result is cached on disk, keyed by version, so the
+        (relatively expensive) real build+probe only happens once across
+        an entire test run.
+
+        Builds a small isolated dummy project (via SCons's own MSVSProject
+        builder, so the generated project file format is correct for the
+        version under test) in its own scratch subdir, separate from the
+        real project under test in the calling test file.
+        """
+        cache = self._read_license_probe_cache()
+        if version in cache:
+            return cache[version]
+
+        executable = self.get_msvs_executable(version, env)
+        if not executable:
+            usable = False
+        else:
+            probe = TestSConsMSVS()
+            try:
+                proj_ext, build_args = self._get_msvs_project_ext_and_args(version)
+                probe.subdir('probe')
+                probe.write(
+                    ['probe', 'SConstruct'],
+                    f"""\
+DefaultEnvironment(tools=[])
+env = Environment(MSVS_VERSION='{version}')
+env.MSVSProject(
+    target='foo.{proj_ext}',
+    srcs=['foo.c'],
+    buildtarget='foo.exe',
+    variant='Release',
+)
+env.Program('foo.c')
+""",
+                )
+                probe.write(['probe', 'foo.c'], "int main(void) { return 0; }\n")
+                probe.run(chdir='probe', arguments='.')
+
+                probe.run(
+                    chdir='probe',
+                    program=[executable],
+                    arguments=build_args,
+                    status=None,
+                )
+                usable = probe.status == 0
+            finally:
+                probe.cleanup()
+
+        cache[version] = usable
+        self._write_license_probe_cache(cache)
+        return usable
+
+    def skip_if_msvs_license_invalid(self, version, env=None):
+        """Skip the test if the real devenv/msdev build is not usable for
+        this MSVS version (most likely: expired/invalid license)."""
+        if not self.msvs_build_usable(version, env):
+            msg = (
+                f"Visual Studio {version} build probe failed; this may "
+                "indicate an expired or invalid license rather than an "
+                "SCons defect; skipping test.\n"
+            )
+            self.skip_test(msg, from_fw=True)
 
     def run(self, *args, **kw):
         """

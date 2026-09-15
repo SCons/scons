@@ -46,6 +46,8 @@ msvs_version = '14.0'
 if msvs_version not in test.msvs_versions():
     msg = "Visual Studio %s not installed; skipping test.\n" % msvs_version
     test.skip_test(msg)
+test.skip_if_msvs_license_invalid(msvs_version)
+
 
 # Let SCons figure out the Visual Studio environment variables for us and
 # print out a statement that we can exec to suck them into our external
