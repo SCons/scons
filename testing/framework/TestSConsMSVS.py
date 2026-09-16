@@ -989,7 +989,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
                     ['probe', 'SConstruct'],
                     f"""\
 DefaultEnvironment(tools=[])
-env = Environment(MSVS_VERSION='{version}')
+env = Environment(tools=['msvc', 'msvs'], MSVS_VERSION='{version}')
 env.MSVSProject(
     target='foo.{proj_ext}',
     srcs=['foo.c'],
@@ -1000,15 +1000,17 @@ env.Program('foo.c')
 """,
                 )
                 probe.write(['probe', 'foo.c'], "int main(void) { return 0; }\n")
-                probe.run(chdir='probe', arguments='.')
-
-                probe.run(
-                    chdir='probe',
-                    program=[executable],
-                    arguments=build_args,
-                    status=None,
-                )
-                usable = probe.status == 0
+                probe.run(chdir='probe', arguments='.', status=None)
+                if probe.status != 0:
+                    usable = False
+                else:
+                    probe.run(
+                        chdir='probe',
+                        program=[executable],
+                        arguments=build_args,
+                        status=None,
+                    )
+                    usable = probe.status == 0
             finally:
                 probe.cleanup()
 
