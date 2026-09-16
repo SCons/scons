@@ -33,9 +33,11 @@ import base64
 import uuid
 import ntpath
 import os
+import pathlib
 import pickle
 import re
 import sys
+import textwrap
 
 import SCons.Builder
 import SCons.Node.FS
@@ -160,19 +162,66 @@ def msvs_parse_version(s):
 # things and ends up with "-c" as sys.argv[0].  Consequently, we have
 # the MSVS Project file invoke SCons the same way that scons.bat does,
 # which works regardless of how we were invoked.
+_exec_script_main_template = None
+
 def getExecScriptMain(env, xml=None):
+    global _exec_script_main_template
+
     if 'SCONS_HOME' not in env:
         env['SCONS_HOME'] = os.environ.get('SCONS_HOME')
     scons_home = env.get('SCONS_HOME')
     if not scons_home and 'SCONS_LIB_DIR' in os.environ:
         scons_home = os.environ['SCONS_LIB_DIR']
-    if scons_home:
-        exec_script_main = "from os.path import join; import sys; sys.path = [ r'%s' ] + sys.path; import SCons.Script; SCons.Script.main()" % scons_home
-    else:
-        version = SCons.__version__
-        exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%(version)s'), join(sys.prefix, 'scons-%(version)s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % locals()
+
+    scons_abspath = os.path.abspath(os.path.dirname(os.path.dirname(SCons.__file__)))
+
+    def _in_pytree(scons_abspath):
+        py_comps = pathlib.Path(os.path.normcase(os.path.abspath(sys.prefix))).parts
+        comps = pathlib.Path(os.path.normcase(scons_abspath)).parts
+        rval = bool(comps[:len(py_comps)] == py_comps)
+        return rval
+
+    in_pytree = _in_pytree(scons_abspath)
+    # print(f"in_pytree={in_pytree}, scons_abspath=`{scons_abspath}', sys.prefix='{sys.prefix}'")
+
+    if _exec_script_main_template is None:
+        _exec_script_main_template = "; ".join(textwrap.dedent(
+            """\
+            import importlib.util
+            import sys
+            from os.path import abspath, dirname, join, normcase
+            from pathlib import Path
+            usr = r'{scons_home}'
+            gen = r'{scons_abspath}'
+            usrpath = abspath(usr) if usr else ''
+            genpath = gen if (gen and (not usrpath or normcase(usrpath) != normcase(gen))) else ''
+            syspath = list(sys.path)
+            pycomps = Path(normcase(abspath(sys.prefix))).parts
+            memo = {{}}
+            origin = lambda l: (sys.path.clear(), sys.path.extend(l), memo.update({{'spec': importlib.util.find_spec('SCons')}}), dirname(dirname(abspath(memo['spec'].origin))) if (memo['spec'] and memo['spec'].origin) else '')[-1]
+            pytree = lambda p: (memo.update({{'comps': Path(normcase(p)).parts}}), memo['comps'][:len(pycomps)] == pycomps)[-1] if p else False
+            search = ([usrpath] + syspath if usrpath else [join(sys.prefix, *t) for t in [('Lib', 'site-packages', 'scons-{scons_version}'), ('scons-{scons_version}',), ('Lib', 'site-packages', 'scons'), ('scons',)]] + syspath)
+            begpath = origin(search)
+            endpath = (search.insert(0, genpath), origin([genpath]))[-1] if (genpath and (not begpath or pytree(begpath))) else ''
+            path = endpath if endpath else begpath
+            _ = (print(f'proj: Error: SCons not found (search=\\\'{{search}}\\\').'), sys.exit(1)) if (not path) else None
+            sys.path = [path] + syspath
+            print(f'proj: Using SCons path \\\'{{path}}\\\'.')
+            import SCons.Script
+            SCons.Script.main()
+            """
+        ).splitlines())
+
+    exec_script_main = _exec_script_main_template.format(
+        scons_home=scons_home if scons_home else '',
+        scons_abspath=scons_abspath if not in_pytree else '',
+        scons_version=SCons.__version__,
+    )
+    # print("exec_script_main:\n", ' ' + '\n  '.join(exec_script_main.split("; ")))
+
     if xml:
         exec_script_main = xmlify(exec_script_main)
+
     return exec_script_main
 
 # The string for the Python executable we tell the Project file to use
