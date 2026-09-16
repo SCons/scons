@@ -83,6 +83,12 @@ DEVELOPMENT
   plain, non-namespaced input to namespace-aware stylesheets, which quietly
   produced an empty document; it now falls back to the <fm:Branch> field.
 
+- MSVS end-to-end tests now detect expired/invalid Visual Studio licenses
+  and skip cleanly instead of failing with confusing build errors. AppVeyor's
+  pre-test phase runs a standalone probe script that checks each installed
+  MSVS version's license validity and generates an exclude list dynamically,
+  allowing AppVeyor to skip affected tests before the run.
+
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
