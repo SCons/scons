@@ -32,6 +32,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Mats Wichmann:
     - Reference manual improvements:
       * Additional clarification for SideEffect()
+      * Split out a new section on Emitters with additional prose and
+        examples, since the information does not exclusively apply to
+        the emitter argument to Builder(). The Builder Objects "emitter"
+        argument section still has some wording, plus a link to the
+        new section.
 
   From Zhaoqi Xu:
     - ParseDepends() now treats Windows drive-letter colons as part of the
