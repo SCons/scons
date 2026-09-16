@@ -32,7 +32,6 @@ environment:
   # set COVERAGE to 1 for any builder that should run it
   COVERAGE: 0
   SCONS_CACHE_MSVC_CONFIG: "true"
-  SCONS_MSVS_CHECK_LICENSE: "1"
   matrix:
     # Test oldest and newest supported Pythons.
     - WINPYTHON: "Python310"

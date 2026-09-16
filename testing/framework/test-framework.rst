@@ -941,12 +941,3 @@ test scripts directly.
   If set to a non-zero value, preserve the test working directory only
   when the test result is "no result" (a skip).
 
-``SCONS_MSVS_CHECK_LICENSE``
-  Controls whether Visual Studio license validity is probed before running
-  MSVS end-to-end tests. Set to ``"1"`` to enable license checking
-  (probes whether ``devenv``/``msdev`` can actually build a test project,
-  useful for detecting expired trial licenses on CI systems).
-  Disabled by default since the overhead is only needed on environments
-  known to have license expiry issues (e.g., AppVeyor's Windows builders).
-  Example: ``SCONS_MSVS_CHECK_LICENSE=1 python runtest.py test/MSVS``
-

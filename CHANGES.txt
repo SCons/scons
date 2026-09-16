@@ -30,11 +30,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       outright.
     - Add MSVS license validity detection to end-to-end tests. When Visual
       Studio's license or trial has expired, devenv.exe/msdev.exe exit
-      non-zero even though the toolchain is otherwise present. The 17
-      test/MSVS/*-exec.py tests now probe for a usable license and skip
-      cleanly when unavailable, rather than failing with confusing build
-      errors. Probing is opt-in via SCONS_MSVS_CHECK_LICENSE environment
-      variable (enabled on AppVeyor, disabled elsewhere by default).
+      non-zero even though the toolchain is otherwise present. AppVeyor's
+      pre-test phase now runs a standalone probe script that checks each
+      installed MSVS version's license validity and generates an exclude
+      list dynamically, allowing AppVeyor to skip affected tests before the
+      run instead of failing with confusing build errors.
 
   From Mats Wichmann:
     - Reference manual improvements:

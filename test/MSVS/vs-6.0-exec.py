@@ -44,8 +44,6 @@ msvs_version = '6.0'
 if not msvs_version in test.msvs_versions():
     msg = "Visual Studio %s not installed; skipping test.\n" % msvs_version
     test.skip_test(msg)
-test.skip_if_msvs_license_invalid(msvs_version)
-
 
 
 
