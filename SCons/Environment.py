@@ -2094,8 +2094,7 @@ class Base(SubstitutionEnvironment):
         tdlist = []
 
         def split_make_dep_line(line: str) -> tuple[str, str]:
-            # Make depfiles use "target: deps". On Windows a target can be
-            # "C:\\path\\foo.o"; skip colons that are drive letters.
+            """Split make-style depfile line, skipping Windows drive-letter colons."""
             start = 0
             while True:
                 idx = line.find(':', start)
