@@ -1,0 +1,198 @@
+RELEASE 0.96.91 - Thu, 08 Sep 2005 07:18:23 -0400
+
+  NOTE:  This was a pre-release of 0.97 for testing purposes.
+
+  From Chad Austin:
+
+  - Have the environment store the toolpath and re-use it to find Tools
+    modules during later Copy() or Tool() calls (unless overridden).
+
+  - Normalize the directory path names in SConsignFile() database
+    files so the same signature file can interoperate on Windows and
+    non-Windows systems.
+
+  - Make --debug=stacktrace print a stacktrace when a UserError is thrown.
+
+  - Remove an old, erroneous cut-and-paste comment in Scanner/Dir.py.
+
+  From Stanislav Baranov:
+
+  - Make it possible to support with custom Alias (sub-)classes.
+
+  - Allow Builders to take empty source lists when called.
+
+  - Allow access to both TARGET and SOURCE in $*PATH expansions.
+
+  - Allow SConscript files to modify BUILD_TARGETS.
+
+  From Timothee Besset:
+
+  - Add support for Objective C/C++ .m and .mm file suffixes (for
+    Mac OS X).
+
+  From Charles Crain
+
+  - Fix the PharLap linkloc.py module to use target+source arguments
+    when calling env.subst().
+
+  From Bjorn Eriksson:
+
+  - Fix an incorrect Command() keyword argument in the man page.
+
+  - Add a $TEMPFILEPREFIX variable to control the prefix or flag used
+    to pass a long-command-line-execution tempfile to a command.
+
+  From Steven Knight:
+
+  - Enhanced the SCons setup.py script to install man pages on
+    UNIX/Linux systems.
+
+  - Add support for an Options.FormatOptionHelpText() method that can
+    be overridden to customize the format of Options help text.
+
+  - Add a global name for the Entry class (which had already been
+    documented).
+
+  - Fix re-scanning of generated source files for implicit dependencies
+    when the -j option is used.
+
+  - Fix a dependency problem that caused $LIBS scans to not be added
+    to all of the targets in a multiple-target builder call, which
+    could cause out-of-order builds when the -j option is used.
+
+  - Store the paths of source files and dependencies in the .sconsign*
+    file(s) relative to the target's directory, not relative to the
+    top-level SConstruct directory.  This starts to make it possible to
+    subdivide the dependency tree arbitrarily by putting an SConstruct
+    file in every directory and using content signatures.
+
+  - Add support for $YACCHFILESUFFIX and $YACCHXXFILESUFFIX variables
+    that accomodate parser generators that write header files to a
+    different suffix than the hard-coded .hpp when the -d option is used.
+
+  - The default behavior is now to store signature information in a
+    single .sconsign.dblite file in the top-level SConstruct directory.
+    The old behavior of a separate .sconsign file in each directory can
+    be specified by calling SConsignFile(None).
+
+  - Remove line number byte codes within the signature calculation
+    of Python function actions, so that changing the location of an
+    otherwise unmodified Python function doesn't cause rebuilds.
+
+  - Fix AddPreAction() and AddPostAction() when an action has more than
+    one target file:  attach the actions to the Executor, not the Node.
+
+  - Allow the source directory of a BuildDir / build_dir to be outside
+    of the top-level SConstruct directory tree.
+
+  - Add a --debug=nomemoizer option that disables the Memoizer for clearer
+    looks at the counts and profiles of the underlying function calls,
+    not the Memoizer wrappers.
+
+  - Print various --debug= stats even if we exit early (e.g. using -h).
+
+  - Really only use the cached content signature value if the file
+    is older than --max-drift, not just if --max-drift is set.
+
+  - Remove support for conversion from old (pre 0.96) .sconsign formats.
+
+  - Add support for a --diskcheck option to enable or disable various
+    on-disk checks:  that File and Dir nodes match on-disk entries;
+    whether an RCS file exists for a missing source file; whether an
+    SCCS file exists for a missing source file.
+
+  - Add a --raw argument to the sconsign script, so it can print a
+    raw representation of each entry's NodeInfo dictionary.
+
+  - Add the 'f90' and 'f95' tools to the list of Fortran compilers
+    searched for by default.
+
+  - Add the +Z option by default when compiling shared objects on
+    HP-UX.
+
+  From Chen Lee:
+
+  - Handle Visual Studio project and solution files in Unicode.
+
+  From Sanjoy Mahajan:
+
+  - Fix a bad use of Copy() in an example in the man page, and a
+    bad regular expression example in the man page and User's Guide.
+
+  From Shannon Mann:
+
+  - Have the Visual Studio project file(s) echo "Starting SCons" before
+    executing SCons, mainly to work around a quote-stripping bug in
+    (some versions of?) the Windows cmd command executor.
+
+  From Georg Mischler:
+
+  - Remove the space after the -o option when invoking the Borland
+    BCC compiler; some versions apparently require that the file name
+    argument be concatenated with the option.
+
+  From Leanid Nazdrynau:
+
+  - Fix the Java parser's handling of backslashes in strings.
+
+  From Greg Noel:
+
+  - Add construction variables to support frameworks on Mac OS X:
+    $FRAMEWORKS, $FRAMEWORKPREFIX, $FRAMEWORKPATH, $FRAMEWORKPATHPREFIX.
+
+  - Re-order link lines so the -o option always comes right after the
+    command name.
+
+  From Gary Oberbrunner:
+
+  - Add support for Intel C++ beta 9.0 (both 32 and 64 bit versions).
+
+  - Document the new $FRAMEWORK* variables for Mac OS X.
+
+  From Karol Pietrzak:
+
+  - Add $RPATH (-R) support to the Sun linker Tool (sunlink).
+
+  - Add a description of env.subst() to the man page.
+
+  From Chris Prince:
+
+  - Look in the right directory, not always the local directory, for a
+    same-named file or directory conflict on disk.
+
+  - On Windows, preserve the external environment's %SYSTEMDRIVE%
+    variable, too.
+
+  From Craig Scott:
+
+  - Have the Fortran module emitter look for Fortan modules to be created
+    relative to $FORTRANMODDIR, not the top-level directory.
+
+  - When saving Options to a file, run default values through the
+    converter before comparing them with the set values.  This correctly
+    suppresses Boolean Option values from getting written to the saved
+    file when they're one of the many synonyms for a default True or
+    False value.
+
+  - Fix the Fortran Scanner's ability to handle a module being used
+    in the same file in which it is defined.
+
+  From Steve-o:
+
+  - Add the -KPIC option by default when compiling shared objects on
+    Solaris.
+
+  - Change the default suffix for Solaris objects to .o, to conform to
+    Sun WorkShop's expectations.  Change the profix to so_ so they can
+    still be differentiated from static objects in the same directory.
+
+  From Amir Szekely:
+
+  - When calling the resource compiler on MinGW, add --include-dir and
+    the source directory so it finds the source file.
+
+  - Update EnsureSConsVersion() to support revision numbers.
+
+  From Greg Ward:
+
+  - Fix a misplaced line in the man page.

@@ -1,0 +1,71 @@
+RELEASE 0.03 - Fri, 11 Jan 2002 01:09:30 -0600
+
+  From Charles Crain:
+
+  - Performance improvements in the Node.FS and Sig.Calculator classes.
+
+  - Add the InstallAs() method.
+
+  - Execute commands through an external interpreter (sh, cmd.exe, or
+    command.com) to handle redirection metacharacters.
+
+  - Allow the user to supply a command handler.
+
+  From Steven Knight:
+
+  - Search both /usr/lib and /usr/local/lib for scons directories by
+    adding them both to sys.path, with whichever is in sys.prefix first.
+
+  - Fix interpreting strings of multiple white-space separated file names
+    as separate file names, allowing prefixes and suffixes to be appended
+    to each individually.
+
+  - Refactor to move CompositeBuilder initialization logic from the
+    factory wrapper to the __init__() method, and allow a Builder to
+    have both an action and a src_builder (or array of them).
+
+  - Refactor BuilderBase.__call__() to separate Node creation/lookup
+    from initialization of the Node's builder information.
+
+  - Add a CFile Builder object that supports turning lex (.l) and
+    yacc (.y) files into .c files.
+
+  - Document: variable interpretation attributes; how to propogate
+    the user's environment variables to executed commands; how to
+    build variants in multiple BuildDirs.
+
+  - Collect String, Dict, and List type-checking in common utility
+    routines so we can accept User{String,Dict,List}s all over.
+
+  - Put the Action factory and classes into their own module.
+
+  - Use one CPlusPlusAction in the Object Builder's action dictionary,
+    instead of letting it create multiple identical instances.
+
+  - Document the Install() and InstallAs() methods.
+
+  From Steve Leblanc:
+
+  - Require that a Builder be given a name argument, supplying a
+    useful error message when it isn't.
+
+  From Anthony Roach:
+
+  - Add a "duplicate" keyword argument to BuildDir() that can be set
+    to prevent linking/copying source files into build directories.
+
+  - Add a "--debug=tree" option to print an ASCII dependency tree.
+
+  - Fetch the location of the Microsoft Visual C++ compiler(s) from
+    the Registry, instead of hard-coding the location.
+
+  - Made Scanner objects take Nodes, not path names.
+
+  - Have the C Scanner cache the #include file names instead of
+    (re-)scanning the file each time it's called.
+
+  - Created a separate class for parent "nodes" of file system roots,
+    eliminating the need for separate is-parent-null checks everywhere.
+
+  - Removed defined __hash__() and __cmp() methods from FS.Entry, in
+    favor of Python's more efficient built-in identity comparisons.

@@ -1,0 +1,96 @@
+RELEASE 0.12 - Thu, 27 Mar 2003 23:52:09 -0600
+
+  From Charles Crain:
+
+  - Added support for the Perforce source code management system.
+
+  - Fix str(Node.FS) so that it returns a path relative to the calling
+    SConscript file's directory, not the top-level directory.
+
+  - Added support for a separate src_dir argument to SConscript()
+    that allows explicit specification of where the source files
+    for an SConscript file can be found.
+
+  - Support more easily re-usable flavors of command generators by
+    calling callable variables when strings are expanded.
+
+  From Steven Knight:
+
+  - Added an INSTALL construction variable that can be set to a function
+    to control how the Install() and InstallAs() Builders install files.
+    The default INSTALL function now copies, not links, files.
+
+  - Remove deprecated features:  the "name" argument to Builder objects,
+    and the Environment.Update() method.
+
+  - Add an Environment.SourceCode() method to support fetching files
+    from source code systems.  Add factory methods that create Builders
+    to support BitKeeper, CVS, RCS, and SCCS.  Add support for fetching
+    files from RCS or SCCS transparently (like GNU Make).
+
+  - Make the internal to_String() function more efficient.
+
+  - Make the error message the same as other build errors when there's a
+    problem unlinking a target file in preparation for it being built.
+
+  - Make TARGET, TARGETS, SOURCE and SOURCES reserved variable names and
+    warn if the user tries to set them in a construction environment.
+
+  - Add support for Tar and Zip files.
+
+  - Better documentation of the different ways to export variables to a
+    subsidiary SConscript file.  Fix documentation bugs in a tools
+    example, places that still assumed SCons split strings on white
+    space, and typos.
+
+  - Support fetching arbitrary files from the TARGETS or SOURCES lists
+    (e.g. ${SOURCES[2]}) when calculating the build signature of a
+    command.
+
+  - Don't silently swallow exceptions thrown by Scanners (or other
+    exceptions while finding a node's dependent children).
+
+  - Push files to CacheDir() before calling the superclass built()
+    method (which may clear the build signature as part of clearing
+    cached implicit dependencies, if the file has a source scanner).
+    (Bug reported by Jeff Petkau.)
+
+  - Raise an internal error if we attempt to push a file to CacheDir()
+    with a build signature of None.
+
+  - Add an explicit Exit() function for terminating early.
+
+  - Change the documentation to correctly describe that the -f option
+    doesn't change to the directory in which the specified file lives.
+
+  - Support changing directories locally with SConscript directory
+    path names relative to any SConstruct file specified with -f.
+    This allows you to build in another directory by simply changing
+    there and pointing at the SConstruct file in another directory.
+
+  - Change the default SConscriptChdir() behavior to change to the
+    SConscript directory while it's being read.
+
+  - Fix an exception thrown when the -U option was used with no
+    Default() target specified.
+
+  - Fix -u so that it builds things in corresponding build directories
+    when used in a source directory.
+
+  From Lachlan O'Dea:
+
+  - Add SharedObject() support to the masm tool.
+
+  - Fix WhereIs() to return normalized paths.
+
+  From Jeff Petkau:
+
+  - Don't copy a built file to a CacheDir() if it's already there.
+
+  - Avoid partial copies of built files in a CacheDir() by copying
+    to a temporary file and renaming.
+
+  From Anthony Roach:
+
+  - Fix incorrect dependency-cycle errors when an Aliased source doesn't
+    exist.

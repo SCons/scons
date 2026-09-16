@@ -1,0 +1,200 @@
+RELEASE 0.96.93 - Mon, 06 Nov 2006 00:44:11 -0600
+
+  NOTE:  This is a pre-release of 0.97 for testing purposes.
+
+  From Anonymous:
+
+  - Allow Python Value Nodes to be Builder targets.
+
+  From Matthias:
+
+  - Only filter Visual Studio common filename prefixes on complete
+    directory names.
+
+  From Chad Austin:
+
+  - Fix the build of the SCons documentation on systems that don't
+    have "python" in the $PATH.
+
+  From Ken Boortz:
+
+  - Enhance ParseConfig() to recognize options that begin with '+'.
+
+  From John Calcote, Elliot Murphy:
+
+  - Document ways to override the CCPDBFLAGS variable to use the
+    Microsoft linker's /Zi option instead of the default /Z7.
+
+  From Christopher Drexler:
+
+  - Make SCons aware bibtex must be called if any \include files
+    cause creation of a bibliography.
+
+  - Make SCons aware that "\bilbiography" in TeX source files means
+    that related .bbl and .blg bibliography files will be created.
+    (NOTE:  This still needs to search for the string in \include files.)
+
+  From David Gruener:
+
+  - Fix inconsistent handling of Action strfunction arguments.
+
+  - Preserve white space in display Action strfunction strings.
+
+  From James Y. Knight and Gerard Patel:
+
+  - Support creation of shared object files from assembly language.
+
+  From Steven Knight:
+
+  - Speed up the Taskmaster significantly by avoiding unnecessary
+    re-scans of Nodes to find out if there's work to be done, having it
+    track the currently-executed top-level target directly and not
+    through its presence on the target list, and eliminating some other
+    minor list(s), method(s) and manipulation.
+
+  - Fix the expansion of $TARGET and $SOURCE in the expansion of
+    $INSTALLSTR displayed for non-environment calls to InstallAs().
+
+  - Fix the ability to have an Alias() call refer to a directory
+    name that's not identified as a directory until later.
+
+  - Enhance runtest.py with an option to use QMTest as the harness.
+    This will become the default behavior as we add more functionality
+    to the QMTest side.
+
+  - Let linking on mingw use the default function that chooses $CC (gcc)
+    or $CXX (g++) depending on whether there are any C++ source files.
+
+  - Work around a bug in early versions of the Python 2.4 profile module
+    that caused the --profile= option to fail.
+
+  - Only call Options validators and converters once when initializing a
+    construction environment.
+
+  - Fix the ability of env.Append() and env.Prepend(), in all known Python
+    versions, to handle different input value types when the construction
+    variable being updated is a dictionary.
+
+  - Add a --cache-debug option for information about what files it's
+    looking for in a CacheDir().
+
+  - Document the difference in construction variable expansion between
+    {Action,Builder}() and env.{Action,Builder}().
+
+  - Change the name of env.Copy() to env.Clone(), keeping the old name
+    around for backwards compatibility (with the intention of eventually
+    phasing it out to avoid confusion with the Copy() Action factory).
+
+  From Arve Knudsen:
+
+  - Support cleaning and scanning SWIG-generated files.
+
+  From Carsten Koch:
+
+  - Allow selection of Visual Studio version by setting $MSVS_VERSION
+    after construction environment initialization.
+
+  From Jean-Baptiste Lab:
+
+  - Try using zipimport if we can't import Tool or Platform modules
+    using the normal "imp" module.  This allows SCons to be packaged
+    using py2exe's all-in-one-zip-file approach.
+
+  From Ben Liblit:
+
+  - Do not re-scan files if the scanner returns no implicit dependencies.
+
+  From Sanjoy Mahajan:
+
+  - Change use of $SOURCES to $SOURCE in all TeX-related Tool modules.
+
+  From Joel B. Mohler:
+
+  - Make SCons aware that "\makeindex" in TeX source files means that
+    related .ilg, .ind and .idx index files will be created.
+    (NOTE:  This still needs to search for the string in \include files.)
+
+  - Prevent scanning the TeX .aux file for additional files from
+    trying to remove it twice when the -c option is used.
+
+  From Leanid Nazdrynau:
+
+  - Give the MSVC RES (resource) Builder a src_builder list and a .rc
+    src_suffix so other builders can generate .rc files.
+
+  From Matthew A. Nicholson:
+
+  - Enhance Install() and InstallAs() to handle directory trees as sources.
+
+  From Jan Nijtmans:
+
+  - Don't use the -fPIC flag when using gcc on Windows (e.g. MinGW).
+
+  From Greg Noel:
+
+  - Add an env.ParseFlags() method that provides separate logic for
+    parsing GNU tool chain flags into a dictionary.
+
+  - Add an env.MergeFlags() method to apply an arbitrary dictionary
+    of flags to a construction environment's variables.
+
+  From Gary Oberbrunner:
+
+  - Fix parsing tripartite Intel C compiler version numbers on Linux.
+
+  - Extend the ParseConfig() function to recognize -arch and
+    -isysroot options.
+
+  - Have the error message list the known suffixes when a Builder call
+    can't build a source file with an unknown suffix.
+
+  From Karol Pietrzak:
+
+  - Avoid recursive calls to main() in the program snippet used by the
+    SConf subsystem to test linking against libraries.  This changes the
+    default behavior of CheckLib() and CheckLibWithHeader() to print
+    "Checking for C library foo..." instead of "Checking for main()
+    in C library foo...".
+
+  From John Pye:
+
+  - Throw an exception if a command called by ParseConfig() or
+    ParseFlags() returns an error.
+
+  From Stefan Seefeld:
+
+  - Initial infrastructure for running SCons tests under QMTest.
+
+  From Sohail Somani:
+
+  - Fix tests that fail due to gcc warnings.
+
+  From Dobes Vandermeer:
+
+  - In stack traces, print the full paths of SConscript files.
+
+  From Atul Varma:
+
+  - Fix detection of Visual C++ Express Edition.
+
+  From Dobes Vandermeer:
+
+  - Let the src_dir option to the SConscript() function affect all the
+    the source file paths, instead of treating all source files paths
+    as relative to the SConscript directory itself.
+
+  From Nicolas Vigier:
+
+  - Fix finding Fortran modules in build directories.
+
+  - Fix use of BuildDir() when the source file in the source directory
+    is a symlink with a relative path.
+
+  From Edward Wang:
+
+  - Fix the Memoizer when the SCons Python modules are executed from
+    .pyo files at different locations from where they were compiled.
+
+  From Johan Zander:
+
+  - Fix missing os.path.join() when constructing the $FRAMEWORKSDKDIR/bin.

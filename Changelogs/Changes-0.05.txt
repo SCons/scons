@@ -1,0 +1,80 @@
+RELEASE 0.05 - Thu, 21 Feb 2002 16:50:03 -0600
+
+  From Chad Austin:
+
+  - Set PROGSUFFIX to .exe under Cygwin.
+
+  From Charles Crain:
+
+  - Allow a library to specified as a command-line source file, not just
+    in the LIBS construction variable.
+
+  - Compensate for a bug in os.path.normpath() that returns '' for './'
+    on WIN32.
+
+  - More performance optimizations:  cache #include lines from files,
+    eliminate unnecessary calls.
+
+  - If a prefix or suffix contains white space, treat the resulting
+    concatenation as separate arguments.
+
+  - Fix irregularities in the way we fetch DevStudio information from
+    the Windows registry, and in our registry error handling.
+
+  From Steven Knight:
+
+  - Flush stdout after print so it intermixes correctly with stderr
+    when redirected.
+
+  - Allow Scanners to return a list of strings, and document how to
+    write your own Scanners.
+
+  - Look up implicit (scanned) dependencies relative to the directory
+    of file being scanned.
+
+  - Make writing .sconsign files more robust by first trying to write
+    to a temp file that gets renamed.
+
+  - Create all of the directories for a list of targets before trying
+    to build any of the targets.
+
+  - WIN32 portability fixes in tests.
+
+  - Allow the list of variables exported to an SConscript file to be
+    a UserList, too.
+
+  - Document the overlooked LIBPATH construction variable.
+    (Bug reported by Eicke Godehardt.)
+
+  - Fix so that Ignore() ignores indirect, implicit dependencies
+    (included files), not just direct dependencies.
+
+  - Put the man page in the Debian distribution.
+
+  - Run HTML docs through tidy to clean up the HTML (for Konqueror).
+
+  - Add preliminary support for Unicode strings.
+
+  - Efficiency:  don't scan dependencies more than once during the
+    walk of a tree.
+
+  - Fix the -c option so it doesn't stop removing targets if one doesn't
+    already exist.
+    (Bug reported by Paul Connell.)
+
+  - Fix the --debug=pdb option when run on Windows NT.
+    (Bug reported by Paul Connell.)
+
+  - Add support for the -q option.
+
+  From Steve Leblanc:
+
+  - Add support for the -u option.
+
+  - Add .cc and .hh file suffixes to the C Scanner.
+
+  From Anthony Roach:
+
+  - Make the scons script return an error code on failures.
+
+  - Add support for using code to generate a command to build a target.
