@@ -25,6 +25,9 @@ SCons - a Software Construction Tool
    :target: https://github.com/SCons/scons/actions?query=workflow%3A%22SCons+Build%22
    :alt: Github Actions
 
+.. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/j178/prek/master/docs/assets/badge-v0.json
+    :target: https://github.com/j178/prek
+    :alt: prek
 
 What is SCons?
 ==============

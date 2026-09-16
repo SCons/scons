@@ -53,4 +53,3 @@ class MSVCSpectreLibsNotFound(MSVCUserError):
 
 class MSVCArgumentError(MSVCUserError):
     pass
-

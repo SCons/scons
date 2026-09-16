@@ -10,4 +10,3 @@ If there is a test that cannot be run, it will be in a
 subdirectory named Old, which will contain a sconstest.skip
 file, ensuring those test files are never loaded by the
 test framework.
-

@@ -14,4 +14,3 @@ export DOCKERGID=$(id -g)
 docker-compose down
 
 cd $OLD_WD
-

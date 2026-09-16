@@ -46,4 +46,3 @@ print(f'"in" operator time: {time_in:.6f} seconds')
 print(f'.find() method time: {time_find:.6f} seconds')
 print(f'"not in" operator time: {time_not_in:.6f} seconds')
 print(f'.find() method time: {time_no_find:.6f} seconds')
-

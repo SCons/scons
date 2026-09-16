@@ -100,7 +100,7 @@ function render_log_callback() {
       msg = msg.replace(/\t/g, ' ' );
       while (msg.charAt(0) == ' ')
         msg = msg.substring(1);
-      
+
       var msg_clipped = msg.substring(0, 66);
       if (msg_clipped.length < msg.length)
         msg_clipped = msg_clipped + "...";
@@ -201,4 +201,3 @@ render_log()
 </script>
 </body>
 </html>
-

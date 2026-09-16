@@ -83,6 +83,10 @@ DEVELOPMENT
   plain, non-namespaced input to namespace-aware stylesheets, which quietly
   produced an empty document; it now falls back to the <fm:Branch> field.
 
+- Added `prek.toml` to support pre-commit hooks.
+
+- Added prek job to `runtest.yml`, ensuring pre-commit hooks are enforced.
+
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text

@@ -13,4 +13,3 @@ docker build --network=host --file Dockerfile \
   -t scons-test-ubuntu19.10:latest -t scons-test-ubuntu19.10:0.0.1 "$@" .
 
 cd $OLD_WD
-

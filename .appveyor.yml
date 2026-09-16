@@ -64,4 +64,3 @@ on_finish:
   - ps: .\.appveyor\coverage_report.ps1
   # running codecov in powershell causes an error so running in cmd
   - cmd: .appveyor\codecov_upload.bat
-

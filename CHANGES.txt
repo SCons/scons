@@ -71,6 +71,8 @@ RELEASE 4.11.0 - Mon, 10 Aug 2026 21:16:00 -0700
       existing test environments into a single package. Adjusted AppVeyor to
       only run for targets unsupported by GitHub runners.
     - Split `SCons.Util.UtilTests.py` to individual packages where appropriate.
+    - Added `prek.toml` to support pre-commit hooks.
+    - Added prek job to `runtest.yml`, ensuring pre-commit hooks are enforced.
 
   From William Deegan:
     - Fix SCons Docbook schema to work with lxml > 5

@@ -233,4 +233,3 @@ def register_iserror(env, tool, msvc_exists_func):
 def reset() -> None:
     debug('')
     _Data.reset()
-
