@@ -33,6 +33,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Reference manual improvements:
       * Additional clarification for SideEffect()
 
+  From Zhaoqi Xu:
+    - ParseDepends() now treats Windows drive-letter colons as part of the
+      path, so a make-style depfile like ``C:\\build\\foo.o: C:\\src\\foo.c``
+      is not split at the first colon.
+
 
 RELEASE 4.11.1 - Mon, 26 Aug 2026 21:16:00 -0700
 
