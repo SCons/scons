@@ -989,7 +989,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions(env=Non
                     ['probe', 'SConstruct'],
                     f"""\
 DefaultEnvironment(tools=[])
-env = Environment(tools=['msvc', 'msvs'], MSVS_VERSION='{version}')
+env = Environment(tools=['msvc', 'mslink', 'mslib', 'msvs'], MSVS_VERSION='{version}')
 env.MSVSProject(
     target='foo.{proj_ext}',
     srcs=['foo.c'],
