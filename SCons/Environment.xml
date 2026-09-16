@@ -1316,7 +1316,6 @@ a function or one of the following strings
 that specify a predefined decider function:
 </para>
 
-<para>
 <variablelist>
 <varlistentry>
 <term><literal>"content"</literal></term>
@@ -1409,7 +1408,6 @@ timestamp, such as can happen when restoring files from backup archives.
 </listitem>
 </varlistentry>
 </variablelist>
-</para>
 
 <para>
 Examples:
@@ -1431,7 +1429,6 @@ argument may be a &Python; function you supply.
 Such a function must accept the following four arguments:
 </para>
 
-<para>
 <variablelist>
 <varlistentry>
 <term><parameter>dependency</parameter></term>
@@ -1493,7 +1490,6 @@ target only exists in a Repository.
 </varlistentry>
 
 </variablelist>
-</para>
 
 <para>
 The
