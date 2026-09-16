@@ -16,6 +16,16 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - ty: Initial support setup within `pyproject.toml`.
     - Removed Python 3.7 & 3.8 support.
 
+  From Vassili Tchersky:
+    - The C/C++ dependency scanners now recognise the C23 #embed directive,
+      so changing an embedded resource file rebuilds the source that embeds
+      it. A quoted name is looked for relative to the including file, a
+      bracketed name in $CPPPATH.
+    - The conditional C scanner (SCons.cpp) no longer includes trailing
+      text in a resolved filename, so the parameters of a #embed line
+      (limit, prefix, suffix, if_empty) and trailing comments on an
+      #include line no longer produce an unusable name.
+
   From William Deegan:
     - Fix documentation processing to work with lxml 6.1.3 and newer, which no
       longer resolves external parameter entities by default (lxml LP#2165901).

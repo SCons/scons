@@ -1196,6 +1196,16 @@ Program('hello', 'hello.c', CPPPATH='.')
 
     <para>
 
+    A related caveat applies to the use of the bracketed form of
+    <literal>#embed</literal>, the scanner does not know about the
+    compiler's <literal>--embed-dir=</literal> option and therefore
+    cannot search the separate resource path. One solution is to add
+    those directories to &cv-link-CPPPATH;.
+
+    </para>
+
+    <para>
+
     In these cases, you may also use the compiler to extract the
     implicit dependencies. &f-link-ParseDepends; can parse the contents of
     the compiler output in the style of &Make;, and explicitly

@@ -198,6 +198,22 @@ test.write('f5.c', """\
 test.write("f5a.h", "\n")
 test.write("f5b.h", "\n")
 
+# C23 #embed, in both the quoted and the bracketed form.
+test.write('f10.c', """\
+#include "f1.h"
+#embed "res1.bin"
+#ifdef EMBED_RES2
+#embed <res2.bin> limit(4)
+#endif
+""")
+
+test.write('res1.bin', """\
+#include "never.h"
+""")
+test.write(['d1', 'res2.bin'], """\
+#include "never.h"
+""")
+
 # define some helpers:
 
 class DummyEnvironment(collections.UserDict):
@@ -467,6 +483,17 @@ class CScannerTestCase15(unittest.TestCase):
             assert suffix in s.get_skeys(env), f"{suffix} not in skeys"
 
 
+class CScannerTestCase16(unittest.TestCase):
+    def runTest(self) -> None:
+        """Find resources named by the C23 #embed directive"""
+        env = DummyEnvironment(CPPPATH=[test.workpath("d1")])
+        s = SCons.Scanner.C.CScanner()
+        path = s.path(env)
+        deps = s(env.File('f10.c'), env, path)
+        headers = ['f1.h', 'res1.bin', 'd1/res2.bin']
+        deps_match(self, deps, headers)
+
+
 class CConditionalScannerTestCase1(unittest.TestCase):
     def runTest(self) -> None:
         """Find local files with no CPPPATH"""
@@ -530,6 +557,24 @@ class CConditionalScannerTestCase4(unittest.TestCase):
             deps = s(env.File('f9b.c'), env, s.path(env))
             headers = ['f9.h']
             deps_match(self, deps, headers)
+
+
+class CConditionalScannerTestCase5(unittest.TestCase):
+    def runTest(self) -> None:
+        """Test that a #embed resource is detected, honouring conditionals."""
+        s = SCons.Scanner.C.CConditionalScanner()
+
+        with self.subTest("conditional #embed not taken"):
+            env = DummyEnvironment(CPPPATH=[test.workpath("d1")])
+            deps = s(env.File('f10.c'), env, s.path(env))
+            deps_match(self, deps, ['f1.h', 'res1.bin'])
+
+        with self.subTest("conditional #embed taken"):
+            env = DummyEnvironment(
+                CPPPATH=[test.workpath("d1")], CPPDEFINES=["EMBED_RES2"]
+            )
+            deps = s(env.File('f10.c'), env, s.path(env))
+            deps_match(self, deps, ['f1.h', 'res1.bin', 'd1/res2.bin'])
 
 
 class dictify_CPPDEFINESTestCase(unittest.TestCase):
