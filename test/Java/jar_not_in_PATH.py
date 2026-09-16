@@ -38,11 +38,12 @@ test = TestSCons.TestSCons()
 test.file_fixture(['Java-fixture', 'myjar.py'])
 
 test.write('SConstruct', """\
-import os
-
-oldpath = os.environ.get('PATH', '')
 DefaultEnvironment(tools=[])
-env = Environment(ENV={'PATH': ['.']}, tools=['javac', 'jar'])
+env = Environment(tools=[])
+oldpath = env['ENV']['PATH']
+env['ENV']['PATH'] = ['.']
+env.Tool('javac')
+env.Tool('jar')
 env['ENV']['PATH'] = oldpath
 env['JAR'] = r'%(_python_)s myjar.py'
 env.Jar(target='test1.jar', source='test1.class')
