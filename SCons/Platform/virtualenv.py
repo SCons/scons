@@ -74,7 +74,13 @@ def _is_path_in(path: str, base: str) -> bool:
     """Check if *path* is located under the *base* directory."""
     if not path or not base:  # empty path or base are possible
         return False
-    rp = os.path.relpath(path, base)
+    try:
+        rp = os.path.relpath(path, base)
+    except ValueError:
+        # Windows raises when *path* and *base* are on different drives
+        # (e.g. virtualenv on W: while PATH entries live on C:). Treat that
+        # as "not under base" instead of crashing (#3614).
+        return False
     return (not rp.startswith(os.path.pardir)) and (not rp == os.path.curdir)
 
 
