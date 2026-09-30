@@ -12,6 +12,10 @@ NOTE: The last release to support Python 3.7 or Python 3.8 is 4.11.1
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From boulea7:
+    - Avoid undefined LATEXSUFFIXES errors when using commands on LaTeX
+      sources without loading a TeX tool and with strict variable substitution.
+
   From Thaddeus Crews:
     - ty: Initial support setup within `pyproject.toml`.
     - Removed Python 3.7 & 3.8 support.

@@ -39,6 +39,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
+- Avoid undefined LATEXSUFFIXES errors when using commands on LaTeX sources
+  without loading a TeX tool and with strict variable substitution.
+
 - Fix ninja to honor AlwaysBuild on a target
 
 - ParseDepends() keeps Windows drive-letter paths in make-style depfiles

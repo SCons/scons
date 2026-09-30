@@ -29,8 +29,11 @@ import unittest
 import TestCmd
 
 import SCons.compat
+import SCons.Environment
+import SCons.Errors
 import SCons.Node.FS
 import SCons.Scanner.LaTeX
+import SCons.Subst
 
 test = TestCmd.TestCmd(workdir = '')
 
@@ -234,6 +237,90 @@ class LaTeXScannerTestCase7(unittest.TestCase):
          deps = s(env.File('test7.latex'), env, path)
          files = ["other.sty", "scons.sty"]
          deps_match(self, deps, files)
+
+
+class LaTeXScannerSuffixTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        self.addCleanup(
+            SCons.Subst.SetAllowableExceptions, *SCons.Subst.AllowableExceptions
+        )
+        SCons.Subst.SetAllowableExceptions()
+        self.env = SCons.Environment.Environment(tools=[])
+        self.node = self.env.File(test.workpath('test2.latex'))
+        self.factories = (
+            SCons.Scanner.LaTeX.LaTeXScanner,
+            SCons.Scanner.LaTeX.PDFLaTeXScanner,
+        )
+
+    def test_missing_latex_suffixes(self) -> None:
+        self.assertNotIn('LATEXSUFFIXES', self.env)
+        for factory in self.factories:
+            with self.subTest(scanner=factory.__name__):
+                self.assertEqual(factory()(self.node, self.env), [])
+
+    def test_empty_latex_suffixes(self) -> None:
+        for suffixes in ([], ''):
+            self.env['LATEXSUFFIXES'] = suffixes
+            for factory in self.factories:
+                with self.subTest(scanner=factory.__name__, suffixes=suffixes):
+                    self.assertEqual(factory()(self.node, self.env), [])
+
+    def test_nonmatching_latex_suffixes(self) -> None:
+        self.env['LATEXSUFFIXES'] = ['.tex']
+        for factory in self.factories:
+            with self.subTest(scanner=factory.__name__):
+                self.assertEqual(factory()(self.node, self.env), [])
+
+    def test_configured_latex_suffixes(self) -> None:
+        self.env['LATEXSUFFIXES'] = ['.latex']
+        self.env['TEXINPUTS'] = [test.workpath('subdir')]
+        expected = [
+            self.env.File(test.workpath('inc1.tex')),
+            self.env.File(test.workpath('subdir', 'inc3.tex')),
+        ]
+        for factory in self.factories:
+            with self.subTest(scanner=factory.__name__):
+                scanner = factory()
+                self.assertEqual(
+                    scanner(self.node, self.env, scanner.path(self.env)), expected
+                )
+
+    def test_custom_suffixes_without_latex_suffixes(self) -> None:
+        self.env['CUSTOMSUFFIXES'] = ['.latex']
+        self.env['TEXINPUTS'] = [test.workpath('subdir')]
+        expected = [
+            self.env.File(test.workpath('inc1.tex')),
+            self.env.File(test.workpath('subdir', 'inc3.tex')),
+        ]
+        for suffixes in (['.latex'], '.latex', '$CUSTOMSUFFIXES'):
+            with self.subTest(suffixes=suffixes):
+                scanner = SCons.Scanner.LaTeX.LaTeX(
+                    name='CustomLaTeXScanner',
+                    suffixes=suffixes,
+                    graphics_extensions=SCons.Scanner.LaTeX.TexGraphics,
+                )
+                self.assertEqual(
+                    scanner(self.node, self.env, scanner.path(self.env)), expected
+                )
+
+    def test_unresolved_latex_suffixes_raise(self) -> None:
+        self.env['LATEXSUFFIXES'] = ['$UNKNOWN_LATEX_SUFFIX']
+        for factory in self.factories:
+            with self.subTest(scanner=factory.__name__):
+                with self.assertRaisesRegex(
+                    SCons.Errors.UserError, 'UNKNOWN_LATEX_SUFFIX'
+                ):
+                    factory()(self.node, self.env)
+
+    def test_missing_custom_suffixes_raise(self) -> None:
+        scanner = SCons.Scanner.LaTeX.LaTeX(
+            name='CustomLaTeXScanner',
+            suffixes='$CUSTOMSUFFIXES',
+            graphics_extensions=SCons.Scanner.LaTeX.TexGraphics,
+        )
+        with self.assertRaisesRegex(SCons.Errors.UserError, 'CUSTOMSUFFIXES'):
+            scanner(self.node, self.env)
+
 
 if __name__ == "__main__":
     unittest.main()
