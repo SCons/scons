@@ -96,7 +96,6 @@ class UtilTestCase(unittest.TestCase):
         assert splitext('foo.bar') == ('foo', '.bar')
         assert splitext(os.path.join('foo.bar', 'blat')) == (os.path.join('foo.bar', 'blat'), '')
 
-    @unittest.expectedFailure
     @unittest.skipIf(IS_WINDOWS, "make_path_relative UNC bug is POSIX-specific")
     def test_make_path_relative_unc(self) -> None:
         """make_path_relative() must strip the UNC share root like a drive root.
@@ -112,6 +111,61 @@ class UtilTestCase(unittest.TestCase):
         """
         self.assertEqual(make_path_relative('//server/share/file'), 'file')
         self.assertEqual(make_path_relative(r'\\server\share\file'), 'file')
+
+    @unittest.skipIf(IS_WINDOWS, "UNC interpretation is tested on a POSIX host")
+    def test_make_path_relative_unc_boundaries(self) -> None:
+        """Only complete UNC shares receive Windows path interpretation on POSIX."""
+        for path, expected in (
+            ('//server/share', ''),
+            ('//server/share/', ''),
+            (r'\\server\share', ''),
+            ('//server/share/dir/file', 'dir/file'),
+            (r'\\server\share\dir\file', 'dir/file'),
+            (r'//server\share\dir/file', 'dir/file'),
+            ('///usr/local', 'usr/local'),
+            ('//server', 'server'),
+            ('//server/', 'server/'),
+            ('//server//share/file', 'server//share/file'),
+            (r'\\server', r'\\server'),
+            ('', ''),
+            ('/', ''),
+            ('/usr/local', 'usr/local'),
+            ('relative/file', 'relative/file'),
+            (r'relative\file', r'relative\file'),
+            ('C:/local/file', 'C:/local/file'),
+        ):
+            with self.subTest(path=path):
+                self.assertEqual(make_path_relative(path), expected)
+
+    @unittest.skipIf(IS_WINDOWS, "UNC install paths are tested on a POSIX host")
+    def test_unc_install_paths(self) -> None:
+        """UNC install locations must retain their nested layout under DESTDIR."""
+        from SCons.Environment import Environment
+        from SCons.Tool.install import DESTDIR_factory
+
+        env = Environment(tools=[])
+        factory = DESTDIR_factory(env, '#unc-stage')
+        for path in ('//server/share/dir/file', r'\\server\share\dir\file'):
+            with self.subTest(path=path):
+                self.assertIs(factory.Entry(path), factory.dir.Entry('dir/file'))
+                self.assertIs(factory.Dir(path), factory.dir.Dir('dir/file'))
+
+    @unittest.skipIf(IS_WINDOWS, "UNC package paths are tested on a POSIX host")
+    def test_unc_package_paths(self) -> None:
+        """UNC package install locations must retain their nested layout."""
+        from SCons.Environment import Environment
+        from SCons.Tool.packaging import putintopackageroot
+
+        env = Environment(tools=['filesystem'])
+        for index, path in enumerate(
+            ('//server/share/dir/file', r'\\server\share\dir\file')
+        ):
+            with self.subTest(path=path):
+                source = env.File('unc-source-' + str(index))
+                source.Tag('PACKAGING_INSTALL_LOCATION', path)
+                pkgroot = env.Dir('unc-package-' + str(index))
+                _, files = putintopackageroot([], [source], env, pkgroot)
+                self.assertEqual(files, [pkgroot.File('dir/file')])
 
     class Node:
         def __init__(self, name, children=[]) -> None:

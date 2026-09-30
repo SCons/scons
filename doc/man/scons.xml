@@ -5762,7 +5762,8 @@ is not being used.</para>
   <term><replaceable>node</replaceable>.<varname>relpath</varname></term>
   <listitem>
 <para>The build path of the given file or directory relative to
-the project top directory.</para>
+the project top directory. If the node is on a different Windows drive
+or UNC share, the absolute path is returned.</para>
   </listitem>
   </varlistentry>
 
@@ -7607,7 +7608,9 @@ These are known as <firstterm>special attributes</firstterm>.
   <member><parameter>filebase</parameter> - Like <parameter>file</parameter> but minus its suffix.</member>
   <member><parameter>suffix</parameter> - Just the file suffix.</member>
   <member><parameter>abspath</parameter> - The absolute path name of the file.</member>
-  <member><parameter>relpath</parameter> - The path name of the file relative to the project top directory.</member>
+  <member><parameter>relpath</parameter> - The path name of the file relative
+  to the project top directory, or its absolute path when it is on a different
+  Windows drive or UNC share.</member>
   <member><parameter>posix</parameter> -
     The path with directories separated by forward slashes
     (<emphasis role="bold">/</emphasis>).

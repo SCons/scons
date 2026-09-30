@@ -53,6 +53,7 @@ from __future__ import annotations
 
 import copy
 import logging
+import ntpath
 import os
 import re
 import sys
@@ -1254,7 +1255,15 @@ class Unbuffered:
         return getattr(self.file, attr)
 
 def make_path_relative(path) -> str:
-    """Converts an absolute path name to a relative pathname."""
+    """Make a path relative, stripping complete UNC share roots on every host."""
+
+    unc_path = os.fspath(path)
+    if isinstance(unc_path, str) and re.match(
+        r'^[\\/]{2}[^\\/]+[\\/][^\\/]+(?:[\\/]|$)', unc_path
+    ):
+        # UNC install paths use the same share root on every host platform.
+        _, tail = ntpath.splitdrive(unc_path)
+        return tail.lstrip('/\\').replace('\\', os.sep)
 
     if os.path.isabs(path):
         drive_s, path = os.path.splitdrive(path)
