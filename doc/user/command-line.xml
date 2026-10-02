@@ -258,16 +258,10 @@ if not GetOption('help'):
 
       <para>
 
-      In general, the string that you pass to the
-      &f-GetOption; function to fetch the value of a command-line
-      option setting is the same as the "most common" long option name
-      (beginning with two hyphen characters),
-      although there are some exceptions.
-      The list of &SCons; command-line options
-      and the &f-GetOption; strings for fetching them,
-      are available in the
-      <xref linkend="sect-command-line-option-strings"></xref> section,
-      below.
+      In general, the string you pass to &f-GetOption; matches the
+      long form of the option name.
+      The strings used to get option values are listed in the
+      documentation for &f-link-GetOption;.
 
       </para>
 
@@ -293,13 +287,11 @@ if not GetOption('help'):
 
       <para>
 
-      You can also set the values of certain (but not all) &SCons;
-      command-line options from within the &SConscript; files
-      by using the &f-link-SetOption; function.
-      The strings that you use to set the values of &SCons;
-      command-line options are available in the
-      <xref linkend="sect-command-line-option-strings"></xref> section,
-      below.
+      You can also set the values of certain &SCons; command-line options
+      directly in your &SConscript; files using the &f-SetOption; function.
+      The strings used to set option values are listed in the
+      documentation for &f-link-SetOption; - not all of the options
+      are settable.
 
       </para>
 
@@ -409,223 +401,25 @@ foo.in
 
       <para>
 
-      The strings that you can pass to the &f-link-GetOption;
-      and &f-link-SetOption; functions usually correspond to the
-      first long-form option name
-      (that is,  name beginning with two hyphen characters:  <literal>--</literal>),
-      after replacing any remaining hyphen characters
-      with underscores.
+      The strings passed to &f-link-GetOption; and &f-link-SetOption;
+      usually correspond to the first long-form option name,
+      omitting the leading hyphens <literal>--</literal>,
+      and with embedded hyphens replaced by underscores.
+      The descriptions of those two functions show the list available
+      to each (note that if you follow the hyperlinks from here,
+      the hyperlinks to specific option descriptions in those
+      tables won't work - use the reference manual version for those).
 
       </para>
 
       <para>
 
-      &SetOption; works for options added with &AddOption;,
-      but only if they were created with
-      <parameter>settable=True</parameter> in the call to &AddOption;
-      (only available in SCons 4.8.0 and later).
+      &SetOption; can also be used for custom options added via &AddOption;,
+      provided they were registered with
+      <parameter>settable=True</parameter> in the &AddOption; call
+      (available since &SCons; 4.8.0).
 
       </para>
-
-      <para>
-
-      The full list of strings and the variables they
-      correspond to is as follows:
-
-      </para>
-
-      <informaltable>
-      <tgroup cols="2" align="left">
-
-      <thead>
-
-      <row>
-      <entry>String for &GetOption; and &SetOption;</entry>
-      <entry>Command-Line Option(s)</entry>
-      </row>
-
-      </thead>
-
-      <tbody>
-
-      <row>
-      <entry><literal>cache_debug</literal></entry>
-      <entry><option>--cache-debug</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>cache_disable</literal></entry>
-      <entry><option>--cache-disable</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>cache_force</literal></entry>
-      <entry><option>--cache-force</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>cache_show</literal></entry>
-      <entry><option>--cache-show</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>clean</literal></entry>
-      <entry><option>-c</option>,
-           <option>--clean</option>,
-           <option>--remove</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>config</literal></entry>
-      <entry><option>--config</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>directory</literal></entry>
-      <entry><option>-C</option>,
-             <option>--directory</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>diskcheck</literal></entry>
-      <entry><option>--diskcheck</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>duplicate</literal></entry>
-      <entry><option>--duplicate</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>file</literal></entry>
-      <entry><option>-f</option>,
-             <option>--file</option>,
-             <option>--makefile </option>,
-             <option>--sconstruct</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>help</literal></entry>
-      <entry><option>-h</option>,
-             <option>--help</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>ignore_errors</literal></entry>
-      <entry><option>--ignore-errors</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>implicit_cache</literal></entry>
-      <entry><option>--implicit-cache</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>implicit_deps_changed</literal></entry>
-      <entry><option>--implicit-deps-changed</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>implicit_deps_unchanged</literal></entry>
-      <entry><option>--implicit-deps-unchanged</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>interactive</literal></entry>
-      <entry><option>--interact</option>,
-             <option>--interactive</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>keep_going</literal></entry>
-      <entry><option>-k</option>,
-             <option>--keep-going</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>max_drift</literal></entry>
-      <entry><option>--max-drift</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>no_exec</literal></entry>
-      <entry><option>-n</option>,
-             <option>--no-exec</option>,
-             <option>--just-print</option>,
-             <option>--dry-run</option>,
-             <option>--recon</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>no_progress</literal></entry>
-      <entry><option>-Q</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>no_site_dir</literal></entry>
-      <entry><option>--no-site-dir</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>num_jobs</literal></entry>
-      <entry><option>-j</option>,
-             <option>--jobs</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>profile_file</literal></entry>
-      <entry><option>--profile</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>question</literal></entry>
-      <entry><option>-q</option>,
-             <option>--question</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>random</literal></entry>
-      <entry><option>--random</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>repository</literal></entry>
-      <entry><option>-Y</option>,
-             <option>--repository</option>,
-             <option>--srcdir</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>silent</literal></entry>
-      <entry><option>-s</option>,
-             <option>--silent</option>,
-             <option>--quiet</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>site_dir</literal></entry>
-      <entry><option>--site-dir</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>stack_size</literal></entry>
-      <entry><option>--stack-size</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>taskmastertrace_file</literal></entry>
-      <entry><option>--taskmastertrace</option></entry>
-      </row>
-
-      <row>
-      <entry><literal>warn</literal></entry>
-      <entry><option>--warn</option> <option>--warning</option></entry>
-      </row>
-
-      </tbody>
-
-      </tgroup>
-      </informaltable>
 
     </section>
 
@@ -671,10 +465,10 @@ foo.in
 
       <para>
 
-      &f-link-SetOption; works for options added with &AddOption;,
-      but only if they were created with
-      <parameter>settable=True</parameter> in the call to &AddOption;
-      (only available in SCons 4.8.0 and later).
+      &f-link-SetOption; can also set values for custom options,
+      provided they were created with <parameter>settable=True</parameter>
+      in the call to &AddOption;
+      (available since &SCons; 4.8.0).
 
       </para>
 
