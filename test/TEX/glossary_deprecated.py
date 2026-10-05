@@ -23,11 +23,14 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""
-Validate the use of \newglossary in TeX source files in conjunction
-with variant_dir.
+r"""
+Validate that use of the legacy \makeglossary command (from the obsolete
+glossary.sty package) produces a deprecation warning advising use of
+\makeglossaries with the glossaries package instead.
 
-Test configuration contributed by Kendrick Boyd.
+The warning fires during dependency analysis (the emitter), so it appears
+even if the obsolete glossary.sty package is not installed and the
+LaTeX build itself fails.
 """
 
 import subprocess
@@ -40,72 +43,42 @@ latex = test.where_is('latex')
 if not latex:
     test.skip_test("Could not find 'latex'; skipping test.\n")
 
-makeindex = test.where_is('makeindex')
-if not makeindex:
-    test.skip_test("Could not find 'makeindex'; skipping test.\n")
-
-cp = subprocess.run('kpsewhich glossaries.sty', shell=True)
-if cp.returncode:
-    test.skip_test("glossaries.sty not installed; skipping test.\n")
-
-test.subdir(['src'])
-
-test.write(['SConstruct'], r"""
+test.write(
+    'SConstruct',
+    """\
 import os
+env = Environment(tools = ['latex'], ENV = {'PATH' : os.environ['PATH']})
+env.DVI('glossary', 'glossary.ltx')
+""",
+)
 
-env = Environment(TOOLS = ['tex', 'latex'])
-Export(['env'])
+test.write(
+    'glossary.ltx',
+    r"""
+\documentclass{article}
 
-SConscript(os.path.join('src','SConscript'), variant_dir='build/', duplicate=1)
-""")
+\usepackage{glossary}
 
-test.write(['src', 'SConscript'], r"""
-Import('env')
+\makeglossary
 
-test_pdf = env.PDF(source='test.tex')
-
-""")
-
-test.write(['src', 'test.tex'], r"""
-\documentclass{report}
-
-\usepackage{glossaries}
-
-\newglossary[ntg]{notation}{nts}{nto}{List of Notation}
-
-\makeglossaries
-
-\newglossaryentry{pi}{type=notation, name={$\pi$}, description={ratio
-    of circumference to diameter of a circle}}
 
 \begin{document}
 
-\glsaddall
+A glossary entry \glossary{name={gnu}, description={an animal or software group}}.
 
-\printglossary[type=notation, style=list]
+\printglossary
 
 \end{document}
-""")
+""",
+)
 
-test.run(arguments = '.', stderr = None)
+cp = subprocess.run('kpsewhich glossary.sty', shell=True)
+# If glossary.sty is installed the build succeeds (status 0), otherwise it fails (status 2)
+expected_status = 0 if cp.returncode == 0 else 2
 
-files = [
-    'test.aux',
-    'test.fls',
-    'test.glg',
-    'test.glo',
-    'test.gls',
-    'test.ist',
-    'test.log',
-    'test.ntg',
-    'test.nto',
-    'test.nts',
-    'test.pdf',
-]
+test.run(arguments='.', stderr=None, status=expected_status)
 
-for f in files:
-    test.must_exist(['build',f])
-    test.must_not_exist(['src',f])
-
+deprecation_msg = "Found \\makeglossary in"
+test.must_contain_any_line(test.stderr(), [deprecation_msg])
 
 test.pass_test()
