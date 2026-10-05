@@ -183,5 +183,21 @@ class PathListTestCase(unittest.TestCase):
         assert x1 is not x3, (x1, x3)
 
 
+
+    def test_PathList_split_memo_key(self) -> None:
+        """PathList memo key includes split so True/False do not collide (#4678)."""
+        cache = SCons.PathList.PathList.__self__
+        k_true = cache._PathList_key('a:b', True)
+        k_false = cache._PathList_key('a:b', False)
+        self.assertNotEqual(k_true, k_false)
+        self.assertEqual(k_true[1], True)
+        self.assertEqual(k_false[1], False)
+
+        a = SCons.PathList.PathList('a:b', True)
+        b = SCons.PathList.PathList('a:b', False)
+        self.assertIsNot(a, b)
+        self.assertIs(a, SCons.PathList.PathList('a:b', True))
+        self.assertIs(b, SCons.PathList.PathList('a:b', False))
+
 if __name__ == "__main__":
     unittest.main()

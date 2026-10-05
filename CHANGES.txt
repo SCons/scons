@@ -45,6 +45,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       path, so a make-style depfile like ``C:\\build\\foo.o: C:\\src\\foo.c``
       is not split at the first colon.
 
+  From 20000419:
+    - PathList memoization now includes the ``split`` flag in the cache key,
+      so ``PathList(..., split=False)`` (used when ``LIBLITERALPREFIX`` equals
+      ``os.pathsep``) no longer raises ``TypeError`` under ``--debug=memoizer``.
 
 RELEASE 4.11.1 - Mon, 26 Aug 2026 21:16:00 -0700
 

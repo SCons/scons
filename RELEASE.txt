@@ -44,6 +44,10 @@ FIXES
 - ParseDepends() keeps Windows drive-letter paths in make-style depfiles
   instead of splitting at the first colon.
 
+- PathList memoization includes the ``split`` flag in the cache key, so
+  ``PathList(..., split=False)`` no longer raises ``TypeError`` under
+  ``--debug=memoizer`` (LIBLITERALPREFIX / os.pathsep case).
+
 - Fix documentation processing to work with lxml 6.1.3 and newer, which no
   longer resolves external parameter entities by default. This affects both
   the SCons documentation build and the docbook tool, which failed on any
