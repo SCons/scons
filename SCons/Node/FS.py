@@ -35,6 +35,7 @@ from __future__ import annotations
 import fnmatch
 import importlib.util
 import os
+import posixpath
 import re
 import shutil
 import stat
@@ -160,6 +161,7 @@ def initialize_do_splitdrive() -> None:
         # _my_splitdrive = os.path.splitdrive
 
         def _my_splitdrive(p):
+            p = p.replace(OS_SEP, '/')
             if p[1:2] == ':':
                 return p[:2], p[2:]
             if p[0:2] == '//':
@@ -882,8 +884,12 @@ class Base(SCons.Node.Node):
         return self.dir.entry_labspath(self.name)
 
     def get_relpath(self) -> str:
-        """Get the path of the file relative to the root SConstruct file's directory."""
-        return os.path.relpath(self.dir.entry_abspath(self.name), self.fs.SConstruct_dir.get_abspath())
+        """Get a path relative to SConstruct, or absolute for a different mount."""
+        path = self.get_abspath()
+        try:
+            return os.path.relpath(path, self.fs.SConstruct_dir.get_abspath())
+        except ValueError:
+            return path
 
     def get_internal_path(self) -> str:
         if self.dir._path == '.':
@@ -1827,6 +1833,11 @@ class Dir(Base):
 
         if self is other:
             result = '.'
+
+        elif (do_splitdrive and isinstance(other, Base)
+              and os.path.normcase(os.path.splitdrive(self.get_abspath())[0])
+              != os.path.normcase(os.path.splitdrive(other.get_abspath())[0])):
+            result = other.get_abspath()
 
         elif other not in self._path_elements:
             try:
@@ -3749,7 +3760,24 @@ class FileFinder:
         """
         if not fd:
             fd = self.default_filedir
-        dir, name = os.path.split(fd)
+        if do_splitdrive and fd.replace(OS_SEP, '/').startswith('//'):
+            fd = fd.replace(OS_SEP, '/').rstrip('/') or '//'
+            parts = fd[2:].split('/')
+            if len(parts) == 2 and all(parts):
+                # A complete share is the first UNC directory we can query on disk.
+                try:
+                    try:
+                        return p.fs.Dir(fd, create=False)
+                    except SCons.Errors.UserError:
+                        if p.fs.isdir(fd):
+                            return p.fs.Dir(fd)
+                except TypeError:
+                    return None
+                return None
+            # Split the server and share as nodes below our common UNC root.
+            dir, name = posixpath.split(fd)
+        else:
+            dir, name = os.path.split(fd)
         if do_splitdrive:
             drive, d = _my_splitdrive(dir)
         else:
@@ -3878,4 +3906,3 @@ def invalidate_node_memos(targets: str | Node | list[str | Node]) -> None:
 EntryNode = Entry
 DirNode = Dir
 FileNode = File
-

@@ -39,6 +39,12 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
+- Fix UNC path lookup with either separator style and use absolute paths
+  when a relative path crosses Windows drives or UNC shares.
+
+- Strip UNC share roots from install and package locations on POSIX,
+  preserving nested directories for native backslash paths.
+
 - Fix ninja to honor AlwaysBuild on a target
 
 - ParseDepends() keeps Windows drive-letter paths in make-style depfiles
@@ -58,9 +64,7 @@ IMPROVEMENTS
   documentation:  performance improvements (describe the circumstances
   under which they would be observed), or major code cleanups
 
-- Add more unit tests for UNC path handling. These tests expose some
-  current issues so they are marked expectedFailure. The intent is to
-  record this information for some future fix cycle.
+- Add more unit tests for UNC path handling.
 
 PACKAGING
 ---------

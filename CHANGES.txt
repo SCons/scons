@@ -12,6 +12,13 @@ NOTE: The last release to support Python 3.7 or Python 3.8 is 4.11.1
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From boulea7:
+    - Fix UNC path lookup with either separator style, including FindFile()
+      lookups and UNC working directories. Relative paths across Windows
+      drives or UNC shares now fall back to the absolute target path.
+    - Strip UNC share roots from install and package locations on POSIX,
+      preserving nested directories for native backslash paths.
+
   From Thaddeus Crews:
     - ty: Initial support setup within `pyproject.toml`.
     - Removed Python 3.7 & 3.8 support.
@@ -41,9 +48,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       outright.
 
   From Mats Wichmann:
-    - Add more unit tests for UNC path handling. These tests expose some
-      current issues so they are marked expectedFailure. The intent is to
-      record this information for some future fix cycle.
+    - Add more unit tests for UNC path handling.
     - Fix the ninja ctrl-c test, which was failing on some platforms.
     - Reference manual improvements:
       * Additional clarification for SideEffect()

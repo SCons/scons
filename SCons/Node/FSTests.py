@@ -1898,7 +1898,7 @@ class FSTestCase(_tempdirTestCase):
         assert p == r"\\computername\sharename", p
 
     def test_unc_filedir_lookup_slash(self) -> None:
-        """Control: FileFinder resolves a forward-slash UNC path to the UNC root."""
+        """FileFinder resolves a forward-slash UNC path to its share directory."""
         save_os_path = os.path
         save_os_sep = os.sep
         try:
@@ -1908,22 +1908,191 @@ class FSTestCase(_tempdirTestCase):
             SCons.Node.FS.initialize_do_splitdrive()
             fs = SCons.Node.FS.FS()
             ff = SCons.Node.FS.FileFinder()
-            unc_root = fs.get_root('//')
-            self.assertIs(ff.filedir_lookup(fs.get_root(''), '//server/share'), unc_root)
+            share = fs.Dir('//server/share')
+            self.assertIs(ff.filedir_lookup(fs.get_root(''), '//server/share'), share)
         finally:
             os.path = save_os_path
             os.sep = save_os_sep
             SCons.Node.FS.initialize_do_splitdrive()
 
-    @unittest.expectedFailure
+    def test_find_file_unc(self) -> None:
+        """FindFile must find derived files beneath a UNC share."""
+        from unittest.mock import patch
+
+        env = SCons.Environment.Environment(tools=[])
+        save_os_path = os.path
+        save_os_sep = os.sep
+        save_normcase = SCons.Node.FS._my_normcase
+        save_diskcheck = SCons.Node.FS.diskcheck_match.func
+        try:
+            import ntpath
+            os.path = ntpath
+            os.sep = '\\'
+            SCons.Node.FS.initialize_do_splitdrive()
+            SCons.Node.FS._my_normcase = str.upper
+            SCons.Node.FS.diskcheck_match.func = SCons.Node.FS.ignore_diskcheck_match
+            fs = SCons.Node.FS.FS()
+            env.fs = fs
+            paths = (fs.Dir('C:/local'),)
+            ff = SCons.Node.FS.FileFinder()
+            for path in (
+                r'\\server\share\header.h',
+                r'\\server\share\include\header.h',
+                r'\\server\other\header.h',
+                r'\\other\share\header.h',
+                r'C:\local\header.h',
+                r'D:\other\header.h',
+            ):
+                node = fs.File(path)
+                node.builder_set(1)
+                for filename in (
+                    path, path.replace('\\', '/'), path.replace('\\', '/', 3),
+                    path.upper(),
+                ):
+                    with self.subTest(filename=filename):
+                        self.assertIs(SCons.Node.FS.find_file(filename, paths), node)
+                        self.assertIs(env.FindFile(filename, paths), node)
+                directory = node.dir.get_abspath()
+                suffixes = ('', '/', '\\') if path.startswith('\\\\') else ('',)
+                for suffix in suffixes:
+                    with self.subTest(directory=directory, suffix=suffix):
+                        self.assertIs(ff.filedir_lookup(paths[0], directory + suffix),
+                                      node.dir)
+            for root in ('//', '\\\\'):
+                self.assertIs(ff.filedir_lookup(paths[0], root), fs.get_root('//'))
+            # Missing entries in this virtual filesystem must not contact a share.
+            with patch.object(os, 'listdir', side_effect=FileNotFoundError), \
+                    patch.object(ntpath, 'exists', return_value=False), \
+                    patch.object(ntpath, 'isdir', return_value=False):
+                for filename in (
+                    r'\\server\missing\header.h',
+                    r'\\server\share\missing\header.h',
+                    r'\\server\share\absent.h',
+                    r'C:\missing\header.h',
+                ):
+                    with self.subTest(filename=filename):
+                        self.assertIsNone(env.FindFile(filename, paths))
+            occupied = fs.File(r'\\server\share\not-a-directory')
+            self.assertIsNone(env.FindFile(occupied.get_abspath() + '/header.h', paths))
+        finally:
+            SCons.Node.FS.diskcheck_match.func = save_diskcheck
+            SCons.Node.FS._my_normcase = save_normcase
+            os.path = save_os_path
+            os.sep = save_os_sep
+            SCons.Node.FS.initialize_do_splitdrive()
+
+    def test_find_file_unc_on_disk(self) -> None:
+        """Find existing UNC files without enumerating a server or UNC umbrella."""
+        import ntpath
+        from unittest.mock import patch
+
+        env = SCons.Environment.Environment(tools=[])
+        queries = []
+        disk = {
+            r'\\server\share': ['header.h', 'include'],
+            r'\\server\share\include': ['nested.h'],
+            r'\\server\other': ['other.h'],
+            r'\\other\share': ['remote.h'],
+            r'C:\local': ['local.h'],
+        }
+        disk = {ntpath.normcase(path): entries for path, entries in disk.items()}
+        files = {
+            ntpath.normcase(ntpath.join(path, name))
+            for path, entries in disk.items() for name in entries if name.endswith('.h')
+        }
+
+        def metadata_stat(path, *args, **kwargs):
+            queries.append(path)
+            path = ntpath.normcase(ntpath.normpath(path))
+            if path in disk:
+                mode = stat.S_IFDIR
+            elif path in files:
+                mode = stat.S_IFREG
+            else:
+                raise FileNotFoundError(path)
+            return os.stat_result((mode, 1, 1, 1, 0, 0, 0, 0, 0, 0))
+
+        def metadata_listdir(path):
+            queries.append(path)
+            path = ntpath.normcase(ntpath.normpath(path))
+            if path not in disk:
+                raise FileNotFoundError(path)
+            return disk[path]
+
+        def metadata_exists(path):
+            queries.append(path)
+            path = ntpath.normcase(ntpath.normpath(path))
+            return path in disk or path in files
+
+        def metadata_isdir(path):
+            queries.append(path)
+            return ntpath.normcase(ntpath.normpath(path)) in disk
+
+        save_os_path = os.path
+        save_os_sep = os.sep
+        save_normcase = SCons.Node.FS._my_normcase
+        save_diskcheck = SCons.Node.FS.diskcheck_match.func
+        try:
+            os.path = ntpath
+            os.sep = '\\'
+            SCons.Node.FS.initialize_do_splitdrive()
+            SCons.Node.FS._my_normcase = str.upper
+            SCons.Node.FS.diskcheck_match.func = SCons.Node.FS.ignore_diskcheck_match
+            with patch.object(sys, 'platform', 'win32'), \
+                    patch.object(os, 'stat', side_effect=metadata_stat), \
+                    patch.object(os, 'listdir', side_effect=metadata_listdir), \
+                    patch.object(ntpath, 'exists', side_effect=metadata_exists), \
+                    patch.object(ntpath, 'isdir', side_effect=metadata_isdir):
+                for filename, exists in (
+                    (r'\\server\share\header.h', True),
+                    ('//server/share/header.h', True),
+                    (r'\\server\share\include\nested.h', True),
+                    ('//server/share/include/nested.h', True),
+                    (r'\\server\other\other.h', True),
+                    (r'\\other\share\remote.h', True),
+                    (r'\\server\missing\header.h', False),
+                    (r'\\server\share\absent.h', False),
+                    (r'\\server\share\missing\header.h', False),
+                    (r'\\server\other\header.h', False),
+                    (r'C:\local\local.h', True),
+                ):
+                    with self.subTest(filename=filename):
+                        queries.clear()
+                        fs = SCons.Node.FS.FS('C:/project')
+                        env.fs = fs
+                        node = env.FindFile(filename, [fs.Dir('C:/local')])
+                        if exists:
+                            self.assertIsInstance(node, SCons.Node.FS.File)
+                            self.assertEqual(ntpath.normcase(node.get_abspath()),
+                                             ntpath.normcase(filename))
+                        else:
+                            self.assertIsNone(node)
+                        for path in queries:
+                            parts = path.replace('\\', '/').split('/')
+                            if path.startswith(('//', '\\\\')):
+                                self.assertGreaterEqual(len([p for p in parts if p]), 2)
+                queries.clear()
+                fs = SCons.Node.FS.FS('C:/project')
+                env.fs = fs
+                derived = fs.File(r'\\offline\share\generated.h')
+                derived.builder_set(1)
+                self.assertIs(env.FindFile(derived.get_abspath(), [fs.Top]), derived)
+                self.assertEqual(queries, [])
+        finally:
+            SCons.Node.FS.diskcheck_match.func = save_diskcheck
+            SCons.Node.FS._my_normcase = save_normcase
+            os.path = save_os_path
+            os.sep = save_os_sep
+            SCons.Node.FS.initialize_do_splitdrive()
+
     def test_unc_filedir_lookup_backslash(self) -> None:
-        """FileFinder must resolve a backslash UNC path to the UNC root.
+        """FileFinder must resolve a backslash UNC path to its share directory.
 
         Unlike :meth:`FS._lookup`, which normalizes backslashes before
         splitting the drive off, :meth:`FileFinder.filedir_lookup` feeds
         the native path straight into ``_my_splitdrive``, which only
         recognizes the ``'//'`` form.  The backslash form bottoms out at
-        the local root (``get_root('')``) instead of the UNC root, so
+        the local root (``get_root('')``) instead of the share directory, so
         ``FindFile()`` and scanner path resolution disagree depending on
         which separator style was used.
         """
@@ -1936,14 +2105,13 @@ class FSTestCase(_tempdirTestCase):
             SCons.Node.FS.initialize_do_splitdrive()
             fs = SCons.Node.FS.FS()
             ff = SCons.Node.FS.FileFinder()
-            unc_root = fs.get_root('//')
-            self.assertIs(ff.filedir_lookup(fs.get_root(''), r'\\server\share'), unc_root)
+            share = fs.Dir(r'\\server\share')
+            self.assertIs(ff.filedir_lookup(fs.get_root(''), r'\\server\share'), share)
         finally:
             os.path = save_os_path
             os.sep = save_os_sep
             SCons.Node.FS.initialize_do_splitdrive()
 
-    @unittest.expectedFailure
     def test_unc_splitdrive_backslash(self) -> None:
         """_my_splitdrive() must treat backslash and slash UNC paths identically.
 
@@ -1970,7 +2138,24 @@ class FSTestCase(_tempdirTestCase):
             os.sep = save_os_sep
             SCons.Node.FS.initialize_do_splitdrive()
 
-    @unittest.expectedFailure
+    def test_unc_default_drive(self) -> None:
+        """A native UNC top directory must alias the default and UNC roots."""
+        save_os_path = os.path
+        save_os_sep = os.sep
+        try:
+            import ntpath
+            os.path = ntpath
+            os.sep = '\\'
+            SCons.Node.FS.initialize_do_splitdrive()
+            fs = SCons.Node.FS.FS(r'\\server\share\build')
+            self.assertEqual(fs.defaultDrive, '//')
+            self.assertIs(fs.get_root(''), fs.get_root('//'))
+            self.assertEqual(fs.Top.get_abspath(), r'\\server\share\build')
+        finally:
+            os.path = save_os_path
+            os.sep = save_os_sep
+            SCons.Node.FS.initialize_do_splitdrive()
+
     def test_get_relpath_unc(self) -> None:
         """get_relpath() must not raise for a UNC target on a different mount than the SConstruct dir.
 
@@ -1980,26 +2165,53 @@ class FSTestCase(_tempdirTestCase):
         / ``$SOURCE.relpath``; it should fall back to the absolute path
         instead of crashing.
         """
+        from unittest.mock import patch
+
+        env = SCons.Environment.Environment(tools=[])
         save_os_path = os.path
         save_os_sep = os.sep
+        save_normcase = SCons.Node.FS._my_normcase
         save_diskcheck = SCons.Node.FS.diskcheck_match.func
         try:
             import ntpath
             os.path = ntpath
             os.sep = '\\'
             SCons.Node.FS.initialize_do_splitdrive()
+            SCons.Node.FS._my_normcase = str.upper
             SCons.Node.FS.diskcheck_match.func = SCons.Node.FS.ignore_diskcheck_match
             fs = SCons.Node.FS.FS()
+            env.fs = fs
             fs.SConstruct_dir = fs.Dir('.')
             f = fs.File(r'\\server\share\proj\src\f.c')
             self.assertEqual(f.get_relpath(), r'\\server\share\proj\src\f.c')
+            for top, path, relative in (
+                (r'C:\local', r'\\server\share\proj\src\f.c', None),
+                (r'\\server\share\proj', r'\\server\other\f.c', None),
+                (r'\\server\share\proj', r'\\other\share\f.c', None),
+                (r'\\server\share\proj', r'C:\local\f.c', None),
+                (r'C:\local', r'D:\other\f.c', None),
+                (r'\\SERVER\SHARE\proj', r'\\server\share\proj\src\f.c',
+                 r'src\f.c'),
+                (r'\\server\share\proj\src', r'\\server\share\proj\f.c',
+                 r'..\f.c'),
+            ):
+                fs.SConstruct_dir = fs.Dir(top)
+                node = fs.File(path)
+                expected = node.get_abspath() if relative is None else relative
+                with self.subTest(top=top, path=path):
+                    self.assertEqual(node.get_relpath(), expected)
+                    # Source substitution also looks for physical repository files.
+                    with patch.object(SCons.Node.FS.File, 'exists', return_value=True):
+                        for variable in ('${TARGET.relpath}', '${SOURCE.relpath}'):
+                            self.assertEqual(env.subst(variable, target=[node],
+                                                       source=[node]), expected)
         finally:
             SCons.Node.FS.diskcheck_match.func = save_diskcheck
+            SCons.Node.FS._my_normcase = save_normcase
             os.path = save_os_path
             os.sep = save_os_sep
             SCons.Node.FS.initialize_do_splitdrive()
 
-    @unittest.expectedFailure
     def test_rel_path_unc_crossroot(self) -> None:
         """rel_path() across a UNC and a local root must yield the target's absolute path.
 
@@ -2010,12 +2222,14 @@ class FSTestCase(_tempdirTestCase):
         """
         save_os_path = os.path
         save_os_sep = os.sep
+        save_normcase = SCons.Node.FS._my_normcase
         save_diskcheck = SCons.Node.FS.diskcheck_match.func
         try:
             import ntpath
             os.path = ntpath
             os.sep = '\\'
             SCons.Node.FS.initialize_do_splitdrive()
+            SCons.Node.FS._my_normcase = str.upper
             SCons.Node.FS.diskcheck_match.func = SCons.Node.FS.ignore_diskcheck_match
             fs = SCons.Node.FS.FS()
             unc = fs.Dir(r'\\server\share\proj')
@@ -2026,8 +2240,26 @@ class FSTestCase(_tempdirTestCase):
             # mirroring the drive-letter behavior.
             self.assertEqual(local.rel_path(unc), unc.get_abspath())
             self.assertEqual(unc.rel_path(local), local.get_abspath())
+            for other in (
+                fs.Dir(r'\\server\other\proj'),
+                fs.Dir(r'\\other\share\proj'),
+                fs.File(r'\\server\other\proj\f.c'),
+                fs.File(r'C:\local\f.c'),
+            ):
+                with self.subTest(other=other.get_abspath()):
+                    self.assertEqual(unc.rel_path(other), other.get_abspath())
+                    self.assertEqual(unc.rel_path(other), other.get_abspath())
+            for path, expected in (
+                (r'\\SERVER\SHARE\proj', '.'),
+                (r'\\server\share', '..'),
+                (r'\\server\share\sibling', r'..\sibling'),
+                (r'\\server\share\proj\f.c', 'f.c'),
+            ):
+                with self.subTest(path=path):
+                    self.assertEqual(unc.rel_path(fs.Entry(path)), expected)
         finally:
             SCons.Node.FS.diskcheck_match.func = save_diskcheck
+            SCons.Node.FS._my_normcase = save_normcase
             os.path = save_os_path
             os.sep = save_os_sep
             SCons.Node.FS.initialize_do_splitdrive()
