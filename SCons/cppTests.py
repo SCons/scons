@@ -32,6 +32,8 @@ import SCons.cpp as cpp
 basic_input = """
 #include "file1-yes"
 #include <file2-yes>
+#embed "file43-yes"
+#embed <file44-yes> limit(4)
 """
 
 
@@ -726,6 +728,8 @@ class PreProcessorTestCase(cppAllTestCase):
     basic_expect = [
         ('include', '"', 'file1-yes'),
         ('include', '<', 'file2-yes'),
+        ('embed', '"', 'file43-yes'),
+        ('embed', '<', 'file44-yes'),
     ]
 
     substitution_expect = [
@@ -862,6 +866,8 @@ class DumbPreProcessorTestCase(cppAllTestCase):
     basic_expect = [
         ('include', '"', 'file1-yes'),
         ('include', '<', 'file2-yes'),
+        ('embed', '"', 'file43-yes'),
+        ('embed', '<', 'file44-yes'),
     ]
 
     substitution_expect = [

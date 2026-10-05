@@ -260,7 +260,8 @@ to each directory in &cv-link-CPPPATH;.
 <para>
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
-directories for include files.
+directories for include files, and for the resources named by
+<literal>#embed</literal> directives which use the angle-bracket form.
 In general, it's not advised to put include directory directives
 directly into &cv-link-CCFLAGS; or &cv-link-CXXFLAGS;
 as the result will be non-portable

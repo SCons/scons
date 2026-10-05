@@ -230,7 +230,7 @@ def CScanner():
         "CScanner",
         "$CPPSUFFIXES",
         "CPPPATH",
-        r'^[ \t]*#[ \t]*(?:include|import)[ \t]*(<|")([^>"]+)(>|")',
+        r'^[ \t]*#[ \t]*(?:include|import|embed)[ \t]*(<|")([^>"]+)(>|")',
     )
     return cs
 
