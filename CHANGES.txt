@@ -36,6 +36,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix the ninja ctrl-c test, which was failing on some platforms.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
+    - User Guide improvements:
+      * Removed the out-of-date table of option names for SetOption and
+        GetOption and instead point to the maintained tables in Appendix D.
 
   From Zhaoqi Xu:
     - ParseDepends() now treats Windows drive-letter colons as part of the

@@ -74,7 +74,10 @@ DOCUMENTATION
   typo fixes, even if they're mentioned in src/CHANGES.txt to give
   the contributor credit)
 
-* Additional clarification for SideEffect() in manpage.
+- Additional clarification for SideEffect() in manpage.
+
+- Removed the out-of-date table of option names for SetOption and
+  GetOption and instead point to the maintained tables in Appendix D.
 
 DEVELOPMENT
 -----------
