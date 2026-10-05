@@ -2092,9 +2092,23 @@ class Base(SubstitutionEnvironment):
             return
         lines = [line for line in lines if not line.startswith('#')]
         tdlist = []
+
+        def split_make_dep_line(line: str) -> tuple[str, str]:
+            """Split make-style depfile line, skipping Windows drive-letter colons."""
+            start = 0
+            while True:
+                idx = line.find(':', start)
+                if idx < 0:
+                    raise ValueError
+                nxt = line[idx + 1 : idx + 2]
+                if nxt in '\\/':
+                    start = idx + 1
+                    continue
+                return line[:idx], line[idx + 1 :]
+
         for line in lines:
             try:
-                target, depends = line.split(':', 1)
+                target, depends = split_make_dep_line(line)
             except (AttributeError, ValueError):
                 # Throws AttributeError if line isn't a string.  Can throw
                 # ValueError if line doesn't split into two or more elements.

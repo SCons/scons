@@ -1897,6 +1897,141 @@ class FSTestCase(_tempdirTestCase):
         p = fs.Dir(r"\\\computername\sharename").get_abspath()
         assert p == r"\\computername\sharename", p
 
+    def test_unc_filedir_lookup_slash(self) -> None:
+        """Control: FileFinder resolves a forward-slash UNC path to the UNC root."""
+        save_os_path = os.path
+        save_os_sep = os.sep
+        try:
+            import ntpath
+            os.path = ntpath
+            os.sep = '\\'
+            SCons.Node.FS.initialize_do_splitdrive()
+            fs = SCons.Node.FS.FS()
+            ff = SCons.Node.FS.FileFinder()
+            unc_root = fs.get_root('//')
+            self.assertIs(ff.filedir_lookup(fs.get_root(''), '//server/share'), unc_root)
+        finally:
+            os.path = save_os_path
+            os.sep = save_os_sep
+            SCons.Node.FS.initialize_do_splitdrive()
+
+    @unittest.expectedFailure
+    def test_unc_filedir_lookup_backslash(self) -> None:
+        """FileFinder must resolve a backslash UNC path to the UNC root.
+
+        Unlike :meth:`FS._lookup`, which normalizes backslashes before
+        splitting the drive off, :meth:`FileFinder.filedir_lookup` feeds
+        the native path straight into ``_my_splitdrive``, which only
+        recognizes the ``'//'`` form.  The backslash form bottoms out at
+        the local root (``get_root('')``) instead of the UNC root, so
+        ``FindFile()`` and scanner path resolution disagree depending on
+        which separator style was used.
+        """
+        save_os_path = os.path
+        save_os_sep = os.sep
+        try:
+            import ntpath
+            os.path = ntpath
+            os.sep = '\\'
+            SCons.Node.FS.initialize_do_splitdrive()
+            fs = SCons.Node.FS.FS()
+            ff = SCons.Node.FS.FileFinder()
+            unc_root = fs.get_root('//')
+            self.assertIs(ff.filedir_lookup(fs.get_root(''), r'\\server\share'), unc_root)
+        finally:
+            os.path = save_os_path
+            os.sep = save_os_sep
+            SCons.Node.FS.initialize_do_splitdrive()
+
+    @unittest.expectedFailure
+    def test_unc_splitdrive_backslash(self) -> None:
+        """_my_splitdrive() must treat backslash and slash UNC paths identically.
+
+        The drive returned for a backslash UNC path is ``''`` instead of
+        the ``'//'`` prefix that the forward-slash form gets.  This also
+        corrupts :attr:`FS.defaultDrive` when the current directory is a
+        UNC path: on Windows ``os.getcwd()`` returns the native backslash
+        form, so ``defaultDrive`` comes out as ``''`` and the ``Root['']``
+        / ``Root['//']`` aliasing in :meth:`FS.get_root` is skipped.
+        """
+        save_os_path = os.path
+        save_os_sep = os.sep
+        try:
+            import ntpath
+            os.path = ntpath
+            os.sep = '\\'
+            SCons.Node.FS.initialize_do_splitdrive()
+            backslash = SCons.Node.FS._my_splitdrive(r'\\server\share\build')
+            slash = SCons.Node.FS._my_splitdrive('//server/share/build')
+            self.assertEqual(backslash[0], slash[0])
+            self.assertEqual(backslash[1], slash[1])
+        finally:
+            os.path = save_os_path
+            os.sep = save_os_sep
+            SCons.Node.FS.initialize_do_splitdrive()
+
+    @unittest.expectedFailure
+    def test_get_relpath_unc(self) -> None:
+        """get_relpath() must not raise for a UNC target on a different mount than the SConstruct dir.
+
+        :meth:`Base.get_relpath` passes the two absolute paths straight
+        to ``os.path.relpath``, which raises ``ValueError`` when they are
+        on different mounts.  This surfaces through ``$TARGET.relpath``
+        / ``$SOURCE.relpath``; it should fall back to the absolute path
+        instead of crashing.
+        """
+        save_os_path = os.path
+        save_os_sep = os.sep
+        save_diskcheck = SCons.Node.FS.diskcheck_match.func
+        try:
+            import ntpath
+            os.path = ntpath
+            os.sep = '\\'
+            SCons.Node.FS.initialize_do_splitdrive()
+            SCons.Node.FS.diskcheck_match.func = SCons.Node.FS.ignore_diskcheck_match
+            fs = SCons.Node.FS.FS()
+            fs.SConstruct_dir = fs.Dir('.')
+            f = fs.File(r'\\server\share\proj\src\f.c')
+            self.assertEqual(f.get_relpath(), r'\\server\share\proj\src\f.c')
+        finally:
+            SCons.Node.FS.diskcheck_match.func = save_diskcheck
+            os.path = save_os_path
+            os.sep = save_os_sep
+            SCons.Node.FS.initialize_do_splitdrive()
+
+    @unittest.expectedFailure
+    def test_rel_path_unc_crossroot(self) -> None:
+        """rel_path() across a UNC and a local root must yield the target's absolute path.
+
+        For two directories on different drive letters rel_path() already
+        returns the target's absolute path (see test_rel_path), but for a
+        UNC-vs-local pair it instead splices together garbage like
+        ``'\\\\\\server\\share\\proj'`` (three backslashes).
+        """
+        save_os_path = os.path
+        save_os_sep = os.sep
+        save_diskcheck = SCons.Node.FS.diskcheck_match.func
+        try:
+            import ntpath
+            os.path = ntpath
+            os.sep = '\\'
+            SCons.Node.FS.initialize_do_splitdrive()
+            SCons.Node.FS.diskcheck_match.func = SCons.Node.FS.ignore_diskcheck_match
+            fs = SCons.Node.FS.FS()
+            unc = fs.Dir(r'\\server\share\proj')
+            local = fs.Dir('C:/local')
+            # Same-share pairs still work.
+            self.assertEqual(unc.rel_path(fs.Dir(r'\\server\share\proj\sub')), 'sub')
+            # Cross-root pairs must give the target's absolute path,
+            # mirroring the drive-letter behavior.
+            self.assertEqual(local.rel_path(unc), unc.get_abspath())
+            self.assertEqual(unc.rel_path(local), local.get_abspath())
+        finally:
+            SCons.Node.FS.diskcheck_match.func = save_diskcheck
+            os.path = save_os_path
+            os.sep = save_os_sep
+            SCons.Node.FS.initialize_do_splitdrive()
+
     def test_rel_path(self) -> None:
         """Test the rel_path() method"""
         test = self.test

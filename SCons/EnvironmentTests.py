@@ -2359,6 +2359,20 @@ f5: \
         assert t == ['f1', 'f2', 'f3', 'f4', 'f5'], t
         assert d == ['foo', 'bar', 'abc', 'def', 'ghi', 'jkl', 'mno'], d
 
+        del tlist[:]
+        del dlist[:]
+
+        test.write('winabs', """
+C:\\build\\f0.o: \\
+   C:\\src\\d1.c \\
+   C:\\src\\d2.h
+""")
+        env.ParseDepends(test.workpath('winabs'))
+        t = list(map(str, tlist))
+        d = list(map(str, dlist))
+        assert t == [r'C:\build\f0.o'], t
+        assert d == [r'C:\src\d1.c', r'C:\src\d2.h'], d
+
         exc_caught = None
         try:
             env.ParseDepends(test.workpath('multiple'), only_one=True)

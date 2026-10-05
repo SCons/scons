@@ -13,4 +13,13 @@ env.Tool('ninja')
 env.Program(target='foo', source='foo.c')
 
 if ARGUMENTS.get('NINJA_DISABLE_AUTO_RUN', 0):
+    # Simulate a terminal Ctrl-C. We have to send two signals: from a terminal,
+    # SIGINT is delivered to the whole foreground process group, including
+    # both ninja and the subprocess scons busy regenerating build.ninja,
+    # however ninja intentionally does not deliver the signal to its children,
+    # so just sending a kill to ninja is not a sufficient to simulate.
+    # This test failed on some platforms because scons continued running,
+    # finished writing the new build.ninja, which thus had a new mtime,
+    # so ninja's shutdown processing would delete it because it's modified.
     os.kill(os.getppid(), signal.SIGINT)
+    os.kill(os.getpid(), signal.SIGINT)
