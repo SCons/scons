@@ -45,7 +45,7 @@ FIXES
   instead of splitting at the first colon.
 
 - IsInVirtualenv() no longer raises ValueError when PATH entries and the
-  virtualenv are on different Windows drives.
+  virtualenv are on different Windows drives (issue #3614).
 
 - Fix documentation processing to work with lxml 6.1.3 and newer, which no
   longer resolves external parameter entities by default. This affects both
