@@ -79,6 +79,14 @@ DOCUMENTATION
 - Removed the out-of-date table of option names for SetOption and
   GetOption and instead point to the maintained tables in Appendix D.
 
+* Added scons-ai.md, a condensed version of the manpage intended for
+  consumption by AI tools, built into build/doc/MD. It keeps every documented
+  option, tool, builder, function and construction variable together with its
+  description, but omits markup, cross-references, examples and version-history
+  notes, making it roughly half the size of scons.1 as measured in tokens. It is
+  generated from the checked-in documentation sources by bin/scons-man-to-ai.py,
+  and can be built with the "ai-manpage" target.
+
 DEVELOPMENT
 -----------
 
