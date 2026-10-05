@@ -905,3 +905,39 @@ Unittest-specific hints
   (``self.assertRaises``), which is more readable than hand-coding something
   with a ``try`` block to check the exception was raised. Please use this!
 
+
+Environment Variables
+=====================
+
+The test framework and test infrastructure scripts recognize several
+environment variables that control test execution behavior.
+These can be set when invoking ``runtest.py`` or when running individual
+test scripts directly.
+
+``FIXTURE_DIRS``
+  Colon-separated (semicolon on Windows) list of directories to search
+  for test fixture files when using the ``dir_fixture()`` or ``file_fixture()``
+  methods. This is typically set automatically by ``runtest.py`` to include
+  the default fixture locations. Custom fixture directories can be added
+  by setting this variable before running tests.
+
+``PRESERVE``
+  If set to a non-zero value, the test working directory is preserved after
+  the test completes, and the path is printed to the console.
+  Useful for debugging - you can examine the generated files and run
+  commands manually in that directory.
+  Example: ``PRESERVE=1 python runtest.py test/some-test.py``
+
+``PRESERVE_PASS``
+  If set to a non-zero value, preserve the test working directory only
+  when the test passes. Use with ``PRESERVE_FAIL`` and ``PRESERVE_NORESULT``
+  to debug tests with specific outcomes.
+
+``PRESERVE_FAIL``
+  If set to a non-zero value, preserve the test working directory only
+  when the test fails.
+
+``PRESERVE_NORESULT``
+  If set to a non-zero value, preserve the test working directory only
+  when the test result is "no result" (a skip).
+
