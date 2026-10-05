@@ -169,6 +169,32 @@ class _is_path_in_TestCase(unittest.TestCase):
                     "_is_path_in(%r, %r) should be True" % args
                 )
 
+    def test_different_drives(self) -> None:
+        # Issue #3614: os.path.relpath raises ValueError across Windows drives.
+        # Paths on another drive must be treated as outside *base*, not crash.
+        if sys.platform == 'win32':
+            cases = [
+                (r'W:\projects\app\.venv\Scripts\python.exe', r'C:\Python39'),
+                (r'C:\foo\bar', r'D:\foo'),
+            ]
+            for args in cases:
+                with self.subTest(args=args):
+                    self.assertIs(
+                        SCons.Platform.virtualenv._is_path_in(*args),
+                        False,
+                    )
+        # Portable coverage for the ValueError path on all platforms.
+        import unittest.mock
+
+        with unittest.mock.patch(
+            'os.path.relpath',
+            side_effect=ValueError("path is on mount 'C:', start on mount 'W:'"),
+        ):
+            self.assertIs(
+                SCons.Platform.virtualenv._is_path_in('a', 'b'),
+                False,
+            )
+
 
 class IsInVirtualenvTestCase(unittest.TestCase):
     def test_false(self) -> None:
