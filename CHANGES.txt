@@ -47,6 +47,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix the ninja ctrl-c test, which was failing on some platforms.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
+      * Split out a new section on Emitters with additional prose and
+        examples, since the information does not exclusively apply to
+        the emitter argument to Builder(). The Builder Objects "emitter"
+        argument section still has some wording, plus a link to the
+        new section.
     - User Guide improvements:
       * Removed the out-of-date table of option names for SetOption and
         GetOption and instead point to the maintained tables in Appendix D.

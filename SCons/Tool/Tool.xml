@@ -511,10 +511,10 @@ determine the version of versioned import library.
 <cvar name="LIBEMITTER">
 <summary>
 <para>
-Contains the emitter specification for the
+A callable or list of callables used as the emitter for the
 &b-link-StaticLibrary; builder.
-The manpage section "Builder Objects" contains
-general information on specifying emitters.
+See the manpage section "Emitter Functions"
+for general emitter behavior.
 </para>
 </summary>
 </cvar>
@@ -535,10 +535,10 @@ specified in the same format as &cv-link-SHLIBVERSION;.
 <cvar name="LDMODULEEMITTER">
 <summary>
 <para>
-Contains the emitter specification for the
+A callable or list of callables used as the emitter for the
 &b-link-LoadableModule; builder.
-The manpage section "Builder Objects" contains
-general information on specifying emitters.
+See the manpage section "Emitter Functions"
+for general emitter behavior.
 </para>
 </summary>
 </cvar>
@@ -546,10 +546,10 @@ general information on specifying emitters.
 <cvar name="SHLIBEMITTER">
 <summary>
 <para>
-Contains the emitter specification for the
+A callable or list of callables used as the emitter for the
 &b-link-SharedLibrary; builder.
-The manpage section "Builder Objects" contains
-general information on specifying emitters.
+See the manpage section "Emitter Functions"
+for general emitter behavior.
 </para>
 </summary>
 </cvar>
@@ -557,10 +557,10 @@ general information on specifying emitters.
 <cvar name="PROGEMITTER">
 <summary>
 <para>
-Contains the emitter specification for the
+A callable or list of callables used as the emitter for the
 &b-link-Program; builder.
-The manpage section "Builder Objects" contains
-general information on specifying emitters.
+See the manpage section "Emitter Functions"
+for general emitter behavior.
 </para>
 </summary>
 </cvar>

@@ -6004,6 +6004,9 @@ Adding new Tool modules is described in
 can be extended to build additional types of targets
 by adding new Builder objects
 to a &consenv;.
+A Builder combines actions, optional emitters,
+optional scanners, and naming rules to create
+target nodes from source nodes.
 <emphasis>In general</emphasis>,
 you should only need to add a new Builder object
 when you want to build a new type of file or other external target.
@@ -6174,7 +6177,7 @@ may be a string or a list of strings.</para>
   <listitem>
 <para>A Scanner object that
 will be invoked to find
-implicit dependencies for this target file.
+implicit dependencies for the Builder's target.
 Use only to specify Scanner objects that find
 implicit dependencies
 based on the target file
@@ -6182,8 +6185,9 @@ and &consenv;,
 <emphasis>not</emphasis>
 for implicit dependencies based on source files
 (use <xref linkend="source_scanner"/> for those).
-See <xref linkend="scanner_objects"/>
-for information about creating your own Scanner objects.</para>
+See <link linkend='scanner_objects'>Scanner Objects</link>
+for information about creating your own Scanner objects.
+</para>
   </listitem>
   </varlistentry>
 
@@ -6194,7 +6198,7 @@ for information about creating your own Scanner objects.</para>
 will be invoked to
 find implicit dependencies in
 any source files
-used to build this target file.
+used to build the Builder's target.
 Use to specify a scanner to
 find things like
 <literal>#include</literal>
@@ -6208,7 +6212,7 @@ for on-disk changes to files
 that
 &scons;
 does not know about from other Builder or function calls.
-See <xref linkend="scanner_objects"/>
+See <link linkend='scanner_objects'>Scanner Objects</link>
 for information about creating your own Scanner objects.</para>
   </listitem>
   </varlistentry>
@@ -6217,10 +6221,10 @@ for information about creating your own Scanner objects.</para>
   <term><parameter>target_factory</parameter></term>
   <listitem>
 <para>A factory function that the Builder will use
-to turn any targets specified as strings into SCons Nodes.
+to turn any targets specified as strings into Nodes.
 By default,
-SCons assumes that all targets are files
-(that is, the default factory is &File;).
+&SCons; assumes that all targets are files
+(that is, the default target factory is &File;).
 Other useful <parameter>target_factory</parameter>
 values include &Dir;
 for when a Builder creates a directory target,
@@ -6255,10 +6259,10 @@ and a circular dependency.</para>
   <term><parameter>source_factory</parameter></term>
   <listitem>
 <para>A factory function that the Builder will use
-to turn any sources specified as strings into SCons Nodes.
+to turn any sources specified as strings into Nodes.
 By default,
-SCons assumes that all source are files
-(that is, the default factory is &File;).
+&SCons; assumes that all source are files
+(that is, the default source factory is &File;).
 Other useful <parameter>source_factory</parameter>
 values include &Dir;
 for when a Builder uses a directory as a source,
@@ -6284,33 +6288,27 @@ env.Collect('archive', 'directory_name')
   <varlistentry id="emitter_function">
   <term><parameter>emitter</parameter></term>
   <listitem>
-<para>A function or list of functions to manipulate the target and source
-lists before dependencies are established
-and the target(s) are actually built.
-<parameter>emitter</parameter>
-can also be a string containing a &consvar; to expand
-to an emitter function or list of functions,
-or a dictionary mapping source file suffixes
-to emitter functions.
-(Only the suffix of the first source file
-is used to select the actual emitter function
-from an emitter dictionary.)</para>
-
-<para>A function passed as <parameter>emitter</parameter>
-must accept three arguments:
-<parameter>source</parameter>,
-<parameter>target</parameter> and
-<parameter>env</parameter>.
-<parameter>source</parameter> is a list of source nodes,
-<parameter>target</parameter> is a list of target nodes,
-<parameter>env</parameter> is the &consenv; to use for context.
+<para>
+The optional <parameter>emitter</parameter> argument
+specifies an emitter function,
+list of emitter functions,
+&consvar; reference,
+or suffix-dispatch mapping used to
+adjust the target and source lists
+before the build nodes are finalized.
+If <parameter>emitter</parameter> is a list,
+the emitters are called in order.
+Each emitter receives the target and source lists
+returned by the previous emitter.
+If <parameter>emitter</parameter> is a mapping,
+only the suffix of the first source file
+will be used to look up the emitter function.
+See the
+<link linkend='emitter_functions'>Emitter Functions</link>
+section for full details.
 </para>
 
-<para>An emitter must return a tuple containing two lists,
-the list of targets to be built by this builder,
-and the list of sources for this builder.</para>
-
-<para>Example:</para>
+<para>Examples:</para>
 
 <programlisting language="python">
 def e(target, source, env):
@@ -7768,6 +7766,156 @@ you should be aware of this issue when using the
 <literal>${python-expression-for-subst}</literal> form.
 </para></caution>
 </refsect3>
+</refsect2>
+
+<refsect2 id="emitter_functions">
+<title>Emitter Functions</title>
+<para>
+An emitter is a Python callable used by a Builder
+to adjust the list of target and source nodes
+or make other adjustments
+after the builder has interpreted the call arguments,
+but before &SCons; finalizes
+the dependency graph for those nodes.
+Emitters are commonly used to add additional targets,
+declare side effects,
+add dependencies,
+or account for files that a tool creates
+in addition to its primary output.
+</para>
+
+<para>
+An emitter function will have a signature like:
+<programlisting language="python">
+def emitter(target, source, env):
+    return target, source
+</programlisting>
+where
+<parameter>target</parameter> is a list of target Nodes,
+<parameter>source</parameter> is a list of source Nodes,
+and <parameter>env</parameter> is the construction environment.
+The implementation requires specifically that naming and order.
+</para>
+
+<para>
+The return value must be a two element sequence composed
+of updated target and source lists.
+The function must return both lists even if unchanged.
+This is because Emitters are composable.
+If an emitter is specified as a list of emitter functions,
+or as a construction variable that resolves into
+a list of emitter functions,
+the list is iterated,
+with each function being applied to the result of the previous one.
+Elements added to <parameter>target</parameter> or
+<parameter>source</parameter>
+can be either strings or File nodes.
+&SCons; will convert strings to File nodes.
+</para>
+
+<para>
+The emitter is called while &SCons; is reading SConscript files
+and creating build nodes,
+not when the external build command is executed.
+It should not attempt build-time operations,
+and not make assumptions like reading generated files,
+which may not exist at SConscript processing time.
+</para>
+
+<para>
+Emitters are usually associated with a Builder by providing
+them as an argument to the &f-link-Builder; factory:
+</para>
+<programlisting>
+def my_emitter(target, source, env):
+    target.append(env.File(str(target[0]) + '.size'))
+    return target, source
+
+bld = Builder(
+    action='mytool -o $TARGET $SOURCE',
+    emitter=my_emitter,
+)
+env.Append(BUILDERS={'MyTool': bld})
+</programlisting>
+<para>
+There are multiple options when specifying emitters this way.
+See the &f-Builder;
+<link linkend='emitter_function'><literal>emitter</literal></link>
+section for further examples.
+</para>
+
+<para>
+For certain common Builders,
+it is possible to modify their Emitter list through a &consvar;,
+rather than writing an entire new Builder.
+For example, the &b-link-SharedLibrary; builder
+used by several linker tools exposes its
+emitter list through &cv-link-SHLIBEMITTER;,
+which can be appended or prepended to
+(it is usually best not to completely replace
+the existing value).
+</para>
+<programlisting>
+def exports_emitter(target, source, env):
+    # Record a generated exports file as an additional build source.
+    return target, source + [env.File('exports.txt')]
+
+env.Append(SHLIBEMITTER=[exports_emitter])
+env.SharedLibrary('mylib', ['mylib.c'])
+</programlisting>
+
+<para>
+Using the &consvar; is the preferred way to extend these builders:
+</para>
+
+<informaltable rowsep="1" colsep="1" frame="topbot">
+<tgroup cols="3">
+<thead>
+  <row>
+    <entry>Consvar</entry>
+    <entry>Builder</entry>
+    <entry>Purpose</entry>
+  </row>
+</thead>
+<tbody>
+  <row>
+    <entry>&cv-link-PROGEMITTER;</entry>
+    <entry>&b-link-Program;</entry>
+    <entry>customize program link target graph</entry>
+  </row>
+  <row>
+    <entry>&cv-link-LIBEMITTER;</entry>
+    <entry>&b-link-Library;</entry>
+    <entry>customize static library targets</entry>
+  </row>
+  <row>
+    <entry>&cv-link-SHLIBEMITTER;</entry>
+    <entry>&b-link-SharedLibrary;</entry>
+    <entry>customize shared library targets, versioned/symlinked outputs</entry>
+  </row>
+  <row>
+    <entry>&cv-link-LDMODULEEMITTER;</entry>
+    <entry>&b-link-LoadableModule;</entry>
+    <entry>customize program loadable module targets</entry>
+  </row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>
+When the &consvar; mechanism is used,
+it can be given as an override on a per-call basis,
+so the changes apply only to the sources and targets
+of that specific builder call.
+Remember that an override assignment replaces the value
+from the environment,
+so use this carefully — existing emitters may be necessary
+for your build to function.
+<programlisting>
+env.Program('app', ['main.c'], PROGEMITTER=[link_emitter])
+</programlisting>
+</para>
+
 </refsect2>
 
 <refsect2 id='scanner_objects'>
