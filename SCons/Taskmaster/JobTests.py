@@ -27,7 +27,6 @@ import math
 import os
 
 import SCons.Taskmaster.Job
-from SCons.Script.Main import OptionsParser
 
 
 def get_cpu_nums():
@@ -244,24 +243,7 @@ class Taskmaster:
         pass
 
 
-SaveThreadPool = None
-ThreadPoolCallList = []
-
-
-class JobTestCase(unittest.TestCase):
-    """
-    Setup common items needed for many Job test cases
-    """
-    def setUp(self) -> None:
-        """
-        Simulating real options parser experimental value.
-        Since we're in a unit test we're actually using FakeOptionParser()
-        Which has no values and no defaults.
-        """
-        OptionsParser.values.experimental = []
-
-
-class ParallelTestCase(JobTestCase):
+class ParallelTestCase(unittest.TestCase):
     def runTest(self):
         """test parallel jobs"""
 
@@ -285,51 +267,6 @@ class ParallelTestCase(JobTestCase):
         self.assertFalse(taskmaster.num_failed,
                     "some task(s) failed to execute")
 
-        # Verify that parallel jobs will pull all of the completed tasks
-        # out of the queue at once, instead of one by one.  We do this by
-        # replacing the default ThreadPool class with one that records the
-        # order in which tasks are put() and get() to/from the pool, and
-        # which sleeps a little bit before call get() to let the initial
-        # tasks complete and get their notifications on the resultsQueue.
-
-        class SleepTask(Task):
-            def _do_something(self) -> None:
-                time.sleep(0.01)
-
-        global SaveThreadPool
-        SaveThreadPool = SCons.Taskmaster.Job.ThreadPool
-
-        class WaitThreadPool(SaveThreadPool):
-            def put(self, task):
-                ThreadPoolCallList.append('put(%s)' % task.i)
-                return SaveThreadPool.put(self, task)
-            def get(self):
-                time.sleep(0.05)
-                result = SaveThreadPool.get(self)
-                ThreadPoolCallList.append('get(%s)' % result[0].i)
-                return result
-
-        SCons.Taskmaster.Job.ThreadPool = WaitThreadPool
-
-        try:
-            taskmaster = Taskmaster(3, self, SleepTask)
-            OptionsParser.values.experimental.append('legacy_sched_deprecated')
-            jobs = SCons.Taskmaster.Job.Jobs(2, taskmaster)
-            OptionsParser.values.experimental.pop()
-            jobs.run()
-
-            # The key here is that we get(1) and get(2) from the
-            # resultsQueue before we put(3), but get(1) and get(2) can
-            # be in either order depending on how the first two parallel
-            # tasks get scheduled by the operating system.
-            expect = [
-                ['put(1)', 'put(2)', 'get(1)', 'get(2)', 'put(3)', 'get(3)'],
-                ['put(1)', 'put(2)', 'get(2)', 'get(1)', 'put(3)', 'get(3)'],
-            ]
-            assert ThreadPoolCallList in expect, ThreadPoolCallList
-
-        finally:
-            SCons.Taskmaster.Job.ThreadPool = SaveThreadPool
 
 class SerialTestCase(unittest.TestCase):
     def runTest(self) -> None:
@@ -369,7 +306,7 @@ class SerialExceptionTestCase(unittest.TestCase):
                     "exactly one task should have been postprocessed")
 
 
-class ParallelExceptionTestCase(JobTestCase):
+class ParallelExceptionTestCase(unittest.TestCase):
 
     def runTest(self) -> None:
         """test parallel jobs with tasks that raise exceptions"""
@@ -440,7 +377,7 @@ class badpreparenode (badnode):
         raise Exception('badpreparenode exception')
 
 
-class _SConsTaskTest(JobTestCase):
+class _SConsTaskTest(unittest.TestCase):
 
     def _test_seq(self, num_jobs) -> None:
         for node_seq in [
@@ -528,17 +465,9 @@ class SerialTaskTest(_SConsTaskTest):
         """test serial jobs with actual Taskmaster and Task"""
         self._test_seq(1)
 
-        # Now run test with LegacyParallel
-        OptionsParser.values.experimental=['legacy_sched_deprecated']
-        self._test_seq(1)
-
 class ParallelTaskTest(_SConsTaskTest):
     def runTest(self) -> None:
         """test parallel jobs with actual Taskmaster and Task"""
-        self._test_seq(num_jobs)
-
-        # Now run test with LegacyParallel
-        OptionsParser.values.experimental=['legacy_sched_deprecated']
         self._test_seq(num_jobs)
 
 

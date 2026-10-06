@@ -36,13 +36,19 @@ test = TestSCons.TestSCons()
 test.file_fixture('fixture/SConstruct__taskmastertrace', 'SConstruct')
 test.file_fixture('fixture/taskmaster_expected_stdout_1.txt', 'taskmaster_expected_stdout_1.txt')
 test.file_fixture('fixture/taskmaster_expected_file_1.txt', 'taskmaster_expected_file_1.txt')
-test.file_fixture('fixture/taskmaster_expected_new_parallel.txt', 'taskmaster_expected_new_parallel.txt')
+test.file_fixture('fixture/taskmaster_expected_parallel.txt', 'taskmaster_expected_parallel.txt')
 
 test.write('Tfile.in', "Tfile.in\n")
 
+thread_id = re.compile(r'\[Thread:\d+\]')
+
+def without_thread_ids(text):
+    return thread_id.sub('[Thread:XXXXX]', text)
+
 expect_stdout = test.wrap_stdout(test.read('taskmaster_expected_stdout_1.txt', mode='r'))
 
-test.run(arguments='--experimental=legacy_sched_deprecated --taskmastertrace=- .', stdout=expect_stdout)
+test.run(arguments='--taskmastertrace=- .', stdout=expect_stdout,
+         match=lambda actual, expected: test.match(without_thread_ids(actual), expected))
 
 test.run(arguments='-c .')
 
@@ -51,16 +57,14 @@ Copy("Tfile.mid", "Tfile.in")
 Copy("Tfile.out", "Tfile.mid")
 """)
 
-# Test LegacyParallel Job implementation
-test.run(arguments='--experimental=legacy_sched_deprecated --taskmastertrace=trace.out .', stdout=expect_stdout)
-test.must_match_file('trace.out', 'taskmaster_expected_file_1.txt', mode='r')
+# Test Serial Job implementation
+test.run(arguments='--taskmastertrace=trace.out .', stdout=expect_stdout)
+trace = without_thread_ids(test.read('trace.out', mode='r'))
+test.must_match('taskmaster_expected_file_1.txt', trace, mode='r')
 
-# Test NewParallel Job implementation
-test.run(arguments='-j 2 --taskmastertrace=new_parallel_trace.out .')
-
-new_trace = test.read('new_parallel_trace.out', mode='r')
-thread_id = re.compile(r'\[Thread:\d+\]')
-new_trace=thread_id.sub('[Thread:XXXXX]', new_trace)
-test.must_match('taskmaster_expected_new_parallel.txt', new_trace,  mode='r')
+# Test Parallel Job implementation
+test.run(arguments='-j 2 --taskmastertrace=parallel_trace.out .')
+trace = without_thread_ids(test.read('parallel_trace.out', mode='r'))
+test.must_match('taskmaster_expected_parallel.txt', trace, mode='r')
 
 test.pass_test()
