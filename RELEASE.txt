@@ -30,6 +30,9 @@ REMOVED FUNCTIONALITY
 
 - Removed Python 3.7 & 3.8 support.
 
+- Removed the legacy job scheduler and the "legacy_sched_deprecated"
+  experimental feature flag, deprecated in 4.11.0.
+
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 

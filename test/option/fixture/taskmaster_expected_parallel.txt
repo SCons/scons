@@ -1,8 +1,8 @@
-Job.NewParallel._start_worker(): [Thread:XXXXX] Starting new worker thread
-Job.NewParallel._work(): [Thread:XXXXX] Gained exclusive access
-Job.NewParallel._work(): [Thread:XXXXX] Starting search
-Job.NewParallel._work(): [Thread:XXXXX] Found 0 completed tasks to process
-Job.NewParallel._work(): [Thread:XXXXX] Searching for new tasks
+Job.Parallel._start_worker(): [Thread:XXXXX] Starting new worker thread
+Job.Parallel._work(): [Thread:XXXXX] Gained exclusive access
+Job.Parallel._work(): [Thread:XXXXX] Starting search
+Job.Parallel._work(): [Thread:XXXXX] Found 0 completed tasks to process
+Job.Parallel._work(): [Thread:XXXXX] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <no_state   0   '.'> and its children:
@@ -19,12 +19,12 @@ Taskmaster: Evaluating <pending    0   'SConstruct'>
 
 Task.make_ready_current(): node <pending    0   'SConstruct'>
 Task.prepare():      node <up_to_date 0   'SConstruct'>
-Job.NewParallel._work(): [Thread:XXXXX] Found internal task
+Job.Parallel._work(): [Thread:XXXXX] Found internal task
 Task.executed_with_callbacks(): node <up_to_date 0   'SConstruct'>
 Task.postprocess():  node <up_to_date 0   'SConstruct'>
 Task.postprocess():  removing <up_to_date 0   'SConstruct'>
 Task.postprocess():  adjusted parent ref count <pending    3   '.'>
-Job.NewParallel._work(): [Thread:XXXXX] Searching for new tasks
+Job.Parallel._work(): [Thread:XXXXX] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <no_state   0   'Tfile.in'> and its children:
@@ -32,12 +32,12 @@ Taskmaster: Evaluating <pending    0   'Tfile.in'>
 
 Task.make_ready_current(): node <pending    0   'Tfile.in'>
 Task.prepare():      node <up_to_date 0   'Tfile.in'>
-Job.NewParallel._work(): [Thread:XXXXX] Found internal task
+Job.Parallel._work(): [Thread:XXXXX] Found internal task
 Task.executed_with_callbacks(): node <up_to_date 0   'Tfile.in'>
 Task.postprocess():  node <up_to_date 0   'Tfile.in'>
 Task.postprocess():  removing <up_to_date 0   'Tfile.in'>
 Task.postprocess():  adjusted parent ref count <pending    2   '.'>
-Job.NewParallel._work(): [Thread:XXXXX] Searching for new tasks
+Job.Parallel._work(): [Thread:XXXXX] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <no_state   0   'Tfile.mid'> and its children:
@@ -46,12 +46,12 @@ Taskmaster: Evaluating <pending    0   'Tfile.mid'>
 
 Task.make_ready_current(): node <pending    0   'Tfile.mid'>
 Task.prepare():      node <up_to_date 0   'Tfile.mid'>
-Job.NewParallel._work(): [Thread:XXXXX] Found internal task
+Job.Parallel._work(): [Thread:XXXXX] Found internal task
 Task.executed_with_callbacks(): node <up_to_date 0   'Tfile.mid'>
 Task.postprocess():  node <up_to_date 0   'Tfile.mid'>
 Task.postprocess():  removing <up_to_date 0   'Tfile.mid'>
 Task.postprocess():  adjusted parent ref count <pending    1   '.'>
-Job.NewParallel._work(): [Thread:XXXXX] Searching for new tasks
+Job.Parallel._work(): [Thread:XXXXX] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <no_state   0   'Tfile.out'> and its children:
@@ -60,12 +60,12 @@ Taskmaster: Evaluating <pending    0   'Tfile.out'>
 
 Task.make_ready_current(): node <pending    0   'Tfile.out'>
 Task.prepare():      node <up_to_date 0   'Tfile.out'>
-Job.NewParallel._work(): [Thread:XXXXX] Found internal task
+Job.Parallel._work(): [Thread:XXXXX] Found internal task
 Task.executed_with_callbacks(): node <up_to_date 0   'Tfile.out'>
 Task.postprocess():  node <up_to_date 0   'Tfile.out'>
 Task.postprocess():  removing <up_to_date 0   'Tfile.out'>
 Task.postprocess():  adjusted parent ref count <pending    0   '.'>
-Job.NewParallel._work(): [Thread:XXXXX] Searching for new tasks
+Job.Parallel._work(): [Thread:XXXXX] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <pending    0   '.'> and its children:
@@ -77,13 +77,13 @@ Taskmaster: Evaluating <pending    0   '.'>
 
 Task.make_ready_current(): node <pending    0   '.'>
 Task.prepare():      node <up_to_date 0   '.'>
-Job.NewParallel._work(): [Thread:XXXXX] Found internal task
+Job.Parallel._work(): [Thread:XXXXX] Found internal task
 Task.executed_with_callbacks(): node <up_to_date 0   '.'>
 Task.postprocess():  node <up_to_date 0   '.'>
-Job.NewParallel._work(): [Thread:XXXXX] Searching for new tasks
+Job.Parallel._work(): [Thread:XXXXX] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster: No candidate anymore.
-Job.NewParallel._work(): [Thread:XXXXX] Found no task requiring execution, and have no jobs: marking complete
-Job.NewParallel._work(): [Thread:XXXXX] Gained exclusive access
-Job.NewParallel._work(): [Thread:XXXXX] Completion detected, breaking from main loop
+Job.Parallel._work(): [Thread:XXXXX] Found no task requiring execution, and have no jobs: marking complete
+Job.Parallel._work(): [Thread:XXXXX] Gained exclusive access
+Job.Parallel._work(): [Thread:XXXXX] Completion detected, breaking from main loop
