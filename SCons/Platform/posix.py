@@ -28,8 +28,12 @@ will usually be imported through the generic SCons.Platform.Platform()
 selection method.
 """
 
+from __future__ import annotations
+
 import platform
 import subprocess
+from collections.abc import Callable
+from shlex import quote as escape
 
 from SCons.Platform import TempFileMunge
 from SCons.Platform.virtualenv import ImportVirtualenv
@@ -40,8 +44,17 @@ exitvalmap = {
     13 : 126,
 }
 
-def escape(arg):
-    """escape shell special characters"""
+def old_escape(arg: str) -> str:
+    """Escapes shell special characters.
+
+    This is the default escape function stored in ``env["ESCAPE"]`` for
+    the posix platform, which, if not overridden, is passed to
+    :func:`~SCons.Subst.escape_list` just before a command is spawned,
+    as well to the actual spawner function (as defined by ``env["SPAWN"]``).
+
+    TODO: we're trying to use shlex.quote as the escape function instead.
+      Leave this function around (renamed) until we prove the replacement is valid.
+    """
     slash = '\\'
     special = '"$'
 
@@ -53,33 +66,72 @@ def escape(arg):
     return '"' + arg + '"'
 
 
-def exec_subprocess(l, env):
-    proc = subprocess.Popen(l, env = env, close_fds = True)
-    return proc.wait()
+def spawn(
+    sh: str,
+    escape: Callable[[str], str],
+    cmd: str,
+    args: list[str],
+    env: dict,
+) -> int:
+    """Run command line *args* using shell *sh*.
 
-def subprocess_spawn(sh, escape, cmd, args, env):
-    return exec_subprocess([sh, '-c', ' '.join(args)], env)
+    Arguments:
+      sh: the name of the command to use as the shell
+      escape: a function to quote the produced command line. Ignored.
+      cmd: conventionally, the name of the command, usually taken from
+        the first item of *args*, but since the command is actually a
+        shell, is ignored.
+      args: the argument list representing the command to execute
+      env: the execution environment for the command.
 
-def exec_popen3(l, env, stdout, stderr):
-    proc = subprocess.Popen(l, env = env, close_fds = True,
-                            stdout = stdout,
-                            stderr = stderr)
-    return proc.wait()
+    Returns:
+      the exit code of the command. :py:mod:`subprocess` is explicitly
+      instructed not to raise an exception if the command fails.
+    """
+    cmdargs = [sh, '-c', ' '.join(args)]
+    proc = subprocess.run(cmdargs, env=env, close_fds=True, check=False)
+    return proc.returncode
 
-def piped_env_spawn(sh, escape, cmd, args, env, stdout, stderr):
-    # spawn using Popen3 combined with the env command
-    # the command name and the command's stdout is written to stdout
-    # the command's stderr is written to stderr
-    return exec_popen3([sh, '-c', ' '.join(args)],
-                       env, stdout, stderr)
+
+def piped_spawn(
+    sh: str,
+    escape: Callable[[str], str],
+    cmd: str,
+    args: list[str],
+    env: dict,
+    stdout,  # : Scons.Util.Unbuffered
+    stderr,  # : Scons.Util.Unbuffered
+) -> int:
+    """Run command line *args* using shell *sh*, capturing output.
+
+    Similar to :func:`spawn`, but captures output - this is used by
+    the SConf subsystem when running compile/configure checks, where
+    we specifically need the result data. This ends up handled by
+    a wrapper method :meth:`~SCons.SConf.SConfBase.pspawn_wrapper`.
+
+    Arguments:
+      sh: the name of the command to use as the shell
+      escape: a function to quote the produced command line. Ignored.
+      cmd: conventionally, the name of the command, usually taken from
+        the first item of *args*, but since the command is actually a
+        shell, is ignored.
+      args: the argument list representing the command to execute
+      env: the execution environment for the command.
+      stdout: the place to send the output
+      stderr: the place to send the error output
+
+    Returns:
+      the exit code of the command. :py:mod:`subprocess` is explicitly
+      instructed not to raise an exception if the command fails.
+    """
+    cmdargs = [sh, '-c', ' '.join(args)]
+    proc = subprocess.run(
+        cmdargs, env=env, close_fds=True, stdout=stdout, stderr=stderr, check=False
+    )
+    return proc.returncode
 
 
 def generate(env) -> None:
-    # Bearing in mind we have python 2.4 as a baseline, we can just do this:
-    spawn = subprocess_spawn
-    pspawn = piped_env_spawn
-    # Note that this means that 'escape' is no longer used
-
     if 'ENV' not in env:
         env['ENV']        = {}
     env['ENV']['PATH']    = '/usr/local/bin:/opt/bin:/bin:/usr/bin:/snap/bin'
@@ -98,7 +150,7 @@ def generate(env) -> None:
     env['LIBLITERALPREFIX'] = ''
     env['HOST_OS']        = 'posix'
     env['HOST_ARCH']      = platform.machine()
-    env['PSPAWN']         = pspawn
+    env['PSPAWN']         = piped_spawn
     env['SPAWN']          = spawn
     env['SHELL']          = 'sh'
     env['ESCAPE']         = escape

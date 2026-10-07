@@ -254,11 +254,8 @@ The suffix used for executable file names.
 <summary>
 <para>
 A string naming the shell program that will be passed to the
-&cv-SPAWN;
-function.
-See the
-&cv-SPAWN;
-construction variable for more information.
+command spawner function.
+See the &cv-link-SPAWN; &consvar; for more information.
 </para>
 </summary>
 </cvar>

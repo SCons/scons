@@ -794,9 +794,8 @@ if os.name == 'posix':
             arg = f"\"{arg}\""
         return arg
 else:
-    # Windows does not allow special characters in file names
-    # anyway, so no need for an escape function, we will just quote
-    # the arg.
+    # Windows does not allow special characters in file names anyway,
+    # so no need for an escape function - just double-quote the arg.
     def escape(arg):
         if re_space.search(arg):
             arg = f"\"{arg}\""

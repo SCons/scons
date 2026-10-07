@@ -130,10 +130,15 @@ class SpecialAttrWrapper:
     def is_literal(self) -> bool:
         return True
 
+WHITESPACE = " \t\v\f"  # this is less than string.whitespace
+
+def has_whitespace(arg: str) -> bool:
+    """Return true if *arg* contains any whitespace chars."""
+    return any(char in arg for char in WHITESPACE)
+
 def quote_spaces(arg: str) -> str:
-    """Generic function for putting double quotes around any string that
-    has white space in it."""
-    if ' ' in arg or '\t' in arg:
+    """Wraps a string in double quotes if it contains whitespace."""
+    if has_whitespace(arg):
         return f'"{arg}"'
     return str(arg)
 
@@ -171,7 +176,9 @@ class CmdStringHolder(UserString):
         data = self.data
         if self.literal:
             return escape_func(data)
-        if ' ' in data or '\t' in data:
+        if has_whitespace(data):
+            # TODO: if quote_func is quote_spaces, it will do the whitespace
+            #   check as well - is it worth trying to avoid the extra work?
             return quote_func(data)
         return data
 
@@ -682,7 +689,6 @@ class ListSubber(UserList):
             # Also allow callables where the only non default valued args match the expected defaults
             # this should also allow functools.partial's to work.
             if isinstance(s, SCons.Util.Null) or _callable_matches_subst_args(s):
-
                 s = s(
                     target=lvars['TARGETS'],
                     source=lvars['SOURCES'],

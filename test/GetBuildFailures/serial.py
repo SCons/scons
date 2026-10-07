@@ -29,10 +29,20 @@ BuildError exceptions.  Also verify printing the BuildError
 attributes we expect to be most commonly used.
 """
 
+import sys
 import TestSCons
 import re
 
 _python_ = TestSCons._python_
+
+# On Windows, escape() wraps every arg in double quotes.
+# On POSIX, shlex.quote only quotes when the arg contains special chars.
+if sys.platform == 'win32':
+    _f04_cmd = r'"f04" "f04.in"'
+    _f05_cmd = r'"f05" "f05.in"'
+else:
+    _f04_cmd = r'f04 f04.in'
+    _f05_cmd = r'f05 f05.in'
 
 try:
     import threading
@@ -120,7 +130,7 @@ scons: done reading SConscript files.
 scons: Building targets ...
 scons: building terminated because of errors.
 BF: f04 failed (1):  Error 1
-BF:    %(_python_)s myfail.py f03 f04 "f04" "f04.in"
+BF:    %(_python_)s myfail.py f03 f04 %(_f04_cmd)s
 """ % locals()
 
 expect_stderr = """\
@@ -161,9 +171,9 @@ action(["f14"], ["f14.in"])
 action(["f15"], ["f15.in"])
 scons: done building targets (errors occurred during build).
 BF: f04 failed (1):  Error 1
-BF:    %(_python_)s myfail.py f03 f04 "f04" "f04.in"
+BF:    %(_python_)s myfail.py f03 f04 %(_f04_cmd)s
 BF: f05 failed (1):  Error 1
-BF:    %(_python_)s myfail.py f04 f05 "f05" "f05.in"
+BF:    %(_python_)s myfail.py f04 f05 %(_f05_cmd)s
 BF: f07 failed (2):  Source `f07.in' not found, needed by target `f07'.
 BF: f08 failed (2):  My User Error
 BF:    action(["f08"], ["f08.in"])
