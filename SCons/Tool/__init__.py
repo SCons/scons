@@ -103,13 +103,11 @@ for suffix in DSuffixes:
 for suffix in SWIGSuffixes:
     SourceFileScanner.add_scanner(suffix, SWIGScanner)
 
-# FIXME: what should be done here? Two scanners scan the same extensions,
-# but look for different files, e.g., "picture.eps" vs. "picture.pdf".
-# The builders for DVI and PDF explicitly reference their scanners
-# I think that means this is not needed???
-for suffix in LaTeXSuffixes:
-    SourceFileScanner.add_scanner(suffix, LaTeXScanner)
-    SourceFileScanner.add_scanner(suffix, PDFLaTeXScanner)
+# Generic builders retain the PDF scanner's fixed suffixes when a TeX tool
+# is loaded. DVI and PDF builders explicitly reference their own scanners.
+LaTeXSourceScanner = SCons.Scanner.ScannerBase(
+    {suffix: PDFLaTeXScanner for suffix in LaTeXSuffixes}, name='LaTeXSourceScanner'
+)
 
 # Tool aliases are needed for those tools whose module names also
 # occur in the python standard library (This causes module shadowing and

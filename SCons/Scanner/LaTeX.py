@@ -249,9 +249,6 @@ class LaTeX(ScannerBase):
                 self.suffixes = suffixes
 
             def __call__(self, node, env):
-                # The default scanner is also used without a LaTeX tool loaded.
-                if self.suffixes == '$LATEXSUFFIXES' and 'LATEXSUFFIXES' not in env:
-                    return False
                 current = not node.has_builder() or node.is_up_to_date()
                 scannable = node.get_suffix() in env.subst_list(self.suffixes)[0]
                 # Returning false means that the file is not scanned.

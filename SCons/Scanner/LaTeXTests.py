@@ -256,7 +256,8 @@ class LaTeXScannerSuffixTestCase(unittest.TestCase):
         self.assertNotIn('LATEXSUFFIXES', self.env)
         for factory in self.factories:
             with self.subTest(scanner=factory.__name__):
-                self.assertEqual(factory()(self.node, self.env), [])
+                with self.assertRaisesRegex(SCons.Errors.UserError, 'LATEXSUFFIXES'):
+                    factory()(self.node, self.env)
 
     def test_empty_latex_suffixes(self) -> None:
         for suffixes in ([], ''):
