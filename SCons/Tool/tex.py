@@ -876,6 +876,8 @@ def generate_darwin(env) -> None:
 def generate_common(env) -> None:
     """Add internal Builders and construction variables for LaTeX to an Environment."""
 
+    env.AppendUnique(SCANNERS=[SCons.Tool.LaTeXSourceScanner])
+
     # Add OSX system paths so TeX tools can be found
     # when a list of tools is given the exists() method is not called
     generate_darwin(env)

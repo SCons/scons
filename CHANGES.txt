@@ -12,6 +12,11 @@ NOTE: The last release to support Python 3.7 or Python 3.8 is 4.11.1
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From boulea7:
+    - Register LaTeX source scanners only in environments that load a TeX
+      tool, avoiding unexpected scanning and undefined LATEXSUFFIXES errors
+      in other environments.
+
   From Thaddeus Crews:
     - ty: Initial support setup within `pyproject.toml`.
     - Removed Python 3.7 & 3.8 support.

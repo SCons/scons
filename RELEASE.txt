@@ -39,6 +39,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
+- Register LaTeX source scanners only in environments that load a TeX tool,
+  avoiding unexpected scanning and undefined LATEXSUFFIXES errors in other
+  environments.
+
 - Fix ninja to honor AlwaysBuild on a target
 
 - ParseDepends() keeps Windows drive-letter paths in make-style depfiles
