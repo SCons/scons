@@ -28,4 +28,3 @@ env = conf.Finish()
 #   Disabled for now, because that's trickier in Windows (the rpath
 #   only works for Linux)
 # env.Program(target="testlibs", source="src/test.c")
-

@@ -11,7 +11,7 @@ Building the image
 Build the local docker image by calling::
 
     ./build_image.sh
-    
+
 This will download the base image and install the required additional packages.
 
 Starting the image
@@ -40,4 +40,3 @@ Simply call::
     ./stop_test_shell.sh
 
 .
-

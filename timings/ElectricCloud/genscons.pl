@@ -77,7 +77,7 @@ usage: $0 [-l Levels] [-d Dirs] [-f Files] [-g Grouping] [-u Lookups]
 -g Grouping : compile in groups of Grouping files         (default $group)
 -u Lookups  : number of lookups per source file           (default $nlups)
 
--h         : this help message 
+-h         : this help message
 
 You can edit the default values in genscons.pl
 
@@ -143,7 +143,7 @@ sub gen_cfile {
         $idx2 = $fil[$idx] + 1;
         print CFILE "extern int printr_$file[$idx2] (char * fname);\n"
             . "int main (int argc, char * argv[]) {\n"
-            . "\tint i, mb_out;\n"; 
+            . "\tint i, mb_out;\n";
 
         print CFILE "\tprintr_$file[$idx2] (\"$filname[$idx]\");\n"
             . "\n"
@@ -192,7 +192,7 @@ sub mkdirs {
         $foo = substr($basedir,9) . "/";
         $libdir = substr($basedir,9);
     }
-    $bstr[$idx] = $basestr; 
+    $bstr[$idx] = $basestr;
 
     $dirstr = $basedir;
     $dirstr =~ s|/|_|g;
@@ -508,7 +508,7 @@ $txt2 = "Expecting:\n"
       . "\tdirectories:   " . fmt($totldirs) . "\n"
       . "\tsource files:  " . fmt($numdirs * $nfils) . "\n"
       . "\tinclude files: " . fmt($numdirs * ($nfils + 1)) . "\n"
-      . "\tmakefiles:     " . fmt($numdirs * $numMakefiles) 
+      . "\tmakefiles:     " . fmt($numdirs * $numMakefiles)
                             . " ($numMakefiles per directory)\n"
       . "\ttotal files:   " . fmt($totlfils) . "\n"
       . "\tlook-ups: >=   " . fmt($totllups) . "\n"

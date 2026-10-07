@@ -327,4 +327,3 @@ def msvc_scripterror_policy_contextmanager(MSVC_SCRIPTERROR_POLICY=None):
     prev_policy = msvc_set_scripterror_policy(MSVC_SCRIPTERROR_POLICY)
     yield
     msvc_set_scripterror_policy(prev_policy)
-

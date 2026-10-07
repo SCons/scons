@@ -40,7 +40,7 @@ Which will have a soname baked into it as one of the
    * `${SHLIBPREFIX}lib_name${major version only from SHLIBVERSION}${SHLIBSUFFIX}`
    * `-Wl,-compatibility_version,%s`
    * `-Wl,-current_version,%s`
-   
+
 For **applelink** the version has to follow these rules to verify that the version # is valid.
 
 * For version # = X[.Y[.Z]]
@@ -48,7 +48,7 @@ For **applelink** the version has to follow these rules to verify that the versi
 * where Y either not specified or 0-255
 * where Z either not specified or 0-255
 
-   
+
 For most platforms this will lead to a series of symlinks eventually pointing to the actual shared library (or loadable module file).
 1. `${SHLIBPREFIX}lib_name${SHLIBSUFFIX} -> ${SHLIBPREFIX}lib_name${SHLIBVERSION}${SHLIBSUFFIX}`
 1. `${SHLIBPREFIX}lib_name${SOVERSION}${SHLIBSUFFIX} -> ${SHLIBPREFIX}lib_name${SHLIBVERSION}${SHLIBSUFFIX}`
@@ -84,6 +84,5 @@ Maybe we can force one at that point?
 SOVERSION can be specified, if not, then defaults to major portion of SHLIBVERSION
 SONAME can be specified, if not defaults to ${SHLIBPREFIX}lib_name${SOVERSION}
 
-NOTE: mongodb uses Append(SHLIBEMITTER=.. )  for their libdeps stuff. (So test 
+NOTE: mongodb uses Append(SHLIBEMITTER=.. )  for their libdeps stuff. (So test
 with that once you have new logic working)
-

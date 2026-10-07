@@ -12,5 +12,5 @@ int X::y(){
 }
 
 X *SomeX() {
-    return new X(); 
+    return new X();
 }

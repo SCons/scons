@@ -3,4 +3,3 @@
 # Copyright The SCons Foundation
 
 SharedLibrary(target='A', source=['libA.c'], CPPDEFINES='BUILDINGSHAREDLIB')
-
