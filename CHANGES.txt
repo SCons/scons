@@ -40,6 +40,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       falls back to the <fm:Branch> field, which names the XSL-NS branch
       outright.
 
+  From Roshan Ramani:
+    - Fix the second Value() example in the manpage, which never ran its
+      builder: it wrapped the Value Nodes in another Value() and nothing
+      depended on the target. Fixes #4499.
+
   From Mats Wichmann:
     - Add more unit tests for UNC path handling. These tests expose some
       current issues so they are marked expectedFailure. The intent is to

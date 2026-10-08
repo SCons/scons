@@ -79,6 +79,8 @@ DOCUMENTATION
 - Removed the out-of-date table of option names for SetOption and
   GetOption and instead point to the maintained tables in Appendix D.
 
+- Fixed the second Value() example in the manpage, which did not work.
+
 * Added scons-ai.md, a condensed version of the manpage intended for
   consumption by AI tools, built into build/doc/MD. It keeps every documented
   option, tool, builder, function and construction variable together with its
