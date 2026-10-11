@@ -40,6 +40,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       falls back to the <fm:Branch> field, which names the XSL-NS branch
       outright.
 
+  From Andrew Morrow:
+    - Remove the legacy job scheduler and the "legacy_sched_deprecated"
+      experimental feature flag.
+
   From Roshan Ramani:
     - Fix the second Value() example in the manpage, which never ran its
       builder: it wrapped the Value Nodes in another Value() and nothing
