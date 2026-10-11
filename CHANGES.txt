@@ -40,6 +40,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       falls back to the <fm:Branch> field, which names the XSL-NS branch
       outright.
 
+  From Andrew Morrow:
+    - Remove the legacy job scheduler and the "legacy_sched_deprecated"
+      experimental feature flag.
+
   From Mats Wichmann:
     - Add more unit tests for UNC path handling. These tests expose some
       current issues so they are marked expectedFailure. The intent is to
