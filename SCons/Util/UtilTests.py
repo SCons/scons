@@ -32,6 +32,7 @@ from collections import UserDict
 from typing import Callable
 
 import TestCmd
+from TestCmd import IS_WINDOWS
 
 from SCons.Util import (
     CLVar,
@@ -49,6 +50,7 @@ from SCons.Util import (
     display,
     flatten,
     get_native_path,
+    make_path_relative,
     print_tree,
     render_tree,
     silent_intern,
@@ -93,6 +95,23 @@ class UtilTestCase(unittest.TestCase):
         assert splitext('foo') == ('foo', '')
         assert splitext('foo.bar') == ('foo', '.bar')
         assert splitext(os.path.join('foo.bar', 'blat')) == (os.path.join('foo.bar', 'blat'), '')
+
+    @unittest.expectedFailure
+    @unittest.skipIf(IS_WINDOWS, "make_path_relative UNC bug is POSIX-specific")
+    def test_make_path_relative_unc(self) -> None:
+        """make_path_relative() must strip the UNC share root like a drive root.
+
+        On Windows ``os.path.splitdrive`` recognizes the ``//server/share``
+        prefix, so ``'//server/share/file'`` becomes ``'file'``.  On a
+        POSIX host (whose ``splitdrive`` is a no-op) the leading
+        separators are stripped by regex instead, yielding
+        ``'server/share/file'`` - the UNC root is silently lost - and a
+        native backslash UNC path is left untouched because it isn't
+        absolute.  The two separator styles of the same path must agree,
+        regardless of the host platform.
+        """
+        self.assertEqual(make_path_relative('//server/share/file'), 'file')
+        self.assertEqual(make_path_relative(r'\\server\share\file'), 'file')
 
     class Node:
         def __init__(self, name, children=[]) -> None:

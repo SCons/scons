@@ -61,7 +61,6 @@ jobs:
             echo "test/Libs/LIBLITERALPREFIX.py" >> .excludes
             echo "test/Rpcgen/live.py" >> .excludes
             echo "test/builderrors.py" >> .excludes
-            echo "test/ninja/ninja_handle_control_c_rebuild.py" >> .excludes
             echo "test/ninja/shutdown_scons_daemon.py" >> .excludes
             echo "test/scons-time/run/option/verbose.py" >> .excludes
           elif [[ "${{matrix.os}}" == "windows"* ]]; then
