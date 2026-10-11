@@ -103,12 +103,6 @@ for suffix in DSuffixes:
 for suffix in SWIGSuffixes:
     SourceFileScanner.add_scanner(suffix, SWIGScanner)
 
-# Generic builders retain the PDF scanner's fixed suffixes when a TeX tool
-# is loaded. DVI and PDF builders explicitly reference their own scanners.
-LaTeXSourceScanner = SCons.Scanner.ScannerBase(
-    {suffix: PDFLaTeXScanner for suffix in LaTeXSuffixes}, name='LaTeXSourceScanner'
-)
-
 # Tool aliases are needed for those tools whose module names also
 # occur in the python standard library (This causes module shadowing and
 # can break using python library functions under python3)  or if the current tool/file names

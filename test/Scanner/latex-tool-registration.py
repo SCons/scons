@@ -11,17 +11,6 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """\
-env = Environment(tools=[], LATEXSUFFIXES=['.tex'])
-env.Command('copy.tex', 'main.tex', Copy('$TARGET', '$SOURCE'))
-""")
-test.write('main.tex', '\\input{included}\n')
-test.write('included.tex', 'First contents\n')
-test.run(arguments='copy.tex')
-test.up_to_date(arguments='copy.tex')
-test.write('included.tex', 'Changed contents\n')
-test.up_to_date(arguments='copy.tex')
-
 # Neither the default keys nor a user-provided suffix enable a tool implicitly.
 for suffixes in (['.tex', '.ltx', '.latex'], ['.special']):
     case = 'no-tool-' + str(len(suffixes))
