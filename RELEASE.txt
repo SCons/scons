@@ -47,6 +47,10 @@ FIXES
 - ParseDepends() keeps Windows drive-letter paths in make-style depfiles
   instead of splitting at the first colon.
 
+- PathList memoization includes the ``split`` flag in the cache key, so
+  ``PathList(..., split=False)`` no longer raises ``TypeError`` under
+  ``--debug=memoizer`` (LIBLITERALPREFIX / os.pathsep case).
+
 - IsInVirtualenv() no longer raises ValueError when PATH entries and the
   virtualenv are on different Windows drives (issue #3614).
 
