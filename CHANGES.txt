@@ -48,6 +48,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix the second Value() example in the manpage, which never ran its
       builder: it wrapped the Value Nodes in another Value() and nothing
       depended on the target. Fixes #4499.
+    - Fix four documentation examples that were not valid Python: a stray
+      parenthesis in the Command() example, an unterminated string in the
+      MSVC_VERSION example, a missing comma that joined the two
+      X_RPM_EXTRADEFS strings into one, and the user guide's Progress()
+      callable, which lacked a colon and a "global count".
 
   From Mats Wichmann:
     - Add more unit tests for UNC path handling. These tests expose some
