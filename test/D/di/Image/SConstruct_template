@@ -13,5 +13,5 @@ env = Environment(
 # o2 = env.Object('helloWorldMain.d')
 # env.Program('hw', [o1[0], o2[0]])
 
-# Alternatively 
+# Alternatively
 env.Program('hw', ['helloWorldMain.d','source/helloWorld.d'])

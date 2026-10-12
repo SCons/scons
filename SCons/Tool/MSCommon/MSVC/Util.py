@@ -491,4 +491,3 @@ def msvc_sdk_version_components(version):
     )
 
     return msvc_sdk_version_components_def
-

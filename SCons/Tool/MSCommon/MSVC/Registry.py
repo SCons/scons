@@ -118,4 +118,3 @@ def vstudio_sxs_vc7(version):
 
 def devdiv_vs_servicing_component(version, component):
     return '\\'.join([r'DevDiv\VS\Servicing', version, component, 'Install'])
-

@@ -10,8 +10,7 @@ ns_ext = ''
 if v >= (1, 78, 0):
     # Use namespace-aware input file
     ns_ext = 'ns'
-    
+
 DefaultEnvironment(tools=[])
 env = Environment(tools=['docbook'])
 env.DocbookSlidesHtml('manual.html', 'virt'+ns_ext, xsl='slides.xsl')
-

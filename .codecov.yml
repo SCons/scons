@@ -29,7 +29,7 @@ coverage:
   status:
     project:
       default:
-        # compare against the current coverage 
+        # compare against the current coverage
         # that PR is attempt to merge to
         # don't consider a drop in coverage success
         target: auto
@@ -38,7 +38,7 @@ coverage:
 
     patch:
       default:
-        # considering only the lines changed 
+        # considering only the lines changed
         # make sure all new lines in the PR are covered
         # to consider a success
         target: 100

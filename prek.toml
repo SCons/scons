@@ -1,0 +1,33 @@
+# Configuration file for `prek`, a git hook framework written in Rust.
+# See https://prek.j178.dev for more information.
+#:schema https://www.schemastore.org/prek.json
+
+exclude.glob = [
+    "**.in",
+    "doc/**",
+    "packaging/**",
+    "SCons/Tool/docbook/docbook-xsl-1.76.1/**",
+    "test/CC/gcc-non-utf8-fixture/data",
+    "test/Interactive/**",
+]
+
+[[repos]]
+repo = "builtin"
+hooks = [
+    { id = "check-added-large-files" },
+    { id = "fix-byte-order-marker" },
+    { id = "trailing-whitespace" },
+    { id = "end-of-file-fixer" },
+    {
+        id = "mixed-line-ending",
+        name = "fix line endings",
+        args = ["--fix=lf"],
+        exclude = '\.(bat|cmd|ps1)$'
+    },
+    {
+        id = "mixed-line-ending",
+        name = "fix line endings (crlf)",
+        args = ["--fix=crlf"],
+        files = '\.(bat|cmd|ps1)$'
+    },
+]

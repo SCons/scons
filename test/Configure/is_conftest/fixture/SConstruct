@@ -22,5 +22,3 @@ env = conf.Finish()
 for node in env.Glob(conf.confdir.path + '/*'):
     if not node.is_conftest():
         print("FAIL")
-
-

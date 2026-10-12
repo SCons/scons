@@ -14,4 +14,3 @@ RUN mkdir /opt/offo && cd /opt/offo && curl -L --output offo-hyphenation-compile
 # RUN dnf -y install python3-pip && pip3 install epydoc
 
 CMD ["/bin/bash"]
-

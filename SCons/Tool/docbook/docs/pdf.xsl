@@ -39,4 +39,3 @@ set       toc,title
 </xsl:template>
 
 </xsl:stylesheet>
-

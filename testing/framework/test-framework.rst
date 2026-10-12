@@ -904,4 +904,3 @@ Unittest-specific hints
   There is an assert method for checking that an exception happens
   (``self.assertRaises``), which is more readable than hand-coding something
   with a ``try`` block to check the exception was raised. Please use this!
-

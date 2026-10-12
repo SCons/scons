@@ -56,7 +56,7 @@ test.write(['src', 'inc.c'], """\
 """)
 test.write(['src', 'f1.h'], 'blah' )
 test.write(['src', 'f2.h'], 'blah' )
-        
+
 expect = test.wrap_stdout("""\
 Touch("a")
 Touch("b")

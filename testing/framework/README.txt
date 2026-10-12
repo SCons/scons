@@ -45,5 +45,3 @@ the pieces here are local to SCons.
     TestSConsign.py
 
         Test infrastructure for the sconsign.py script.
-
-

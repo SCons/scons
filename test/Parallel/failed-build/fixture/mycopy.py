@@ -16,7 +16,7 @@ conn.getresponse().read()
 
 with open(sys.argv[1], 'wb') as ofp, open(sys.argv[2], 'rb') as ifp:
     ofp.write(ifp.read())
-    
+
 WAIT = 10
 count = 0
 

@@ -26,7 +26,7 @@
 """
 Test for GH Issue 3550
 
-You can't pass a Windows path in a value to be interpolated, 
+You can't pass a Windows path in a value to be interpolated,
 because SCons will try to pass it through re.sub which rejects
 certain character sequences.
 """

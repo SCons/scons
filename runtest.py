@@ -170,7 +170,7 @@ class Test:
             # subprocess.PIPE.
             with tempfile.TemporaryFile(mode='w+t') as tmp_stdout, \
                  tempfile.TemporaryFile(mode='w+t') as tmp_stderr:
-                
+
                 cp = subprocess.run(
                     self.command_args,
                     stdout=tmp_stdout,
@@ -487,7 +487,7 @@ def setup_logging(args: argparse.Namespace, stats: Summary):
     """
     logger = logging.getLogger("runtest.console")
     logger.setLevel(logging.DEBUG)
-    
+
     # Create stdout handler for logging to the console
     console_handler = logging.StreamHandler(sys.stdout)
     if not args.printcommand:
@@ -583,14 +583,14 @@ def setup_logging(args: argparse.Namespace, stats: Summary):
             XmlFormatter.wrap_output = False
         else:
             xml_handler = logging.FileHandler(filename=args.xml, mode='w')
-        
+
         xml_handler.setLevel(logging.DEBUG)
         xml_handler.setFormatter(XmlFormatter())
         xml_logger.addHandler(xml_handler)
     else:
         xml_handler = logging.NullHandler()
         xml_logger.addHandler(xml_handler)
-    
+
     return logger, xml_logger
 
 
@@ -602,12 +602,12 @@ def log_result(t: Test, context: RunContext) -> None:
         context: The run context.
     """
     times = f"Test execution time: {t.test_time:.1f} seconds" if context.args.print_times else ""
-    
+
     output = f"{t.headline}{t.command_str}"
     if not context.args.short_progress:
         if t.stdout: output += t.stdout
         if t.stderr: output += t.stderr
-    
+
     output += times
     context.logger.info(output)
 
@@ -629,13 +629,13 @@ def run_test(t: Test, context: RunContext) -> None:
     if context.args.devmode:
         command_args.append('-X dev')
     command_args.append(str(t.path))
-    
+
     if context.args.runner and t.path in context.unittests:
         command_args.append('--runner ' + context.args.runner)
-    
+
     t.command_args = [context.args.python] + command_args
     t.command_str = " ".join(t.command_args) + "\n"
-    
+
     if context.args.print_progress:
         t.headline += (
             f"{t.testno}/{context.stats.total_num_tests} "
@@ -692,7 +692,7 @@ def setup_env(args: argparse.Namespace) -> None:
         os.environ['TESTCMD_VERBOSE'] = str(args.verbose)
 
     cwd = Path.cwd()
-    
+
     # Baseline logic
     if not args.baseline or args.baseline == '.':
         baseline = cwd
@@ -737,14 +737,14 @@ def setup_env(args: argparse.Namespace) -> None:
     # Insert scons path and path for testing framework to PYTHONPATH
     scriptpath = Path(__file__).resolve().parent
     frameworkpath = scriptpath / 'testing' / 'framework'
-    
+
     paths = [str(scons_lib_dir), str(frameworkpath)]
     if scons_lib_dir == '': paths = [str(frameworkpath)] # handle empty scons_lib_dir
-    
+
     existing_pythonpath = os.environ.get('PYTHONPATH')
     if existing_pythonpath:
         paths.append(existing_pythonpath)
-    
+
     testenv['PYTHONPATH'] = os.pathsep.join(paths)
 
     # Windows check
@@ -773,7 +773,7 @@ def discover_tests(args: argparse.Namespace, parser: argparse.ArgumentParser) ->
     """
     unittests = []
     endtests = []
-    
+
     if args.testlistfile:
         tests = scanlist(args.testlistfile)
     else:
@@ -788,7 +788,7 @@ def discover_tests(args: argparse.Namespace, parser: argparse.ArgumentParser) ->
             # Path(str) cleans simple ./ but let's ensure
             if str(path).startswith('.') and len(str(path)) > 1 and str(path)[1] in (os.sep, os.altsep or '/') :
                 path = Path(str(path)[2:])
-            
+
             if path.exists():
                 if path.is_dir():
                     parts = path.parts
@@ -845,7 +845,7 @@ def create_run_context(args, stats, logger, unittests):
             args.python = sys.executable
     os.environ["python_executable"] = args.python
     stats.python = args.python
-    
+
     scriptpath = Path(__file__).resolve().parent
     debug = "pdb" if args.debug else None
 
@@ -873,7 +873,7 @@ def execute_tests(test_objects: list[Test], context: RunContext) -> None:
         testq = Queue()
         for test in test_objects:
             testq.put(test)
-        
+
         # Add None markers to stop threads
         for _ in range(context.args.jobs):
             testq.put(None)
@@ -881,7 +881,7 @@ def execute_tests(test_objects: list[Test], context: RunContext) -> None:
         threads = [TestRunner(queue=testq, context=context) for _ in range(context.args.jobs)]
         for thread in threads:
             thread.start()
-        
+
         for thread in threads:
             thread.join()
 
@@ -964,21 +964,21 @@ def main():
     args, parser = parse_args()
     stats = Summary(jobs=args.jobs)
     logger, xml_logger = setup_logging(args, stats)
-    
+
     setup_env(args)
-    
+
     tests, unittests = discover_tests(args, parser)
     test_objects = [Test(t) for t in tests]
-    
+
     if args.list_only:
         for t in test_objects:
             print(t.path)
         sys.exit(0)
 
     stats.total_num_tests = len(test_objects)
-    
+
     context = create_run_context(args, stats, logger, unittests)
-    
+
     execute_tests(test_objects, context)
     display_results(context, test_objects, xml_logger)
 
