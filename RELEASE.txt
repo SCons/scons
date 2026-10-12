@@ -30,6 +30,9 @@ REMOVED FUNCTIONALITY
 
 - Removed Python 3.7 & 3.8 support.
 
+- Removed the legacy job scheduler and the "legacy_sched_deprecated"
+  experimental feature flag, deprecated in 4.11.0.
+
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
@@ -39,14 +42,17 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- Register LaTeX source scanners only in environments that load a TeX tool,
-  avoiding unexpected scanning and undefined LATEXSUFFIXES errors in other
-  environments.
+- Register matching LaTeX or PDFLaTeX source scanners only in environments
+  that load a TeX tool, avoiding unexpected scanning and undefined
+  LATEXSUFFIXES errors in other environments.
 
 - Fix ninja to honor AlwaysBuild on a target
 
 - ParseDepends() keeps Windows drive-letter paths in make-style depfiles
   instead of splitting at the first colon.
+
+- IsInVirtualenv() no longer raises ValueError when PATH entries and the
+  virtualenv are on different Windows drives (issue #3614).
 
 - Fix documentation processing to work with lxml 6.1.3 and newer, which no
   longer resolves external parameter entities by default. This affects both
@@ -78,7 +84,20 @@ DOCUMENTATION
   typo fixes, even if they're mentioned in src/CHANGES.txt to give
   the contributor credit)
 
-* Additional clarification for SideEffect() in manpage.
+- Additional clarification for SideEffect() in manpage.
+
+- Removed the out-of-date table of option names for SetOption and
+  GetOption and instead point to the maintained tables in Appendix D.
+
+- Fixed the second Value() example in the manpage, which did not work.
+
+* Added scons-ai.md, a condensed version of the manpage intended for
+  consumption by AI tools, built into build/doc/MD. It keeps every documented
+  option, tool, builder, function and construction variable together with its
+  description, but omits markup, cross-references, examples and version-history
+  notes, making it roughly half the size of scons.1 as measured in tokens. It is
+  generated from the checked-in documentation sources by bin/scons-man-to-ai.py,
+  and can be built with the "ai-manpage" target.
 
 DEVELOPMENT
 -----------

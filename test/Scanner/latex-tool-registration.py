@@ -32,11 +32,22 @@ for suffix in ('.tex', '.ltx', '.latex', '.special'):
 for tool in ('tex', 'latex', 'pdftex', 'pdflatex'):
     test.subdir(tool)
     test.write([tool, 'SConstruct'], """\
-env = Environment(tools=[%r], LATEXSUFFIXES=['.special'])
+first_tool = %r
+env = Environment(tools=[first_tool], LATEXSUFFIXES=['.special'])
 scanner_count = len(env['SCANNERS'])
-for tool in ('tex', 'latex', 'pdftex', 'pdflatex', 'tex'):
+if first_tool in ('tex', 'latex'):
+    same_family, other_family = ('tex', 'latex'), ('pdftex', 'pdflatex')
+else:
+    same_family, other_family = ('pdftex', 'pdflatex'), ('tex', 'latex')
+for tool in same_family + (first_tool,):
     env.Tool(tool)
 assert len(env['SCANNERS']) == scanner_count
+for tool in other_family:
+    env.Tool(tool)
+    assert len(env['SCANNERS']) == scanner_count + 1
+for tool in ('tex', 'latex', 'pdftex', 'pdflatex', 'tex'):
+    env.Tool(tool)
+assert len(env['SCANNERS']) == scanner_count + 1
 for suffix in ('.tex', '.ltx', '.latex', '.special'):
     env.Command('copy' + suffix, 'main' + suffix, Copy('$TARGET', '$SOURCE'))
 """ % tool)
@@ -60,6 +71,7 @@ env = Environment(tools=[])
 custom = Scanner(function=lambda node, env, path: [], skeys=['.tex'])
 env.Prepend(SCANNERS=[custom])
 env.Tool('tex')
+env.Tool('pdflatex')
 env.Command('copy.tex', 'main.tex', Copy('$TARGET', '$SOURCE'))
 """)
 test.write(['custom', 'main.tex'], '\\input{included}\n')

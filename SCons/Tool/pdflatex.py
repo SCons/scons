@@ -70,7 +70,7 @@ def generate(env) -> None:
     bld.add_emitter('.ltx', SCons.Tool.tex.tex_pdf_emitter)
     bld.add_emitter('.latex', SCons.Tool.tex.tex_pdf_emitter)
 
-    SCons.Tool.tex.generate_common(env)
+    SCons.Tool.tex.generate_common(env, SCons.Tool.tex.PDFLaTeXSourceScanner)
 
 def exists(env):
     SCons.Tool.tex.generate_darwin(env)
