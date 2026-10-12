@@ -99,6 +99,8 @@ DOCUMENTATION
   generated from the checked-in documentation sources by bin/scons-man-to-ai.py,
   and can be built with the "ai-manpage" target.
 
+* Improve the wording for the Help() function (manpage and User Guide)
+
 DEVELOPMENT
 -----------
 
