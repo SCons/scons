@@ -21,8 +21,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import importlib
 import unittest
 
+import SCons.Memoize
 import SCons.PathList
 
 
@@ -198,6 +200,43 @@ class PathListTestCase(unittest.TestCase):
         self.assertIsNot(a, b)
         self.assertIs(a, SCons.PathList.PathList('a:b', True))
         self.assertIs(b, SCons.PathList.PathList('a:b', False))
+
+
+class PathListMemoizerTestCase(unittest.TestCase):
+    """PathList() must work when --debug=memoizer wraps it with CountDictCall."""
+
+    def setUp(self) -> None:
+        self._saved_use = SCons.Memoize.use_memoizer
+        self._saved_counters = dict(SCons.Memoize.CounterList)
+        # Start from a fresh counter so the hit/miss counts below are ours alone.
+        SCons.Memoize.CounterList.pop('PathListCache.PathList', None)
+        SCons.Memoize.EnableMemoization()
+        # The decorator is applied at import time, so reload with the memoizer on.
+        importlib.reload(SCons.PathList)
+
+    def tearDown(self) -> None:
+        SCons.Memoize.use_memoizer = self._saved_use
+        SCons.Memoize.CounterList.clear()
+        SCons.Memoize.CounterList.update(self._saved_counters)
+        # Restore the unwrapped PathList.
+        importlib.reload(SCons.PathList)
+
+    def test_PathList_with_memoizer(self) -> None:
+        """Repeated PathList(x, split) calls must not raise under memoizer."""
+        PL = SCons.PathList.PathList
+
+        # 1st call is a miss and never reaches the key function.
+        a = PL('a:b', True)
+        # 2nd call reaches CountDict.count(), which calls the key function
+        # with the same arguments as PathList(). This raised TypeError before the fix.
+        self.assertIs(a, PL('a:b', True))
+
+        b = PL('a:b', False)
+        self.assertIsNot(a, b)
+        self.assertIs(b, PL('a:b', split=False))
+
+        counter = SCons.Memoize.CounterList['PathListCache.PathList']
+        self.assertEqual((counter.hit, counter.miss), (2, 2))
 
 if __name__ == "__main__":
     unittest.main()
