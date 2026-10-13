@@ -61,6 +61,10 @@ FIXES
 
 - Fix the ninja ctrl-c test, which was failing on some platforms.
 
+- Fix ninja to support compiler variables with a launcher prefix, such as
+  CC="ccache clang". Generating the ninja file failed with "Could not find
+  tool $CC".
+
 IMPROVEMENTS
 ------------
 

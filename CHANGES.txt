@@ -12,6 +12,11 @@ NOTE: The last release to support Python 3.7 or Python 3.8 is 4.11.1
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Stuart Carnie:
+    - ninja: support compiler variables with a launcher prefix, such as
+      CC="ccache clang". Generating the ninja file failed with "Could not
+      find tool $CC", because the tool was searched for as a single token.
+
   From Thaddeus Crews:
     - ty: Initial support setup within `pyproject.toml`.
     - Removed Python 3.7 & 3.8 support.
