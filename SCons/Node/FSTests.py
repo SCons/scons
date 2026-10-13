@@ -4425,6 +4425,115 @@ class SaveStringsTestCase(unittest.TestCase):
         assert s == expect, 'node str() not cached: %s' % s
 
 
+
+@unittest.skipIf(IS_WINDOWS, "Extended UNC diagnostics apply to non-Windows hosts")
+class WindowsExtendedUncTestCase(_tempdirTestCase):
+    def test_node_lookups(self) -> None:
+        """Only the explicit Windows extended UNC prefix triggers diagnostics."""
+        from unittest.mock import patch
+
+        emitted = []
+        with patch.multiple(
+            SCons.Warnings,
+            _enabled=[(SCons.Warnings.WarningOnByDefault, True)],
+            _warningOut=emitted.append,
+            _warningAsException=False,
+        ):
+            for path in (
+                r'\\?\UNC\server\share\file',
+                r'\\?\unc\server\share\file',
+                r'\\?\uNc\server\share',
+                '\\\\?\\UNC\\',
+                r'\\?\UNC\server',
+            ):
+                for name in ('File', 'Dir', 'Entry'):
+                    with self.subTest(path=path, factory=name):
+                        fs = SCons.Node.FS.FS()
+                        emitted.clear()
+                        node = getattr(fs, name)(path)
+                        self.assertEqual(node.name, path)
+                        self.assertEqual(len(emitted), 1)
+                        self.assertIsInstance(
+                            emitted[0], SCons.Warnings.WindowsExtendedUncWarning
+                        )
+
+            emitted.clear()
+            for path in (
+                '//Users/bdbaddog/.bashrc',
+                '//?/UNC/server/share/file',
+                r'\\server\share\file',
+                r'relative\file',
+                r'\\?\C:\file',
+                r'prefix\\?\UNC\server\share\file',
+                r'\\?\UNCx\server\share\file',
+                r'\\?\UNC',
+            ):
+                for name in ('File', 'Dir', 'Entry'):
+                    with self.subTest(path=path, factory=name):
+                        fs = SCons.Node.FS.FS()
+                        node = getattr(fs, name)(path)
+                        self.assertEqual(node.name, path.rsplit('/', 1)[-1])
+            self.assertEqual(emitted, [])
+
+            with patch.object(SCons.Node.FS.sys, 'platform', 'win32'):
+                self.fs.File(r'\\?\UNC\server\share\native-file')
+            self.assertEqual(emitted, [])
+
+    def test_find_file(self) -> None:
+        """FindFile diagnoses found and missing names even after caching."""
+        from pathlib import Path
+        from unittest.mock import patch
+
+        emitted = []
+        with patch.multiple(
+            SCons.Warnings,
+            _enabled=[(SCons.Warnings.WarningOnByDefault, True)],
+            _warningOut=emitted.append,
+            _warningAsException=False,
+        ):
+            existing = r'\\?\UNC\server\share\existing'
+            derived = r'\\?\unc\server\share\derived'
+            missing = r'\\?\UNC\server\share\missing'
+            self.test.write(existing, 'literal filename\n')
+            existing_node = self.fs.File(existing)
+            derived_node = self.fs.File(derived)
+            derived_node.builder_set(1)
+            finder = SCons.Node.FS.FileFinder()
+            env = SCons.Environment.Environment(tools=[])
+            env.fs = self.fs
+            for filename, expected in (
+                (existing, existing_node),
+                (Path(existing), existing_node),
+                (derived, derived_node),
+                (missing, None),
+            ):
+                for lookup in (finder.find_file, env.FindFile):
+                    for repeat in range(2):
+                        with self.subTest(filename=filename, repeat=repeat):
+                            emitted.clear()
+                            self.assertIs(lookup(filename, [self.fs.Top]), expected)
+                            self.assertEqual(len(emitted), 1)
+
+            with patch.object(SCons.Node.FS.sys, 'platform', 'win32'):
+                emitted.clear()
+                self.assertIs(finder.find_file(existing, [self.fs.Top]), existing_node)
+            self.assertEqual(emitted, [])
+
+            warning_class = SCons.Warnings.WindowsExtendedUncWarning
+            SCons.Warnings.suppressWarningClass(warning_class)
+            emitted.clear()
+            self.assertIs(finder.find_file(existing, [self.fs.Top]), existing_node)
+            self.assertEqual(emitted, [])
+            SCons.Warnings.enableWarningClass(warning_class)
+            self.assertIs(finder.find_file(existing, [self.fs.Top]), existing_node)
+            self.assertEqual(len(emitted), 1)
+            SCons.Warnings.warningAsException(True)
+            self.assertRaises(
+                warning_class, finder.find_file, existing, [self.fs.Top]
+            )
+            self.assertRaises(warning_class, self.fs.Entry, missing)
+
+
 class AbsolutePathTestCase(unittest.TestCase):
     def test_root_lookup_equivalence(self) -> None:
         """Test looking up /fff vs. fff in the / directory"""

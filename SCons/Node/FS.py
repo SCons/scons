@@ -52,6 +52,7 @@ import SCons.Node
 import SCons.SConsign
 import SCons.Subst
 import SCons.Util
+import SCons.Warnings
 from SCons.Debug import logInstanceCreation, Trace
 from SCons.Node import BuildInfoBase, Node, NodeInfoBase
 from SCons.Util import hash_signature, hash_file_signature, hash_collect
@@ -187,6 +188,20 @@ def initialize_do_splitdrive() -> None:
     os_sep_is_slash = OS_SEP == '/'
 
 initialize_do_splitdrive()
+
+
+def _warn_if_windows_extended_unc(path) -> None:
+    """Diagnose an explicit Windows extended UNC prefix on other hosts."""
+    if sys.platform != 'win32':
+        path = os.fspath(path)
+        if (isinstance(path, str) and path.startswith('\\\\?\\')
+                and path[4:8].upper() == 'UNC\\'):
+            SCons.Warnings.warn(
+                SCons.Warnings.WindowsExtendedUncWarning,
+                'This path uses a Windows extended UNC prefix. On this host, SCons '
+                'treats it as a native path, not as a Windows extended UNC path.',
+            )
+
 
 # Used to avoid invoking os.path.normpath if not necessary.
 needs_normpath_check = re.compile(
@@ -1366,6 +1381,7 @@ class FS(LocalFS):
             return p
         # str(p) in case it's something like a proxy object
         p = str(p)
+        _warn_if_windows_extended_unc(p)
 
         if not os_sep_is_slash:
             p = p.replace(OS_SEP, '/')
@@ -3820,6 +3836,7 @@ class FileFinder:
         returns The node created from the found file.
 
         """
+        _warn_if_windows_extended_unc(filename)
         memo_key = self._find_file_key(filename, paths)
         try:
             memo_dict = self._memo['find_file']

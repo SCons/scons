@@ -132,16 +132,28 @@ class UtilTestCase(unittest.TestCase):
     def test_make_path_relative_windows_unc(self) -> None:
         """Windows path handling strips native drive and UNC share roots."""
         with patch('SCons.Util.os.path', ntpath):
+            # Some supported ntpath implementations consider bare shares relative.
+            for path in ('//server/share', r'\\server\share'):
+                expected = '' if ntpath.isabs(path) else path
+                with self.subTest(bare_share=path):
+                    self.assertEqual(make_path_relative(path), expected)
             for path, expected in (
-                ('//server/share', ''),
                 ('//server/share/', ''),
+                ('\\\\server\\share\\', ''),
                 ('//server/share/dir/file', 'dir/file'),
-                (r'\\server\share', ''),
                 (r'\\server\share\dir\file', r'dir\file'),
                 (r'//server\share\dir/file', 'dir/file'),
                 ('C:/local/file', 'local/file'),
                 (r'C:\local\file', r'local\file'),
             ):
+                with self.subTest(path=path):
+                    self.assertEqual(make_path_relative(path), expected)
+
+    def test_make_path_relative_windows_rooted(self) -> None:
+        """Single leading slashes follow the active Windows path implementation."""
+        with patch('SCons.Util.os.path', ntpath):
+            for path, absolute_expected in (('/', ''), ('/usr/local', 'usr/local')):
+                expected = absolute_expected if ntpath.isabs(path) else path
                 with self.subTest(path=path):
                     self.assertEqual(make_path_relative(path), expected)
 

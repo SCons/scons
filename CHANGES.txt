@@ -20,6 +20,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Preserve native path semantics for install and package locations:
       POSIX double-slash paths retain their directory components, while
       Windows UNC paths are relative to the share root.
+    - Warn on non-Windows hosts for explicit Windows extended UNC prefixes,
+      while preserving native path handling.
 
   From Thaddeus Crews:
     - ty: Initial support setup within `pyproject.toml`.
