@@ -54,6 +54,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       current issues so they are marked expectedFailure. The intent is to
       record this information for some future fix cycle.
     - Fix the ninja ctrl-c test, which was failing on some platforms.
+    - With Python 3.9 some original "typing" constructs are now deprecated.
+      Stop using. The changes are all import statements except SCons/Scanner/C
+      and a utility script and those two only tweak an annotation.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
     - User Guide improvements:

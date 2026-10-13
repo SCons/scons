@@ -72,6 +72,10 @@ IMPROVEMENTS
   current issues so they are marked expectedFailure. The intent is to
   record this information for some future fix cycle.
 
+- With Python 3.9 some original "typing" constructs are now deprecated.
+  Stop using. The changes are all import statements except SCons/Scanner/C
+  and a utility script and those two only tweak an annotation.
+
 PACKAGING
 ---------
 

@@ -64,7 +64,7 @@ framework and it will behave like an ordinary exception.
 from __future__ import annotations
 
 import sys
-from typing import Callable, Sequence
+from collections.abc import Callable, Sequence
 
 import SCons.Errors
 

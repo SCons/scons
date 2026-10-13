@@ -29,7 +29,7 @@ import subprocess
 import sys
 import unittest
 from collections import UserDict
-from typing import Callable
+from collections.abc import Callable
 
 import TestCmd
 from TestCmd import IS_WINDOWS
