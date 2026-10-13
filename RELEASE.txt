@@ -39,11 +39,12 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- Fix UNC path lookup with either separator style and use absolute paths
-  when a relative path crosses Windows drives or UNC shares.
+- Fix Windows UNC path lookup with either separator style and use absolute
+  paths when a relative path crosses Windows drives or UNC shares.
 
-- Strip UNC share roots from install and package locations on POSIX,
-  preserving nested directories for native backslash paths.
+- Preserve native path semantics for install and package locations: POSIX
+  double-slash paths retain their directory components, while Windows UNC
+  paths are relative to the share root.
 
 - Fix ninja to honor AlwaysBuild on a target
 

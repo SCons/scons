@@ -74,13 +74,15 @@ if not IS_WINDOWS:
     test.write('SConstruct', r"""
 DefaultEnvironment(tools=[])
 env = Environment(tools=[])
+env.Install('//Users/bdbaddog', 'file1.out')
+env.InstallAs('//Users/bdbaddog/.bashrc', 'file2.in')
 env.InstallAs('//server/share/dir/slash.out', 'file2.in')
-env.InstallAs(r'\\server\share\dir\native.out', 'file2.in')
 """)
-    unc_destdir = test.workpath('unc-destination')
-    test.run(arguments='--install-sandbox=%s' % unc_destdir, stdout=None)
-    test.must_match('unc-destination/dir/slash.out', "file2.in\n")
-    test.must_match('unc-destination/dir/native.out', "file2.in\n")
+    posix_destdir = test.workpath('posix-destination')
+    test.run(arguments='--install-sandbox=%s' % posix_destdir, stdout=None)
+    test.must_match('posix-destination/Users/bdbaddog/file1.out', "file1.out\n")
+    test.must_match('posix-destination/Users/bdbaddog/.bashrc', "file2.in\n")
+    test.must_match('posix-destination/server/share/dir/slash.out', "file2.in\n")
 
 #
 test.pass_test()
