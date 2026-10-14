@@ -1272,7 +1272,7 @@ Examples:
 env.Command('ddd.list', Dir('ddd'), 'ls -l $SOURCE > $TARGET')
 
 env['DISTDIR'] = 'destination/directory'
-env.Command(env.Dir('$DISTDIR')), None, make_distdir)
+env.Command(env.Dir('$DISTDIR'), None, make_distdir)
 </example_commands>
 
 <para>
@@ -3623,7 +3623,6 @@ the <parameter>name</parameter> parameter was added.
 Examples:
 </para>
 
-<!-- TODO fix second example or replace - still doesn't work -->
 <example_commands>
 env = Environment()
 
@@ -3657,7 +3656,17 @@ input = env.Value('after')
 # Attach a builder named UpdateValue to the construction environment
 # using the 'build_value' action function above.
 env['BUILDERS']['UpdateValue'] = Builder(action=build_value)
-env.UpdateValue(target=Value(output), source=Value(input))
+env.UpdateValue(target=output, source=input)
+
+def write_value(target, source, env):
+    """Action function to write the built value of $SOURCE into $TARGET."""
+    with open(target[0], 'wb') as f:
+        f.write(source[0].read())
+
+# A Value Node is only built when a target being built depends on it,
+# so write the updated Value to a file. output.txt contains "after".
+env['BUILDERS']['WriteValue'] = Builder(action=write_value)
+env.WriteValue(target='output.txt', source=output)
 </example_commands>
 </summary>
 </scons_function>

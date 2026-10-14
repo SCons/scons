@@ -36,13 +36,12 @@ test.file_fixture('fixture/SConstruct__experimental', 'SConstruct')
 tests = [
     ('.', []),
     ('--experimental=ninja', ['ninja']),
-    ('--experimental=legacy_sched_deprecated', ['legacy_sched_deprecated']),
-    ('--experimental=all', ['legacy_sched_deprecated', 'ninja', 'transporter', 'warp_speed']),
+    ('--experimental=all', ['ninja', 'transporter', 'warp_speed']),
     ('--experimental=none', []),
 ]
 
 for args, exper in tests:
-    read_string = """All Features=legacy_sched_deprecated,ninja,transporter,warp_speed
+    read_string = """All Features=ninja,transporter,warp_speed
 Experimental=%s
 """ % (exper)
     test.run(arguments=args,
@@ -51,7 +50,7 @@ Experimental=%s
 test.run(arguments='--experimental=warp_drive',
          stderr="""usage: scons [OPTIONS] [VARIABLES] [TARGETS]
 
-SCons Error: option --experimental: invalid choice: 'warp_drive' (choose from 'all','none','legacy_sched_deprecated','ninja','transporter','warp_speed')
+SCons Error: option --experimental: invalid choice: 'warp_drive' (choose from 'all','none','ninja','transporter','warp_speed')
 """,
          status=2)
 

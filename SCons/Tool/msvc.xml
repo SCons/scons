@@ -419,7 +419,7 @@ env = Environment(MSVC_VERSION='14.2')
 
 # Initialization deferred with empty tools, triggered manually
 env = Environment(tools=[])
-env['MSVC_VERSION'] = '14.2
+env['MSVC_VERSION'] = '14.2'
 env.Tool('msvc')
 env.Tool('mslink')
 env.Tool('msvs')

@@ -12,6 +12,11 @@ NOTE: The last release to support Python 3.7 or Python 3.8 is 4.11.1
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Stuart Carnie:
+    - ninja: support compiler variables with a launcher prefix, such as
+      CC="ccache clang". Generating the ninja file failed with "Could not
+      find tool $CC", because the tool was searched for as a single token.
+
   From Thaddeus Crews:
     - ty: Initial support setup within `pyproject.toml`.
     - Removed Python 3.7 & 3.8 support.
@@ -40,11 +45,28 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       falls back to the <fm:Branch> field, which names the XSL-NS branch
       outright.
 
+  From Andrew Morrow:
+    - Remove the legacy job scheduler and the "legacy_sched_deprecated"
+      experimental feature flag.
+
+  From Roshan Ramani:
+    - Fix the second Value() example in the manpage, which never ran its
+      builder: it wrapped the Value Nodes in another Value() and nothing
+      depended on the target. Fixes #4499.
+    - Fix four documentation examples that were not valid Python: a stray
+      parenthesis in the Command() example, an unterminated string in the
+      MSVC_VERSION example, a missing comma that joined the two
+      X_RPM_EXTRADEFS strings into one, and the user guide's Progress()
+      callable, which lacked a colon and a "global count".
+
   From Mats Wichmann:
     - Add more unit tests for UNC path handling. These tests expose some
       current issues so they are marked expectedFailure. The intent is to
       record this information for some future fix cycle.
     - Fix the ninja ctrl-c test, which was failing on some platforms.
+    - With Python 3.9 some original "typing" constructs are now deprecated.
+      Stop using. The changes are all import statements except SCons/Scanner/C
+      and a utility script and those two only tweak an annotation.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
@@ -52,6 +74,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
         the emitter argument to Builder(). The Builder Objects "emitter"
         argument section still has some wording, plus a link to the
         new section.
+      * Improve the wording for the Help() function (also User Guide)
     - User Guide improvements:
       * Removed the out-of-date table of option names for SetOption and
         GetOption and instead point to the maintained tables in Appendix D.
@@ -60,7 +83,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - ParseDepends() now treats Windows drive-letter colons as part of the
       path, so a make-style depfile like ``C:\\build\\foo.o: C:\\src\\foo.c``
       is not split at the first colon.
+    - IsInVirtualenv() / _is_path_in() no longer crash when path and
+      virtualenv live on different Windows drives ("path is on mount...").
+      Fixes #3614.
 
+  From 20000419:
+    - PathList memoization now includes the ``split`` flag in the cache key,
+      so ``PathList(..., split=False)`` (used when ``LIBLITERALPREFIX`` equals
+      ``os.pathsep``) no longer raises ``TypeError`` under ``--debug=memoizer``.
 
 RELEASE 4.11.1 - Mon, 26 Aug 2026 21:16:00 -0700
 
