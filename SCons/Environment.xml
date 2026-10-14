@@ -1274,7 +1274,7 @@ Examples:
 env.Command('ddd.list', Dir('ddd'), 'ls -l $SOURCE > $TARGET')
 
 env['DISTDIR'] = 'destination/directory'
-env.Command(env.Dir('$DISTDIR')), None, make_distdir)
+env.Command(env.Dir('$DISTDIR'), None, make_distdir)
 </example_commands>
 
 <para>

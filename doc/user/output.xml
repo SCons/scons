@@ -549,7 +549,8 @@ Program('f2.c')
       <file name="SConstruct" printme="1">
 screen = open('/dev/tty', 'w')
 count = 0
-def progress_function(node)
+def progress_function(node):
+    global count
     count += 1
     screen.write('Node %4d: %s\r' % (count, node))
 

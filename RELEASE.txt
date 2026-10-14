@@ -99,7 +99,7 @@ DOCUMENTATION
 
 - Fixed the second Value() example in the manpage, which did not work.
 
-* Added scons-ai.md, a condensed version of the manpage intended for
+- Added scons-ai.md, a condensed version of the manpage intended for
   consumption by AI tools, built into build/doc/MD. It keeps every documented
   option, tool, builder, function and construction variable together with its
   description, but omits markup, cross-references, examples and version-history
@@ -107,7 +107,12 @@ DOCUMENTATION
   generated from the checked-in documentation sources by bin/scons-man-to-ai.py,
   and can be built with the "ai-manpage" target.
 
-* Improve the wording for the Help() function (manpage and User Guide)
+- Fix four documentation examples that were not valid Python: a stray
+  parenthesis in the Command() example, an unterminated string in the
+  MSVC_VERSION example, a missing comma that joined the two
+  X_RPM_EXTRADEFS strings into one, and the user guide's Progress()
+  callable, which lacked a colon and a "global count".
+- Improve the wording for the Help() function (manpage and User Guide)
 
 DEVELOPMENT
 -----------
