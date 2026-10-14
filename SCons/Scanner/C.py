@@ -28,8 +28,6 @@ CConditionalScanner, which must be explicitly selected by calling
 add_scanner() for each affected suffix.
 """
 
-from typing import Dict
-
 import SCons.Node.FS
 import SCons.cpp
 import SCons.Util
@@ -92,7 +90,7 @@ def dictify_CPPDEFINES(env, replace: bool = False) -> dict:
     .. versionchanged:: 4.9.0
        Simple macro replacement added, and *replace* arg to enable it.
     """
-    def _replace(mapping: Dict) -> Dict:
+    def _replace(mapping: dict) -> dict:
         """Simplistic macro replacer for dictify_CPPDEFINES.
 
         Scan *mapping* for a value that is the same as a key in the dict,

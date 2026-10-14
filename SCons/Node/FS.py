@@ -40,8 +40,9 @@ import shutil
 import stat
 import sys
 import time
+from collections.abc import Callable
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import SCons.Action
 import SCons.Debug
