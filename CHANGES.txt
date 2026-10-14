@@ -12,6 +12,11 @@ NOTE: The last release to support Python 3.7 or Python 3.8 is 4.11.1
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Stuart Carnie:
+    - ninja: support compiler variables with a launcher prefix, such as
+      CC="ccache clang". Generating the ninja file failed with "Could not
+      find tool $CC", because the tool was searched for as a single token.
+
   From Thaddeus Crews:
     - ty: Initial support setup within `pyproject.toml`.
     - Removed Python 3.7 & 3.8 support.
@@ -59,8 +64,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       current issues so they are marked expectedFailure. The intent is to
       record this information for some future fix cycle.
     - Fix the ninja ctrl-c test, which was failing on some platforms.
+    - With Python 3.9 some original "typing" constructs are now deprecated.
+      Stop using. The changes are all import statements except SCons/Scanner/C
+      and a utility script and those two only tweak an annotation.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
+      * Improve the wording for the Help() function (also User Guide)
     - User Guide improvements:
       * Removed the out-of-date table of option names for SetOption and
         GetOption and instead point to the maintained tables in Appendix D.

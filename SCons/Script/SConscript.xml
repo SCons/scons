@@ -280,32 +280,59 @@ Adds <parameter>text</parameter> to the help message shown when
 &scons; is called with the
 <link linkend="opt-help"><option>-h</option> or <option>--help</option></link>
 argument.
+If <function>Help</function> is never called,
+&scons; prints a default help message consisting of built-in
+&scons; command-line options plus any enabled
+project-specific options defined via &f-link-AddOption;.
+If you do call &f-Help; to supply your own help text,
+the first call establishes how the help buffer is initialized:
 </para>
+
+<itemizedlist>
+<listitem>
 <para>
-On the first call to &f-Help;,
-if <parameter>append</parameter> is <constant>False</constant>
-(the default), any existing help text is discarded.
-The default help text is the help for the &scons;
-command itself plus help collected from any
-project-local &f-link-AddOption; calls.
-This is the help printed if &f-Help; has never been called.
-If <parameter>append</parameter> is <constant>True</constant>,
-<parameter>text</parameter> is appended to
-the existing help text.
-If <parameter>local_only</parameter> is also <constant>True</constant>
-(the default is <constant>False</constant>),
-the project-local help from &f-AddOption; calls is preserved
-in the help message but the &scons; command help is not.
+<literal>append=False</literal> (the default):
+discards all built-in and &AddOption; help.
+The help buffer is initialized with only
+your custom <parameter>text</parameter>.
 </para>
+</listitem>
+<listitem>
 <para>
-Subsequent calls to
-&f-Help; ignore the keyword arguments
-<parameter>append</parameter> and
-<parameter>local_only</parameter>
-and always append to the existing help text.
+<literal>append=True, local_only=False</literal>:
+retains both the built-in &scons; options help
+and local &AddOption; help,
+appending <parameter>text</parameter> below them.
 </para>
+</listitem>
+<listitem>
 <para>
-<emphasis>Changed in 4.6.0</emphasis>: added <parameter>local_only</parameter>.
+<literal>append=True, local_only=True</literal>:
+discards the built-in &scons; options help
+while retaining local &AddOption; help,
+appending <parameter>text</parameter> below the local options.
+</para>
+</listitem>
+</itemizedlist>
+
+<para>
+Any subsequent calls to &f-Help;
+simply append their <parameter>text</parameter> to the existing buffer.
+Any <parameter>append</parameter> or
+<parameter>local_only</parameter> argument is ignored.
+</para>
+
+<note>
+<para>
+Regardless of <function>Help</function> settings,
+built-in &scons; command-line help is
+always accessible via <userinput>scons -H</userinput>.
+</para>
+</note>
+
+<para>
+<emphasis>Changed in 4.6.0</emphasis>: added the
+<parameter>local_only</parameter> parameter.
 </para>
 
 </summary>

@@ -61,6 +61,10 @@ FIXES
 
 - Fix the ninja ctrl-c test, which was failing on some platforms.
 
+- Fix ninja to support compiler variables with a launcher prefix, such as
+  CC="ccache clang". Generating the ninja file failed with "Could not find
+  tool $CC".
+
 IMPROVEMENTS
 ------------
 
@@ -71,6 +75,10 @@ IMPROVEMENTS
 - Add more unit tests for UNC path handling. These tests expose some
   current issues so they are marked expectedFailure. The intent is to
   record this information for some future fix cycle.
+
+- With Python 3.9 some original "typing" constructs are now deprecated.
+  Stop using. The changes are all import statements except SCons/Scanner/C
+  and a utility script and those two only tweak an annotation.
 
 PACKAGING
 ---------
@@ -104,6 +112,7 @@ DOCUMENTATION
   MSVC_VERSION example, a missing comma that joined the two
   X_RPM_EXTRADEFS strings into one, and the user guide's Progress()
   callable, which lacked a colon and a "global count".
+- Improve the wording for the Help() function (manpage and User Guide)
 
 DEVELOPMENT
 -----------
