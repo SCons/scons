@@ -79,6 +79,13 @@ from `doc` and `doc/generated`), the SCons schema extension
 (`doc/xsd`), and the framework from `bin/SConsDoc.py`,
 which also contains information on some of the extensions.
 
+The generated files can be built on demand
+(`python bin/docs-update-generated.py`),
+and should never be directly edited.
+It is project convention *not* to commit the changes to generated
+files as they happen, but rather to commit the accumulated changes
+during the release process.
+
 ## Lint & Type
 
 ```bash
