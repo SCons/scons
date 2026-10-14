@@ -54,7 +54,7 @@ from __future__ import annotations
 
 import os
 import functools
-from typing import Callable
+from collections.abc import Callable
 
 import SCons.Errors
 

@@ -27,9 +27,9 @@ from __future__ import annotations
 
 import re
 from collections import UserList, UserString
+from collections.abc import Callable
 from functools import lru_cache
 from inspect import Parameter, signature
-from typing import Callable
 
 import SCons.Errors
 import SCons.Util
