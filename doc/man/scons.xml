@@ -1304,19 +1304,23 @@ the mechanisms in the specified order.</para>
     <option>--help</option>
   </term>
   <listitem>
-<para>Print a local help message for this project,
-if one is defined in the &SConscript; files
-(see the &f-link-Help; function),
-plus a line that refers to the standard &SCons; help message.
-If no local help message is defined,
-prints the standard &SCons; help message
-(as for the <option>-H</option> option)
-plus help for any local options defined through &f-link-AddOption;.
-Exits after displaying the appropriate message.</para>
 <para>
-Note that use of this option requires &SCons; to process
-the &SConscript; files, so syntax errors may cause
-the help message not to be displayed.
+Print project-specific build help and exit.
+</para>
+<para>
+Displays the help text configured by the &f-link-Help;
+function in the &SConscript; files.
+If &f-Help; has not been called,
+prints the default help message containing built-in
+&SCons; options and any project options added via &f-link-AddOption;.
+(For help specifically on built-in &SCons; command-line options,
+use <link linkend="opt-H"><option>-H</option></link>).
+</para>
+<para>
+Because this option processes the &SConscript; files
+to discover project help and options,
+syntax or execution errors in the build scripts may prevent
+the message from being displayed.
 </para>
   </listitem>
   </varlistentry>
