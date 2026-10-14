@@ -69,6 +69,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and a utility script and those two only tweak an annotation.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
+      * Split out a new section on Emitters with additional prose and
+        examples, since the information does not exclusively apply to
+        the emitter argument to Builder(). The Builder Objects "emitter"
+        argument section still has some wording, plus a link to the
+        new section.
       * Improve the wording for the Help() function (also User Guide)
     - User Guide improvements:
       * Removed the out-of-date table of option names for SetOption and

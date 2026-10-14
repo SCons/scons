@@ -888,19 +888,17 @@ for a complete explanation of the arguments and behavior.
 
 <para>
 Note that the
-<function>env.Builder</function>()
+&f-env-Builder;
 form of the invocation will expand
-&consvars; in any arguments strings,
+&consvars; in any argument strings,
 including the
 <parameter>action</parameter>
 argument,
-at the time it is called
-using the &consvars; in the
-<varname>env</varname>
-&consenv; through which
-&f-env-Builder; was called.
+at the time it is called,
+using the values from
+<varname>env</varname>.
 The
-&f-Builder;
+&f-Builder; (global fuction)
 form delays all variable expansion
 until after the Builder object is actually called.
 </para>

@@ -107,6 +107,10 @@ DOCUMENTATION
   generated from the checked-in documentation sources by bin/scons-man-to-ai.py,
   and can be built with the "ai-manpage" target.
 
+- Split out a new section on Emitters with additional prose and examples,
+  since the information does not exclusively apply to the emitter argument
+  to Builder(). The Builder Objects "emitter" argument section still
+  has some wording, plus a link to the new section.
 - Fix four documentation examples that were not valid Python: a stray
   parenthesis in the Command() example, an unterminated string in the
   MSVC_VERSION example, a missing comma that joined the two
