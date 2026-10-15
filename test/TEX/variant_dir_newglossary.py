@@ -73,7 +73,7 @@ test.write(['src', 'test.tex'], r"""
 
 \newglossary[ntg]{notation}{nts}{nto}{List of Notation}
 
-\makeglossary
+\makeglossaries
 
 \newglossaryentry{pi}{type=notation, name={$\pi$}, description={ratio
     of circumference to diameter of a circle}}

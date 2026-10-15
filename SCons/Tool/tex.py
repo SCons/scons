@@ -42,6 +42,7 @@ import SCons.Action
 import SCons.Node
 import SCons.Node.FS
 import SCons.Util
+import SCons.Warnings
 import SCons.Scanner.LaTeX
 from SCons.Util.sctypes import _null
 
@@ -94,9 +95,9 @@ listoffigures_re = re.compile(r"^[^%\n]*\\listoffigures", re.MULTILINE)
 listoftables_re = re.compile(r"^[^%\n]*\\listoftables", re.MULTILINE)
 hyperref_re = re.compile(r"^[^%\n]*\\usepackage.*\{hyperref\}", re.MULTILINE)
 makenomenclature_re = re.compile(r"^[^%\n]*\\makenomenclature", re.MULTILINE)
-makeglossary_re = re.compile(r"^[^%\n]*\\makeglossary", re.MULTILINE)
+makeglossary_re = re.compile(r"^[^%\n]*\\makeglossary(?!ies)", re.MULTILINE)
 makeglossaries_re = re.compile(r"^[^%\n]*\\makeglossaries", re.MULTILINE)
-makeacronyms_re = re.compile(r"^[^%\n]*\\makeglossaries", re.MULTILINE)
+makeacronyms_re = re.compile(r"^[^%\n]*\\newacronym", re.MULTILINE)
 beamer_re = re.compile(r"^[^%\n]*\\documentclass\{beamer\}", re.MULTILINE)
 regex = r'^[^%\n]*\\newglossary\s*\[([^\]]+)\]?\s*\{([^}]*)\}\s*\{([^}]*)\}\s*\{([^}]*)\}\s*\{([^}]*)\}'
 newglossary_re = re.compile(regex, re.MULTILINE)
@@ -709,6 +710,15 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     env.Clean(target[0],syncfilename)
 
     content = source[0].get_text_contents()
+
+    if makeglossary_re.search(content):
+        SCons.Warnings.warn(
+            SCons.Warnings.DeprecatedWarning,
+            r"Found \makeglossary in '%s': "
+            "the glossary.sty package is obsolete, "
+            "use \\makeglossaries with the glossaries package instead."
+            % source[0].get_path(),
+        )
 
     # set up list with the regular expressions
     # we use to find features used
