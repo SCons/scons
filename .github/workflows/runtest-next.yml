@@ -1,0 +1,57 @@
+# One-off canary: try newly available runner (ubuntu-26.04) + newly
+# released Python (3.15.0). Won't turn CI red if fails.
+
+name: Next Test Suite
+
+on: [push, pull_request, workflow_dispatch]
+
+concurrency:
+  group: ${{ github.workflow }}|${{ github.ref_name }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  runtest-next:
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-26.04]
+        python: ["3.15"]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          pip-install: --group dev
+
+      - name: Setup Ubuntu dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libtirpc-dev
+
+      - name: Setup excluded tests
+        run: |
+          touch .excludes
+          cat .excludes
+
+      - name: Run tests
+        id: run-tests
+        run: |
+          python runtest.py SCons test testing --time --jobs=0 --exclude-list=.excludes
+
+      - name: Archive failed tests
+        uses: actions/upload-artifact@v7
+        if: always() && steps.run-tests.outcome == 'failure'
+        with:
+          name: ${{ matrix.os }}-${{ matrix.python }}-failed-tests
+          path: failed_tests.log
