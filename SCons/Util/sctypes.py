@@ -14,6 +14,7 @@ import pprint
 import re
 import sys
 
+from abc import ABC, abstractmethod
 from collections import UserDict, UserList, UserString, deque
 from collections.abc import Iterable, KeysView, ValuesView, ItemsView
 
@@ -36,11 +37,26 @@ from collections.abc import Iterable, KeysView, ValuesView, ItemsView
 DictTypes = (dict, UserDict)
 ListTypes = (list, UserList, deque)
 
+class SequenceProxy(ABC):
+    """Base class for things is_Sequence should identify as sequences.
+
+    These are not sequences - only the presence in SequenceTypes matters.
+    Avoids the earlier behavior of inheriting from UserList only to get
+    "we're a sequence type", which had unexpected side effects.
+    Children need to implement their own ``__iter__``.
+    """
+    __slots__ = ()
+
+    @abstractmethod
+    def __iter__(self):
+        while False:
+            yield None
+
 # With Python 3, there are view types that are sequences. Other interesting
 # sequences are range and bytearray.  What we don't want is strings: while
 # they are iterable sequences, in SCons usage iterating over a string is
 # almost never what we want. So basically iterable-but-not-string:
-SequenceTypes = (list, tuple, deque, UserList, KeysView, ValuesView, ItemsView)
+SequenceTypes = (list, tuple, deque, UserList, SequenceProxy, KeysView, ValuesView, ItemsView)
 
 # Note that profiling data shows a speed-up when comparing
 # explicitly with str instead of simply comparing

@@ -80,6 +80,11 @@ IMPROVEMENTS
   Stop using. The changes are all import statements except SCons/Scanner/C
   and a utility script and those two only tweak an annotation.
 
+- Improve TSList and Targets_or_Sources performance by not inheriting
+  from UserList - no longer picks up the __iter__ from (former) parent
+  class collections.abc.Sequence, which was not intended for our usage
+  model. Now use a small proxy class to implement "this is a sequence".
+
 PACKAGING
 ---------
 

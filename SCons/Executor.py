@@ -39,54 +39,84 @@ class Batch:
     """Remembers exact association between targets
     and sources of executor."""
 
-    __slots__ = ('targets',
-                 'sources')
+    __slots__ = ('targets', 'sources')
 
-    def __init__(self, targets=[], sources=[]) -> None:
-        self.targets = targets
-        self.sources = sources
-
+    def __init__(self, targets=None, sources=None) -> None:
+        self.targets = [] if targets is None else targets
+        self.sources = [] if sources is None else sources
 
 
-class TSList(collections.UserList):
-    """A class that implements $TARGETS or $SOURCES expansions by wrapping
-    an executor Method.  This class is used in the Executor.lvars()
-    to delay creation of NodeList objects until they're needed.
+class TSList(SCons.Util.SequenceProxy):
+    """Implements $TARGETS or $SOURCES expansion by wrapping an executor method.
 
-    Note that we subclass collections.UserList purely so that the
-    is_Sequence() function will identify an object of this class as
-    a list during variable expansion.  We're not really using any
-    collections.UserList methods in practice.
+    This class is used in the Executor ``lvars`` dict to delay creation
+    of :class:`~SCons.Node.NodeList` objects until they're needed.
+
+    Performance musing: there are now seven dunder methods that call ``func``;
+    each time, a fresh nodelist is created. We could easily use an ``@property``
+    to cache the result of the first call, but that might cause problems
+    when Interactive mode needs to clear things - it's info that really
+    doesn't belong here. Maybe revisit memoizing in Executor?
     """
+
     def __init__(self, func) -> None:
         self.func = func
+
     def __getattr__(self, attr):
         nl = self.func()
         return getattr(nl, attr)
+
     def __getitem__(self, i):
         nl = self.func()
         return nl[i]
+
+    def __iter__(self):
+        return iter(self.func())
+
+    def __len__(self) -> int:
+        return len(self.func())
+
+    def __bool__(self) -> bool:
+        # Better would be to not create the NodeList at all.
+        # Can we ask our executor?
+        return bool(self.func())
+
     def __str__(self) -> str:
         nl = self.func()
         return str(nl)
+
     def __repr__(self) -> str:
         nl = self.func()
         return repr(nl)
 
+    # Example getter:
+    # @property
+    # def nodelist(self):
+    #     if self._nodelist is not None:
+    #         return self._nodelist
+    #     self._nodelist = self.func()
+    #     return self._nodelist
+
+
 class TSObject:
-    """A class that implements $TARGET or $SOURCE expansions by wrapping
-    an Executor method.
-    """
+    """Implement $TARGET or $SOURCE expansion by wrapping an executor method"""
+
     def __init__(self, func) -> None:
         self.func = func
+
     def __getattr__(self, attr):
         n = self.func()
         return getattr(n, attr)
+
+    def __bool__(self) -> bool:
+        return bool(self.func())
+
     def __str__(self) -> str:
         n = self.func()
         if n:
             return str(n)
         return ''
+
     def __repr__(self) -> str:
         n = self.func()
         if n:
