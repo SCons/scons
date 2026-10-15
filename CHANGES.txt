@@ -58,6 +58,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       MSVC_VERSION example, a missing comma that joined the two
       X_RPM_EXTRADEFS strings into one, and the user guide's Progress()
       callable, which lacked a colon and a "global count".
+    - Update the JAVAVERSION manpage entry for the default of 25.0: it
+      still gave 1.4 as the default and described setting a newer version.
 
   From Mats Wichmann:
     - Add more unit tests for UNC path handling. These tests expose some
