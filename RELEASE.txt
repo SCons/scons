@@ -65,6 +65,12 @@ FIXES
   CC="ccache clang". Generating the ninja file failed with "Could not find
   tool $CC".
 
+- SConstruct and SConscript files, site_init.py and variables files are no
+  longer compiled with the future flags of the SCons modules that run them.
+  Since SCons 4.11 those modules use "from __future__ import annotations",
+  which made annotations in build scripts strings and, for example, stopped
+  dataclasses from recognising InitVar fields.
+
 IMPROVEMENTS
 ------------
 

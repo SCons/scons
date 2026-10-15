@@ -45,6 +45,16 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       falls back to the <fm:Branch> field, which names the XSL-NS branch
       outright.
 
+  From Adam Matthews:
+    - SConstruct and SConscript files (including one read from stdin),
+      site_init.py and variables files are no longer compiled with the
+      future flags of the SCons module that runs them. Since
+      "from __future__ import annotations" was added to SConscript.py,
+      Main.py and Variables/__init__.py, annotations in those files had
+      become strings, which among other things stopped dataclasses from
+      recognising InitVar fields ("__post_init__() missing 1 required
+      positional argument").
+
   From Andrew Morrow:
     - Remove the legacy job scheduler and the "legacy_sched_deprecated"
       experimental feature flag.
