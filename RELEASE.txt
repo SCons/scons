@@ -51,6 +51,10 @@ FIXES
 - ParseDepends() keeps Windows drive-letter paths in make-style depfiles
   instead of splitting at the first colon.
 
+- PathList memoization includes the ``split`` flag in the cache key, so
+  ``PathList(..., split=False)`` no longer raises ``TypeError`` under
+  ``--debug=memoizer`` (LIBLITERALPREFIX / os.pathsep case).
+
 - IsInVirtualenv() no longer raises ValueError when PATH entries and the
   virtualenv are on different Windows drives (issue #3614).
 
@@ -60,6 +64,10 @@ FIXES
   DocBook source pulling in an external entity module.
 
 - Fix the ninja ctrl-c test, which was failing on some platforms.
+
+- Fix ninja to support compiler variables with a launcher prefix, such as
+  CC="ccache clang". Generating the ninja file failed with "Could not find
+  tool $CC".
 
 IMPROVEMENTS
 ------------
@@ -71,6 +79,15 @@ IMPROVEMENTS
 - Add more unit tests for UNC path handling. These tests expose some
   current issues so they are marked expectedFailure. The intent is to
   record this information for some future fix cycle.
+
+- With Python 3.9 some original "typing" constructs are now deprecated.
+  Stop using. The changes are all import statements except SCons/Scanner/C
+  and a utility script and those two only tweak an annotation.
+
+- Improve TSList and Targets_or_Sources performance by not inheriting
+  from UserList - no longer picks up the __iter__ from (former) parent
+  class collections.abc.Sequence, which was not intended for our usage
+  model. Now use a small proxy class to implement "this is a sequence".
 
 PACKAGING
 ---------
@@ -91,13 +108,24 @@ DOCUMENTATION
 
 - Fixed the second Value() example in the manpage, which did not work.
 
-* Added scons-ai.md, a condensed version of the manpage intended for
+- Added scons-ai.md, a condensed version of the manpage intended for
   consumption by AI tools, built into build/doc/MD. It keeps every documented
   option, tool, builder, function and construction variable together with its
   description, but omits markup, cross-references, examples and version-history
   notes, making it roughly half the size of scons.1 as measured in tokens. It is
   generated from the checked-in documentation sources by bin/scons-man-to-ai.py,
   and can be built with the "ai-manpage" target.
+
+- Split out a new section on Emitters with additional prose and examples,
+  since the information does not exclusively apply to the emitter argument
+  to Builder(). The Builder Objects "emitter" argument section still
+  has some wording, plus a link to the new section.
+- Fix four documentation examples that were not valid Python: a stray
+  parenthesis in the Command() example, an unterminated string in the
+  MSVC_VERSION example, a missing comma that joined the two
+  X_RPM_EXTRADEFS strings into one, and the user guide's Progress()
+  callable, which lacked a colon and a "global count".
+- Improve the wording for the Help() function (manpage and User Guide)
 
 DEVELOPMENT
 -----------
