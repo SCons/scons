@@ -24,6 +24,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+import sys
 
 import TestSCons
 
@@ -155,6 +156,8 @@ expect = [
     'Permission denied',
     'permission denied',
 ]
+if sys.platform == 'win32':
+    expect.append('The system cannot find the file specified')
 test.must_contain_any_line(test.stderr(), expect)
 
 
