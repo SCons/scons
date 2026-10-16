@@ -71,6 +71,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       from UserList - no longer picks up the __iter__ from (former) parent
       class collections.abc.Sequence, which was not intended for our usage
       model. Now use a small proxy class to implement "this is a sequence".
+    - Some cleanups in EnvironmentTests.py
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and

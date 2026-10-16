@@ -85,6 +85,8 @@ IMPROVEMENTS
   class collections.abc.Sequence, which was not intended for our usage
   model. Now use a small proxy class to implement "this is a sequence".
 
+- Some cleanups in EnvironmentTests.py
+
 PACKAGING
 ---------
 
