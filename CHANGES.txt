@@ -60,6 +60,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       callable, which lacked a colon and a "global count".
     - Update the JAVAVERSION manpage entry for the default of 25.0: it
       still gave 1.4 as the default and described setting a newer version.
+    - Correct the lists of variables the cc, hpcc and sgiar tools are
+      documented to set: cc does not set CCDEPFLAGS, hpcc calls cc and sets
+      SHCCFLAGS rather than SHCXXFLAGS and CXXVERSION, and sgiar sets ARCOM
+      and SHLINKCOM rather than ARCOMSTR.
 
   From Mats Wichmann:
     - Add more unit tests for UNC path handling. These tests expose some
