@@ -118,6 +118,17 @@ openout_re = re.compile(r"OUTPUT *(.*)")
 TexGraphics   = SCons.Scanner.LaTeX.TexGraphics
 LatexGraphics = SCons.Scanner.LaTeX.LatexGraphics
 
+# Generic builders use the scanner for the loaded TeX tool with fixed suffixes.
+# If multiple tools register scanners, the environment's first match wins.
+LaTeXSourceScanner = SCons.Scanner.ScannerBase(
+    {suffix: SCons.Tool.LaTeXScanner for suffix in SCons.Tool.LaTeXSuffixes},
+    name='LaTeXSourceScanner',
+)
+PDFLaTeXSourceScanner = SCons.Scanner.ScannerBase(
+    {suffix: SCons.Tool.PDFLaTeXScanner for suffix in SCons.Tool.LaTeXSuffixes},
+    name='PDFLaTeXSourceScanner',
+)
+
 # An Action sufficient to build any generic tex file.
 TeXAction = None
 
@@ -873,8 +884,10 @@ def generate_darwin(env) -> None:
         if ospath:
             env.AppendENVPath('PATH', ospath)
 
-def generate_common(env) -> None:
+def generate_common(env, source_scanner=LaTeXSourceScanner) -> None:
     """Add internal Builders and construction variables for LaTeX to an Environment."""
+
+    env.AppendUnique(SCANNERS=[source_scanner])
 
     # Add OSX system paths so TeX tools can be found
     # when a list of tools is given the exists() method is not called
