@@ -133,6 +133,8 @@ DOCUMENTATION
   X_RPM_EXTRADEFS strings into one, and the user guide's Progress()
   callable, which lacked a colon and a "global count".
 - Improve the wording for the Help() function (manpage and User Guide)
+- Corrected the lists of construction variables the cc, hpcc and sgiar
+  tools are documented to set.
 
 DEVELOPMENT
 -----------
