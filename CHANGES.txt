@@ -84,6 +84,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       class collections.abc.Sequence, which was not intended for our usage
       model. Now use a small proxy class to implement "this is a sequence".
     - Some cleanups in EnvironmentTests.py
+    - Small performance tweak in arg2nodes (SubstitutionEnvironment): fast-path
+      strings which are fully expanded (i.e., no $). Add unit tests.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
