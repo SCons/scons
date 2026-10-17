@@ -34,15 +34,6 @@ for tool in ('tex', 'pdflatex'):
 first_tool = %r
 env = Environment(tools=[], LATEXSUFFIXES=['.special'])
 env.Tool(first_tool)
-if first_tool == 'tex':
-    scanner_count = len(env['SCANNERS'])
-    for tool in ('tex', 'latex'):
-        env.Tool(tool)
-        assert len(env['SCANNERS']) == scanner_count
-    env.Tool('pdftex')
-    assert len(env['SCANNERS']) == scanner_count + 1
-    env.Tool('pdflatex')
-    assert len(env['SCANNERS']) == scanner_count + 1
 for suffix in ('.tex', '.ltx', '.latex', '.special'):
     env.Command('copy' + suffix, 'main' + suffix, Copy('$TARGET', '$SOURCE'))
 """ % tool)

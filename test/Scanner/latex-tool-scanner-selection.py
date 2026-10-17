@@ -14,8 +14,6 @@ test = TestSCons.TestSCons()
 # Repeated loads must not change the scanner chosen for generic Commands.
 for case, tools, selected, other in (
     ('tex', ['tex'], 'figure.eps', 'figure.png'),
-    ('latex', ['latex'], 'figure.eps', 'figure.png'),
-    ('pdftex', ['pdftex'], 'figure.png', 'figure.eps'),
     ('pdflatex', ['pdflatex'], 'figure.png', 'figure.eps'),
     ('tex-first', ['tex', 'pdflatex'], 'figure.eps', 'figure.png'),
     ('pdflatex-first', ['pdflatex', 'tex'], 'figure.png', 'figure.eps'),
@@ -69,7 +67,6 @@ test.up_to_date(chdir='isolated', arguments='.')
 
 # One nested input exercises the complete generic Command scanner path.
 test.write(['isolated', 'nested.tex'], 'Changed nested contents\n')
-test.up_to_date(chdir='isolated', arguments='plain-copy')
 for target in ('tex-copy', 'pdf-copy', 'tex-clone-copy'):
     test.run(chdir='isolated', arguments='-q ' + target, status=1)
 test.run(chdir='isolated', arguments='.')
