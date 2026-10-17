@@ -35,6 +35,7 @@ from __future__ import annotations
 import fnmatch
 import importlib.util
 import os
+import posixpath
 import re
 import shutil
 import stat
@@ -52,6 +53,7 @@ import SCons.Node
 import SCons.SConsign
 import SCons.Subst
 import SCons.Util
+import SCons.Warnings
 from SCons.Debug import logInstanceCreation, Trace
 from SCons.Node import BuildInfoBase, Node, NodeInfoBase
 from SCons.Util import hash_signature, hash_file_signature, hash_collect
@@ -161,6 +163,7 @@ def initialize_do_splitdrive() -> None:
         # _my_splitdrive = os.path.splitdrive
 
         def _my_splitdrive(p):
+            p = p.replace(OS_SEP, '/')
             if p[1:2] == ':':
                 return p[:2], p[2:]
             if p[0:2] == '//':
@@ -186,6 +189,20 @@ def initialize_do_splitdrive() -> None:
     os_sep_is_slash = OS_SEP == '/'
 
 initialize_do_splitdrive()
+
+
+def _warn_if_windows_extended_unc(path) -> None:
+    """Diagnose an explicit Windows extended UNC prefix on other hosts."""
+    if sys.platform != 'win32':
+        path = os.fspath(path)
+        if (isinstance(path, str) and path.startswith('\\\\?\\')
+                and path[4:8].upper() == 'UNC\\'):
+            SCons.Warnings.warn(
+                SCons.Warnings.WindowsExtendedUncWarning,
+                'This path uses a Windows extended UNC prefix. On this host, SCons '
+                'treats it as a native path, not as a Windows extended UNC path.',
+            )
+
 
 # Used to avoid invoking os.path.normpath if not necessary.
 needs_normpath_check = re.compile(
@@ -883,8 +900,12 @@ class Base(SCons.Node.Node):
         return self.dir.entry_labspath(self.name)
 
     def get_relpath(self) -> str:
-        """Get the path of the file relative to the root SConstruct file's directory."""
-        return os.path.relpath(self.dir.entry_abspath(self.name), self.fs.SConstruct_dir.get_abspath())
+        """Get a path relative to SConstruct, or absolute for a different mount."""
+        path = self.get_abspath()
+        try:
+            return os.path.relpath(path, self.fs.SConstruct_dir.get_abspath())
+        except ValueError:
+            return path
 
     def get_internal_path(self) -> str:
         if self.dir._path == '.':
@@ -1361,6 +1382,7 @@ class FS(LocalFS):
             return p
         # str(p) in case it's something like a proxy object
         p = str(p)
+        _warn_if_windows_extended_unc(p)
 
         if not os_sep_is_slash:
             p = p.replace(OS_SEP, '/')
@@ -1828,6 +1850,11 @@ class Dir(Base):
 
         if self is other:
             result = '.'
+
+        elif (do_splitdrive and isinstance(other, Base)
+              and os.path.normcase(os.path.splitdrive(self.get_abspath())[0])
+              != os.path.normcase(os.path.splitdrive(other.get_abspath())[0])):
+            result = other.get_abspath()
 
         elif other not in self._path_elements:
             try:
@@ -3750,7 +3777,24 @@ class FileFinder:
         """
         if not fd:
             fd = self.default_filedir
-        dir, name = os.path.split(fd)
+        if do_splitdrive and fd.replace(OS_SEP, '/').startswith('//'):
+            fd = fd.replace(OS_SEP, '/').rstrip('/') or '//'
+            parts = fd[2:].split('/')
+            if len(parts) == 2 and all(parts):
+                # A complete share is the first UNC directory we can query on disk.
+                try:
+                    try:
+                        return p.fs.Dir(fd, create=False)
+                    except SCons.Errors.UserError:
+                        if p.fs.isdir(fd):
+                            return p.fs.Dir(fd)
+                except TypeError:
+                    return None
+                return None
+            # Split the server and share as nodes below our common UNC root.
+            dir, name = posixpath.split(fd)
+        else:
+            dir, name = os.path.split(fd)
         if do_splitdrive:
             drive, d = _my_splitdrive(dir)
         else:
@@ -3793,6 +3837,7 @@ class FileFinder:
         returns The node created from the found file.
 
         """
+        _warn_if_windows_extended_unc(filename)
         memo_key = self._find_file_key(filename, paths)
         try:
             memo_dict = self._memo['find_file']
@@ -3879,4 +3924,3 @@ def invalidate_node_memos(targets: str | Node | list[str | Node]) -> None:
 EntryNode = Entry
 DirNode = Dir
 FileNode = File
-

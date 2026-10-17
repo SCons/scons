@@ -30,6 +30,7 @@ Test the --install-sandbox commandline option for Install() and InstallAs().
 import os.path
 
 import TestSCons
+from TestCmd import IS_WINDOWS
 
 test = TestSCons.TestSCons()
 
@@ -68,6 +69,55 @@ test.run(arguments = '--install-sandbox=%s' % destdir, stdout=expect)
 test.must_match(file1_out, "file1.out\n")
 test.must_match('destination/file2.out', "file2.in\n")
 test.must_match('destination/subdir/file3.out', "subdir/file3.in\n")
+
+if not IS_WINDOWS:
+    test.write('SConstruct', r"""
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
+env.Install('//Users/bdbaddog', 'file1.out')
+env.InstallAs('//Users/bdbaddog/.bashrc', 'file2.in')
+env.InstallAs('//server/share/dir/slash.out', 'file2.in')
+""")
+    posix_destdir = test.workpath('posix-destination')
+    test.run(arguments='--install-sandbox=%s' % posix_destdir, stdout=None)
+    test.must_match('posix-destination/Users/bdbaddog/file1.out', "file1.out\n")
+    test.must_match('posix-destination/Users/bdbaddog/.bashrc', "file2.in\n")
+    test.must_match('posix-destination/server/share/dir/slash.out', "file2.in\n")
+
+    test.write('SConstruct', r"""
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
+import SCons.Warnings
+if ARGUMENTS.get('AS_ERROR'):
+    SCons.Warnings.warningAsException(True)
+env.InstallAs(r'\\?\UNC\server\share\dir\extended.out', 'file2.in')
+""")
+    extended_destdir = test.workpath('extended-destination')
+    warning = (
+        'This path uses a Windows extended UNC prefix. On this host, SCons '
+        'treats it as a native path, not as a Windows extended UNC path.'
+    )
+    test.run(arguments='--install-sandbox=%s' % extended_destdir,
+             stdout=None, stderr=None)
+    test.must_contain_all_lines(test.stderr(), ['scons: warning: ' + warning])
+    test.must_match(
+        ['extended-destination', r'\\?\UNC\server\share\dir\extended.out'],
+        "file2.in\n",
+    )
+
+    test.run(arguments='--warn=no-windows-extended-unc --install-sandbox=%s'
+             % extended_destdir, stdout=None)
+    test.run(arguments='--warn=no-windows-extended-unc '
+             '--warn=windows-extended-unc --install-sandbox=%s' % extended_destdir,
+             stdout=None, stderr=None)
+    test.must_contain_all_lines(test.stderr(), ['scons: warning: ' + warning])
+    error_destdir = test.workpath('error-destination')
+    test.run(arguments='AS_ERROR=1 --install-sandbox=%s' % error_destdir,
+             status=2, stdout=None, stderr=None)
+    test.must_contain_all_lines(test.stderr(), ['scons: ***', warning])
+    test.must_not_exist(
+        ['error-destination', r'\\?\UNC\server\share\dir\extended.out'],
+    )
 
 #
 test.pass_test()

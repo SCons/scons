@@ -155,6 +155,9 @@ class ReservedVariableWarning(WarningOnByDefault):
 class StackSizeWarning(WarningOnByDefault):
     """Requested thread stack size could not be set."""
 
+class WindowsExtendedUncWarning(WarningOnByDefault):
+    """A Windows extended UNC prefix is used on a non-Windows host."""
+
 class TargetNotBuiltWarning(SConsWarning): # TODO: should go to OnByDefault
     """A target build indicated success but the file is not found."""
 
