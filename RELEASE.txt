@@ -93,6 +93,9 @@ IMPROVEMENTS
 
 - Some cleanups in EnvironmentTests.py
 
+- Small performance tweak in arg2nodes (SubstitutionEnvironment): fast-path
+  strings which are fully expanded (i.e., no $). Add unit tests.
+
 PACKAGING
 ---------
 

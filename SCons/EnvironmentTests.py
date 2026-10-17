@@ -363,6 +363,52 @@ class SubstitutionTestCase(unittest.TestCase):
         assert not hasattr(nodes[1], 'bbbb'), nodes[1]
         assert nodes[1].c == 1, nodes[1]
 
+        # falsy args short-circuit before factory/lookups are touched
+        assert env.arg2nodes([]) == []
+        assert env.arg2nodes("") == []
+
+        # a factory may return a list of nodes
+        def FactoryList(name):
+            return [Factory(name), Factory(name + '~')]
+
+        p, p_tilde = Factory('p'), Factory('p~')
+        nodes = env.arg2nodes(['p'], FactoryList)
+        assert len(nodes) == 2, nodes
+        assert nodes[0] is p and nodes[1] is p_tilde, nodes
+
+        # TODO: the is_String(n) handling in Environment.arg2nodes()
+        # implements a legacy contract (subst the string returned by a
+        # lookup, then pass it to the factory), but no production lookup
+        # returns a string: SCons.Node.arg2nodes_lookups is typed
+        # Callable[[str], Node | None] and only Alias.lookup registers.
+        # If that block is ever removed as dead code, delete the
+        # lookup_str tests below along with it.
+        def lookup_str(s):
+            if s.startswith('x'):
+                return '${AAA}'
+            if s.startswith('y'):
+                return 'plain'
+            return None
+
+        env3 = SubstitutionEnvironment(AAA = 'a')
+        env3.lookup_list = [lookup_str]
+        a, a_tilde = Factory('a'), Factory('a~')
+        nodes = env3.arg2nodes(['x1'], FactoryList)
+        assert len(nodes) == 2, nodes
+        assert nodes[0] is a and nodes[1] is a_tilde, nodes
+
+        # With no factory, the substituted string is appended as-is
+        assert env3.arg2nodes(['x1'], None) == ['a']
+
+        # A $-free lookup result skips subst, factory gets it verbatim
+        plain = Factory('plain')
+        nodes = env3.arg2nodes(['y1'], Factory)
+        assert len(nodes) == 1, nodes
+        assert nodes[0] is plain, nodes
+
+        # A string no lookup claims is dropped when there's no factory
+        assert env.arg2nodes('foo', None) == []
+
     def test_arg2nodes_target_source(self) -> None:
         """Test the arg2nodes method with target= and source= keywords
         """
