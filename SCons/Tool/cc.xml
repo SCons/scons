@@ -49,7 +49,6 @@ Sets construction variables for generic POSIX C compilers.
 <item>SHOBJSUFFIX</item>
 <item><!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME--></item>
 <item>CFILESUFFIX</item>
- <item>CCDEPFLAGS</item>
 </sets>
 <uses>
 <item>PLATFORM</item>

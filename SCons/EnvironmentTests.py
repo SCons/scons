@@ -46,41 +46,37 @@ from SCons.SConsign import current_sconsign_filename
 def diff_env(env1, env2):
     s1 = "env1 = {\n"
     s2 = "env2 = {\n"
-    d = {}
-    for k in list(env1._dict.keys()) + list(env2._dict.keys()):
-        d[k] = None
-    for k in sorted(d.keys()):
+    d = {k: None for k in env1._dict + env2._dict}
+    for k in sorted(d):
         if k in env1:
-           if k in env2:
-               if env1[k] != env2[k]:
-                   s1 = s1 + "    " + repr(k) + " : " + repr(env1[k]) + "\n"
-                   s2 = s2 + "    " + repr(k) + " : " + repr(env2[k]) + "\n"
-           else:
-               s1 = s1 + "    " + repr(k) + " : " + repr(env1[k]) + "\n"
+            if k in env2:
+                if env1[k] != env2[k]:
+                    s1 = f"{s1}    {k!r} : {env1[k]!r}\n"
+                    s2 = f"{s2}    {k!r} : {env2[k]!r}\n"
+            else:
+                s1 = f"{s1}    {k!r} : {env1[k]!r}\n"
         elif k in env2:
-           s2 = s2 + "    " + repr(k) + " : " + repr(env2[k]) + "\n"
-    s1 = s1 + "}\n"
-    s2 = s2 + "}\n"
+            s2 = f"{s2}    {k!r} : {env2[k]!r}\n"
+    s1 = f"{s1}}}\n"
+    s2 = f"{s2}}}\n"
     return s1 + s2
 
 def diff_dict(d1, d2):
     s1 = "d1 = {\n"
     s2 = "d2 = {\n"
-    d = {}
-    for k in list(d1.keys()) + list(d2.keys()):
-        d[k] = None
-    for k in sorted(d.keys()):
+    d = {k: None for k in d1 + d2}
+    for k in sorted(d):
         if k in d1:
-           if k in d2:
-               if d1[k] != d2[k]:
-                   s1 = s1 + "    " + repr(k) + " : " + repr(d1[k]) + "\n"
-                   s2 = s2 + "    " + repr(k) + " : " + repr(d2[k]) + "\n"
-           else:
-               s1 = s1 + "    " + repr(k) + " : " + repr(d1[k]) + "\n"
+            if k in d2:
+                if d1[k] != d2[k]:
+                    s1 = f"{s1}    {k!r} : {d1[k]!r}\n"
+                    s2 = f"{s2}    {k!r} : {d2[k]!r}\n"
+            else:
+                s1 = f"{s1}    {k!r} : {d1[k]!r}\n"
         elif k in d2:
-           s2 = s2 + "    " + repr(k) + " : " + repr(d2[k]) + "\n"
-    s1 = s1 + "}\n"
-    s2 = s2 + "}\n"
+            s2 = f"{s2}    {k!r} : {d2[k]!r}\n"
+    s1 = f"{s1}}}\n"
+    s2 = f"{s2}}}\n"
     return s1 + s2
 
 called_it = {}
@@ -90,7 +86,7 @@ class Builder(SCons.Builder.BuilderBase):
     """A dummy Builder class for testing purposes.  "Building"
     a target is simply setting a value in the dictionary.
     """
-    def __init__(self, name = None) -> None:
+    def __init__(self, name=None) -> None:
         self.name = name
 
     def __call__(self, env, target=None, source=None, **kw) -> None:
@@ -247,7 +243,7 @@ class SubstitutionTestCase(unittest.TestCase):
 
     def test_setdefault(self) -> None:
         """Test the SubstitutionEnvironment setdefault() method."""
-        env = SubstitutionEnvironment(XXX = 'x')
+        env = SubstitutionEnvironment(XXX='x')
         assert env.setdefault('XXX', 'z') == 'x', env['XXX']
         assert env.setdefault('YYY', 'y') == 'y', env['YYY']
         assert 'YYY' in env
@@ -255,14 +251,19 @@ class SubstitutionTestCase(unittest.TestCase):
     def test_arg2nodes(self) -> None:
         """Test the arg2nodes method."""
         env = SubstitutionEnvironment()
-        dict = {}
+
         class X(SCons.Node.Node):
             pass
-        def Factory(name, directory = None, create: int = 1, dict=dict, X=X):
-            if name not in dict:
-                dict[name] = X()
-                dict[name].name = name
-            return dict[name]
+
+        node_cache: dict[str, X] = {}
+
+        def Factory(name):
+            node = node_cache.get(name)
+            if node is None:
+                node = X()
+                node.name = name
+                node_cache[name] = node
+            return node
 
         nodes = env.arg2nodes("Util.py UtilTests.py", Factory)
         assert len(nodes) == 1, nodes
@@ -327,8 +328,8 @@ class SubstitutionTestCase(unittest.TestCase):
         assert nodes[1].b == 1, nodes[1]
 
         assert nodes[2].name == 'ccc'
-        assert not hasattr(nodes[2], 'a'), nodes[1]
-        assert not hasattr(nodes[2], 'b'), nodes[1]
+        assert not hasattr(nodes[2], 'a'), nodes[2]
+        assert not hasattr(nodes[2], 'b'), nodes[2]
 
         def lookup_bbbb(str, F=Factory):
             if str == 'bbbb':
@@ -351,16 +352,62 @@ class SubstitutionTestCase(unittest.TestCase):
         assert len(nodes) == 2, nodes
 
         assert nodes[0].name == 'bbbb'
-        assert not hasattr(nodes[0], 'a'), nodes[1]
-        assert not hasattr(nodes[0], 'b'), nodes[1]
-        assert nodes[0].bbbb == 1, nodes[1]
+        assert not hasattr(nodes[0], 'a'), nodes[0]
+        assert not hasattr(nodes[0], 'b'), nodes[0]
+        assert nodes[0].bbbb == 1, nodes[0]
         assert not hasattr(nodes[0], 'c'), nodes[0]
 
         assert nodes[1].name == 'ccc'
         assert not hasattr(nodes[1], 'a'), nodes[1]
         assert not hasattr(nodes[1], 'b'), nodes[1]
-        assert not hasattr(nodes[1], 'bbbb'), nodes[0]
+        assert not hasattr(nodes[1], 'bbbb'), nodes[1]
         assert nodes[1].c == 1, nodes[1]
+
+        # falsy args short-circuit before factory/lookups are touched
+        assert env.arg2nodes([]) == []
+        assert env.arg2nodes("") == []
+
+        # a factory may return a list of nodes
+        def FactoryList(name):
+            return [Factory(name), Factory(name + '~')]
+
+        p, p_tilde = Factory('p'), Factory('p~')
+        nodes = env.arg2nodes(['p'], FactoryList)
+        assert len(nodes) == 2, nodes
+        assert nodes[0] is p and nodes[1] is p_tilde, nodes
+
+        # TODO: the is_String(n) handling in Environment.arg2nodes()
+        # implements a legacy contract (subst the string returned by a
+        # lookup, then pass it to the factory), but no production lookup
+        # returns a string: SCons.Node.arg2nodes_lookups is typed
+        # Callable[[str], Node | None] and only Alias.lookup registers.
+        # If that block is ever removed as dead code, delete the
+        # lookup_str tests below along with it.
+        def lookup_str(s):
+            if s.startswith('x'):
+                return '${AAA}'
+            if s.startswith('y'):
+                return 'plain'
+            return None
+
+        env3 = SubstitutionEnvironment(AAA = 'a')
+        env3.lookup_list = [lookup_str]
+        a, a_tilde = Factory('a'), Factory('a~')
+        nodes = env3.arg2nodes(['x1'], FactoryList)
+        assert len(nodes) == 2, nodes
+        assert nodes[0] is a and nodes[1] is a_tilde, nodes
+
+        # With no factory, the substituted string is appended as-is
+        assert env3.arg2nodes(['x1'], None) == ['a']
+
+        # A $-free lookup result skips subst, factory gets it verbatim
+        plain = Factory('plain')
+        nodes = env3.arg2nodes(['y1'], Factory)
+        assert len(nodes) == 1, nodes
+        assert nodes[0] is plain, nodes
+
+        # A string no lookup claims is dropped when there's no factory
+        assert env.arg2nodes('foo', None) == []
 
     def test_arg2nodes_target_source(self) -> None:
         """Test the arg2nodes method with target= and source= keywords
@@ -1239,6 +1286,7 @@ env4.builder1.env, env3)
     def test_IllegalVariables(self) -> None:
         """Test that use of illegal variables raises an exception"""
         env = Environment()
+
         def test_it(var, env=env) -> None:
             exc_caught = None
             try:
@@ -1246,6 +1294,7 @@ env4.builder1.env, env3)
             except SCons.Errors.UserError:
                 exc_caught = 1
             assert exc_caught, "did not catch UserError for '%s'" % var
+
         env['aaa'] = 1
         assert env['aaa'] == 1, env['aaa']
         test_it('foo/bar')
@@ -1348,8 +1397,10 @@ env4.builder1.env, env3)
     def test_platform(self) -> None:
         """Test specifying a platform callable when instantiating."""
         class platform:
-            def __str__(self) -> str:        return "TestPlatform"
-            def __call__(self, env) -> None:  env['XYZZY'] = 777
+            def __str__(self) -> str:
+                return "TestPlatform"
+            def __call__(self, env) -> None:
+                env['XYZZY'] = 777
 
         def tool(env) -> None:
             env['SET_TOOL'] = 'initialized'
@@ -1363,8 +1414,10 @@ env4.builder1.env, env3)
     def test_Default_PLATFORM(self) -> None:
         """Test overriding the default PLATFORM variable"""
         class platform:
-            def __str__(self) -> str:        return "DefaultTestPlatform"
-            def __call__(self, env) -> None:  env['XYZZY'] = 888
+            def __str__(self) -> str:
+                return "DefaultTestPlatform"
+            def __call__(self, env) -> None:
+                env['XYZZY'] = 888
 
         def tool(env) -> None:
             env['SET_TOOL'] = 'abcde'
@@ -2090,7 +2143,7 @@ def generate(env):
             test.write(['sub1', 'xxx'], "sub1/xxx\n")
             test.write(['sub2', 'xxx'], "sub2/xxx\n")
 
-            env = self.TestEnvironment(ENV = { 'PATH' : [sub1, sub2] })
+            env = self.TestEnvironment(ENV={'PATH': [sub1, sub2]})
 
             x = env.Detect('xxx.exe')
             assert x is None, x

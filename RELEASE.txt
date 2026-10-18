@@ -48,6 +48,10 @@ FIXES
 - Preserve native path semantics for install and package locations: POSIX
   double-slash paths retain their directory components, while Windows UNC
   paths are relative to the share root.
+  
+- Register matching LaTeX or PDFLaTeX source scanners only in environments
+  that load a TeX tool, avoiding unexpected scanning and undefined
+  LATEXSUFFIXES errors in other environments.
 
 - Fix ninja to honor AlwaysBuild on a target
 
@@ -72,6 +76,12 @@ FIXES
   CC="ccache clang". Generating the ninja file failed with "Could not find
   tool $CC".
 
+- SConstruct and SConscript files, site_init.py and variables files are no
+  longer compiled with the future flags of the SCons modules that run them.
+  Since SCons 4.11 those modules use "from __future__ import annotations",
+  which made annotations in build scripts strings and, for example, stopped
+  dataclasses from recognising InitVar fields.
+
 IMPROVEMENTS
 ------------
 
@@ -84,6 +94,16 @@ IMPROVEMENTS
 - With Python 3.9 some original "typing" constructs are now deprecated.
   Stop using. The changes are all import statements except SCons/Scanner/C
   and a utility script and those two only tweak an annotation.
+
+- Improve TSList and Targets_or_Sources performance by not inheriting
+  from UserList - no longer picks up the __iter__ from (former) parent
+  class collections.abc.Sequence, which was not intended for our usage
+  model. Now use a small proxy class to implement "this is a sequence".
+
+- Some cleanups in EnvironmentTests.py
+
+- Small performance tweak in arg2nodes (SubstitutionEnvironment): fast-path
+  strings which are fully expanded (i.e., no $). Add unit tests.
 
 PACKAGING
 ---------
@@ -122,6 +142,9 @@ DOCUMENTATION
   X_RPM_EXTRADEFS strings into one, and the user guide's Progress()
   callable, which lacked a colon and a "global count".
 - Improve the wording for the Help() function (manpage and User Guide)
+- Corrected the lists of construction variables the cc, hpcc and sgiar
+  tools are documented to set.
+- Fix typo in X_RPM_EXCLUSIVEARCH manpage entry.
 
 DEVELOPMENT
 -----------
@@ -135,6 +158,19 @@ DEVELOPMENT
   file. The test helper read that as version (0, 0, 0) and so handed the
   plain, non-namespaced input to namespace-aware stylesheets, which quietly
   produced an empty document; it now falls back to the <fm:Branch> field.
+
+- Fixed an intermittent failure in test/leaky-handles.py. The test counted the
+  entries in /proc/<shell pid>/fd through a shell pipeline, and those transiently
+  include the pipe ends the shell has not closed yet, so the count came out too
+  high when the shell and the command contended for a cpu. The forked command now
+  reports the handles it inherited itself. The test also no longer passed
+  unconditionally: the handle it leaked was closed before the build phase ran,
+  and was close-on-exec in any case (PEP 446), so no leak could be detected.
+  
+- test/ninja/iterative_speedup.py no longer fails intermittently on loaded or
+  few-core machines (seen on macOS CI): the clean-build timing comparison,
+  where ninja's lead is small, now has slack, while the incremental rebuild
+  comparisons remain strict.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

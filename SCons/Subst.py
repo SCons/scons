@@ -189,13 +189,14 @@ def escape_list(mylist: list, escape_func: Callable) -> list[str]:
     return list(map(escape, mylist))
 
 class NLWrapper:
-    """A wrapper class that delays turning a list of sources or targets
-    into a NodeList until it's needed.  The specified function supplied
-    when the object is initialized is responsible for turning raw nodes
-    into proxies that implement the special attributes like .abspath,
-    .source, etc.  This way, we avoid creating those proxies just
-    "in case" someone is going to use $TARGET or the like, and only
-    go through the trouble if we really have to.
+    """A wrapper that delays turning a list of sources or targets into a :class:`~/SCons.Node.NodeList` until it's needed.
+
+    The specified function supplied when the object is initialized is
+    responsible for turning raw nodes into proxies that implement
+    the special attributes like ``.abspath``, ``.source``, etc.
+    This way, we avoid creating those proxies just "in case" someone
+    is going to use ``$TARGET`` or the like, and only go through the
+    trouble if we really have to.
 
     In practice, this might be a wash performance-wise, but it's a little
     cleaner conceptually...
@@ -223,15 +224,11 @@ class NLWrapper:
     _create_nodelist = _gen_nodelist
 
 
-class Targets_or_Sources(UserList):
-    """A class that implements $TARGETS or $SOURCES expansions by in turn
-    wrapping a NLWrapper.  This class handles the different methods used
-    to access the list, calling the NLWrapper to create proxies on demand.
+class Targets_or_Sources(SCons.Util.SequenceProxy):
+    """Implement $TARGETS or $SOURCES expansions by wrapping :class:`NLWrapper`.
 
-    Note that we subclass :class:`~collections.UserList` purely so that the
-    :func:`~SCons.Util.is_Sequence` function will identify an object of this
-    class as a list during variable expansion.  We're not really using any
-    :class:`~collections.UserList` methods in practice.
+    This class handles the different methods used to access the list,
+    calling the ``NLWrapper`` to create proxies on demand.
     """
 
     def __init__(self, nl) -> None:
@@ -245,6 +242,15 @@ class Targets_or_Sources(UserList):
         nl = self.nl._create_nodelist()
         return nl[i]
 
+    def __iter__(self):
+        return iter(self.nl._create_nodelist())
+
+    def __len__(self) -> int:
+        return len(self.nl._create_nodelist())
+
+    def __bool__(self) -> bool:
+        return bool(self.nl._create_nodelist())
+
     def __str__(self) -> str:
         nl = self.nl._create_nodelist()
         return str(nl)
@@ -254,10 +260,10 @@ class Targets_or_Sources(UserList):
         return repr(nl)
 
 class Target_or_Source:
-    """A class that implements $TARGET or $SOURCE expansions by in turn
-    wrapping a NLWrapper.  This class handles the different methods used
-    to access an individual proxy Node, calling the NLWrapper to create
-    a proxy on demand.
+    """Implement $TARGET or $SOURCE expansions by wrapping :class:`NLWrapper`.
+
+    This class handles the different methods used to access an individual
+    proxy Node, calling the ``NLWrapper`` to create a proxy on demand.
     """
 
     def __init__(self, nl) -> None:
@@ -272,6 +278,9 @@ class Target_or_Source:
             # pass through, so raise AttributeError for everything.
             raise AttributeError(f"NodeList has no attribute: {attr}")
         return getattr(nl0, attr)
+
+    def __bool__(self) -> bool:
+        return bool(self.nl._create_nodelist())
 
     def __str__(self) -> str:
         nl = self.nl._create_nodelist()

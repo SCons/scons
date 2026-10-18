@@ -530,7 +530,7 @@ field in the RPM
 </summary>
 </cvar>
 
-<cvar name="X_RPM_EXLUSIVEARCH">
+<cvar name="X_RPM_EXCLUSIVEARCH">
 <summary>
 <para>
 This is used to fill in the
