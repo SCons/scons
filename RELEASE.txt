@@ -42,6 +42,13 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
+- Fix Windows UNC path lookup with either separator style and use absolute
+  paths when a relative path crosses Windows drives or UNC shares.
+
+- Preserve native path semantics for install and package locations: POSIX
+  double-slash paths retain their directory components, while Windows UNC
+  paths are relative to the share root.
+  
 - Register matching LaTeX or PDFLaTeX source scanners only in environments
   that load a TeX tool, avoiding unexpected scanning and undefined
   LATEXSUFFIXES errors in other environments.
@@ -82,9 +89,7 @@ IMPROVEMENTS
   documentation:  performance improvements (describe the circumstances
   under which they would be observed), or major code cleanups
 
-- Add more unit tests for UNC path handling. These tests expose some
-  current issues so they are marked expectedFailure. The intent is to
-  record this information for some future fix cycle.
+- Add more unit tests for UNC path handling.
 
 - With Python 3.9 some original "typing" constructs are now deprecated.
   Stop using. The changes are all import statements except SCons/Scanner/C

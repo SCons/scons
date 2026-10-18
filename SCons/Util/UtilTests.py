@@ -24,12 +24,14 @@
 from __future__ import annotations
 
 import io
+import ntpath
 import os
 import subprocess
 import sys
 import unittest
 from collections import UserDict
 from collections.abc import Callable
+from unittest.mock import patch
 
 import TestCmd
 from TestCmd import IS_WINDOWS
@@ -96,22 +98,98 @@ class UtilTestCase(unittest.TestCase):
         assert splitext('foo.bar') == ('foo', '.bar')
         assert splitext(os.path.join('foo.bar', 'blat')) == (os.path.join('foo.bar', 'blat'), '')
 
-    @unittest.expectedFailure
-    @unittest.skipIf(IS_WINDOWS, "make_path_relative UNC bug is POSIX-specific")
-    def test_make_path_relative_unc(self) -> None:
-        """make_path_relative() must strip the UNC share root like a drive root.
+    def test_make_path_relative(self) -> None:
+        """Empty and relative paths keep their native spelling."""
+        for path, expected in (
+            ('', ''),
+            ('relative/file', 'relative/file'),
+            (r'relative\file', r'relative\file'),
+        ):
+            with self.subTest(path=path):
+                self.assertEqual(make_path_relative(path), expected)
 
-        On Windows ``os.path.splitdrive`` recognizes the ``//server/share``
-        prefix, so ``'//server/share/file'`` becomes ``'file'``.  On a
-        POSIX host (whose ``splitdrive`` is a no-op) the leading
-        separators are stripped by regex instead, yielding
-        ``'server/share/file'`` - the UNC root is silently lost - and a
-        native backslash UNC path is left untouched because it isn't
-        absolute.  The two separator styles of the same path must agree,
-        regardless of the host platform.
-        """
-        self.assertEqual(make_path_relative('//server/share/file'), 'file')
-        self.assertEqual(make_path_relative(r'\\server\share\file'), 'file')
+    @unittest.skipIf(IS_WINDOWS, "POSIX path semantics")
+    def test_make_path_relative_posix(self) -> None:
+        """Double leading slashes do not turn POSIX directories into UNC roots."""
+        for path, expected in (
+            ('/', ''),
+            ('/usr/local', 'usr/local'),
+            ('//scons-sandbox-root/.bashrc', 'scons-sandbox-root/.bashrc'),
+            ('//server/share', 'server/share'),
+            ('//server/share/', 'server/share/'),
+            ('//server/share/dir/file', 'server/share/dir/file'),
+            ('///usr/local', 'usr/local'),
+            ('//server', 'server'),
+            ('//server/', 'server/'),
+            ('//server//share/file', 'server//share/file'),
+            (r'\\server\share\dir\file', r'\\server\share\dir\file'),
+            (r'//server\share\dir/file', r'server\share\dir/file'),
+            ('C:/local/file', 'C:/local/file'),
+        ):
+            with self.subTest(path=path):
+                self.assertEqual(make_path_relative(path), expected)
+
+    def test_make_path_relative_windows_unc(self) -> None:
+        """Windows path handling strips native drive and UNC share roots."""
+        with patch('SCons.Util.os.path', ntpath):
+            # Some supported ntpath implementations consider bare shares relative.
+            for path in ('//server/share', r'\\server\share'):
+                expected = '' if ntpath.isabs(path) else path
+                with self.subTest(bare_share=path):
+                    self.assertEqual(make_path_relative(path), expected)
+            for path, expected in (
+                ('//server/share/', ''),
+                ('\\\\server\\share\\', ''),
+                ('//server/share/dir/file', 'dir/file'),
+                (r'\\server\share\dir\file', r'dir\file'),
+                (r'//server\share\dir/file', 'dir/file'),
+                ('C:/local/file', 'local/file'),
+                (r'C:\local\file', r'local\file'),
+            ):
+                with self.subTest(path=path):
+                    self.assertEqual(make_path_relative(path), expected)
+
+    def test_make_path_relative_windows_rooted(self) -> None:
+        """Single leading slashes follow the active Windows path implementation."""
+        with patch('SCons.Util.os.path', ntpath):
+            for path, absolute_expected in (('/', ''), ('/usr/local', 'usr/local')):
+                expected = absolute_expected if ntpath.isabs(path) else path
+                with self.subTest(path=path):
+                    self.assertEqual(make_path_relative(path), expected)
+
+    @unittest.skipIf(IS_WINDOWS, "POSIX install paths")
+    def test_posix_install_paths(self) -> None:
+        """Install sandbox locations retain every POSIX directory component."""
+        from SCons.Environment import Environment
+        from SCons.Tool.install import DESTDIR_factory
+
+        env = Environment(tools=[])
+        factory = DESTDIR_factory(env, '#posix-stage')
+        for path, expected in (
+            ('//scons-sandbox-root/.bashrc', 'scons-sandbox-root/.bashrc'),
+            ('//server/share/dir/file', 'server/share/dir/file'),
+        ):
+            with self.subTest(path=path):
+                self.assertIs(factory.Entry(path), factory.dir.Entry(expected))
+                self.assertIs(factory.Dir(path), factory.dir.Dir(expected))
+
+    @unittest.skipIf(IS_WINDOWS, "POSIX package paths")
+    def test_posix_package_paths(self) -> None:
+        """Package install locations retain every POSIX directory component."""
+        from SCons.Environment import Environment
+        from SCons.Tool.packaging import putintopackageroot
+
+        env = Environment(tools=['filesystem'])
+        for index, (path, expected) in enumerate((
+            ('//scons-sandbox-root/.bashrc', 'scons-sandbox-root/.bashrc'),
+            ('//server/share/dir/file', 'server/share/dir/file'),
+        )):
+            with self.subTest(path=path):
+                source = env.File('posix-source-' + str(index))
+                source.Tag('PACKAGING_INSTALL_LOCATION', path)
+                pkgroot = env.Dir('posix-package-' + str(index))
+                _, files = putintopackageroot([], [source], env, pkgroot)
+                self.assertEqual(files, [pkgroot.File(expected)])
 
     class Node:
         def __init__(self, name, children=[]) -> None:
