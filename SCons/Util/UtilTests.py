@@ -114,7 +114,7 @@ class UtilTestCase(unittest.TestCase):
         for path, expected in (
             ('/', ''),
             ('/usr/local', 'usr/local'),
-            ('//Users/bdbaddog/.bashrc', 'Users/bdbaddog/.bashrc'),
+            ('//scons-sandbox-root/.bashrc', 'scons-sandbox-root/.bashrc'),
             ('//server/share', 'server/share'),
             ('//server/share/', 'server/share/'),
             ('//server/share/dir/file', 'server/share/dir/file'),
@@ -166,7 +166,7 @@ class UtilTestCase(unittest.TestCase):
         env = Environment(tools=[])
         factory = DESTDIR_factory(env, '#posix-stage')
         for path, expected in (
-            ('//Users/bdbaddog/.bashrc', 'Users/bdbaddog/.bashrc'),
+            ('//scons-sandbox-root/.bashrc', 'scons-sandbox-root/.bashrc'),
             ('//server/share/dir/file', 'server/share/dir/file'),
         ):
             with self.subTest(path=path):
@@ -181,7 +181,7 @@ class UtilTestCase(unittest.TestCase):
 
         env = Environment(tools=['filesystem'])
         for index, (path, expected) in enumerate((
-            ('//Users/bdbaddog/.bashrc', 'Users/bdbaddog/.bashrc'),
+            ('//scons-sandbox-root/.bashrc', 'scons-sandbox-root/.bashrc'),
             ('//server/share/dir/file', 'server/share/dir/file'),
         )):
             with self.subTest(path=path):

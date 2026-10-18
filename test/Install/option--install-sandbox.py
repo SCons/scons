@@ -74,15 +74,13 @@ if not IS_WINDOWS:
     test.write('SConstruct', r"""
 DefaultEnvironment(tools=[])
 env = Environment(tools=[])
-env.Install('//Users/bdbaddog', 'file1.out')
-env.InstallAs('//Users/bdbaddog/.bashrc', 'file2.in')
-env.InstallAs('//server/share/dir/slash.out', 'file2.in')
+env.Install('//scons-sandbox-root/dir', 'file1.out')
+env.InstallAs('//scons-sandbox-root/share/dir/slash.out', 'file2.in')
 """)
     posix_destdir = test.workpath('posix-destination')
     test.run(arguments='--install-sandbox=%s' % posix_destdir, stdout=None)
-    test.must_match('posix-destination/Users/bdbaddog/file1.out', "file1.out\n")
-    test.must_match('posix-destination/Users/bdbaddog/.bashrc', "file2.in\n")
-    test.must_match('posix-destination/server/share/dir/slash.out', "file2.in\n")
+    test.must_match('posix-destination/scons-sandbox-root/dir/file1.out', "file1.out\n")
+    test.must_match('posix-destination/scons-sandbox-root/share/dir/slash.out', "file2.in\n")
 
 #
 test.pass_test()
