@@ -888,19 +888,17 @@ for a complete explanation of the arguments and behavior.
 
 <para>
 Note that the
-<function>env.Builder</function>()
+&f-env-Builder;
 form of the invocation will expand
-&consvars; in any arguments strings,
+&consvars; in any argument strings,
 including the
 <parameter>action</parameter>
 argument,
-at the time it is called
-using the &consvars; in the
-<varname>env</varname>
-&consenv; through which
-&f-env-Builder; was called.
+at the time it is called,
+using the values from
+<varname>env</varname>.
 The
-&f-Builder;
+&f-Builder; (global fuction)
 form delays all variable expansion
 until after the Builder object is actually called.
 </para>
@@ -1274,7 +1272,7 @@ Examples:
 env.Command('ddd.list', Dir('ddd'), 'ls -l $SOURCE > $TARGET')
 
 env['DISTDIR'] = 'destination/directory'
-env.Command(env.Dir('$DISTDIR')), None, make_distdir)
+env.Command(env.Dir('$DISTDIR'), None, make_distdir)
 </example_commands>
 
 <para>
@@ -1316,7 +1314,6 @@ a function or one of the following strings
 that specify a predefined decider function:
 </para>
 
-<para>
 <variablelist>
 <varlistentry>
 <term><literal>"content"</literal></term>
@@ -1409,7 +1406,6 @@ timestamp, such as can happen when restoring files from backup archives.
 </listitem>
 </varlistentry>
 </variablelist>
-</para>
 
 <para>
 Examples:
@@ -1431,7 +1427,6 @@ argument may be a &Python; function you supply.
 Such a function must accept the following four arguments:
 </para>
 
-<para>
 <variablelist>
 <varlistentry>
 <term><parameter>dependency</parameter></term>
@@ -1493,7 +1488,6 @@ target only exists in a Repository.
 </varlistentry>
 
 </variablelist>
-</para>
 
 <para>
 The
@@ -3629,7 +3623,6 @@ the <parameter>name</parameter> parameter was added.
 Examples:
 </para>
 
-<!-- TODO fix second example or replace - still doesn't work -->
 <example_commands>
 env = Environment()
 
@@ -3663,7 +3656,17 @@ input = env.Value('after')
 # Attach a builder named UpdateValue to the construction environment
 # using the 'build_value' action function above.
 env['BUILDERS']['UpdateValue'] = Builder(action=build_value)
-env.UpdateValue(target=Value(output), source=Value(input))
+env.UpdateValue(target=output, source=input)
+
+def write_value(target, source, env):
+    """Action function to write the built value of $SOURCE into $TARGET."""
+    with open(target[0], 'wb') as f:
+        f.write(source[0].read())
+
+# A Value Node is only built when a target being built depends on it,
+# so write the updated Value to a file. output.txt contains "after".
+env['BUILDERS']['WriteValue'] = Builder(action=write_value)
+env.WriteValue(target='output.txt', source=output)
 </example_commands>
 </summary>
 </scons_function>

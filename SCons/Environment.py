@@ -717,9 +717,11 @@ class SubstitutionEnvironment:
             node_factory = self.fs.File
         if lookup_list is _null:
             lookup_list = self.lookup_list
-        args = flatten(args)
+        flat: list[Any] = flatten(args)
+        kw['raw'] = 1
         nodes: list[Node] = []
-        for v in args:
+        n: Any
+        for v in flat:
             if is_String(v):
                 n = None
                 for func in lookup_list:
@@ -728,9 +730,8 @@ class SubstitutionEnvironment:
                         break
                 if n is not None:
                     if is_String(n):
-                        # n = self.subst(n, raw=1, **kw)
-                        kw['raw'] = 1
-                        n = self.subst(cast(str, n), **kw)
+                        if '$' in cast(str, n):
+                            n = self.subst(cast(str, n), **kw)
                         if node_factory:
                             n = node_factory(n)
                     if is_List(n):
@@ -738,13 +739,13 @@ class SubstitutionEnvironment:
                     else:
                         nodes.append(n)
                 elif node_factory:
-                    # v = node_factory(self.subst(v, raw=1, **kw))
-                    kw['raw'] = 1
-                    v = node_factory(self.subst(v, **kw))
+                    if '$' in cast(str, v):
+                        v = self.subst(cast(str, v), **kw)
+                    v = node_factory(v)
                     if is_List(v):
                         nodes.extend(cast(list, v))
                     else:
-                        nodes.append(v)
+                        nodes.append(cast('Node', v))
             else:
                 nodes.append(v)
 
@@ -2092,9 +2093,23 @@ class Base(SubstitutionEnvironment):
             return
         lines = [line for line in lines if not line.startswith('#')]
         tdlist = []
+
+        def split_make_dep_line(line: str) -> tuple[str, str]:
+            """Split make-style depfile line, skipping Windows drive-letter colons."""
+            start = 0
+            while True:
+                idx = line.find(':', start)
+                if idx < 0:
+                    raise ValueError
+                nxt = line[idx + 1 : idx + 2]
+                if nxt in '\\/':
+                    start = idx + 1
+                    continue
+                return line[:idx], line[idx + 1 :]
+
         for line in lines:
             try:
-                target, depends = line.split(':', 1)
+                target, depends = split_make_dep_line(line)
             except (AttributeError, ValueError):
                 # Throws AttributeError if line isn't a string.  Can throw
                 # ValueError if line doesn't split into two or more elements.

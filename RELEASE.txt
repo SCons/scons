@@ -30,6 +30,9 @@ REMOVED FUNCTIONALITY
 
 - Removed Python 3.7 & 3.8 support.
 
+- Removed the legacy job scheduler and the "legacy_sched_deprecated"
+  experimental feature flag, deprecated in 4.11.0.
+
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
@@ -39,12 +42,45 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
+- Fix Windows UNC path lookup with either separator style and use absolute
+  paths when a relative path crosses Windows drives or UNC shares.
+
+- Preserve native path semantics for install and package locations: POSIX
+  double-slash paths retain their directory components, while Windows UNC
+  paths are relative to the share root.
+  
+- Register matching LaTeX or PDFLaTeX source scanners only in environments
+  that load a TeX tool, avoiding unexpected scanning and undefined
+  LATEXSUFFIXES errors in other environments.
+
 - Fix ninja to honor AlwaysBuild on a target
+
+- ParseDepends() keeps Windows drive-letter paths in make-style depfiles
+  instead of splitting at the first colon.
+
+- PathList memoization includes the ``split`` flag in the cache key, so
+  ``PathList(..., split=False)`` no longer raises ``TypeError`` under
+  ``--debug=memoizer`` (LIBLITERALPREFIX / os.pathsep case).
+
+- IsInVirtualenv() no longer raises ValueError when PATH entries and the
+  virtualenv are on different Windows drives (issue #3614).
 
 - Fix documentation processing to work with lxml 6.1.3 and newer, which no
   longer resolves external parameter entities by default. This affects both
   the SCons documentation build and the docbook tool, which failed on any
   DocBook source pulling in an external entity module.
+
+- Fix the ninja ctrl-c test, which was failing on some platforms.
+
+- Fix ninja to support compiler variables with a launcher prefix, such as
+  CC="ccache clang". Generating the ninja file failed with "Could not find
+  tool $CC".
+
+- SConstruct and SConscript files, site_init.py and variables files are no
+  longer compiled with the future flags of the SCons modules that run them.
+  Since SCons 4.11 those modules use "from __future__ import annotations",
+  which made annotations in build scripts strings and, for example, stopped
+  dataclasses from recognising InitVar fields.
 
 IMPROVEMENTS
 ------------
@@ -52,6 +88,22 @@ IMPROVEMENTS
 - List improvements that wouldn't be visible to the user in the
   documentation:  performance improvements (describe the circumstances
   under which they would be observed), or major code cleanups
+
+- Add more unit tests for UNC path handling.
+
+- With Python 3.9 some original "typing" constructs are now deprecated.
+  Stop using. The changes are all import statements except SCons/Scanner/C
+  and a utility script and those two only tweak an annotation.
+
+- Improve TSList and Targets_or_Sources performance by not inheriting
+  from UserList - no longer picks up the __iter__ from (former) parent
+  class collections.abc.Sequence, which was not intended for our usage
+  model. Now use a small proxy class to implement "this is a sequence".
+
+- Some cleanups in EnvironmentTests.py
+
+- Small performance tweak in arg2nodes (SubstitutionEnvironment): fast-path
+  strings which are fully expanded (i.e., no $). Add unit tests.
 
 PACKAGING
 ---------
@@ -65,7 +117,34 @@ DOCUMENTATION
   typo fixes, even if they're mentioned in src/CHANGES.txt to give
   the contributor credit)
 
-* Additional clarification for SideEffect() in manpage.
+- Additional clarification for SideEffect() in manpage.
+
+- Removed the out-of-date table of option names for SetOption and
+  GetOption and instead point to the maintained tables in Appendix D.
+
+- Fixed the second Value() example in the manpage, which did not work.
+
+- Added scons-ai.md, a condensed version of the manpage intended for
+  consumption by AI tools, built into build/doc/MD. It keeps every documented
+  option, tool, builder, function and construction variable together with its
+  description, but omits markup, cross-references, examples and version-history
+  notes, making it roughly half the size of scons.1 as measured in tokens. It is
+  generated from the checked-in documentation sources by bin/scons-man-to-ai.py,
+  and can be built with the "ai-manpage" target.
+
+- Split out a new section on Emitters with additional prose and examples,
+  since the information does not exclusively apply to the emitter argument
+  to Builder(). The Builder Objects "emitter" argument section still
+  has some wording, plus a link to the new section.
+- Fix four documentation examples that were not valid Python: a stray
+  parenthesis in the Command() example, an unterminated string in the
+  MSVC_VERSION example, a missing comma that joined the two
+  X_RPM_EXTRADEFS strings into one, and the user guide's Progress()
+  callable, which lacked a colon and a "global count".
+- Improve the wording for the Help() function (manpage and User Guide)
+- Corrected the lists of construction variables the cc, hpcc and sgiar
+  tools are documented to set.
+- Fix typo in X_RPM_EXCLUSIVEARCH manpage entry.
 
 DEVELOPMENT
 -----------
@@ -85,6 +164,19 @@ DEVELOPMENT
   pre-test phase runs a standalone probe script that checks each installed
   MSVS version's license validity and generates an exclude list dynamically,
   allowing AppVeyor to skip affected tests before the run.
+  
+- Fixed an intermittent failure in test/leaky-handles.py. The test counted the
+  entries in /proc/<shell pid>/fd through a shell pipeline, and those transiently
+  include the pipe ends the shell has not closed yet, so the count came out too
+  high when the shell and the command contended for a cpu. The forked command now
+  reports the handles it inherited itself. The test also no longer passed
+  unconditionally: the handle it leaked was closed before the build phase ran,
+  and was close-on-exec in any case (PEP 446), so no leak could be detected.
+  
+- test/ninja/iterative_speedup.py no longer fails intermittently on loaded or
+  few-core machines (seen on macOS CI): the clean-build timing comparison,
+  where ninja's lead is small, now has slack, while the incremental rebuild
+  comparisons remain strict.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

@@ -845,7 +845,8 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
         with open(spec.origin) as f:
             code = f.read()
         try:
-            codeobj = compile(code, spec.name, "exec")
+            # dont_inherit: site_init.py must not pick up this module's future flags
+            codeobj = compile(code, spec.name, "exec", dont_inherit=True)
             exec(codeobj, site_m)
         except KeyboardInterrupt:
             raise

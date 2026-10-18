@@ -30,6 +30,7 @@ Test the --install-sandbox commandline option for Install() and InstallAs().
 import os.path
 
 import TestSCons
+from TestCmd import IS_WINDOWS
 
 test = TestSCons.TestSCons()
 
@@ -68,6 +69,18 @@ test.run(arguments = '--install-sandbox=%s' % destdir, stdout=expect)
 test.must_match(file1_out, "file1.out\n")
 test.must_match('destination/file2.out', "file2.in\n")
 test.must_match('destination/subdir/file3.out', "subdir/file3.in\n")
+
+if not IS_WINDOWS:
+    test.write('SConstruct', r"""
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
+env.Install('//scons-sandbox-root/dir', 'file1.out')
+env.InstallAs('//scons-sandbox-root/share/dir/slash.out', 'file2.in')
+""")
+    posix_destdir = test.workpath('posix-destination')
+    test.run(arguments='--install-sandbox=%s' % posix_destdir, stdout=None)
+    test.must_match('posix-destination/scons-sandbox-root/dir/file1.out', "file1.out\n")
+    test.must_match('posix-destination/scons-sandbox-root/share/dir/slash.out', "file2.in\n")
 
 #
 test.pass_test()
