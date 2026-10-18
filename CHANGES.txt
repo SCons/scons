@@ -44,6 +44,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       stylesheets and silently produced an empty document. The helper now
       falls back to the <fm:Branch> field, which names the XSL-NS branch
       outright.
+    - Fixed intermittent failure of test/leaky-handles.py. It counted the handles in
+      /proc/<shell pid>/fd through a shell pipeline, and those transiently include the
+      pipe ends the shell has not closed yet, so the count came out too high when the
+      shell and the command contended for a cpu. The forked command now reports the
+      handles it inherited itself. This also restores what the test checks: the handle
+      it leaked was garbage collected before the build phase ran, and was close-on-exec
+      in any case (PEP 446), so no leak could have been detected either way.
 
   From Adam Matthews:
     - SConstruct and SConscript files (including one read from stdin),

@@ -149,6 +149,14 @@ DEVELOPMENT
   plain, non-namespaced input to namespace-aware stylesheets, which quietly
   produced an empty document; it now falls back to the <fm:Branch> field.
 
+- Fixed an intermittent failure in test/leaky-handles.py. The test counted the
+  entries in /proc/<shell pid>/fd through a shell pipeline, and those transiently
+  include the pipe ends the shell has not closed yet, so the count came out too
+  high when the shell and the command contended for a cpu. The forked command now
+  reports the handles it inherited itself. The test also no longer passed
+  unconditionally: the handle it leaked was closed before the build phase ran,
+  and was close-on-exec in any case (PEP 446), so no leak could be detected.
+
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
