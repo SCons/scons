@@ -1901,16 +1901,19 @@ class FSTestCase(_tempdirTestCase):
         """FileFinder resolves a forward-slash UNC path to its share directory."""
         save_os_path = os.path
         save_os_sep = os.sep
+        save_diskcheck = SCons.Node.FS.diskcheck_match.func
         try:
             import ntpath
             os.path = ntpath
             os.sep = '\\'
             SCons.Node.FS.initialize_do_splitdrive()
+            SCons.Node.FS.diskcheck_match.func = SCons.Node.FS.ignore_diskcheck_match
             fs = SCons.Node.FS.FS()
             ff = SCons.Node.FS.FileFinder()
             share = fs.Dir('//server/share')
             self.assertIs(ff.filedir_lookup(fs.get_root(''), '//server/share'), share)
         finally:
+            SCons.Node.FS.diskcheck_match.func = save_diskcheck
             os.path = save_os_path
             os.sep = save_os_sep
             SCons.Node.FS.initialize_do_splitdrive()
@@ -2098,16 +2101,19 @@ class FSTestCase(_tempdirTestCase):
         """
         save_os_path = os.path
         save_os_sep = os.sep
+        save_diskcheck = SCons.Node.FS.diskcheck_match.func
         try:
             import ntpath
             os.path = ntpath
             os.sep = '\\'
             SCons.Node.FS.initialize_do_splitdrive()
+            SCons.Node.FS.diskcheck_match.func = SCons.Node.FS.ignore_diskcheck_match
             fs = SCons.Node.FS.FS()
             ff = SCons.Node.FS.FileFinder()
             share = fs.Dir(r'\\server\share')
             self.assertIs(ff.filedir_lookup(fs.get_root(''), r'\\server\share'), share)
         finally:
+            SCons.Node.FS.diskcheck_match.func = save_diskcheck
             os.path = save_os_path
             os.sep = save_os_sep
             SCons.Node.FS.initialize_do_splitdrive()
@@ -2142,16 +2148,19 @@ class FSTestCase(_tempdirTestCase):
         """A native UNC top directory must alias the default and UNC roots."""
         save_os_path = os.path
         save_os_sep = os.sep
+        save_diskcheck = SCons.Node.FS.diskcheck_match.func
         try:
             import ntpath
             os.path = ntpath
             os.sep = '\\'
             SCons.Node.FS.initialize_do_splitdrive()
+            SCons.Node.FS.diskcheck_match.func = SCons.Node.FS.ignore_diskcheck_match
             fs = SCons.Node.FS.FS(r'\\server\share\build')
             self.assertEqual(fs.defaultDrive, '//')
             self.assertIs(fs.get_root(''), fs.get_root('//'))
             self.assertEqual(fs.Top.get_abspath(), r'\\server\share\build')
         finally:
+            SCons.Node.FS.diskcheck_match.func = save_diskcheck
             os.path = save_os_path
             os.sep = save_os_sep
             SCons.Node.FS.initialize_do_splitdrive()
