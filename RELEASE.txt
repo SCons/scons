@@ -149,6 +149,11 @@ DEVELOPMENT
   plain, non-namespaced input to namespace-aware stylesheets, which quietly
   produced an empty document; it now falls back to the <fm:Branch> field.
 
+- test/ninja/iterative_speedup.py no longer fails intermittently on loaded or
+  few-core machines (seen on macOS CI): the clean-build timing comparison,
+  where ninja's lead is small, now has slack, while the incremental rebuild
+  comparisons remain strict.
+
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text

@@ -44,6 +44,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       stylesheets and silently produced an empty document. The helper now
       falls back to the <fm:Branch> field, which names the XSL-NS branch
       outright.
+    - Reduce flakiness of test/ninja/iterative_speedup.py. Ninja's lead on the
+      clean 250-file build is only ~20%, which disappeared on loaded or
+      few-core CI runners (notably macOS) and failed the test. The clean build
+      now gets slack while the incremental rebuild comparisons (a ~5x ninja
+      lead) stay strict; failures report all timings, the files to modify are
+      chosen without repeats, and the CPU count comes from os.cpu_count().
 
   From Adam Matthews:
     - SConstruct and SConscript files (including one read from stdin),
