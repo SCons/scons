@@ -135,6 +135,7 @@ DOCUMENTATION
 - Improve the wording for the Help() function (manpage and User Guide)
 - Corrected the lists of construction variables the cc, hpcc and sgiar
   tools are documented to set.
+- Fix typo in X_RPM_EXCLUSIVEARCH manpage entry.
 
 DEVELOPMENT
 -----------
