@@ -74,9 +74,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       documented to set: cc does not set CCDEPFLAGS, hpcc calls cc and sets
       SHCCFLAGS rather than SHCXXFLAGS and CXXVERSION, and sgiar sets ARCOM
       and SHLINKCOM rather than ARCOMSTR.
-    - Fix the manpage entry for X_RPM_EXCLUSIVEARCH, which was spelled
-      X_RPM_EXLUSIVEARCH. The RPM packager never read that spelling, so
-      setting it as documented had no effect.
+    - Fix typo in X_RPM_EXCLUSIVEARCH manpage entry.
 
   From Mats Wichmann:
     - Add more unit tests for UNC path handling. These tests expose some
