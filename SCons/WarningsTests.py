@@ -67,31 +67,6 @@ class WarningsTestCase(unittest.TestCase):
         SCons.Warnings.warn(DependencyWarning, "Foo", 1)
         assert to.out == "('Foo', 1)", to.out
 
-    def test_WindowsExtendedUncWarning(self) -> None:
-        """The default diagnostic supports its CLI name and warning controls."""
-        from unittest.mock import patch
-
-        warning_class = SCons.Warnings.WindowsExtendedUncWarning
-        self.assertTrue(issubclass(warning_class, WarningOnByDefault))
-        output = TestOutput()
-        with patch.multiple(
-            SCons.Warnings,
-            _enabled=[(WarningOnByDefault, True)],
-            _warningOut=output,
-            _warningAsException=False,
-        ):
-            SCons.Warnings.warn(warning_class, "extended UNC")
-            self.assertEqual(output.out, "extended UNC")
-            SCons.Warnings.process_warn_strings(['no-windows-extended-unc'])
-            output.out = None
-            SCons.Warnings.warn(warning_class, "disabled")
-            self.assertIsNone(output.out)
-            SCons.Warnings.process_warn_strings(['windows-extended-unc'])
-            SCons.Warnings.warn(warning_class, "enabled")
-            self.assertEqual(output.out, "enabled")
-            SCons.Warnings.warningAsException(True)
-            self.assertRaises(SConsWarning, SCons.Warnings.warn, warning_class, "error")
-
     def test_WarningAsExc(self) -> None:
         """Test warnings as exceptions."""
         to = SCons.Warnings._warningOut

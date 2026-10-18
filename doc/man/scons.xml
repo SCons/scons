@@ -2455,15 +2455,6 @@ These warnings are enabled by default.</para>
  expected targets. These warnings are disabled by default.</para>
   </listitem>
   </varlistentry>
-  <varlistentry>
-  <term><emphasis role="bold">windows-extended-unc</emphasis></term>
-  <listitem>
-<para>Warnings about explicit Windows extended UNC prefixes
-(<literal>\\?\UNC\</literal>) on non-Windows hosts.
-These paths continue to follow native path semantics.
-These warnings are enabled by default.</para>
-  </listitem>
-  </varlistentry>
   </variablelist> <!-- end nested list -->
   </listitem>
   </varlistentry>

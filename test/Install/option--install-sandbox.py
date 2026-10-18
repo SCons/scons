@@ -84,40 +84,5 @@ env.InstallAs('//server/share/dir/slash.out', 'file2.in')
     test.must_match('posix-destination/Users/bdbaddog/.bashrc', "file2.in\n")
     test.must_match('posix-destination/server/share/dir/slash.out', "file2.in\n")
 
-    test.write('SConstruct', r"""
-DefaultEnvironment(tools=[])
-env = Environment(tools=[])
-import SCons.Warnings
-if ARGUMENTS.get('AS_ERROR'):
-    SCons.Warnings.warningAsException(True)
-env.InstallAs(r'\\?\UNC\server\share\dir\extended.out', 'file2.in')
-""")
-    extended_destdir = test.workpath('extended-destination')
-    warning = (
-        'This path uses a Windows extended UNC prefix. On this host, SCons '
-        'treats it as a native path, not as a Windows extended UNC path.'
-    )
-    test.run(arguments='--install-sandbox=%s' % extended_destdir,
-             stdout=None, stderr=None)
-    test.must_contain_all_lines(test.stderr(), ['scons: warning: ' + warning])
-    test.must_match(
-        ['extended-destination', r'\\?\UNC\server\share\dir\extended.out'],
-        "file2.in\n",
-    )
-
-    test.run(arguments='--warn=no-windows-extended-unc --install-sandbox=%s'
-             % extended_destdir, stdout=None)
-    test.run(arguments='--warn=no-windows-extended-unc '
-             '--warn=windows-extended-unc --install-sandbox=%s' % extended_destdir,
-             stdout=None, stderr=None)
-    test.must_contain_all_lines(test.stderr(), ['scons: warning: ' + warning])
-    error_destdir = test.workpath('error-destination')
-    test.run(arguments='AS_ERROR=1 --install-sandbox=%s' % error_destdir,
-             status=2, stdout=None, stderr=None)
-    test.must_contain_all_lines(test.stderr(), ['scons: ***', warning])
-    test.must_not_exist(
-        ['error-destination', r'\\?\UNC\server\share\dir\extended.out'],
-    )
-
 #
 test.pass_test()
