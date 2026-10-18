@@ -149,6 +149,14 @@ DEVELOPMENT
   plain, non-namespaced input to namespace-aware stylesheets, which quietly
   produced an empty document; it now falls back to the <fm:Branch> field.
 
+- Fixed an intermittent failure in test/leaky-handles.py. The test counted the
+  entries in /proc/<shell pid>/fd through a shell pipeline, and those transiently
+  include the pipe ends the shell has not closed yet, so the count came out too
+  high when the shell and the command contended for a cpu. The forked command now
+  reports the handles it inherited itself. The test also no longer passed
+  unconditionally: the handle it leaked was closed before the build phase ran,
+  and was close-on-exec in any case (PEP 446), so no leak could be detected.
+  
 - test/ninja/iterative_speedup.py no longer fails intermittently on loaded or
   few-core machines (seen on macOS CI): the clean-build timing comparison,
   where ninja's lead is small, now has slack, while the incremental rebuild
