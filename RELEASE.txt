@@ -156,6 +156,11 @@ DEVELOPMENT
   reports the handles it inherited itself. The test also no longer passed
   unconditionally: the handle it leaked was closed before the build phase ran,
   and was close-on-exec in any case (PEP 446), so no leak could be detected.
+  
+- test/ninja/iterative_speedup.py no longer fails intermittently on loaded or
+  few-core machines (seen on macOS CI): the clean-build timing comparison,
+  where ninja's lead is small, now has slack, while the incremental rebuild
+  comparisons remain strict.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

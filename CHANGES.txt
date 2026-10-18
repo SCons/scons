@@ -51,6 +51,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       handles it inherited itself. This also restores what the test checks: the handle
       it leaked was garbage collected before the build phase ran, and was close-on-exec
       in any case (PEP 446), so no leak could have been detected either way.
+    - Reduce flakiness of test/ninja/iterative_speedup.py. Ninja's lead on the
+      clean 250-file build is only ~20%, which disappeared on loaded or
+      few-core CI runners (notably macOS) and failed the test. The clean build
+      now gets slack while the incremental rebuild comparisons (a ~5x ninja
+      lead) stay strict; failures report all timings, the files to modify are
+      chosen without repeats, and the CPU count comes from os.cpu_count().
 
   From Adam Matthews:
     - SConstruct and SConscript files (including one read from stdin),
