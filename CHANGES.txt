@@ -128,6 +128,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - User Guide improvements:
       * Removed the out-of-date table of option names for SetOption and
         GetOption and instead point to the maintained tables in Appendix D.
+    - Add serve-docs and stop-docs aliases to the local doc build: they start
+      and stop a small detached HTTP server for the built documentation in
+      build/doc. This is needed to view the Sphinx API docs, whose search
+      index and cross-page links only work when served over HTTP. You have
+      to ask for these explicitly. Serves on 8000; add PORT=8888 on cmdline
+      to select a non-default port.
 
   From Zhaoqi Xu:
     - ParseDepends() now treats Windows drive-letter colons as part of the

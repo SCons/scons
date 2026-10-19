@@ -697,6 +697,57 @@ else:
     Alias('apidoc', html_files)
 
 #
+# --- Local web server for browsing the built documentation ---
+#
+# The docs build drops static files into build/doc, which is good enough
+# for the user guide and the man pages, but the Sphinx API docs are really
+# meant to be fetched over HTTP: the search index, the module pages and
+# the relative links between them are all built around living at a URL,
+# and a browser won't load the search index from a file:// URL at all.
+#
+# So provide a small standalone web server for the doc build directory,
+# with aliases to start and stop it.  The server is detached from the
+# build: scons exits as soon as it has started it, and the server keeps
+# running until "scons stop-docs" is used.
+#
+# The aliases deliberately don't force a doc build: they serve whatever
+# is already in the build directory, so viewing freshly built docs is
+# instant, and environments with only part of the toolchain (or none of
+# it) can still serve an existing doc build.  Just run the desired doc
+# build first, e.g. "scons doc" or "scons apidoc".
+#
+# Neither alias is part of any default target, they only act when
+# explicitly requested.  The server listens on port 8000 by default, use
+# e.g. "scons serve-docs PORT=8123" for a different one.
+#
+doc_port = ARGUMENTS.get('PORT', '8000')
+doc_url = f'http://127.0.0.1:{doc_port}'
+doc_pidfile = os.path.join(command_line.build_dir, 'doc-serve.pid')
+doc_logfile = os.path.join(command_line.build_dir, 'doc-serve.log')
+
+doc_serve_action = f"""\
+@if [ -f {doc_pidfile} ]; then kill `cat {doc_pidfile}` 2>/dev/null; sleep 1; fi
+@if [ ! -d {build}/HTML ]; then echo "doc: no HTML documentation built in {build} (run 'scons doc' first?)"; exit 1; fi
+@nohup $PYTHON -m http.server {doc_port} --bind 127.0.0.1 --directory {build} > {doc_logfile} 2>&1 < /dev/null & echo $$! > {doc_pidfile}
+@sleep 1
+@if ! kill -0 `cat {doc_pidfile}` 2>/dev/null; then rm -f {doc_pidfile}; echo "doc: web server did not start, see {doc_logfile}"; exit 1; fi
+@echo "doc: serving {build} at {doc_url}/"
+@if [ -f {build}/HTML/scons-api/index.html ]; then echo "doc:   API docs:   {doc_url}/HTML/scons-api/"; fi
+@if [ -f {build}/HTML/scons-user/index.html ]; then echo "doc:   user guide: {doc_url}/HTML/scons-user/"; fi
+@echo "doc: stop with: scons stop-docs"
+"""
+
+doc_serve = env.Alias('serve-docs', action=doc_serve_action)
+env.AlwaysBuild(doc_serve)
+
+doc_stop_action = f"""\
+@if [ -f {doc_pidfile} ]; then kill `cat {doc_pidfile}` 2>/dev/null; rm -f {doc_pidfile}; echo "doc: stopped the documentation server"; else echo "doc: no documentation server is running"; fi
+"""
+
+doc_stop = env.Alias('stop-docs', action=doc_stop_action)
+env.AlwaysBuild(doc_stop)
+
+#
 # Now actually create the tar file of the documentation,
 # for easy distribution to the web site.
 #
