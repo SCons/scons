@@ -368,6 +368,17 @@ Windows command-line sample invocations:
     @rem 32-Bit Windows:
     "%ProgramFiles%\Microsoft Visual Studio\Installer\vswhere.exe" -all -sort -prerelease -products * -legacy -format json >MYVSWHEREOUTPUT.json
 
+The query made by the internal detection is the equivalent of::
+
+    vswhere.exe -all -products * -format json -utf8
+
+Prerelease installations (Visual Studio Insider and similar) are only listed by
+vswhere when the -prerelease option is used. SCons only adds that option when the
+MSVC_PREVIEW construction variable is set to a true value before the initial msvc
+detection takes place. Released installations are still preferred: for a given
+msvc version, a prerelease installation is only selected when no released
+installation provides that version.
+
 
 Visual Studio Implementation Notes
 ==================================

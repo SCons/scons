@@ -589,6 +589,15 @@ _CL_EXE_NAME = 'cl.exe'
 
 _VSWHERE_EXE = 'vswhere.exe'
 
+# values for a construction variable flag which evaluate to False
+_VSWHERE_FLAG_FALSE_STRINGS = ('', '0', 'False', 'false')
+
+def _vswhere_flag_is_true(value) -> bool:
+    """Interpret a construction variable value as a boolean flag."""
+    if SCons.Util.is_String(value):
+        return value.strip() not in _VSWHERE_FLAG_FALSE_STRINGS
+    return bool(value)
+
 def get_msvc_version_numeric(msvc_version):
     """Get the raw version numbers from a MSVC_VERSION string, so it
     could be cast to float or other numeric values. For example, '14.0Exp'
@@ -1067,6 +1076,7 @@ class _VSWhereExecutable(MSVC.Util.AutoInitialize):
 
         cls.vswhere_frozen_flag = False
         cls.vswhere_frozen_binary = None
+        cls.vswhere_prerelease_flag = False
 
     @classmethod
     def _initialize(cls):
@@ -1243,6 +1253,54 @@ class _VSWhereExecutable(MSVC.Util.AutoInitialize):
         return vswhere_binary
 
     @classmethod
+    def is_prerelease(cls) -> bool:
+        """Return whether prerelease installations are to be considered."""
+        return cls.vswhere_prerelease_flag
+
+    @classmethod
+    def register_vswhere_prerelease(cls, prerelease: bool | None = None) -> bool:
+        """Enable or disable consideration of prerelease installations.
+
+        When enabled, vswhere is queried with the ``-prerelease`` option so
+        that prerelease (e.g. Visual Studio Insider) installations are
+        included, and those installations may be selected for msvc instance
+        detection.  Released installations are still preferred.
+
+        Args:
+            prerelease: True or False to enable or disable.  None does not
+                change the current setting.
+
+        Returns:
+            bool: the prerelease setting.
+
+        Raises:
+            VSWhereUserError: if a different prerelease mode is requested
+                after initial detection.
+        """
+        if prerelease is None:
+            return cls.vswhere_prerelease_flag
+        prerelease = _vswhere_flag_is_true(prerelease)
+        if cls.vswhere_frozen_flag:
+            if prerelease == cls.vswhere_prerelease_flag:
+                # ignore: requested mode == current mode
+                return cls.vswhere_prerelease_flag
+
+            msg = 'A different vswhere prerelease mode cannot be requested after initial detection:\n' \
+                  f'  initial vswhere prerelease mode: {cls.vswhere_prerelease_flag!r}\n' \
+                  f'  request vswhere prerelease mode: {prerelease!r}\n' \
+                  '  The MSVC_PREVIEW construction variable must be set before the ' \
+                  'initial MSVC compiler discovery takes place.'
+
+            debug(f'VSWhereUserError: {msg}', extra=cls.debug_extra)
+            raise VSWhereUserError(msg)
+
+        cls.vswhere_prerelease_flag = prerelease
+        debug(
+            'vswhere_prerelease_flag=%s', repr(cls.vswhere_prerelease_flag), extra=cls.debug_extra
+        )
+        return cls.vswhere_prerelease_flag
+
+    @classmethod
     def vswhere_freeze_executable(cls, vswhere_exe):
         vswhere_binary = cls.register_vswhere_executable(vswhere_exe, priority='high')
         frozen_binary = cls.freeze_vswhere_binary()
@@ -1263,6 +1321,12 @@ class _VSWhereExecutable(MSVC.Util.AutoInitialize):
             # environment, VSWHERE defined
             vswhere_exe = env.subst('$VSWHERE')
             write_vswhere = False
+
+        if env is not None:
+            # environment, MSVC_PREVIEW defined/none
+            preview = env.get('MSVC_PREVIEW')
+            if preview is not None:
+                cls.register_vswhere_prerelease(preview)
 
         frozen_binary, vswhere_binary = cls.vswhere_freeze_executable(vswhere_exe)
 
@@ -1298,6 +1362,20 @@ def vswhere_freeze_executable():
     debug('')
     vswhere_exe = _VSWhereExecutable.freeze_vswhere_executable()
     return vswhere_exe
+
+def vswhere_register_prerelease(prerelease=None, freeze=False):
+    """Register consideration of prerelease (e.g. Insider) installations."""
+    debug('register vswhere_prerelease=%s, freeze=%s', repr(prerelease), repr(freeze))
+    _VSWhereExecutable.register_vswhere_prerelease(prerelease)
+    if freeze:
+        _VSWhereExecutable.freeze_vswhere_executable()
+    rval = _VSWhereExecutable.is_prerelease()
+    debug('current vswhere_prerelease=%s, is_frozen=%s', repr(rval), _VSWhereExecutable.is_frozen())
+    return rval
+
+def vswhere_is_prerelease():
+    debug('')
+    return _VSWhereExecutable.is_prerelease()
 
 # internal use only
 vswhere_freeze_env = _VSWhereExecutable.vswhere_freeze_env
@@ -1370,6 +1448,15 @@ class _VSWhere(MSVC.Util.AutoInitialize):
             raise MSVCInternalError(f'vswhere discovered new msvc installations after initial detection')
 
     @classmethod
+    def _vswhere_query_args(cls) -> list:
+        # all products, all instances; prerelease (e.g. Insider) instances
+        # are only listed by vswhere when requested
+        vswhere_args = ['-all', '-products', '*']
+        if _VSWhereExecutable.is_prerelease():
+            vswhere_args.append('-prerelease')
+        return vswhere_args
+
+    @classmethod
     def _vswhere_query_json_output(cls, vswhere_exe, vswhere_args):
 
         vswhere_json = None
@@ -1431,7 +1518,7 @@ class _VSWhere(MSVC.Util.AutoInitialize):
 
         vswhere_json = cls._vswhere_query_json_output(
             vswhere_norm,
-            ['-all', '-products', '*']
+            cls._vswhere_query_args()
         )
 
         if not vswhere_json:
@@ -1480,6 +1567,7 @@ class _VSWhere(MSVC.Util.AutoInitialize):
             if component_rank == 0:
                 raise MSVCInternalError(f'unknown component_rank for component_id: {component_id!r}')
 
+            component_suffix = _VSWHERE_COMPONENTID_SUFFIX[component_id]
             scons_suffix = _VSWHERE_COMPONENTID_SCONS_SUFFIX[component_id]
 
             if scons_suffix:
@@ -1571,16 +1659,28 @@ def _find_vc_pdir_vswhere(msvc_version, vswhere_exe):
         debug("Unknown version of MSVC: %s", msvc_version)
         raise UnsupportedVersion("Unknown version %s" % msvc_version)
 
-    is_release = True
-    key = (msvc_version, is_release)
+    # released instances are preferred; prerelease instances (e.g. Visual
+    # Studio Insider) are only candidates when prerelease is enabled
+    is_release_list = [True]
+    if _VSWhereExecutable.is_prerelease():
+        is_release_list.append(False)
 
-    msvc_instances = msvc_map.get(key, UNDEFINED)
-    if msvc_instances == UNDEFINED:
-        debug(
-            'msvc instances lookup failed: msvc_version=%s, is_release=%s',
-            repr(msvc_version), repr(is_release)
-        )
-        msvc_instances = []
+    msvc_instances = []
+
+    for is_release in is_release_list:
+
+        key = (msvc_version, is_release)
+
+        key_instances = msvc_map.get(key, UNDEFINED)
+        if key_instances == UNDEFINED:
+            debug(
+                'msvc instances lookup failed: msvc_version=%s, is_release=%s',
+                repr(msvc_version), repr(is_release)
+            )
+            continue
+
+        msvc_instances.extend(key_instances)
+        break
 
     save_pdir_kind = []
 
