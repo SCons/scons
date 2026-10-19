@@ -419,7 +419,7 @@ env = Environment(MSVC_VERSION='14.2')
 
 # Initialization deferred with empty tools, triggered manually
 env = Environment(tools=[])
-env['MSVC_VERSION'] = '14.2'
+env['MSVC_VERSION'] = '14.2
 env.Tool('msvc')
 env.Tool('mslink')
 env.Tool('msvs')
@@ -872,6 +872,47 @@ The burden is on the user to ensure the requisite UWP libraries are installed.
 
 </itemizedlist>
 </para>
+
+</summary>
+</cvar>
+
+<cvar name="MSVC_PREVIEW">
+<summary>
+<para>
+Specify whether prerelease (preview) &MSVC; installations are to be
+considered.
+</para>
+
+<para>
+    Microsoft ships prerelease &MSVC; toolchains, such as the
+    <productname>Visual Studio</productname> Insider builds, alongside
+    the released ones. Those installations are not reported by
+    <command>vswhere.exe</command> unless it is queried with the
+    <option>-prerelease</option> option, and are consequently
+    invisible to &SCons; by default.
+</para>
+
+<para>
+    Setting the &cv-MSVC_PREVIEW; variable to a true value (a non-zero
+    value, or any other value which is not <literal>0</literal> or
+    <literal>False</literal>) allows &SCons; to consider prerelease
+    installations, which makes it possible to test code with a compiler
+    before it is released. Released installations are still preferred:
+    a prerelease installation is only selected when no released
+    installation provides the requested toolset.
+</para>
+
+<note>
+  <para>
+    In order to take effect, &cv-MSVC_PREVIEW; must be set before
+    the initial &MSVC; compiler discovery takes place
+    (see the note for &cv-link-VSWHERE;).
+  </para>
+
+  <programlisting>
+env = Environment(MSVC_PREVIEW=1)
+  </programlisting>
+</note>
 
 </summary>
 </cvar>

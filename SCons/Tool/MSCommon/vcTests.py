@@ -26,6 +26,9 @@ import os
 import os.path
 import unittest
 
+from unittest.mock import patch
+
+import SCons.Environment
 import SCons.Node.FS
 import SCons.Warnings
 import SCons.Tool.MSCommon.vc
@@ -80,6 +83,143 @@ class VswhereTestCase(unittest.TestCase):
 
     # def specifiedVswherePathTest(self):
     #     "Verify that msvc.generate() respects VSWHERE Specified"
+
+
+# selected fields from vswhere output for a released VS2026 installation
+VSWHERE_RELEASE_INSTANCE = {
+    'installationName': 'VisualStudio/18.10.2+12217.157',
+    'installationVersion': '18.10.12217.157',
+    'productId': 'Microsoft.VisualStudio.Product.Community',
+    'isPrerelease': 0,
+}
+
+# selected fields from vswhere output for a VS2026 Insider installation
+# (only listed by vswhere when -prerelease is requested)
+VSWHERE_PRERELEASE_INSTANCE = {
+    'installationName': 'VisualStudioPreview/18.11.0-insiders+12217.175',
+    'installationVersion': '18.11.12217.175',
+    'productId': 'Microsoft.VisualStudio.Product.Community',
+    'isPrerelease': 1,
+}
+
+
+class VswherePrereleaseTests(unittest.TestCase):
+    """Test vswhere prerelease (e.g. Visual Studio Insider) detection"""
+
+    def setUp(self) -> None:
+        SCons.Tool.MSCommon.vc.reset_installed_vcs()
+        self.vswhere_exe = test.workpath(os.path.join('prerelease', 'vswhere.exe'))
+        VswhereTestCase._createVSWhere(self.vswhere_exe)
+        self.vswhere_args_list = []
+
+    def tearDown(self) -> None:
+        SCons.Tool.MSCommon.vc.reset_installed_vcs()
+
+    @staticmethod
+    def _instance(instance_dict, subdir):
+        # vswhere instance with an installation path in the test workdir
+        install_path = test.workpath(os.path.join('prerelease', 'installs', subdir))
+        os.makedirs(os.path.join(install_path, 'VC'), exist_ok=True)
+        instance = dict(instance_dict)
+        instance['installationPath'] = install_path
+        return instance
+
+    def _find_vc_pdir(self, instances):
+        # query for the given vswhere output, return the queried arguments
+        # and the VC product directory selected for 14.5 (VS2026)
+        def _vswhere_query_json_output(cls, vswhere_exe, vswhere_args):
+            self.vswhere_args_list.append(list(vswhere_args))
+            return list(instances)
+
+        with patch.object(
+            SCons.Tool.MSCommon.vc._VSWhere,
+            '_vswhere_query_json_output',
+            classmethod(_vswhere_query_json_output),
+        ):
+            pdir = SCons.Tool.MSCommon.vc._find_vc_pdir_vswhere(
+                '14.5', self.vswhere_exe
+            )
+
+        return pdir
+
+    def test_prerelease_ignored_by_default(self) -> None:
+        """Insiders installation is not queried for nor selected by default"""
+        instance = self._instance(VSWHERE_PRERELEASE_INSTANCE, 'Insiders')
+        pdir = self._find_vc_pdir([instance])
+        self.assertIsNone(pdir, f"prerelease installation selected: {pdir!r}")
+        self.assertNotIn('-prerelease', self.vswhere_args_list[0])
+
+    def test_prerelease_selected_when_enabled(self) -> None:
+        """Insiders installation is selected when prerelease is enabled"""
+        instance = self._instance(VSWHERE_PRERELEASE_INSTANCE, 'Insiders')
+        MSCommon.vc.vswhere_register_prerelease(True)
+        pdir = self._find_vc_pdir([instance])
+        self.assertEqual(pdir, os.path.join(instance['installationPath'], 'VC'))
+        self.assertIn('-prerelease', self.vswhere_args_list[0])
+
+    def test_release_preferred_over_prerelease(self) -> None:
+        """Released installation is selected when both are installed"""
+        release = self._instance(VSWHERE_RELEASE_INSTANCE, 'Community')
+        prerelease = self._instance(VSWHERE_PRERELEASE_INSTANCE, 'Insiders')
+        for prerelease_flag in (False, True):
+            with self.subTest(prerelease=prerelease_flag):
+                SCons.Tool.MSCommon.vc.reset_installed_vcs()
+                self.vswhere_args_list = []
+                MSCommon.vc.vswhere_register_prerelease(prerelease_flag)
+                pdir = self._find_vc_pdir([prerelease, release])
+                self.assertEqual(pdir, os.path.join(release['installationPath'], 'VC'))
+
+    def test_msvc_instance_fields(self) -> None:
+        """prerelease instances are recorded with the expected fields"""
+        instances = [
+            self._instance(VSWHERE_RELEASE_INSTANCE, 'Community'),
+            self._instance(VSWHERE_PRERELEASE_INSTANCE, 'Insiders'),
+        ]
+        MSCommon.vc.vswhere_register_prerelease(True)
+        self._find_vc_pdir(instances)
+        msvc_instances = SCons.Tool.MSCommon.vc._VSWhere.msvc_instances
+        self.assertEqual(len(msvc_instances), 2)
+        for msvc_instance in msvc_instances:
+            self.assertEqual(msvc_instance.vc_version, '14.5')
+            self.assertEqual(msvc_instance.vc_version_scons, '14.5')
+            self.assertEqual(msvc_instance.vc_component_id, 'Community')
+            self.assertEqual(msvc_instance.vc_component_suffix, 'Com')
+        self.assertEqual([inst.vc_release for inst in msvc_instances], [True, False])
+
+    def test_preview_construction_variable(self) -> None:
+        """MSVC_PREVIEW construction variable enables prerelease"""
+        env = SCons.Environment.Environment(tools=[], ENV={})
+        SCons.Tool.MSCommon.vc.vswhere_freeze_env(env)
+        self.assertFalse(MSCommon.vc.vswhere_is_prerelease())
+        SCons.Tool.MSCommon.vc.reset_installed_vcs()
+
+        for value in (1, '1', True, 'True'):
+            with self.subTest(value=value):
+                SCons.Tool.MSCommon.vc.reset_installed_vcs()
+                env = SCons.Environment.Environment(tools=[], ENV={})
+                env['MSVC_PREVIEW'] = value
+                SCons.Tool.MSCommon.vc.vswhere_freeze_env(env)
+                self.assertTrue(MSCommon.vc.vswhere_is_prerelease())
+                SCons.Tool.MSCommon.vc.reset_installed_vcs()
+
+        for value in (0, '0', '', 'False', False):
+            with self.subTest(value=value):
+                SCons.Tool.MSCommon.vc.reset_installed_vcs()
+                env = SCons.Environment.Environment(tools=[], ENV={})
+                env['MSVC_PREVIEW'] = value
+                SCons.Tool.MSCommon.vc.vswhere_freeze_env(env)
+                self.assertFalse(MSCommon.vc.vswhere_is_prerelease())
+                SCons.Tool.MSCommon.vc.reset_installed_vcs()
+
+    def test_prerelease_after_detection(self) -> None:
+        """prerelease mode cannot change once detection has happened"""
+        env = SCons.Environment.Environment(tools=[], ENV={})
+        SCons.Tool.MSCommon.vc.vswhere_freeze_env(env)
+        # same mode is a no-op
+        MSCommon.vc.vswhere_register_prerelease(False)
+        # different mode is an error
+        with self.assertRaises(MSCommon.vc.VSWhereUserError):
+            MSCommon.vc.vswhere_register_prerelease(True)
 
 
 class MSVcTestCase(unittest.TestCase):
