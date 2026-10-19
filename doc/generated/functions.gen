@@ -24,16 +24,16 @@ for a complete explanation of the arguments and behavior.
 </para>
 
 <para>
-Note that the &f-env-Action;
+Note that the <function>env.Action</function>
 form of the invocation will expand
-&consvars; in any argument strings,
+<phrase>construction variables</phrase> in any argument strings,
 including the
 <parameter>action</parameter>
 argument, at the time it is called
-using the &consvars; in the
-&consenv; through which
-&f-env-Action; was called.
-The &f-Action; global function
+using the <phrase>construction variables</phrase> in the
+<phrase>construction environment</phrase> through which
+<function>env.Action</function> was called.
+The <function>Action</function> global function
 form delays all variable expansion
 until the Action object is actually used.
 </para>
@@ -51,14 +51,14 @@ the name of the new method, else the name of
 <parameter>function</parameter> is used.
 </para>
 <para>
-When the global function &f-AddMethod; is called,
+When the global function <function>AddMethod</function> is called,
 the object to add the method to must be passed as the first argument;
-typically this will be &Environment;,
-in order to create a method which applies to all &consenvs;
+typically this will be <function>Environment</function>,
+in order to create a method which applies to all <phrase>construction environments</phrase>
 subsequently constructed.
-When called using the &f-env-AddMethod; form,
-the method is added to the specified &consenv; only.
-Added methods propagate through &f-env-Clone; calls.
+When called using the <function>env.AddMethod</function> form,
+the method is added to the specified <phrase>construction environment</phrase> only.
+Added methods propagate through <function>env.Clone</function> calls.
 </para>
 
 <para>
@@ -91,14 +91,14 @@ the strings representing how the option can be called,
 while the keyword arguments define attributes of the option.
 For the most part these are the same as for the
 <function>OptionParser.add_option</function>
-method in the standard &Python; library module
+method in the standard <application>Python</application> library module
 <systemitem>optparse</systemitem>,
 but with a few additional capabilities noted below.
 See the
 <ulink url="https://docs.python.org/3/library/optparse.html">
 optparse documentation</ulink>
 for a thorough discussion of its option-processing capabilities.
-All options added through &f-AddOption; are placed
+All options added through <function>AddOption</function> are placed
 in a special "Local Options" option group.
 </para>
 
@@ -106,7 +106,7 @@ in a special "Local Options" option group.
 In addition to the arguments and values supported by the
 <systemitem>optparse</systemitem>
 <function>add_option</function>
-method, &f-AddOption;
+method, <function>AddOption</function>
 allows setting the
 <parameter>nargs</parameter>
 keyword value to
@@ -125,7 +125,7 @@ the command line, the value of the
 keyword argument is produced, as usual;
 if there is no
 <parameter>default</parameter>
-keyword argument in the &f-AddOption; call,
+keyword argument in the <function>AddOption</function> call,
 <constant>None</constant> is produced.
 </para>
 
@@ -141,27 +141,27 @@ it will also recognize <option>--device</option>,
 and so forth as long as there is no other option
 which could also match to the same abbreviation.
 Options added via
-&f-AddOption; do not support
+<function>AddOption</function> do not support
 the automatic recognition of abbreviations.
 Instead, to allow specific abbreviations,
-include them as synonyms in the &f-AddOption; call itself.
+include them as synonyms in the <function>AddOption</function> call itself.
 </para>
 
 <para>
 Once a new command-line option has been added with
-&f-AddOption;,
+<function>AddOption</function>,
 the option value may be accessed using
-&f-link-GetOption;
+<link linkend="f-GetOption"><function>GetOption</function></link>
 or
-&f-link-env-GetOption;.
+<link linkend="f-GetOption"><function>env.GetOption</function></link>.
 If the <parameter>settable=True</parameter> argument
-was supplied in the &AddOption; call,
+was supplied in the <function>AddOption</function> call,
 the value may also be set later using
-&f-link-SetOption;
+<link linkend="f-SetOption"><function>SetOption</function></link>
 or
-&f-link-env-SetOption;,
+<link linkend="f-SetOption"><function>env.SetOption</function></link>,
 if conditions in an
-&SConscript; file
+<filename>SConscript</filename> file
 require overriding any default value.
 Note however that a
 value specified on the command line will
@@ -172,14 +172,14 @@ override a value set in an SConscript file.
 <para>
 <emphasis>Changed in 4.8.0</emphasis>: added the
 <parameter>settable</parameter> keyword argument
-to enable an added option to be settable via &SetOption;.
+to enable an added option to be settable via <function>SetOption</function>.
 </para>
 
 <para>
 Help text for an option is a combination
 of the string supplied in the
 <parameter>help</parameter> keyword
-argument to &f-AddOption; and information
+argument to <function>AddOption</function> and information
 collected from the other keyword arguments.
 Such help is displayed if the
 <option>-h</option> command line option
@@ -189,7 +189,7 @@ under the separate heading
 <emphasis role="bold">Local Options</emphasis>.
 The options are unsorted - they will appear
 in the help text in the order in which the
-&f-AddOption;
+<function>AddOption</function>
 calls occur.
 </para>
 
@@ -220,14 +220,14 @@ Local Options:
 
 <para>
 Help text for local options may be unavailable if
-the &f-link-Help; function has been called,
-see the &f-Help; documentation for details.
+the <link linkend="f-Help"><function>Help</function></link> function has been called,
+see the <function>Help</function> documentation for details.
 </para>
 
 <note>
 <para>
 Prior to version 4.11.0,
-the behavior when options added by &AddOption;
+the behavior when options added by <function>AddOption</function>
 are specified with whitespace was undefined and discouraged.
 Such usage covers both the use of a space as the separator
 (<literal>--opt arg</literal> vs
@@ -236,7 +236,7 @@ and where the number of option arguments
 (<parameter>nargs</parameter>) is specified as greater than one.
 While this issue has been corrected,
 developers should be aware of it in case the
-project is built with an older &SCons; version.
+project is built with an older <application>SCons</application> version.
 </para>
 </note>
 
@@ -273,7 +273,7 @@ AddPostAction(foo, Chmod('$TARGET', "a-x"))
 </example_commands>
 
 <para>
-If a <parameter>target</parameter> is an &f-Alias;,
+If a <parameter>target</parameter> is an <function>Alias</function>,
 <parameter>action</parameter> is associated with the
 action of the alias, if specified.
 </para>
@@ -311,10 +311,10 @@ before the action step that specifically
 generates the specified target(s).
 It may not always be obvious
 if the process is multi-step - for example,
-if you use the &Program; builder to
+if you use the <function>Program</function> builder to
 construct an executable program from a
 <filename>.c</filename> source file,
-&scons; builds an intermediate object file first;
+<command>scons</command> builds an intermediate object file first;
 the pre-action is invoked after this step
 and just before the link command to
 generate the executable program binary.
@@ -335,7 +335,7 @@ gcc -o foo foo.o
 </screen>
 
 <para>
-If a <parameter>target</parameter> is an &f-Alias;,
+If a <parameter>target</parameter> is an <function>Alias</function>,
 <parameter>action</parameter> is associated with the
 action of the alias, if specified.
 </para>
@@ -380,7 +380,7 @@ whenever the any of the alias targets are out-of-date.
 </para>
 
 <para>
-&f-Alias; can be called for an existing alias,
+<function>Alias</function> can be called for an existing alias,
 which appends the <parameter>alias</parameter>
 and/or <parameter>action</parameter> arguments
 to the existing lists for that alias.
@@ -414,15 +414,15 @@ env.Alias('update', ['file1', 'file2'], "update_database $SOURCES")
     <term><function>AllowSubstExceptions</function>(<parameter>[exception, ...]</parameter>)</term>
     <listitem><para>
 Specifies the exceptions that will be ignored
-when expanding &consvars;.
+when expanding <phrase>construction variables</phrase>.
 By default,
-any &consvar; expansions that generate a
-&NameError;
+any <phrase>construction variable</phrase> expansions that generate a
+<exceptionname>NameError</exceptionname>
 or
-&IndexError;
+<exceptionname>IndexError</exceptionname>
 exception will expand to a
 <literal>''</literal>
-(an empty string) and not cause &scons; to fail.
+(an empty string) and not cause <command>scons</command> to fail.
 All exceptions not in the specified list
 will generate an error message
 and terminate processing.
@@ -430,7 +430,7 @@ and terminate processing.
 
 <para>
 If
-&f-AllowSubstExceptions;
+<function>AllowSubstExceptions</function>
 is called multiple times,
 each call completely overwrites the previous list
 of ignored exceptions.
@@ -462,7 +462,7 @@ Marks each given
 so that it is always assumed to be out-of-date,
 and will always be rebuilt if needed.
 Note, however, that
-&f-AlwaysBuild;
+<function>AlwaysBuild</function>
 does not add its target(s) to the default target list,
 so the targets will only be built
 if they are specified on the command line,
@@ -471,37 +471,37 @@ they will
 <emphasis>always</emphasis>
 be built if so specified.
 Multiple targets can be passed in to a single call to
-&f-AlwaysBuild;.
+<function>AlwaysBuild</function>.
 </para>
 </listitem>
   </varlistentry>
   <varlistentry id="f-Append">
     <term><replaceable>env</replaceable>.<methodname>Append</methodname>(<parameter>key=val, [...]</parameter>)</term>
     <listitem><para>
-Appends value(s) intelligently to &consvars; in
+Appends value(s) intelligently to <phrase>construction variables</phrase> in
 <varname>env</varname>.
-The &consvars; and values to add to them are passed as
-<parameter>key=val</parameter> pairs (&Python; keyword arguments).
-&f-env-Append; is designed to allow adding values
-without having to think about the data type of an existing &consvar;.
-Regular &Python; syntax can also be used to manipulate the &consvar;,
+The <phrase>construction variables</phrase> and values to add to them are passed as
+<parameter>key=val</parameter> pairs (<application>Python</application> keyword arguments).
+<function>env.Append</function> is designed to allow adding values
+without having to think about the data type of an existing <phrase>construction variable</phrase>.
+Regular <application>Python</application> syntax can also be used to manipulate the <phrase>construction variable</phrase>,
 but for that you may need to know the types involved,
-for example pure &Python; lets you directly "add" two lists of strings,
+for example pure <application>Python</application> lets you directly "add" two lists of strings,
 but adding a string to a list or a list to a string requires
-different syntax - things &f-Append; takes care of.
-Some pre-defined &consvars; do have type expectations
-based on how &SCons; will use them:
-for example &cv-link-CPPDEFINES; is often a string or a list of strings,
+different syntax - things <function>Append</function> takes care of.
+Some pre-defined <phrase>construction variables</phrase> do have type expectations
+based on how <application>SCons</application> will use them:
+for example <link linkend="cv-CPPDEFINES"><envar>$CPPDEFINES</envar></link> is often a string or a list of strings,
 but can also be a list of tuples or a dictionary;
-while &cv-link-LIBEMITTER;
+while <link linkend="cv-LIBEMITTER"><envar>$LIBEMITTER</envar></link>
 is expected to be a callable or list of callables,
-and &cv-link-BUILDERS; is expected to be a dictionary.
-Consult the documentation for the various &consvars; for more details.
+and <link linkend="cv-BUILDERS"><envar>$BUILDERS</envar></link> is expected to be a dictionary.
+Consult the documentation for the various <phrase>construction variables</phrase> for more details.
 </para>
 
 <para>
-The following descriptions apply to both the &f-Append;
-and &f-Prepend; methods, as well as their
+The following descriptions apply to both the <function>Append</function>
+and <function>Prepend</function> methods, as well as their
 <emphasis role="bold">Unique</emphasis> variants,
 with the differences being the insertion point of the added values
 and whether duplication is allowed.
@@ -509,7 +509,7 @@ and whether duplication is allowed.
 
 <para>
 <parameter>val</parameter> can be almost any type.
-If <varname>env</varname> does not have a &consvar;
+If <varname>env</varname> does not have a <phrase>construction variable</phrase>
 named <parameter>key</parameter>,
 then <parameter>key</parameter> is simply
 stored with a value of <parameter>val</parameter>.
@@ -521,19 +521,19 @@ There are a few special cases to be aware of.
 Normally, when two strings are combined,
 the result is a new string containing their concatenation
 (and you are responsible for supplying any needed separation);
-however, the contents of &cv-link-CPPDEFINES;
+however, the contents of <link linkend="cv-CPPDEFINES"><envar>$CPPDEFINES</envar></link>
 will be post-processed by adding a prefix and/or suffix
 to each entry when the command line is produced,
-so &SCons; keeps them separate -
+so <application>SCons</application> keeps them separate -
 appending a string will result in a separate string entry,
 not a combined string.
-For &cv-CPPDEFINES;. as well as
-&cv-link-LIBS;, and the various <literal>*PATH</literal> variables,
-&SCons; will amend the variable by supplying the compiler-specific
+For <envar>$CPPDEFINES</envar>. as well as
+<link linkend="cv-LIBS"><envar>$LIBS</envar></link>, and the various <literal>*PATH</literal> variables,
+<application>SCons</application> will amend the variable by supplying the compiler-specific
 syntax (e.g. prepending a <literal>-D</literal> or <literal>/D</literal>
-prefix for &cv-CPPDEFINES;), so you should omit this syntax when
+prefix for <envar>$CPPDEFINES</envar>), so you should omit this syntax when
 adding values to these variables.
-Examples (gcc syntax shown in the expansion of &CPPDEFINES;):
+Examples (gcc syntax shown in the expansion of <varname>CPPDEFINES</varname>):
 </para>
 
 <example_commands>
@@ -554,7 +554,7 @@ scons: `.' is up to date.
 </screen>
 
 <para>
-Because &cv-link-CPPDEFINES; is intended for command-line
+Because <link linkend="cv-CPPDEFINES"><envar>$CPPDEFINES</envar></link> is intended for command-line
 specification of C/C++ preprocessor macros,
 additional syntax is accepted when adding to it.
 The preprocessor accepts arguments to predefine a macro name by itself
@@ -563,7 +563,7 @@ The preprocessor accepts arguments to predefine a macro name by itself
 which gives it an implicit value of <constant>1</constant>,
 or can be given with a replacement value
 (<computeroutput>-DBAR=TEXT</computeroutput>).
-&SCons; follows these rules when adding to &cv-CPPDEFINES;:
+<application>SCons</application> follows these rules when adding to <envar>$CPPDEFINES</envar>:
 </para>
 <itemizedlist>
 <listitem>
@@ -660,32 +660,32 @@ scons: `.' is up to date.
 </screen>
 
 <para>
-See &cv-link-CPPDEFINES; for more details.
+See <link linkend="cv-CPPDEFINES"><envar>$CPPDEFINES</envar></link> for more details.
 </para>
 
 <para>
 Appending a string <parameter>val</parameter>
-to a dictionary-typed &consvar; enters
+to a dictionary-typed <phrase>construction variable</phrase> enters
 <parameter>val</parameter> as the key in the dictionary,
 and <literal>None</literal> as its value.
 Using a tuple type to supply a key-value pair
-only works for the special case of &cv-CPPDEFINES;
+only works for the special case of <envar>$CPPDEFINES</envar>
 described above.
 </para>
 
 <para>
 Although most combinations of types work without
 needing to know the details, some combinations
-do not make sense and &Python; raises an exception.
+do not make sense and <application>Python</application> raises an exception.
 </para>
 
 <para>
-When using &f-env-Append; to modify &consvars;
+When using <function>env.Append</function> to modify <phrase>construction variables</phrase>
 which are path specifications (conventionally,
 the names of such end in <literal>PATH</literal>),
 it is recommended to add the values as a list of strings,
 even if you are only adding a single string.
-The same goes for adding library names to &cv-LIBS;.
+The same goes for adding library names to <envar>$LIBS</envar>.
 </para>
 
 <example_commands>
@@ -693,8 +693,8 @@ env.Append(CPPPATH=["#/include"])
 </example_commands>
 
 <para>
-See also &f-link-env-AppendUnique;,
-&f-link-env-Prepend; and &f-link-env-PrependUnique;.
+See also <link linkend="f-AppendUnique"><function>env.AppendUnique</function></link>,
+<link linkend="f-Prepend"><function>env.Prepend</function></link> and <link linkend="f-PrependUnique"><function>env.PrependUnique</function></link>.
 </para>
 
 </listitem>
@@ -705,11 +705,11 @@ See also &f-link-env-AppendUnique;,
 Append directory paths from
 <parameter>newpath</parameter> to
 a search-path entry <parameter>name</parameter>
-in &consvar; <parameter>envname</parameter>
+in <phrase>construction variable</phrase> <parameter>envname</parameter>
 in the current enviromment (<parameter>env</parameter>).
 If <parameter>envname</parameter> is not given,
 the default is <literal>"ENV"</literal>
-(see &cv-link-ENV;).
+(see <link linkend="cv-ENV"><envar>$ENV</envar></link>).
 <parameter>envname</parameter> is expected
 to refer to a dictionary-like object;
 if it does not exist in <parameter>env</parameter>
@@ -757,7 +757,7 @@ after: /biz:/foo/bar:/foo
 </screen>
 
 <para>
-See also &f-link-env-PrependENVPath;.
+See also <link linkend="f-PrependENVPath"><function>env.PrependENVPath</function></link>.
 </para>
 
 </listitem>
@@ -765,9 +765,9 @@ See also &f-link-env-PrependENVPath;.
   <varlistentry id="f-AppendUnique">
     <term><replaceable>env</replaceable>.<methodname>AppendUnique</methodname>(<parameter>key=val, [...], [delete_existing=False]</parameter>)</term>
     <listitem><para>
-Append values to &consvars; in the current &consenv;,
+Append values to <phrase>construction variables</phrase> in the current <phrase>construction environment</phrase>,
 maintaining uniqueness.
-Works like &f-link-env-Append;,
+Works like <link linkend="f-Append"><function>env.Append</function></link>,
 except that values that would become duplicates
 are not added.
 If <parameter>delete_existing</parameter>
@@ -786,9 +786,9 @@ env.AppendUnique(CCFLAGS='-g', FOO=['foo.yyy'])
 </example_commands>
 
 <para>
-See also &f-link-env-Append;,
-&f-link-env-Prepend;
-and &f-link-env-PrependUnique;.
+See also <link linkend="f-Append"><function>env.Append</function></link>,
+<link linkend="f-Prepend"><function>env.Prepend</function></link>
+and <link linkend="f-PrependUnique"><function>env.PrependUnique</function></link>.
 </para>
 </listitem>
   </varlistentry>
@@ -805,19 +805,17 @@ for a complete explanation of the arguments and behavior.
 
 <para>
 Note that the
-<function>env.Builder</function>()
+<function>env.Builder</function>
 form of the invocation will expand
-&consvars; in any arguments strings,
+<phrase>construction variables</phrase> in any argument strings,
 including the
 <parameter>action</parameter>
 argument,
-at the time it is called
-using the &consvars; in the
-<varname>env</varname>
-&consenv; through which
-&f-env-Builder; was called.
+at the time it is called,
+using the values from
+<varname>env</varname>.
 The
-&f-Builder;
+<function>Builder</function> (global fuction)
 form delays all variable expansion
 until after the Builder object is actually called.
 </para>
@@ -828,7 +826,7 @@ until after the Builder object is actually called.
     <term><replaceable>env</replaceable>.<methodname>CacheDir</methodname>(<parameter>cache_dir, custom_class=None</parameter>)</term>
     <listitem><para>
 Direct
-&scons;
+<command>scons</command>
 to maintain a derived-file cache in
 <parameter>cache_dir</parameter>.
 Cached files are shared across builds that specify the same
@@ -839,10 +837,10 @@ to <constant>None</constant> disables caching.
 
 <para>
 The environment method
-&f-link-env-CacheDir;
+<link linkend="f-CacheDir"><function>env.CacheDir</function></link>
 applies caching only to targets built
-through that specific &consenv;.
-The global function &f-link-CacheDir;
+through that specific <phrase>construction environment</phrase>.
+The global function <link linkend="f-CacheDir"><function>CacheDir</function></link>
 sets a default that applies
 to all targets unless overridden by an
 environment-specific call.
@@ -853,21 +851,21 @@ Caching behavior can be customized by passing a subclass of
 <classname>SCons.CacheDir.CacheDir</classname>
 as the optional <parameter>custom_class</parameter> parameter.
 If omitted or set to <constant>None</constant>,
-&SCons; uses the default class.
+<application>SCons</application> uses the default class.
 </para>
 
 <para>
-When caching is enabled and &scons;
+When caching is enabled and <command>scons</command>
 needs to rebuild a derived file,
-it first checks the cache for a matching &buildsig;
+it first checks the cache for a matching <phrase>build signature</phrase>
 (indicating identical inputs and build actions).
 If found, the file is retrieved from the cache.
-Otherwise, &scons; builds the file and
-stores a copy the cache under its &buildsig;.
+Otherwise, <command>scons</command> builds the file and
+stores a copy the cache under its <phrase>build signature</phrase>.
 </para>
 
 <para>
-By default, &scons; reports
+By default, <command>scons</command> reports
 <computeroutput>Retrieved `file' from cache</computeroutput>
 on cache hits.
 Use the
@@ -898,14 +896,14 @@ or <link linkend="opt-cache-readonly"><option>--cache-readonly</option></link>).
 
 <para>
 Use
-&f-link-NoCache;
+<link linkend="f-NoCache"><function>NoCache</function></link>
 to exclude specific files from caching,
 such as those with unpredictable inputs or outputs,
 or excessively large output files.
 </para>
 
 <para>
-&SCons; does not provide built-in tools for cache management.
+<application>SCons</application> does not provide built-in tools for cache management.
 You will need to handle pruning, expiration,
 access control, and other maintenance tasks manually.
 </para>
@@ -933,13 +931,13 @@ has an additive effect.
 
 <para>
 The related
-&f-link-NoClean;
+<link linkend="f-NoClean"><function>NoClean</function></link>
 method has higher priority:
 any target specified to
-&f-NoClean;
+<function>NoClean</function>
 will not be cleaned even if also given as
 a <parameter>files</parameter>
-parameter to &f-Clean;.
+parameter to <function>Clean</function>.
 </para>
 
 <para>
@@ -953,12 +951,12 @@ Clean(['foo', 'bar'], 'something_else_to_clean')
 </example_commands>
 
 <para>
-&SCons; does not directly track directories as targets -
+<application>SCons</application> does not directly track directories as targets -
 they are created if needed and not normally removed
 in clean mode.
 In this example,
 installing the project creates a subdirectory for the documentation.
-The &f-Clean; call ensures that the subdirectory is removed
+The <function>Clean</function> call ensures that the subdirectory is removed
 if the project is uninstalled.
 </para>
 <example_commands>
@@ -969,9 +967,9 @@ Clean(docdir, os.path.join(docdir, projectname))
   <varlistentry id="f-Clone">
     <term><replaceable>env</replaceable>.<methodname>Clone</methodname>(<parameter>[key=val, ...]</parameter>)</term>
     <listitem><para>
-Returns an independent copy of a &consenv;.
+Returns an independent copy of a <phrase>construction environment</phrase>.
 If there are any unrecognized keyword arguments specified,
-they are added as &consvars; in the copy,
+they are added as <phrase>construction variables</phrase> in the copy,
 overwriting any existing values
 for those keywords.
 See the manpage section "Construction Environments" for more details.
@@ -989,7 +987,7 @@ env3 = env.Clone(CCFLAGS='-g')
 <para>
 A list of <parameter>tools</parameter>
 and a <parameter>toolpath</parameter> may be specified,
-as in the &f-link-Environment; constructor:
+as in the <link linkend="f-Environment"><function>Environment</function></link> constructor:
 </para>
 
 <example_commands>
@@ -1003,8 +1001,8 @@ env4 = env.Clone(tools=['msvc', MyTool])
 The
 <parameter>parse_flags</parameter>
 keyword argument is also recognized, to allow merging command-line
-style arguments into the appropriate &consvars;
-(see &f-link-env-MergeFlags;).
+style arguments into the appropriate <phrase>construction variables</phrase>
+(see <link linkend="f-MergeFlags"><function>env.MergeFlags</function></link>).
 </para>
 
 <example_commands>
@@ -1015,7 +1013,7 @@ wx_env = env.Clone(parse_flags='!wx-config --cflags --cxxflags')
 <para>
 The <parameter>variables</parameter>
 keyword argument is also recognized, to allow (re)initializing
-&consvars; from a <literal>Variables</literal> object.
+<phrase>construction variables</phrase> from a <literal>Variables</literal> object.
 </para>
 
 <para>
@@ -1039,7 +1037,7 @@ than having to define and add a new named Builder.
 
 <para>
 The
-&Command; function accepts the
+<function>Command</function> function accepts the
 <parameter>source_scanner</parameter> and
 <parameter>target_scanner</parameter>
 keyword arguments which are used to specify
@@ -1056,16 +1054,16 @@ already specified in other Builder or function calls.
 
 <para>
 The
-&Command; function also accepts the
+<function>Command</function> function also accepts the
 <parameter>source_factory</parameter> and
 <parameter>target_factory</parameter>
 keyword arguments which are used to specify
-factory functions to create &SCons; Nodes
+factory functions to create <application>SCons</application> Nodes
 from any sources or targets specified as strings.
 If any sources or targets are already Node objects,
 they are not further transformed even if
 a factory is specified for them.
-The default for each is the &Entry; factory.
+The default for each is the <function>Entry</function> factory.
 </para>
 
 <para>
@@ -1085,14 +1083,14 @@ and behave as described in the manpage section "Builder Methods",
 in short:
 recognized arguments have their specified meanings,
 while the rest are used to override
-any same-named existing &consvars;
-from the &consenv;.
+any same-named existing <phrase>construction variables</phrase>
+from the <phrase>construction environment</phrase>.
 </para>
 
 <para>
 <parameter>action</parameter> can be an external command,
 specified as a string,
-or a callable &Python; object;
+or a callable <application>Python</application> object;
 see the manpage section "Action Objects"
 for more complete information.
 Also note that a string specifying an external command
@@ -1137,7 +1135,7 @@ env.Command(
 
 <para>
 Note that the
-&Command;
+<function>Command</function>
 function will usually assume, by default,
 that the specified targets and/or sources are Files,
 if no other part of the configuration
@@ -1146,9 +1144,9 @@ If necessary, you can explicitly specify
 that targets or source nodes should
 be treated as directories
 by using the
-&f-link-Dir;
+<link linkend="f-Dir"><function>Dir</function></link>
 or
-&f-link-env-Dir;
+<link linkend="f-Dir"><function>env.Dir</function></link>
 functions.
 </para>
 
@@ -1160,7 +1158,7 @@ Examples:
 env.Command('ddd.list', Dir('ddd'), 'ls -l $SOURCE &gt; $TARGET')
 
 env['DISTDIR'] = 'destination/directory'
-env.Command(env.Dir('$DISTDIR')), None, make_distdir)
+env.Command(env.Dir('$DISTDIR'), None, make_distdir)
 </example_commands>
 
 <para>
@@ -1174,7 +1172,7 @@ so you normally don't need to create directories by hand.
     <term><function>Configure</function>(<parameter>env, [custom_tests, conf_dir, log_file, config_h]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Configure</methodname>(<parameter>[custom_tests, conf_dir, log_file, config_h]</parameter>)</term>
     <listitem><para>
-Creates a &Configure; object for integrated
+Creates a <function>Configure</function> object for integrated
 functionality similar to GNU <command>autoconf</command>.
 See the manpage section "Configure Contexts"
 for a complete explanation of the arguments and behavior.
@@ -1201,7 +1199,7 @@ DebugOptions(json='#/build/output/scons_stats.json')
     <term><replaceable>env</replaceable>.<methodname>Decider</methodname>(<parameter>function</parameter>)</term>
     <listitem><para>
 Specifies that all up-to-date decisions for
-targets built through this &consenv;
+targets built through this <phrase>construction environment</phrase>
 will be handled by <parameter>function</parameter>.
 <parameter>function</parameter> can be the name of
 a function or one of the following strings
@@ -1310,14 +1308,14 @@ Examples:
 Decider('timestamp-match')
 
 # Use hash content signatures for any targets built
-# with the attached &consenv;.
+# with the attached <phrase>construction environment</phrase>.
 env.Decider('content')
 </example_commands>
 
 <para>
 In addition to the above already-available functions, the
 <parameter>function</parameter>
-argument may be a &Python; function you supply.
+argument may be a <application>Python</application> function you supply.
 Such a function must accept the following four arguments:
 </para>
 
@@ -1361,7 +1359,7 @@ was built.
 This can be consulted to match various
 file characteristics
 such as the timestamp,
-size, or &contentsig;.
+size, or <phrase>content signature</phrase>.
 </para>
 </listitem>
 </varlistentry>
@@ -1425,8 +1423,8 @@ env.Decider(my_decider)
     <term><function>Default</function>(<parameter>target[, ...]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Default</methodname>(<parameter>target[, ...]</parameter>)</term>
     <listitem><para>
-Specify default targets to the &SCons; target selection mechanism.
-Any call to &f-Default; will cause &SCons; to use the
+Specify default targets to the <application>SCons</application> target selection mechanism.
+Any call to <function>Default</function> will cause <application>SCons</application> to use the
 defined default target list instead of
 its built-in algorithm for determining default targets
 (see the manpage section "Target Selection").
@@ -1439,14 +1437,14 @@ a <classname>NodeList</classname> as returned by a Builder,
 or <constant>None</constant>.
 A string <parameter>target</parameter> may be the name of
 a file or directory, or a target previously defined by a call to
-&f-link-Alias; (defining the alias later will still create
+<link linkend="f-Alias"><function>Alias</function></link> (defining the alias later will still create
 the alias, but it will not be recognized as a default).
-Calls to &f-Default; are additive.
+Calls to <function>Default</function> are additive.
 A <parameter>target</parameter> of
 <literal>None</literal>
 will clear any existing default target list;
 subsequent calls to
-&f-Default;
+<function>Default</function>
 will add to the (now empty) default target list
 like normal.
 </para>
@@ -1460,8 +1458,8 @@ construction variable expansion to the targets.
 
 <para>
 The current list of targets added using
-&f-Default; is available in the
-&DEFAULT_TARGETS; list (see below).
+<function>Default</function> is available in the
+<varname>DEFAULT_TARGETS</varname> list (see below).
 </para>
 
 <para>
@@ -1480,33 +1478,33 @@ env.Default(hello)
   <varlistentry id="f-DefaultEnvironment">
     <term><function>DefaultEnvironment</function>(<parameter>[key=value, ...]</parameter>)</term>
     <listitem><para>
-Instantiates and returns the global &consenv; object.
-The <firstterm>&DefEnv;</firstterm> is used internally by &SCons;
+Instantiates and returns the global <phrase>construction environment</phrase> object.
+The <firstterm><phrase>Default Environment</phrase></firstterm> is used internally by <application>SCons</application>
 when executing a global function
 or the global form of a Builder method
-that requires access to a &consenv;.
+that requires access to a <phrase>construction environment</phrase>.
 </para>
 
 <para>
 On the first call,
-arguments are interpreted as for the &f-link-Environment; function.
-The &DefEnv; is a singleton;
-subsequent calls to &f-DefaultEnvironment; return
+arguments are interpreted as for the <link linkend="f-Environment"><function>Environment</function></link> function.
+The <phrase>Default Environment</phrase> is a singleton;
+subsequent calls to <function>DefaultEnvironment</function> return
 the already-constructed object,
 and any keyword arguments are silently ignored.
 </para>
 
 <para>
-The &DefEnv; can be modified after instantiation,
-similar to other &consenvs;,
-although some &consenv; methods may be unavailable.
-Modifying the &DefEnv; has no effect on any other &consenv;,
+The <phrase>Default Environment</phrase> can be modified after instantiation,
+similar to other <phrase>construction environments</phrase>,
+although some <phrase>construction environment</phrase> methods may be unavailable.
+Modifying the <phrase>Default Environment</phrase> has no effect on any other <phrase>construction environment</phrase>,
 either existing or newly constructed.
 </para>
 
 <para>
-It is not necessary to explicitly call &f-DefaultEnvironment;.
-&SCons; instantiates the &defenv; automatically when the
+It is not necessary to explicitly call <function>DefaultEnvironment</function>.
+<application>SCons</application> instantiates the <phrase>default environment</phrase> automatically when the
 build phase begins, if has not already been done.
 However, calling it explicitly provides the opportunity to
 affect and examine its contents.
@@ -1515,13 +1513,13 @@ appears to use it, due to internal uses.
 </para>
 
 <para>
-If the project &SConscript; files do not use global functions or Builders,
+If the project <filename>SConscript</filename> files do not use global functions or Builders,
 a small performance gain may be achieved by calling
-&f-DefaultEnvironment; with an empty tools list
+<function>DefaultEnvironment</function> with an empty tools list
 (<userinput>DefaultEnvironment(tools=[])</userinput>).
-This avoids the tool initialization cost for the &DefEnv;,
+This avoids the tool initialization cost for the <phrase>Default Environment</phrase>,
 which is mainly of interest in the test suite
-where &scons; is launched repeatedly in a short time period.
+where <command>scons</command> is launched repeatedly in a short time period.
 </para>
 </listitem>
   </varlistentry>
@@ -1585,21 +1583,21 @@ On Windows systems, additionally applies the filename suffixes found in
 the execution environment
 (<varname>env</varname><literal>['ENV']['PATHEXT']</literal>)
 but will not include any such extension in the return value.
-&f-env-Detect; is a wrapper around &f-link-env-WhereIs;.
+<function>env.Detect</function> is a wrapper around <link linkend="f-WhereIs"><function>env.WhereIs</function></link>.
 </para>
 </listitem>
   </varlistentry>
   <varlistentry id="f-Dictionary">
     <term><replaceable>env</replaceable>.<methodname>Dictionary</methodname>(<parameter>[var, ...], [as_dict=]</parameter>)</term>
     <listitem><para>
-Return an object containing &consvars; from
+Return an object containing <phrase>construction variables</phrase> from
 <parameter>env</parameter>.
 If <parameter>var</parameter> is omitted,
-all the &consvars; with their values
+all the <phrase>construction variables</phrase> with their values
 are returned in a <type>dict</type>.
 If <parameter>var</parameter> is specified,
 and <parameter>as_dict</parameter> is true,
-the specified &consvars; are returned in a <type>dict</type>;
+the specified <phrase>construction variables</phrase> are returned in a <type>dict</type>;
 otherwise (the default, for backwards compatibility),
 values only are returned,
 as a scalar if one <parameter>var</parameter> is given,
@@ -1616,12 +1614,12 @@ cc_values = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 </example_commands>
 
 <note><para>
-The object returned by &f-link-env-Dictionary; should be treated
-as a read-only view into the &consvars;.
-Some &consvars; require special internal handling,
-and modifying them through the &f-env-Dictionary; object can bypass
+The object returned by <link linkend="f-Dictionary"><function>env.Dictionary</function></link> should be treated
+as a read-only view into the <phrase>construction variables</phrase>.
+Some <phrase>construction variables</phrase> require special internal handling,
+and modifying them through the <function>env.Dictionary</function> object can bypass
 that handling and cause data inconsistencies.
-The primary use of &f-env-Dictionary; is for diagnostic purposes -
+The primary use of <function>env.Dictionary</function> is for diagnostic purposes -
 it is used widely by test cases specifically because
 it bypasses the special handling so that behavior
 can be verified.
@@ -1674,9 +1672,9 @@ for more information.
   <varlistentry id="f-Dump">
     <term><replaceable>env</replaceable>.<methodname>Dump</methodname>(<parameter>[var, ...], [format=TYPE]</parameter>)</term>
     <listitem><para>
-Serialize &consvars; from <parameter>env</parameter> to a string.
+Serialize <phrase>construction variables</phrase> from <parameter>env</parameter> to a string.
 If <varname>var</varname> is omitted,
-all the &consvars; are serialized.
+all the <phrase>construction variables</phrase> are serialized.
 If one or more <varname>var</varname> values are supplied,
 only those variables and their values are serialized.
 </para>
@@ -1691,8 +1689,8 @@ selects the serialization format:
 <listitem>
 <para>
 Returns a pretty-printed representation
-of the &consvars; - the result will look like a
-&Python; <type>dict</type>
+of the <phrase>construction variables</phrase> - the result will look like a
+<application>Python</application> <type>dict</type>
 (this is the default).
 </para>
 </listitem>
@@ -1703,7 +1701,7 @@ of the &consvars; - the result will look like a
 <para>
 Returns a JSON-formatted representation of the variables.
 The variables will be presented as a JSON object literal,
-the JSON equivalent of a &Python; <type>dict</type>..
+the JSON equivalent of a <application>Python</application> <type>dict</type>..
 </para>
 </listitem>
 </varlistentry>
@@ -1719,7 +1717,7 @@ not the key with the value.
 </para>
 
 <para>
-Examples: this &SConstruct;
+Examples: this <filename>SConstruct</filename>
 </para>
 
 <example_commands>
@@ -1741,7 +1739,7 @@ will print something like:
 </example_commands>
 
 <para>
-While this &SConstruct;:
+While this <filename>SConstruct</filename>:
 </para>
 
 <example_commands>
@@ -1767,11 +1765,11 @@ will print something like:
   <varlistentry id="f-EnsurePythonVersion">
     <term><function>EnsurePythonVersion</function>(<parameter>major, minor</parameter>)</term>
     <listitem><para>
-Ensure that the &Python; version is at least
+Ensure that the <application>Python</application> version is at least
 <varname>major</varname>.<varname>minor</varname>.
 This function will
-print out an error message and exit &SCons; with a non-zero exit code if the
-actual &Python; version is not late enough.
+print out an error message and exit <application>SCons</application> with a non-zero exit code if the
+actual <application>Python</application> version is not late enough.
 </para>
 
 <para>
@@ -1813,7 +1811,7 @@ EnsureSConsVersion(0,96,90)
     <term><function>Environment</function>(<parameter>[key=value, ...]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Environment</methodname>(<parameter>[key=value, ...]</parameter>)</term>
     <listitem><para>
-Return a new &consenv;
+Return a new <phrase>construction environment</phrase>
 initialized with the specified
 <parameter>key</parameter>=<replaceable>value</replaceable>
 pairs.
@@ -1824,7 +1822,7 @@ The keyword arguments
 <parameter>tools</parameter>
 and <parameter>variables</parameter>
 are specially recognized and do not lead to
-&consvar; creation.
+<phrase>construction variable</phrase> creation.
 See the manpage section "Construction Environments" for more details.
 </para>
 </listitem>
@@ -1838,12 +1836,12 @@ Executes an Action.
 may be an Action object
 or it may be a command-line string,
 list of commands,
-or executable &Python; function,
+or executable <application>Python</application> function,
 each of which will first be converted
 into an Action object
 and then executed.
-Any additional arguments to &f-Execute;
-are passed on to the &f-link-Action; factory function
+Any additional arguments to <function>Execute</function>
+are passed on to the <link linkend="f-Action"><function>Action</function></link> factory function
 which actually creates the Action object
 (see the manpage section <link linkend="action_objects">Action Objects</link>
 for a description). Example:
@@ -1853,20 +1851,20 @@ for a description). Example:
 Execute(Copy('file.out', 'file.in'))
 </example_commands>
 
-<para>&f-Execute; performs its action immediately,
+<para><function>Execute</function> performs its action immediately,
 as part of the SConscript-reading phase.
 There are no sources or targets declared in an
-&f-Execute; call, so any objects it manipulates
-will not be tracked as part of the &SCons; dependency graph.
+<function>Execute</function> call, so any objects it manipulates
+will not be tracked as part of the <application>SCons</application> dependency graph.
 In the example above, neither
 <filename>file.out</filename> nor
 <filename>file.in</filename> will be tracked objects.
 </para>
 
 <para>
-&f-Execute; returns the exit value of the command
-or return value of the &Python; function.
-&scons;
+<function>Execute</function> returns the exit value of the command
+or return value of the <application>Python</application> function.
+<command>scons</command>
 prints an error message if the executed
 <parameter>action</parameter>
 fails (exits with or returns a non-zero value),
@@ -1874,7 +1872,7 @@ however it does
 <emphasis>not</emphasis>,
 automatically terminate the build for such a failure.
 If you want the build to stop in response to a failed
-&f-Execute;
+<function>Execute</function>
 call,
 you must explicitly check for a non-zero return value:
 </para>
@@ -1890,7 +1888,7 @@ if Execute("mkdir sub/dir/ectory"):
     <term><function>Exit</function>(<parameter>[value]</parameter>)</term>
     <listitem><para>
 This tells
-&scons;
+<command>scons</command>
 to exit immediately
 with the specified
 <varname>value</varname>.
@@ -1921,7 +1919,7 @@ or an exception is raised.
 A <parameter>vars</parameter> argument
 may also be a dictionary or
 individual keyword arguments;
-in accordance with &Python; syntax rules,
+in accordance with <application>Python</application> syntax rules,
 keyword arguments must come after any
 non-keyword arguments.
 The dictionary/keyword form can be used
@@ -1931,14 +1929,14 @@ See the Examples for an illustration of the syntax.
 </para>
 
 <para>
-&f-Export; calls are cumulative. Specifying a previously
+<function>Export</function> calls are cumulative. Specifying a previously
 exported variable will replace the previous value in the collection.
 Both local variables and global variables can be exported.
 </para>
 
 <para>
 To use an exported variable, an SConscript must
-call &f-link-Import; to bring it into its own scope.
+call <link linkend="f-Import"><function>Import</function></link> to bring it into its own scope.
 Importing creates an additional reference to the object that
 was originally exported, so if that object is mutable,
 changes made will be visible to other users of that object.
@@ -1969,8 +1967,8 @@ Export({"debug": env})
 
 <para>
 Note that the
-&f-link-SConscript;
-function also supports an &exports;
+<link linkend="f-SConscript"><function>SConscript</function></link>
+function also supports an <varname>exports</varname>
 argument that allows exporting one or more variables
 to the SConscript files invoked by that call (only).
 See the description of that function for details.
@@ -2044,13 +2042,13 @@ foo = env.FindFile('foo', ['dir1', 'dir2'])
     <term><replaceable>env</replaceable>.<methodname>FindInstalledFiles</methodname>()</term>
     <listitem><para>
 Return the list of targets set up by the
-&b-link-Install;
+<link linkend="b-Install"><function>Install</function></link>
 and
-&b-link-InstallAs;
+<link linkend="b-InstallAs"><function>InstallAs</function></link>
 builders.
 This function serves as a convenient method to select the contents of
 a binary package.
-The list is populated as &b-Install; and &b-InstallAs; are executed -
+The list is populated as <function>Install</function> and <function>InstallAs</function> are executed -
 that is, the return reflects builder calls already seen
 but not any calls that may occur later.
 </para>
@@ -2081,22 +2079,22 @@ Return a callable object for use as the
 <varname>path_function</varname> of a
 <link linkend="scanner_objects">Scanner object</link>.
 When called, it looks up the specified
-<varname>variable</varname> in the &consenv;
+<varname>variable</varname> in the <phrase>construction environment</phrase>
 and treats its value as a list of
 directory paths to search
-(like &cv-link-CPPPATH; or &cv-link-LIBPATH;).
+(like <link linkend="cv-CPPPATH"><envar>$CPPPATH</envar></link> or <link linkend="cv-LIBPATH"><envar>$LIBPATH</envar></link>).
 </para>
 
 <para>
-Using &f-FindPathDirs;
+Using <function>FindPathDirs</function>
 is generally preferable to writing your own
 <varname>path_function</varname>
-because it handles common &SCons;
+because it handles common <application>SCons</application>
 scanning cases correctly and efficiently:
 (1) it returns all appropriate directories
 from source trees when a variant directory is used,
 and from repositories when
-&f-link-Repository; or the
+<link linkend="f-Repository"><function>Repository</function></link> or the
 <link linkend="opt-repository"><option>-Y/--repository</option></link>
 option is in effect.
 (2) it detects when different values of
@@ -2151,7 +2149,7 @@ FindSourceFiles('src')
 
 <para>
 Notice that build support files in the tree
-(&SConstruct; in the above example)
+(<filename>SConstruct</filename> in the above example)
 are also returned.
 </para>
 </listitem>
@@ -2160,7 +2158,7 @@ are also returned.
     <term><function>Flatten</function>(<parameter>sequence</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Flatten</methodname>(<parameter>sequence</parameter>)</term>
     <listitem><para>
-Takes a sequence (that is, a &Python; list or tuple)
+Takes a sequence (that is, a <application>Python</application> list or tuple)
 that may contain nested sequences
 and returns a flattened list containing
 all of the individual elements in any sequence.
@@ -2168,7 +2166,7 @@ This can be helpful for collecting
 the lists returned by calls to Builders;
 other Builders will automatically
 flatten lists specified as input,
-but direct &Python; manipulation of
+but direct <application>Python</application> manipulation of
 these lists does not.
 </para>
 
@@ -2188,7 +2186,7 @@ objects = ['f1.o', foo, 'f2.o', bar, 'f3.o']
 # the Builder will flatten the list automatically:
 Program(source = objects)
 
-# If you need to manipulate the list directly using &Python;, you need to
+# If you need to manipulate the list directly using <application>Python</application>, you need to
 # call Flatten() yourself, or otherwise handle nested lists:
 for object in Flatten(objects):
     print(str(object))
@@ -2218,7 +2216,7 @@ when the build failure occurred.
 <para>
 <literal>.status</literal>
 The numeric exit status
-returned by the command or &Python; function
+returned by the command or <application>Python</application> function
 that failed when trying to build the
 specified Node.
 </para>
@@ -2279,28 +2277,28 @@ executed to build the target.
 <literal>.command</literal>
 The actual expanded command that was executed and failed,
 after expansion of
-&cv-link-TARGET;,
-&cv-link-SOURCE;,
+<link linkend="cv-TARGET"><envar>$TARGET</envar></link>,
+<link linkend="cv-SOURCE"><envar>$SOURCE</envar></link>,
 and other construction variables.
 </para>
 
 <para>
 Note that the
-&f-GetBuildFailures;
+<function>GetBuildFailures</function>
 function
 will always return an empty list
 until any build failure has occurred,
 which means that
-&f-GetBuildFailures;
+<function>GetBuildFailures</function>
 will always return an empty list
 while the
-&SConscript;
+<filename>SConscript</filename>
 files are being read.
 Its primary intended use is
 for functions that will be
 executed before SCons exits
 by passing them to the
-standard &Python;
+standard <application>Python</application>
 <function>atexit.register</function>
 function.
 Example:
@@ -2323,7 +2321,7 @@ atexit.register(print_build_failures)
     <term><replaceable>env</replaceable>.<methodname>GetBuildPath</methodname>(<parameter>file, [...]</parameter>)</term>
     <listitem><para>
 Returns the
-&scons;
+<command>scons</command>
 path name (or names) for the specified
 <parameter>file</parameter>
 (or files).
@@ -2331,7 +2329,7 @@ The specified
 <parameter>file</parameter>
 or files
 may be
-&scons;
+<command>scons</command>
 Nodes or strings representing path names.
 </para>
 </listitem>
@@ -2340,7 +2338,7 @@ Nodes or strings representing path names.
     <term><function>GetLaunchDir</function>()</term>
     <listitem><para>
 Returns the absolute path name of the directory from which
-&scons;
+<command>scons</command>
 was initially invoked.
 This can be useful when using the
 <option>-u</option>,
@@ -2349,7 +2347,7 @@ or
 <option>-D</option>
 options, which internally
 change to the directory in which the
-&SConstruct;
+<filename>SConstruct</filename>
 file is found.
 </para>
 </listitem>
@@ -2360,14 +2358,14 @@ file is found.
     <listitem><para>
 Query the value of settable option <parameter>name</parameter>,
 which may have been set on the command line, via option defaults,
-or using the &f-link-SetOption; function.
+or using the <link linkend="f-SetOption"><function>SetOption</function></link> function.
 The table shows the corresponding command line arguments
 that could affect the value.
 Options are stored using the indicated type.
 <parameter>name</parameter> can be also be the destination
 variable name from a project-specific option added using the
-&f-link-AddOption; function, as long as that addition has been
-processed prior to the &f-GetOption; call in the &SConscript; files.
+<link linkend="f-AddOption"><function>AddOption</function></link> function, as long as that addition has been
+processed prior to the <function>GetOption</function> call in the <filename>SConscript</filename> files.
 </para>
 
 <informaltable rowsep="1" colsep="1" frame="topbot">
@@ -2586,7 +2584,7 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
   <entry>
     <link linkend="opt-install-sandbox"><option>--install-sandbox</option></link>
   </entry>
-  <entry>String (filename). Available only if the &t-link-install; tool has been called</entry>
+  <entry>String (filename). Available only if the <link linkend="t-install"><literal>install</literal></link> tool has been called</entry>
 </row>
 <row>
   <entry><varname>keep_going</varname></entry>
@@ -2643,7 +2641,7 @@ processed prior to the &f-GetOption; call in the &SConscript; files.
   <entry>
     <link linkend="opt-package-type"><option>--package-type</option></link>
   </entry>
-  <entry>String. Available only if the &t-link-packaging; tool has been called</entry>
+  <entry>String. Available only if the <link linkend="t-packaging"><literal>packaging</literal></link> tool has been called</entry>
 </row>
 <row>
   <entry><varname>profile_file</varname></entry>
@@ -2750,15 +2748,15 @@ pathname specification <parameter>pattern</parameter>.
 <parameter>pattern</parameter> can be absolute,
 top-relative,
 or (most commonly) relative to the directory of the current
-&SConscript; file.
-&f-Glob; matches both files stored on disk and Nodes
-which &SCons; already knows about, even if any corresponding
+<filename>SConscript</filename> file.
+<function>Glob</function> matches both files stored on disk and Nodes
+which <application>SCons</application> already knows about, even if any corresponding
 file is not currently stored on disk.
-The environment method form (&f-env-Glob;)
+The environment method form (<function>env.Glob</function>)
 performs string substitution on
 <parameter>pattern</parameter>
 and returns whatever matches the resulting expanded pattern.
-The results are sorted, unlike for the similar &Python;
+The results are sorted, unlike for the similar <application>Python</application>
 <systemitem>glob.glob</systemitem> function,
 to ensure build order will be stable.
 </para>
@@ -2814,14 +2812,14 @@ Metacharacter matches also do not span directory separators.
 </para>
 
 <para>
-&f-Glob;
+<function>Glob</function>
 understands repositories
 (see the
-&f-link-Repository;
+<link linkend="f-Repository"><function>Repository</function></link>
 function)
 and source directories
 (see the
-&f-link-VariantDir;
+<link linkend="f-VariantDir"><function>VariantDir</function></link>
 function)
 and returns a Node (or string, if so configured) match
 in the local (SConscript) directory
@@ -2846,7 +2844,7 @@ If the optional
 <parameter>source</parameter>
 argument evaluates true,
 and the local directory is a variant directory,
-then &f-Glob; returns Nodes from
+then <function>Glob</function> returns Nodes from
 the corresponding source directory,
 rather than the local directory.
 <!-- XXX what about generated files that don't exist in src but will be sources? -->
@@ -2856,23 +2854,23 @@ rather than the local directory.
 If the optional
 <parameter>strings</parameter>
 argument evaluates true,
-&f-Glob;
+<function>Glob</function>
 returns matches as strings, rather than Nodes.
 The returned strings will be relative to
 the local (SConscript) directory.
 (Note that while this may make it easier to perform
 arbitrary manipulation of file names,
-it loses the context &SCons; would have in the Node,
+it loses the context <application>SCons</application> would have in the Node,
 so if the returned strings are
 passed to a different
-&SConscript;
+<filename>SConscript</filename>
 file,
 any Node translation there will be relative
 to that
-&SConscript;
+<filename>SConscript</filename>
 directory,
 not to the original
-&SConscript;
+<filename>SConscript</filename>
 directory.)
 </para>
 
@@ -2905,35 +2903,62 @@ sources = Glob("*.cpp", exclude=["os_*_specific_*.cpp"]) \
     <term><replaceable>env</replaceable>.<methodname>Help</methodname>(<parameter>text, append=False, local_only=False</parameter>)</term>
     <listitem><para>
 Adds <parameter>text</parameter> to the help message shown when
-&scons; is called with the
+<command>scons</command> is called with the
 <link linkend="opt-help"><option>-h</option> or <option>--help</option></link>
 argument.
+If <function>Help</function> is never called,
+<command>scons</command> prints a default help message consisting of built-in
+<command>scons</command> command-line options plus any enabled
+project-specific options defined via <link linkend="f-AddOption"><function>AddOption</function></link>.
+If you do call <function>Help</function> to supply your own help text,
+the first call establishes how the help buffer is initialized:
 </para>
+
+<itemizedlist>
+<listitem>
 <para>
-On the first call to &f-Help;,
-if <parameter>append</parameter> is <constant>False</constant>
-(the default), any existing help text is discarded.
-The default help text is the help for the &scons;
-command itself plus help collected from any
-project-local &f-link-AddOption; calls.
-This is the help printed if &f-Help; has never been called.
-If <parameter>append</parameter> is <constant>True</constant>,
-<parameter>text</parameter> is appended to
-the existing help text.
-If <parameter>local_only</parameter> is also <constant>True</constant>
-(the default is <constant>False</constant>),
-the project-local help from &f-AddOption; calls is preserved
-in the help message but the &scons; command help is not.
+<literal>append=False</literal> (the default):
+discards all built-in and <function>AddOption</function> help.
+The help buffer is initialized with only
+your custom <parameter>text</parameter>.
 </para>
+</listitem>
+<listitem>
 <para>
-Subsequent calls to
-&f-Help; ignore the keyword arguments
-<parameter>append</parameter> and
-<parameter>local_only</parameter>
-and always append to the existing help text.
+<literal>append=True, local_only=False</literal>:
+retains both the built-in <command>scons</command> options help
+and local <function>AddOption</function> help,
+appending <parameter>text</parameter> below them.
 </para>
+</listitem>
+<listitem>
 <para>
-<emphasis>Changed in 4.6.0</emphasis>: added <parameter>local_only</parameter>.
+<literal>append=True, local_only=True</literal>:
+discards the built-in <command>scons</command> options help
+while retaining local <function>AddOption</function> help,
+appending <parameter>text</parameter> below the local options.
+</para>
+</listitem>
+</itemizedlist>
+
+<para>
+Any subsequent calls to <function>Help</function>
+simply append their <parameter>text</parameter> to the existing buffer.
+Any <parameter>append</parameter> or
+<parameter>local_only</parameter> argument is ignored.
+</para>
+
+<note>
+<para>
+Regardless of <function>Help</function> settings,
+built-in <command>scons</command> command-line help is
+always accessible via <userinput>scons -H</userinput>.
+</para>
+</note>
+
+<para>
+<emphasis>Changed in 4.6.0</emphasis>: added the
+<parameter>local_only</parameter> parameter.
 </para>
 
 </listitem>
@@ -2952,7 +2977,7 @@ or a list of filenames or Nodes.
 </para>
 
 <para>
-&f-Ignore; can also be used to
+<function>Ignore</function> can also be used to
 remove a target from the default build
 by specifying the directory the target will be built in as
 <parameter>target</parameter>
@@ -2961,7 +2986,7 @@ and the file you want to skip selecting for building as
 Note that this only removes the target from
 the default target selection algorithm:
 if it is a dependency of another object being
-built &SCons; still builds it normally.
+built <application>SCons</application> still builds it normally.
 See the third and forth examples below.
 </para>
 
@@ -2985,14 +3010,14 @@ Imports variables into the scope of the current SConscript file.
 <parameter>vars</parameter>
 must be strings representing names of variables
 which have been previously exported either by the
-&f-link-Export; function or by the
-&exports; argument to the
-&f-link-SConscript; function.
+<link linkend="f-Export"><function>Export</function></link> function or by the
+<varname>exports</varname> argument to the
+<link linkend="f-SConscript"><function>SConscript</function></link> function.
 Variables exported by the
-&f-SConscript; call
+<function>SConscript</function> call
 take precedence.
 Multiple variable names can be passed to
-&f-Import;
+<function>Import</function>
 as separate arguments, as a list of strings,
 or as words in a space-separated string.
 The wildcard <literal>"*"</literal> can be used to import all
@@ -3003,7 +3028,7 @@ available variables.
 If the imported variable is mutable,
 changes made locally will be reflected in the object the
 variable is bound to. This allows subsidiary SConscript files
-to contribute to building up, for example, a &consenv;.
+to contribute to building up, for example, a <phrase>construction environment</phrase>.
 </para>
 
 <para>
@@ -3025,7 +3050,7 @@ Import("*")
 The specified
 <parameter>string</parameter>
 will be preserved as-is
-and not have &consvars; expanded.
+and not have <phrase>construction variables</phrase> expanded.
 </para>
 </listitem>
   </varlistentry>
@@ -3047,18 +3072,18 @@ Returns a list of the target Node or Nodes.
     <listitem><para>
 Merges values from
 <parameter>arg</parameter>
-into &consvars; in <parameter>env</parameter>.
+into <phrase>construction variables</phrase> in <parameter>env</parameter>.
 If <parameter>arg</parameter> is a dictionary,
 each key-value pair represents a
-&consvar; name and the corresponding flags to merge.
+<phrase>construction variable</phrase> name and the corresponding flags to merge.
 If <parameter>arg</parameter>
 is not a dictionary,
-&MergeFlags; attempts to convert it to one
+<function>MergeFlags</function> attempts to convert it to one
 before the values are merged.
-&f-link-env-ParseFlags; is used for this,
+<link linkend="f-ParseFlags"><function>env.ParseFlags</function></link> is used for this,
 so values to be converted are subject to the
 same limitations:
-&ParseFlags; has knowledge of which &consvars; certain
+<function>ParseFlags</function> has knowledge of which <phrase>construction variables</phrase> certain
 flags should go to, but not all;
 and only for GCC and compatible compiler chains.
 <parameter>arg</parameter>
@@ -3071,11 +3096,11 @@ enclose them in a list.
 If <literal>unique</literal> is true (the default),
 duplicate values are not retained.
 In case of duplication,
-any &consvar; names that end in
+any <phrase>construction variable</phrase> names that end in
 <literal>PATH</literal>
 keep the left-most value so the
 path search order is not altered.
-All other &consvars; keep
+All other <phrase>construction variables</phrase> keep
 the right-most value.
 If <literal>unique</literal> is false,
 values are appended even if they are duplicates.
@@ -3112,7 +3137,7 @@ env.MergeFlags(
 Specifies a list of files which should
 <emphasis>not</emphasis>
 be cached whenever the
-&f-link-CacheDir;
+<link linkend="f-CacheDir"><function>CacheDir</function></link>
 method has been activated.
 The specified targets may be a list
 or an individual target.
@@ -3121,16 +3146,16 @@ or an individual target.
 <para>
 Multiple files should be specified
 either as separate arguments to the
-&f-NoCache;
+<function>NoCache</function>
 method, or as a list.
-&f-NoCache;
-will also accept the return value of any of the &consenv;
+<function>NoCache</function>
+will also accept the return value of any of the <phrase>construction environment</phrase>
 Builder methods.
 </para>
 
 <para>
 Calling
-&f-NoCache;
+<function>NoCache</function>
 on directories and other non-File Node types has no effect because
 only File Nodes are cached.
 </para>
@@ -3159,14 +3184,14 @@ command line option).
 may be one or more file or directory names
 or nodes,
 and/or lists of names or nodes.
-&f-NoClean; can be called multiple times.
+<function>NoClean</function> can be called multiple times.
 </para>
 
 <para>
 Calling
-&f-NoClean;
+<function>NoClean</function>
 for a target overrides calling
-&f-link-Clean;
+<link linkend="f-Clean"><function>Clean</function></link>
 for the same target,
 so any targets passed to both functions will
 <emphasis>not</emphasis>
@@ -3186,7 +3211,7 @@ NoClean(env.Program('hello', 'hello.c'))
   <varlistentry id="f-ParseConfig">
     <term><replaceable>env</replaceable>.<methodname>ParseConfig</methodname>(<parameter>command, [function, unique]</parameter>)</term>
     <listitem><para>
-Updates the current &consenv; with the values extracted
+Updates the current <phrase>construction environment</phrase> with the values extracted
 from the output of running external <parameter>command</parameter>,
 by passing it to a helper <parameter>function</parameter>.
 <parameter>command</parameter> may be a string
@@ -3194,10 +3219,10 @@ or a list of strings representing the command and
 its arguments.
 If <parameter>function</parameter>
 is omitted or <constant>None</constant>,
-&f-link-env-MergeFlags; is used.
+<link linkend="f-MergeFlags"><function>env.MergeFlags</function></link> is used.
 By default,
 duplicate values are not
-added to any &consvars;;
+added to any <phrase>construction variables</phrase>;
 you can specify
 <parameter>unique=False</parameter>
 to allow duplicate values to be added.
@@ -3205,8 +3230,8 @@ to allow duplicate values to be added.
 
 <para>
 <parameter>command</parameter> is executed using the
-SCons execution environment (that is, the &consvar;
-&cv-link-ENV; in the current &consenv;).
+SCons execution environment (that is, the <phrase>construction variable</phrase>
+<link linkend="cv-ENV"><envar>$ENV</envar></link> in the current <phrase>construction environment</phrase>).
 If <parameter>command</parameter> needs additional information
 to operate properly, that needs to be set in the execution environment.
 For example, <command>pkg-config</command>
@@ -3215,19 +3240,19 @@ environment variable.
 </para>
 
 <para>
-&f-env-MergeFlags; needs to understand
+<function>env.MergeFlags</function> needs to understand
 the output produced by <parameter>command</parameter>
-in order to distribute it to appropriate &consvars;.
-&f-env-MergeFlags; uses a separate function to
+in order to distribute it to appropriate <phrase>construction variables</phrase>.
+<function>env.MergeFlags</function> uses a separate function to
 do that processing -
-see &f-link-env-ParseFlags; for the details, including
-a table of options and corresponding &consvars;.
+see <link linkend="f-ParseFlags"><function>env.ParseFlags</function></link> for the details, including
+a table of options and corresponding <phrase>construction variables</phrase>.
 To provide alternative processing of the output of
 <parameter>command</parameter>,
 you can supply a custom
 <parameter>function</parameter>,
 which must accept three arguments:
-the &consenv; to modify,
+the <phrase>construction environment</phrase> to modify,
 a string argument containing the output from running
 <parameter>command</parameter>,
 and the optional
@@ -3241,7 +3266,7 @@ and the optional
     <listitem><para>
 Parses the contents of <parameter>filename</parameter>
 as a list of dependencies in the style of
-&Make;
+<application>Make</application>
 or
 <application>mkdep</application>,
 and explicitly establishes all of the listed dependencies.
@@ -3255,7 +3280,7 @@ does not exist.
 The optional
 <parameter>must_exist</parameter>
 argument may be set to <constant>True</constant>
-to have &SCons;
+to have <application>SCons</application>
 raise an exception if the file does not exist,
 or is otherwise inaccessible.
 </para>
@@ -3264,7 +3289,7 @@ or is otherwise inaccessible.
 The optional
 <parameter>only_one</parameter>
 argument may be set to <constant>True</constant>
-to have &SCons; raise an exception
+to have <application>SCons</application> raise an exception
 if the file contains dependency
 information for more than one target.
 This can provide a small sanity check
@@ -3284,9 +3309,9 @@ file.
 and all of the files listed therein
 will be interpreted relative to
 the directory of the
-&SConscript;
+<filename>SConscript</filename>
 file which calls the
-&f-ParseDepends;
+<function>ParseDepends</function>
 function.
 </para>
 </listitem>
@@ -3297,17 +3322,17 @@ function.
 Parses one or more strings containing
 typical command-line flags for GCC-style tool chains
 and returns a dictionary with the flag values
-separated into the appropriate SCons &consvars;.
+separated into the appropriate SCons <phrase>construction variables</phrase>.
 Intended as a companion to the
-&f-link-env-MergeFlags;
+<link linkend="f-MergeFlags"><function>env.MergeFlags</function></link>
 method, but allows for the values in the returned dictionary
 to be modified, if necessary,
-before merging them into the &consenv;.
+before merging them into the <phrase>construction environment</phrase>.
 (Note that
-&f-env-MergeFlags;
+<function>env.MergeFlags</function>
 will call this method if its argument is not a dictionary,
 so it is usually not necessary to call
-&f-env-ParseFlags;
+<function>env.ParseFlags</function>
 directly unless you want to manipulate the values.)
 </para>
 
@@ -3326,12 +3351,12 @@ Note that such a command is executed using the
 SCons execution environment;
 if the command needs additional information,
 that information needs to be explicitly provided.
-See &f-link-ParseConfig; for more details.
+See <link linkend="f-ParseConfig"><function>ParseConfig</function></link> for more details.
 </para>
 
 <para>
 Flag values are translated according to the prefix found,
-and added to the following &consvars;:
+and added to the following <phrase>construction variables</phrase>:
 </para>
 
 <example_commands>
@@ -3371,7 +3396,7 @@ and added to the following &consvars;:
 Any other strings not associated with options
 are assumed to be the names of libraries
 and added to the
-&cv-link-LIBS; &consvar;.
+<link linkend="cv-LIBS"><envar>$LIBS</envar></link> <phrase>construction variable</phrase>.
 </para>
 
 <para>
@@ -3396,9 +3421,9 @@ selected by <parameter>plat</parameter>
 (defaults to the detected platform for the
 current system)
 that can be used to initialize
-a &consenv; by passing it as the
+a <phrase>construction environment</phrase> by passing it as the
 <parameter>platform</parameter> keyword argument to the
-&f-link-Environment; function.
+<link linkend="f-Environment"><function>Environment</function></link> function.
 </para>
 
 <para>
@@ -3431,7 +3456,7 @@ See the manpage section "Construction Environments" for more details.
     <listitem><para>
 Marks <varname>target</varname> as precious so it is not
 deleted before it is rebuilt.
-Normally &SCons; deletes a target before building it.
+Normally <application>SCons</application> deletes a target before building it.
 Multiple targets can be passed in a single call,
 and may be strings and/or nodes.
 Returns a list of the affected target nodes.
@@ -3441,10 +3466,10 @@ Returns a list of the affected target nodes.
   <varlistentry id="f-Prepend">
     <term><replaceable>env</replaceable>.<methodname>Prepend</methodname>(<parameter>key=val, [...]</parameter>)</term>
     <listitem><para>
-Prepend values to &consvars; in the current &consenv;,
-works like &f-link-env-Append; (see for details),
+Prepend values to <phrase>construction variables</phrase> in the current <phrase>construction environment</phrase>,
+works like <link linkend="f-Append"><function>env.Append</function></link> (see for details),
 except that values are added to the front,
-rather than the end, of any existing value of the &consvar;
+rather than the end, of any existing value of the <phrase>construction variable</phrase>
 </para>
 
 <para>
@@ -3456,9 +3481,9 @@ env.Prepend(CCFLAGS='-g ', FOO=['foo.yyy'])
 </example_commands>
 
 <para>
-See also &f-link-env-Append;,
-&f-link-env-AppendUnique;
-and &f-link-env-PrependUnique;.
+See also <link linkend="f-Append"><function>env.Append</function></link>,
+<link linkend="f-AppendUnique"><function>env.AppendUnique</function></link>
+and <link linkend="f-PrependUnique"><function>env.PrependUnique</function></link>.
 </para>
 </listitem>
   </varlistentry>
@@ -3468,11 +3493,11 @@ and &f-link-env-PrependUnique;.
 Prepend directory paths from
 <parameter>newpath</parameter> to
 a search-path entry <parameter>name</parameter>
-in &consvar; <parameter>envname</parameter>
+in <phrase>construction variable</phrase> <parameter>envname</parameter>
 in the current enviromment (<parameter>env</parameter>).
 If <parameter>envname</parameter> is not given,
 the default is <literal>"ENV"</literal>
-(see &cv-link-ENV;).
+(see <link linkend="cv-ENV"><envar>$ENV</envar></link>).
 <parameter>envname</parameter> is expected
 to refer to a dictionary-like object;
 if it does not exist in <parameter>env</parameter>
@@ -3521,7 +3546,7 @@ after: /foo/bar:/foo:/biz
 </screen>
 
 <para>
-See also &f-link-env-AppendENVPath;.
+See also <link linkend="f-AppendENVPath"><function>env.AppendENVPath</function></link>.
 </para>
 
 </listitem>
@@ -3529,11 +3554,11 @@ See also &f-link-env-AppendENVPath;.
   <varlistentry id="f-PrependUnique">
     <term><replaceable>env</replaceable>.<methodname>PrependUnique</methodname>(<parameter>key=val, [...], [delete_existing=False]</parameter>)</term>
     <listitem><para>
-Prepend values to &consvars; in the current &consenv;,
+Prepend values to <phrase>construction variables</phrase> in the current <phrase>construction environment</phrase>,
 maintaining uniqueness.
-Works like &f-link-env-Append;,
+Works like <link linkend="f-Append"><function>env.Append</function></link>,
 except that values are added to the front,
-rather than the end, of the &consvar;,
+rather than the end, of the <phrase>construction variable</phrase>,
 and values that would become duplicates
 are not added.
 If <parameter>delete_existing</parameter>
@@ -3552,9 +3577,9 @@ env.PrependUnique(CCFLAGS='-g', FOO=['foo.yyy'])
 </example_commands>
 
 <para>
-See also &f-link-env-Append;,
-&f-link-env-AppendUnique;
-and &f-link-env-Prepend;.
+See also <link linkend="f-Append"><function>env.Append</function></link>,
+<link linkend="f-AppendUnique"><function>env.AppendUnique</function></link>
+and <link linkend="f-Prepend"><function>env.Prepend</function></link>.
 </para>
 </listitem>
   </varlistentry>
@@ -3569,7 +3594,7 @@ evaluating Nodes (e.g. files).
 </para>
 
 <para>
-If the first specified argument is a &Python; callable
+If the first specified argument is a <application>Python</application> callable
 (a function or an object that has a
 <methodname>__call__</methodname> method),
 the function will be called
@@ -3585,7 +3610,7 @@ and
 <parameter>**kwargs</parameter>
 as arguments to your function or method signatures.
 This will prevent the code from breaking
-if &SCons; ever changes the interface
+if <application>SCons</application> ever changes the interface
 to call the function with additional arguments in the future.)
 </para>
 
@@ -3625,7 +3650,7 @@ Progress(ProgressCounter(), interval=100)
 
 <para>
 If the first argument to
-&f-Progress; is a string or list of strings,
+<function>Progress</function> is a string or list of strings,
 it is taken as text to be displayed every
 <varname>interval</varname>
 evaluated Nodes.
@@ -3700,20 +3725,20 @@ Progress(['-\r', '\\\r', '|\r', '/\r'], interval=5)
 Marks <parameter>target</parameter> as a pseudo target,
 not representing the production of any physical target file.
 If any pseudo <parameter>target</parameter> does exist,
-&SCons; will abort the build with an error.
+<application>SCons</application> will abort the build with an error.
 Multiple targets can be passed in a single call,
 and may be strings and/or Nodes.
 Returns a list of the affected target nodes.
 </para>
 
 <para>
-&f-Pseudo; may be useful in conjuction with a builder
-call (such as &f-link-Command;) which does not create a physical target,
+<function>Pseudo</function> may be useful in conjuction with a builder
+call (such as <link linkend="f-Command"><function>Command</function></link>) which does not create a physical target,
 and the behavior if the target accidentally existed would be incorrect.
 This is similar in concept to the GNU <application>make</application>
 <literal>.PHONY</literal> target.
-&SCons; also provides a powerful target alias capability
-(see &f-link-Alias;) which may provide more flexibility
+<application>SCons</application> also provides a powerful target alias capability
+(see <link linkend="f-Alias"><function>Alias</function></link>) which may provide more flexibility
 in many situations when defining target names that are not directly built.
 </para>
 </listitem>
@@ -3724,10 +3749,10 @@ in many situations when defining target names that are not directly built.
     <listitem><para>
 Finds the location of <parameter>modulename</parameter>,
 which can be a string or a sequence of strings,
-each representing the name of a &Python; module.
+each representing the name of a <application>Python</application> module.
 Construction variables are expanded in
 <parameter>modulename</parameter>.
-Returns a Directory Node (see &f-link-Dir;),
+Returns a Directory Node (see <link linkend="f-Dir"><function>Dir</function></link>),
 or a list of Directory Nodes if
 <parameter>modulename</parameter> is a sequence.
 <literal>None</literal> is returned for any module not found.
@@ -3735,15 +3760,15 @@ or a list of Directory Nodes if
 
 <para>
 When a Tool module which is installed as a
-&Python; module is used, you need
+<application>Python</application> module is used, you need
 to specify a <parameter>toolpath</parameter> argument to
-&f-link-Tool;,
-&f-link-Environment;
-or &f-link-Clone;,
+<link linkend="f-Tool"><function>Tool</function></link>,
+<link linkend="f-Environment"><function>Environment</function></link>
+or <link linkend="f-Clone"><function>Clone</function></link>,
 as tools outside the standard project locations
 (<filename>site_scons/site_tools</filename>)
 will not be found otherwise.
-Using &f-PyPackageDir; allows this path to be
+Using <function>PyPackageDir</function> allows this path to be
 discovered at runtime instead of hardcoding the path.
 </para>
 
@@ -3762,7 +3787,7 @@ env = Environment(
   <varlistentry id="f-Replace">
     <term><replaceable>env</replaceable>.<methodname>Replace</methodname>(<parameter>key=val, [...]</parameter>)</term>
     <listitem><para>
-Replaces &consvars; in the Environment
+Replaces <phrase>construction variables</phrase> in the Environment
 with the specified keyword arguments.
 </para>
 
@@ -3783,7 +3808,7 @@ Sets
 <parameter>directory</parameter>
 as a repository to be searched for files contributing to the build.
 Multiple calls to
-&f-Repository;
+<function>Repository</function>
 are allowed,
 with repositories searched in the given order.
 Repositories specified via command-line option
@@ -3792,7 +3817,7 @@ have higher priority.
 
 <para>
 In
-&scons;,
+<command>scons</command>,
 a repository is partial or complete copy of the source tree,
 from the top-level directory down,
 containing source files
@@ -3801,7 +3826,7 @@ the current worktree.
 Repositories can also contain derived files.
 An example might be an official source tree maintained by an integrator.
 If a repository contains derived files,
-they should be the result of building with &SCons;,
+they should be the result of building with <application>SCons</application>,
 so a signature database (sconsign) is present
 in the repository,
 allowing better decisions on whether they are
@@ -3811,11 +3836,11 @@ up-to-date or not.
 <para>
 Note that if an up-to-date derived file
 already exists in a repository,
-&scons; will
+<command>scons</command> will
 <emphasis>not</emphasis>
 make a copy in the local directory tree.
 If you need a local copy to be made,
-use the &f-link-Local; method.
+use the <link linkend="f-Local"><function>Local</function></link> method.
 </para>
 </listitem>
   </varlistentry>
@@ -3859,7 +3884,7 @@ Return to the calling SConscript, optionally
 returning the values of variables named in
 <varname>vars</varname>.
 Multiple strings containing variable names may be passed to
-&f-Return;. A string containing white space
+<function>Return</function>. A string containing white space
 is split into individual variable names.
 Returns the value if one variable is specified,
 else returns a tuple of values.
@@ -3868,7 +3893,7 @@ is omitted.
 </para>
 
 <para>
-By default &Return; stops processing the current SConscript
+By default <function>Return</function> stops processing the current SConscript
 and returns immediately.
 The optional
 <literal>stop</literal>
@@ -3876,13 +3901,13 @@ keyword argument
 may be set to a false value
 to continue processing the rest of the SConscript
 file after the
-&f-Return;
+<function>Return</function>
 call (this was the default behavior prior to SCons 0.98.)
 However, the values returned
 are still the values of the variables in the named
 <varname>vars</varname>
 at the point
-&f-Return;
+<function>Return</function>
 was called.
 </para>
 
@@ -3925,7 +3950,7 @@ for a complete explanation of the arguments and behavior.
     <listitem><para>
 Executes subsidiary SConscript (build configuration) file(s).
 There are two ways to call the
-&f-SConscript; function.
+<function>SConscript</function> function.
 </para>
 
 <para>
@@ -3953,12 +3978,12 @@ the script and instead specify directory names using the
 <varname>dirs</varname> keyword argument.
 The value can be a string or list of strings.
 In this case,
-&scons;
+<command>scons</command>
 will execute a subsidiary configuration file named
-&SConscript; (by default)
+<filename>SConscript</filename> (by default)
 in each of the specified directories.
 You may specify a name other than
-&SConscript;
+<filename>SConscript</filename>
 by supplying an optional
 <varname>name</varname>=<replaceable>scriptname</replaceable>
 keyword argument.
@@ -3991,12 +4016,12 @@ positional arguments and must use the keyword form.
 These variables are locally exported only to the called
 SConscript file(s), and take precedence over any same-named
 variables in the global pool managed by the
-&f-link-Export;
+<link linkend="f-Export"><function>Export</function></link>
 function.
 <!-- If multiple dirs are provided, each script gets a fresh export. -->
 The subsidiary SConscript files
 must use the
-&f-link-Import;
+<link linkend="f-Import"><function>Import</function></link>
 function to import the variables into their local scope.
 Examples:
 </para>
@@ -4011,8 +4036,8 @@ SConscript(dirs=['one', 'two', 'three'], exports='shared_info')
 If the optional
 <varname>variant_dir</varname>
 argument is present, it causes an effect equivalent to the
-&f-link-VariantDir; function,
-but in effect only within the scope of the &f-SConscript; call.
+<link linkend="f-VariantDir"><function>VariantDir</function></link> function,
+but in effect only within the scope of the <function>SConscript</function> call.
 The <varname>variant_dir</varname>
 argument is interpreted relative to the directory of the
 <emphasis>calling</emphasis> SConscript file.
@@ -4038,7 +4063,7 @@ SConscript('build/SConscript')
 
 <para>
 If the sources are in the same directory as the
-&SConstruct;,
+<filename>SConstruct</filename>,
 </para>
 
 <example_commands>
@@ -4057,11 +4082,11 @@ SConscript('build/SConscript')
 <para>
 The optional
 <varname>duplicate</varname> argument is
-interpreted as for &f-link-VariantDir;.
+interpreted as for <link linkend="f-VariantDir"><function>VariantDir</function></link>.
 If the <varname>variant_dir</varname> argument
 is omitted, the <varname>duplicate</varname> argument is ignored.
 See the description of
-&f-link-VariantDir;
+<link linkend="f-VariantDir"><function>VariantDir</function></link>
 for additional details and restrictions.
 </para>
 
@@ -4105,9 +4130,9 @@ is <constant>True</constant> (the default),
 an exception is raised if a requested
 SConscript file is not found.
 To allow missing scripts to be silently ignored
-(the default behavior prior to &SCons; version 3.1),
+(the default behavior prior to <application>SCons</application> version 3.1),
 pass
-<literal>must_exist=False</literal> in the &f-SConscript; call.
+<literal>must_exist=False</literal> in the <function>SConscript</function> call.
 </para>
 
 <para>
@@ -4150,13 +4175,13 @@ SConscript('src/SConscript', variant_dir='build/ppc', duplicate=0)
 </example_commands>
 
 <para>
-&f-SConscript; returns the values of any variables
+<function>SConscript</function> returns the values of any variables
 named by the executed SConscript file(s) in arguments
-to the &f-link-Return; function.
-If a single &f-SConscript; call causes multiple scripts to
+to the <link linkend="f-Return"><function>Return</function></link> function.
+If a single <function>SConscript</function> call causes multiple scripts to
 be executed, the return value is a tuple containing
 the returns of each of the scripts. If an executed
-script does not explicitly call &Return;, it returns
+script does not explicitly call <function>Return</function>, it returns
 <constant>None</constant>.
 </para>
 
@@ -4166,7 +4191,7 @@ script does not explicitly call &Return;, it returns
     <term><function>SConscriptChdir</function>(<parameter>value</parameter>)</term>
     <listitem><para>
 By default,
-&scons;
+<command>scons</command>
 changes its working directory
 to the directory in which each
 subsidiary SConscript file lives
@@ -4174,7 +4199,7 @@ while reading and processing that script.
 This behavior may be disabled
 by specifying an argument which
 evaluates false, in which case
-&scons;
+<command>scons</command>
 will stay in the top-level directory
 while reading all SConscript files.
 (This may be necessary when building from repositories,
@@ -4182,7 +4207,7 @@ when all the directories in which SConscript files may be found
 don't necessarily exist locally.)
 You may enable and disable
 this ability by calling
-&f-SConscriptChdir;
+<function>SConscriptChdir</function>
 multiple times.
 </para>
 
@@ -4202,7 +4227,7 @@ SConscript('bar/SConscript')	# will chdir to bar
     <term><function>SConsignFile</function>(<parameter>[name, dbm_module]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>SConsignFile</methodname>(<parameter>[name, dbm_module]</parameter>)</term>
     <listitem><para>
-Specify where to store the &SCons; signature database,
+Specify where to store the <application>SCons</application> signature database,
 and which database format to use.
 This may be useful to specify alternate
 database files and/or file locations for different types of builds.
@@ -4211,7 +4236,7 @@ database files and/or file locations for different types of builds.
 The optional <parameter>name</parameter> argument
 is the base name of the database file(s).
 The database is placed relative to the directory containing the
-top-level &SConstruct; file, unless <parameter>name</parameter>
+top-level <filename>SConstruct</filename> file, unless <parameter>name</parameter>
 is an absolute path name.
 The default is
 <filename>.sconsign</filename>.
@@ -4224,7 +4249,7 @@ and may also include the name of the hash format
 <para>
 The optional <parameter>dbm_module</parameter>
 argument specifies which
-&Python; database module to use
+<application>Python</application> database module to use
 for reading/writing the file.
 The module must be imported first;
 then the imported module name
@@ -4232,9 +4257,9 @@ is passed as the argument.
 The default is a custom
 <systemitem>SCons.dblite</systemitem>
 module that uses pickled
-&Python; data structures,
-which works on all &Python; versions.
-See documentation of the &Python;
+<application>Python</application> data structures,
+which works on all <application>Python</application> versions.
+See documentation of the <application>Python</application>
 <systemitem>dbm</systemitem> module
 for other available types.
 </para>
@@ -4244,7 +4269,7 @@ the database will default to
 <filename>.sconsign.dblite</filename>
 in the top directory of the project,
 which is also the default if
-if &f-SConsignFile; is not called.
+if <function>SConsignFile</function> is not called.
 </para>
 <para>
 The setting is global, so the only difference
@@ -4258,7 +4283,7 @@ If
 <parameter>name</parameter>
 is set to
 <constant>None</constant>,
-&scons;
+<command>scons</command>
 will store file signatures
 in a separate
 <filename>.sconsign</filename>
@@ -4266,7 +4291,7 @@ file in each directory,
 not in a single combined database file.
 This is a backwards-compatibility measure to support
 the behavior that was the default
-prior to &SCons; 0.97 (i.e. before 2008).
+prior to <application>SCons</application> 0.97 (i.e. before 2008).
 Use of this mode is deprecated and should
 not be used in new projects.
 </para>
@@ -4308,7 +4333,7 @@ SConsignFile(dbm_module=dbm.gnu)
   <varlistentry id="f-SetDefault">
     <term><replaceable>env</replaceable>.<methodname>SetDefault</methodname>(<parameter>key=val, [...]</parameter>)</term>
     <listitem><para>
-Sets &consvars; to default values specified with the keyword
+Sets <phrase>construction variables</phrase> to default values specified with the keyword
 arguments if (and only if) the variables are not already set.
 The following statements are equivalent:
 </para>
@@ -4330,12 +4355,12 @@ Settable options have corresponding command-line options,
 as shown in the table,
 which can be used for one-time overrides -
 a value set via the command line will take
-precedence over one set with &f-SetOption;.
+precedence over one set with <function>SetOption</function>.
 In addition to SConscript files,
-&f-SetOption; calls can also be placed in a
+<function>SetOption</function> calls can also be placed in a
 <filename>site_init.py</filename> file.
 The current value can be queried with
-&f-link-GetOption;.
+<link linkend="f-GetOption"><function>GetOption</function></link>.
 </para>
 
 <para>
@@ -4352,16 +4377,16 @@ which evaluates to true (e.g. <constant>True</constant>,
 
 <para>
 Options which affect the reading and processing of SConscript files
-are not settable using &f-SetOption; since those files must
-be read in order to find the &f-SetOption; call in the first place.
+are not settable using <function>SetOption</function> since those files must
+be read in order to find the <function>SetOption</function> call in the first place.
 </para>
 
 <para>
 For project-specific options (sometimes called
 <firstterm>local options</firstterm>)
-added via an &f-link-AddOption; call,
-&f-SetOption; is allowed only after the
-&f-AddOption; call has completed successfully,
+added via an <link linkend="f-AddOption"><function>AddOption</function></link> call,
+<function>SetOption</function> is allowed only after the
+<function>AddOption</function> call has completed successfully,
 and only if that call included the
 <parameter>settable=True</parameter> keyword argument.
 </para>
@@ -4522,13 +4547,13 @@ The settable variables with their associated command-line options are:
   </entry>
   <entry>Boolean. See
     <footnote>
-      <para>If <varname>no_progress</varname> is set via &f-SetOption;
+      <para>If <varname>no_progress</varname> is set via <function>SetOption</function>
       in an SConscript file
       (but not if set in a <filename>site_init.py</filename> file)
       there will still be an initial status message about
-      reading SConscript files since &SCons; has
+      reading SConscript files since <application>SCons</application> has
       to start reading them before it can see the
-      &f-SetOption;.
+      <function>SetOption</function>.
       </para>
     </footnote>
   </entry>
@@ -4605,10 +4630,10 @@ may be a filename, a Node object, or a list of filenames or Nodes.
 </para>
 
 <para>
-Use &f-SideEffect; for shared auxiliary output files,
+Use <function>SideEffect</function> for shared auxiliary output files,
 especially when the same file may be written by more than one
 otherwise-independent build command.
-Declaring the file as a side effect tells &SCons; that commands which
+Declaring the file as a side effect tells <application>SCons</application> that commands which
 write the same
 <parameter>side_effect</parameter>
 must not run at the same time.
@@ -4621,16 +4646,16 @@ such as Windows PDB files, and log or auxiliary files generated by
 document-processing tools.
 For example, several object-file compilations may update the same PDB file.
 Declaring the PDB file as a side effect of those object-file targets
-prevents &SCons; from running those compilations concurrently when doing so
+prevents <application>SCons</application> from running those compilations concurrently when doing so
 could corrupt the PDB file.
 </para>
 
 <para>
-Do not use &f-SideEffect; for an ordinary additional output that should be
+Do not use <function>SideEffect</function> for an ordinary additional output that should be
 treated as a normal build target.
 If a command deliberately produces multiple primary output files,
-list those files as targets of the builder or &Command; call instead.
-Use &f-SideEffect; only for auxiliary files whose contents are a consequence
+list those files as targets of the builder or <function>Command</function> call instead.
+Use <function>SideEffect</function> only for auxiliary files whose contents are a consequence
 of building other targets and whose exact update relationship is not suitable
 as a normal target dependency.
 </para>
@@ -4644,7 +4669,7 @@ option.
 This is because the same side-effect file may be shared by several targets.
 If the side-effect file should be removed when cleaning a particular target,
 declare that explicitly with
-&f-link-Clean;.
+<link linkend="f-Clean"><function>Clean</function></link>.
 </para>
 
 <para>
@@ -4672,7 +4697,7 @@ If <parameter>arg</parameter> is any other type of object,
 returns a list containing just the object.
 These non-string cases do not actually do any spliting,
 but allow an argument variable to be passed to
-&f-Split; without having to first check its type.
+<function>Split</function> without having to first check its type.
 </para>
 
 <para>
@@ -4693,7 +4718,7 @@ files = Split("""
   <varlistentry id="f-subst">
     <term><replaceable>env</replaceable>.<methodname>subst</methodname>(<parameter>input, [raw, target, source, conv]</parameter>)</term>
     <listitem><para>
-Performs &consvar; interpolation
+Performs <phrase>construction variable</phrase> interpolation
 (<firstterm>substitution</firstterm>)
 on <parameter>input</parameter>,
 which can be a string or a sequence.
@@ -4753,16 +4778,16 @@ keyword arguments
 must be set to lists of
 target and source nodes, respectively,
 if you want the
-&cv-TARGET;,
-&cv-TARGETS;,
-&cv-SOURCE;
+<envar>$TARGET</envar>,
+<envar>$TARGETS</envar>,
+<envar>$SOURCE</envar>
 and
-&cv-SOURCES;
+<envar>$SOURCES</envar>
 to be available for expansion.
 This is usually necessary if you are
 calling
-&f-env-subst;
-from within a &Python; function used
+<function>env.subst</function>
+from within a <application>Python</application> function used
 as an SCons action.
 </para>
 
@@ -4775,10 +4800,10 @@ argument
 may specify a conversion function
 that will be used in place of
 the default.
-For example, if you want &Python; objects
+For example, if you want <application>Python</application> objects
 (including SCons Nodes)
-to be returned as &Python; objects,
-you can use a &Python;
+to be returned as <application>Python</application> objects,
+you can use a <application>Python</application>
 lambda expression to pass in an unnamed function
 that simply returns its unconverted argument.
 </para>
@@ -4806,7 +4831,7 @@ source_nodes = env.subst('$EXPAND_TO_NODELIST', conv=lambda x: x)
     <listitem><para>
 Annotates file or directory Nodes with
 information about how the
-&b-link-Package;
+<link linkend="b-Package"><function>Package</function></link>
 Builder should package those files or directories.
 All Node-level tags are optional.
 </para>
@@ -4830,13 +4855,13 @@ Tag('file2.txt', DOC)
     <listitem><para>
 Locates the tool specification module <parameter>name</parameter>
 and returns a callable tool object for that tool.
-When the environment method (&f-env-Tool;) form is used,
+When the environment method (<function>env.Tool</function>) form is used,
 the tool object is automatically called before the method returns
 to update <varname>env</varname>,
 and <parameter>name</parameter> is
-appended to the &cv-link-TOOLS;
-&consvar; in that environment.
-When the global function &f-Tool; form is used,
+appended to the <link linkend="cv-TOOLS"><envar>$TOOLS</envar></link>
+<phrase>construction variable</phrase> in that environment.
+When the global function <function>Tool</function> form is used,
 the tool object is constructed but not called,
 as it lacks the context of an environment to update,
 and the returned object needs to be used to arrange for the call.
@@ -4862,7 +4887,7 @@ and will be passed to the tool module's
 <function>generate</function> function
 when the tool object is actually called.
 The <function>generate</function> function
-can update the &consenv; with &consvars; and arrange
+can update the <phrase>construction environment</phrase> with <phrase>construction variables</phrase> and arrange
 any other initialization
 needed to use the mechanisms that tool describes,
 and can use these extra arguments to help
@@ -4871,7 +4896,7 @@ guide its actions.
 
 <para>
 <emphasis>Changed in version  4.2:</emphasis>
-&f-env-Tool; now returns the tool object,
+<function>env.Tool</function> now returns the tool object,
 previously it did not return (i.e. returned <constant>None</constant>).
 </para>
 
@@ -4886,14 +4911,14 @@ env.Tool('opengl', toolpath=['build/tools'])
 
 <para>
 The returned tool object can be passed to an
-&f-link-Environment; or &f-link-Clone; call
+<link linkend="f-Environment"><function>Environment</function></link> or <link linkend="f-Clone"><function>Clone</function></link> call
 as part of the <parameter>tools</parameter> keyword argument,
 in which case the tool is applied to the environment being constructed,
 or it can be called directly,
-in which case a &consenv; to update must be
+in which case a <phrase>construction environment</phrase> to update must be
 passed as the argument.
 Either approach will also update the
-&cv-TOOLS; &consvar;.
+<envar>$TOOLS</envar> <phrase>construction variable</phrase>.
 </para>
 
 <para>
@@ -4915,27 +4940,27 @@ gltool(env)  # adds 'opengl' to the TOOLS variable
     <term><function>ValidateOptions</function>(<parameter>[throw_exception=False]</parameter>)</term>
     <listitem><para>
         Check that all the options specified on the command line are either
-        &SCons; built-in options or defined via calls to &f-link-AddOption;.
-        &SCons; will eventually fail on unknown options anyway, but calling
+        <application>SCons</application> built-in options or defined via calls to <link linkend="f-AddOption"><function>AddOption</function></link>.
+        <application>SCons</application> will eventually fail on unknown options anyway, but calling
         this function allows the build to "fail fast" before executing
         expensive logic later in the build.
       </para>
 
       <para>
-        This function should only be called after the last &f-AddOption;
-        call in your &SConscript; logic.
-        Be aware that some tools call &f-AddOption;, if you are getting
+        This function should only be called after the last <function>AddOption</function>
+        call in your <filename>SConscript</filename> logic.
+        Be aware that some tools call <function>AddOption</function>, if you are getting
         error messages for arguments that they add, you will need to ensure
-        that those tools are loaded before calling &f-ValidateOptions;.
+        that those tools are loaded before calling <function>ValidateOptions</function>.
       </para>
 
       <para>
-        If there are any unknown command line options, &f-ValidateOptions;
+        If there are any unknown command line options, <function>ValidateOptions</function>
         prints an error message and exits with an error exit status.
         If the optional <parameter>throw_exception</parameter> argument is
         <literal>True</literal> (default is <literal>False</literal>),
         a <exceptionname>SConsBadOptionError</exceptionname> is raised,
-        giving an opportunity for the &SConscript; logic to catch that
+        giving an opportunity for the <filename>SConscript</filename> logic to catch that
         exception and handle invalid options appropriately. Note that
         this exception name needs to be imported (see the example below).
       </para>
@@ -4952,7 +4977,7 @@ $ <userinput>scons --complier=mingw</userinput>  # the correct flag is --compile
       </screen>
 
       <para>
-        Here &SCons; could go off and run a bunch of configure steps using
+        Here <application>SCons</application> could go off and run a bunch of configure steps using
         the default value of <option>--compiler</option>, since the
         misspelled option causes it not to be supplied the intended value,
         costing developer time to track down why the configure logic
@@ -4987,11 +5012,11 @@ except SConsBadOptionError as e:
     <term><function>Value</function>(<parameter>value, [built_value], [name]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Value</methodname>(<parameter>value, [built_value], [name]</parameter>)</term>
     <listitem><para>
-Returns a Node object representing the specified &Python;
+Returns a Node object representing the specified <application>Python</application>
 <parameter>value</parameter>.
 Value Nodes can be used as dependencies of targets.
 If the string representation of the Value Node
-changes between &SCons; runs, it is considered
+changes between <application>SCons</application> runs, it is considered
 out-of-date and any targets depending on it will be rebuilt.
 Since Value Nodes have no filesystem representation,
 timestamps are not used; the timestamp deciders
@@ -5064,7 +5089,17 @@ input = env.Value('after')
 # Attach a builder named UpdateValue to the construction environment
 # using the 'build_value' action function above.
 env['BUILDERS']['UpdateValue'] = Builder(action=build_value)
-env.UpdateValue(target=Value(output), source=Value(input))
+env.UpdateValue(target=output, source=input)
+
+def write_value(target, source, env):
+    """Action function to write the built value of $SOURCE into $TARGET."""
+    with open(target[0], 'wb') as f:
+        f.write(source[0].read())
+
+# A Value Node is only built when a target being built depends on it,
+# so write the updated Value to a file. output.txt contains "after".
+env['BUILDERS']['WriteValue'] = Builder(action=write_value)
+env.WriteValue(target='output.txt', source=output)
 </example_commands>
 </listitem>
   </varlistentry>
@@ -5076,9 +5111,9 @@ Set up a mapping to define a variant build directory in
 <parameter>variant_dir</parameter>.
 <parameter>src_dir</parameter> must not be underneath
 <parameter>variant_dir</parameter>.
-A &f-VariantDir; mapping is global, even when called as
-&f-env-VariantDir;.
-&f-VariantDir;
+A <function>VariantDir</function> mapping is global, even when called as
+<function>env.VariantDir</function>.
+<function>VariantDir</function>
 can be called multiple times with the same
 <parameter>src_dir</parameter>
 to set up multiple variant builds with different options.
@@ -5094,27 +5129,27 @@ variant directory unless they are explicitly specified.
 
 <para>
 When files under <parameter>variant_dir</parameter> are referenced,
-&SCons; backfills missing files from <parameter>src_dir</parameter>
+<application>SCons</application> backfills missing files from <parameter>src_dir</parameter>
 as needed to create a complete build tree.
-By default, &SCons;
-physically duplicates source files, subsidiary &SConscript; files,
+By default, <application>SCons</application>
+physically duplicates source files, subsidiary <filename>SConscript</filename> files,
 and any needed directory structure into the variant directory.
 This makes a build in the variant directory equivalent to a build in the
 source tree, even when intermediate source files are generated,
 scanners search for included files using source-relative paths,
 or tools are hard-coded to emit derived files beside their sources.
-Only the files &SCons; determines are needed for the build are
+Only the files <application>SCons</application> determines are needed for the build are
 duplicated into <parameter>variant_dir</parameter>.
 Where possible, duplication is performed by linking rather than copying.
 The duplication strategy can be adjusted using the
 <link linkend="opt-duplicate"><option>--duplicate</option></link>
-command-line option or &f-link-SetOption;.
+command-line option or <link linkend="f-SetOption"><function>SetOption</function></link>.
 </para>
 
 <para>
 If the <parameter>duplicate</parameter> argument is set to
 <constant>False</constant>,
-&SCons; does not duplicate source files.
+<application>SCons</application> does not duplicate source files.
 Instead, it automatically invokes builders using the original source paths
 from <parameter>src_dir</parameter>
 and derived file paths in <parameter>variant_dir</parameter>.
@@ -5127,19 +5162,19 @@ if it causes problems, use <literal>duplicate=True</literal> (the default).
 When switching an existing variant directory
 from duplicating to non-duplicating,
 previously duplicated source files are not automatically removed.
-&SCons; will continue to prefer these stale copies over the original sources,
+<application>SCons</application> will continue to prefer these stale copies over the original sources,
 possibly preventing detection of changes to the originals.
 To avoid this issue, clean the build tree before switching.
 After the switch,
-&SCons; no longer tracks duplicated files in the variant directory
+<application>SCons</application> no longer tracks duplicated files in the variant directory
 and will not remove them during cleaning.
 </para>
 </note>
 
 <para>
 Variant directories can also be established using the
-&f-link-SConscript; function
-in conjunction with calling a subsidiary &SConscript; file.
+<link linkend="f-SConscript"><function>SConscript</function></link> function
+in conjunction with calling a subsidiary <filename>SConscript</filename> file.
 </para>
 
 <para>
@@ -5161,17 +5196,17 @@ SConscript(dirs='doc', variant_dir='build/doc', duplicate=False)
 </example_commands>
 
 <para>
-&f-VariantDir;
-works most naturally when used with a subsidiary &SConscript; file.
-The subsidiary &SConscript; must be called as if it were in
+<function>VariantDir</function>
+works most naturally when used with a subsidiary <filename>SConscript</filename> file.
+The subsidiary <filename>SConscript</filename> must be called as if it were in
 <parameter>variant_dir</parameter>,
 regardless of the value of
 <parameter>duplicate</parameter>.
 Use the <parameter>exports</parameter> keyword argument to pass
 parameters or an appropriately configured environment object
-so the subsidiary &SConscript; can pick up the right settings
+so the subsidiary <filename>SConscript</filename> can pick up the right settings
 for that variant build.
-The &SConscript; must &f-link-Import;
+The <filename>SConscript</filename> must <link linkend="f-Import"><function>Import</function></link>
 these exported values before using them.
 </para>
 
@@ -5190,7 +5225,7 @@ SConscript('build/variant2/SConscript', exports={"env": env2})
   <varlistentry id="f-Virtualenv">
     <term><function>Virtualenv</function>()</term>
     <listitem><para>
-If the &SCons; process is running inside a &Python;
+If the <application>SCons</application> process is running inside a <application>Python</application>
 virtual environment,
 return the path to the directory where that environment is stored,
 else an empty string.
@@ -5208,11 +5243,11 @@ returning the full path to the program
 or <constant>None</constant>.
 </para>
 <para>
-When called as a &consenv; method,
+When called as a <phrase>construction environment</phrase> method,
 searches the paths in the
 <parameter>path</parameter> keyword argument,
 or if <constant>None</constant> (the default)
-the paths listed in the &consenv;
+the paths listed in the <phrase>construction environment</phrase>
 (<varname>env</varname><literal>['ENV']['PATH']</literal>).
 The external environment's path list
 (<literal>os.environ['PATH']</literal>)
@@ -5225,7 +5260,7 @@ On Windows systems, searches for executable
 programs with any of the file extensions listed in the
 <parameter>pathext</parameter> keyword argument,
 or if <constant>None</constant> (the default)
-the pathname extensions listed in the &consenv;
+the pathname extensions listed in the <phrase>construction environment</phrase>
 (<varname>env</varname><literal>['ENV']['PATHEXT']</literal>).
 The external environment's pathname extensions list
 (<literal>os.environ['PATHEXT']</literal>)
