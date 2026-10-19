@@ -69,6 +69,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       now gets slack while the incremental rebuild comparisons (a ~5x ninja
       lead) stay strict; failures report all timings, the files to modify are
       chosen without repeats, and the CPU count comes from os.cpu_count().
+    - Fix a race in the parallel job scheduler where the first worker thread
+      could start another before it was recorded, so more than -j worker
+      threads could run. This made test/option/stack-size.py intermittently
+      report an extra "Setting stack size failed" warning.
 
   From Adam Matthews:
     - SConstruct and SConscript files (including one read from stdin),
