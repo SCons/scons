@@ -48,7 +48,7 @@ FIXES
 - Preserve native path semantics for install and package locations: POSIX
   double-slash paths retain their directory components, while Windows UNC
   paths are relative to the share root.
-  
+
 - Register matching LaTeX or PDFLaTeX source scanners only in environments
   that load a TeX tool, avoiding unexpected scanning and undefined
   LATEXSUFFIXES errors in other environments.
@@ -146,6 +146,8 @@ DOCUMENTATION
   tools are documented to set.
 - Fix typo in X_RPM_EXCLUSIVEARCH manpage entry.
 
+- Further tweak the wording for JAVAVERSION in manpage and User Guide
+
 DEVELOPMENT
 -----------
 
@@ -166,7 +168,7 @@ DEVELOPMENT
   reports the handles it inherited itself. The test also no longer passed
   unconditionally: the handle it leaked was closed before the build phase ran,
   and was close-on-exec in any case (PEP 446), so no leak could be detected.
-  
+
 - test/ninja/iterative_speedup.py no longer fails intermittently on loaded or
   few-core machines (seen on macOS CI): the clean-build timing comparison,
   where ninja's lead is small, now has slack, while the incremental rebuild

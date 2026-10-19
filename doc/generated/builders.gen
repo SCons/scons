@@ -18,7 +18,7 @@
     <listitem><para>
 Builds a C source file given a lex (<filename>.l</filename>)
 or yacc (<filename>.y</filename>) input file.
-The suffix specified by the &cv-link-CFILESUFFIX; &consvar;
+The suffix specified by the <link linkend="cv-CFILESUFFIX"><envar>$CFILESUFFIX</envar></link> <phrase>construction variable</phrase>
 (<filename>.c</filename> by default)
 is automatically added to the target
 if it is not already present.
@@ -39,7 +39,7 @@ env.CFile(target='bar', source='bar.y')
     <term><function>Command</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>Command</methodname>()</term>
     <listitem><para>
-There is actually no Builder named &Command;,
+There is actually no Builder named <function>Command</function>,
 rather the term "Command Builder" refers to
 a function which, on each call, creates and calls
 an anonymous Builder.
@@ -48,7 +48,7 @@ where a full Builder is not needed.
 Since the anonymous Builder is never hooked
 into the standard Builder framework,
 an Action must always be specified.
-See the &f-link-Command; function description
+See the <link linkend="f-Command"><function>Command</function></link> function description
 for the calling syntax and details.
 </para>
 </listitem>
@@ -57,7 +57,7 @@ for the calling syntax and details.
     <term><function>CompilationDatabase</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>CompilationDatabase</methodname>()</term>
     <listitem><para>
-                &b-CompilationDatabase; is a special builder which
+                <function>CompilationDatabase</function> is a special builder which
                 adds a target to create a JSON formatted
                 compilation database compatible with
                 <systemitem>clang</systemitem> tooling
@@ -66,13 +66,13 @@ for the calling syntax and details.
                 This database is suitable for consumption by various
                 tools and editors who can use it to obtain build and
                 dependency information which otherwise would be
-                internal to &SCons;.
+                internal to <application>SCons</application>.
                 The builder does not require any source files to be specified,
                 rather it arranges to emit information about all
                 of the C, C++ and assembler source/output pairs
                 identified in the build that are not excluded by the
-                optional filter &cv-link-COMPILATIONDB_PATH_FILTER;.
-                The target is subject to the usual &SCons; target
+                optional filter <link linkend="cv-COMPILATIONDB_PATH_FILTER"><envar>$COMPILATIONDB_PATH_FILTER</envar></link>.
+                The target is subject to the usual <application>SCons</application> target
                 selection rules.
             </para>
             <para>
@@ -82,7 +82,7 @@ for the calling syntax and details.
             </para>
             <para>
                 If called with a single positional argument,
-                &scons; will "deduce" the target name from that source
+                <command>scons</command> will "deduce" the target name from that source
                 argument, giving it the same name, and then
                 ignore the source.
                 This is the usual way to call the builder if a
@@ -101,13 +101,13 @@ for the calling syntax and details.
             </para>
             <note>
               <para>
-                You must load the &t-compilation_db; tool prior to specifying
+                You must load the <literal>compilation_db</literal> tool prior to specifying
                 any part of your build or some source/output
                 files will not show up in the compilation database.
               </para>
             </note>
             <para>
-                <emphasis>Available since &scons; 4.0.</emphasis>
+                <emphasis>Available since <command>scons</command> 4.0.</emphasis>
             </para>
         </listitem>
   </varlistentry>
@@ -118,7 +118,7 @@ for the calling syntax and details.
 Builds a C++ source file given a lex (<filename>.ll</filename>)
 or yacc (<filename>.yy</filename>)
 input file.
-The suffix specified by the &cv-link-CXXFILESUFFIX; &consvar;
+The suffix specified by the <link linkend="cv-CXXFILESUFFIX"><envar>$CXXFILESUFFIX</envar></link> <phrase>construction variable</phrase>
 (<filename>.cc</filename> by default)
 is automatically added to the target
 if it is not already present.
@@ -374,31 +374,31 @@ Builds a <filename>.dvi</filename> file
 from a <filename>.tex</filename>,
 <filename>.ltx</filename> or <filename>.latex</filename> input file.
 If the source file suffix is <filename>.tex</filename>,
-&scons;
+<command>scons</command>
 will examine the contents of the file;
 if the string
 <literal>\documentclass</literal>
 or
 <literal>\documentstyle</literal>
 is found, the file is assumed to be a LaTeX file and
-the target is built by invoking the &cv-link-LATEXCOM; command line;
-otherwise, the &cv-link-TEXCOM; command line is used.
+the target is built by invoking the <link linkend="cv-LATEXCOM"><envar>$LATEXCOM</envar></link> command line;
+otherwise, the <link linkend="cv-TEXCOM"><envar>$TEXCOM</envar></link> command line is used.
 If the file is a LaTeX file,
 the
-&b-DVI;
+<function>DVI</function>
 builder method will also examine the contents
 of the
 <filename>.aux</filename>
-file and invoke the &cv-link-BIBTEX; command line
+file and invoke the <link linkend="cv-BIBTEX"><envar>$BIBTEX</envar></link> command line
 if the string
 <literal>bibdata</literal>
 is found,
-start &cv-link-MAKEINDEX; to generate an index if a
+start <link linkend="cv-MAKEINDEX"><envar>$MAKEINDEX</envar></link> to generate an index if a
 <filename>.ind</filename>
 file is found
 and will examine the contents
 <filename>.log</filename>
-file and re-run the &cv-link-LATEXCOM; command
+file and re-run the <link linkend="cv-LATEXCOM"><envar>$LATEXCOM</envar></link> command
 if the log file says it is necessary.
 </para>
 
@@ -458,15 +458,15 @@ env.Install(target='/usr/local/bin', source=['foo', 'bar'])
 
 <para>
 Note that if target paths chosen for the
-&Install; builder (and the related &InstallAs; and
-&InstallVersionedLib; builders) are outside the
+<function>Install</function> builder (and the related <function>InstallAs</function> and
+<function>InstallVersionedLib</function> builders) are outside the
 project tree, such as in the example above,
 they may not be selected for "building" by default,
 since in the absence of other instructions
-&scons; builds targets that are underneath the top directory
-(the directory that contains the &SConstruct; file,
+<command>scons</command> builds targets that are underneath the top directory
+(the directory that contains the <filename>SConstruct</filename> file,
 usually the current directory).
-Use command line targets or the &Default; function
+Use command line targets or the <function>Default</function> function
 in this case.
 </para>
 
@@ -480,7 +480,7 @@ a "live" location in the system.
 </para>
 
 <para>
-See also &f-link-FindInstalledFiles;.
+See also <link linkend="f-FindInstalledFiles"><function>FindInstalledFiles</function></link>.
 For more thoughts on installation, see the User Guide
 (particularly the section on Command-Line Targets
 and the chapters on Installing Files and on Alias Targets).
@@ -511,7 +511,7 @@ env.InstallAs(target=['../lib/libfoo.a', '../lib/libbar.a'],
 </example_commands>
 
 <para>
-See the note under &Install;.
+See the note under <function>Install</function>.
 </para>
 
 </listitem>
@@ -530,7 +530,7 @@ env.InstallVersionedLib(target='/usr/local/bin/foo',
 </example_commands>
 
 <para>
-See the note under &Install;.
+See the note under <function>Install</function>.
 </para>
 
 </listitem>
@@ -545,19 +545,19 @@ Any directories in the source list
 will be searched for <filename>.class</filename> files).
 Any <filename>.java</filename> files in the source list
 will be compiled  to <filename>.class</filename> files
-by calling the &b-link-Java; Builder.
+by calling the <link linkend="b-Java"><function>Java</function></link> Builder.
 </para>
 
 <para>
-If the &cv-link-JARCHDIR; value is set, the
-&jar;
+If the <link linkend="cv-JARCHDIR"><envar>$JARCHDIR</envar></link> value is set, the
+<application>jar</application>
 command will change to the specified directory using the
 <option>-C</option>
 option.
-If &cv-JARCHDIR; is not set explicitly,
-&SCons; will use the top of any subdirectory tree
+If <envar>$JARCHDIR</envar> is not set explicitly,
+<application>SCons</application> will use the top of any subdirectory tree
 in which Java <filename>.class</filename>
-were built by the &b-link-Java; Builder.
+were built by the <link linkend="b-Java"><function>Java</function></link> Builder.
 </para>
 
 <para>
@@ -565,7 +565,7 @@ If the contents any of the source files begin with the string
 <literal>Manifest-Version</literal>,
 the file is assumed to be a manifest
 and is passed to the
-&jar;
+<application>jar</application>
 command with the
 <option>m</option>
 option set.
@@ -667,18 +667,18 @@ will contain all of the definitions.
 The source can be the names of <filename>.class</filename> files,
 the names of <filename>.java</filename> files
 to be compiled into <filename>.class</filename> files
-by calling the &b-link-Java; builder method,
+by calling the <link linkend="b-Java"><function>Java</function></link> builder method,
 or the objects returned from the
-&b-Java;
+<function>Java</function>
 builder method.
 </para>
 
 <para>
 If the construction variable
-&cv-link-JAVACLASSDIR;
+<link linkend="cv-JAVACLASSDIR"><envar>$JAVACLASSDIR</envar></link>
 is set, either in the environment
 or in the call to the
-&b-JavaH;
+<function>JavaH</function>
 builder method itself,
 then the value of the variable
 will be stripped from the
@@ -713,12 +713,12 @@ headers/sources, and indeed have removed the command entirely
 (see Java Enhancement Proposal
 <ulink url="https:openjdk.java.net/jeps/313">JEP 313</ulink>),
 making this tool harder to use for that purpose.
-&SCons; may autodiscover a <command>javah</command>
+<application>SCons</application> may autodiscover a <command>javah</command>
 belonging to an older release if there are multiple Java
 versions on the system, which will lead to incorrect results.
-To use with a newer Java, override the default values of &cv-link-JAVAH;
+To use with a newer Java, override the default values of <link linkend="cv-JAVAH"><envar>$JAVAH</envar></link>
 (to contain the path to the <command>javac</command>)
-and &cv-link-JAVAHFLAGS; (to contain at least a <option>-h</option>
+and <link linkend="cv-JAVAHFLAGS"><envar>$JAVAHFLAGS</envar></link> (to contain at least a <option>-h</option>
 flag) and note that generating headers with
 <command>javac</command> requires supplying source
 <filename>.java</filename> files only,
@@ -732,7 +732,7 @@ not <filename>.class</filename> files.
     <term><replaceable>env</replaceable>.<methodname>Library</methodname>()</term>
     <listitem><para>
 A synonym for the
-&b-StaticLibrary;
+<function>StaticLibrary</function>
 builder method.
 </para>
 </listitem>
@@ -743,7 +743,7 @@ builder method.
     <listitem><para>
 On most systems,
 this is the same as
-&b-SharedLibrary;.
+<function>SharedLibrary</function>.
 On Mac OS X (Darwin) platforms,
 this creates a loadable module bundle.
 </para>
@@ -754,7 +754,7 @@ this creates a loadable module bundle.
     <term><replaceable>env</replaceable>.<methodname>M4</methodname>()</term>
     <listitem><para>
 Builds an output file from an M4 input file.
-This uses a default &cv-link-M4FLAGS; value of
+This uses a default <link linkend="cv-M4FLAGS"><envar>$M4FLAGS</envar></link> value of
 <option>-E</option>,
 which considers all warnings to be fatal
 and stops on the first warning
@@ -771,12 +771,12 @@ env.M4(target = 'foo.c', source = 'foo.c.m4')
     <term><function>MOFiles</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>MOFiles</methodname>()</term>
     <listitem><para>
-This builder is set up by the &t-link-msgfmt; tool.
+This builder is set up by the <link linkend="t-msgfmt"><literal>msgfmt</literal></link> tool.
 The builder compiles
 <literal>PO</literal> files to <literal>MO</literal> files.
-&b-MOFiles; is a single-source builder.
+<function>MOFiles</function> is a single-source builder.
 The <parameter>source</parameter> parameter
-can also be omitted if &cv-link-LINGUAS_FILE; is set.
+can also be omitted if <link linkend="cv-LINGUAS_FILE"><envar>$LINGUAS_FILE</envar></link> is set.
 </para>
 
 <para>
@@ -821,15 +821,15 @@ env.MOFiles()
     <term><function>MSVSProject</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>MSVSProject</methodname>()</term>
     <listitem><para>
-        Build a &MSVC; project file and solution file.
+        Build a <application>Microsoft Visual C++</application> project file and solution file.
       </para>
       <para>
-        Builds a &MSVC; project file based on the
+        Builds a <application>Microsoft Visual C++</application> project file based on the
         version of Visual Studio (or to be more precise, of
         <application>MSBuild</application>)
         that is configured: either the latest installed version,
         or the version specified by
-        &cv-link-MSVC_VERSION; in the current &consenv;.
+        <link linkend="cv-MSVC_VERSION"><envar>$MSVC_VERSION</envar></link> in the current <phrase>construction environment</phrase>.
         For Visual Studio 6.0 a <filename>.dsp</filename> file is generated.
         For Visual Studio versions 2002-2008,
         a <filename>.vcproj</filename> file is generated.
@@ -837,11 +837,11 @@ env.MOFiles()
         file is generated.
         Note there are multiple versioning schemes involved in
         the Microsoft compilation environment -
-        see the description of &cv-link-MSVC_VERSION; for equivalences.
-        Note &SCons; does not know how to construct project files for
+        see the description of <link linkend="cv-MSVC_VERSION"><envar>$MSVC_VERSION</envar></link> for equivalences.
+        Note <application>SCons</application> does not know how to construct project files for
         other languages (e.g. <filename>.csproj</filename> for C#,
         <filename>.vbproj</filename> for Visual Basic or
-        <filename>.pyproject</filename> for &Python;).
+        <filename>.pyproject</filename> for <application>Python</application>).
         </para>
       <para>
         For the <filename>.vcxproj</filename> file, the underlying
@@ -850,35 +850,35 @@ env.MOFiles()
         https://learn.microsoft.com/en-us/cpp/build/reference/vcxproj-file-structure</ulink>.
         The generated solution file enables Visual Studio to
         understand the project structure, and allows building it
-        using <application>MSBuild</application> to call back to &SCons;.
+        using <application>MSBuild</application> to call back to <application>SCons</application>.
         The project file encodes a toolset version that has been
-        selected by &SCons; as described above. Since recent Visual
+        selected by <application>SCons</application> as described above. Since recent Visual
         Studio versions support multiple concurrent toolsets,
-        use &cv-link-MSVC_VERSION; to select the desired one if
-        it does not match the &SCons; default.
+        use <link linkend="cv-MSVC_VERSION"><envar>$MSVC_VERSION</envar></link> to select the desired one if
+        it does not match the <application>SCons</application> default.
         The project file also includes entries which describe
-        how to call &SCons; to build the project from within Visual Studio
+        how to call <application>SCons</application> to build the project from within Visual Studio
         (or from an <application>MSBuild</application> command line).
-        In some situations &SCons; may generate this incorrectly -
+        In some situations <application>SCons</application> may generate this incorrectly -
         notably when using the <emphasis>scons-local</emphasis>
         distribution, which is not installed in a way that that
         matches the default invocation line.
-        If so, the &cv-link-SCONS_HOME; &consvar; can be used to describe
-        the right way to locate the &SCons; code so that it can be imported.
+        If so, the <link linkend="cv-SCONS_HOME"><envar>$SCONS_HOME</envar></link> <phrase>construction variable</phrase> can be used to describe
+        the right way to locate the <application>SCons</application> code so that it can be imported.
       </para>
       <para>
         By default, a matching solution file for the project is also generated.
         This behavior may be disabled by
         specifying <parameter>auto_build_solution=0</parameter>
-        to the &b-MSVSProject; builder.
+        to the <function>MSVSProject</function> builder.
         The solution file can also be independently
-        generated by calling the &b-MSVSSolution; builder,
+        generated by calling the <function>MSVSSolution</function> builder,
         such as in the case where a solution should describe
         multiple projects.
-        See the &b-link-MSVSSolution; description for further information.
+        See the <link linkend="b-MSVSSolution"><function>MSVSSolution</function></link> description for further information.
       </para>
       <para>
-        The &b-MSVSProject; builder accepts several keyword arguments
+        The <function>MSVSProject</function> builder accepts several keyword arguments
         describing lists of filenames to be placed into the project file.
         Currently,
         <parameter>srcs</parameter>,
@@ -889,12 +889,12 @@ env.MOFiles()
         are recognized.
         The names are intended to be self-explanatory, but note that the
         filenames need to be specified as strings, <emphasis>not</emphasis>
-        as &SCons; File Nodes
+        as <application>SCons</application> File Nodes
         (for example if you generate files for inclusion by using the
-        &f-link-Glob; function, the results should be converted to
-        a list of strings before passing them to &b-MSVSProject;).
+        <link linkend="f-Glob"><function>Glob</function></link> function, the results should be converted to
+        a list of strings before passing them to <function>MSVSProject</function>).
         This is because Visual Studio and
-        <application>MSBuild</application> know nothing about &SCons;
+        <application>MSBuild</application> know nothing about <application>SCons</application>
         Node types.
         Each of the filename lists are individually optional, but at
         least one list must be specified for the resulting project file to
@@ -912,8 +912,8 @@ env.MOFiles()
               The name of the target <filename>.dsp</filename>
               or <filename>.vcproj</filename> file.
               The correct suffix for the version of Visual Studio
-              must be used, but the &cv-link-MSVSPROJECTSUFFIX;
-              &consvar; will be defined to the correct
+              must be used, but the <link linkend="cv-MSVSPROJECTSUFFIX"><envar>$MSVSPROJECTSUFFIX</envar></link>
+              <phrase>construction variable</phrase> will be defined to the correct
               value (see example below).
             </para>
           </listitem>
@@ -930,7 +930,7 @@ env.MOFiles()
               separated from the variant name by a <literal>|</literal>
               (vertical pipe) character: <literal>Debug|Xbox</literal>.
               The default target platform is Win32. Multiple calls
-              to &b-MSVSProject; with different variants are allowed;
+              to <function>MSVSProject</function> with different variants are allowed;
               all variants will be added to the project file with
               their appropriate build targets and sources.
             </para>
@@ -958,9 +958,9 @@ env.MOFiles()
               must match the number of <parameter>variant</parameter>
               entries, or be empty (not specified). If you give
               only one, it will automatically be propagated to all
-              variants. If you don't give this parameter, &SCons;
+              variants. If you don't give this parameter, <application>SCons</application>
               will use the invoking environment's
-              &cv-link-CPPDEFINES; entry for all variants.
+              <link linkend="cv-CPPDEFINES"><envar>$CPPDEFINES</envar></link> entry for all variants.
             </para>
           </listitem>
         </varlistentry>
@@ -979,8 +979,8 @@ env.MOFiles()
               only one, it will automatically be propagated to all
               variants. If you don't give this parameter, SCons
               will combine the invoking environment's
-              &cv-link-CCFLAGS;, &cv-link-CXXFLAGS;,
-              &cv-link-CPPFLAGS; entries for all variants.
+              <link linkend="cv-CCFLAGS"><envar>$CCFLAGS</envar></link>, <link linkend="cv-CXXFLAGS"><envar>$CXXFLAGS</envar></link>,
+              <link linkend="cv-CPPFLAGS"><envar>$CPPFLAGS</envar></link> entries for all variants.
             </para>
           </listitem>
         </varlistentry>
@@ -995,7 +995,7 @@ env.MOFiles()
               only one, it will automatically be propagated to all
               variants. If you don't give this parameter, SCons
               will use the invoking environment's
-              &cv-link-CPPPATH; entry for all variants.
+              <link linkend="cv-CPPPATH"><envar>$CPPPATH</envar></link> entry for all variants.
             </para>
           </listitem>
         </varlistentry>
@@ -1019,7 +1019,7 @@ env.MOFiles()
               The name of the file that Visual Studio 7 and
               later will run and debug. This appears as the
               value of the <parameter>Output</parameter> field in the
-              resulting &MSVC; project file. If this is not
+              resulting <application>Microsoft Visual C++</application> project file. If this is not
               specified, the default is the same as the specified
               <parameter>buildtarget</parameter> value.
             </para>
@@ -1028,18 +1028,18 @@ env.MOFiles()
       </variablelist>
       <note>
       <para>
-        &SCons; and Microsoft Visual Studio understand projects in
+        <application>SCons</application> and Microsoft Visual Studio understand projects in
         different ways, and the mapping is sometimes imperfect:
       </para>
       <para>
-        Because &SCons; always executes its build commands
-        from the directory in which the &SConstruct; file is located,
+        Because <application>SCons</application> always executes its build commands
+        from the directory in which the <filename>SConstruct</filename> file is located,
         if you generate a project file in a different directory
-        than the directory of the &SConstruct; file, users will not be able to
+        than the directory of the <filename>SConstruct</filename> file, users will not be able to
         double-click on the file name in compilation error messages
         displayed in the Visual Studio console output window. This can
-        be remedied by adding the &MSVC; <option>/FC</option>
-        compiler option to the &cv-link-CCFLAGS; variable so that
+        be remedied by adding the <application>Microsoft Visual C++</application> <option>/FC</option>
+        compiler option to the <link linkend="cv-CCFLAGS"><envar>$CCFLAGS</envar></link> variable so that
         the compiler will print the full path name of any files that
         cause compilation errors.
       </para>
@@ -1048,8 +1048,8 @@ env.MOFiles()
         project browser about the file layout there should be no issues,
         However, Visual Studio should not be used to make changes
         to the project structure, build options, etc. as these will
-        (a) not feed back to the &SCons; description of the project
-        and (b) be lost if &SCons; regenerates the project file.
+        (a) not feed back to the <application>SCons</application> description of the project
+        and (b) be lost if <application>SCons</application> regenerates the project file.
         The SConscript files should remain the definitive description
         of the build.
       </para>
@@ -1058,11 +1058,11 @@ env.MOFiles()
         <application>MSBuild</application> (such as selecting
         "build" from the Visual Studio interface) you lose the direct
         control of target selection and command-line options you would
-        have if launching the build directly from &SCons;,
+        have if launching the build directly from <application>SCons</application>,
         because these will be hard-coded in the project file to the
-        values specified in the &b-MSVSProject; call.
+        values specified in the <function>MSVSProject</function> call.
         You can regain some of this control by defining multiple variants,
-        using multiple &b-MSVSProject; calls to arrange different build
+        using multiple <function>MSVSProject</function> calls to arrange different build
         targets, arguments, defines, flags and paths for different variants.
       </para>
       <para>
@@ -1071,9 +1071,9 @@ env.MOFiles()
         projects the mapping is further strained.  In this case,
         it is important not to set Visual Studio to do parallel builds,
         as it will then launch the separate project builds in parallel,
-        and &SCons; does not work well if called that way.
-        Instead, you can set up the &SCons; build for parallel building -
-        see the &f-link-SetOption; function for how to do this with
+        and <application>SCons</application> does not work well if called that way.
+        Instead, you can set up the <application>SCons</application> build for parallel building -
+        see the <link linkend="f-SetOption"><function>SetOption</function></link> function for how to do this with
         <parameter>num_jobs</parameter>.
       </para>
       </note>
@@ -1264,13 +1264,13 @@ env.MSVSProject(
         Builds a Visual Studio solution file based on the
         version of Visual Studio that is configured: either the
         latest installed version, or the version specified by
-        &cv-link-MSVC_VERSION; in the &consenv;. For
+        <link linkend="cv-MSVC_VERSION"><envar>$MSVC_VERSION</envar></link> in the <phrase>construction environment</phrase>. For
         Visual Studio 6, a <filename>.dsw</filename> file is generated.
         For Visual Studio .NET 2002 and later,
         it will generate a <filename>.sln</filename> file.
         Note there are multiple versioning schemes involved in
         the Microsoft compilation environment -
-        see the description of &cv-link-MSVC_VERSION; for equivalences.
+        see the description of <link linkend="cv-MSVC_VERSION"><envar>$MSVC_VERSION</envar></link> for equivalences.
       </para>
       <para>
         The solution file is a container for one or more projects,
@@ -1287,7 +1287,7 @@ env.MSVSProject(
               The name of the target <filename>.dsw</filename> or
               <filename>.sln</filename> file. The correct
               suffix for the version of Visual Studio must be used,
-              but the value &cv-link-MSVSSOLUTIONSUFFIX; will be
+              but the value <link linkend="cv-MSVSSOLUTIONSUFFIX"><envar>$MSVSSOLUTIONSUFFIX</envar></link> will be
               defined to the correct value (see example below).
             </para>
           </listitem>
@@ -1310,13 +1310,13 @@ env.MSVSProject(
           <listitem>
             <para>
               A list of project file names, or Project nodes returned
-              by calls to the &b-link-MSVSProject; Builder, to be placed
+              by calls to the <link linkend="b-MSVSProject"><function>MSVSProject</function></link> Builder, to be placed
               into the solution file.
               Note that these filenames need to be specified as strings,
-              NOT as &SCons; File Nodes.
+              NOT as <application>SCons</application> File Nodes.
               This is because the solution file will be interpreted by
               <application>MSBuild</application>
-              and by Visual Studio, which know nothing about &SCons; Node types.
+              and by Visual Studio, which know nothing about <application>SCons</application> Node types.
             </para>
           </listitem>
         </varlistentry>
@@ -1423,7 +1423,7 @@ SetOption('experimental', 'ninja')
                 <para>This functionality is subject to change and/or removal without deprecation cycle.</para>
 
                 <para>
-                    To use this tool you need to install the &Python; &ninja; package,
+                    To use this tool you need to install the <application>Python</application> <application>ninja</application> package,
                     as the tool by default depends on being able to do an
                     <systemitem>import</systemitem> of the package
 <!--                    (although see &cv-link-__NINJA_NO;).-->
@@ -1442,7 +1442,7 @@ python -m pip install ninja
             </para>
             <para>
                 If called with a single positional argument,
-                &scons; will "deduce" the target name from that source
+                <command>scons</command> will "deduce" the target name from that source
                 argument, giving it the same name, and then
                 ignore the source.
                 This is the usual way to call the builder if a
@@ -1462,7 +1462,7 @@ python -m pip install ninja
                 in this case the default target name will be used.
             </para>
             <para>
-                <emphasis>Available since &scons; 4.2.</emphasis>
+                <emphasis>Available since <command>scons</command> 4.2.</emphasis>
             </para>
         </listitem>
   </varlistentry>
@@ -1471,7 +1471,7 @@ python -m pip install ninja
     <term><replaceable>env</replaceable>.<methodname>Object</methodname>()</term>
     <listitem><para>
 A synonym for the
-&b-StaticObject;
+<function>StaticObject</function>
 builder method.
 </para>
 </listitem>
@@ -1484,7 +1484,7 @@ Builds software distribution packages.
 A <firstterm>package</firstterm> is a container format which
 includes files to install along with metadata.
 Packaging is optional, and must be enabled by specifying
-the &t-link-packaging; tool. For example:
+the <link linkend="t-packaging"><literal>packaging</literal></link> tool. For example:
 </para>
 
 <example_commands>
@@ -1492,13 +1492,13 @@ env = Environment(tools=['default', 'packaging'])
 </example_commands>
 
 <para>
-&SCons; can build packages in a number of well known packaging formats.
+<application>SCons</application> can build packages in a number of well known packaging formats.
 The target package type may be selected with the
-&cv-link-PACKAGETYPE; construction variable
+<link linkend="cv-PACKAGETYPE"><envar>$PACKAGETYPE</envar></link> construction variable
 or the
 <link linkend="opt-package-type"><option>--package-type</option></link>
 command line option.
-The package type may be a list, in which case &SCons; will attempt
+The package type may be a list, in which case <application>SCons</application> will attempt
 to build packages for each type in the list. Example:
 </para>
 
@@ -1530,11 +1530,11 @@ The currently supported packagers are:
 
 <para>
 The file list to include in the package may be specified with
-the &source; keyword argument. If omitted,
-the &f-link-FindInstalledFiles; function is called behind the scenes
-to select all files that have an &b-link-Install;, &b-link-InstallAs;
-or &b-link-InstallVersionedLib; Builder attached.
-If the &target; keyword argument is omitted, the target name(s)
+the <varname>source</varname> keyword argument. If omitted,
+the <link linkend="f-FindInstalledFiles"><function>FindInstalledFiles</function></link> function is called behind the scenes
+to select all files that have an <link linkend="b-Install"><function>Install</function></link>, <link linkend="b-InstallAs"><function>InstallAs</function></link>
+or <link linkend="b-InstallVersionedLib"><function>InstallVersionedLib</function></link> Builder attached.
+If the <varname>target</varname> keyword argument is omitted, the target name(s)
 will be deduced from the package type(s).
 </para>
 
@@ -1542,10 +1542,10 @@ will be deduced from the package type(s).
 The metadata comes partly from attributes of the files to be packaged,
 and partly from packaging <firstterm>tags</firstterm>.
 Tags can be passed as keyword arguments
-to the &b-Package; builder call,
+to the <function>Package</function> builder call,
 and may also be attached to files
 (or more accurately, Nodes representing files)
-with the &f-link-Tag; function.
+with the <link linkend="f-Tag"><function>Tag</function></link> function.
 Some package-level tags are mandatory, and will lead to errors if omitted.
 The mandatory tags vary depending on the package type.
 <!-- TODO: should document which tags are mandatory for which packager -->
@@ -1553,7 +1553,7 @@ The mandatory tags vary depending on the package type.
 
 <para>
 While packaging, the builder uses a temporary location named
-by the value of the &cv-link-PACKAGEROOT; variable -
+by the value of the <link linkend="cv-PACKAGEROOT"><envar>$PACKAGEROOT</envar></link> variable -
 the package sources are copied there before packaging.
 </para>
 
@@ -1579,15 +1579,15 @@ env.Package(
 
 <para>
 In this example, the target <filename>/bin/my_program</filename>
-created by the &b-Install; call would not be built by default
+created by the <function>Install</function> call would not be built by default
 since it is not under the project top directory.
 However, since no <parameter>source</parameter>
-is specified to the &b-Package; builder,
+is specified to the <function>Package</function> builder,
 it is selected for packaging by the default sources rule.
-Since packaging is done using &cv-link-PACKAGEROOT;, no write is
+Since packaging is done using <link linkend="cv-PACKAGEROOT"><envar>$PACKAGEROOT</envar></link>, no write is
 actually done to the system's <filename>/bin</filename> directory,
 and the target <emphasis>will</emphasis> be selected since
-after rebasing to underneath &cv-PACKAGEROOT; it is now under
+after rebasing to underneath <envar>$PACKAGEROOT</envar> it is now under
 the top directory of the project.
 </para>
 
@@ -1597,13 +1597,13 @@ the top directory of the project.
     <term><function>PCH</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>PCH</methodname>()</term>
     <listitem><para>
-Builds a &MSVC; precompiled header.
+Builds a <application>Microsoft Visual C++</application> precompiled header.
 Calling this builder
 returns a list of two target nodes: the PCH as the first element,
 and the object file as the second element.
 Normally the object file is ignored.
-The &b-PCH; builder is generally used in
-conjunction with the &cv-link-PCH; &consvar; to force object files to use
+The <function>PCH</function> builder is generally used in
+conjunction with the <link linkend="cv-PCH"><envar>$PCH</envar></link> <phrase>construction variable</phrase> to force object files to use
 the precompiled header:
 </para>
 
@@ -1613,12 +1613,12 @@ env['PCH'] = env.PCH('StdAfx.cpp')[0]
 
 <note>
 <para>
-This builder is specific to the PCH implementation in  &MSVC;.
+This builder is specific to the PCH implementation in  <application>Microsoft Visual C++</application>.
 Other compiler chains also implement precompiled header support,
-but &b-PCH; does not work with them at this time.
+but <function>PCH</function> does not work with them at this time.
 As a result, the builder is only generated into the
 construction environment when
-&MSVC; is being used as the compiler.
+<application>Microsoft Visual C++</application> is being used as the compiler.
 </para>
 <para>
 The builder only works correctly in a C++ project.
@@ -1633,15 +1633,15 @@ a compatibility violation.
 </para>
 <para>
 If possible, arrange the project so that a
-C++ source file passed to the &b-PCH; builder
+C++ source file passed to the <function>PCH</function> builder
 is not also included in the list of sources
 to be otherwise compiled in the project.
-&SCons; will correctly track that file in the dependency tree
-as a result of the &b-PCH; call,
+<application>SCons</application> will correctly track that file in the dependency tree
+as a result of the <function>PCH</function> call,
 and (for MSVC 11.0 and greater) automatically add the
 corresponding object file to the link line.
 If the source list is automatically generated,
-for example using the &f-link-Glob; function,
+for example using the <link linkend="f-Glob"><function>Glob</function></link> function,
 it may be necessary to remove that file from the list.
 </para>
 </note>
@@ -1657,11 +1657,11 @@ from a <filename>.dvi</filename> input file
 <filename>.ltx</filename>,
 or
 <filename>.latex</filename> input file).
-The suffix specified by the &cv-link-PDFSUFFIX; construction variable
+The suffix specified by the <link linkend="cv-PDFSUFFIX"><envar>$PDFSUFFIX</envar></link> construction variable
 (<filename>.pdf</filename> by default)
 is added automatically to the target
 if it is not already present.
-&b-PDF; is a single-source builder.
+<function>PDF</function> is a single-source builder.
 Example:
 </para>
 
@@ -1677,31 +1677,31 @@ env.PDF(target = 'bbb', source = 'bbb.dvi')
     <term><function>POInit</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>POInit</methodname>()</term>
     <listitem><para>
-This builder is set up by the &t-link-msginit; tool.
+This builder is set up by the <link linkend="t-msginit"><literal>msginit</literal></link> tool.
 The builder initializes missing
-<literal>PO</literal> file(s) if &cv-link-POAUTOINIT; is set.
-If &cv-link-POAUTOINIT; is not set (the default),
-&b-POInit; prints instruction for the user (such as a translator),
+<literal>PO</literal> file(s) if <link linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link> is set.
+If <link linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link> is not set (the default),
+<function>POInit</function> prints instruction for the user (such as a translator),
 telling how the <literal>PO</literal> file should be initialized.
 In normal projects
-<emphasis>you should not use &b-POInit; and use &b-link-POUpdate;
-instead</emphasis>. &b-link-POUpdate; chooses intelligently between
-<command>msgmerge(1)</command> and <command>msginit(1)</command>. &b-POInit;
+<emphasis>you should not use <function>POInit</function> and use <link linkend="b-POUpdate"><function>POUpdate</function></link>
+instead</emphasis>. <link linkend="b-POUpdate"><function>POUpdate</function></link> chooses intelligently between
+<command>msgmerge(1)</command> and <command>msginit(1)</command>. <function>POInit</function>
 always uses <command>msginit(1)</command> and should be regarded as builder for
 special purposes or for temporary use (e.g. for quick, one time initialization
 of a bunch of <literal>PO</literal> files) or for tests.
-&b-POInit; is a single-source builder.
+<function>POInit</function> is a single-source builder.
 The <parameter>source</parameter> parameter
-can also be omitted if &cv-link-LINGUAS_FILE; is set.
+can also be omitted if <link linkend="cv-LINGUAS_FILE"><envar>$LINGUAS_FILE</envar></link> is set.
 </para>
 
 <para>
-Target nodes defined through &b-POInit; are not built by default (they're
+Target nodes defined through <function>POInit</function> are not built by default (they're
 <literal>Ignore</literal>d from <literal>'.'</literal> node) but are added to
-special &f-link-Alias; (<literal>'po-create'</literal> by default).
-The alias name may be changed through the &cv-link-POCREATE_ALIAS;
-&consvar;. All <literal>PO</literal> files defined through
-&b-POInit; may be easily initialized by <userinput>scons po-create</userinput>.
+special <link linkend="f-Alias"><function>Alias</function></link> (<literal>'po-create'</literal> by default).
+The alias name may be changed through the <link linkend="cv-POCREATE_ALIAS"><envar>$POCREATE_ALIAS</envar></link>
+<phrase>construction variable</phrase>. All <literal>PO</literal> files defined through
+<function>POInit</function> may be easily initialized by <userinput>scons po-create</userinput>.
 </para>
 
 <para>
@@ -1725,7 +1725,7 @@ env.POInit(['en', 'pl'], ['foo']) # foo.pot --&gt; [en.po, pl.po]
 <para>
 <emphasis>Example 3</emphasis>.
 Initialize <filename>en.po</filename> and <filename>pl.po</filename> from
-<filename>foo.pot</filename> but using the &cv-link-POTDOMAIN; &consvar;:
+<filename>foo.pot</filename> but using the <link linkend="cv-POTDOMAIN"><envar>$POTDOMAIN</envar></link> <phrase>construction variable</phrase>:
 </para>
 <programlisting language="python">
 env.POInit(['en', 'pl'], POTDOMAIN='foo') # foo.pot --&gt; [en.po, pl.po]
@@ -1781,11 +1781,11 @@ from a <filename>.dvi</filename> input file
 <filename>.ltx</filename>,
 or
 <filename>.latex</filename> input file).
-The suffix specified by the &cv-link-PSSUFFIX; construction variable
+The suffix specified by the <link linkend="cv-PSSUFFIX"><envar>$PSSUFFIX</envar></link> construction variable
 (<filename>.ps</filename> by default)
 is added automatically to the target
 if it is not already present.
-&b-PostScript; is a single-source builder.
+<function>PostScript</function> is a single-source builder.
 Example:
 </para>
 
@@ -1801,8 +1801,8 @@ env.PostScript(target = 'bbb', source = 'bbb.dvi')
     <term><function>POTUpdate</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>POTUpdate</methodname>()</term>
     <listitem><para>
-The builder is set up by the &t-link-xgettext; tool,
-part of the &t-link-gettext; toolset.
+The builder is set up by the <link linkend="t-xgettext"><literal>xgettext</literal></link> tool,
+part of the <link linkend="t-gettext"><literal>gettext</literal></link> toolset.
 The builder updates the target
 <literal>POT</literal> file if exists or creates it if it doesn't.
 The target node is <emphasis>not</emphasis>
@@ -1811,7 +1811,7 @@ but only on demand (i.e.  when the given
 <literal>POT</literal> file is required or when special alias is invoked).
 This builder adds its target node (<filename>messages.pot</filename>, say) to a
 special alias (<literal>pot-update</literal> by default, see
-&cv-link-POTUPDATE_ALIAS;) so you can update/create them easily with
+<link linkend="cv-POTUPDATE_ALIAS"><envar>$POTUPDATE_ALIAS</envar></link>) so you can update/create them easily with
 <userinput>scons pot-update</userinput>. The file is not written until there is no
 real change in internationalized messages (or in comments that enter
 <literal>POT</literal> file).
@@ -1819,7 +1819,7 @@ real change in internationalized messages (or in comments that enter
 
 <para>
 <note> <para>You may see <command>xgettext(1)</command> being invoked by the
-&t-link-xgettext; tool even if there is no real change in internationalized
+<link linkend="t-xgettext"><literal>xgettext</literal></link> tool even if there is no real change in internationalized
 messages (so the <literal>POT</literal> file is not being updated).  This
 happens every time  a source file has changed. In such case we invoke
 <command>xgettext(1)</command> and compare its output with the content of
@@ -1855,8 +1855,8 @@ the results shall be as the comments above say.
 <emphasis>Example 2.</emphasis>
 The <parameter>target</parameter> argument can be omitted, in which
 case the default target name <filename>messages.pot</filename> is used.
-The target may also be overridden by setting the &cv-link-POTDOMAIN;
-&consvar; or providing it as an override to the &b-POTUpdate; builder:
+The target may also be overridden by setting the <link linkend="cv-POTDOMAIN"><envar>$POTDOMAIN</envar></link>
+<phrase>construction variable</phrase> or providing it as an override to the <function>POTUpdate</function> builder:
 </para>
 <programlisting language="python">
 # SConstruct script
@@ -1880,7 +1880,7 @@ if it is specified in a separate file, for example
 </programlisting>
 <para>
 The name of the file (<filename>POTFILES.in</filename>) containing the list of
-sources is provided via &cv-link-XGETTEXTFROM;:
+sources is provided via <link linkend="cv-XGETTEXTFROM"><envar>$XGETTEXTFROM</envar></link>:
 </para>
 <programlisting language="python">
 # SConstruct file in 'po/' subdirectory
@@ -1890,7 +1890,7 @@ env.POTUpdate(XGETTEXTFROM='POTFILES.in')
 
 <para>
 <emphasis>Example 4.</emphasis>
-You can use &cv-link-XGETTEXTPATH; to define the source search path.
+You can use <link linkend="cv-XGETTEXTPATH"><envar>$XGETTEXTPATH</envar></link> to define the source search path.
 Assume, for example, that you have files <filename>a.cpp</filename>,
 <filename>b.cpp</filename>, <filename>po/SConstruct</filename>,
 <filename>po/POTFILES.in</filename>.
@@ -1970,37 +1970,37 @@ then the <filename>messages.pot</filename> will contain
     <term><function>POUpdate</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>POUpdate</methodname>()</term>
     <listitem><para>
-The builder is set up by the &t-link-msgmerge; tool.
-part of the &t-link-gettext; toolset.
+The builder is set up by the <link linkend="t-msgmerge"><literal>msgmerge</literal></link> tool.
+part of the <link linkend="t-gettext"><literal>gettext</literal></link> toolset.
 The builder updates
 <literal>PO</literal> files with <command>msgmerge(1)</command>, or initializes
 missing <literal>PO</literal> files as described in the documentation of the
-&t-link-msginit; tool and the &b-link-POInit; builder (see also
-&cv-link-POAUTOINIT;).
-&b-POUpdate; is a single-source builder.
+<link linkend="t-msginit"><literal>msginit</literal></link> tool and the <link linkend="b-POInit"><function>POInit</function></link> builder (see also
+<link linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link>).
+<function>POUpdate</function> is a single-source builder.
 The <parameter>source</parameter> parameter
-can also be omitted if &cv-link-LINGUAS_FILE; is set.
+can also be omitted if <link linkend="cv-LINGUAS_FILE"><envar>$LINGUAS_FILE</envar></link> is set.
 </para>
 
 <para>
 The target nodes are <emphasis>not</emphasis>
 selected for building by default (e.g. <userinput>scons .</userinput>).
-Instead, they are added automatically to special &f-link-Alias;
+Instead, they are added automatically to special <link linkend="f-Alias"><function>Alias</function></link>
 (<literal>'po-update'</literal> by default). The alias name may be changed
-through the &cv-link-POUPDATE_ALIAS; &consvar;.  You can easily
+through the <link linkend="cv-POUPDATE_ALIAS"><envar>$POUPDATE_ALIAS</envar></link> <phrase>construction variable</phrase>.  You can easily
 update <literal>PO</literal> files in your project by
 <userinput>scons po-update</userinput>.
-Note that &b-POUpdate; does not add its
-targets to the <literal>po-create</literal> alias as &b-link-POInit;
+Note that <function>POUpdate</function> does not add its
+targets to the <literal>po-create</literal> alias as <link linkend="b-POInit"><function>POInit</function></link>
 does.
 </para>
 
 <para>
 <emphasis>Example 1.</emphasis>
 Update <filename>en.po</filename> and <filename>pl.po</filename> from
-<filename>messages.pot</filename> template (see also &cv-link-POTDOMAIN;),
+<filename>messages.pot</filename> template (see also <link linkend="cv-POTDOMAIN"><envar>$POTDOMAIN</envar></link>),
 assuming that the later one exists or there is rule to build it (see
-&b-link-POTUpdate;):
+<link linkend="b-POTUpdate"><function>POTUpdate</function></link>):
 </para>
 <programlisting language="python">
 env.POUpdate(['en','pl'])  # messages.pot --&gt; [en.po, pl.po]
@@ -2054,7 +2054,7 @@ env.POUpdate(['en', 'pl' ], LINGUAS_FILE=True)
 
 <para>
 <emphasis>Example 7.</emphasis>
-Use &cv-link-POAUTOINIT; to automatically initialize <literal>PO</literal> file
+Use <link linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link> to automatically initialize <literal>PO</literal> file
 if it doesn't exist:
 </para>
 <programlisting language="python">
@@ -2086,16 +2086,16 @@ or C, C++, D, or Fortran source files.
 If any C, C++, D or Fortran source files are specified,
 then they will be automatically
 compiled to object files using the
-&b-Object;
+<function>Object</function>
 builder method;
 see that builder method's description for
 a list of legal source file suffixes
 and how they are interpreted.
 The target executable file prefix,
-specified by the &cv-link-PROGPREFIX; &consvar;
+specified by the <link linkend="cv-PROGPREFIX"><envar>$PROGPREFIX</envar></link> <phrase>construction variable</phrase>
 (nothing by default),
 and suffix,
-specified by the &cv-link-PROGSUFFIX; &consvar;
+specified by the <link linkend="cv-PROGSUFFIX"><envar>$PROGSUFFIX</envar></link> <phrase>construction variable</phrase>
 (by default, <filename>.exe</filename> on Windows systems,
 nothing on POSIX systems),
 are automatically added to the target if not already present.
@@ -2116,8 +2116,8 @@ env.Program(target='foo', source=['foo.o', 'bar.c', 'baz.f'])
   </para>
   <para>
     D sources can be compiled file-by-file as C and C++ source are, and
-    D is integrated into the &scons;
-    &b-link-Object; and &b-link-Program; builders for
+    D is integrated into the <command>scons</command>
+    <link linkend="b-Object"><function>Object</function></link> and <link linkend="b-Program"><function>Program</function></link> builders for
     this model of build. D codes can though do whole source
     meta-programming (some of the testing frameworks do this). For this
     it is imperative that all sources are compiled and linked in a single
@@ -2138,9 +2138,9 @@ env.Program(target='foo', source=['foo.o', 'bar.c', 'baz.f'])
     <term><function>RES</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>RES</methodname>()</term>
     <listitem><para>
-Builds a &MSVC; resource file.
+Builds a <application>Microsoft Visual C++</application> resource file.
 This builder method is only provided
-when &MSVC; or MinGW is being used as the compiler. The
+when <application>Microsoft Visual C++</application> or MinGW is being used as the compiler. The
 <filename>.res</filename>
 (or
 <filename>.o</filename>
@@ -2167,16 +2167,16 @@ relative to which the stub
 and skeleton class files will be written.
 The source can be the names of <filename>.class</filename> files,
 or the objects return from the
-&b-Java;
+<function>Java</function>
 builder method.
 </para>
 
 <para>
 If the construction variable
-&cv-link-JAVACLASSDIR;
+<link linkend="cv-JAVACLASSDIR"><envar>$JAVACLASSDIR</envar></link>
 is set, either in the environment
 or in the call to the
-&b-RMIC;
+<function>RMIC</function>
 builder method itself,
 then the value of the variable
 will be stripped from the
@@ -2287,24 +2287,24 @@ Any object files listed in the
 <parameter>source</parameter> parameter
 must have been built for a shared library
 (that is, using the
-&b-SharedObject;
+<function>SharedObject</function>
 builder method).
-&scons;
+<command>scons</command>
 will raise an error if there is any mismatch.
 </para>
 
 <para>
 The target library file prefix,
-specified by the &cv-link-SHLIBPREFIX; &consvar;
+specified by the <link linkend="cv-SHLIBPREFIX"><envar>$SHLIBPREFIX</envar></link> <phrase>construction variable</phrase>
 (by default, <filename>lib</filename> on POSIX systems,
 nothing on Windows systems),
 and suffix,
-specified by the &cv-link-SHLIBSUFFIX; &consvar;
+specified by the <link linkend="cv-SHLIBSUFFIX"><envar>$SHLIBSUFFIX</envar></link> <phrase>construction variable</phrase>
 (by default, <filename>.dll</filename> on Windows systems,
 <filename>.so</filename> on POSIX systems),
 are automatically added (if not already present)
 to the target name to make up the library filename.
-On a POSIX system, if the &cv-link-SHLIBVERSION; &consvar; is set,
+On a POSIX system, if the <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> <phrase>construction variable</phrase> is set,
 it is appended (following a period) to the resulting library name.
 </para>
 
@@ -2318,7 +2318,7 @@ env.SharedLibrary(target='bar', source=['bar.c', 'foo.o'])
 
 <para>
 On Windows systems, the
-&b-SharedLibrary;
+<function>SharedLibrary</function>
 builder method will always build an import library
 (<filename>.lib</filename>)
 in addition to the shared library (<filename>.dll</filename>),
@@ -2329,7 +2329,7 @@ listed in the targets.
 
 <para>
 On Cygwin systems, the
-&b-SharedLibrary;
+<function>SharedLibrary</function>
 builder method will always build an import library
 (<filename>.dll.a</filename>)
 in addition to the shared library (<filename>.dll</filename>),
@@ -2343,12 +2343,12 @@ listed in the targets.
 On some platforms, there is a distinction between a shared library
 (loaded automatically by the system to resolve external references)
 and a loadable module (explicitly loaded by user action).
-For maximum portability, use the &b-link-LoadableModule; builder for the latter.
+For maximum portability, use the <link linkend="b-LoadableModule"><function>LoadableModule</function></link> builder for the latter.
 </para>
 
 <para>
-If &cv-link-SHLIBVERSION; is defined, a versioned
-shared library is created. This modifies &cv-link-SHLINKFLAGS; as required,
+If <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is defined, a versioned
+shared library is created. This modifies <link linkend="cv-SHLINKFLAGS"><envar>$SHLINKFLAGS</envar></link> as required,
 adds the version number to the library name, and creates any
 symbolic links that are needed.
 </para>
@@ -2379,13 +2379,13 @@ On Windows systems, specifying the
 <parameter>register=1</parameter> keyword argument
 will cause the <filename>.dll</filename> to be
 registered after it is built.
-The command that is run is determined by the &cv-link-REGSVR; &consvar;
+The command that is run is determined by the <link linkend="cv-REGSVR"><envar>$REGSVR</envar></link> <phrase>construction variable</phrase>
 (<command>regsvr32</command> by default),
-and the flags passed are determined by &cv-link-REGSVRFLAGS;.  By
-default, &cv-link-REGSVRFLAGS; includes the <option>/s</option> option,
+and the flags passed are determined by <link linkend="cv-REGSVRFLAGS"><envar>$REGSVRFLAGS</envar></link>.  By
+default, <link linkend="cv-REGSVRFLAGS"><envar>$REGSVRFLAGS</envar></link> includes the <option>/s</option> option,
 to prevent dialogs from popping
 up and requiring user attention when it is run.  If you change
-&cv-link-REGSVRFLAGS;, be sure to include the <option>/s</option> option.
+<link linkend="cv-REGSVRFLAGS"><envar>$REGSVRFLAGS</envar></link>, be sure to include the <option>/s</option> option.
 For example,
 </para>
 
@@ -2407,15 +2407,15 @@ Builds an object file intended for
 inclusion in a shared library.
 Source files must have one of the same set of extensions
 specified for the
-&b-link-StaticObject;
+<link linkend="b-StaticObject"><function>StaticObject</function></link>
 builder method.
 The target object file prefix,
-specified by the &cv-link-SHOBJPREFIX; &consvar;
-(by default, the same as &cv-link-OBJPREFIX;),
+specified by the <link linkend="cv-SHOBJPREFIX"><envar>$SHOBJPREFIX</envar></link> <phrase>construction variable</phrase>
+(by default, the same as <link linkend="cv-OBJPREFIX"><envar>$OBJPREFIX</envar></link>),
 and suffix,
-specified by the &cv-link-SHOBJSUFFIX; &consvar;,
+specified by the <link linkend="cv-SHOBJSUFFIX"><envar>$SHOBJSUFFIX</envar></link> <phrase>construction variable</phrase>,
 are automatically added to the target if not already present.
-&b-SharedObject; is a single-source builder.
+<function>SharedObject</function> is a single-source builder.
 Examples:
 </para>
 
@@ -2433,7 +2433,7 @@ compiler option(s)
 in addition to those needed to build a
 normal (static) object.
 If shared and static objects differ,
-&SCons; will allow only shared objects
+<application>SCons</application> will allow only shared objects
 to be linked into a shared library,
 and will use a different suffix for shared objects
 to help indicate and track the difference.
@@ -2459,11 +2459,11 @@ If any source files are given,
 then they will be automatically
 compiled to object files.
 The static library file prefix,
-specified by the &cv-link-LIBPREFIX; &consvar;
+specified by the <link linkend="cv-LIBPREFIX"><envar>$LIBPREFIX</envar></link> <phrase>construction variable</phrase>
 (by default, <filename>lib</filename> on POSIX systems,
 nothing on Windows systems),
 and suffix,
-specified by the &cv-link-LIBSUFFIX; &consvar;
+specified by the <link linkend="cv-LIBSUFFIX"><envar>$LIBSUFFIX</envar></link> <phrase>construction variable</phrase>
 (by default, <filename>.lib</filename> on Windows systems,
 <filename>.a</filename> on POSIX systems),
 are automatically added to the target if not already present.
@@ -2479,9 +2479,9 @@ Any object files listed in the
 <parameter>source</parameter>
 must have been built for a static library
 (that is, using the
-&b-StaticObject;
+<function>StaticObject</function>
 builder method).
-&scons;
+<command>scons</command>
 will raise an error if there is any mismatch.
 </para>
 </listitem>
@@ -2528,14 +2528,14 @@ The file extension mapping is shown in the table:
 
 <para>
 The target object file prefix,
-specified by the &cv-link-OBJPREFIX; &consvar;
+specified by the <link linkend="cv-OBJPREFIX"><envar>$OBJPREFIX</envar></link> <phrase>construction variable</phrase>
 (empty string by default),
 and suffix,
-specified by the &cv-link-OBJSUFFIX; &consvar;
+specified by the <link linkend="cv-OBJSUFFIX"><envar>$OBJSUFFIX</envar></link> <phrase>construction variable</phrase>
 (<filename>.obj</filename> on Windows systems,
 <filename>.o</filename> on POSIX systems),
 are automatically added to the target if not already present.
-&b-StaticObject; is a single-source builder.
+<function>StaticObject</function> is a single-source builder.
 Examples:
 </para>
 
@@ -2560,19 +2560,19 @@ for more information.
     <term><function>Substfile</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>Substfile</methodname>()</term>
     <listitem><para>
-The &b-Substfile; builder creates a single text file from
+The <function>Substfile</function> builder creates a single text file from
 a template consisting of a file or set of files (or nodes),
-replacing text using the &cv-link-SUBST_DICT; &consvar; (if set).
+replacing text using the <link linkend="cv-SUBST_DICT"><envar>$SUBST_DICT</envar></link> <phrase>construction variable</phrase> (if set).
 If a set, they are concatenated into the target file
 using the value of the
-&cv-link-LINESEPARATOR; &consvar; as a separator between contents;
+<link linkend="cv-LINESEPARATOR"><envar>$LINESEPARATOR</envar></link> <phrase>construction variable</phrase> as a separator between contents;
 the separator is not emitted after the contents of the last  file.
 Nested lists of source files
-are flattened. See also &b-link-Textfile;.
+are flattened. See also <link linkend="b-Textfile"><function>Textfile</function></link>.
 </para>
 
 <para>
-By default, the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
+By default, the target file encoding is "utf-8" and can be changed by <link linkend="cv-FILE_ENCODING"><envar>$FILE_ENCODING</envar></link>
 Examples:
 </para>
 
@@ -2582,15 +2582,15 @@ the suffix is stripped and the remainder of the name is used as the default targ
 </para>
 
 <para>
-The prefix and suffix specified by the &cv-link-SUBSTFILEPREFIX;
-and &cv-link-SUBSTFILESUFFIX; &consvars;
+The prefix and suffix specified by the <link linkend="cv-SUBSTFILEPREFIX"><envar>$SUBSTFILEPREFIX</envar></link>
+and <link linkend="cv-SUBSTFILESUFFIX"><envar>$SUBSTFILESUFFIX</envar></link> <phrase>construction variables</phrase>
 (an empty string by default in both cases)
 are automatically added to the target if they are not already present.
 </para>
 
 <para>
-If a construction variable named &cv-link-SUBST_DICT; is present,
-it may be either a &Python; dictionary or a sequence of
+If a construction variable named <link linkend="cv-SUBST_DICT"><envar>$SUBST_DICT</envar></link> is present,
+it may be either a <application>Python</application> dictionary or a sequence of
 (<replaceable>key</replaceable>, <replaceable>value</replaceable>) tuples.
 If it is a dictionary it is converted into a list of tuples
 with unspecified order,
@@ -2602,7 +2602,7 @@ it is unpredictable whether the expansion will occur.
 <para>
 Any occurrences of a key in the source
 are replaced by the corresponding value,
-which may be a &Python; callable function or a string.
+which may be a <application>Python</application> callable function or a string.
 If the value is a callable, it is called with no arguments to get a string.
 Strings are <emphasis>subst</emphasis>-expanded
 and the result replaces the key.
@@ -2659,7 +2659,7 @@ Builds a tar archive of the specified files
 and/or directories.
 Unlike most builder methods,
 the
-&b-Tar;
+<function>Tar</function>
 builder method may be called multiple times
 for a given target;
 each additional call
@@ -2669,7 +2669,7 @@ Any source directories will
 be scanned for changes to
 any on-disk files,
 regardless of whether or not
-&scons;
+<command>scons</command>
 knows about them from other Builder or function calls.
 </para>
 
@@ -2696,29 +2696,29 @@ env.Tar('foo')
     <term><function>Textfile</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>Textfile</methodname>()</term>
     <listitem><para>
-The &b-Textfile; builder generates a single text file from
+The <function>Textfile</function> builder generates a single text file from
 a template consisting of a list of strings, replacing text
-using the &cv-link-SUBST_DICT; &consvar; (if set) -
-see &b-link-Substfile; for a description of replacement.
+using the <link linkend="cv-SUBST_DICT"><envar>$SUBST_DICT</envar></link> <phrase>construction variable</phrase> (if set) -
+see <link linkend="b-Substfile"><function>Substfile</function></link> for a description of replacement.
 The strings will be separated in the target file using the
 value of the
-&cv-link-LINESEPARATOR; &consvar;;
+<link linkend="cv-LINESEPARATOR"><envar>$LINESEPARATOR</envar></link> <phrase>construction variable</phrase>;
 the line separator is not emitted after the last string.
 Nested lists of source strings
 are flattened.
-Source strings need not literally be &Python; strings:
-they can be Nodes or &Python; objects that convert cleanly
-to &f-link-Value; nodes.
+Source strings need not literally be <application>Python</application> strings:
+they can be Nodes or <application>Python</application> objects that convert cleanly
+to <link linkend="f-Value"><function>Value</function></link> nodes.
 </para>
 
 <para>
-The prefix and suffix specified by the &cv-link-TEXTFILEPREFIX;
-and &cv-link-TEXTFILESUFFIX; &consvars;
+The prefix and suffix specified by the <link linkend="cv-TEXTFILEPREFIX"><envar>$TEXTFILEPREFIX</envar></link>
+and <link linkend="cv-TEXTFILESUFFIX"><envar>$TEXTFILESUFFIX</envar></link> <phrase>construction variables</phrase>
 (by default an empty string and <filename>.txt</filename>, respectively)
 are automatically added to the target if they are not already present.
 </para>
 <para>
-By default, the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
+By default, the target file encoding is "utf-8" and can be changed by <link linkend="cv-FILE_ENCODING"><envar>$FILE_ENCODING</envar></link>
 Examples:
 </para>
 
@@ -2769,21 +2769,21 @@ env.Textfile(
     <term><function>Translate</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>Translate</methodname>()</term>
     <listitem><para>
-This pseudo-Builder is part of the &t-link-gettext; toolset.
+This pseudo-Builder is part of the <link linkend="t-gettext"><literal>gettext</literal></link> toolset.
 The builder extracts internationalized messages from source files,
 updates the <literal>POT</literal> template (if necessary)
 and then updates <literal>PO</literal> translations (if necessary).
-If &cv-link-POAUTOINIT; is set, missing <literal>PO</literal> files
+If <link linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link> is set, missing <literal>PO</literal> files
 will be automatically created (i.e. without translator person intervention).
-The variables &cv-link-LINGUAS_FILE; and &cv-link-POTDOMAIN; are taken into
-account too. All other construction variables used by &b-link-POTUpdate;, and
-&b-link-POUpdate; work here too.
+The variables <link linkend="cv-LINGUAS_FILE"><envar>$LINGUAS_FILE</envar></link> and <link linkend="cv-POTDOMAIN"><envar>$POTDOMAIN</envar></link> are taken into
+account too. All other construction variables used by <link linkend="b-POTUpdate"><function>POTUpdate</function></link>, and
+<link linkend="b-POUpdate"><function>POUpdate</function></link> work here too.
 </para>
 
 <para>
 <emphasis>Example 1</emphasis>.
 The simplest way is to specify input files and output languages inline in
-a SCons script when invoking &b-Translate;:
+a SCons script when invoking <function>Translate</function>:
 </para>
 <programlisting language="python">
 # SConscript in 'po/' directory
@@ -2938,7 +2938,7 @@ Builds a zip archive of the specified files
 and/or directories.
 Unlike most builder methods,
 the
-&b-Zip;
+<function>Zip</function>
 builder method may be called multiple times
 for a given target;
 each additional call
@@ -2948,7 +2948,7 @@ Any source directories will
 be scanned for changes to
 any on-disk files,
 regardless of whether or not
-&scons;
+<command>scons</command>
 knows about them from other Builder or function calls.
 </para>
 

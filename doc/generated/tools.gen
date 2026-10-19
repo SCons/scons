@@ -59,14 +59,14 @@ Sets construction variables for the IBM Visual Age linker.
   <varlistentry id="t-ar">
     <term>ar</term>
     <listitem><para>
-Sets construction variables for the &ar; library archiver.
+Sets construction variables for the <application>ar</application> library archiver.
 </para>
 <para>Sets: &cv-link-AR;, &cv-link-ARCOM;, &cv-link-ARFLAGS;, &cv-link-LIBPREFIX;, &cv-link-LIBSUFFIX;, &cv-link-RANLIB;, &cv-link-RANLIBCOM;, &cv-link-RANLIBFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-as">
     <term>as</term>
     <listitem><para>
-Sets construction variables for the &as; assembler.
+Sets construction variables for the <application>as</application> assembler.
 </para>
 <para>Sets: &cv-link-AS;, &cv-link-ASCOM;, &cv-link-ASFLAGS;, &cv-link-ASPPCOM;, &cv-link-ASPPFLAGS;.</para><para>Uses: &cv-link-CC;, &cv-link-CPPFLAGS;, &cv-link-_CPPDEFFLAGS;, &cv-link-_CPPINCFLAGS;.</para></listitem>
   </varlistentry>
@@ -82,7 +82,7 @@ Sets construction variables for the bcc32 compiler.
     <listitem><para>
 Sets construction variables for generic POSIX C compilers.
 </para>
-<para>Sets: &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCDEPFLAGS;, &cv-link-CCFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-FRAMEWORKPATH;, &cv-link-FRAMEWORKS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHOBJSUFFIX;.</para><para>Uses: &cv-link-CCCOMSTR;, &cv-link-PLATFORM;, &cv-link-SHCCCOMSTR;.</para></listitem>
+<para>Sets: &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-FRAMEWORKPATH;, &cv-link-FRAMEWORKS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHOBJSUFFIX;.</para><para>Uses: &cv-link-CCCOMSTR;, &cv-link-PLATFORM;, &cv-link-SHCCCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-clang">
     <term>clang</term>
@@ -101,7 +101,7 @@ Set construction variables for the Clang C++ compiler.
   <varlistentry id="t-compilation_db">
     <term>compilation_db</term>
     <listitem><para>
-                Sets up &b-link-CompilationDatabase; builder which generates a clang tooling compatible compilation database.
+                Sets up <link linkend="b-CompilationDatabase"><function>CompilationDatabase</function></link> builder which generates a clang tooling compatible compilation database.
             </para>
         <para>Sets: &cv-link-COMPILATIONDB_COMSTR;, &cv-link-COMPILATIONDB_PATH_FILTER;, &cv-link-COMPILATIONDB_USE_ABSPATH;.</para></listitem>
   </varlistentry>
@@ -129,12 +129,12 @@ Set construction variables for cygwin linker/loader.
   <varlistentry id="t-default">
     <term>default</term>
     <listitem><para>
-Sets &consvars; for a default list of Tool modules.
+Sets <phrase>construction variables</phrase> for a default list of Tool modules.
 Use <emphasis role="bold">default</emphasis>
 in the tools list to retain the original defaults,
 since the <parameter>tools</parameter> parameter
 is treated as a literal statement of the tools
-to be made available in that &consenv;, not an addition.
+to be made available in that <phrase>construction environment</phrase>, not an addition.
 </para>
 
 <para>
@@ -144,8 +144,8 @@ the platform and on the software installed on the platform.
 Some tools will not initialize if an underlying command is
 not found, and some tools are selected from a list of choices
 on a first-found basis. The finished tool list can be
-examined by inspecting the &cv-link-TOOLS; &consvar;
-in the &consenv;.
+examined by inspecting the <link linkend="cv-TOOLS"><envar>$TOOLS</envar></link> <phrase>construction variable</phrase>
+in the <phrase>construction environment</phrase>.
 </para>
 
 <para>
@@ -153,69 +153,69 @@ On all platforms, the tools from the following list
 are selected if their respective conditions are met:
 <!--TODO: &t-link-filesystem; --> filesystem;,
 <!--TODO &t-link-wix; --> wix,
-&t-link-lex;, &t-link-yacc;,
-&t-link-rpcgen;, &t-link-swig;,
-&t-link-jar;, &t-link-javac;, &t-link-javah;, &t-link-rmic;,
-&t-link-dvipdf;, &t-link-dvips;, &t-link-gs;,
-&t-link-tex;, &t-link-latex;, &t-link-pdflatex;, &t-link-pdftex;,
-&t-link-tar;, &t-link-zip;, &t-link-textfile;.
+<link linkend="t-lex"><literal>lex</literal></link>, <link linkend="t-yacc"><literal>yacc</literal></link>,
+<link linkend="t-rpcgen"><literal>rpcgen</literal></link>, <link linkend="t-swig"><literal>swig</literal></link>,
+<link linkend="t-jar"><literal>jar</literal></link>, <link linkend="t-javac"><literal>javac</literal></link>, <link linkend="t-javah"><literal>javah</literal></link>, <link linkend="t-rmic"><literal>rmic</literal></link>,
+<link linkend="t-dvipdf"><literal>dvipdf</literal></link>, <link linkend="t-dvips"><literal>dvips</literal></link>, <link linkend="t-gs"><literal>gs</literal></link>,
+<link linkend="t-tex"><literal>tex</literal></link>, <link linkend="t-latex"><literal>latex</literal></link>, <link linkend="t-pdflatex"><literal>pdflatex</literal></link>, <link linkend="t-pdftex"><literal>pdftex</literal></link>,
+<link linkend="t-tar"><literal>tar</literal></link>, <link linkend="t-zip"><literal>zip</literal></link>, <link linkend="t-textfile"><literal>textfile</literal></link>.
 </para>
 
 <para>
 On Linux systems, the default tools list selects
 (first-found): a C compiler from
-&t-link-gcc;, &t-link-intelc;, &t-link-icc;, &t-link-cc;;
+<link linkend="t-gcc"><literal>gcc</literal></link>, <link linkend="t-intelc"><literal>intelc</literal></link>, <link linkend="t-icc"><literal>icc</literal></link>, <link linkend="t-cc"><literal>cc</literal></link>;
 a C++ compiler from
-&t-link-gXX;, &t-link-intelc;, &t-link-icc;, &t-link-cXX;;
+<link linkend="t-gXX"><literal>g++</literal></link>, <link linkend="t-intelc"><literal>intelc</literal></link>, <link linkend="t-icc"><literal>icc</literal></link>, <link linkend="t-cXX"><literal>cXX</literal></link>;
 an assembler from
-&t-link-gas;, &t-link-nasm;, &t-link-masm;;
+<link linkend="t-gas"><literal>gas</literal></link>, <link linkend="t-nasm"><literal>nasm</literal></link>, <link linkend="t-masm"><literal>masm</literal></link>;
 a linker from
-&t-link-gnulink;, &t-link-ilink;;
+<link linkend="t-gnulink"><literal>gnulink</literal></link>, <link linkend="t-ilink"><literal>ilink</literal></link>;
 a Fortran compiler from
-&t-link-gfortran;, &t-link-g77;, &t-link-ifort;, &t-link-ifl;,
-&t-link-f95;, &t-link-f90;, &t-link-f77;;
-and a static archiver &t-link-ar;.
+<link linkend="t-gfortran"><literal>gfortran</literal></link>, <link linkend="t-g77"><literal>g77</literal></link>, <link linkend="t-ifort"><literal>ifort</literal></link>, <link linkend="t-ifl"><literal>ifl</literal></link>,
+<link linkend="t-f95"><literal>f95</literal></link>, <link linkend="t-f90"><literal>f90</literal></link>, <link linkend="t-f77"><literal>f77</literal></link>;
+and a static archiver <link linkend="t-ar"><literal>ar</literal></link>.
 It also selects all found from the list
-&t-link-m4;
+<link linkend="t-m4"><literal>m4</literal></link>
 <!-- TODO &t-link-rpm; --> rpm.
 </para>
 
 <para>
 On Windows systems, the default tools list selects
 (first-found): a C compiler from
-&t-link-msvc;, &t-link-mingw;, &t-link-gcc;, &t-link-intelc;,
-&t-link-icl;, &t-link-icc;, &t-link-cc;, &t-link-bcc32;;
+<link linkend="t-msvc"><literal>msvc</literal></link>, <link linkend="t-mingw"><literal>mingw</literal></link>, <link linkend="t-gcc"><literal>gcc</literal></link>, <link linkend="t-intelc"><literal>intelc</literal></link>,
+<link linkend="t-icl"><literal>icl</literal></link>, <link linkend="t-icc"><literal>icc</literal></link>, <link linkend="t-cc"><literal>cc</literal></link>, <link linkend="t-bcc32"><literal>bcc32</literal></link>;
 a C++ compiler from
-&t-link-msvc;, &t-link-intelc;, &t-link-icc;, &t-link-gXX;,
-&t-link-cXX;, &t-link-bcc32;;
+<link linkend="t-msvc"><literal>msvc</literal></link>, <link linkend="t-intelc"><literal>intelc</literal></link>, <link linkend="t-icc"><literal>icc</literal></link>, <link linkend="t-gXX"><literal>g++</literal></link>,
+<link linkend="t-cXX"><literal>cXX</literal></link>, <link linkend="t-bcc32"><literal>bcc32</literal></link>;
 an assembler from
-&t-link-masm;, &t-link-nasm;, &t-link-gas;, &t-link-386asm;;
+<link linkend="t-masm"><literal>masm</literal></link>, <link linkend="t-nasm"><literal>nasm</literal></link>, <link linkend="t-gas"><literal>gas</literal></link>, <link linkend="t-386asm"><literal>386asm</literal></link>;
 a linker from
-&t-link-mslink;, &t-link-gnulink;, &t-link-ilink;,
-&t-link-linkloc;, &t-link-ilink32;;
+<link linkend="t-mslink"><literal>mslink</literal></link>, <link linkend="t-gnulink"><literal>gnulink</literal></link>, <link linkend="t-ilink"><literal>ilink</literal></link>,
+<link linkend="t-linkloc"><literal>linkloc</literal></link>, <link linkend="t-ilink32"><literal>ilink32</literal></link>;
 a Fortran compiler from
-&t-link-gfortran;, &t-link-g77;, &t-link-ifl;, &t-link-cvf;,
-&t-link-f95;, &t-link-f90;, &t-link-fortran;;
+<link linkend="t-gfortran"><literal>gfortran</literal></link>, <link linkend="t-g77"><literal>g77</literal></link>, <link linkend="t-ifl"><literal>ifl</literal></link>, <link linkend="t-cvf"><literal>cvf</literal></link>,
+<link linkend="t-f95"><literal>f95</literal></link>, <link linkend="t-f90"><literal>f90</literal></link>, <link linkend="t-fortran"><literal>fortran</literal></link>;
 and a static archiver from
-&t-link-mslib;, &t-link-ar;, &t-link-tlib;;
+<link linkend="t-mslib"><literal>mslib</literal></link>, <link linkend="t-ar"><literal>ar</literal></link>, <link linkend="t-tlib"><literal>tlib</literal></link>;
 It also selects all found from the list
-&t-link-msvs;, &t-link-midl;.
+<link linkend="t-msvs"><literal>msvs</literal></link>, <link linkend="t-midl"><literal>midl</literal></link>.
 </para>
 
 <para>
 On MacOS systems, the default tools list selects
 (first-found): a C compiler from
-&t-link-gcc;, &t-link-cc;;
+<link linkend="t-gcc"><literal>gcc</literal></link>, <link linkend="t-cc"><literal>cc</literal></link>;
 a C++ compiler from
-&t-link-gXX;, &t-link-cXX;;
-an assembler &t-link-as;;
+<link linkend="t-gXX"><literal>g++</literal></link>, <link linkend="t-cXX"><literal>cXX</literal></link>;
+an assembler <link linkend="t-as"><literal>as</literal></link>;
 a linker from
-&t-link-applelink;, &t-link-gnulink;;
+<link linkend="t-applelink"><literal>applelink</literal></link>, <link linkend="t-gnulink"><literal>gnulink</literal></link>;
 a Fortran compiler from
-&t-link-gfortran;, &t-link-f95;, &t-link-f90;, &t-link-g77;;
-and a static archiver &t-link-ar;.
+<link linkend="t-gfortran"><literal>gfortran</literal></link>, <link linkend="t-f95"><literal>f95</literal></link>, <link linkend="t-f90"><literal>f90</literal></link>, <link linkend="t-g77"><literal>g77</literal></link>;
+and a static archiver <link linkend="t-ar"><literal>ar</literal></link>.
 It also selects all found from the list
-&t-link-m4;,
+<link linkend="t-m4"><literal>m4</literal></link>,
 <!-- TODO &t-link-rpm; --> rpm.
 </para>
 
@@ -224,16 +224,16 @@ On the BSD systems whose base compiler is LLVM/clang
 (FreeBSD and OpenBSD), the default tools list matches
 the Linux one except that the C compiler is selected
 (first-found) from
-&t-link-clang;, &t-link-gcc;, &t-link-intelc;, &t-link-icc;,
-&t-link-cc;
+<link linkend="t-clang"><literal>clang</literal></link>, <link linkend="t-gcc"><literal>gcc</literal></link>, <link linkend="t-intelc"><literal>intelc</literal></link>, <link linkend="t-icc"><literal>icc</literal></link>,
+<link linkend="t-cc"><literal>cc</literal></link>
 and the C++ compiler from
-&t-link-clangxx;, &t-link-gXX;, &t-link-intelc;, &t-link-icc;,
-&t-link-cXX;.
+<link linkend="t-clangxx"><literal>clangxx</literal></link>, <link linkend="t-gXX"><literal>g++</literal></link>, <link linkend="t-intelc"><literal>intelc</literal></link>, <link linkend="t-icc"><literal>icc</literal></link>,
+<link linkend="t-cXX"><literal>cXX</literal></link>.
 </para>
 
 <para>
 Default lists for other platforms can be found by
-examining the &scons;
+examining the <command>scons</command>
 source code (see
 <filename>SCons/Tool/__init__.py</filename>).
 </para>
@@ -249,7 +249,7 @@ Sets construction variables for D language compiler DMD.
   </varlistentry>
   <varlistentry id="t-docbook">
     <term>docbook</term>
-    <listitem><para>This tool tries to make working with Docbook in &SCons; a little easier.
+    <listitem><para>This tool tries to make working with Docbook in <application>SCons</application> a little easier.
 It provides several toolchains for creating different output formats,
 like HTML or PDF. Contained in the package is
 a distribution of the Docbook XSL stylesheets as of version 1.76.1.
@@ -271,7 +271,7 @@ like this
 </para>
 <screen>env = Environment(tools=['docbook'])
 </screen>
-<para>On its startup, the &t-docbook; tool tries to find a required <literal>xsltproc</literal> processor, and
+<para>On its startup, the <literal>docbook</literal> tool tries to find a required <literal>xsltproc</literal> processor, and
 a PDF renderer, e.g. <application>fop</application>. So make sure that these are added to your system's environment
 <envar>PATH</envar> and can be called directly without specifying their full path.
 </para>
@@ -317,15 +317,15 @@ Tool uses the given names as file stems, and adds the suffixes for target and so
 accordingly.
 </para>
 </important>
-<para>The rules given above are valid for the Builders &b-link-DocbookHtml;,
-&b-link-DocbookPdf;, &b-link-DocbookEpub;, &b-link-DocbookSlidesPdf; and &b-link-DocbookXInclude;. For the
-&b-link-DocbookMan; transformation you
+<para>The rules given above are valid for the Builders <link linkend="b-DocbookHtml"><function>DocbookHtml</function></link>,
+<link linkend="b-DocbookPdf"><function>DocbookPdf</function></link>, <link linkend="b-DocbookEpub"><function>DocbookEpub</function></link>, <link linkend="b-DocbookSlidesPdf"><function>DocbookSlidesPdf</function></link> and <link linkend="b-DocbookXInclude"><function>DocbookXInclude</function></link>. For the
+<link linkend="b-DocbookMan"><function>DocbookMan</function></link> transformation you
 can specify a target name, but the actual output names are automatically
 set from the <literal>refname</literal> entries in your XML source.
 </para>
 
-<para>The Builders &b-link-DocbookHtmlChunked;, &b-link-DocbookHtmlhelp; and
-&b-link-DocbookSlidesHtml; are special, in that:
+<para>The Builders <link linkend="b-DocbookHtmlChunked"><function>DocbookHtmlChunked</function></link>, <link linkend="b-DocbookHtmlhelp"><function>DocbookHtmlhelp</function></link> and
+<link linkend="b-DocbookSlidesHtml"><function>DocbookSlidesHtml</function></link> are special, in that:
 </para>
 <orderedlist><listitem><para>they create a large set of files, where the exact names and their number depend
 on the content of the source file, and
@@ -377,7 +377,7 @@ env.DocbookHtml('manual')  # now uses html.xsl
   <varlistentry id="t-dvi">
     <term>dvi</term>
     <listitem><para>
-Attaches the &b-link-DVI; builder to the
+Attaches the <link linkend="b-DVI"><function>DVI</function></link> builder to the
 construction environment.
 </para>
 </listitem>
@@ -434,36 +434,36 @@ Set construction variables for generic POSIX Fortran 95 compilers.
   <varlistentry id="t-fortran">
     <term>fortran</term>
     <listitem><para>
-Set &consvars; for generic POSIX Fortran compilers.
+Set <phrase>construction variables</phrase> for generic POSIX Fortran compilers.
 </para>
 <para>Sets: &cv-link-FORTRAN;, &cv-link-FORTRANCOM;, &cv-link-FORTRANFLAGS;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANCOM;, &cv-link-SHFORTRANFLAGS;, &cv-link-SHFORTRANPPCOM;.</para><para>Uses: &cv-link-CPPFLAGS;, &cv-link-FORTRANCOMSTR;, &cv-link-FORTRANPPCOMSTR;, &cv-link-SHFORTRANCOMSTR;, &cv-link-SHFORTRANPPCOMSTR;, &cv-link-_CPPDEFFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-gXX">
     <term>g++</term>
     <listitem><para>
-Set construction variables for the &gXX; C++ compiler.
+Set construction variables for the <application>g++</application> C++ compiler.
 </para>
 <para>Sets: &cv-link-CXX;, &cv-link-CXXVERSION;, &cv-link-SHCXXFLAGS;, &cv-link-SHOBJSUFFIX;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-g77">
     <term>g77</term>
     <listitem><para>
-Set construction variables for the &g77; Fortran compiler.
+Set construction variables for the <application>g77</application> Fortran compiler.
 </para>
 <para>Sets: &cv-link-F77;, &cv-link-F77COM;, &cv-link-F77FILESUFFIXES;, &cv-link-F77PPCOM;, &cv-link-F77PPFILESUFFIXES;, &cv-link-FORTRAN;, &cv-link-FORTRANCOM;, &cv-link-FORTRANPPCOM;, &cv-link-SHF77;, &cv-link-SHF77COM;, &cv-link-SHF77FLAGS;, &cv-link-SHF77PPCOM;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANCOM;, &cv-link-SHFORTRANFLAGS;, &cv-link-SHFORTRANPPCOM;.</para><para>Uses: &cv-link-F77FLAGS;, &cv-link-FORTRANCOMMONFLAGS;, &cv-link-FORTRANFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-gas">
     <term>gas</term>
     <listitem><para>
-Sets construction variables for the &gas; assembler.
-Calls the &t-link-as; tool.
+Sets construction variables for the <application>gas</application> assembler.
+Calls the <link linkend="t-as"><literal>as</literal></link> tool.
 </para>
 <para>Sets: &cv-link-AS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-gcc">
     <term>gcc</term>
     <listitem><para>
-Set construction variables for the &gcc; C compiler.
+Set construction variables for the <application>gcc</application> C compiler.
 </para>
 <para>Sets: &cv-link-CC;, &cv-link-CCDEPFLAGS;, &cv-link-CCVERSION;, &cv-link-SHCCFLAGS;.</para></listitem>
   </varlistentry>
@@ -478,32 +478,32 @@ Sets construction variables for the D language compiler GDC.
     <term>gettext</term>
     <listitem><para>
 A toolset supporting internationalization and
-localization of software being constructed with &SCons;.
+localization of software being constructed with <application>SCons</application>.
 The toolset loads the following tools:
 </para>
 
 <para>
 <itemizedlist mark="opencircle">
   <listitem><para>
-    &t-link-xgettext; - extract internationalized messages from source code to
+    <link linkend="t-xgettext"><literal>xgettext</literal></link> - extract internationalized messages from source code to
     <literal>POT</literal> file(s).
   </para></listitem>
   <listitem><para>
-    &t-link-msginit; - initialize <literal>PO</literal>
+    <link linkend="t-msginit"><literal>msginit</literal></link> - initialize <literal>PO</literal>
     files during initial translation of a project.
   </para></listitem>
   <listitem><para>
-    &t-link-msgmerge; - update <literal>PO</literal> files that already contain
+    <link linkend="t-msgmerge"><literal>msgmerge</literal></link> - update <literal>PO</literal> files that already contain
     translated messages,</para></listitem>
   <listitem><para>
-    &t-link-msgfmt; - compile textual <literal>PO</literal> files to binary
+    <link linkend="t-msgfmt"><literal>msgfmt</literal></link> - compile textual <literal>PO</literal> files to binary
     installable <literal>MO</literal> files.
   </para></listitem>
 </itemizedlist>
 </para>
 
 <para>
-When you enable &t-gettext;, it internally loads all the above-mentioned tools,
+When you enable <literal>gettext</literal>, it internally loads all the above-mentioned tools,
 so you're encouraged to see their individual documentation.
 </para>
 
@@ -511,12 +511,12 @@ so you're encouraged to see their individual documentation.
 Each of the above tools provides its own builder(s) which may be used to
 perform particular activities related to software internationalization. You
 may be however interested in <emphasis>top-level</emphasis>
-&b-link-Translate; builder.
+<link linkend="b-Translate"><function>Translate</function></link> builder.
 </para>
 
 <para>
-To use the &t-gettext; tools, add the <literal>'gettext'</literal> tool to your
-&consenv;:
+To use the <literal>gettext</literal> tools, add the <literal>'gettext'</literal> tool to your
+<phrase>construction environment</phrase>:
 </para>
 <programlisting language="python">
 env = Environment(tools=['default', 'gettext'])
@@ -527,7 +527,7 @@ env = Environment(tools=['default', 'gettext'])
     <term>gfortran</term>
     <listitem><para>
 Sets construction variables for the GNU Fortran compiler.
-Calls the &t-link-fortran; Tool module to set variables.
+Calls the <link linkend="t-fortran"><literal>fortran</literal></link> Tool module to set variables.
 </para>
 <para>Sets: &cv-link-F77;, &cv-link-F90;, &cv-link-F95;, &cv-link-FORTRAN;, &cv-link-SHF77;, &cv-link-SHF77FLAGS;, &cv-link-SHF90;, &cv-link-SHF90FLAGS;, &cv-link-SHF95;, &cv-link-SHF95FLAGS;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANFLAGS;.</para></listitem>
   </varlistentry>
@@ -541,11 +541,11 @@ Set construction variables for GNU linker/loader.
   <varlistentry id="t-gs">
     <term>gs</term>
     <listitem><para>
-This &f-Tool; sets the required construction variables for working with
+This <function>Tool</function> sets the required construction variables for working with
 the Ghostscript software. It also registers an appropriate Action
-with the &b-link-PDF; Builder, such that the conversion from
+with the <link linkend="b-PDF"><function>PDF</function></link> Builder, such that the conversion from
 PS/EPS to PDF happens automatically for the TeX/LaTeX toolchain.
-Finally, it adds an explicit &b-link-Gs; Builder for Ghostscript
+Finally, it adds an explicit <link linkend="b-Gs"><function>Gs</function></link> Builder for Ghostscript
 to the environment.
 </para>
 <para>Sets: &cv-link-GS;, &cv-link-GSCOM;, &cv-link-GSFLAGS;.</para><para>Uses: &cv-link-GSCOMSTR;.</para></listitem>
@@ -562,9 +562,9 @@ Set construction variables for the compilers aCC on HP/UX systems.
     <listitem><para>
 Set construction variables for
 <application>aCC</application> compilers on HP/UX systems.
-Calls the &t-link-cXX; tool for additional variables.
+Calls the <link linkend="t-cc"><literal>cc</literal></link> tool for additional variables.
 </para>
-<para>Sets: &cv-link-CXX;, &cv-link-CXXVERSION;, &cv-link-SHCXXFLAGS;.</para></listitem>
+<para>Sets: &cv-link-CXX;, &cv-link-SHCCFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-hplink">
     <term>hplink</term>
@@ -585,7 +585,7 @@ Sets construction variables for the
     <term>icl</term>
     <listitem><para>
 Sets construction variables for the Intel C/C++ compiler.
-Calls the &t-intelc; Tool module to set its variables.
+Calls the <literal>intelc</literal> Tool module to set its variables.
 </para>
 </listitem>
   </varlistentry>
@@ -633,7 +633,7 @@ and directory installation.
     <listitem><para>
 Sets construction variables for the Intel C/C++ compiler
 (Linux and Windows, version 7 and later).
-Calls the &t-link-gcc; or &t-link-msvc;
+Calls the <link linkend="t-gcc"><literal>gcc</literal></link> or <link linkend="t-msvc"><literal>msvc</literal></link>
 (on Linux and Windows, respectively)
 tool to set underlying variables.
 </para>
@@ -642,28 +642,28 @@ tool to set underlying variables.
   <varlistentry id="t-jar">
     <term>jar</term>
     <listitem><para>
-Sets construction variables for the &jar; utility.
+Sets construction variables for the <application>jar</application> utility.
 </para>
 <para>Sets: &cv-link-JAR;, &cv-link-JARCOM;, &cv-link-JARFLAGS;, &cv-link-JARSUFFIX;.</para><para>Uses: &cv-link-JARCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-javac">
     <term>javac</term>
     <listitem><para>
-                Sets construction variables for the &javac; compiler.
+                Sets construction variables for the <application>javac</application> compiler.
             </para>
         <para>Sets: &cv-link-JAVABOOTCLASSPATH;, &cv-link-JAVAC;, &cv-link-JAVACCOM;, &cv-link-JAVACFLAGS;, &cv-link-JAVACLASSPATH;, &cv-link-JAVACLASSSUFFIX;, &cv-link-JAVAINCLUDES;, &cv-link-JAVASOURCEPATH;, &cv-link-JAVASUFFIX;.</para><para>Uses: &cv-link-JAVACCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-javah">
     <term>javah</term>
     <listitem><para>
-Sets construction variables for the &javah; tool.
+Sets construction variables for the <application>javah</application> tool.
 </para>
 <para>Sets: &cv-link-JAVACLASSSUFFIX;, &cv-link-JAVAH;, &cv-link-JAVAHCOM;, &cv-link-JAVAHFLAGS;.</para><para>Uses: &cv-link-JAVACLASSPATH;, &cv-link-JAVAHCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-latex">
     <term>latex</term>
     <listitem><para>
-Sets construction variables for the &latex; utility.
+Sets construction variables for the <application>latex</application> utility.
 </para>
 <para>Sets: &cv-link-LATEX;, &cv-link-LATEXCOM;, &cv-link-LATEXFLAGS;.</para><para>Uses: &cv-link-LATEXCOMSTR;.</para></listitem>
   </varlistentry>
@@ -677,7 +677,7 @@ Sets construction variables for the D language compiler LDC2.
   <varlistentry id="t-lex">
     <term>lex</term>
     <listitem><para>
-Sets construction variables for the &lex; lexical analyzer.
+Sets construction variables for the <application>lex</application> lexical analyzer.
 </para>
 <para>Sets: &cv-link-LEX;, &cv-link-LEXCOM;, &cv-link-LEXFLAGS;, &cv-link-LEXUNISTD;.</para><para>Uses: &cv-link-LEXCOMSTR;, &cv-link-LEXFLAGS;, &cv-link-LEX_HEADER_FILE;, &cv-link-LEX_TABLES_FILE;.</para></listitem>
   </varlistentry>
@@ -702,7 +702,7 @@ linker for the Phar Lap ETS embedded operating system.
   <varlistentry id="t-m4">
     <term>m4</term>
     <listitem><para>
-Sets construction variables for the &m4; macro processor.
+Sets construction variables for the <application>m4</application> macro processor.
 </para>
 <para>Sets: &cv-link-M4;, &cv-link-M4COM;, &cv-link-M4FLAGS;.</para><para>Uses: &cv-link-M4COMSTR;.</para></listitem>
   </varlistentry>
@@ -730,10 +730,10 @@ Sets construction variables for MinGW (Minimal Gnu on Windows).
   <varlistentry id="t-msgfmt">
     <term>msgfmt</term>
     <listitem><para>
-This tool is a part of the &t-link-gettext; toolset.
-It provides &SCons;
+This tool is a part of the <link linkend="t-gettext"><literal>gettext</literal></link> toolset.
+It provides <application>SCons</application>
 an interface to the <command>msgfmt(1)</command> command
-by setting up the &b-link-MOFiles; builder,
+by setting up the <link linkend="b-MOFiles"><function>MOFiles</function></link> builder,
 which generates binary message catalog (<literal>MO</literal>) files
 from a textual translation description
 (<literal>PO</literal> files).
@@ -743,21 +743,21 @@ from a textual translation description
   <varlistentry id="t-msginit">
     <term>msginit</term>
     <listitem><para>
-This tool is a part of scons &t-link-gettext; toolset. It provides
-&SCons; an interface to the <command>msginit(1)</command> program,
-by setting up the &b-link-POInit; builder,
+This tool is a part of scons <link linkend="t-gettext"><literal>gettext</literal></link> toolset. It provides
+<application>SCons</application> an interface to the <command>msginit(1)</command> program,
+by setting up the <link linkend="b-POInit"><function>POInit</function></link> builder,
 which creates a new
 <literal>PO</literal> file, initializing the meta information with values from
-the &consenv; (or options).
+the <phrase>construction environment</phrase> (or options).
 </para>
 <para>Sets: &cv-link-MSGINIT;, &cv-link-MSGINITCOM;, &cv-link-MSGINITCOMSTR;, &cv-link-MSGINITFLAGS;, &cv-link-POAUTOINIT;, &cv-link-POCREATE_ALIAS;, &cv-link-POSUFFIX;, &cv-link-POTSUFFIX;, &cv-link-_MSGINITLOCALE;.</para><para>Uses: &cv-link-LINGUAS_FILE;, &cv-link-POAUTOINIT;, &cv-link-POTDOMAIN;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-msgmerge">
     <term>msgmerge</term>
     <listitem><para>
-This tool is a part of scons &t-link-gettext; toolset. It provides
-&SCons; an interface to the <command>msgmerge(1)</command> command,
-by setting up the &b-link-POUpdate; builder,
+This tool is a part of scons <link linkend="t-gettext"><literal>gettext</literal></link> toolset. It provides
+<application>SCons</application> an interface to the <command>msgmerge(1)</command> command,
+by setting up the <link linkend="b-POUpdate"><function>POUpdate</function></link> builder,
 which merges two
 Uniform style <filename>.po</filename> files together.
 </para>
@@ -786,7 +786,7 @@ Sets variables for Microsoft Platform SDK and/or Windows SDK.
 Note that unlike most other Tool modules,
 mssdk does not set construction variables,
 but sets the <emphasis>environment variables</emphasis>
-in the environment &SCons; uses to execute
+in the environment <application>SCons</application> uses to execute
 the Microsoft toolchain:
 <literal>%INCLUDE%</literal>,
 <literal>%LIB%</literal>,
@@ -798,13 +798,13 @@ the Microsoft toolchain:
   <varlistentry id="t-msvc">
     <term>msvc</term>
     <listitem><para>
-Sets &consvars; for the &MSVC; compiler.
+Sets <phrase>construction variables</phrase> for the <application>Microsoft Visual C++</application> compiler.
 </para>
 <para>Sets: &cv-link-BUILDERS;, &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCDEPFLAGS;, &cv-link-CCFLAGS;, &cv-link-CCPCHFLAGS;, &cv-link-CCPDBFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-CXX;, &cv-link-CXXCOM;, &cv-link-CXXFILESUFFIX;, &cv-link-CXXFLAGS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-OBJPREFIX;, &cv-link-OBJSUFFIX;, &cv-link-PCHCOM;, &cv-link-PCHPDBFLAGS;, &cv-link-RC;, &cv-link-RCCOM;, &cv-link-RCFLAGS;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHCXX;, &cv-link-SHCXXCOM;, &cv-link-SHCXXFLAGS;, &cv-link-SHOBJPREFIX;, &cv-link-SHOBJSUFFIX;.</para><para>Uses: &cv-link-CCCOMSTR;, &cv-link-CXXCOMSTR;, &cv-link-MSVC_NOTFOUND_POLICY;, &cv-link-MSVC_SCRIPTERROR_POLICY;, &cv-link-MSVC_SCRIPT_ARGS;, &cv-link-MSVC_SDK_VERSION;, &cv-link-MSVC_SPECTRE_LIBS;, &cv-link-MSVC_TOOLSET_VERSION;, &cv-link-MSVC_USE_SCRIPT;, &cv-link-MSVC_USE_SCRIPT_ARGS;, &cv-link-MSVC_USE_SETTINGS;, &cv-link-MSVC_VERSION;, &cv-link-PCH;, &cv-link-PCHSTOP;, &cv-link-PDB;, &cv-link-SHCCCOMSTR;, &cv-link-SHCXXCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-msvs">
     <term>msvs</term>
-    <listitem><para>Sets &consvars; for Microsoft Visual Studio.</para>
+    <listitem><para>Sets <phrase>construction variables</phrase> for Microsoft Visual Studio.</para>
     <para>Sets: &cv-link-MSVSBUILDCOM;, &cv-link-MSVSCLEANCOM;, &cv-link-MSVSENCODING;, &cv-link-MSVSPROJECTCOM;, &cv-link-MSVSREBUILDCOM;, &cv-link-MSVSSCONS;, &cv-link-MSVSSCONSCOM;, &cv-link-MSVSSCONSCRIPT;, &cv-link-MSVSSCONSFLAGS;, &cv-link-MSVSSOLUTIONCOM;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-mwcc">
@@ -832,7 +832,7 @@ Sets construction variables for the
   <varlistentry id="t-ninja">
     <term>ninja</term>
     <listitem><para>
-                Sets up the &b-link-Ninja; builder, which generates a &ninja; build file, and then optionally runs &ninja;.
+                Sets up the <link linkend="b-Ninja"><function>Ninja</function></link> builder, which generates a <application>ninja</application> build file, and then optionally runs <application>ninja</application>.
             </para>
             <note>
                 <para>This is an experimental feature.
@@ -845,7 +845,7 @@ Sets construction variables for the
   <varlistentry id="t-packaging">
     <term>packaging</term>
     <listitem><para>
-Sets construction variables for the &b-link-Package; Builder.
+Sets construction variables for the <link linkend="b-Package"><function>Package</function></link> Builder.
 If this tool is enabled, the
 <link linkend="opt-package-type"><option>--package-type</option></link>
 command-line option is made available.
@@ -862,32 +862,32 @@ Sets construction variables for the Portable Document Format builder.
   <varlistentry id="t-pdflatex">
     <term>pdflatex</term>
     <listitem><para>
-Sets construction variables for the &pdflatex; utility.
+Sets construction variables for the <application>pdflatex</application> utility.
 </para>
 <para>Sets: &cv-link-LATEXRETRIES;, &cv-link-PDFLATEX;, &cv-link-PDFLATEXCOM;, &cv-link-PDFLATEXFLAGS;.</para><para>Uses: &cv-link-PDFLATEXCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-pdftex">
     <term>pdftex</term>
     <listitem><para>
-Sets construction variables for the &pdftex; utility.
+Sets construction variables for the <application>pdftex</application> utility.
 </para>
 <para>Sets: &cv-link-LATEXRETRIES;, &cv-link-PDFLATEX;, &cv-link-PDFLATEXCOM;, &cv-link-PDFLATEXFLAGS;, &cv-link-PDFTEX;, &cv-link-PDFTEXCOM;, &cv-link-PDFTEXFLAGS;.</para><para>Uses: &cv-link-PDFLATEXCOMSTR;, &cv-link-PDFTEXCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-python">
     <term>python</term>
     <listitem><para>
-Loads the &Python; source scanner into the invoking environment.
+Loads the <application>Python</application> source scanner into the invoking environment.
 When loaded, the scanner will attempt to find implicit
-dependencies for any &Python; source files in the list of sources
+dependencies for any <application>Python</application> source files in the list of sources
 provided to an Action that uses this environment.
 </para>
-<para><emphasis>Available since &scons; 4.0.</emphasis>.</para>
+<para><emphasis>Available since <command>scons</command> 4.0.</emphasis>.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="t-rmic">
     <term>rmic</term>
     <listitem><para>
-Sets construction variables for the &rmic; utility.
+Sets construction variables for the <application>rmic</application> utility.
 </para>
 <para>Sets: &cv-link-JAVACLASSSUFFIX;, &cv-link-RMIC;, &cv-link-RMICCOM;, &cv-link-RMICFLAGS;.</para><para>Uses: &cv-link-RMICCOMSTR;.</para></listitem>
   </varlistentry>
@@ -903,7 +903,7 @@ Sets construction variables for building with RPCGEN.
     <listitem><para>
 Sets construction variables for the SGI library archiver.
 </para>
-<para>Sets: &cv-link-AR;, &cv-link-ARCOMSTR;, &cv-link-ARFLAGS;, &cv-link-LIBPREFIX;, &cv-link-LIBSUFFIX;, &cv-link-SHLINK;, &cv-link-SHLINKFLAGS;.</para><para>Uses: &cv-link-ARCOMSTR;, &cv-link-SHLINKCOMSTR;.</para></listitem>
+<para>Sets: &cv-link-AR;, &cv-link-ARCOM;, &cv-link-ARFLAGS;, &cv-link-LIBPREFIX;, &cv-link-LIBSUFFIX;, &cv-link-SHLINK;, &cv-link-SHLINKCOM;, &cv-link-SHLINKFLAGS;.</para><para>Uses: &cv-link-ARCOMSTR;, &cv-link-SHLINKCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-sgicXX">
     <term>sgic++</term>
@@ -950,21 +950,21 @@ Sets construction variables for the Sun C compiler.
   <varlistentry id="t-sunf77">
     <term>sunf77</term>
     <listitem><para>
-Set construction variables for the Sun &f77; Fortran compiler.
+Set construction variables for the Sun <application>f77</application> Fortran compiler.
 </para>
 <para>Sets: &cv-link-F77;, &cv-link-FORTRAN;, &cv-link-SHF77;, &cv-link-SHF77FLAGS;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-sunf90">
     <term>sunf90</term>
     <listitem><para>
-Set construction variables for the Sun &f90; Fortran compiler.
+Set construction variables for the Sun <application>f90</application> Fortran compiler.
 </para>
 <para>Sets: &cv-link-F90;, &cv-link-FORTRAN;, &cv-link-SHF90;, &cv-link-SHF90FLAGS;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-sunf95">
     <term>sunf95</term>
     <listitem><para>
-Set construction variables for the Sun &f95; Fortran compiler.
+Set construction variables for the Sun <application>f95</application> Fortran compiler.
 </para>
 <para>Sets: &cv-link-F95;, &cv-link-FORTRAN;, &cv-link-SHF95;, &cv-link-SHF95FLAGS;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANFLAGS;.</para></listitem>
   </varlistentry>
@@ -978,14 +978,14 @@ Sets construction variables for the Sun linker.
   <varlistentry id="t-swig">
     <term>swig</term>
     <listitem><para>
-Sets construction variables for the &swig; interface compiler.
+Sets construction variables for the <application>SWIG</application> interface compiler.
 </para>
 <para>Sets: &cv-link-SWIG;, &cv-link-SWIGCFILESUFFIX;, &cv-link-SWIGCOM;, &cv-link-SWIGCXXFILESUFFIX;, &cv-link-SWIGDIRECTORSUFFIX;, &cv-link-SWIGFLAGS;, &cv-link-SWIGINCPREFIX;, &cv-link-SWIGINCSUFFIX;, &cv-link-SWIGPATH;, &cv-link-SWIGVERSION;, &cv-link-_SWIGINCFLAGS;.</para><para>Uses: &cv-link-SWIGCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-tar">
     <term>tar</term>
     <listitem><para>
-Sets construction variables for the &tar; archiver.
+Sets construction variables for the <application>tar</application> archiver.
 </para>
 <para>Sets: &cv-link-TAR;, &cv-link-TARCOM;, &cv-link-TARFLAGS;, &cv-link-TARSUFFIX;.</para><para>Uses: &cv-link-TARCOMSTR;.</para></listitem>
   </varlistentry>
@@ -999,7 +999,7 @@ Sets construction variables for the TeX formatter and typesetter.
   <varlistentry id="t-textfile">
     <term>textfile</term>
     <listitem><para>
-Set &consvars; for the &b-link-Textfile; and &b-link-Substfile; builders.
+Set <phrase>construction variables</phrase> for the <link linkend="b-Textfile"><function>Textfile</function></link> and <link linkend="b-Substfile"><function>Substfile</function></link> builders.
 </para>
 <para>Sets: &cv-link-FILE_ENCODING;, &cv-link-LINESEPARATOR;, &cv-link-SUBSTFILEPREFIX;, &cv-link-SUBSTFILESUFFIX;, &cv-link-TEXTFILEPREFIX;, &cv-link-TEXTFILESUFFIX;.</para><para>Uses: &cv-link-SUBST_DICT;.</para></listitem>
   </varlistentry>
@@ -1014,10 +1014,10 @@ Sets construction variables for the Borland
   <varlistentry id="t-xgettext">
     <term>xgettext</term>
     <listitem><para>
-This tool is a part of the &t-link-gettext; toolset. It provides
-&SCons; an interface to the <command>xgettext(1)</command>
+This tool is a part of the <link linkend="t-gettext"><literal>gettext</literal></link> toolset. It provides
+<application>SCons</application> an interface to the <command>xgettext(1)</command>
 program, which extracts internationalized messages from source code.
-The tool sets up the &b-POTUpdate; builder to make  <literal>PO</literal>
+The tool sets up the <function>POTUpdate</function> builder to make  <literal>PO</literal>
 <emphasis>Template</emphasis> files.
 </para>
 <para>Sets: &cv-link-POTSUFFIX;, &cv-link-POTUPDATE_ALIAS;, &cv-link-XGETTEXTCOM;, &cv-link-XGETTEXTCOMSTR;, &cv-link-XGETTEXTFLAGS;, &cv-link-XGETTEXTFROM;, &cv-link-XGETTEXTFROMPREFIX;, &cv-link-XGETTEXTFROMSUFFIX;, &cv-link-XGETTEXTPATH;, &cv-link-XGETTEXTPATHPREFIX;, &cv-link-XGETTEXTPATHSUFFIX;, &cv-link-_XGETTEXTDOMAIN;, &cv-link-_XGETTEXTFROMFLAGS;, &cv-link-_XGETTEXTPATHFLAGS;.</para><para>Uses: &cv-link-POTDOMAIN;.</para></listitem>
@@ -1025,14 +1025,14 @@ The tool sets up the &b-POTUpdate; builder to make  <literal>PO</literal>
   <varlistentry id="t-yacc">
     <term>yacc</term>
     <listitem><para>
-Sets construction variables for the &yacc; parser generator.
+Sets construction variables for the <application>yacc</application> parser generator.
 </para>
 <para>Sets: &cv-link-YACC;, &cv-link-YACCCOM;, &cv-link-YACCFLAGS;, &cv-link-YACCHFILESUFFIX;, &cv-link-YACCHXXFILESUFFIX;, &cv-link-YACCVCGFILESUFFIX;, &cv-link-YACC_GRAPH_FILE_SUFFIX;.</para><para>Uses: &cv-link-YACCCOMSTR;, &cv-link-YACCFLAGS;, &cv-link-YACC_GRAPH_FILE;, &cv-link-YACC_HEADER_FILE;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-zip">
     <term>zip</term>
     <listitem><para>
-Sets construction variables for the &zip; archiver.
+Sets construction variables for the <application>zip</application> archiver.
 </para>
 <para>Sets: &cv-link-ZIP;, &cv-link-ZIPCOM;, &cv-link-ZIPCOMPRESSION;, &cv-link-ZIPFLAGS;, &cv-link-ZIPSUFFIX;.</para><para>Uses: &cv-link-ZIPCOMSTR;.</para></listitem>
   </varlistentry>

@@ -124,6 +124,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
         argument section still has some wording, plus a link to the
         new section.
       * Improve the wording for the Help() function (also User Guide)
+      * Further tweak the wording for JAVAVERSION (also User Guide)
     - User Guide improvements:
       * Removed the out-of-date table of option names for SetOption and
         GetOption and instead point to the maintained tables in Appendix D.
