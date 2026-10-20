@@ -136,17 +136,27 @@ DOCUMENTATION
   since the information does not exclusively apply to the emitter argument
   to Builder(). The Builder Objects "emitter" argument section still
   has some wording, plus a link to the new section.
+
 - Fix four documentation examples that were not valid Python: a stray
   parenthesis in the Command() example, an unterminated string in the
   MSVC_VERSION example, a missing comma that joined the two
   X_RPM_EXTRADEFS strings into one, and the user guide's Progress()
   callable, which lacked a colon and a "global count".
+
 - Improve the wording for the Help() function (manpage and User Guide)
+
 - Corrected the lists of construction variables the cc, hpcc and sgiar
   tools are documented to set.
 - Fix typo in X_RPM_EXCLUSIVEARCH manpage entry.
 
 - Further tweak the wording for JAVAVERSION in manpage and User Guide
+
+- Add serve-docs and stop-docs aliases to the local doc build: they start
+  and stop a small detached HTTP server for the built documentation in
+  build/doc. This is needed to view the Sphinx API docs, whose search
+  index and cross-page links only work when served over HTTP. You have
+  to ask for these explicitly. Serves on 8000; add PORT=8888 on cmdline
+  to select a non-default port.
 
 DEVELOPMENT
 -----------
