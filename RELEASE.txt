@@ -82,6 +82,10 @@ FIXES
   which made annotations in build scripts strings and, for example, stopped
   dataclasses from recognising InitVar fields.
 
+- Fix a race in the parallel job scheduler (-j) where the first worker thread
+  could start another worker before it was recorded, so more worker threads
+  than -j could run.
+
 IMPROVEMENTS
 ------------
 
@@ -183,6 +187,9 @@ DEVELOPMENT
   few-core machines (seen on macOS CI): the clean-build timing comparison,
   where ninja's lead is small, now has slack, while the incremental rebuild
   comparisons remain strict.
+
+- test/option/stack-size.py no longer has branches for Python versions without
+  threading.stack_size, which are no longer supported.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

@@ -253,7 +253,10 @@ class Parallel:
         if self.max_workers == 1:
             self._work()
         else:
-            self._start_worker()
+            # Hold tm_lock so a freshly started worker can't check
+            # len(self.workers) before the append below has run.
+            with self.tm_lock:
+                self._start_worker()
             while len(self.workers) > 0:
                 self.workers[0].join()
                 self.workers.pop(0)
