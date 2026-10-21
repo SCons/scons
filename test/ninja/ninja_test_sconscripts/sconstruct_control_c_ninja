@@ -21,5 +21,13 @@ if ARGUMENTS.get('NINJA_DISABLE_AUTO_RUN', 0):
     # This test failed on some platforms because scons continued running,
     # finished writing the new build.ninja, which thus had a new mtime,
     # so ninja's shutdown processing would delete it because it's modified.
+    # A second fix was needed because there's apparently some combination
+    # of blocked SIGINT (so the signal is only queued, not delivered) and
+    # timestamp skew between build.ninja and SConstruct, which could lead
+    # to a loop eventually aborted with "still dirty after 100 tries".
+    # For that we try to unblock the signal.
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    if hasattr(signal, "pthread_sigmask"):
+        signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGINT})
     os.kill(os.getppid(), signal.SIGINT)
     os.kill(os.getpid(), signal.SIGINT)
