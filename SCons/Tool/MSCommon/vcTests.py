@@ -157,17 +157,23 @@ class VswherePrereleaseTests(unittest.TestCase):
         self.assertEqual(pdir, os.path.join(instance['installationPath'], 'VC'))
         self.assertIn('-prerelease', self.vswhere_args_list[0])
 
-    def test_release_preferred_over_prerelease(self) -> None:
+    def test_release_selected_when_prerelease_disabled(self) -> None:
         """Released installation is selected when both are installed"""
         release = self._instance(VSWHERE_RELEASE_INSTANCE, 'Community')
         prerelease = self._instance(VSWHERE_PRERELEASE_INSTANCE, 'Insiders')
-        for prerelease_flag in (False, True):
-            with self.subTest(prerelease=prerelease_flag):
-                SCons.Tool.MSCommon.vc.reset_installed_vcs()
-                self.vswhere_args_list = []
-                MSCommon.vc.vswhere_register_prerelease(prerelease_flag)
-                pdir = self._find_vc_pdir([prerelease, release])
-                self.assertEqual(pdir, os.path.join(release['installationPath'], 'VC'))
+        MSCommon.vc.vswhere_register_prerelease(False)
+        pdir = self._find_vc_pdir([prerelease, release])
+        self.assertEqual(pdir, os.path.join(release['installationPath'], 'VC'))
+        self.assertNotIn('-prerelease', self.vswhere_args_list[0])
+
+    def test_prerelease_preferred_over_release(self) -> None:
+        """Prerelease installation wins when explicitly requested"""
+        release = self._instance(VSWHERE_RELEASE_INSTANCE, 'Community')
+        prerelease = self._instance(VSWHERE_PRERELEASE_INSTANCE, 'Insiders')
+        MSCommon.vc.vswhere_register_prerelease(True)
+        pdir = self._find_vc_pdir([release, prerelease])
+        self.assertEqual(pdir, os.path.join(prerelease['installationPath'], 'VC'))
+        self.assertIn('-prerelease', self.vswhere_args_list[0])
 
     def test_msvc_instance_fields(self) -> None:
         """prerelease instances are recorded with the expected fields"""

@@ -35,6 +35,8 @@ MS Compilers: Visual C/C++ detection and configuration.
 #   * Assembly
 """
 
+from __future__ import annotations
+
 import SCons.compat
 
 import subprocess
@@ -1661,9 +1663,10 @@ def _find_vc_pdir_vswhere(msvc_version, vswhere_exe):
 
     # released instances are preferred; prerelease instances (e.g. Visual
     # Studio Insider) are only candidates when prerelease is enabled
-    is_release_list = [True]
     if _VSWhereExecutable.is_prerelease():
-        is_release_list.append(False)
+        is_release_list = [False, True]
+    else:
+        is_release_list = [True]
 
     msvc_instances = []
 
