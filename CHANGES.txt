@@ -121,6 +121,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Some cleanups in EnvironmentTests.py
     - Small performance tweak in arg2nodes (SubstitutionEnvironment): fast-path
       strings which are fully expanded (i.e., no $). Add unit tests.
+    - Add support for Microsoft Visual C++ Insiders (preview) compilers.
+      Set MSVC_PREVIEW to a true value to enable.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
