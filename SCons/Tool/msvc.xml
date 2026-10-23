@@ -419,7 +419,7 @@ env = Environment(MSVC_VERSION='14.2')
 
 # Initialization deferred with empty tools, triggered manually
 env = Environment(tools=[])
-env['MSVC_VERSION'] = '14.2
+env['MSVC_VERSION'] = '14.2'
 env.Tool('msvc')
 env.Tool('mslink')
 env.Tool('msvs')
@@ -880,7 +880,7 @@ The burden is on the user to ensure the requisite UWP libraries are installed.
 <summary>
 <para>
 Specify whether prerelease (preview) &MSVC; installations are to be
-considered.
+considered, and preferred.
 </para>
 
 <para>
@@ -897,21 +897,56 @@ considered.
     value, or any other value which is not <literal>0</literal> or
     <literal>False</literal>) allows &SCons; to consider prerelease
     installations, which makes it possible to test code with a compiler
-    before it is released. Released installations are still preferred:
-    a prerelease installation is only selected when no released
-    installation provides the requested toolset.
+    before it is released. Such an installation takes precedence: when
+    both a prerelease and a released installation provide the requested
+    toolset, the prerelease one is selected. Released installations are
+    used when there is no prerelease installation for the toolset.
 </para>
 
 <note>
   <para>
     In order to take effect, &cv-MSVC_PREVIEW; must be set before
     the initial &MSVC; compiler discovery takes place
-    (see the note for &cv-link-VSWHERE;).
+    (see the note for &cv-VSWHERE;). A variable given in the
+    &f-link-Environment; call - whether directly or through a
+    &scons; variables object - is applied before the toolchain is
+    initialized, so no special steps are needed for it.
+  </para>
+
+  <para>
+    A &scons; variable of this sort is a good candidate for the
+    <literal>BoolVariable()</literal> mechanism, so that the
+    prerelease toolchain can be selected from the command line, without
+    editing the build configuration:
   </para>
 
   <programlisting>
-env = Environment(MSVC_PREVIEW=1)
+from SCons.Variables import BoolVariable
+
+vars = Variables()
+vars.Add(BoolVariable('MSVC_PREVIEW', 'use the prerelease msvc toolchain', False))
+
+env = Environment(variables=vars)
+Help(vars.GenerateHelpText(env))
+
+# scons MSVC_PREVIEW=1
   </programlisting>
+
+  <para>
+    Note that the &f-link-Help; call must follow the creation of the
+    environment: it operates on the default environment, which would
+    otherwise run the &MSVC; discovery before &cv-MSVC_PREVIEW; has been
+    set. The same applies to any other use of the default environment
+    earlier in the &SConscript;.
+  </para>
+
+  <para>
+    Setting the variable on an existing environment
+    (<literal>env['MSVC_PREVIEW'] = 1</literal>) is too late, since the
+    toolchain is loaded by then. That form has to delay the tool
+    initialization instead, with an empty <parameter>tools</parameter>
+    list, as described in the note for &cv-VSWHERE;.
+  </para>
 </note>
 
 </summary>
