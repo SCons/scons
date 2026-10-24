@@ -47,7 +47,7 @@ if cp.returncode:
 
 test.write('SConstruct', """\
 import os
-env = Environment(tools = ['pdftex'])
+env = Environment(tools=['pdftex'])
 env.PDF('nomencl', 'nomencl.tex')
 """)
 
@@ -56,18 +56,18 @@ test.write('nomencl.tex', r"""
 
 \usepackage[refpage]{nomencl}
 
-    \makenomenclature
+\makenomenclature
 
 \begin{document}
 
 A nomenclature entry \nomenclature{gnu}{an animal or software group}
 and another\nomenclature{nix}{not sure}.
 
-    \printnomenclature
+\printnomenclature
 \end{document}
 """)
 
-test.run(arguments = '.', stderr=None)
+test.run(arguments='.', stderr=None)
 
 test.must_exist(test.workpath('nomencl.aux'))
 test.must_exist(test.workpath('nomencl.fls'))
@@ -77,7 +77,7 @@ test.must_exist(test.workpath('nomencl.fls'))
 test.must_exist(test.workpath('nomencl.log'))
 test.must_exist(test.workpath('nomencl.pdf'))
 
-test.run(arguments = '-c .')
+test.run(arguments='-c .')
 
 x = "Could not remove 'nomencl.aux': No such file or directory"
 test.must_not_contain_any_line(test.stdout(), [x])

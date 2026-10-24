@@ -42,7 +42,6 @@ import SCons.Action
 import SCons.Node
 import SCons.Node.FS
 import SCons.Util
-import SCons.Warnings
 import SCons.Scanner.LaTeX
 from SCons.Util.sctypes import _null
 
@@ -721,15 +720,6 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     env.Clean(target[0],syncfilename)
 
     content = source[0].get_text_contents()
-
-    if makeglossary_re.search(content):
-        SCons.Warnings.warn(
-            SCons.Warnings.DeprecatedWarning,
-            r"Found \makeglossary in '%s': "
-            "the glossary.sty package is obsolete, "
-            "use \\makeglossaries with the glossaries package instead."
-            % source[0].get_path(),
-        )
 
     # set up list with the regular expressions
     # we use to find features used
