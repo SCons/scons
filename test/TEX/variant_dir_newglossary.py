@@ -69,11 +69,11 @@ test_pdf = env.PDF(source='test.tex')
 test.write(['src', 'test.tex'], r"""
 \documentclass{report}
 
-\usepackage{glossaries}
+\usepackage[acronym]{glossaries}
 
 \newglossary[ntg]{notation}{nts}{nto}{List of Notation}
 
-\makeglossary
+\makeglossaries
 
 \newglossaryentry{pi}{type=notation, name={$\pi$}, description={ratio
     of circumference to diameter of a circle}}
