@@ -1,5 +1,5 @@
 # One-off canary: try newly available runner (ubuntu-26.04) + newly
-# released Python (3.15.0). Won't turn CI red if fails.
+# released Python (3.10). Won't turn CI red if fails.
 
 name: Next Test Suite
 
@@ -43,7 +43,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install libtirpc-dev
           sudo apt-get -y install docbook-xml docbook-xsl xsltproc docbook-xsl-doc-pdf ghostscript gdc gettext fop
-          sudo apt-get -y --no-install-recommends install texlive biber texmaker texlive-latex-base texlive-latex-extra texlive-bibtex-extra texlive-plain-generic texlive-font-utils texlive-fonts-recommended latexmk
+          sudo apt-get -y --no-install-recommends install texlive biber texmaker texlive-latex-base texlive-latex-extra texlive-bibtex-extra texlive-plain-generic texlive-font-utils texlive-fonts-recommended latexmk cm-super
 
       - name: Setup excluded tests
         run: |
