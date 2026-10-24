@@ -29,8 +29,10 @@ Coded by Russel Winder (russel@winder.org.uk)
 2012-09-06
 """
 
-from pathlib import Path
 import os.path
+from pathlib import Path
+
+import SCons.Util
 
 
 def isD(env, source) -> bool:
@@ -47,13 +49,20 @@ def isD(env, source) -> bool:
 def addDPATHToEnv(env, executable) -> None:
     dPath = env.WhereIs(executable)
     if dPath:
-        phobosDir = dPath[:dPath.rindex(executable)] + '/../src/phobos'
+        # *executable* may name arguments as well as a program
+        # (``WhereIs`` supports "program --with-args"), so derive the
+        # phobos directory from the directory the program was found in
+        # rather than from the value passed in.
+        phobosDir = os.path.join(os.path.dirname(dPath), '..', 'src', 'phobos')
         if os.path.isdir(phobosDir):
             env.Append(DPATH=[phobosDir])
 
 
 def allAtOnceEmitter(target, source, env):
-    if env['DC'] in ('ldc2', 'dmd'):
+    # ``$DC`` may carry arguments (e.g. "ldc2 --linker=bfd"), so only the
+    # program name is relevant when deciding on the implicit object file.
+    dc = SCons.Util.CLVar(env.subst('$DC'))
+    if dc and dc[0] in ('ldc2', 'dmd'):
         env.SideEffect(str(target[0]) + '.o', target[0])
         env.Clean(target[0], str(target[0]) + '.o')
     return target, source

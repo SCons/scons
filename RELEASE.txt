@@ -86,6 +86,8 @@ FIXES
   could start another worker before it was recorded, so more worker threads
   than -j could run.
 
+- Workaround issue where D compiler ldc2 can't find linker.
+
 IMPROVEMENTS
 ------------
 

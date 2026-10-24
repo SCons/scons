@@ -121,6 +121,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Some cleanups in EnvironmentTests.py
     - Small performance tweak in arg2nodes (SubstitutionEnvironment): fast-path
       strings which are fully expanded (i.e., no $). Add unit tests.
+    - Workaround issue where D compiler ldc2 can't find linker.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
