@@ -949,6 +949,13 @@ Help(vars.GenerateHelpText(env))
   </para>
 </note>
 
+<para>
+<emphasis>New in version NEXT_RELEASE</emphasis>.
+This flag is semi-experimental.
+&SCons; will continue to support selecting a pre-release compiler,
+but the details may possibly take a different form in a future release.
+</para>
+
 </summary>
 </cvar>
 
