@@ -32,6 +32,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Thaddeus Crews:
     - ty: Initial support setup within `pyproject.toml`.
     - Removed Python 3.7 & 3.8 support.
+    - Disambiguate `Glob` return type via `@overload`.
 
   From William Deegan:
     - Add scons-ai.md, a condensed version of the manpage intended for
