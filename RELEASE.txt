@@ -91,6 +91,8 @@ FIXES
   could start another worker before it was recorded, so more worker threads
   than -j could run.
 
+- Workaround issue where D compiler ldc2 can't find linker.
+
 IMPROVEMENTS
 ------------
 
@@ -195,6 +197,8 @@ DEVELOPMENT
 
 - test/option/stack-size.py no longer has branches for Python versions without
   threading.stack_size, which are no longer supported.
+
+- Disambiguate `Glob` return type via `@overload`.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

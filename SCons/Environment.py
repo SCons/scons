@@ -2783,6 +2783,12 @@ class Base(SubstitutionEnvironment):
             return result
         return result[0]
 
+    @overload
+    def Glob(self, pattern: str, ondisk: bool, source: bool, strings: _Literal[False], exclude: str | list[str] | None) -> list[Node]: ...
+
+    @overload
+    def Glob(self, pattern: str, ondisk: bool, source: bool, strings: _Literal[True], exclude: str | list[str] | None) -> list[str]: ...
+
     def Glob(
         self,
         pattern: str,

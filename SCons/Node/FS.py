@@ -43,7 +43,8 @@ import sys
 import time
 from collections.abc import Callable
 from itertools import chain
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, cast, overload
+from typing import Literal as _Literal
 
 import SCons.Action
 import SCons.Debug
@@ -995,6 +996,12 @@ class Base(SCons.Node.Node):
         self._memo['rentry'] = result
         return result
 
+    @overload
+    def _glob1(self, pattern: str, ondisk: bool, source: bool, strings: _Literal[False]) -> list[Node]: ...
+
+    @overload
+    def _glob1(self, pattern: str, ondisk: bool, source: bool, strings: _Literal[True]) -> list[str]: ...
+
     def _glob1(self, pattern: str, ondisk: bool = True, source: bool = False, strings: bool = False) -> list[Node] | list[str]:
         return []
 
@@ -1150,6 +1157,12 @@ class Entry(Base):
 
     def new_ninfo(self) -> NodeInfoBase:
         return self.disambiguate().new_ninfo()
+
+    @overload
+    def _glob1(self, pattern: str, ondisk: bool, source: bool, strings: _Literal[False]) -> list[Node]: ...
+
+    @overload
+    def _glob1(self, pattern: str, ondisk: bool, source: bool, strings: _Literal[True]) -> list[str]: ...
 
     def _glob1(self, pattern: str, ondisk: bool = True, source: bool = False, strings: bool = False) -> list[Node] | list[str]:
         return self.disambiguate()._glob1(pattern, ondisk, source, strings)
@@ -1577,6 +1590,12 @@ class FS(LocalFS):
         if targets:
             message = fmt % ' '.join(map(str, targets))
         return targets, message
+
+    @overload
+    def Glob(self, pathname: str, ondisk: bool, source: bool, strings: _Literal[False], exclude: str | list[str] | None, cwd: DirNode | None) -> list[Node]: ...
+
+    @overload
+    def Glob(self, pathname: str, ondisk: bool, source: bool, strings: _Literal[True], exclude: str | list[str] | None, cwd: DirNode | None) -> list[str]: ...
 
     def Glob(self, pathname: str, ondisk: bool = True, source: bool = True, strings: bool = False, exclude: str | list[str] | None = None, cwd: DirNode | None = None) -> list[Node] | list[str]:
         """
@@ -2234,6 +2253,12 @@ class Dir(Base):
         for dirname in [n for n in names if isinstance(entries[n], Dir)]:
             entries[dirname].walk(func, arg)
 
+    @overload
+    def glob(self, pathname: str, ondisk: bool, source: bool, strings: _Literal[False], exclude: str | list[str] | None) -> list[Node]: ...
+
+    @overload
+    def glob(self, pathname: str, ondisk: bool, source: bool, strings: _Literal[True], exclude: str | list[str] | None) -> list[str]: ...
+
     def glob(self, pathname: str, ondisk: bool = True, source: bool = False, strings: bool = False, exclude: str | list[str] | None = None) -> list[Node] | list[str]:
         """Returns a list of Nodes (or strings) matching a pathname pattern.
 
@@ -2297,8 +2322,12 @@ class Dir(Base):
             result = [x for x in result if not any(fnmatch.fnmatch(str(x), str(e)) for e in SCons.Util.flatten(excludes))]
         return sorted(result, key=lambda a: str(a))
 
-    # TODO: Return type could be inferred via `@overload` based on truthiness
-    #  of `strings`.
+    @overload
+    def _glob1(self, pattern: str, ondisk: bool, source: bool, strings: _Literal[False]) -> list[Node]: ...
+
+    @overload
+    def _glob1(self, pattern: str, ondisk: bool, source: bool, strings: _Literal[True]) -> list[str]: ...
+
     def _glob1(self, pattern: str, ondisk: bool = True, source: bool = False, strings: bool = False) -> list[Node] | list[str]:
         """
         Globs for and returns a list of entry names matching a single
