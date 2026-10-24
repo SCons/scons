@@ -125,7 +125,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - TeX tests: instead of skipping test if glossary.sty is not present
       (it no longer supported/packaged in the TeX community), use the more
       modern replacement.  consider glossary.sty deprecated. We never talk
-      about glossry, so there's no place in the docs to explictly deprecate,
+      about glossary, so there's no place in the docs to explictly deprecate,
       but users should use glossaries instead.
       recognizes the replacement glossaries
     - Workaround issue where D compiler ldc2 can't find linker.
