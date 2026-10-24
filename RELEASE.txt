@@ -23,6 +23,11 @@ DEPRECATED FUNCTIONALITY
 
 - List anything that's been deprecated since the last release
 
+- TeX support: glossary.sty for glossary generation has been considered
+  obsolete for 20 years, replaced by the glossaries package. In common
+  TeX distributions it is no longer packaged.  SCons itself no longer tests
+  for \glossary and users should use \glossareies instead.
+
 REMOVED FUNCTIONALITY
 ------------------------
 

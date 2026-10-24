@@ -121,6 +121,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Some cleanups in EnvironmentTests.py
     - Small performance tweak in arg2nodes (SubstitutionEnvironment): fast-path
       strings which are fully expanded (i.e., no $). Add unit tests.
+    - TeX tests: instead of skipping test if glossary.sty is not present
+      (it no longer supported/packaged in the TeX community), use the more
+      modern replacement.  consider glossary.sty deprecated. We never talk
+      about glossry, so there's no place in the docs to explictly deprecate,
+      but users should use glossaries instead.
+      recognizes the replacement glossaries
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
