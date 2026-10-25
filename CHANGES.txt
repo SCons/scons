@@ -57,6 +57,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       stylesheets and silently produced an empty document. The helper now
       falls back to the <fm:Branch> field, which names the XSL-NS branch
       outright.
+    - Add MSVS license validity detection to end-to-end tests. When Visual
+      Studio's license or trial has expired, devenv.exe/msdev.exe exit
+      non-zero even though the toolchain is otherwise present. AppVeyor's
+      pre-test phase now runs a standalone probe script that checks each
+      installed MSVS version's license validity and generates an exclude
+      list dynamically, allowing AppVeyor to skip affected tests before the
+      run instead of failing with confusing build errors.
     - Fixed intermittent failure of test/leaky-handles.py. It counted the handles in
       /proc/<shell pid>/fd through a shell pipeline, and those transiently include the
       pipe ends the shell has not closed yet, so the count came out too high when the
