@@ -71,18 +71,82 @@ class F90Scanner(Classic):
         # bypasses the parent Classic initializer
         Current.__init__(self, *args, **kwargs)
 
+    def _strip_comments(self, contents):
+        """Remove ! comments without changing character literals or include paths.
+
+        The scanner does not know the source form. Leave ! in column 6 alone,
+        since it can be a fixed-form continuation marker.
+        """
+        lines = []
+        quote = None
+        continued = False
+        for line in contents.splitlines(keepends=True):
+            newline = line[len(line.rstrip('\r\n')):]
+            if not line.strip() or (
+                line.lstrip().startswith('!') and line.index('!') != 5
+            ):
+                lines.append(newline)
+                continue
+            if quote and not continued and line[:1] in ('c', 'C', '*'):
+                lines.append(line)
+                continue
+
+            fixed_continuation = (
+                len(line) > 5
+                and not line[:5].strip(' 0123456789')
+                and line[5] not in ' 0\r\n'
+            )
+            if not (continued or fixed_continuation):
+                quote = None
+
+            # Preserve the angle-bracket include syntax supported by Absoft.
+            include_paths = []
+            if '<' in line and '!' in line:
+                include_paths = [
+                    match.span(1) for match in self.cre_incl.finditer(line)
+                    if line[match.start(1) - 1] == '<'
+                ]
+            for index, char in enumerate(line):
+                if fixed_continuation and index == 5:
+                    # Quotes can be fixed-form markers, but can also start a
+                    # literal in a free-form statement continued after &.
+                    if char == '!' or (
+                        char in "'\"" and (quote is not None or not continued)
+                    ):
+                        continue
+                if quote:
+                    # Doubled delimiters toggle twice, keeping the literal open.
+                    if char == quote:
+                        quote = None
+                elif char in "'\"":
+                    quote = char
+                elif char == '!':
+                    if any(start <= index < end for start, end in include_paths):
+                        continue
+                    line = line[:index] + newline
+                    break
+
+            continued = line.rstrip().endswith('&')
+            # A column-one fixed-form comment must not open a character literal
+            # on a following continuation line.
+            if not continued and line[:1] in ('c', 'C', '*'):
+                quote = None
+            lines.append(line)
+        return ''.join(lines)
+
     def scan(self, node, env, path=()):
 
         # cache the includes list in node so we only scan it once:
         if node.includes is not None:
             mods_and_includes = node.includes
         else:
+            contents = self._strip_comments(node.get_text_contents())
             # retrieve all included filenames
-            includes = self.cre_incl.findall(node.get_text_contents())
+            includes = self.cre_incl.findall(contents)
             # retrieve all USE'd module names
-            modules = self.cre_use.findall(node.get_text_contents())
+            modules = self.cre_use.findall(contents)
             # retrieve all defined module names
-            defmodules = self.cre_def.findall(node.get_text_contents())
+            defmodules = self.cre_def.findall(contents)
 
             # Remove all USE'd module names that are defined in the same file
             # (case-insensitively)
@@ -131,23 +195,6 @@ def FortranScan(path_variable: str="FORTRANPATH"):
 #   USE, NON_INTRINSIC :: module_name
 #
 #   Limitations
-#
-#   --  While the regex can handle multiple USE statements on one line,
-#       it cannot properly handle them if they are commented out.
-#       In either of the following cases:
-#
-#            !  USE mod_a ; USE mod_b         [entire line is commented out]
-#               USE mod_a ! ; USE mod_b       [in-line comment of second USE statement]
-#
-#       the second module name (mod_b) will be picked up as a dependency
-#       even though it should be ignored.  The only way I can see
-#       to rectify this would be to modify the scanner to eliminate
-#       the call to re.findall, read in the contents of the file,
-#       treating the comment character as an end-of-line character
-#       in addition to the normal linefeed, loop over each line,
-#       weeding out the comments, and looking for the USE statements.
-#       One advantage to this is that the regex passed to the scanner
-#       would no longer need to match a semicolon.
 #
 #   --  I question whether or not we need to detect dependencies to
 #       INTRINSIC modules because these are built-in to the compiler.
@@ -206,29 +253,6 @@ def FortranScan(path_variable: str="FORTRANPATH"):
 #       the scanning logic, presently is unable to detect them and reduce
 #       them to a single instance.  This probably isn't an issue since,
 #       in practice, ' or " are not generally used in filenames.
-#
-#   --  This regex will not properly deal with multiple INCLUDE statements
-#       when the entire line has been commented out, ala
-#
-#           ! INCLUDE 'some_file' ; INCLUDE 'some_file'
-#
-#       In such cases, it will properly ignore the first INCLUDE file,
-#       but will actually still pick up the second.  Interestingly enough,
-#       the regex will properly deal with these cases:
-#
-#             INCLUDE 'some_file'
-#             INCLUDE 'some_file' !; INCLUDE 'some_file'
-#
-#       To get around the above limitation, the FORTRAN programmer could
-#       simply comment each INCLUDE statement separately, like this
-#
-#           ! INCLUDE 'some_file' !; INCLUDE 'some_file'
-#
-#       The way I see it, the only way to get around this limitation would
-#       be to modify the scanning logic to replace the calls to re.findall
-#       with a custom loop that processes each line separately, throwing
-#       away fully commented out lines before attempting to match against
-#       the INCLUDE syntax.
 #
 #   Here is a breakdown of the regex:
 #
