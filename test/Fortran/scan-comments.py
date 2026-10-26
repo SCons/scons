@@ -36,12 +36,13 @@ import SCons.Scanner.Fortran
 DefaultEnvironment(tools=[])
 env = Environment(tools=[], FORTRANMODSUFFIX='.mod', FORTRANPATH=[])
 
+# Keep fixture output independent of platform newline translation.
 def build(target, source, env):
-    Path(str(target[0])).write_text(
-        Path('real.mod').read_text() + Path('real.inc').read_text())
+    Path(str(target[0])).write_bytes(
+        Path('real.mod').read_bytes() + Path('real.inc').read_bytes())
 
 def copy_include(target, source, env):
-    Path(str(target[0])).write_text(Path('real!file.inc').read_text())
+    Path(str(target[0])).write_bytes(Path('real!file.inc').read_bytes())
 
 env.Command('result', 'main.f90', build,
             source_scanner=SCons.Scanner.Fortran.FortranScan())
