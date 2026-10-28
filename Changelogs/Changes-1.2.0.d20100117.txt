@@ -1,0 +1,126 @@
+RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800
+
+  From Jim Randall:
+    - Fixed temp filename race condition on Windows with long cmd lines.
+
+  From David Cournapeau:
+    - Fixed tryRun when sconf directory is in a variant dir.
+    - Do not add -fPIC for ifort tool on non-posix platforms (darwin and
+      windows).
+    - Fix bug 2294 (spurious CheckCC failures).
+    - Fix SCons bootstrap process on windows 64 (wrong wininst name)
+
+  From William Deegan:
+    - Final merge from vs_revamp branch to main
+
+    - Added definition and usage of HOST_OS, HOST_ARCH, TARGET_OS,
+      TARGET_ARCH, currently only defined/used by Visual Studio
+      Compilers. This will be rolled out to other platforms/tools
+      in the future.
+
+    - Add check for python >= 3.0.0 and exit gracefully.
+      For 1.3 python >= 1.5.2 and < 3.0.0 are supported
+
+    - Fix bug 1944 - Handle non-existent .i file in swig emitter, previously
+      it would crash with an IOError exception. Now it will try to make an
+      educated guess on the module name based on the filename.
+
+  From Lukas Erlinghagen:
+
+    - Have AddOption() remove variables from the list of
+      seen-but-unknown variables (which are reported later).
+
+    - An option name and aliases can now be specified as a tuple.
+
+  From Hartmut Goebel:
+
+    - Textfile builder.
+
+  From Jared Grubb:
+
+    - use "is/is not" in comparisons with None instead of "==" or "!=".
+
+  From Jim Hunziker:
+
+    - Avoid adding -gphobos to a command line multiple times
+      when initializing use of the DMD compiler.
+
+  From Jason Kenney:
+
+    - Sugguested HOST/TARGET OS/ARCH separation.
+
+  From Steven Knight:
+
+    - Fix the -n option when used with VariantDir(duplicate=1)
+      and the variant directory doesn't already exist.
+
+    - Fix scanning of Unicode files for both UTF-16 endian flavors.
+
+    - Fix a TypeError on #include of file names with Unicode characters.
+
+    - Fix an exception if a null command-line argument is passed in.
+
+    - Evaluate Requires() prerequisites before a Node's direct children
+      (sources and dependencies).
+
+  From Greg Noel:
+
+    - Remove redundant __metaclass__ initializations in Environment.py.
+
+    - Correct the documentation of text returned by sconf.Result().
+
+    - Document that filenames with '.' as the first character are
+      ignored by Glob() by default (matching UNIX glob semantics).
+
+    - Fix SWIG testing infrastructure to work on Mac OS X.
+
+    - Restructure a test that occasionally hung so that the test would
+      detect when it was stuck and fail instead.
+
+    - Substfile builder.
+
+  From Gary Oberbrunner:
+
+    - When reporting a target that SCons doesn't know how to make,
+      specify whether it's a File, Dir, etc.
+
+  From Ben Webb:
+
+    - Fix use of $SWIGOUTDIR when generating Python wrappers.
+
+    - Add $SWIGDIRECTORSUFFIX and $SWIGVERSION construction variables.
+
+  From Rob Managan:
+
+    - Add -recorder flag to Latex commands and updated internals to
+      use the output to find files TeX creates. This allows the MiKTeX
+      installations to find the created files
+
+    - Notify user of Latex errors that would get buried in the
+      Latex output
+
+    - Remove LATEXSUFFIXES from environments that don't initialize Tex.
+
+    - Add support for the glossaries package for glossaries and acronyms
+
+    - Fix problem that pdftex, latex, and pdflatex tools by themselves did
+      not create the actions for bibtex, makeindex,... by creating them
+      and other environment settings in one routine called by all four
+      tex tools.
+
+    - Fix problem with filenames of sideeffects when the user changes
+      the name of the output file from the latex default
+
+    - Add scanning of files included in Latex by means of \lstinputlisting{}
+      Patch from Stefan Hepp.
+
+    - Change command line for epstopdf to use --outfile= instead of -o
+      since this works on all platforms.
+      Patch from Stefan Hepp.
+
+    - Change scanner to properly search for included file from the
+      directory of the main file instead of the file it is included from.
+      Also update the emitter to add the .aux file associated with
+      \include{filename} commands. This makes sure the required directories
+      if any are created for variantdir cases.
+      Half of the patch from Stefan Hepp.

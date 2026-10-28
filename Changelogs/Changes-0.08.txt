@@ -1,0 +1,147 @@
+RELEASE 0.08 - Mon, 15 Jul 2002 12:08:51 -0500
+
+  From Charles Crain:
+
+  - Fixed a bug with relative CPPPATH dirs when using BuildDir().
+    (Bug reported by Bob Summerwill.)
+
+  - Added a warnings framework and a --warn option to enable or
+    disable warnings.
+
+  - Make the C scanner warn users if files referenced by #include
+    directives cannot be found and --warn=dependency is specified.
+
+  - The BUILDERS construction variable should now be a dictionary
+    that maps builder names to actions.  Existing uses of lists,
+    and the Builder name= keyword argument, generate warnings
+    about use of deprecated features.
+
+  - Removed the "shared" keyword argument from the Object and
+    Library builders.
+
+  - Added separated StaticObject, SharedObject, StaticLibrary and
+    SharedLibrary builders.  Made Object and Library synonyms for
+    StaticObject and StaticLibrary, respectively.
+
+  - Add LIBS and LIBPATH dependencies for shared libraries.
+
+  - Removed support for the prefix, suffix and src_suffix arguments
+    to Builder() to be callable functions.
+
+  - Fix handling file names with multiple dots.
+
+  - Allow a build directory to be outside of the SConstruct tree.
+
+  - Add a FindFile() function that searches for a file node with a
+    specified name.
+
+  - Add $CPPFLAGS to the shared-object command lines for g++ and gcc.
+
+  From Charles Crain and Steven Knight:
+
+  - Add a "tools=" keyword argument to Environment instantiation,
+    and a separate Tools() method, for more flexible specification
+    of tool-specific environment changes.
+
+  From Steven Knight:
+
+  - Add a "platform=" keyword argument to Environment instantiation,
+    and a separate Platform() method, for more flexible specification
+    of platform-specific environment changes.
+
+  - Updated README instructions and setup.py code to catch an
+    installation failure from not having distutils installed.
+
+  - Add descriptions to the -H help text for -D, -u and -U so
+    people can tell them apart.
+
+  - Remove the old feature of automatically splitting strings
+    of file names on white space.
+
+  - Add a dependency Scanner for native Fortran "include" statements,
+    using a new "F77PATH" construction variable.
+
+  - Fix C #include scanning to detect file names with characters like
+    '-' in them.
+
+  - Add more specific version / build output to the -v option.
+
+  - Add support for the GNU as, Microsoft masm, and nasm assemblers.
+
+  - Allow the "target" argument to a Builder call to be omitted, in
+    which case the target(s) are deduced from the source file(s) and the
+    Builder's specified suffix.
+
+  - Add a tar archive builder.
+
+  - Add preliminary support for the OS/2 Platform, including the icc
+    and ilink Tools.
+
+  From Jeff Petkau:
+
+  - Fix --implicit-cache if the scanner returns an empty list.
+
+  From Anthony Roach:
+
+  - Add a "multi" keyword argument to Builder creation that specifies
+    it's okay to call the builder multiple times for a target.
+
+  - Set a "multi" on Aliases so multiple calls will append to an Alias.
+
+  - Fix emitter functions' use of path names when using BuildDir or
+    in subdirectories.
+
+  - Fix --implicit-cache causing redundant rebuilds when the header
+    file list changed.
+
+  - Fix --implicit-cache when a file has no implicit dependencies and
+    its source is generated.
+
+  - Make the drive letters on Windows always be the same case, so that
+    changes in the case of drive letters don't cause a rebuild.
+
+  - Fall back to importing the SCons.TimeStamp module if the SCons.MD5
+    module can't be imported.
+
+  - Fix interrupt handling to guarantee that a single interrupt will
+    halt SCons both when using -j and not.
+
+  - Fix .sconsign signature storage so that output files of one build
+    can be safely used as input files to another build.
+
+  - Added a --debug=time option to print SCons execution times.
+
+  - Print an error message if a file can't be unlinked before being
+    built, rather than just silently terminating the build.
+
+  - Add a SideEffect() method that can be used to tell the build
+    engine that a given file is created as a side effect of building
+    a target.  A file can be specified as a side effect of more than
+    one build comand, in which case the commands will not be executed
+    simultaneously.
+
+  - Significant performance gains from not using our own version of
+    the inefficient stock os.path.splitext() method, caching source
+    suffix computation, code cleanup in MultiStepBuilder.__call__(),
+    and replicating some logic in scons_subst().
+
+  - Add --implicit-deps-changed and --implicit-deps-unchanged options.
+
+  - Add a GetLaunchDir() function.
+
+  - Add a SetBuildSignatureType() function.
+
+  From Zed Shaw:
+
+  - Add an Append() method to Environments, to append values to
+    construction variables.
+
+  - Change the name of Update() to Replace().  Keep Update() as a
+    deprecated synonym, at least for now.
+
+  From Terrel Shumway:
+
+  - Use a $PYTHON construction variable, initialized to sys.executable,
+    when using Python to build parts of the SCons packages.
+
+  - Use sys.prefix, not sys.exec_prefix, to find pdb.py.

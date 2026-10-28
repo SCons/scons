@@ -1,0 +1,147 @@
+RELEASE 0.07 - Thu,  2 May 2002 13:37:16 -0500
+
+  From Chad Austin:
+
+  - Changes to build SCons packages on IRIX (and other *NIces).
+
+  - Don't create a directory Node when a file already exists there,
+    and vice versa.
+
+  - Add 'dirs' and 'names' keyword arguments to SConscript for
+    easier specification of subsidiary SConscript files.
+
+  From Charles Crain:
+
+  - Internal cleanup of environment passing to function Actions.
+
+  - Builders can now take arbitrary keyword arguments to create
+    attributes to be passed to: command generator functions,
+    FunctionAction functions, Builder emitter functions (below),
+    and prefix/suffix generator functions (below).
+
+  - Command generator functions can now return ANYTHING that can be
+    converted into an Action (a function, a string, a CommandGenerator
+    instance, even an ActionBase instance).
+
+  - Actions now call get_contents() with the actual target and source
+    nodes used for the build.
+
+  - A new DictCmdGenerator class replaces CompositeBuilder to support
+    more flexible Builder behavior internally.
+
+  - Builders can now take an emitter= keyword argument.  An emitter
+    is a function that takes target, source, and env argument, then
+    return a 2-tuple of (new sources, new targets).  The emitter is
+    called when the Builder is __call__'ed, allowing a user to modify
+    source and target lists.
+
+  - The prefix, suffix and src_suffix Builder arguments now take a
+    callable as well a string.  The callable is passed the Environment
+    and any extra Builder keyword arguments and is expected to return
+    the appropriate prefix or suffix.
+
+  - CommandActions can now be a string, a list of command + argument
+    strings, or a list of commands (strings or lists).
+
+  - Added shared library support.  The Object and Library Builders now
+    take a "shared=1" keyword argument to specify that a shared object
+    or shared library should be built.  It is an error to try to build
+    static objects into a shared library or vice versa.
+
+  - Win32 support for .def files has been added.  Added the Win32-specific
+    construction variables $WIN32DEFPREFIX, $WIN32DEFSUFFIX,
+    $WIN32DLLPREFIX and $WIN32IMPLIBPREFIX.  When building a .dll,
+    the new construction variable $WIN32_INSERT_DEF, controls whether
+    the appropriately-named .def file is inserted into the target
+    list (if not already present).  A .lib file is always added to
+    a Library build if not present in the list of targets.
+
+  - ListBuilder now passes all targets to the action, not just the first.
+
+  - Fix so that -c now deletes generated yacc .h files.
+
+  - Builder actions and emitter functions can now be initialized, through
+    construction variables, to things other than strings.
+
+  - Make top-relative '#/dir' lookups work like '#dir'.
+
+  - Fix for relative CPPPATH directories in subsidiary SConscript files
+    (broken in 0.06).
+
+  - Add a for_signature argument to command generators, so that
+    generators that need to can return distinct values for the
+    command signature and for executing the command.
+
+  From Alex Jacques:
+
+  - Create a better scons.bat file from a py2bat.py script on the Python
+    mailing list two years ago (modeled after pl2bat.pl).
+
+  From Steven Knight:
+
+  - Fix so that -c -n does *not* remove the targets!
+
+  - Man page:  Add a hierarchical libraries + Program example.
+
+  - Support long MSVC linker command lines through a builder action
+    that writes to a temporary file and uses the magic MSVC "link @file"
+    argument syntax if the line is longer than 2K characters.
+
+  - Fix F77 command-line options on Win32 (use /Fo instead of -o).
+
+  - Use the same action to build from .c (lower case) and .C (upper
+    case) files on case-insensitive systems like Win32.
+
+  - Support building a PDF file directly from a TeX or LaTeX file
+    using pdftex or pdflatex.
+
+  - Add a -x option to runtest.py to specify the script being tested.
+    A -X option indicates it's an executable, not a script to feed
+    to the Python interpreter.
+
+  - Add a Split() function (identical to SCons.Util.argmunge()) for use
+    in the next release, when Builders will no longer automatically split
+    strings on white space.
+
+  From Steve Leblanc:
+
+  - Add the SConscriptChdir() method.
+
+  From Anthony Roach:
+
+  - Fix --debug=tree when used with directory targets.
+
+  - Significant internal restructuring of Scanners and Taskmaster.
+
+  - Added new --debug=dtree option.
+
+  - Fixes for --profile option.
+
+  - Performance improvement in construction variable substitution.
+
+  - Implemented caching of content signatures, plus added --max-drift
+    option to control caching.
+
+  - Implemented caching of dependency signatures, enabled by new
+    --implicit-cache option.
+
+  - Added abspath construction variable modifier.
+
+  - Added $SOURCE variable as a synonym for $SOURCES[0].
+
+  - Write out .sconsign files on error or interrupt so intermediate
+    build results are saved.
+
+  - Change the -U option to -D.  Make a new -U that builds just the
+    targets from the local SConscript file.
+
+  - Fixed use of sys.path so Python modules can be imported from
+    the SConscript directory.
+
+  - Fix for using Aliases with the -u, -U and -D options.
+
+  - Fix so that Nodes can be passed to SConscript files.
+
+  From Moshe Zadka:
+
+  - Changes for official Debian packaging.

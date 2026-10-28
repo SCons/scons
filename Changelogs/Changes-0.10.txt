@@ -1,0 +1,78 @@
+RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
+
+  From Derrick 'dman' Hudson:
+
+  - Support Repositories on other file systems by symlinking or
+    copying files when hard linking won't work.
+
+  From Steven Knight:
+
+  - Remove Python bytecode (*.pyc) files from the scons-local packages.
+
+  - Have FunctionActions print a description of what they're doing
+    (a representation of the Python call).
+
+  - Fix the Install() method so that, like other actions, it prints
+    what would have happened when the -n option is used.
+
+  - Don't create duplicate source files in a BuildDir when the -n
+    option is used.
+
+  - Refactor the Scanner interface to eliminate unnecessary Scanner
+    calls and make it easier to write efficient scanners.
+
+  - Added a "recursive" flag to Scanner creation that specifies the
+    Scanner should be invoked recursively on dependency files returned
+    by the scanner.
+
+  - Significant performance improvement from using a more efficient
+    check, throughout the code, for whether a Node has a Builder.
+
+  - Fix specifying only the source file to MultiStepBuilders such as
+    the Program Builder.  (Bug reported by Dean Bair.)
+
+  - Fix an exception when building from a file with the same basename as
+    the subdirectory in which it lives.  (Bug reported by Gerard Patel.)
+
+  - Fix automatic deduction of a target file name when there are
+    multiple source files specified; the target is now deduced from just
+    the first source file in the list.
+
+  - Documentation fixes: better initial explanation of SConscript files;
+    fix a misformatted "table" in the StaticObject explanation.
+
+  From Steven Knight and Steve Leblanc:
+
+  - Fix the -c option so it will remove symlinks.
+
+  From Steve Leblanc:
+
+  - Add a Clean() method to support removing user-specified targets
+    when using the -c option.
+
+  - Add a development script for running SCons through PyChecker.
+
+  - Clean up things found by PyChecker (mostly unnecessary imports).
+
+  - Add a script to use HappyDoc to create HTML class documentation.
+
+  From Lachlan O'Dea:
+
+  - Make the Environment.get() method return None by default.
+
+  From Anthony Roach:
+
+  - Add SetJobs() and GetJobs() methods to allow configuration of the
+    number of default jobs (still overridden by -j).
+
+  - Convert the .sconsign file format from ASCII to a pickled Python
+    data structure.
+
+  - Error message cleanups:  Made consistent the format of error
+    messages (now all start with "scons: ***") and warning messages (now
+    all start with "scons: warning:").  Caught more cases with the "Do
+    not know how to build" error message.
+
+  - Added support for the MinGW tool chain.
+
+  - Added a --debug=includes option.

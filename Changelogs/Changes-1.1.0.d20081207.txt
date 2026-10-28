@@ -1,0 +1,121 @@
+RELEASE 1.1.0.d20081207 - Sun, 07 Dec 2008 19:17:23 -0800
+
+  From Benoit Belley:
+
+    - Improve the robustness of GetBuildFailures() by refactoring
+      SCons exception handling (especially BuildError exceptions).
+
+    - Have the --taskmastertrace= option print information about
+      individual Task methods, not just the Taskmaster control flow.
+
+    - Eliminate some spurious dependency cycles by being more aggressive
+      about pruning pending children from the Taskmaster walk.
+
+    - Suppress mistaken reports of a dependency cycle when a child
+      left on the pending list is a single Node in EXECUTED state.
+
+  From David Cournapeau:
+
+    - Fix $FORTRANMODDIRPREFIX for the ifort (Intel Fortran) tool.
+
+  From Brad Fitzpatrick:
+
+    - Don't pre-generate an exception message (which will likely be
+      ignored anyway) when an EntryProxy re-raises an AttributeError.
+
+  From Jared Grubb:
+
+    - Clean up coding style and white space in Node/FS.py.
+
+    - Fix a typo in the documentation for $_CPPDEFFLAGS.
+
+    - Issue 2401: Fix usage of comparisons with None.
+
+  From Ludwig Hï¿½hne:
+
+    - Handle Java inner classes declared within a method.
+
+  From Steven Knight:
+
+    - Fix label placement by the "scons-time.py func" subcommand
+      when a profile value was close to (or equal to) 0.0.
+
+    - Fix env.Append() and env.Prepend()'s ability to add a string to
+      list-like variables like $CCFLAGS under Python 2.6.
+
+    - Other Python2.6 portability:  don't use "as" (a Python 2.6 keyword).
+      Don't use the deprecated Exception.message attribute.
+
+    - Support using the -f option to search for a different top-level
+      file name when walking up with the -D, -U or -u options.
+
+    - Fix use of VariantDir when the -n option is used and doesn't,
+      therefore, actually create the variant directory.
+
+    - Fix a stack trace from the --debug=includes option when passed a
+      static or shared library as an argument.
+
+    - Speed up the internal find_file() function (used for searching
+      CPPPATH, LIBPATH, etc.).
+
+    - Add support for using the Python "in" keyword on construction
+      environments (for example, if "CPPPATH" in env: ...).
+
+    - Fix use of Glob() when a repository or source directory contains
+      an in-memory Node without a corresponding on-disk file or directory.
+
+    - Add a warning about future reservation of $CHANGED_SOURCES,
+      $CHANGED_TARGETS, $UNCHANGED_SOURCES and $UNCHANGED_TARGETS.
+
+    - Enable by default the existing warnings about setting the resource
+      $SOURCE, $SOURCES, $TARGET and $TARGETS variable.
+
+  From Rob Managan:
+
+    - Scan for TeX files in the paths specified in the $TEXINPUTS
+      construction variable and the $TEXINPUTS environment variable.
+
+    - Configure the PDF() and PostScript() Builders as single_source so
+      they know each source file generates a separate target file.
+
+    - Add $EPSTOPDF, $EPSTOPDFFLAGS and $EPSTOPDFCOM
+
+    - Add .tex as a valid extension for the PDF() builder.
+
+    - Add regular expressions to find \input, \include and
+      \includegraphics.
+
+    - Support generating a .pdf file from a .eps source.
+
+    - Recursive scan included input TeX files.
+
+    - Handle requiring searched-for TeX input graphics files to have
+      extensions (to avoid trying to build a .eps from itself, e.g.).
+
+  From Greg Noel:
+
+    - Make the Action() function handle positional parameters consistently.
+
+    - Clarify use of Configure.CheckType().
+
+    - Make the File.{Dir,Entry,File}() methods create their entries
+      relative to the calling File's directory, not the SConscript
+      directory.
+
+    - Use the Python os.devnull variable to discard error output when
+      looking for the $CC or $CXX version.
+
+    - Mention LoadableModule() in the SharedLibrary() documentation.
+
+  From Gary Oberbrunner:
+
+    - Update the User's Guide to clarify use of the site_scons/
+      directory and the site_init.py module.
+
+    - Make env.AppendUnique() and env.PrependUnique remove duplicates
+      within a passed-in list being added, too.
+
+  From Randall Spangler:
+
+    - Fix Glob() so an on-disk file or directory beginning with '#'
+      doesn't throw an exception.
