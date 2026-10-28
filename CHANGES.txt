@@ -13,6 +13,9 @@ NOTE: The last release to support Python 3.7 or Python 3.8 is 4.11.1
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From boulea7:
+    - Ignore semicolon-separated USE and INCLUDE statements in Fortran !
+      comments and character literals (issue #4454). Ambiguous column-six !
+      continuation markers remain unchanged.
     - Fix Windows UNC path lookup with either separator style, including
       FindFile() lookups and UNC working directories. Relative paths across Windows
       drives or UNC shares now fall back to the absolute target path.
