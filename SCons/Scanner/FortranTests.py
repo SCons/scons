@@ -642,6 +642,42 @@ USE COMMENT_LOCAL; USE comment_real; USE comment_second !; USE comment_phantom
                                 + '; USE comment_real !; USE comment_phantom\n')
                     deps_match(self, self.scan(contents, '.f'), ['comment_real.mod'])
 
+    def test_string_literals_are_not_statements(self) -> None:
+        cases = [
+            "PRINT *, 'x; USE comment_phantom'\n",
+            'PRINT *, "x; USE comment_phantom"\n',
+            "PRINT *, 'it''s; USE comment_phantom'\n",
+            'x = "a\\"b"; USE comment_phantom\n',
+            "PRINT *, 'x; USE comment_phantom' ! USE comment_phantom\n",
+            "PRINT *, 'a&\n  &; USE comment_phantom'\n",
+        ]
+        for contents in cases:
+            with self.subTest(contents=contents):
+                deps_match(self, self.scan(contents), [])
+
+    def test_real_use_after_string_literal(self) -> None:
+        cases = [
+            ("PRINT *, 'x; USE comment_phantom'; USE comment_real\n",
+             ['comment_real.mod']),
+            ("PRINT *, 'x!'; USE comment_real\n", ['comment_real.mod']),
+            ("PRINT *, 'a&\n  &; USE comment_phantom'\nUSE comment_real\n",
+             ['comment_real.mod']),
+        ]
+        for contents, expected in cases:
+            with self.subTest(contents=contents):
+                deps_match(self, self.scan(contents), expected)
+
+    def test_fixed_form_string_literals(self) -> None:
+        cases = [
+            "      PRINT *, 'x\n     &; USE comment_phantom'\n",
+            "      PRINT *, 'a\nC ; USE comment_phantom\n"
+            "     &b'; USE comment_real\n",
+        ]
+        expected = [[], ['comment_real.mod']]
+        for contents, deps in zip(cases, expected):
+            with self.subTest(contents=contents):
+                deps_match(self, self.scan(contents, '.f'), deps)
+
     def test_cached_dependencies(self) -> None:
         test.write('comment_cached.f90',
                    "USE comment_real !; USE comment_phantom\n")

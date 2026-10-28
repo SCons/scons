@@ -48,8 +48,8 @@ FIXES
 -----
 
 - Ignore semicolon-separated USE and INCLUDE statements in Fortran !
-  comments (issue #4454). Ambiguous column-six ! continuation markers
-  remain unchanged.
+  comments and character literals (issue #4454). Ambiguous column-six !
+  continuation markers remain unchanged.
 
 - Fix Windows UNC path lookup with either separator style and use absolute
   paths when a relative path crosses Windows drives or UNC shares.

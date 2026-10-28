@@ -71,11 +71,15 @@ class F90Scanner(Classic):
         # bypasses the parent Classic initializer
         Current.__init__(self, *args, **kwargs)
 
-    def _strip_comments(self, contents):
+    def _strip_comments(self, contents, mask_strings=False):
         """Remove ! comments without changing character literals or include paths.
 
         The scanner does not know the source form. Leave ! in column 6 alone,
         since it can be a fixed-form continuation marker.
+
+        If mask_strings is true, the characters inside character literals are
+        replaced with 'x', so text inside a literal cannot look like a
+        statement. The quote delimiters are kept.
         """
         lines = []
         quote = None
@@ -88,7 +92,8 @@ class F90Scanner(Classic):
                 lines.append(newline)
                 continue
             if quote and not continued and line[:1] in ('c', 'C', '*'):
-                lines.append(line)
+                # A fixed-form comment line inside a continued literal.
+                lines.append(newline)
                 continue
 
             fixed_continuation = (
@@ -106,6 +111,9 @@ class F90Scanner(Classic):
                     match.span(1) for match in self.cre_incl.finditer(line)
                     if line[match.start(1) - 1] == '<'
                 ]
+            # The text written out; string contents are masked if requested.
+            # line itself is kept unmasked for the continuation check.
+            out = list(line)
             for index, char in enumerate(line):
                 if fixed_continuation and index == 5:
                     # Quotes can be fixed-form markers, but can also start a
@@ -118,12 +126,15 @@ class F90Scanner(Classic):
                     # Doubled delimiters toggle twice, keeping the literal open.
                     if char == quote:
                         quote = None
+                    elif mask_strings and char not in '\r\n':
+                        out[index] = 'x'
                 elif char in "'\"":
                     quote = char
                 elif char == '!':
                     if any(start <= index < end for start, end in include_paths):
                         continue
                     line = line[:index] + newline
+                    out = out[:index] + list(newline)
                     break
 
             continued = line.rstrip().endswith('&')
@@ -131,7 +142,7 @@ class F90Scanner(Classic):
             # on a following continuation line.
             if not continued and line[:1] in ('c', 'C', '*'):
                 quote = None
-            lines.append(line)
+            lines.append(''.join(out))
         return ''.join(lines)
 
     def scan(self, node, env, path=()):
@@ -140,13 +151,22 @@ class F90Scanner(Classic):
         if node.includes is not None:
             mods_and_includes = node.includes
         else:
-            contents = self._strip_comments(node.get_text_contents())
+            text = node.get_text_contents()
+            # INCLUDE paths are quoted, so they need the literal contents.
+            contents = self._strip_comments(text)
+            # USE and MODULE must be statements, so text inside a literal
+            # must not match them. Without quotes there are no literals to
+            # mask, so the second pass can be skipped.
+            if "'" in contents or '"' in contents:
+                code = self._strip_comments(text, mask_strings=True)
+            else:
+                code = contents
             # retrieve all included filenames
             includes = self.cre_incl.findall(contents)
             # retrieve all USE'd module names
-            modules = self.cre_use.findall(contents)
+            modules = self.cre_use.findall(code)
             # retrieve all defined module names
-            defmodules = self.cre_def.findall(contents)
+            defmodules = self.cre_def.findall(code)
 
             # Remove all USE'd module names that are defined in the same file
             # (case-insensitively)
