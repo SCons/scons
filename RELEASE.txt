@@ -59,6 +59,7 @@ FIXES
   LATEXSUFFIXES errors in other environments.
 
 - Fix ninja to honor AlwaysBuild on a target
+- Fix multiple extension stripping for BibTeX and Biber processing
 
 - ParseDepends() keeps Windows drive-letter paths in make-style depfiles
   instead of splitting at the first colon.
