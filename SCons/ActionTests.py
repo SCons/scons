@@ -1165,11 +1165,17 @@ class CommandActionTestCase(unittest.TestCase):
         env5['ENV']['XYZZY'] = 'xyzzy'
         r = act(target=DummyNode('out5'), source=[], env=env5)
 
+        ENV = {'XYZZY': 'xyzzy5', 'PATH': PATH}
+        if sys.platform == 'win32':
+            # Obscure: on Windows, we fail to initialize Python if SystemRoot
+            # missing (from current support list: versions 3.7-3.10).
+            # The direct assignment to ENV in the Clone call means we don't
+            # retain any of ENV from the cloned environment.
+            ENV['SystemRoot'] = os.environ.get('SystemRoot', "C:\\WINDOWS")
         act = SCons.Action.CommandAction(cmd5)
         r = act(target=DummyNode('out5'),
                 source=[],
-                env=env.Clone(ENV={'XYZZY': 'xyzzy5',
-                                   'PATH': PATH}))
+                env=env.Clone(ENV=ENV))
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'out5' 'XYZZY'\nact.py: 'xyzzy5'\n", c
