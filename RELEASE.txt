@@ -18,6 +18,9 @@ NEW FUNCTIONALITY
 
 - List new features (presumably why a checkpoint is being released)
 
+- Add support for Microsoft Visual C++ Insiders (preview) compilers.
+  Set MSVC_PREVIEW to a true value to enable.
+
 DEPRECATED FUNCTIONALITY
 ------------------------
 

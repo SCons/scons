@@ -132,6 +132,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       but users should use glossaries instead.
       recognizes the replacement glossaries
     - Workaround issue where D compiler ldc2 can't find linker.
+    - Add support for Microsoft Visual C++ Insiders (preview) compilers.
+      Set MSVC_PREVIEW to a true value to enable.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
