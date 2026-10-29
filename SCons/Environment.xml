@@ -2219,7 +2219,7 @@ The optional
 argument may be set to a pattern or a list of patterns
 describing files or directories
 to filter out of the match list.
-Elements matching a least one specified pattern will be excluded.
+Elements matching at least one specified pattern will be excluded.
 These patterns use the same syntax as for
 <parameter>pattern</parameter>.
 </para>

@@ -2287,7 +2287,7 @@ class Dir(Base):
         Args:
           pattern: pathname pattern to match.
           ondisk: if false, restricts matches to in-memory Nodes.
-            By defafult, matches entries that exist on-disk in addition
+            By default, matches entries that exist on-disk in addition
             to in-memory Nodes.
           source: if true, corresponding source Nodes are returned if
             globbing in a variant directory.  The default behavior
