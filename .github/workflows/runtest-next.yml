@@ -42,8 +42,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -y install libtirpc-dev
-          sudo apt-get -y install docbook-xml docbook-xsl xsltproc docbook-xsl-doc-pdf ghostscript gdc gettext fop
-          sudo apt-get -y --no-install-recommends install texlive biber texmaker texlive-latex-base texlive-latex-extra texlive-bibtex-extra texlive-plain-generic texlive-font-utils texlive-fonts-recommended latexmk cm-super
+          sudo apt-get -y install docbook-xml docbook-xsl xsltproc docbook-xsl-doc-pdf docbook-slides docbook2x ghostscript gdc gettext fop
+          sudo apt-get -y --no-install-recommends install texlive biber texmaker texlive-latex-base texlive-latex-extra texlive-bibtex-extra texlive-plain-generic texlive-font-utils texlive-fonts-recommended latexmk cm-super lmodern
 
       - name: Setup excluded tests
         run: |
