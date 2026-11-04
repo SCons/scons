@@ -100,6 +100,9 @@ FIXES
 
 - Workaround issue where D compiler ldc2 can't find linker.
 
+- Fix compile_commands.json having incorrect include paths for clean builds when a
+  variant dir is used, duplicate=0, and a relative CPPPATH is used in a child SConscript.
+
 IMPROVEMENTS
 ------------
 
