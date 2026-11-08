@@ -154,10 +154,12 @@ for more information.
 <cvar name="CHANGED_SOURCES">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file names of all sources of the current build command
+that have changed since the target was last built.
+This is a read-only list computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -165,10 +167,12 @@ for more information).
 <cvar name="CHANGED_TARGETS">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file names of all targets that would be built
+from sources that have changed since the target was last built.
+This is a read-only list computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -176,10 +180,13 @@ for more information).
 <cvar name="SOURCE">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file name of the source of the current build command,
+or the file name of the first source
+if multiple sources are being built.
+This is a read-only string computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -187,10 +194,11 @@ for more information).
 <cvar name="SOURCES">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file names of all sources of the current build command.
+This is a read-only list computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -198,10 +206,13 @@ for more information).
 <cvar name="TARGET">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file name of the target being built,
+or the file name of the first target
+if multiple targets are being built.
+This is a read-only string computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -209,10 +220,11 @@ for more information).
 <cvar name="TARGETS">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file names of all targets being built.
+This is a read-only list computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -220,10 +232,14 @@ for more information).
 <cvar name="UNCHANGED_SOURCES">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file names of all sources of the current build command
+that have
+<emphasis>not</emphasis>
+changed since the target was last built.
+This is a read-only list computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -231,10 +247,14 @@ for more information).
 <cvar name="UNCHANGED_TARGETS">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file names of all targets that would be built
+from sources that have
+<emphasis>not</emphasis>
+changed since the target was last built.
+This is a read-only list computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>

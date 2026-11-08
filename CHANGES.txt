@@ -150,6 +150,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
         new section.
       * Improve the wording for the Help() function (also User Guide)
       * Further tweak the wording for JAVAVERSION (also User Guide)
+      * Add manpage descriptions for the six special source/target variables:
+        SOURCES, TARGETS, CHANGED_SOURCES, CHANGED_TARGETS,
+        UNCHANGED_SOURCES, UNCHANGED_TARGETS
     - User Guide improvements:
       * Removed the out-of-date table of option names for SetOption and
         GetOption and instead point to the maintained tables in Appendix D.
