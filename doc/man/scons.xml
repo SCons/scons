@@ -7570,6 +7570,13 @@ In the previous example, a string
 would expand to: <computeroutput>bar.c</computeroutput>.
 </para>
 
+<para>
+The plural variables are list-valued. The special attributes described
+in the next section can be applied to the list as a whole, or to an
+individual member selected by indexing (see
+<link linkend="special_attributes">Special Attributes</link>).
+</para>
+
 </refsect3>
 
 <refsect3 id='special_attributes'>
@@ -7582,20 +7589,41 @@ to access properties of the interpolated string.
 These are known as <firstterm>special attributes</firstterm>.
 </para>
 
+<para>
+These modifiers may also be applied to the list-valued special variables
+(<literal>TARGETS</literal>, <literal>SOURCES</literal>,
+<literal>CHANGED_TARGETS</literal>,
+<literal>CHANGED_SOURCES</literal>,
+<literal>UNCHANGED_TARGETS</literal>
+and <literal>UNCHANGED_SOURCES</literal>).
+In that case the modifier is applied to each member of the list,
+and the result is itself a list.
+To select an individual member,
+use indexing, for example <literal>${TARGETS[0].abspath}</literal>.
+</para>
+
 <simplelist>
   <member><parameter>base</parameter> -
     The base path of the file name,
     including the directory path
     but excluding any suffix.
   </member>
-  <member><parameter>dir</parameter> - The name of the directory in which the file exists.</member>
-  <member><parameter>file</parameter> -  The file name, minus any directory portion.</member>
-  <member><parameter>filebase</parameter> - Like <parameter>file</parameter> but minus its suffix.</member>
+  <member><parameter>dir</parameter> -
+    The name of the directory in which the file exists.
+  </member>
+  <member><parameter>file</parameter> -
+    The file name, minus any directory portion.
+  </member>
+  <member><parameter>filebase</parameter> -
+    Like <parameter>file</parameter> but minus its suffix.
+  </member>
   <member><parameter>suffix</parameter> - Just the file suffix.</member>
-  <member><parameter>abspath</parameter> - The absolute path name of the file.</member>
-  <member><parameter>relpath</parameter> - The path name of the file relative
-  to the project top directory, or its absolute path when it is on a different
-  Windows drive or UNC share.</member>
+  <member><parameter>abspath</parameter> -
+    The absolute path name of the file.</member>
+  <member><parameter>relpath</parameter> -
+    The path name of the file relative to the project top directory,
+    or its absolute path when it is on a different Windows drive or UNC share.
+  </member>
   <member><parameter>posix</parameter> -
     The path with directories separated by forward slashes
     (<emphasis role="bold">/</emphasis>).
@@ -7631,8 +7659,8 @@ These are known as <firstterm>special attributes</firstterm>.
     directory and filename unchanged.
   </member>
   <member><parameter>rsrcdir</parameter> -
-    The Repository directory containing the source file linked to this file through
-    &VariantDir;().
+    The Repository directory containing the source file linked
+    to this file through &VariantDir;().
     If this file isn't linked,
     it just returns the directory part of the filename.
   </member>
@@ -7668,7 +7696,7 @@ ${SOURCE.rsrcdir}    =&gt; /usr/repository/src
 
 <para>
 Some modifiers can be combined, like
-<literal>${TARGET.srcpath.base)</literal>,
+<literal>${TARGET.srcpath.base}</literal>,
 <literal>${TARGET.file.suffix}</literal>, etc.
 </para>
 

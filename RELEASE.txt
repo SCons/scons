@@ -100,6 +100,14 @@ FIXES
 
 - Workaround issue where D compiler ldc2 can't find linker.
 
+- Allow special attributes (e.g. .abspath) to be used with all the
+  list-valued special variables. CHANGED_* and UNCHANGED_* were
+  substituted as literal strings during signature calculation, so
+  expressions like ${CHANGED_TARGETS.abspath} failed, and the executor
+  returned plain lists for those variables, so direct attribute access
+  failed even at execution time. Indexed forms such as
+  ${TARGETS[0].abspath} now work consistently. Fixes #2554.
+
 IMPROVEMENTS
 ------------
 
