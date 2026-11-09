@@ -669,6 +669,118 @@ public class AnonDemo {
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.8')
         assert expect == classes, (expect, classes)
 
+    def test_native_classes(self) -> None:
+        """Test detection of classes declaring native methods."""
+        input = """\
+package pkg;
+
+public class Outer {
+    // native methods in Parser must not count.
+    String s = "public native void fake();";
+    /* public native void fakeToo(); */
+
+    static class Inner {
+        public native int value();
+    }
+}
+
+class Helper {
+    public native void help();
+}
+
+class NoNatives {
+    public void nothing() {}
+}
+"""
+        natives = SCons.Tool.JavaCommon.parse_java_native_classes(input)
+        assert natives == {'Outer$Inner', 'Helper'}, natives
+
+    def test_native_classes_none(self) -> None:
+        """Test that classes without native methods are not reported."""
+        input = """\
+public class Quiet {
+    public void nothing() {}
+}
+"""
+        natives = SCons.Tool.JavaCommon.parse_java_native_classes(input)
+        assert natives == set(), natives
+
+    def test_native_classes_enum_constant_body(self) -> None:
+        """Test that a native method in an enum constant body is not
+        reported as belonging to the enum.
+
+        The method really belongs to the synthetic class javac generates
+        for the enum constant, not to the enum itself.
+        """
+        input = """\
+public enum Color {
+    RED {
+        public native int value();
+    };
+    public abstract int value();
+}
+"""
+        natives = SCons.Tool.JavaCommon.parse_java_native_classes(input)
+        assert natives == set(), natives
+
+    def test_native_classes_enum_body(self) -> None:
+        """Test that a native method declared in an enum body is
+        reported as belonging to the enum."""
+        input = """\
+public enum Color {
+    RED;
+    public native int value();
+}
+"""
+        natives = SCons.Tool.JavaCommon.parse_java_native_classes(input)
+        assert natives == {'Color'}, natives
+
+    def test_native_classes_local_class(self) -> None:
+        """Test that a native method in a class declared in a method is
+        reported as belonging to that local class, not to the enclosing
+        class."""
+        input = """\
+public class Outer {
+    public void method() {
+        class Local {
+            public native void run();
+        }
+    }
+}
+"""
+        natives = SCons.Tool.JavaCommon.parse_java_native_classes(input)
+        assert natives == {'Outer$1Local'}, natives
+
+    def test_native_classes_anonymous_class(self) -> None:
+        """Test that a native method in an anonymous class is not
+        reported as belonging to the enclosing class."""
+        input = """\
+public class Outer {
+    public void method() {
+        Runnable r = new Runnable() {
+            public native void run();
+        };
+    }
+}
+"""
+        natives = SCons.Tool.JavaCommon.parse_java_native_classes(input)
+        assert natives == set(), natives
+
+    def test_is_jni_header_class(self) -> None:
+        """Test which classes javac writes a JNI header for."""
+        check = SCons.Tool.JavaCommon.is_jni_header_class
+        # Top level and named nested classes get a header.
+        assert check('Color')
+        assert check('Outer$Inner')
+        assert check('Outer$Middle$Inner')
+        assert check('pkg.Outer$Inner')
+        # Anonymous classes, classes declared in a method and the
+        # synthetic classes behind enum constants do not.
+        assert not check('Outer$1')
+        assert not check('Outer$1Local')
+        assert not check('Outer$1Local$Inner')
+        assert not check('Outer$1$Inner')
+
     def test_jdk_globs(self) -> None:
         """
         Verify that the java path globs work with specific examples.

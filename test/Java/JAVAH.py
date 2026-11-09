@@ -43,7 +43,8 @@ if java_version:
 if test.javac_is_gcj:
     test.skip_test('Test not valid for gcj (gnu java); skipping test(s).\n')
 
-# TODO rework for 'javac -h', for now skip
+# TODO: this test needs a real javah, so it is skipped on JDK 10+.
+# The 'javac -h' backend is covered by JAVAH-javac.py.
 # The logical test would be:  if java_version > 9:
 # but java_where_javah() roots around and will find from an older version
 if not test.Environment().WhereIs('javah'):
