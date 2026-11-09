@@ -334,12 +334,14 @@ def subst_dict(target, source):
         substitutions['TARGETS'] = Targets_or_Sources(tnl)
         substitutions['TARGET'] = Target_or_Source(tnl)
 
-        # This is a total cheat, but hopefully this dictionary goes
-        # away soon anyway.  We just let these expand to $TARGETS
-        # because that's "good enough" for the use of ToolSurrogates
-        # (see test/ToolSurrogate.py) to generate documentation.
-        substitutions['CHANGED_TARGETS'] = '$TARGETS'
-        substitutions['UNCHANGED_TARGETS'] = '$TARGETS'
+        # There is no executor here, so we can't distinguish changed
+        # from unchanged.  Alias to the full list, which is "good
+        # enough" for the use of ToolSurrogates (see
+        # test/ToolSurrogate.py) to generate documentation, and also
+        # lets special attributes and indexing work during signature
+        # calculation.
+        substitutions['CHANGED_TARGETS'] = substitutions['TARGETS']
+        substitutions['UNCHANGED_TARGETS'] = substitutions['TARGETS']
     else:
         substitutions['TARGETS'] = NullNodesList
         substitutions['TARGET'] = NullNodesList
@@ -362,12 +364,14 @@ def subst_dict(target, source):
         substitutions['SOURCES'] = Targets_or_Sources(snl)
         substitutions['SOURCE'] = Target_or_Source(snl)
 
-        # This is a total cheat, but hopefully this dictionary goes
-        # away soon anyway.  We just let these expand to $TARGETS
-        # because that's "good enough" for the use of ToolSurrogates
-        # (see test/ToolSurrogate.py) to generate documentation.
-        substitutions['CHANGED_SOURCES'] = '$SOURCES'
-        substitutions['UNCHANGED_SOURCES'] = '$SOURCES'
+        # There is no executor here, so we can't distinguish changed
+        # from unchanged.  Alias to the full list, which is "good
+        # enough" for the use of ToolSurrogates (see
+        # test/ToolSurrogate.py) to generate documentation, and also
+        # lets special attributes and indexing work during signature
+        # calculation.
+        substitutions['CHANGED_SOURCES'] = substitutions['SOURCES']
+        substitutions['UNCHANGED_SOURCES'] = substitutions['SOURCES']
     else:
         substitutions['SOURCES'] = NullNodesList
         substitutions['SOURCE'] = NullNodesList

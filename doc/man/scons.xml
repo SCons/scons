@@ -6950,8 +6950,8 @@ and configured with the same &consenv;
 into single invocations of the Action object's
 command line or function.
 Command lines will typically want to use the
-&cv-CHANGED_SOURCES; &consvar;
-(and possibly &cv-CHANGED_TARGETS; as well)
+&cv-link-CHANGED_SOURCES; &consvar;
+(and possibly &cv-link-CHANGED_TARGETS; as well)
 to only pass to the command line those sources that
 have actually changed since their targets were built.
 Example:</para>
@@ -7570,16 +7570,35 @@ In the previous example, a string
 would expand to: <computeroutput>bar.c</computeroutput>.
 </para>
 
+<para>
+The plural variables are list-valued; individual members can be selected
+by indexing, as in the example above. See
+<link linkend="special_attributes">Special Attributes</link>
+for the modifiers which can be applied to the file-related special
+variables.
+</para>
+
 </refsect3>
 
 <refsect3 id='special_attributes'>
 <title>Substitution: Special Attributes
 </title>
-<para>A variable name may
-have the following
-modifiers appended within the enclosing curly braces
-to access properties of the interpolated string.
-These are known as <firstterm>special attributes</firstterm>.
+<para>
+The special variables which refer to files
+(<literal>TARGET</literal>, <literal>SOURCE</literal>,
+<literal>TARGETS</literal>, <literal>SOURCES</literal>,
+<literal>CHANGED_TARGETS</literal>, <literal>CHANGED_SOURCES</literal>,
+<literal>UNCHANGED_TARGETS</literal> and <literal>UNCHANGED_SOURCES</literal>)
+have the following modifiers available.
+They are appended to the variable name to access properties of the file
+or files, and are known as <firstterm>special attributes</firstterm>.
+For the singular variables (<literal>TARGET</literal> and
+<literal>SOURCE</literal>), an attribute yields a single value.
+For the plural variables, the attribute is applied to each member of the
+list, and the result is itself a list.
+To select an individual member, use indexing, for example
+<literal>${TARGETS[0].abspath}</literal>
+(braces are required here because of the indexing syntax).
 </para>
 
 <simplelist>
@@ -7588,14 +7607,22 @@ These are known as <firstterm>special attributes</firstterm>.
     including the directory path
     but excluding any suffix.
   </member>
-  <member><parameter>dir</parameter> - The name of the directory in which the file exists.</member>
-  <member><parameter>file</parameter> -  The file name, minus any directory portion.</member>
-  <member><parameter>filebase</parameter> - Like <parameter>file</parameter> but minus its suffix.</member>
+  <member><parameter>dir</parameter> -
+    The name of the directory in which the file exists.
+  </member>
+  <member><parameter>file</parameter> -
+    The file name, minus any directory portion.
+  </member>
+  <member><parameter>filebase</parameter> -
+    Like <parameter>file</parameter> but minus its suffix.
+  </member>
   <member><parameter>suffix</parameter> - Just the file suffix.</member>
-  <member><parameter>abspath</parameter> - The absolute path name of the file.</member>
-  <member><parameter>relpath</parameter> - The path name of the file relative
-  to the project top directory, or its absolute path when it is on a different
-  Windows drive or UNC share.</member>
+  <member><parameter>abspath</parameter> -
+    The absolute path name of the file.</member>
+  <member><parameter>relpath</parameter> -
+    The path name of the file relative to the project top directory,
+    or its absolute path when it is on a different Windows drive or UNC share.
+  </member>
   <member><parameter>posix</parameter> -
     The path with directories separated by forward slashes
     (<emphasis role="bold">/</emphasis>).
@@ -7631,8 +7658,8 @@ These are known as <firstterm>special attributes</firstterm>.
     directory and filename unchanged.
   </member>
   <member><parameter>rsrcdir</parameter> -
-    The Repository directory containing the source file linked to this file through
-    &VariantDir;().
+    The Repository directory containing the source file linked
+    to this file through &VariantDir;().
     If this file isn't linked,
     it just returns the directory part of the filename.
   </member>
@@ -7668,7 +7695,7 @@ ${SOURCE.rsrcdir}    =&gt; /usr/repository/src
 
 <para>
 Some modifiers can be combined, like
-<literal>${TARGET.srcpath.base)</literal>,
+<literal>${TARGET.srcpath.base}</literal>,
 <literal>${TARGET.file.suffix}</literal>, etc.
 </para>
 

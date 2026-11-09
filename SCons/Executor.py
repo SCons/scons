@@ -244,15 +244,15 @@ class Executor(metaclass=NoSlotsPyPy):
             # don't add targets marked always build to unchanged lists
             # add to changed list as they always need to build
             if not b.targets[0].always_build and b.targets[0].is_up_to_date():
-                unchanged_sources.extend(list(map(rfile, b.sources)))
-                unchanged_targets.extend(b.targets)
+                unchanged_sources.extend(rfile(n).get_subst_proxy() for n in b.sources)
+                unchanged_targets.extend(n.get_subst_proxy() for n in b.targets)
             else:
-                changed_sources.extend(list(map(rfile, b.sources)))
-                changed_targets.extend(b.targets)
-        self._memo["_get_changed_sources"] = changed_sources
-        self._memo["_get_changed_targets"] = changed_targets
-        self._memo["_get_unchanged_sources"] = unchanged_sources
-        self._memo["_get_unchanged_targets"] = unchanged_targets
+                changed_sources.extend(rfile(n).get_subst_proxy() for n in b.sources)
+                changed_targets.extend(n.get_subst_proxy() for n in b.targets)
+        self._memo["_get_changed_sources"] = SCons.Util.NodeList(changed_sources)
+        self._memo["_get_changed_targets"] = SCons.Util.NodeList(changed_targets)
+        self._memo["_get_unchanged_sources"] = SCons.Util.NodeList(unchanged_sources)
+        self._memo["_get_unchanged_targets"] = SCons.Util.NodeList(unchanged_targets)
 
     @SCons.Memoize.CountMethodCall
     def _get_changed_sources(self, *args, **kw):

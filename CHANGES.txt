@@ -134,6 +134,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Workaround issue where D compiler ldc2 can't find linker.
     - Add support for Microsoft Visual C++ Insiders (preview) compilers.
       Set MSVC_PREVIEW to a true value to enable.
+    - Allow special attributes (e.g. .abspath) to be used with all the
+      list-valued special variables. CHANGED_* and UNCHANGED_* were
+      substituted as literal strings during signature calculation, so
+      expressions like ${CHANGED_TARGETS.abspath} failed, and the executor
+      returned plain lists for those variables, so direct attribute access
+      failed even at execution time. Indexed forms such as
+      ${TARGETS[0].abspath} now work consistently. Fixes #2554.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
@@ -143,6 +150,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
         new section.
       * Improve the wording for the Help() function (also User Guide)
       * Further tweak the wording for JAVAVERSION (also User Guide)
+      * Add manpage descriptions for the six special source/target variables:
+        SOURCES, TARGETS, CHANGED_SOURCES, CHANGED_TARGETS,
+        UNCHANGED_SOURCES, UNCHANGED_TARGETS
     - User Guide improvements:
       * Removed the out-of-date table of option names for SetOption and
         GetOption and instead point to the maintained tables in Appendix D.
