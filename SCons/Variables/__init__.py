@@ -34,8 +34,9 @@ import os.path
 import sys
 from contextlib import suppress
 from dataclasses import dataclass
+from collections.abc import Callable, Sequence
 from functools import cmp_to_key
-from typing import Any, Callable, Sequence
+from typing import Any
 
 import SCons.Errors
 import SCons.Util
@@ -283,7 +284,13 @@ class Variables:
                     temp_values['__name__'] = filename
                     with open(filename) as f:
                         contents = f.read()
-                    exec(contents, {}, temp_values)
+                    # dont_inherit: variables files must not pick up this
+                    # module's future flags
+                    exec(
+                        compile(contents, filename, 'exec', dont_inherit=True),
+                        {},
+                        temp_values,
+                    )
                 finally:
                     if dirname:
                         del sys.path[0]

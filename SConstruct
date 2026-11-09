@@ -141,6 +141,34 @@ for alias, help_text in aliases:
     Help(tw.fill(help_text) + '\n')
 
 Help("""
+The following aliases serve the built documentation over a local HTTP
+connection, and stop that server again.  The Sphinx API docs need this:
+their search index and the relative links between pages do not work
+with file:// URLs, and a browser will not load the search index at all:
+
+""")
+
+serve_docs_help = (
+    "Serve the documentation build directory (build/doc) over HTTP at "
+    "http://127.0.0.1:8000/, so it can be browsed in a web browser.  "
+    "Build the docs first, e.g. with 'scons doc'.  Set PORT=<n> to "
+    "listen on a different port."
+)
+
+doc_aliases = [
+    ('serve-docs', serve_docs_help),
+    ('stop-docs', "Stop the documentation server started by serve-docs."),
+]
+
+for alias, help_text in doc_aliases:
+    tw = textwrap.TextWrapper(
+        width=78,
+        initial_indent=indent_fmt % alias,
+        subsequent_indent=indent_fmt % '' + '  ',
+    )
+    Help(tw.fill(help_text) + '\n')
+
+Help("""
 The following command-line variables can be set:
 
 """)

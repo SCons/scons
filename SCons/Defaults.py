@@ -38,7 +38,7 @@ import shutil
 import stat
 import sys
 import time
-from typing import Callable
+from collections.abc import Callable
 
 import SCons.Action
 import SCons.Builder

@@ -29,6 +29,8 @@ Verify use of the --taskmastertrace= option to the "build" command
 of --interactive mode.
 """
 
+import re
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -46,7 +48,7 @@ Command('2', [], Touch('$TARGET'))
 test.write('foo.in', "foo.in 1\n")
 
 
-scons = test.start(arguments = '-Q --interactive --experimental=legacy_sched_deprecated')
+scons = test.start(arguments = '-Q --interactive')
 
 scons.send("build foo.out 1\n")
 
@@ -75,7 +77,11 @@ scons.send("build foo.out\n")
 expect_stdout = """\
 scons>>> Copy("foo.out", "foo.in")
 Touch("1")
-scons>>> 
+scons>>> Job.Serial._work(): [Thread:XXXXX] Gained exclusive access
+Job.Serial._work(): [Thread:XXXXX] Starting search
+Job.Serial._work(): [Thread:XXXXX] Found 0 completed tasks to process
+Job.Serial._work(): [Thread:XXXXX] Searching for new tasks
+
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <no_state   0   'foo.out'> and its children:
 Taskmaster:        <no_state   0   'foo.in'>
@@ -85,10 +91,12 @@ Taskmaster: Evaluating <pending    0   'foo.in'>
 
 Task.make_ready_current(): node <pending    0   'foo.in'>
 Task.prepare():      node <up_to_date 0   'foo.in'>
+Job.Serial._work(): [Thread:XXXXX] Found internal task
 Task.executed_with_callbacks(): node <up_to_date 0   'foo.in'>
 Task.postprocess():  node <up_to_date 0   'foo.in'>
 Task.postprocess():  removing <up_to_date 0   'foo.in'>
 Task.postprocess():  adjusted parent ref count <pending    0   'foo.out'>
+Job.Serial._work(): [Thread:XXXXX] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster:     Considering node <pending    0   'foo.out'> and its children:
@@ -97,18 +105,31 @@ Taskmaster: Evaluating <pending    0   'foo.out'>
 
 Task.make_ready_current(): node <pending    0   'foo.out'>
 Task.prepare():      node <executing  0   'foo.out'>
+Job.Serial._work(): [Thread:XXXXX] Found task requiring execution
+Job.Serial._work(): [Thread:XXXXX] Executing task
 Task.execute():      node <executing  0   'foo.out'>
 Copy("foo.out", "foo.in")
+Job.Serial._work(): [Thread:XXXXX] Enqueueing executed task results
+Job.Serial._work(): [Thread:XXXXX] Gained exclusive access
+Job.Serial._work(): [Thread:XXXXX] Starting search
+Job.Serial._work(): [Thread:XXXXX] Found 1 completed tasks to process
 Task.executed_with_callbacks(): node <executing  0   'foo.out'>
 Task.postprocess():  node <executed   0   'foo.out'>
+Job.Serial._work(): [Thread:XXXXX] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster: No candidate anymore.
+Job.Serial._work(): [Thread:XXXXX] Found no task requiring execution, and have no jobs: marking complete
+Job.Serial._work(): [Thread:XXXXX] Gained exclusive access
+Job.Serial._work(): [Thread:XXXXX] Completion detected, breaking from main loop
 scons>>> Touch("2")
 scons>>> scons: `foo.out' is up to date.
 scons>>> 
 """
 
-test.finish(scons, stdout = expect_stdout)
+thread_id = re.compile(r'\[Thread:\d+\]')
+
+test.finish(scons, stdout = expect_stdout,
+            match=lambda actual, expected: test.match(thread_id.sub('[Thread:XXXXX]', actual), expected))
 
 test.pass_test()

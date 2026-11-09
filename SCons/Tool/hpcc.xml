@@ -29,13 +29,12 @@ This file is processed by the bin/SConsDoc.py module.
 <para>
 Set construction variables for
 <application>aCC</application> compilers on HP/UX systems.
-Calls the &t-link-cXX; tool for additional variables.
+Calls the &t-link-cc; tool for additional variables.
 </para>
 </summary>
 <sets>
 <item>CXX</item>
-<item>SHCXXFLAGS</item>
-<item>CXXVERSION</item>
+<item>SHCCFLAGS</item>
 </sets>
 </tool>
 

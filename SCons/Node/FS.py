@@ -35,13 +35,16 @@ from __future__ import annotations
 import fnmatch
 import importlib.util
 import os
+import posixpath
 import re
 import shutil
 import stat
 import sys
 import time
+from collections.abc import Callable
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, Any, cast, overload
+from typing import Literal as _Literal
 
 import SCons.Action
 import SCons.Debug
@@ -160,6 +163,7 @@ def initialize_do_splitdrive() -> None:
         # _my_splitdrive = os.path.splitdrive
 
         def _my_splitdrive(p):
+            p = p.replace(OS_SEP, '/')
             if p[1:2] == ':':
                 return p[:2], p[2:]
             if p[0:2] == '//':
@@ -185,6 +189,7 @@ def initialize_do_splitdrive() -> None:
     os_sep_is_slash = OS_SEP == '/'
 
 initialize_do_splitdrive()
+
 
 # Used to avoid invoking os.path.normpath if not necessary.
 needs_normpath_check = re.compile(
@@ -882,8 +887,12 @@ class Base(SCons.Node.Node):
         return self.dir.entry_labspath(self.name)
 
     def get_relpath(self) -> str:
-        """Get the path of the file relative to the root SConstruct file's directory."""
-        return os.path.relpath(self.dir.entry_abspath(self.name), self.fs.SConstruct_dir.get_abspath())
+        """Get a path relative to SConstruct, or absolute for a different mount."""
+        path = self.get_abspath()
+        try:
+            return os.path.relpath(path, self.fs.SConstruct_dir.get_abspath())
+        except ValueError:
+            return path
 
     def get_internal_path(self) -> str:
         if self.dir._path == '.':
@@ -986,6 +995,12 @@ class Base(SCons.Node.Node):
                         break
         self._memo['rentry'] = result
         return result
+
+    @overload
+    def _glob1(self, pattern: str, ondisk: bool, source: bool, strings: _Literal[False]) -> list[Node]: ...
+
+    @overload
+    def _glob1(self, pattern: str, ondisk: bool, source: bool, strings: _Literal[True]) -> list[str]: ...
 
     def _glob1(self, pattern: str, ondisk: bool = True, source: bool = False, strings: bool = False) -> list[Node] | list[str]:
         return []
@@ -1142,6 +1157,12 @@ class Entry(Base):
 
     def new_ninfo(self) -> NodeInfoBase:
         return self.disambiguate().new_ninfo()
+
+    @overload
+    def _glob1(self, pattern: str, ondisk: bool, source: bool, strings: _Literal[False]) -> list[Node]: ...
+
+    @overload
+    def _glob1(self, pattern: str, ondisk: bool, source: bool, strings: _Literal[True]) -> list[str]: ...
 
     def _glob1(self, pattern: str, ondisk: bool = True, source: bool = False, strings: bool = False) -> list[Node] | list[str]:
         return self.disambiguate()._glob1(pattern, ondisk, source, strings)
@@ -1570,6 +1591,12 @@ class FS(LocalFS):
             message = fmt % ' '.join(map(str, targets))
         return targets, message
 
+    @overload
+    def Glob(self, pathname: str, ondisk: bool, source: bool, strings: _Literal[False], exclude: str | list[str] | None, cwd: DirNode | None) -> list[Node]: ...
+
+    @overload
+    def Glob(self, pathname: str, ondisk: bool, source: bool, strings: _Literal[True], exclude: str | list[str] | None, cwd: DirNode | None) -> list[str]: ...
+
     def Glob(self, pathname: str, ondisk: bool = True, source: bool = True, strings: bool = False, exclude: str | list[str] | None = None, cwd: DirNode | None = None) -> list[Node] | list[str]:
         """
         Globs
@@ -1827,6 +1854,11 @@ class Dir(Base):
 
         if self is other:
             result = '.'
+
+        elif (do_splitdrive and isinstance(other, Base)
+              and os.path.normcase(os.path.splitdrive(self.get_abspath())[0])
+              != os.path.normcase(os.path.splitdrive(other.get_abspath())[0])):
+            result = other.get_abspath()
 
         elif other not in self._path_elements:
             try:
@@ -2221,6 +2253,12 @@ class Dir(Base):
         for dirname in [n for n in names if isinstance(entries[n], Dir)]:
             entries[dirname].walk(func, arg)
 
+    @overload
+    def glob(self, pathname: str, ondisk: bool, source: bool, strings: _Literal[False], exclude: str | list[str] | None) -> list[Node]: ...
+
+    @overload
+    def glob(self, pathname: str, ondisk: bool, source: bool, strings: _Literal[True], exclude: str | list[str] | None) -> list[str]: ...
+
     def glob(self, pathname: str, ondisk: bool = True, source: bool = False, strings: bool = False, exclude: str | list[str] | None = None) -> list[Node] | list[str]:
         """Returns a list of Nodes (or strings) matching a pathname pattern.
 
@@ -2249,7 +2287,7 @@ class Dir(Base):
         Args:
           pattern: pathname pattern to match.
           ondisk: if false, restricts matches to in-memory Nodes.
-            By defafult, matches entries that exist on-disk in addition
+            By default, matches entries that exist on-disk in addition
             to in-memory Nodes.
           source: if true, corresponding source Nodes are returned if
             globbing in a variant directory.  The default behavior
@@ -2284,8 +2322,12 @@ class Dir(Base):
             result = [x for x in result if not any(fnmatch.fnmatch(str(x), str(e)) for e in SCons.Util.flatten(excludes))]
         return sorted(result, key=lambda a: str(a))
 
-    # TODO: Return type could be inferred via `@overload` based on truthiness
-    #  of `strings`.
+    @overload
+    def _glob1(self, pattern: str, ondisk: bool, source: bool, strings: _Literal[False]) -> list[Node]: ...
+
+    @overload
+    def _glob1(self, pattern: str, ondisk: bool, source: bool, strings: _Literal[True]) -> list[str]: ...
+
     def _glob1(self, pattern: str, ondisk: bool = True, source: bool = False, strings: bool = False) -> list[Node] | list[str]:
         """
         Globs for and returns a list of entry names matching a single
@@ -3749,7 +3791,24 @@ class FileFinder:
         """
         if not fd:
             fd = self.default_filedir
-        dir, name = os.path.split(fd)
+        if do_splitdrive and fd.replace(OS_SEP, '/').startswith('//'):
+            fd = fd.replace(OS_SEP, '/').rstrip('/') or '//'
+            parts = fd[2:].split('/')
+            if len(parts) == 2 and all(parts):
+                # A complete share is the first UNC directory we can query on disk.
+                try:
+                    try:
+                        return p.fs.Dir(fd, create=False)
+                    except SCons.Errors.UserError:
+                        if p.fs.isdir(fd):
+                            return p.fs.Dir(fd)
+                except TypeError:
+                    return None
+                return None
+            # Split the server and share as nodes below our common UNC root.
+            dir, name = posixpath.split(fd)
+        else:
+            dir, name = os.path.split(fd)
         if do_splitdrive:
             drive, d = _my_splitdrive(dir)
         else:
@@ -3878,4 +3937,3 @@ def invalidate_node_memos(targets: str | Node | list[str | Node]) -> None:
 EntryNode = Entry
 DirNode = Dir
 FileNode = File
-

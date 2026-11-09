@@ -126,7 +126,7 @@ import sys
 import sysconfig
 
 from collections import UserList
-from typing import Callable
+from collections.abc import Callable
 
 from TestCmd import *
 from TestCmd import __all__

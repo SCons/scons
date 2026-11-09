@@ -332,6 +332,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-MSSDK_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSSDK_VERSION</envar>">
 <!ENTITY cv-MSVC_BATCH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_BATCH</envar>">
 <!ENTITY cv-MSVC_NOTFOUND_POLICY "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_NOTFOUND_POLICY</envar>">
+<!ENTITY cv-MSVC_PREVIEW "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_PREVIEW</envar>">
 <!ENTITY cv-MSVC_SCRIPT_ARGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_SCRIPT_ARGS</envar>">
 <!ENTITY cv-MSVC_SCRIPTERROR_POLICY "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_SCRIPTERROR_POLICY</envar>">
 <!ENTITY cv-MSVC_SDK_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_SDK_VERSION</envar>">
@@ -609,7 +610,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-X_RPM_DISTRIBUTION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_DISTRIBUTION</envar>">
 <!ENTITY cv-X_RPM_EPOCH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_EPOCH</envar>">
 <!ENTITY cv-X_RPM_EXCLUDEARCH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_EXCLUDEARCH</envar>">
-<!ENTITY cv-X_RPM_EXLUSIVEARCH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_EXLUSIVEARCH</envar>">
+<!ENTITY cv-X_RPM_EXCLUSIVEARCH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_EXCLUSIVEARCH</envar>">
 <!ENTITY cv-X_RPM_EXTRADEFS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_EXTRADEFS</envar>">
 <!ENTITY cv-X_RPM_GROUP "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_GROUP</envar>">
 <!ENTITY cv-X_RPM_GROUP_lang "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_GROUP_lang</envar>">
@@ -988,6 +989,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-MSSDK_VERSION "<link linkend='cv-MSSDK_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSSDK_VERSION</envar></link>">
 <!ENTITY cv-link-MSVC_BATCH "<link linkend='cv-MSVC_BATCH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_BATCH</envar></link>">
 <!ENTITY cv-link-MSVC_NOTFOUND_POLICY "<link linkend='cv-MSVC_NOTFOUND_POLICY' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_NOTFOUND_POLICY</envar></link>">
+<!ENTITY cv-link-MSVC_PREVIEW "<link linkend='cv-MSVC_PREVIEW' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_PREVIEW</envar></link>">
 <!ENTITY cv-link-MSVC_SCRIPT_ARGS "<link linkend='cv-MSVC_SCRIPT_ARGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_SCRIPT_ARGS</envar></link>">
 <!ENTITY cv-link-MSVC_SCRIPTERROR_POLICY "<link linkend='cv-MSVC_SCRIPTERROR_POLICY' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_SCRIPTERROR_POLICY</envar></link>">
 <!ENTITY cv-link-MSVC_SDK_VERSION "<link linkend='cv-MSVC_SDK_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_SDK_VERSION</envar></link>">
@@ -1265,7 +1267,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-X_RPM_DISTRIBUTION "<link linkend='cv-X_RPM_DISTRIBUTION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_DISTRIBUTION</envar></link>">
 <!ENTITY cv-link-X_RPM_EPOCH "<link linkend='cv-X_RPM_EPOCH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_EPOCH</envar></link>">
 <!ENTITY cv-link-X_RPM_EXCLUDEARCH "<link linkend='cv-X_RPM_EXCLUDEARCH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_EXCLUDEARCH</envar></link>">
-<!ENTITY cv-link-X_RPM_EXLUSIVEARCH "<link linkend='cv-X_RPM_EXLUSIVEARCH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_EXLUSIVEARCH</envar></link>">
+<!ENTITY cv-link-X_RPM_EXCLUSIVEARCH "<link linkend='cv-X_RPM_EXCLUSIVEARCH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_EXCLUSIVEARCH</envar></link>">
 <!ENTITY cv-link-X_RPM_EXTRADEFS "<link linkend='cv-X_RPM_EXTRADEFS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_EXTRADEFS</envar></link>">
 <!ENTITY cv-link-X_RPM_GROUP "<link linkend='cv-X_RPM_GROUP' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_GROUP</envar></link>">
 <!ENTITY cv-link-X_RPM_GROUP_lang "<link linkend='cv-X_RPM_GROUP_lang' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_GROUP_lang</envar></link>">

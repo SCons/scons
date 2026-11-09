@@ -190,7 +190,12 @@ def _SConscript(fs: FS, *files: str | Node, **kw) -> Any | list[Any]:
         try:
             SCons.Script.sconscript_reading = SCons.Script.sconscript_reading + 1
             if fn == "-":
-                exec(sys.stdin.read(), call_stack[-1].globals)
+                # dont_inherit: SConscripts must not pick up this module's
+                # "from __future__ import annotations" (or any other future flag)
+                exec(
+                    compile(sys.stdin.read(), "<stdin>", 'exec', dont_inherit=True),
+                    call_stack[-1].globals,
+                )
             else:
                 if isinstance(fn, SCons.Node.Node):
                     f = fn
@@ -281,7 +286,10 @@ def _SConscript(fs: FS, *files: str | Node, **kw) -> Any | list[Any]:
                             _file_.close()
                             if SCons.Debug.sconscript_trace:
                                 print("scons: Entering "+str(scriptname))
-                            exec(compile(scriptdata, scriptname, 'exec'), call_stack[-1].globals)
+                            exec(
+                                compile(scriptdata, scriptname, 'exec', dont_inherit=True),
+                                call_stack[-1].globals,
+                            )
                             if SCons.Debug.sconscript_trace:
                                 print("scons: Exiting "+str(scriptname))
                         except SConscriptReturn:

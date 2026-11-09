@@ -55,6 +55,12 @@ PDF("test.tex")
 
 test.write(['test.tex'], r"""
 \documentclass{article}
+% lmodern keeps us on Type 1 fonts. Without it, the '-' in the source
+% selects TS1 (via \textminus), which on a system without cm-super falls
+% back to the EC bitmap fonts - then Metafont runs mktexpk to build a
+% .pk font, writing to stderr and failing the test on a fresh system
+% because there's unexpected text on stderr.
+\usepackage{lmodern}
 \usepackage{listings}
 
 \begin{document}

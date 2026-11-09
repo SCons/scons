@@ -33,9 +33,10 @@ Sets construction variables for the SGI library archiver.
 <sets>
 <item>AR</item>
 <item>ARFLAGS</item>
-<item>ARCOMSTR</item>
+<item>ARCOM</item>
 <item>SHLINK</item>
 <item>SHLINKFLAGS</item>
+<item>SHLINKCOM</item>
 <item>LIBPREFIX</item>
 <item>LIBSUFFIX</item>
 </sets>

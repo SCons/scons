@@ -330,9 +330,9 @@ import tempfile
 import time
 import traceback
 from collections import UserList, UserString
+from collections.abc import Callable
 from pathlib import Path
 from subprocess import PIPE, STDOUT
-from typing import Callable
 
 IS_WINDOWS = sys.platform == 'win32'
 IS_MACOS = sys.platform == 'darwin'

@@ -154,10 +154,12 @@ for more information.
 <cvar name="CHANGED_SOURCES">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file names of all sources of the current build command
+that have changed since the target was last built.
+This is a read-only list computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -165,10 +167,12 @@ for more information).
 <cvar name="CHANGED_TARGETS">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file names of all targets that would be built
+from sources that have changed since the target was last built.
+This is a read-only list computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -176,10 +180,13 @@ for more information).
 <cvar name="SOURCE">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file name of the source of the current build command,
+or the file name of the first source
+if multiple sources are being built.
+This is a read-only string computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -187,10 +194,11 @@ for more information).
 <cvar name="SOURCES">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file names of all sources of the current build command.
+This is a read-only list computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -198,10 +206,13 @@ for more information).
 <cvar name="TARGET">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file name of the target being built,
+or the file name of the first target
+if multiple targets are being built.
+This is a read-only string computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -209,10 +220,11 @@ for more information).
 <cvar name="TARGETS">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file names of all targets being built.
+This is a read-only list computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -220,10 +232,14 @@ for more information).
 <cvar name="UNCHANGED_SOURCES">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file names of all sources of the current build command
+that have
+<emphasis>not</emphasis>
+changed since the target was last built.
+This is a read-only list computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -231,10 +247,14 @@ for more information).
 <cvar name="UNCHANGED_TARGETS">
 <summary>
 <para>
-A reserved variable name
-that may not be set or used in a &consenv;.
-(See the manpage section "Variable Substitution"
-for more information).
+The file names of all targets that would be built
+from sources that have
+<emphasis>not</emphasis>
+changed since the target was last built.
+This is a read-only list computed by &SCons; -
+it may not be assigned to.
+See the manpage section "Variable Substitution"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -888,19 +908,17 @@ for a complete explanation of the arguments and behavior.
 
 <para>
 Note that the
-<function>env.Builder</function>()
+&f-env-Builder;
 form of the invocation will expand
-&consvars; in any arguments strings,
+&consvars; in any argument strings,
 including the
 <parameter>action</parameter>
 argument,
-at the time it is called
-using the &consvars; in the
-<varname>env</varname>
-&consenv; through which
-&f-env-Builder; was called.
+at the time it is called,
+using the values from
+<varname>env</varname>.
 The
-&f-Builder;
+&f-Builder; (global fuction)
 form delays all variable expansion
 until after the Builder object is actually called.
 </para>
@@ -1274,7 +1292,7 @@ Examples:
 env.Command('ddd.list', Dir('ddd'), 'ls -l $SOURCE > $TARGET')
 
 env['DISTDIR'] = 'destination/directory'
-env.Command(env.Dir('$DISTDIR')), None, make_distdir)
+env.Command(env.Dir('$DISTDIR'), None, make_distdir)
 </example_commands>
 
 <para>
@@ -1316,7 +1334,6 @@ a function or one of the following strings
 that specify a predefined decider function:
 </para>
 
-<para>
 <variablelist>
 <varlistentry>
 <term><literal>"content"</literal></term>
@@ -1409,7 +1426,6 @@ timestamp, such as can happen when restoring files from backup archives.
 </listitem>
 </varlistentry>
 </variablelist>
-</para>
 
 <para>
 Examples:
@@ -1431,7 +1447,6 @@ argument may be a &Python; function you supply.
 Such a function must accept the following four arguments:
 </para>
 
-<para>
 <variablelist>
 <varlistentry>
 <term><parameter>dependency</parameter></term>
@@ -1493,7 +1508,6 @@ target only exists in a Repository.
 </varlistentry>
 
 </variablelist>
-</para>
 
 <para>
 The
@@ -2225,7 +2239,7 @@ The optional
 argument may be set to a pattern or a list of patterns
 describing files or directories
 to filter out of the match list.
-Elements matching a least one specified pattern will be excluded.
+Elements matching at least one specified pattern will be excluded.
 These patterns use the same syntax as for
 <parameter>pattern</parameter>.
 </para>
@@ -3629,7 +3643,6 @@ the <parameter>name</parameter> parameter was added.
 Examples:
 </para>
 
-<!-- TODO fix second example or replace - still doesn't work -->
 <example_commands>
 env = Environment()
 
@@ -3663,7 +3676,17 @@ input = env.Value('after')
 # Attach a builder named UpdateValue to the construction environment
 # using the 'build_value' action function above.
 env['BUILDERS']['UpdateValue'] = Builder(action=build_value)
-env.UpdateValue(target=Value(output), source=Value(input))
+env.UpdateValue(target=output, source=input)
+
+def write_value(target, source, env):
+    """Action function to write the built value of $SOURCE into $TARGET."""
+    with open(target[0], 'wb') as f:
+        f.write(source[0].read())
+
+# A Value Node is only built when a target being built depends on it,
+# so write the updated Value to a file. output.txt contains "after".
+env['BUILDERS']['WriteValue'] = Builder(action=write_value)
+env.WriteValue(target='output.txt', source=output)
 </example_commands>
 </summary>
 </scons_function>

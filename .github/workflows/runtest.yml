@@ -22,14 +22,18 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
           cache: pip
-          pip-install: --group dev
+
+      - name: Install dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --group dev
 
       - name: Setup Ubuntu dependencies
         if: startsWith(matrix.os, 'ubuntu')
@@ -61,7 +65,6 @@ jobs:
             echo "test/Libs/LIBLITERALPREFIX.py" >> .excludes
             echo "test/Rpcgen/live.py" >> .excludes
             echo "test/builderrors.py" >> .excludes
-            echo "test/ninja/ninja_handle_control_c_rebuild.py" >> .excludes
             echo "test/ninja/shutdown_scons_daemon.py" >> .excludes
             echo "test/scons-time/run/option/verbose.py" >> .excludes
           elif [[ "${{matrix.os}}" == "windows"* ]]; then

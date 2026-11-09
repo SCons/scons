@@ -252,10 +252,18 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic: bool=False, 
         else:
             tool_command = tool
 
-        try:
-            # Add 1 so we always keep the actual tool inside of cmd
-            tool_idx = cmd_list.index(tool_command) + 1
-        except ValueError:
+        # The tool may be several tokens, e.g. a launcher: "ccache clang".
+        # Split it the same way as cmd_list, so the tokens match.
+        if hasattr(action, "process"):
+            tool_tokens = [str(c).replace("$", "$$") for c in env.subst_list(tool_command, SUBST_CMD)[0]]
+        else:
+            tool_tokens = shlex.split(tool_command)
+        n = len(tool_tokens)
+        tool_idx = next(
+            (i + n for i in range(len(cmd_list) - n + 1) if cmd_list[i:i + n] == tool_tokens),
+            None,
+        )
+        if tool_idx is None:
             raise Exception(
                 "Could not find tool {} in {} generated from {}".format(
                     tool, cmd_list, get_comstr(env, action, targets, sources)
@@ -287,6 +295,8 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic: bool=False, 
             else:
                 ret_rule = rule + '_RSP'
 
-        return ret_rule, variables, [tool_command]
+        # Each token of the tool (e.g. launcher and compiler) is a dependency.
+        tool_deps = [t.strip('"') for t in shlex.split(tool_command, posix=False)]
+        return ret_rule, variables, tool_deps
 
     return get_response_file_command

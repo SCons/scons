@@ -530,7 +530,7 @@ field in the RPM
 </summary>
 </cvar>
 
-<cvar name="X_RPM_EXLUSIVEARCH">
+<cvar name="X_RPM_EXCLUSIVEARCH">
 <summary>
 <para>
 This is used to fill in the
@@ -566,7 +566,7 @@ env.Package(
     NAME="foo",
     ...
     X_RPM_EXTRADEFS=[
-        "%define _unpackaged_files_terminate_build 0"
+        "%define _unpackaged_files_terminate_build 0",
         "%define _missing_doc_files_terminate_build 0"
     ],
     ...

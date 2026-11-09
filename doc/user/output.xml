@@ -67,21 +67,6 @@ Type: 'scons program' to build the production program,
 
     <para>
 
-    Optionally, you can specify the <parameter>append</parameter> flag:
-
-    </para>
-
-    <scons_example name="output_ex1_a">
-       <file name="SConstruct" printme="1">
-Help("""
-Type: 'scons program' to build the production program,
-      'scons debug' to build the debug version.
-""", append=True)
-       </file>
-    </scons_example>
-
-    <para>
-
     (Note the above use of the Python triple-quote syntax,
     which comes in very handy for
     specifying multi-line strings like help text.)
@@ -115,30 +100,43 @@ Type: 'scons program' to build the production program,
     will determine the order in which the &Help; functions are called,
     which will determine the order in which
     the various bits of text will get concatenated.
+    In the next chapter you will see a way to exercise a bit more
+    control over help message construction.
 
     </para>
 
     <para>
 
-    Calling <literal>Help("text")</literal> overwrites
-    the help text that otherwise would be collected from any
-    command-line options defined in &f-link-AddOption; calls.
-    To preserve the &AddOption; help text,
-    add the <literal>append=True</literal> keyword argument
-    when calling <literal>Help</literal>.
-    This also preserves the option help for the &scons; command itself.
-    To preserve only the &AddOption; help,
-    also add the <literal>local_only=True</literal> keyword argument.
-    (This only matters the first time you call &Append;,
-    on any subsequent calls the text you passed is added
-    to the existing help text).
+    The first time you call &Help;, a pair of optional arguments
+    tell &SCons; how to initialize the help text.
+    If you only pass your string,
+    the help text is initialized as empty,
+    and your string is added to it.
+    If you pass the <literal>append=True</literal> keyword argument,
+    the help text is initialized with &SCons;' own internal help,
+    plus the text collected from any &f-link-AddOption; calls,
+    before adding your string.
+    If you also pass <literal>local_only=True</literal>,
+    the help text is initialized with only the help from
+    &f-AddOption; calls, omitting the built-in &SCons; options.
+    On any subsequent calls, the string you passed is added
+    to the accumulated help text, and any keyword arguments are ignored.
 
     </para>
 
+    <scons_example name="output_ex1_a">
+       <file name="SConstruct" printme="1">
+Help("""
+Type: 'scons program' to build the production program,
+      'scons debug' to build the debug version.
+""", append=True)
+       </file>
+    </scons_example>
+
+
     <para>
 
-    Another use would be to make the help text conditional
-    on some variable.
+    You can make help text conditional on some condition or variable.
     For example, suppose you only want to display
     a line about building a Windows-only
     version of a program when actually
@@ -182,7 +180,7 @@ if env['PLATFORM'] == 'win32':
 
     If there is no &Help; text in the &SConstruct; or
     &SConscript; files,
-    &SCons; will revert to displaying its
+    &SCons; will fall back to displaying its
     standard list that describes the &SCons; command-line
     options.
     This list is also always displayed whenever
@@ -266,9 +264,8 @@ Linking foo
     on <envar>$*COMSTR</envar> variables,
     so they have access to all of the
     standard variables like &cv-TARGET; &cv-SOURCES;, etc.,
-    as well as any construction variables
-    that happen to be configured in
-    the construction environment
+    as well as any &consvars;
+    that happen to be configured in the &consenv;
     used to build a specific target.
 
     </para>
@@ -552,7 +549,8 @@ Program('f2.c')
       <file name="SConstruct" printme="1">
 screen = open('/dev/tty', 'w')
 count = 0
-def progress_function(node)
+def progress_function(node):
+    global count
     count += 1
     screen.write('Node %4d: %s\r' % (count, node))
 

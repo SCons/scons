@@ -102,6 +102,9 @@ class MyNode:
     def is_up_to_date(self) -> bool:
         return self.up_to_date
 
+    def get_subst_proxy(self):
+        return self
+
 class MyScanner:
     def __init__(self, prefix) -> None:
         self.prefix = prefix

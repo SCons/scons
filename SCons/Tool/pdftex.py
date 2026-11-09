@@ -95,7 +95,7 @@ def generate(env) -> None:
     # so pdftex is the default for no source suffix
     pdf.generate2(env)
 
-    SCons.Tool.tex.generate_common(env)
+    SCons.Tool.tex.generate_common(env, SCons.Tool.tex.PDFLaTeXSourceScanner)
 
 def exists(env):
     SCons.Tool.tex.generate_darwin(env)

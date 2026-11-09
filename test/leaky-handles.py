@@ -37,16 +37,42 @@ if sys.platform != 'linux':
     msg = "Skipping fork leak test on non-linux platforms\n"
     test.skip_test(msg)
 
-test.write('SConstruct', """
+_python_ = TestSCons._python_
 
-# Leave a file handle open when invoking a command
-with open('/dev/null'):
-    # Check it gets closed when an external command is forked off:
-    test2 = Command('test2', [], '@ls /proc/$$$$/fd|wc -l')
+# Let the child process itself report any handle on /dev/null it inherited.
+# Looking at '/proc/$$/fd' from a shell pipeline instead would be racy: $$ is
+# the shell, whose handles transiently include the pipe ends it has not closed
+# yet, so such a check intermittently sees one or two extra handles when the
+# shell and the command contend for a cpu.
+test.write('fdcheck.py', """\
+import os
+
+leaks = []
+for name in os.listdir('/proc/self/fd'):
+    try:
+        target = os.readlink('/proc/self/fd/' + name)
+    except OSError:  # handle already gone, e.g. the one os.listdir used
+        continue
+    if int(name) > 2 and target == '/dev/null':
+        leaks.append(int(name))
+print('leaked fds: %s' % sorted(leaks))
 """)
 
-# In theory that should have 3 lines (handles 0/1/2). This is v. unix specific
+test.write('SConstruct', """
+import os
 
-test.run(arguments = '-Q', stdout='3\n')
+# Leave a file handle open when invoking a command. Two details matter here:
+# an os-level handle is used because a file object bound to an SConscript
+# global is garbage collected (and so closed) before the build phase runs,
+# and it is marked inheritable because handles are close-on-exec by default
+# since Python 3.4 (PEP 446) and so could not leak whatever SCons did.
+leaked = os.open('/dev/null', os.O_RDONLY)
+os.set_inheritable(leaked, True)
+
+# Check it doesn't get passed on when an external command is forked off:
+test2 = Command('test2', [], '@%(_python_)s fdcheck.py')
+""" % locals())
+
+test.run(arguments='-Q', stdout='leaked fds: []\n')
 
 test.pass_test()

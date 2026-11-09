@@ -174,7 +174,7 @@ class PathListCache:
     def __init__(self) -> None:
         self._memo = {}
 
-    def _PathList_key(self, pathlist):
+    def _PathList_key(self, pathlist, split=True):
         """Returns the key for memoization of PathLists.
 
         Note that we want this to be pretty quick, so we don't completely
@@ -185,10 +185,13 @@ class PathListCache:
         or massaging strings into Nodes, to identify that equivalence.
         We just want to eliminate obvious redundancy from the normal
         case of re-using exactly the same cloned value for a path.
+
+        ``split`` is included so PathList(..., split=False) does not
+        collide with the default in the memoizer cache.
         """
         if SCons.Util.is_Sequence(pathlist):
             pathlist = tuple(SCons.Util.flatten(pathlist))
-        return pathlist
+        return (pathlist, split)
 
     @SCons.Memoize.CountDictCall(_PathList_key)
     def PathList(self, pathlist, split=True):
@@ -197,7 +200,8 @@ class PathListCache:
         Returns the cached :class:`_PathList` object for the specified
         pathlist, creating and caching a new object as necessary.
         """
-        pathlist = self._PathList_key(pathlist)
+        key = self._PathList_key(pathlist, split)
+        pathlist = key[0]
         try:
             memo_dict = self._memo['PathList']
         except KeyError:
@@ -205,13 +209,13 @@ class PathListCache:
             self._memo['PathList'] = memo_dict
         else:
             try:
-                return memo_dict[pathlist]
+                return memo_dict[key]
             except KeyError:
                 pass
 
         result = _PathList(pathlist, split)
 
-        memo_dict[pathlist] = result
+        memo_dict[key] = result
 
         return result
 

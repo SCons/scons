@@ -27,9 +27,9 @@ from __future__ import annotations
 
 import re
 from collections import UserList, UserString
+from collections.abc import Callable
 from functools import lru_cache
 from inspect import Parameter, signature
-from typing import Callable
 
 import SCons.Errors
 import SCons.Util
@@ -189,13 +189,14 @@ def escape_list(mylist: list, escape_func: Callable) -> list[str]:
     return list(map(escape, mylist))
 
 class NLWrapper:
-    """A wrapper class that delays turning a list of sources or targets
-    into a NodeList until it's needed.  The specified function supplied
-    when the object is initialized is responsible for turning raw nodes
-    into proxies that implement the special attributes like .abspath,
-    .source, etc.  This way, we avoid creating those proxies just
-    "in case" someone is going to use $TARGET or the like, and only
-    go through the trouble if we really have to.
+    """A wrapper that delays turning a list of sources or targets into a :class:`~/SCons.Node.NodeList` until it's needed.
+
+    The specified function supplied when the object is initialized is
+    responsible for turning raw nodes into proxies that implement
+    the special attributes like ``.abspath``, ``.source``, etc.
+    This way, we avoid creating those proxies just "in case" someone
+    is going to use ``$TARGET`` or the like, and only go through the
+    trouble if we really have to.
 
     In practice, this might be a wash performance-wise, but it's a little
     cleaner conceptually...
@@ -223,15 +224,11 @@ class NLWrapper:
     _create_nodelist = _gen_nodelist
 
 
-class Targets_or_Sources(UserList):
-    """A class that implements $TARGETS or $SOURCES expansions by in turn
-    wrapping a NLWrapper.  This class handles the different methods used
-    to access the list, calling the NLWrapper to create proxies on demand.
+class Targets_or_Sources(SCons.Util.SequenceProxy):
+    """Implement $TARGETS or $SOURCES expansions by wrapping :class:`NLWrapper`.
 
-    Note that we subclass :class:`~collections.UserList` purely so that the
-    :func:`~SCons.Util.is_Sequence` function will identify an object of this
-    class as a list during variable expansion.  We're not really using any
-    :class:`~collections.UserList` methods in practice.
+    This class handles the different methods used to access the list,
+    calling the ``NLWrapper`` to create proxies on demand.
     """
 
     def __init__(self, nl) -> None:
@@ -245,6 +242,15 @@ class Targets_or_Sources(UserList):
         nl = self.nl._create_nodelist()
         return nl[i]
 
+    def __iter__(self):
+        return iter(self.nl._create_nodelist())
+
+    def __len__(self) -> int:
+        return len(self.nl._create_nodelist())
+
+    def __bool__(self) -> bool:
+        return bool(self.nl._create_nodelist())
+
     def __str__(self) -> str:
         nl = self.nl._create_nodelist()
         return str(nl)
@@ -254,10 +260,10 @@ class Targets_or_Sources(UserList):
         return repr(nl)
 
 class Target_or_Source:
-    """A class that implements $TARGET or $SOURCE expansions by in turn
-    wrapping a NLWrapper.  This class handles the different methods used
-    to access an individual proxy Node, calling the NLWrapper to create
-    a proxy on demand.
+    """Implement $TARGET or $SOURCE expansions by wrapping :class:`NLWrapper`.
+
+    This class handles the different methods used to access an individual
+    proxy Node, calling the ``NLWrapper`` to create a proxy on demand.
     """
 
     def __init__(self, nl) -> None:
@@ -272,6 +278,9 @@ class Target_or_Source:
             # pass through, so raise AttributeError for everything.
             raise AttributeError(f"NodeList has no attribute: {attr}")
         return getattr(nl0, attr)
+
+    def __bool__(self) -> bool:
+        return bool(self.nl._create_nodelist())
 
     def __str__(self) -> str:
         nl = self.nl._create_nodelist()
@@ -325,12 +334,14 @@ def subst_dict(target, source):
         substitutions['TARGETS'] = Targets_or_Sources(tnl)
         substitutions['TARGET'] = Target_or_Source(tnl)
 
-        # This is a total cheat, but hopefully this dictionary goes
-        # away soon anyway.  We just let these expand to $TARGETS
-        # because that's "good enough" for the use of ToolSurrogates
-        # (see test/ToolSurrogate.py) to generate documentation.
-        substitutions['CHANGED_TARGETS'] = '$TARGETS'
-        substitutions['UNCHANGED_TARGETS'] = '$TARGETS'
+        # There is no executor here, so we can't distinguish changed
+        # from unchanged.  Alias to the full list, which is "good
+        # enough" for the use of ToolSurrogates (see
+        # test/ToolSurrogate.py) to generate documentation, and also
+        # lets special attributes and indexing work during signature
+        # calculation.
+        substitutions['CHANGED_TARGETS'] = substitutions['TARGETS']
+        substitutions['UNCHANGED_TARGETS'] = substitutions['TARGETS']
     else:
         substitutions['TARGETS'] = NullNodesList
         substitutions['TARGET'] = NullNodesList
@@ -353,12 +364,14 @@ def subst_dict(target, source):
         substitutions['SOURCES'] = Targets_or_Sources(snl)
         substitutions['SOURCE'] = Target_or_Source(snl)
 
-        # This is a total cheat, but hopefully this dictionary goes
-        # away soon anyway.  We just let these expand to $TARGETS
-        # because that's "good enough" for the use of ToolSurrogates
-        # (see test/ToolSurrogate.py) to generate documentation.
-        substitutions['CHANGED_SOURCES'] = '$SOURCES'
-        substitutions['UNCHANGED_SOURCES'] = '$SOURCES'
+        # There is no executor here, so we can't distinguish changed
+        # from unchanged.  Alias to the full list, which is "good
+        # enough" for the use of ToolSurrogates (see
+        # test/ToolSurrogate.py) to generate documentation, and also
+        # lets special attributes and indexing work during signature
+        # calculation.
+        substitutions['CHANGED_SOURCES'] = substitutions['SOURCES']
+        substitutions['UNCHANGED_SOURCES'] = substitutions['SOURCES']
     else:
         substitutions['SOURCES'] = NullNodesList
         substitutions['SOURCE'] = NullNodesList

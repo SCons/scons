@@ -67,6 +67,7 @@ from logging import Formatter
 from .sctypes import (  # noqa: F401
     DictTypes,
     ListTypes,
+    SequenceProxy,
     SequenceTypes,
     StringTypes,
     BaseStringTypes,

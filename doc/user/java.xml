@@ -226,18 +226,22 @@ public class AdditionalClass3
 
     <para>
 
-    To ensure correct handling of <filename>.class</filename>
-    dependencies in all cases, you need to tell &SCons; which Java
-    version is being used.  This is needed because Java 1.5 changed
-    the <filename>.class</filename> file names for nested anonymous
-    inner classes.  Use the <varname>JAVAVERSION</varname> construction
-    variable to specify the version in use.  With Java 1.6, the
-    one-liner example can then be defined like this:
+    Because Java 1.5 changed the <filename>.class</filename>
+    file names for nested anonymous inner classes, &SCons; needs
+    to know which naming scheme the compiler will use, so that the
+    files it predicts match the files actually written.
+    For any compiler from Java 1.5 onward - which covers every
+    release you are likely to encounter today - the scheme is the
+    same, and &SCons; assumes it by default, so there is nothing
+    to configure.
+    Only when building with a pre-1.5 compiler do you need to say
+    so explicitly, using the <varname>JAVAVERSION</varname>
+    construction variable:
 
     </para>
 
     <sconstruct>
-Java('classes', 'src', JAVAVERSION='1.6')
+Java('classes', 'src', JAVAVERSION='1.4')
     </sconstruct>
 
     <para>

@@ -75,7 +75,7 @@ from __future__ import annotations
 
 import os
 import os.path
-from typing import Callable
+from collections.abc import Callable
 
 import SCons.Errors
 import SCons.Util

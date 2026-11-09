@@ -23,6 +23,7 @@
 
 import os
 import unittest
+from unittest import mock
 
 import SCons.Scanner.Fortran
 import SCons.Node.FS
@@ -161,7 +162,7 @@ C     INCLUDE 'fi.f'
       use mod12 ;use mod13! Test comment at end of line
 
 !     USE modi
-!     USE modia ; use modib    ! Scanner regexp will only ignore the first - this is a deficiency in the regexp
+!     USE modia ; use modib    ! Both modules are in a comment
     ! USE modic ; ! use modid  ! Scanner regexp should ignore both modules
       USE mod14 !; USE modi    ! Only ignore the second
       USE mod15!;USE modi
@@ -178,7 +179,7 @@ C     INCLUDE 'fi.f'
 USE mod25  ! Test USE statement at the beginning of line
 
 
-; USE modi   ! Scanner should ignore this since it isn't valid syntax
+; USE modi   ! The scanner does not validate leading-semicolon syntax
       USEmodi   ! No space in between USE and module name - ignore it
       USE mod01   ! This one is a duplicate - there should only be one dependency to it.
 
@@ -526,6 +527,170 @@ class FortranScannerTestCase16(unittest.TestCase):
         test.unlink('f9.f')
         test.unlink('f10.f')
 
+class FortranScannerCommentsTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        for name in ['comment_real.mod', 'comment_phantom.mod',
+                     'comment_second.mod', 'comment_local.mod', 'x.mod',
+                     'comment_real.inc', 'comment_second.inc',
+                     'comment_phantom.inc', 'comment!semi;.inc']:
+            test.write(name, "\n")
+
+    def scan(self, contents, suffix='.f90'):
+        filename = 'comment_test' + suffix
+        test.write(filename, contents)
+        env = DummyEnvironment([])
+        scanner = SCons.Scanner.Fortran.FortranScan()
+        return scanner(env.File(filename), env, scanner.path(env))
+
+    def test_comment_dependencies(self) -> None:
+        cases = [
+            ("! USE comment_phantom; USE comment_phantom\n", []),
+            ("    ! USE comment_phantom; USE comment_phantom\n", []),
+            ("      ! USE comment_phantom; USE comment_phantom\n", []),
+            ("      USE comment_real !; USE comment_phantom\n",
+             ['comment_real.mod']),
+            ("      USE comment_real; USE comment_real!; USE comment_phantom\n",
+             ['comment_real.mod']),
+            ("USE x!; USE comment_phantom\n", ['x.mod']),
+            ("! INCLUDE 'comment_real.inc'; INCLUDE 'comment_phantom.inc'\n", []),
+            ("      INCLUDE 'comment_real.inc' !; INCLUDE 'comment_phantom.inc'\n",
+             ['comment_real.inc']),
+            ("! A comment's quote must not affect the next line\n"
+             "USE comment_real !; USE comment_phantom", ['comment_real.mod']),
+            ("USE comment_real !; USE comment_phantom\r\n"
+             "USE comment_second\r\n", ['comment_real.mod', 'comment_second.mod']),
+        ]
+        for contents, expected in cases:
+            with self.subTest(contents=contents):
+                deps_match(self, self.scan(contents), expected)
+
+    def test_character_literals(self) -> None:
+        cases = [
+            "PRINT *, 'a!;b'; USE comment_real !; USE comment_phantom\n",
+            'PRINT *, "a!;b"; USE comment_real !; USE comment_phantom\n',
+            "PRINT *, 'a''!;b'; USE comment_real !; USE comment_phantom\n",
+            'PRINT *, "a""!;b"; USE comment_real !; USE comment_phantom\n',
+            "PRINT *, 'a\"!;b'; USE comment_real !; USE comment_phantom\n",
+            'PRINT *, "a\'!;b"; USE comment_real !; USE comment_phantom\n',
+            "PRINT *, 'a&\n! A comment's quote in a continued literal\n"
+            "&!b'; USE comment_real !; USE comment_phantom\n",
+            "PRINT *, 'a&\n  \n&!b'; USE comment_real !; USE comment_phantom\n",
+            "      PRINT *, 'a\n"
+            "     &!b'; USE comment_real !; USE comment_phantom\n",
+            "      PRINT *, 'a\n\n"
+            "     &!b'; USE comment_real !; USE comment_phantom\n",
+        ]
+        for contents in cases:
+            with self.subTest(contents=contents):
+                deps_match(self, self.scan(contents), ['comment_real.mod'])
+
+    def test_include_paths(self) -> None:
+        cases = [
+            "INCLUDE 'comment!semi;.inc'; INCLUDE 'comment_second.inc'\n",
+            'INCLUDE "comment!semi;.inc"; INCLUDE "comment_second.inc"\n',
+            'INCLUDE <comment!semi;.inc>; INCLUDE <comment_second.inc>\n',
+            'INCLUDE kind_"comment!semi;.inc"; INCLUDE "comment_second.inc"\n',
+        ]
+        for contents in cases:
+            with self.subTest(contents=contents):
+                contents = contents.rstrip('\n') + " !; USE comment_phantom\n"
+                deps_match(self, self.scan(contents),
+                           ['comment!semi;.inc', 'comment_second.inc'])
+
+    def test_free_form_column_six_quote(self) -> None:
+        test.write('real!file.inc', "\n")
+        for quote in ["'", '"']:
+            with self.subTest(quote=quote):
+                contents = f"""\
+program p
+print *, &
+     {quote}a{quote}
+     include 'real!file.inc'
+end
+"""
+                deps_match(self, self.scan(contents), ['real!file.inc'])
+
+    def test_semicolons_and_module_definitions(self) -> None:
+        contents = """\
+MODULE comment_local
+END MODULE comment_local
+USE COMMENT_LOCAL; USE comment_real; USE comment_second !; USE comment_phantom
+"""
+        deps_match(self, self.scan(contents), ['comment_real.mod', 'comment_second.mod'])
+
+    def test_column_six_continuation(self) -> None:
+        cases = [
+            "      PRINT *, 'a'\n     ! ; USE comment_real\n",
+            "      PRINT *,\nC A comment's quote\n"
+            "     & '!'; USE comment_real !; USE comment_phantom\n",
+            "      PRINT *, 'a\nC A comment's quote\n"
+            "     &!b'; USE comment_real !; USE comment_phantom\n",
+        ]
+        for contents in cases:
+            with self.subTest(contents=contents):
+                deps_match(self, self.scan(contents, '.f'), ['comment_real.mod'])
+
+    def test_column_six_quote_marker(self) -> None:
+        for quote in ["'", '"']:
+            for first_line, continuation in [
+                ("      PRINT *,\n", f' {quote}!a{quote}'),
+                (f'      PRINT *, {quote}a\n', f'!b{quote}'),
+                (f'      PRINT *, {quote}a&\n', f'!b{quote}'),
+            ]:
+                with self.subTest(quote=quote, first_line=first_line):
+                    contents = (first_line + '     ' + quote + continuation
+                                + '; USE comment_real !; USE comment_phantom\n')
+                    deps_match(self, self.scan(contents, '.f'), ['comment_real.mod'])
+
+    def test_string_literals_are_not_statements(self) -> None:
+        cases = [
+            "PRINT *, 'x; USE comment_phantom'\n",
+            'PRINT *, "x; USE comment_phantom"\n',
+            "PRINT *, 'it''s; USE comment_phantom'\n",
+            'x = "a\\"b"; USE comment_phantom\n',
+            "PRINT *, 'x; USE comment_phantom' ! USE comment_phantom\n",
+            "PRINT *, 'a&\n  &; USE comment_phantom'\n",
+        ]
+        for contents in cases:
+            with self.subTest(contents=contents):
+                deps_match(self, self.scan(contents), [])
+
+    def test_real_use_after_string_literal(self) -> None:
+        cases = [
+            ("PRINT *, 'x; USE comment_phantom'; USE comment_real\n",
+             ['comment_real.mod']),
+            ("PRINT *, 'x!'; USE comment_real\n", ['comment_real.mod']),
+            ("PRINT *, 'a&\n  &; USE comment_phantom'\nUSE comment_real\n",
+             ['comment_real.mod']),
+        ]
+        for contents, expected in cases:
+            with self.subTest(contents=contents):
+                deps_match(self, self.scan(contents), expected)
+
+    def test_fixed_form_string_literals(self) -> None:
+        cases = [
+            "      PRINT *, 'x\n     &; USE comment_phantom'\n",
+            "      PRINT *, 'a\nC ; USE comment_phantom\n"
+            "     &b'; USE comment_real\n",
+        ]
+        expected = [[], ['comment_real.mod']]
+        for contents, deps in zip(cases, expected):
+            with self.subTest(contents=contents):
+                deps_match(self, self.scan(contents, '.f'), deps)
+
+    def test_cached_dependencies(self) -> None:
+        test.write('comment_cached.f90',
+                   "USE comment_real !; USE comment_phantom\n")
+        env = DummyEnvironment([])
+        scanner = SCons.Scanner.Fortran.FortranScan()
+        node = env.File('comment_cached.f90')
+        path = scanner.path(env)
+        deps_match(self, scanner.scan(node, env, path), ['comment_real.mod'])
+        cached = node.includes
+        with mock.patch.object(type(node), 'get_text_contents',
+                               side_effect=AssertionError('cached scan reread source')):
+            deps_match(self, scanner.scan(node, env, path), ['comment_real.mod'])
+        self.assertIs(node.includes, cached)
 
 
 if __name__ == "__main__":

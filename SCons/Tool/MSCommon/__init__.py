@@ -48,6 +48,8 @@ from SCons.Tool.MSCommon.vc import (  # noqa: F401
     vswhere_register_executable,
     vswhere_get_executable,
     vswhere_freeze_executable,
+    vswhere_register_prerelease,
+    vswhere_is_prerelease,
 )
 
 from SCons.Tool.MSCommon.vs import (  # noqa: F401

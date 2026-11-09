@@ -24,10 +24,12 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 r"""
-Validate that use of \glossary in TeX source files causes SCons to
+Validate that use of ``\makeglossaries`` in TeX source files causes SCons to
 be aware of the necessary created glossary files.
 
-Test configuration contributed by Robert Managan.
+Uses the modern 'glossaries' package (replacement for the obsolete glossary package).
+
+Original test configuration contributed by Robert Managan.
 """
 
 import subprocess
@@ -37,50 +39,56 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 latex = test.where_is('latex')
-
 if not latex:
-    test.skip_test("Could not find 'latex'; skipping test(s).\n")
+    test.skip_test("Could not find 'latex'; skipping test.\n")
 
-cp = subprocess.run('kpsewhich glossary.sty', shell=True)
+makeindex = test.where_is('makeindex')
+if not makeindex:
+    test.skip_test("Could not find 'makeindex'; skipping test.\n")
+
+cp = subprocess.run('kpsewhich glossaries.sty', shell=True)
 if cp.returncode:
-    test.skip_test("glossary.sty not installed; skipping test(s).\n")
+    test.skip_test("glossaries.sty not installed; skipping test.\n")
 
 test.write('SConstruct', """\
 import os
-env = Environment(tools = ['latex'], ENV = {'PATH' : os.environ['PATH']})
-env.DVI('gloassary', 'glossary.ltx')
+env = Environment()
+env.PDF('glossary', 'glossary.tex')
 """)
 
-test.write('glossary.ltx', r"""
+test.write('glossary.tex', r"""
 \documentclass{article}
 
-\usepackage{glossary}
+\usepackage{glossaries}
 
-\makeglossary
+\newglossaryentry{nix}{
+  name={Nix},
+  description={Version 5}
+}
+
+\makeglossaries
 
 
 \begin{document}
 
-A glossary entry \glossary{name={gnu}, description={an animal or software group}}
-and another\glossary{name={nix}, description={not sure}}.
+A glossary entry \gls{nix}.
 
-\printglossary
+\printglossary[type=main]
 
 \end{document}
 """)
 
-test.run(arguments = '.', stderr=None)
+test.run(arguments='.', stderr=None)
 
 test.must_exist(test.workpath('glossary.aux'))
 test.must_exist(test.workpath('glossary.fls'))
 test.must_exist(test.workpath('glossary.glg'))
 test.must_exist(test.workpath('glossary.glo'))
-test.must_exist(test.workpath('glossary.gls'))
 test.must_exist(test.workpath('glossary.ist'))
 test.must_exist(test.workpath('glossary.log'))
-test.must_exist(test.workpath('gloassary.dvi'))
+test.must_exist(test.workpath('glossary.pdf'))
 
-test.run(arguments = '-c .')
+test.run(arguments='-c .')
 
 x = "Could not remove 'glossary.aux': No such file or directory"
 test.must_not_contain_any_line(test.stdout(), [x])
@@ -89,9 +97,8 @@ test.must_not_exist(test.workpath('glossary.aux'))
 test.must_not_exist(test.workpath('glossary.fls'))
 test.must_not_exist(test.workpath('glossary.glg'))
 test.must_not_exist(test.workpath('glossary.glo'))
-test.must_not_exist(test.workpath('glossary.gls'))
 test.must_not_exist(test.workpath('glossary.ist'))
 test.must_not_exist(test.workpath('glossary.log'))
-test.must_not_exist(test.workpath('gloassary.dvi'))
+test.must_not_exist(test.workpath('glossary.pdf'))
 
 test.pass_test()

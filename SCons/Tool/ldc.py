@@ -104,7 +104,7 @@ def generate(env) -> None:
     env['DI_FILE_DIR_SUFFFIX'] = ''
 
     env['DLINK'] = '$DC'
-    env['DLINKFLAGS'] = SCons.Util.CLVar('')
+    env['DLINKFLAGS'] = SCons.Util.CLVar('--linker=bfd')
     env['DLINKCOM'] = '$DLINK -of=$TARGET $DLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS'
 
     env['SHDLINK'] = '$DC'

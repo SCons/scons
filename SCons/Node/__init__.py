@@ -44,8 +44,9 @@ from __future__ import annotations
 
 import collections
 import copy
+from collections.abc import Callable
 from itertools import chain, zip_longest
-from typing import Any, Callable, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 import SCons.Debug
 import SCons.Executor

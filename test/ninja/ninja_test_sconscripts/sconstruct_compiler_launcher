@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+import sys
+
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
+
+env = Environment()
+env.Tool('ninja')
+# Prefix the compiler with a launcher, as is done for ccache.
+env['CC'] = '"%s" launcher.py %s' % (sys.executable, env['CC'])
+env.Program(target='foo', source='foo.c')
