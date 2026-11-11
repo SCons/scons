@@ -141,6 +141,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       returned plain lists for those variables, so direct attribute access
       failed even at execution time. Indexed forms such as
       ${TARGETS[0].abspath} now work consistently. Fixes #2554.
+    - Change a few more bool-like variables to explictly use bool.
     - JavaH/javah: modernize support for generating JNI headers (issue #3347).
       The javah command was removed in JDK 10 (JEP 313); if no javah is found,
       the JavaH builder now drives "javac -h" (available since JDK 8) instead,

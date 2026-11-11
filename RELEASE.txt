@@ -144,6 +144,8 @@ IMPROVEMENTS
 - Small performance tweak in arg2nodes (SubstitutionEnvironment): fast-path
   strings which are fully expanded (i.e., no $). Add unit tests.
 
+- Change a few more bool-like variables to explictly use bool.
+
 PACKAGING
 ---------
 

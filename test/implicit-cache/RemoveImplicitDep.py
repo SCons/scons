@@ -39,7 +39,7 @@ SConstruct_contents = """\
 DefaultEnvironment(tools=[])
 import SCons.Script
 
-SetOption( 'implicit_cache', 1 )
+SetOption('implicit_cache', True)
 
 env = Environment(tools=[])
 act = Action([Touch('${TARGETS[0]}'),Touch('${TARGETS[1]}')])
@@ -56,7 +56,7 @@ test.write(['src', 'inc.c'], """\
 """)
 test.write(['src', 'f1.h'], 'blah' )
 test.write(['src', 'f2.h'], 'blah' )
-        
+
 expect = test.wrap_stdout("""\
 Touch("a")
 Touch("b")
