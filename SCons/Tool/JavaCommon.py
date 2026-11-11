@@ -150,6 +150,7 @@ if java_parsing:
             self.version = version
             self.listClasses = []
             self.listOutputs = []
+            self.nativeClasses: set[str] = set()
             self.stackBrackets = []
             self.brackets = 0
             self.nextAnon = 1
@@ -226,6 +227,17 @@ if java_parsing:
                 self.closeBracket()
             elif token in ['"', "'"]:
                 return IgnoreState(token, self)
+            elif token == "native":
+                # A native method declaration.  Record which class it is in,
+                # so callers can tell which classes need JNI headers.
+                #
+                # Only a method declared directly in a class body counts.
+                # A "native" token inside a nested block belongs to some
+                # other construct -- an anonymous class body, an enum
+                # constant body, ... -- and not to the enclosing class.
+                if self.listClasses and self.stackBrackets and \
+                        self.brackets == self.stackBrackets[-1] + 1:
+                    self.nativeClasses.add('$'.join(self.listClasses))
             elif token == "new":
                 # anonymous inner class
                 if len(self.listClasses) > 0:
@@ -474,6 +486,25 @@ if java_parsing:
             package = initial.package.replace('.', os.sep)
         return (package, initial.listOutputs)
 
+    def parse_java_native_classes(contents, version=default_java_version):
+        """Parse a .java file and return the names of classes with
+        native methods.
+
+        The returned names use the same form as the class list from
+        :func:`parse_java`: a nested class is joined to its enclosing
+        class with a ``$`` separator.
+        """
+        initial = OuterState(version)
+        currstate = initial
+        for token in _reToken.findall(contents):
+            currstate = currstate.parseToken(token)
+        return initial.nativeClasses
+
+    def parse_java_file_native_classes(fn, version=default_java_version):
+        with open(fn, "rb") as f:
+            data = SCons.Util.to_Text(f.read())
+        return parse_java_native_classes(data, version)
+
 else:
     # Don't actually parse Java files for class names.
     #
@@ -489,6 +520,22 @@ else:
         the path to the file is the same as the package name.
         """
         return os.path.split(fn)
+
+    def parse_java_file_native_classes(fn, version=default_java_version):
+        """Native methods cannot be detected without Java parsing."""
+        return
+
+
+def is_jni_header_class(classname: str) -> bool:
+    """Return whether *classname* names a class which gets a JNI header.
+
+    ``javac -h`` only writes a header for a class which is a top level
+    class or a named nested class.  Anonymous classes, classes declared
+    in a method, and the synthetic classes javac generates for enum
+    constants with a class body get no header.  The names of all of
+    those contain a numeric component, because javac numbers them.
+    """
+    return not any(part[:1].isdigit() for part in classname.split('$'))
 
 
 def get_java_install_dirs(platform, version=None) -> list[str]:
