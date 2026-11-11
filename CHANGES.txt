@@ -142,6 +142,18 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       failed even at execution time. Indexed forms such as
       ${TARGETS[0].abspath} now work consistently. Fixes #2554.
     - Change a few more bool-like variables to explictly use bool.
+    - JavaH/javah: modernize support for generating JNI headers (issue #3347).
+      The javah command was removed in JDK 10 (JEP 313); if no javah is found,
+      the JavaH builder now drives "javac -h" (available since JDK 8) instead,
+      so existing build descriptions keep working.  Header files are still
+      declared as build targets, and only classes declaring native methods are
+      declared, matching what javac -h generates, so dependency tracking
+      (including C/C++ #includes of the headers) and incremental rebuilds
+      behave correctly. A single File target (the legacy javah -o mode)
+      has no javac -h equivalent and now raises a clear error when it would
+      be used. The User Guide and tool docs were reworked to present the
+      javac -h mechanism as the normal path, with javah described as the
+      legacy fallback.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and

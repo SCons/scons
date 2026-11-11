@@ -1100,9 +1100,10 @@ if True:
     def java_where_javah(self, version: str | None = None) -> str:
         """Find java header generation tool.
 
-        TODO issue #3347 since JDK10, there is no separate javah command,
-        'javac -h' is used. We should not return a javah from a different
-        installed JDK - how to detect and what to return in this case?
+        Note: since JDK10 there is no separate javah command, and
+        'javac -h' is used instead (issue #3347).  The JavaH tool now
+        falls back to 'javac -h' by itself, but tests that specifically
+        need a real javah should still use this and skip if it is absent.
 
         Args:
             version: if set, match only that version

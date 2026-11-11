@@ -28,6 +28,15 @@ This file is processed by the bin/SConsDoc.py module.
 <summary>
 <para>
 Sets construction variables for the &javah; tool.
+If a <command>javah</command> command is available (Java 9 and earlier),
+the &b-link-JavaH; builder uses it;
+otherwise it uses <literal>javac -h</literal>,
+which has been able to generate JNI headers since Java 8.
+</para>
+
+<para>
+<emphasis>Changed in version NEXT_RELEASE</emphasis>:
+added the fallback to <literal>javac -h</literal>.
 </para>
 </summary>
 <sets>
@@ -58,6 +67,13 @@ by calling the &b-link-Java; builder method,
 or the objects returned from the
 &b-Java;
 builder method.
+</para>
+
+<para>
+When <literal>javac -h</literal> is used,
+the source must be <filename>.java</filename> files
+(or class nodes for which the Java sources are known),
+since <command>javac</command> generates the headers while compiling.
 </para>
 
 <para>
@@ -94,22 +110,34 @@ env.JavaH(
 
 <note>
 <para>
-Java versions starting with 10.0 no longer use the
-<command>javah</command> command for generating JNI
-headers/sources, and indeed have removed the command entirely
-(see Java Enhancement Proposal
-<ulink url="https:openjdk.java.net/jeps/313">JEP 313</ulink>),
-making this tool harder to use for that purpose.
-&SCons; may autodiscover a <command>javah</command>
-belonging to an older release if there are multiple Java
-versions on the system, which will lead to incorrect results.
-To use with a newer Java, override the default values of &cv-link-JAVAH;
-(to contain the path to the <command>javac</command>)
-and &cv-link-JAVAHFLAGS; (to contain at least a <option>-h</option>
-flag) and note that generating headers with
-<command>javac</command> requires supplying source
-<filename>.java</filename> files only,
-not <filename>.class</filename> files.
+The <command>javah</command> command was removed from the JDK in
+Java 10 (see Java Enhancement Proposal
+<ulink url="https://openjdk.org/jeps/313">JEP 313</ulink>).
+When no <command>javah</command> command can be found,
+the &b-JavaH; builder uses <literal>javac -h</literal> instead,
+which is available in Java 8 and later.  In that case only classes
+which declare <literal>native</literal> methods produce a header file,
+but the header files are still declared as targets so their
+dependencies are tracked normally.
+</para>
+
+<para>
+If <command>javah</command> is found on the system, it is used even if
+the configured &cv-link-JAVAC; is from a newer JDK; this preserves the
+pre-Java-10 behaviour.  To force the <literal>javac -h</literal>
+mechanism, set &cv-link-JAVAH; to the &cv-link-JAVAC; command.
+If you previously worked around the removal of &javah; by setting
+&cv-link-JAVAH; to <command>javac</command> and adding
+<option>-h</option> to &cv-link-JAVAHFLAGS;, you no longer need to do
+so: the option is now added automatically, and leaving it in place
+will produce a duplicate-option error.
+</para>
+
+<para>
+<literal>javac -h</literal> always writes one header file per class
+into a directory, so it cannot combine all of the definitions into a
+single output file.  Using a file as the target of &b-JavaH; is only
+supported by the legacy <command>javah</command> command.
 </para>
 </note>
 </summary>
@@ -119,6 +147,10 @@ not <filename>.class</filename> files.
 <summary>
 <para>
 The Java generator for C header and stub files.
+Defaults to <command>javah</command> if that command is available,
+otherwise to <command>javac</command>.
+When <command>javac</command> is used,
+its <option>-h</option> option generates the headers.
 </para>
 </summary>
 </cvar>
@@ -130,6 +162,9 @@ The command line used to generate C header and stub files
 from Java classes.
 Any options specified in the &cv-link-JAVAHFLAGS; construction variable
 are included on this command line.
+If &cv-link-JAVAH; is <command>javac</command>,
+the command line compiles the Java sources and writes the headers
+to the target directory.
 </para>
 </summary>
 </cvar>
@@ -153,6 +188,9 @@ env = Environment(JAVAHCOMSTR="Generating header/stub file(s) $TARGETS from $SOU
 <para>
 General options passed to the C header and stub file generator
 for Java classes.
+When &cv-link-JAVAH; is <command>javac</command>,
+these are passed to <command>javac</command>;
+the <option>-h</option> option itself is added automatically.
 </para>
 </summary>
 </cvar>
