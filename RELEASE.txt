@@ -146,8 +146,6 @@ IMPROVEMENTS
 
 - Change a few more bool-like variables to explictly use bool.
 
-- Introduce unit tests for SCons-specific framework modules.
-
 PACKAGING
 ---------
 
@@ -204,7 +202,7 @@ DOCUMENTATION
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is
+- List visible changes in the way SCons is developed
 
 - ty: Initial support setup within `pyproject.toml`.
 
@@ -231,6 +229,8 @@ DEVELOPMENT
   threading.stack_size, which are no longer supported.
 
 - Disambiguate `Glob` return type via `@overload`.
+
+- Introduce unit tests for SCons-specific framework modules.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
