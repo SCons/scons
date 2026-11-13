@@ -1,0 +1,51 @@
+RELEASE 1.2.0.d20090223 - Mon, 23 Feb 2009 08:41:06 -0800
+
+  From Stanislav Baranov:
+
+    - Make suffix-matching for scanners case-insensitive on Windows.
+
+  From David Cournapeau:
+
+    - Change the way SCons finds versions of Visual C/C++ and Visual
+      Studio to find and use the Microsoft v*vars.bat files.
+
+  From Robert P. J. Day:
+
+    - User's Guide updates.
+
+  From Dan Eaton:
+
+    - Fix generation of Visual Studio 8 project files on x64 platforms.
+
+  From Allan Erskine:
+
+    - Set IncludeSearchPath and PreprocessorDefinitions in generated
+      Visual Studio 8 project files, to help IntelliSense work.
+
+  From Mateusz Gruca:
+
+    - Fix deletion of broken symlinks by the --clean option.
+
+  From Steven Knight:
+
+    - Fix the error message when use of a non-existent drive on Windows
+      is detected.
+
+    - Add sources for files whose targets don't exist in $CHANGED_SOURCES.
+
+    - Detect implicit dependencies on commands even when the command is
+      quoted.
+
+    - Fix interaction of $CHANGED_SOURCES with the --config=force option.
+
+    - Fix finding #include files when the string contains escaped
+      backslashes like "C:\\some\\include.h".
+
+    - Pass $CCFLAGS to Visual C/C++ precompiled header compilation.
+
+    - Remove unnecessary nested $( $) around $_LIBDIRFLAGS on link lines
+      for the Microsoft linker, the OS/2 ilink linker and the Phar Lap
+      linkloc linker.
+
+    - Spell the Windows environment variables consistently "SystemDrive"
+      and "SystemRoot" instead of "SYSTEMDRIVE" and "SYSTEMROOT".

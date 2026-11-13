@@ -1,0 +1,13 @@
+RELEASE 0.98.2 - Sun, 20 Apr 2008 23:38:56 -0700
+
+  From Steven Knight:
+
+  - Fix a bug in Fortran suffix computation that would cause SCons to
+    run out of memory on Windows systems.
+
+  - Fix being able to specify --interactive mode command lines with
+    \ (backslash) path name separators on Windows.
+
+  From Gary Oberbrunner:
+
+  - Document Glob() in the User's Guide.

@@ -1,0 +1,62 @@
+RELEASE 2.3.0 - Mon, 02 Mar 2013 13:22:29 -0400
+
+  From Anatoly Techtonik:
+    - Added ability to run scripts/scons.py directly from source checkout
+    - Hide deprecated --debug={dtree,stree,tree} from --help output
+    - Error messages from option parser now include hints about valid choices
+    - Cleaned up some Python 1.5 and pre-2.3 code, so don't expect SCons
+      to run on anything less than Python 2.4 anymore
+    - Several fixes for runtest.py:
+      * exit with an error if no tests were found
+      * removed --noqmtest option - this behavior is by default
+      * replaced `-o FILE --xml` combination with `--xml FILE`
+      * changed `-o, --output FILE` option to capture stdout/stderr output
+        from runtest.py
+    - Remove os_spawnv_fix.diff patch required to enable parallel builds
+      support prior to Python 2.2
+
+  From Juan Lang:
+    - Fix WiX Tool to use .wixobj rather than .wxiobj for compiler output
+    - Support building with WiX releases after 2.0
+
+  From Alexey Klimkin:
+    - Fix nested LIBPATH expansion by flattening sequences in subst_path.
+
+  From eyan on Bitbucket:
+    - Print target name with command execution time with --debug=time
+
+  From Thomas Berg and Evgeny Podjachev:
+    - Fix subprocess spawning on Windows.  Work around a Windows
+      bug that can crash python occasionally when using -jN. (#2449)
+
+  From Dirk Baechle:
+    - Updated test framework to support dir and file fixtures and
+      added ability to test external (out-of-tree) tools (#2862).
+      See doc in QMTest/test-framework.rst.
+    - Fixed several errors in the test suite (Java paths, MSVS version
+      detection, Tool import), additionally
+      * provided MinGW command-line support for the CXX, AS and
+        Fortran tests,
+      * refactored the detection of the gcc version and the according
+        Fortran startup library,
+      * provided a new module rpmutils.py, wrapping the RPM naming rules
+        for target files and further hardware-dependent info (compatibility,
+        compiler flags, ...),
+      * added new test methods must_exist_one_of() and
+        must_not_exist_any_of() and
+      * removed Aegis support from runtest.py. (#2872)
+
+  From Gary Oberbrunner:
+    - Add -jN support to runtest.py to run tests in parallel
+    - Add MSVC10 and MSVC11 support to get_output low-level bat script runner.
+    - Fix MSVS solution generation for VS11, and fixed tests.
+
+  From Rob Managan:
+    - Updated the TeX builder to support the \newglossary command
+      in LaTeX's glossaries package and the files it creates.
+    - Improve support for new versions of biblatex in the TeX builder
+      so biber is called automatically if biblatex requires it.
+    - Add SHLIBVERSION as an option that tells SharedLibrary to build
+      a versioned shared library and create the required symlinks.
+      Add builder InstallVersionedLib to create the required symlinks
+      installing a versioned shared library.

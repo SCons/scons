@@ -1,0 +1,67 @@
+RELEASE 0.06 - Thu, 28 Mar 2002 01:24:29 -0600
+
+  From Charles Crain:
+
+  - Fix command generators to expand construction variables.
+
+  - Make FunctionAction arguments be Nodes, not strings.
+
+  From Stephen Kennedy:
+
+  - Performance:  Use a dictionary, not a list, for a Node's parents.
+
+  From Steven Knight:
+
+  - Add .zip files to the packages we build.
+
+  - Man page:  document LIBS, fix a typo, document ARGUMENTS.
+
+  - Added RANLIB and RANLIBFLAGS construction variables.  Only use them
+    in ARCOM if there's a "ranlib" program on the system.
+
+  - Add a configurable CFILESUFFIX for the Builder of .l and .y files
+    into C files.
+
+  - Add a CXXFile Builder that turns .ll and .yy files into .cc files
+    (configurable via a CXXFILESUFFIX construction variable).
+
+  - Use the POSIX-standard lex -t flag, not the GNU-specific -o flag.
+    (Bug reported by Russell Christensen.)
+
+  - Fixed an exception when CPPPATH or LIBPATH is a null string.
+    (Bug reported by Richard Kiss.)
+
+  - Add a --profile=FILE option to make profiling SCons easier.
+
+  - Modify the new DVI builder to create .dvi files from LaTeX (.ltx
+    and .latex) files.
+
+  - Add support for Aliases (phony targets).
+
+  - Add a WhereIs() method for searching for path names to executables.
+
+  - Add PDF and PostScript document builders.
+
+  - Add support for compiling Fortran programs from a variety of
+    suffixes (a la GNU Make):  .f, .F, .for, .FOR, .fpp and .FPP
+
+  - Support a CPPFLAGS variable on all default commands that use the
+    C preprocessor.
+
+  From Steve Leblanc:
+
+  - Add support for the -U option.
+
+  - Allow CPPPATH, LIBPATH and LIBS to be specified as white-space
+    separated strings.
+
+  - Add a document builder to create .dvi files from TeX (.tex) files.
+
+  From Anthony Roach:
+
+  - Fix:  Construction variables with values of 0 were incorrectly
+    interpolated as ''.
+
+  - Support env['VAR'] to fetch construction variable values.
+
+  - Man page:  document Precious().

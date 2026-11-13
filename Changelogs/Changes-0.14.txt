@@ -1,0 +1,146 @@
+RELEASE 0.14 - Wed, 21 May 2003 05:16:32 -0500
+
+  From Chad Austin:
+
+  - Use .dll (not .so) for shared libraries on Cygwin; use -fPIC
+    when compiling them.
+
+  - Use 'rm' to remove files under Cygwin.
+
+  - Add a PLATFORM variable to construction environments.
+
+  - Remove the "platform" argument from tool specifications.
+
+  - Propogate PYTHONPATH when running the regression tests so distutils
+    can be found in non-standard locations.
+
+  - Using MSVC long command-line linking when running Cygwin.
+
+  - Portability fixes for a lot of tests.
+
+  - Add a Value Node class for dependencies on in-core Python values.
+
+  From Allen Bierbaum:
+
+  - Pass an Environment to the Options validator method, and
+    add an Options.Save() method.
+
+  From Steve Christensen:
+
+  - Add an optional sort function argument to the GenerateHelpText()
+    Options function.
+
+  - Evaluate the "varlist" variables when computing the signature of a
+    function action.
+
+  From Charles Crain:
+
+  - Parse the source .java files for class names (including inner class
+    names) to figure out the target .class files that will be created.
+
+  - Make Java support work with Repositories and SConscriptChdir(0).
+
+  - Pass Nodes, not strings, to Builder emitter functions.
+
+  - Refactor command-line interpolation and signature calculation
+    so we can use real Node attributes.
+
+  From Steven Knight:
+
+  - Add Java support (javac, javah, jar and rmic).
+
+  - Propagate the external SYSTEMROOT environment variable into ENV on
+    Win32 systems, so external commands that use sockets will work.
+
+  - Add a .posix attribute to PathList expansions.
+
+  - Check out CVS source files using POSIX path names (forward slashes
+    as separators) even on Win32.
+
+  - Add Node.clear() and Node.FS.Entry.clear() methods to wipe out a
+    Node's state, allowing it to be re-evaluated by continuous
+    integration build interfaces.
+
+  - Change the name of the Set{Build,Content}SignatureType() functions
+    to {Target,Source}Signatures().  Deprecate the old names but support
+    them for backwards compatibility.
+
+  - Add internal SCons.Node.FS.{Dir,File}.Entry() methods.
+
+  - Interpolate the null string if an out-of-range subscript is used
+    for a construction variable.
+
+  - Fix the internal Link function so that it properly links or copies
+    files in subsidiary BuildDir directories.
+
+  - Refactor the internal representation of a single execution instance
+    of an action to eliminate redundant signature calculations.
+
+  - Eliminate redundant signature calculations for Nodes.
+
+  - Optimize out calling hasattr() before accessing attributes.
+
+  - Say "Cleaning targets" (not "Building...") when the -c option is
+    used.
+
+  From Damyan Pepper:
+
+  - Quote the "Entering directory" message like Make.
+
+  From Stefan Reichor:
+
+  - Add support for using Ghostscript to convert Postscript to PDF files.
+
+  From Anthony Roach:
+
+  - Add a standalone "Alias" function (separate from an Environment).
+
+  - Make Export() work for local variables.
+
+  - Support passing a dictionary to Export().
+
+  - Support Import('*') to import everything that's been Export()ed.
+
+  - Fix an undefined exitvalmap on Win32 systems.
+
+  - Support new SetOption() and GetOption() functions for setting
+    various command-line options from with an SConscript file.
+
+  - Deprecate the old SetJobs() and GetJobs() functions in favor of
+    using the new generic {Set,Get}Option() functions.
+
+  - Fix a number of tests that searched for a Fortran compiler using the
+    external PATH instead of what SCons would use.
+
+  - Fix the interaction of SideEffect() and BuildDir() so that (for
+    example) PDB files get put correctly in a BuildDir().
+
+  From David Snopek:
+
+  - Contribute the "Autoscons" code for Autoconf-like checking for
+    the existence of libraries, header files and the like.
+
+  - Have the Tool() function add the tool name to the $TOOLS
+    construction variable.
+
+  From Greg Spencer:
+
+  - Support the C preprocessor #import statement.
+
+  - Allow the SharedLibrary() Builder on Win32 systems to be able to
+    register a newly-built dll using regsvr32.
+
+  - Add a Builder for Windows type library (.tlb) files from IDL files.
+
+  - Add an IDL scanner.
+
+  - Refactor the Fortran, C and IDL scanners to share common logic.
+
+  - Add .srcpath and .srcdir attributes to $TARGET and $SOURCE.
+
+  From Christoph Wiedemann:
+
+  - Integrate David Snopek's "Autoscons" code as the new SConf
+    configuration subsystem, including caching of values between
+    runs (using normal SCons dependency mechanisms), tests, and
+    documentation.
