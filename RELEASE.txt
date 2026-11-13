@@ -67,6 +67,11 @@ FIXES
 
 - Fix ninja to honor AlwaysBuild on a target
 
+- Fix ninja to honor AddPreAction() and AddPostAction() actions, which were
+  silently omitted from the generated build.ninja. A pre or post action that
+  cannot be translated to a ninja rule makes the node fall back to a TEMPLATE
+  rule, so SCons runs the full action list.
+
 - ParseDepends() keeps Windows drive-letter paths in make-style depfiles
   instead of splitting at the first colon.
 

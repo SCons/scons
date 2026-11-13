@@ -31,7 +31,10 @@ import TestCmd
 
 from SCons.Action import CommandAction, ListAction
 from SCons.Action import CommandGeneratorAction, FunctionAction, LazyAction
+import SCons.Tool.ninja_tool
 from SCons.Environment import Base as BaseEnvironment
+from SCons.Tool.ninja_tool import NINJA_CUSTOM_HANDLERS
+from SCons.Tool.ninja_tool.NinjaState import SConsToNinjaTranslator
 from SCons.Tool.ninja_tool.Utils import generate_command
 
 
@@ -114,6 +117,80 @@ class TestGenerateCommand(unittest.TestCase):
         action = LazyAction("CCCOM", kw={})
         cmd = generate_command(self.env, None, action, self.target, self.source)
         self.assertEqual(cmd, f"gcc -c -o {self.target[0]} {self.source[0]}")
+
+
+class _NinjaStateStub:
+    """Minimal stand-in for NINJA_STATE; only ninja_file is consulted by the translator."""
+    ninja_file = None
+
+
+class TestActionToNinjaBuildPrePostActions(unittest.TestCase):
+    """Test that AddPreAction/AddPostAction actions are translated into the ninja build."""
+
+    def setUp(self):
+        self.env = BaseEnvironment()
+        self.env[NINJA_CUSTOM_HANDLERS] = {}
+        self._saved_ninja_state = SCons.Tool.ninja_tool.NINJA_STATE
+        SCons.Tool.ninja_tool.NINJA_STATE = _NinjaStateStub()
+        self.translator = SConsToNinjaTranslator(self.env)
+
+    def tearDown(self):
+        SCons.Tool.ninja_tool.NINJA_STATE = self._saved_ninja_state
+
+    def _command_node(self):
+        return self.env.Command('out.txt', 'in.txt', 'cat $SOURCE > $TARGET')[0]
+
+    def test_no_pre_post_actions(self):
+        """A plain command builder still produces only its own command."""
+        node = self._command_node()
+        build = self.translator.action_to_ninja_build(node)
+        self.assertEqual(build['rule'], 'GENERATED_CMD')
+        self.assertEqual(build['variables']['cmd'], 'cat in.txt > out.txt')
+
+    def test_pre_and_post_command_actions(self):
+        """Pre and post command actions are merged in order with the main command."""
+        node = self._command_node()
+        self.env.AddPreAction('out.txt', 'echo pre > pre.txt')
+        self.env.AddPostAction('out.txt', 'echo post > post.txt')
+        build = self.translator.action_to_ninja_build(node)
+        self.assertEqual(build['rule'], 'GENERATED_CMD')
+        self.assertEqual(
+            build['variables']['cmd'],
+            'echo pre > pre.txt && cat in.txt > out.txt && echo post > post.txt',
+        )
+
+    def test_pre_action_only(self):
+        """A pre action alone is still included in the ninja command."""
+        node = self._command_node()
+        self.env.AddPreAction('out.txt', 'echo pre > pre.txt')
+        build = self.translator.action_to_ninja_build(node)
+        self.assertEqual(
+            build['variables']['cmd'],
+            'echo pre > pre.txt && cat in.txt > out.txt',
+        )
+
+    def test_post_action_only(self):
+        """A post action alone is still included in the ninja command."""
+        node = self._command_node()
+        self.env.AddPostAction('out.txt', 'echo post > post.txt')
+        build = self.translator.action_to_ninja_build(node)
+        self.assertEqual(
+            build['variables']['cmd'],
+            'cat in.txt > out.txt && echo post > post.txt',
+        )
+
+    def test_unhandled_function_pre_action_falls_back_to_template(self):
+        """An unhandled Python function pre action must not be silently dropped.
+
+        The node falls back to a TEMPLATE rule so SCons runs the full action list.
+        """
+        def pre_func(target, source, env):
+            return 0
+
+        node = self._command_node()
+        self.env.AddPreAction('out.txt', pre_func)
+        build = self.translator.action_to_ninja_build(node)
+        self.assertEqual(build['rule'], 'TEMPLATE')
 
 
 if __name__ == "__main__":
