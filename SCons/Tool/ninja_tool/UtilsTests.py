@@ -27,13 +27,16 @@ from __future__ import annotations
 
 import unittest
 
-import TestCmd
-
-from SCons.Action import CommandAction, ListAction
-from SCons.Action import CommandGeneratorAction, FunctionAction, LazyAction
 import SCons.Action
 import SCons.Node.FS
 import SCons.Tool.ninja_tool
+from SCons.Action import (
+    CommandAction,
+    CommandGeneratorAction,
+    FunctionAction,
+    LazyAction,
+    ListAction,
+)
 from SCons.Environment import Base as BaseEnvironment
 from SCons.Tool.ninja_tool import NINJA_CUSTOM_HANDLERS
 from SCons.Tool.ninja_tool.NinjaState import SConsToNinjaTranslator

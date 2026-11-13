@@ -27,15 +27,13 @@ but uses a list action where the first command is Copy,
 as opposed to a simple function action. This was failing.
 """
 
-import os
-
 import TestSCons
 from TestCmd import IS_WINDOWS
 
 test = TestSCons.TestSCons()
 
 try:
-    import ninja
+    import ninja  # noqa: F401  (import only checks that ninja is installed)
 except ImportError:
     test.skip_test("Could not find module in python")
 
