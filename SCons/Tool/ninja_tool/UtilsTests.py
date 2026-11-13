@@ -31,6 +31,8 @@ import TestCmd
 
 from SCons.Action import CommandAction, ListAction
 from SCons.Action import CommandGeneratorAction, FunctionAction, LazyAction
+import SCons.Action
+import SCons.Node.FS
 import SCons.Tool.ninja_tool
 from SCons.Environment import Base as BaseEnvironment
 from SCons.Tool.ninja_tool import NINJA_CUSTOM_HANDLERS
@@ -128,6 +130,9 @@ class TestActionToNinjaBuildPrePostActions(unittest.TestCase):
     """Test that AddPreAction/AddPostAction actions are translated into the ninja build."""
 
     def setUp(self):
+        # Each test builds 'out.txt' with different actions, so use a fresh
+        # default filesystem to avoid the global node cache leaking between tests.
+        SCons.Node.FS.default_fs = None
         self.env = BaseEnvironment()
         self.env[NINJA_CUSTOM_HANDLERS] = {}
         self._saved_ninja_state = SCons.Tool.ninja_tool.NINJA_STATE
@@ -136,6 +141,7 @@ class TestActionToNinjaBuildPrePostActions(unittest.TestCase):
 
     def tearDown(self):
         SCons.Tool.ninja_tool.NINJA_STATE = self._saved_ninja_state
+        SCons.Node.FS.default_fs = None
 
     def _command_node(self):
         return self.env.Command('out.txt', 'in.txt', 'cat $SOURCE > $TARGET')[0]
@@ -178,6 +184,49 @@ class TestActionToNinjaBuildPrePostActions(unittest.TestCase):
             build['variables']['cmd'],
             'cat in.txt > out.txt && echo post > post.txt',
         )
+
+    def test_list_action_with_pre_and_post_actions(self):
+        """Pre and post actions wrap a builder whose action is a list of commands."""
+        node = self.env.Command('out.txt', 'in.txt', ['echo a > $TARGET', 'echo b >> $TARGET'])[0]
+        self.env.AddPreAction('out.txt', 'echo pre > pre.txt')
+        self.env.AddPostAction('out.txt', 'echo post >> $TARGET')
+        build = self.translator.action_to_ninja_build(node)
+        self.assertEqual(build['rule'], 'GENERATED_CMD')
+        self.assertEqual(
+            build['variables']['cmd'],
+            'echo pre > pre.txt && echo a > out.txt && echo b >> out.txt && echo post >> out.txt',
+        )
+
+    def test_nested_list_action_with_pre_and_post_actions(self):
+        """A nested ListAction inside the action list merges with pre and post actions."""
+        inner = SCons.Action.ListAction(['echo a > $TARGET', 'echo b >> $TARGET'])
+        node = self.env.Command('out.txt', 'in.txt', inner)[0]
+        self.env.AddPreAction('out.txt', 'echo pre > pre.txt')
+        self.env.AddPostAction('out.txt', 'echo post >> $TARGET')
+        build = self.translator.action_to_ninja_build(node)
+        self.assertEqual(build['rule'], 'GENERATED_CMD')
+        self.assertEqual(
+            build['variables']['cmd'],
+            'echo pre > pre.txt && echo a > out.txt && echo b >> out.txt && echo post >> out.txt',
+        )
+
+    def test_unhandled_function_main_action_falls_back_to_template(self):
+        """An unhandled Python function as the builder's action becomes a TEMPLATE rule."""
+        def main_func(target, source, env):
+            return 0
+
+        node = self.env.Command('out.txt', 'in.txt', main_func)[0]
+        build = self.translator.action_to_ninja_build(node)
+        self.assertEqual(build['rule'], 'TEMPLATE')
+
+    def test_unhandled_function_in_list_action_falls_back_to_template(self):
+        """A function action mixed into a command list must not drop the commands."""
+        def mid_func(target, source, env):
+            return 0
+
+        node = self.env.Command('out.txt', 'in.txt', ['echo a > $TARGET', mid_func])[0]
+        build = self.translator.action_to_ninja_build(node)
+        self.assertEqual(build['rule'], 'TEMPLATE')
 
     def test_unhandled_function_pre_action_falls_back_to_template(self):
         """An unhandled Python function pre action must not be silently dropped.
