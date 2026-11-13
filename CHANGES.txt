@@ -154,6 +154,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       be used. The User Guide and tool docs were reworked to present the
       javac -h mechanism as the normal path, with javah described as the
       legacy fallback.
+    - Introduce unit tests for SCons-specific framework modules.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
