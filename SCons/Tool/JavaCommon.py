@@ -587,8 +587,117 @@ def get_java_install_dirs(platform, version=None) -> list[str]:
     return []
 
 
+def find_javac(env, version=None) -> str | None:
+    """Return the path of the ``javac`` which will be used.
+
+    The ``JAVAC`` construction variable is honored: if it holds a
+    path, that path is used as it is, and if it holds the name of a
+    program, that program is looked up in the search path.  Otherwise
+    ``javac`` is looked up in the search path, and on Windows also in
+    the usual installation directories.
+
+    Args:
+        env: the construction environment.
+        version: if not None, restrict the search for a JDK to this
+            version (Windows only).
+
+    Returns:
+        the path of the javac, or None if it was not found.
+    """
+    javac = env.get('JAVAC')
+    if javac:
+        if os.path.isabs(javac):
+            return javac
+        found = env.WhereIs(javac)
+        if found:
+            return found
+    # Only the path the build will use is searched, so that the javac
+    # which is found is the javac which will run.
+    found = env.WhereIs('javac')
+    if found:
+        return found
+    if env['PLATFORM'] == 'win32':
+        for bindir in get_java_install_dirs('win32', version=version):
+            found = env.WhereIs('javac', path=[bindir])
+            if found:
+                return found
+    return None
+
+
+def _jdk_home(tool_path) -> str | None:
+    """Return the root directory of the JDK which holds *tool_path*.
+
+    Args:
+        tool_path: the path of a tool in a JDK, e.g. ``.../bin/javac``.
+
+    Returns:
+        the root directory of the JDK, or None if *tool_path* is not
+        laid out like the tool of a JDK.
+    """
+    path = os.path.realpath(tool_path)
+    bin_dir = os.path.dirname(path)
+    if os.path.basename(bin_dir).lower() != 'bin':
+        return None
+    home = os.path.dirname(bin_dir)
+    # JDK 8 and older kept the tools in a separate jre directory.
+    if os.path.basename(home).lower() == 'jre':
+        home = os.path.dirname(home)
+    return home
+
+
+def get_java_home(env, version=None) -> str | None:
+    """Return the root directory of the JDK whose tools will be used.
+
+    The JDK is the one which holds the ``javac`` that will compile the
+    Java sources, so that the other Java tools and the JNI include
+    files all come from the same JDK.
+
+    Args:
+        env: the construction environment.
+        version: if not None, restrict the search for a JDK to this
+            version (Windows only).
+
+    Returns:
+        the root directory of the JDK, or None if no JDK was found.
+    """
+    javac = find_javac(env, version)
+    if not javac:
+        return None
+    return _jdk_home(javac)
+
+
+def get_java_tool(env, name, version=None) -> str | None:
+    """Return the path of a Java tool in the JDK SCons uses.
+
+    Only the JDK found by :func:`get_java_home` is searched; the
+    search path is deliberately not consulted.  A tool taken from a
+    different JDK does not match the classes which the JDK's javac
+    compiles.
+
+    Args:
+        env: the construction environment.
+        name: the name of the tool, e.g. ``javah``.
+        version: if not None, restrict the search for a JDK to this
+            version (Windows only).
+
+    Returns:
+        the path of the tool, or None if the JDK does not have it.
+    """
+    home = get_java_home(env, version)
+    if not home:
+        return None
+    for subdir in ('bin', 'jre/bin'):
+        found = env.WhereIs(name, path=[os.path.join(home, subdir)])
+        if found:
+            return found
+    return None
+
+
 def get_java_include_paths(env, javac, version) -> list[str]:
     """Find java include paths for JNI building.
+
+    The include files are taken from the JDK which holds *javac*, so
+    that they match the compiler which is used.
 
     Cannot be called in isolation - `javac` refers to an already detected
     compiler. Normally would would call :func:`get_java_install_dirs` first
@@ -605,6 +714,22 @@ def get_java_include_paths(env, javac, version) -> list[str]:
 
     if not javac:
         return []
+
+    # The javac tells us which JDK is used, so take the include files
+    # from that JDK and not from whichever JDKs happen to be installed.
+    home = _jdk_home(javac)
+    if home:
+        java_inc_dir = os.path.join(home, 'include')
+        if env['PLATFORM'] == 'win32':
+            paths = [java_inc_dir, os.path.join(java_inc_dir, 'win32')]
+        elif env['PLATFORM'] == 'darwin':
+            paths = [java_inc_dir, os.path.join(java_inc_dir, 'darwin')]
+        else:
+            paths = [java_inc_dir, os.path.join(java_inc_dir, 'linux')]
+        return paths
+
+    # We could not work out which JDK the javac belongs to, so fall
+    # back to searching the usual locations.
 
     # on Windows, we have a path to the actual javac, so look locally
     if env['PLATFORM'] == 'win32':
