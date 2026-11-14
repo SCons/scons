@@ -475,6 +475,18 @@ def generate(env):
     # date-ness.
     SCons.Script.Main.BuildTask.needs_execute = lambda x: True
 
+    # SCons releases the executor of an up-to-date node before ninja_execute
+    # runs, but it holds the node's AddPreAction()/AddPostAction() actions.
+    File_release_target_info = SCons.Node.FS.File.release_target_info
+
+    def ninja_release_target_info(self) -> None:
+        executor = getattr(self, "executor", None)
+        if getattr(executor, "pre_actions", None) or getattr(executor, "post_actions", None):
+            return
+        File_release_target_info(self)
+
+    SCons.Node.FS.File.release_target_info = ninja_release_target_info
+
     def ninja_Set_Default_Targets(env, tlist) -> None:
         """
             Record the default targets if they were ever set by the user. Ninja

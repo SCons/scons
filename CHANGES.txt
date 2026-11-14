@@ -31,6 +31,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - ninja: support compiler variables with a launcher prefix, such as
       CC="ccache clang". Generating the ninja file failed with "Could not
       find tool $CC", because the tool was searched for as a single token.
+    - ninja: run actions added with AddPreAction() and AddPostAction().
+      They were left out of the ninja file. Command actions now run in the
+      target's ninja command, before and after its own action, so ninja
+      runs them without SCons. Other actions, such as a Python function,
+      make SCons build the target. A ListAction mixing command and other
+      actions no longer silently drops some of them from the ninja command.
 
   From Thaddeus Crews:
     - ty: Initial support setup within `pyproject.toml`.
