@@ -45,15 +45,7 @@ ninja_bin = TestSCons.NINJA_BINARY
 
 test.dir_fixture('ninja-fixture')
 
-test.write('SConstruct', """\
-SetOption('experimental', 'ninja')
-DefaultEnvironment(tools=[])
-env = Environment()
-env.Tool('ninja')
-prog = env.Program(target='foo', source='foo.c')
-env.AddPostAction(prog, 'echo post > post.marker')
-""",
-)
+test.file_fixture('ninja_test_sconscripts/sconstruct_pre_post_actions_regen', 'SConstruct')
 
 # Generate, build with ninja, then regenerate repeatedly.
 test.run(arguments='--disable-execute-ninja', stdout=None)
