@@ -84,6 +84,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       action that cannot be translated to a ninja rule (e.g. an unhandled
       Python function) makes the node fall back to a TEMPLATE rule, so SCons
       runs the complete action list instead of dropping actions.
+    - ninja: AddPreAction() and AddPostAction() actions were lost when the ninja
+      file was regenerated after a build. SCons released the target's executor
+      once it was up to date, and the next generation then saw no actions.
+      Releasing the executor is now skipped while generating ninja.
 
   From Adam Matthews:
     - SConstruct and SConscript files (including one read from stdin),
