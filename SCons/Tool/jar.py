@@ -40,7 +40,7 @@ import SCons.Tool
 import SCons.Util
 import SCons.Warnings
 from SCons.Node.FS import _my_normcase
-from SCons.Tool.JavaCommon import get_java_install_dirs
+from SCons.Tool.JavaCommon import get_java_tool
 
 
 def jarSources(target, source, env, for_signature) -> list[str]:
@@ -227,8 +227,8 @@ def generate(env) -> None:
 
     if env['PLATFORM'] == 'win32':
         # Ensure that we have a proper path for jar
-        paths = get_java_install_dirs('win32')
-        jar = SCons.Tool.find_program_path(env, 'jar', default_paths=paths)
+        version = env.get('JAVAVERSION', None)
+        jar = get_java_tool(env, 'jar', version)
         if jar:
             jar_bin_dir = os.path.dirname(jar)
             env.AppendENVPath('PATH', jar_bin_dir)

@@ -36,7 +36,7 @@ import SCons.Builder
 import SCons.Node.FS
 import SCons.Util
 
-from SCons.Tool.JavaCommon import get_java_install_dirs
+from SCons.Tool.JavaCommon import get_java_tool
 
 
 def emit_rmic_classes(target, source, env):
@@ -107,9 +107,7 @@ def generate(env) -> None:
     if env['PLATFORM'] == 'win32':
         version = env.get('JAVAVERSION', None)
         # Ensure that we have a proper path for rmic
-        paths = get_java_install_dirs('win32', version=version)
-        rmic = SCons.Tool.find_program_path(env, 'rmic', default_paths=paths)
-        # print("RMIC: %s"%rmic)
+        rmic = get_java_tool(env, 'rmic', version)
         if rmic:
             rmic_bin_dir = os.path.dirname(rmic)
             env.AppendENVPath('PATH', rmic_bin_dir)

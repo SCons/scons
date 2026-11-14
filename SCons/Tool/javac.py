@@ -36,7 +36,11 @@ from collections import OrderedDict
 import SCons.Action
 import SCons.Builder
 from SCons.Node.FS import _my_normcase
-from SCons.Tool.JavaCommon import parse_java_file, get_java_install_dirs, get_java_include_paths
+from SCons.Tool.JavaCommon import (
+    find_javac,
+    get_java_include_paths,
+    parse_java_file,
+)
 import SCons.Util
 
 def classname(path):
@@ -208,16 +212,13 @@ def generate(env) -> None:
 
     version = env.get('JAVAVERSION', None)
 
-    if env['PLATFORM'] == 'win32':
+    # Find the javac which will be used, so that the JNI include files
+    # are taken from the same JDK.
+    javac = find_javac(env, version)
+    if javac and env['PLATFORM'] == 'win32':
         # Ensure that we have a proper path for javac
-        paths = get_java_install_dirs('win32', version=version)
-        javac = SCons.Tool.find_program_path(env, 'javac', default_paths=paths)
-        if javac:
-            javac_bin_dir = os.path.dirname(javac)
-            env.AppendENVPath('PATH', javac_bin_dir)
-    else:
-        javac = SCons.Tool.find_program_path(env, 'javac')
-
+        javac_bin_dir = os.path.dirname(javac)
+        env.AppendENVPath('PATH', javac_bin_dir)
 
     env.SetDefault(
         JAVAC='javac',

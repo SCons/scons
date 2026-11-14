@@ -22,12 +22,17 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import os.path
-import unittest
 import fnmatch
+import os.path
+import shutil
+import tempfile
+import unittest
+from unittest import mock
 
+import SCons.Environment
 import SCons.Scanner.IDL
 import SCons.Tool.JavaCommon
+import SCons.Util
 
 import TestSCons
 
@@ -885,6 +890,126 @@ public class Outer {
                     "Didn't properly match %s with version (%s) specific pattern %s"
                     % (wjd, version, java_macos_version_include_dir_glob % version)
                 )
+
+
+class JavaResolverTestCase(unittest.TestCase):
+    """Tests for finding the JDK and the tools in it."""
+
+    def setUp(self) -> None:
+        self.tmpdir = os.path.realpath(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmpdir, True)
+        # A fake JDK, with the tools in bin and the headers in include.
+        self.jdk = os.path.join(self.tmpdir, 'jdk')
+        os.makedirs(os.path.join(self.jdk, 'bin'))
+        os.makedirs(os.path.join(self.jdk, 'include'))
+        self.javac = self._make_tool(self.jdk, 'javac')
+        self.env = SCons.Environment.Environment(tools=[])
+        self.env['PLATFORM'] = 'posix'
+        self.env['ENV'] = {'PATH': os.path.join(self.jdk, 'bin')}
+        self.env['JAVAC'] = self.javac
+
+    def _make_tool(self, jdk, name):
+        """Create a fake tool in the bin directory of *jdk*."""
+        if os.name == 'nt':
+            name += '.exe'
+        path = os.path.join(jdk, 'bin', name)
+        with open(path, 'w') as f:
+            f.write('#!/bin/sh\n')
+        os.chmod(path, 0o755)
+        return path
+
+    def test_find_javac_explicit_path(self) -> None:
+        """A JAVAC which is a path is used as it is."""
+        found = SCons.Tool.JavaCommon.find_javac(self.env)
+        assert found == self.javac, found
+
+    def test_find_javac_by_name(self) -> None:
+        """A JAVAC which names a program is looked up in the path."""
+        env = self.env.Clone()
+        env['JAVAC'] = 'javac'
+        found = SCons.Tool.JavaCommon.find_javac(env)
+        assert os.path.normcase(found) == os.path.normcase(self.javac), found
+
+    def test_find_javac_not_found(self) -> None:
+        """A javac which cannot be found is reported as such."""
+        env = self.env.Clone()
+        env['JAVAC'] = 'nosuchjavac'
+        env['ENV'] = {'PATH': os.path.join(self.tmpdir, 'empty')}
+        found = SCons.Tool.JavaCommon.find_javac(env)
+        assert found is None, found
+
+    def test_find_javac_windows_system_path(self) -> None:
+        """On Windows the system search path is searched as well."""
+        env = self.env.Clone()
+        env['JAVAC'] = 'javac'
+        env['PLATFORM'] = 'win32'
+        env['ENV'] = {'PATH': os.path.join(self.tmpdir, 'empty')}
+        where_is = mock.patch.object(SCons.Util, 'WhereIs', return_value=self.javac)
+        install_dirs = mock.patch.object(
+            SCons.Tool.JavaCommon, 'get_java_install_dirs', return_value=[]
+        )
+        with where_is, install_dirs:
+            found = SCons.Tool.JavaCommon.find_javac(env)
+        assert found == self.javac, found
+
+    def test_find_javac_system_path_posix(self) -> None:
+        """The system search path is not searched outside Windows."""
+        env = self.env.Clone()
+        env['JAVAC'] = 'javac'
+        env['ENV'] = {'PATH': os.path.join(self.tmpdir, 'empty')}
+        with mock.patch.object(SCons.Util, 'WhereIs', return_value=self.javac):
+            found = SCons.Tool.JavaCommon.find_javac(env)
+        assert found is None, found
+
+    def test_jdk_home(self) -> None:
+        """The JDK of a tool is found from the path of the tool."""
+        home = SCons.Tool.JavaCommon._jdk_home(self.javac)
+        assert home == self.jdk, home
+
+    def test_jdk_home_jre(self) -> None:
+        """JDK 8 and older keep the tools in a jre directory."""
+        old = os.path.join(self.tmpdir, 'old')
+        os.makedirs(os.path.join(old, 'jre', 'bin'))
+        javac = self._make_tool(os.path.join(old, 'jre'), 'javac')
+        home = SCons.Tool.JavaCommon._jdk_home(javac)
+        assert home == old, home
+
+    def test_jdk_home_no_jdk(self) -> None:
+        """A tool which is not in a bin directory has no JDK."""
+        home = SCons.Tool.JavaCommon._jdk_home('/usr/local/javac')
+        assert home is None, home
+
+    def test_get_java_home(self) -> None:
+        """The JDK is the one which holds the javac which will be used."""
+        home = SCons.Tool.JavaCommon.get_java_home(self.env)
+        assert home == self.jdk, home
+
+    def test_get_java_tool(self) -> None:
+        """A tool is taken from the JDK of the javac."""
+        javah = self._make_tool(self.jdk, 'javah')
+        found = SCons.Tool.JavaCommon.get_java_tool(self.env, 'javah')
+        assert os.path.normcase(found) == os.path.normcase(javah), found
+
+    def test_get_java_tool_other_jdk(self) -> None:
+        """A tool which the JDK does not have is not taken from another JDK."""
+        other = os.path.join(self.tmpdir, 'other')
+        os.makedirs(os.path.join(other, 'bin'))
+        self._make_tool(other, 'javah')
+        env = self.env.Clone()
+        env['ENV'] = {'PATH': os.path.join(other, 'bin')}
+        found = SCons.Tool.JavaCommon.get_java_tool(env, 'javah')
+        assert found is None, found
+
+    def test_include_paths(self) -> None:
+        """The JNI include files come from the JDK of the javac."""
+        paths = SCons.Tool.JavaCommon.get_java_include_paths(self.env, self.javac, None)
+        inc = os.path.join(self.jdk, 'include')
+        assert paths == [inc, os.path.join(inc, 'linux')], paths
+
+    def test_include_paths_no_javac(self) -> None:
+        """Without a javac there are no include files."""
+        paths = SCons.Tool.JavaCommon.get_java_include_paths(self.env, None, None)
+        assert paths == [], paths
 
 
 if __name__ == "__main__":

@@ -121,6 +121,13 @@ FIXES
   javac -h mechanism as the normal path, with javah described as the
   legacy fallback.
 
+- Java tool refactored: find the JDK which is used once, and take the Java
+  tools and the JNI include files from it. The JNI include paths (JAVAINCLUDES)
+  were found by globbing for every JDK which happens to be installed,
+  so they could point at a different JDK than the javac which compiles
+  the classes. They now come from the JDK of the javac which will be
+  used, which also honours an explicitly set JAVAC.
+
 IMPROVEMENTS
 ------------
 
