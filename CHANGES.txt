@@ -77,6 +77,17 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       could start another before it was recorded, so more than -j worker
       threads could run. This made test/option/stack-size.py intermittently
       report an extra "Setting stack size failed" warning.
+    - ninja: honor AddPreAction() and AddPostAction() actions. They are stored
+      on the node's Executor, but the ninja translator only looked at the
+      builder's action, so they were silently left out of build.ninja. The
+      translator now uses the executor's full action list. A pre or post
+      action that cannot be translated to a ninja rule (e.g. an unhandled
+      Python function) makes the node fall back to a TEMPLATE rule, so SCons
+      runs the complete action list instead of dropping actions.
+    - ninja: AddPreAction() and AddPostAction() actions were lost when the ninja
+      file was regenerated after a build. SCons released the target's executor
+      once it was up to date, and the next generation then saw no actions.
+      Releasing the executor is now skipped while generating ninja.
 
   From Adam Matthews:
     - SConstruct and SConscript files (including one read from stdin),

@@ -364,6 +364,12 @@ def generate(env):
     SCons.Node.FS.File.built = ninja_noop
     SCons.Node.Node.visited = ninja_noop
 
+    # Releasing an up-to-date node's executor drops its AddPreAction() and
+    # AddPostAction() actions, which ninja generation needs to emit the edge.
+    # If the release happened on one generation, the next generation would
+    # lose those actions, so skip it while generating.
+    SCons.Node.FS.File.release_target_info = ninja_noop
+
     # We make lstat a no-op because it is only used for SONAME
     # symlinks which we're not producing.
     SCons.Node.FS.LocalFS.lstat = ninja_noop
