@@ -296,7 +296,7 @@ class NinjaState:
 
         if env['PLATFORM'] == 'darwin' and env.get('AR', "") == 'ar':
             self.rules["AR"] = {
-                "command": "rm -f $out && $env$AR $rspc",
+                "command": "rm -f $out && $env$pre$AR $rspc$post",
                 "description": "Archiving $out",
                 "pool": "local_pool",
             }
@@ -900,7 +900,13 @@ class SConsToNinjaTranslator:
         all_outputs = list({output for build in results for output in build["outputs"]})
         dependencies = list({dep for build in results for dep in build.get("implicit", [])})
 
-        if results[0]["rule"] in ('CMD', 'GENERATED_CMD'):
+        # Only merge when every sub-action maps to the same kind of ninja rule.
+        # Mixing kinds (e.g. a command plus a TEMPLATE fallback from an
+        # unhandled function action) would silently drop some actions, so fall
+        # through to the whole-node TEMPLATE below and let SCons run them all.
+        rules = {result["rule"] for result in results}
+
+        if rules <= {'CMD', 'GENERATED_CMD'}:
             cmdline = ""
             for cmd in results:
                 # Occasionally a command line will expand to a
@@ -955,14 +961,14 @@ class SConsToNinjaTranslator:
 
                 return ninja_build
 
-        elif results[0]["rule"] == "phony":
+        elif rules == {"phony"}:
             return {
                 "outputs": all_outputs,
                 "rule": "phony",
                 "implicit": dependencies,
             }
 
-        elif results[0]["rule"] == "INSTALL":
+        elif rules == {"INSTALL"}:
             return {
                 "outputs": all_outputs,
                 "rule": get_rule(node, "INSTALL"),

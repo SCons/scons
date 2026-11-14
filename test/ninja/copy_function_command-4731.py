@@ -51,7 +51,7 @@ SetOption('experimental', 'ninja')
 DefaultEnvironment(tools=[])
 env = Environment()
 env.Tool('ninja')
-env.Command('foo2.c', ['foo.c'], [Copy('$TARGET', '$SOURCE'), Chmod('$TARGET', 0x755)])
+env.Command('foo2.c', ['foo.c'], [Copy('$TARGET', '$SOURCE'), Chmod('$TARGET', 0o755)])
 env.Program(target='foo', source='foo2.c')
 """,
 )
