@@ -594,7 +594,7 @@ def find_javac(env, version=None) -> str | None:
     path, that path is used as it is, and if it holds the name of a
     program, that program is looked up in the search path.  Otherwise
     ``javac`` is looked up in the search path, and on Windows also in
-    the usual installation directories.
+    the system search path and the usual installation directories.
 
     Args:
         env: the construction environment.
@@ -608,17 +608,33 @@ def find_javac(env, version=None) -> str | None:
     if javac:
         if os.path.isabs(javac):
             return javac
-        found = env.WhereIs(javac)
+        found = _where_is(env, javac, version)
         if found:
             return found
     # Only the path the build will use is searched, so that the javac
     # which is found is the javac which will run.
-    found = env.WhereIs('javac')
+    return _where_is(env, 'javac', version)
+
+
+def _where_is(env, program, version=None) -> str | None:
+    """Return the path of *program* for use by *env*.
+
+    The execution environment is searched first.  On Windows the
+    system search path is searched as well: the platform code does
+    not copy ``PATH`` from the external environment into the
+    construction environment, but the Java tools are commonly
+    installed in a directory which is on the system path.  Finally,
+    the usual Windows JDK installation directories are searched.
+    """
+    found = env.WhereIs(program)
     if found:
         return found
     if env['PLATFORM'] == 'win32':
+        found = SCons.Util.WhereIs(program)
+        if found:
+            return found
         for bindir in get_java_install_dirs('win32', version=version):
-            found = env.WhereIs('javac', path=[bindir])
+            found = env.WhereIs(program, path=[bindir])
             if found:
                 return found
     return None
