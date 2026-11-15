@@ -306,6 +306,10 @@ class TestSCons(TestCommon):
         this method changes directory (chdir) to the workspace directory,
         so an explicit "chdir = '.'" on all of the run() method calls
         is not necessary.
+
+        Pass ``fail_fast=False`` to record failures and continue running
+        instead of stopping at the first one. The final ``pass_test()``
+        then reports failure if any failures were recorded.
         """
         self.orig_cwd = os.getcwd()
         self.external = os.environ.get('SCONS_EXTERNAL_TEST', 0)

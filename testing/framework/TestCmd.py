@@ -58,6 +58,7 @@ There are a bunch of keyword arguments available at instantiation:
         diff_stdout=default_diff_stdout_function,
         diff_stderr=default_diff_stderr_function,
         combine=Boolean,
+        test.fail_fast=Boolean,
     )
 
 There are a bunch of methods that let you do different things:
@@ -193,7 +194,16 @@ between an actual failed test and a test that could not be properly
 evaluated because of an external condition (such as a full file system
 or incorrect permissions).
 
+By default a failure terminates the test immediately. If the ``fail_fast``
+argument is false when the test object is created, ``fail_test()`` instead
+records the failure and returns, so the rest of the test can run. Each
+failure is reported as it occurs; when the test reaches ``pass_test()``,
+any recorded failures cause the test to be reported as failed and to exit
+with a status of 1.
+
     import TestCmd
+
+    test = TestCmd.TestCmd(fail_fast=False)
 
     TestCmd.pass_test()
     TestCmd.pass_test(condition)
@@ -445,32 +455,11 @@ def clean_up_ninja_daemon(self, result_type) -> None:
                 shutil.rmtree(daemon_dir)
 
 
-def fail_test(
-    self=None,
-    condition: bool = True,
-    function: Callable | None = None,
-    skip: int = 0,
-    message: str = "",
-) -> None:
-    """Causes a test to exit with a fail.
+def _failure_text(self, skip: int, message: str) -> str:
+    """Return the text identifying a test failure.
 
-    Reports that the test FAILED and exits with a status of 1, unless
-    a condition argument is supplied; if so the completion processing
-    takes place only if the condition is true.
-
-    Args:
-        self: a test class instance. Must be passed in explicitly
-            by the caller since this is an unbound method.
-        condition (optional): if false, return to let test continue.
-        function (optional): function to call before completion processing.
-        skip (optional): how many lines at the top of the traceback to skip.
-        message (optional): additional text to include in the fail message.
+    This used to be inline in :func:`fail_test`
     """
-    if not condition:
-        return
-    if function is not None:
-        function()
-    clean_up_ninja_daemon(self, 'fail_test')
     of = ""
     desc = ""
     sep = " "
@@ -487,7 +476,61 @@ def fail_test(
         msg = f"\t{message}\n"
     else:
         msg = ""
-    sys.stderr.write(f"FAILED test{of}{desc}{sep}{at}{msg}")
+    return f"FAILED test{of}{desc}{sep}{at}{msg}"
+
+
+def _has_failures(self) -> bool:
+    """Return true if any failures have been recorded."""
+    return self is not None and bool(getattr(self, '_failures', ()))
+
+
+def _report_failures(self) -> None:
+    """Report recorded failures and exit with a failure status."""
+    count = len(self._failures)
+    noun = 'failure' if count == 1 else 'failures'
+    self.condition = 'fail_test'
+    clean_up_ninja_daemon(self, 'fail_test')
+    sys.stderr.write(f"FAILED test: {count} {noun} reported above\n")
+    sys.exit(1)
+
+
+def fail_test(
+    self=None,
+    condition: bool = True,
+    function: Callable | None = None,
+    skip: int = 0,
+    message: str = "",
+) -> None:
+    """Causes a test to exit with a fail.
+
+    Reports that the test FAILED and exits with a status of 1, unless
+    a condition argument is supplied; if so the completion processing
+    takes place only if the condition is true.
+
+    If the test instance was created with ``fail_fast=False``, the
+    failure is recorded and reported, but the test continues running.
+
+    Args:
+        self: a test class instance. Must be passed in explicitly
+            by the caller since this is an unbound method.
+        condition (optional): if false, return to let test continue.
+        function (optional): function to call before completion processing.
+        skip (optional): how many lines at the top of the traceback to skip.
+        message (optional): additional text to include in the fail message.
+    """
+    if not condition:
+        return
+    if function is not None:
+        function()
+    text = _failure_text(self, skip, message)
+    if self is not None and not getattr(self, 'fail_fast', True):
+        self.condition = 'fail_test'
+        self._failures.append(text)
+        sys.stderr.write(text)
+        sys.stderr.flush()
+        return
+    clean_up_ninja_daemon(self, 'fail_test')
+    sys.stderr.write(text)
 
     sys.exit(1)
 
@@ -503,7 +546,9 @@ def no_result(self=None, condition: bool = True, function=None, skip: int = 0) -
     if so the completion processing takes place only if the condition is true.
 
     The different exit code and message allows other logic to distinguish
-    from a fail and decide how to treat NO RESULT tests.
+    from a fail and decide how to treat NO RESULT tests. If the test
+    instance was created with ``fail_fast=False`` and failures were
+    recorded earlier, the test is reported as failed instead.
 
     Args:
         self: a test class instance. Must be passed in explicitly
@@ -516,6 +561,8 @@ def no_result(self=None, condition: bool = True, function=None, skip: int = 0) -
         return
     if function is not None:
         function()
+    if _has_failures(self):
+        _report_failures(self)
     clean_up_ninja_daemon(self, 'no_result')
     of = ""
     desc = ""
@@ -541,7 +588,9 @@ def pass_test(self=None, condition: bool = True, function=None) -> None:
     a condition argument is supplied; if so the completion processing
     takes place only if the condition is true.
 
-    The test passes only if the condition is true.
+    The test passes only if the condition is true. If the test instance
+    was created with ``fail_fast=False`` and one or more failures were
+    recorded earlier, the test is reported as failed instead.
 
     Args:
         self: a test class instance. Must be passed in explicitly
@@ -553,6 +602,8 @@ def pass_test(self=None, condition: bool = True, function=None) -> None:
         return
     if function is not None:
         function()
+    if _has_failures(self):
+        _report_failures(self)
     clean_up_ninja_daemon(self, 'pass_test')
     sys.stderr.write("PASSED\n")
     sys.exit(0)
@@ -1092,8 +1143,11 @@ class TestCmd:
         combine: bool = False,
         universal_newlines: bool | None = True,
         timeout: float | None = None,
+        fail_fast: bool = True,
     ) -> None:
         self.external = os.environ.get('SCONS_EXTERNAL_TEST', 0)
+        self.fail_fast = fail_fast
+        self._failures: list[str] = []
         self._cwd = os.getcwd()
         self.description_set(description)
         self.program_set(program)
