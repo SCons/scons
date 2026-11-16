@@ -210,7 +210,7 @@ version                 Prints SCons version information.
 
         SCons.Script.Main.progress_display("scons: Clearing cached node information ...")
 
-        seen_nodes = {}
+        seen_nodes = set()
 
         def get_unseen_children(node, parent, seen_nodes=seen_nodes):
             def is_unseen(node, seen_nodes=seen_nodes) -> bool:
@@ -218,22 +218,35 @@ version                 Prints SCons version information.
             return [child for child in node.children(scan=True) if is_unseen(child)]
 
         def add_to_seen_nodes(node, parent, seen_nodes=seen_nodes) -> None:
-            seen_nodes[node] = 1
+            seen_nodes.add(node)
 
             # If this file is in a VariantDir and has a
             # corresponding source file in the source tree, remember the
             # node in the source tree, too.  This is needed in
             # particular to clear cached implicit dependencies on the
             # source file, since the scanner will scan it if the
-            # VariantDir was created with duplicate=0.
+            # VariantDir was created with duplicate=False.
             try:
                 rfile_method = node.rfile
             except AttributeError:
-                return
+                pass
             else:
                 rfile = rfile_method()
-            if rfile != node:
-                seen_nodes[rfile] = 1
+                if rfile != node:
+                    seen_nodes.add(rfile)
+
+            # For duplicate=True VariantDirs, rfile() is the duplicate
+            # itself once it exists, so also clear the corresponding
+            # source node.  Otherwise a changed (or removed) source
+            # file is not noticed in later builds.
+            if getattr(node, 'duplicate', False) and not node.is_derived():
+                try:
+                    srcnode = node.srcnode()
+                except AttributeError:
+                    pass
+                else:
+                    if srcnode != node:
+                        seen_nodes.add(srcnode)
 
         for node in nodes:
             walker = SCons.Node.Walker(node,
@@ -243,13 +256,17 @@ version                 Prints SCons version information.
             while n:
                 n = walker.get_next()
 
-        for node in seen_nodes.keys():
+        for node in seen_nodes:
             # Call node.clear() to clear most of the state
             node.clear()
             # node.clear() doesn't reset node.state, so call
             # node.set_state() to reset it manually
             node.set_state(SCons.Node.no_state)
             node.implicit = None
+            # Node.clear() doesn't reset the duplicate marker.  In
+            # interactive mode the same Node is reused, so reset it to
+            # let duplicate=True VariantDir files be re-evaluated.
+            node.linked = False
 
             # Debug:  Uncomment to verify that all Taskmaster reference
             # counts have been reset to zero.

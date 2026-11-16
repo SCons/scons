@@ -121,6 +121,9 @@ FIXES
   javac -h mechanism as the normal path, with javah described as the
   legacy fallback.
 
+- Fix (again) node scanning in interactive mode - the fix in 4.10.0
+  helped, but did not catch the case of an active variant directory (#2425)
+
 IMPROVEMENTS
 ------------
 
