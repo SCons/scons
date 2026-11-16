@@ -155,6 +155,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       javac -h mechanism as the normal path, with javah described as the
       legacy fallback.
     - Introduce unit tests for SCons-specific framework modules.
+    - Fix (again) node scanning in interactive mode - the fix in 4.10.0
+      helped, but did not catch the case of an active variant directory (#2425)
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
