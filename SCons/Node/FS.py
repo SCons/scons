@@ -3240,7 +3240,7 @@ class File(Base):
                 raise e
         except SCons.Errors.BuildError as e:
             raise SCons.Errors.StopError(f"Cannot duplicate `{src.get_internal_path()}' in `{self.dir._path}': {e.errstr}.")
-        self.linked = 1
+        self.linked = True
         # The Link() action may or may not have actually
         # created the file, depending on whether the -n
         # option was used or not.  Delete the _exists and

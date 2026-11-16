@@ -172,6 +172,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       original website is gone but they are now on GitHub.
     - Minor cleanups in SCons/Script/__init__.py - remove stale commented out
       globals, improve comment about globals, typos, etc.
+    - Fix (again) node scanning in interactive mode - the fix in 4.10.0
+      helped, but did not catch the case of an active variant directory (#2425)
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
