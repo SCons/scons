@@ -132,6 +132,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       but users should use glossaries instead.
       recognizes the replacement glossaries
     - Workaround issue where D compiler ldc2 can't find linker.
+    - Fix D tools (dmd, ldc, gdc) so a source in a subdirectory can find
+      imported modules: the default DPATH now includes ${SOURCE.dir},
+      matching the directory the D scanner already searches. Previously
+      only the top-level SConstruct directory was on the compile line,
+      so VariantDir builds (and any source in a subdirectory) failed with
+      "unable to read module" (issue #813).
     - Add support for Microsoft Visual C++ Insiders (preview) compilers.
       Set MSVC_PREVIEW to a true value to enable.
     - Allow special attributes (e.g. .abspath) to be used with all the
