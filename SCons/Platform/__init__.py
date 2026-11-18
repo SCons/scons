@@ -275,7 +275,7 @@ class TempFileMunge:
 
         # Default to the .lnk suffix for the benefit of the Phar Lap
         # linkloc linker, which likes to append an .lnk suffix if
-        # none is given.
+        # none is given. Not that anyone uses that linker any more...
         if 'TEMPFILESUFFIX' in env:
             suffix = env.subst('$TEMPFILESUFFIX')
         else:
@@ -335,11 +335,18 @@ class TempFileMunge:
             # The sh shell will try to escape the backslashes in the
             # path, so unescape them.
             native_tmp = native_tmp.replace('\\', r'\\\\')
-        if 'TEMPFILEPREFIX' in env:
-            prefix = env.subst('$TEMPFILEPREFIX')
-        else:
+
+        # Some compilers require us to emit the prefix as a separate arg.
+        # Let them indicate that by giving a trailing space on the var.
+        env_prefix = env.get('TEMPFILEPREFIX')
+        if env_prefix is None:
             prefix = "@"
-        cmdlist = [cmd[0], prefix + native_tmp]
+        else:
+            prefix = env.subst('$TEMPFILEPREFIX')
+        if env_prefix and env_prefix.endswith(' '):
+            cmdlist = [cmd[0], prefix, native_tmp]
+        else:
+            cmdlist = [cmd[0], prefix + native_tmp]
 
         # Store the temporary file command list into the target Node.attributes
         # to avoid creating separate temporary files for print and execute.

@@ -121,6 +121,10 @@ FIXES
   javac -h mechanism as the normal path, with javah described as the
   legacy fallback.
 
+- Fix a problem where $TEMPFILEPREFIX with a trailing space did not
+  cause the prefix to be separated from the temporary path, which was
+  a problem for compilers that need that. Fixes #1914.
+
 IMPROVEMENTS
 ------------
 

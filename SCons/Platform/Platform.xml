@@ -354,13 +354,17 @@ of &cv-TEMPFILE;.
 <para>
 The prefix for the name of the temporary file used
 to store command lines exceeding &cv-link-MAXLINELENGTH;.
-The prefix must include the compiler syntax to actually
+The prefix represents the compiler syntax to actually
 include and process the file.
 The default prefix is <literal>'@'</literal>, which works for the &MSVC;
 and GNU toolchains on Windows.
 Set this appropriately for other toolchains,
 for example <literal>'-@'</literal> for the diab compiler
 or <literal>'-via'</literal> for ARM toolchain.
+As a special case,
+a trailing space will cause the prefix to be emitted as
+a distinct argument on the command line,
+and not cause extra quoting.
 </para>
 </summary>
 </cvar>
