@@ -1,0 +1,40 @@
+RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
+
+  From William Deegan:
+
+    - Fix Issue #3283 - Handle using --config=force in combination with Decider('MD5-timestamp').
+      3.0.2 in fix for issue #2980 added that deciders can throw DeciderNeedsNode exception.
+      The Configure logic directly calls the decider when using --config=force but wasn't handling
+      that exception.  This would yield minimally configure tests using TryLink() not running and
+      leaving TypeError Nonetype exception in config.log
+    - Fix Issue #3303 - Handle --config=force overwriting the Environment passed into Configure()'s
+      Decider and not clearing it when the configure context is completed.
+    - Add default paths for yacc tool on windows to include cygwin, mingw, and chocolatey
+    - Fix issue #2799 - Fix mingw tool to respect SHCCCOMSTR, SHLINKCOMSTR and LDMODULECOMSTR
+    - Fix Issue #3329 - Add support for MS SDK V10.0A (which is commonly installed with VS2017)
+    - Fix Issue #3333 - Add support for finding vswhere under 32 bit windows installs.
+
+  From Maciej Kumorek:
+    - Update the MSVC tool to include the nologo flag by default in RCFLAGS
+
+From Daniel Moody:
+    - Change the default for AppendENVPath to delete_existing=0, so path
+      order will not be changed, unless explicitly set (Issue #3276)
+    - Fixed bug which threw error when running SCons on windows system with no MSVC installed.
+    - Update link tool to convert target to node before accessing node member
+    - Update mingw tool to remove MSVC like nologo CCFLAG
+    - Add default paths for lex tool on windows to include cygwin, mingw, and chocolatey
+    - Add lex construction variable LEXUNISTD for turning off unix headers on windows
+    - Update lex tool to use win_flex on windows if available
+
+  From Mats Wichmann:
+    - Quiet open file ResourceWarnings on Python >= 3.6 caused by
+      not using a context manager around Popen.stdout
+    - Add the textfile tool to the default tool list
+    - Fix syntax on is/is not clauses: should not use with a literal
+    - Properly retrieve exit code when catching SystemExit
+    - scons-time now uses context managers around file opens
+    - Fix regex patterns that were not specified as raw strings
+
+  From Bernhard M. Wiedemann:
+    - Do not store build host+user name if reproducible builds are wanted

@@ -1,0 +1,30 @@
+RELEASE 0.94 - Fri, 07 Nov 2003 05:29:48 -0600
+
+  From Hartmut Goebel:
+
+  - Add several new types of canned functions to help create options:
+    BoolOption(), EnumOption(), ListOption(), PackageOption(),
+    PathOption().
+
+  From Steven Knight:
+
+  - Fix use of CPPDEFINES with C++ source files.
+
+  - Fix env.Append() when the operand is an object with a __cmp__()
+    method (like a Scanner instance).
+
+  - Fix subclassing the Environment and Scanner classes.
+
+  - Add BUILD_TARGETS, COMMAND_LINE_TARGETS and DEFAULT_TARGETS variables.
+
+  From Steve Leblanc:
+
+  - SGI fixes:  Fix C++ compilation, add a separate Tool/sgic++.py module.
+
+  From Gary Oberbrunner:
+
+  - Fix how the man page un-indents after examples in some browsers.
+
+  From Vincent Risi:
+
+  - Fix the C and C++ tool specifications for AIX.
