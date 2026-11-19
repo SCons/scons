@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+import os
+
+DefaultEnvironment(tools=[])
+env = Environment()
+env.AppendENVPath('PATH', os.environ['PATH'])
+conf = Configure(env)
+r = conf.CheckCHeader('stdio.h')
+env = conf.Finish()
+if not r:
+    Exit(1)
