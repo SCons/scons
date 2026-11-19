@@ -161,6 +161,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       javac -h mechanism as the normal path, with javah described as the
       legacy fallback.
     - Introduce unit tests for SCons-specific framework modules.
+    - Fix a problem where $TEMPFILEPREFIX with a trailing space did not
+      cause the prefix to be separated from the temporary path, which was
+      a problem for compilers that need that. Fixes #1914.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
