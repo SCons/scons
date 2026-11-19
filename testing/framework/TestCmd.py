@@ -58,7 +58,7 @@ There are a bunch of keyword arguments available at instantiation:
         diff_stdout=default_diff_stdout_function,
         diff_stderr=default_diff_stderr_function,
         combine=Boolean,
-        test.fail_fast=Boolean,
+        fail_fast=Boolean,
     )
 
 There are a bunch of methods that let you do different things:
@@ -523,7 +523,7 @@ def fail_test(
     if function is not None:
         function()
     text = _failure_text(self, skip, message)
-    if self is not None and not getattr(self, 'fail_fast', True):
+    if self is not None and not getattr(self, 'fail_fast'):
         self.condition = 'fail_test'
         self._failures.append(text)
         sys.stderr.write(text)
