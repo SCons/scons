@@ -986,6 +986,28 @@ class must_exist_TestCase(TestCommonTestCase):
         stderr = run_env.stderr()
         assert 'FAILED' in stderr, stderr
 
+    def test_failure_no_fail_fast(self) -> None:
+        """Test must_exist():  multiple failures with fail_fast=False"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='', fail_fast=False)
+        tc.must_exist('file1')
+        tc.must_exist('file2')
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        expect = lstrip("""\
+        Missing files: `file1'
+        Missing files: `file2'
+        """)
+        assert stdout == expect, assert_display(expect, stdout)
+        stderr = run_env.stderr()
+        assert stderr.count("FAILED test at line") == 2, stderr
+        assert "FAILED test: 2 failures reported above\n" in stderr, stderr
+
     def test_failure_message(self) -> None:
         """Test must_exist():  failure with extra message"""
         run_env = self.run_env
