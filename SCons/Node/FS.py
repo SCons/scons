@@ -679,6 +679,7 @@ class Base(SCons.Node.Node):
         return SCons.Util.splitext(self.name)[1]
 
     def rfile(self):
+        """Return this node; non-file nodes have no alternate location."""
         return self
 
     def __getattr__(self, attr: str) -> Any:
@@ -3628,6 +3629,14 @@ class File(Base):
 
     @SCons.Memoize.CountMethodCall
     def rfile(self) -> FileNode:
+        """Return the node which actually holds this file's contents.
+
+        Usually this is the node itself, but if the file is not at this
+        node's path, the source directory of a variant directory created
+        with ``duplicate=False`` and any repository directories are searched.
+        Use :meth:`exists` on the returned node to check for presence, or
+        :meth:`rexists` on this node as a shorthand.
+        """
         try:
             return self._memo['rfile']
         except KeyError:
