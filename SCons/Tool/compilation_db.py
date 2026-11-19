@@ -72,7 +72,10 @@ def write_compilation_db(target, source, env) -> None:
         command = db_action.strfunction(db_target, db_source, db_env, None, overrides)
 
         if not db_source.is_derived():
-            db_source = db_source.srcnode()
+            # srcnode() maps a variant-dir source back to its original, but
+            # does not follow repositories. rfile() finds the file whose
+            # contents are actually compiled in both cases.
+            db_source = db_source.srcnode().rfile()
 
         if use_abspath:
             file = db_source.get_abspath()
