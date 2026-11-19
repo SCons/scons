@@ -132,4 +132,25 @@ xxx.py foo.out foo.in
 xxx.py [^@]\\S+
 """)
 
+# Verify a prefix with trailing space is preserved (issue #1914/#2284).
+test.write('SConstruct', """\
+import os
+
+env = Environment(
+    BUILDCOM='${TEMPFILE("xxx.py $TARGET $SOURCES")}',
+    MAXLINELENGTH=16,
+    TEMPFILEPREFIX='--via ',
+)
+env.AppendENVPath('PATH', os.curdir)
+env.Command('foo.out', 'foo.in', '$BUILDCOM')
+""")
+
+test.run(
+    arguments='-n -Q .',
+    stdout="""\
+Using tempfile \\S+ for command line:
+xxx.py foo.out foo.in
+xxx.py --via \\S+
+""")
+
 test.pass_test()
