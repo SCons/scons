@@ -158,6 +158,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix a problem where $TEMPFILEPREFIX with a trailing space did not
       cause the prefix to be separated from the temporary path, which was
       a problem for compilers that need that. Fixes #1914.
+    - Fix CompilationDatabase() emitting the non-existent local path instead of
+      the repository path for sources found via -Y/Repository() (issue #4004).
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and

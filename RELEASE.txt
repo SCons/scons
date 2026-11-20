@@ -125,6 +125,9 @@ FIXES
   cause the prefix to be separated from the temporary path, which was
   a problem for compilers that need that. Fixes #1914.
 
+- Fix CompilationDatabase() emitting the non-existent local path instead of
+  the repository path for sources found via -Y/Repository() (issue #4004).
+
 IMPROVEMENTS
 ------------
 
