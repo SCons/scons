@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+DefaultEnvironment(tools=[])
+import os
+env = Environment()
+env.AppendENVPath('PATH', os.environ['PATH'])
+env.VariantDir('build', '.', duplicate=False)
+env.SConscript('build/SConscript', exports='env')

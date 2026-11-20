@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+Import('env')
+
+config = env.Configure(
+    config_h='config.h',
+    log_file='config.log',
+    conf_dir='sconf',
+)
+config.CheckTypeSize('int')
+config.Finish()

@@ -23,26 +23,8 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """\
-DefaultEnvironment(tools=[])
-import os
-env = Environment()
-env.AppendENVPath('PATH', os.environ['PATH'])
-env.VariantDir('build', '.', duplicate=False)
-env.SConscript('build/SConscript', exports='env')
-""")
-
-test.write('SConscript', """\
-Import('env')
-
-config = env.Configure(
-    config_h='config.h',
-    log_file='config.log',
-    conf_dir='sconf',
-)
-config.CheckTypeSize('int')
-config.Finish()
-""")
+test.file_fixture(['fixture', 'SConstruct-2096'], 'SConstruct')
+test.file_fixture(['fixture', 'SConscript-2096'], 'SConscript')
 
 test.run()
 
