@@ -79,7 +79,11 @@ def generate(env) -> None:
     env['SHDC'] = '$DC'
     env['SHDCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS $_DI_FLAGS -c -relocation-model=pic -of=$TARGET $SOURCES'
 
-    env['DPATH'] = ['#/']
+    # The D scanner searches the source file's own directory for imported
+    # modules, but D compilers only resolve imports through -I paths.
+    # ${SOURCE.dir} must be on DPATH so a source in a subdirectory (as with
+    # VariantDir) can find modules next to it. See issue #813.
+    env['DPATH'] = ['${SOURCE.dir}', '#/']
     env['DFLAGS'] = []
     env['DVERSIONS'] = []
     env['DDEBUG'] = []
