@@ -28,13 +28,15 @@ will usually be imported through the generic SCons.Platform.Platform()
 selection method.
 """
 
+from __future__ import annotations
+
 import os
 import os.path
 import platform
+import subprocess
 import sys
-import tempfile
+from collections.abc import Callable
 
-from SCons.Platform.posix import exitvalmap
 from SCons.Platform import TempFileMunge
 from SCons.Platform.virtualenv import ImportVirtualenv
 from SCons.Platform.virtualenv import ignore_virtualenv, enable_virtualenv
@@ -69,146 +71,105 @@ if False:
             "Couldn't override shutil.copy or shutil.copy2 falling back to shutil defaults"
 
 
+def spawn(
+    sh: str,
+    escape: Callable[[str], str],
+    cmd: str,
+    args: list[str],
+    env: dict,
+) -> int:
+    """Run command line *args* using shell *sh*.
 
+    Arguments:
+      sh: the name of the command interpreter (e.g. ``cmd.exe``)
+      escape: a function to quote the command line for the shell.
+        Applied to the joined args string to wrap it in outer quotes
+        required by ``cmd /C`` (see below).
+      cmd: conventionally the command name, but since the actual
+        command is the shell, is ignored.
+      args: the argument list representing the command to execute
+      env: the execution environment for the command.
 
+    Returns:
+      the exit code of the command. :py:mod:`subprocess` is explicitly
+      instructed not to raise an exception if the command fails.
 
-
-
-try:
-    import threading
-    spawn_lock = threading.Lock()
-
-    # This locked version of spawnve works around a Windows
-    # MSVCRT bug, because its spawnve is not thread-safe.
-    # Without this, python can randomly crash while using -jN.
-    # See the python bug at https://github.com/python/cpython/issues/50725
-    # and SCons issue at https://github.com/SCons/scons/issues/2449
-    def spawnve(mode, file, args, env):
-        spawn_lock.acquire()
-        try:
-            if mode == os.P_WAIT:
-                ret = os.spawnve(os.P_NOWAIT, file, args, env)
-            else:
-                ret = os.spawnve(mode, file, args, env)
-        finally:
-            spawn_lock.release()
-        if mode == os.P_WAIT:
-            pid, status = os.waitpid(ret, 0)
-            ret = status >> 8
-        return ret
-except ImportError:
-    # Use the unsafe method of spawnve.
-    # Please, don't try to optimize this try-except block
-    # away by assuming that the threading module is always present.
-    # In the test test/option-j.py we intentionally call SCons with
-    # a fake threading.py that raises an import exception right away,
-    # simulating a non-existent package.
-    def spawnve(mode, file, args, env):
-        return os.spawnve(mode, file, args, env)
-
-# The upshot of all this is that, if you are using Python 1.5.2,
-# you had better have cmd or command.com in your PATH when you run
-# scons.
-
-
-def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
-    # There is no direct way to do that in python. What we do
-    # here should work for most cases:
-    #   In case stdout (stderr) is not redirected to a file,
-    #   we redirect it into a temporary file tmpFileStdout
-    #   (tmpFileStderr) and copy the contents of this file
-    #   to stdout (stderr) given in the argument
-    # Note that because this will paste shell redirection syntax
-    # into the cmdline, we have to call a shell to run the command,
-    # even though that's a bit of a performance hit.
+    ``cmd /C`` Quoting Behavior:
+      When ``cmd /C`` receives a command line whose first character is a
+      double quote, it strips the first and last double-quote characters
+      from the entire line.  ``escape_list`` in Action.py already wraps
+      each individual arg in quotes (via :func:`escape`), so the joined
+      string looks like ``"gcc" "-o" "foo"``.  We must apply ``escape()``
+      again to wrap the whole thing in outer quotes, producing
+      ``""gcc" "-o" "foo""`` — ``cmd /C`` strips the outer pair and
+      passes ``"gcc" "-o" "foo"`` to the program correctly.
+    """
     if not sh:
-        sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
+        sys.stderr.write(
+            "scons: Could not find command interpreter, is it in your PATH?\n"
+        )
         return 127
-
-    # one temporary file for stdout and stderr
-    tmpFileStdout, tmpFileStdoutName = tempfile.mkstemp(text=True)
-    os.close(tmpFileStdout)  # don't need open until the subproc is done
-    tmpFileStderr, tmpFileStderrName = tempfile.mkstemp(text=True)
-    os.close(tmpFileStderr)
-
-    # check if output is redirected
-    stdoutRedirected = False
-    stderrRedirected = False
-    for arg in args:
-        # are there more possibilities to redirect stdout ?
-        if arg.startswith(">")or arg.startswith("1>"):
-            stdoutRedirected = True
-        # are there more possibilities to redirect stderr ?
-        if arg.startswith("2>"):
-            stderrRedirected = True
-
-    # redirect output of non-redirected streams to our tempfiles
-    if not stdoutRedirected:
-        args.append(">" + tmpFileStdoutName)
-    if not stderrRedirected:
-        args.append("2>" + tmpFileStderrName)
-
-    # actually do the spawn
-    try:
-        args = [sh, '/C', escape(' '.join(args))]
-        ret = spawnve(os.P_WAIT, sh, args, env)
-    except OSError as e:
-        # catch any error
-        try:
-            ret = exitvalmap[e.errno]
-        except KeyError:
-            sys.stderr.write("scons: unknown OSError exception code %d - %s: %s\n" % (e.errno, cmd, e.strerror))
-        if stderr is not None:
-            stderr.write("scons: %s: %s\n" % (cmd, e.strerror))
-
-    # copy child output from tempfiles to our streams
-    # and do clean up stuff
-    if stdout is not None and not stdoutRedirected:
-        try:
-            with open(tmpFileStdoutName, "rb") as tmpFileStdout:
-                output = tmpFileStdout.read()
-                stdout.write(output.decode('oem', "replace").replace("\r\n", "\n"))
-            os.remove(tmpFileStdoutName)
-        except OSError:
-            pass
-
-    if stderr is not None and not stderrRedirected:
-        try:
-            with open(tmpFileStderrName, "rb") as tmpFileStderr:
-                errors = tmpFileStderr.read()
-                stderr.write(errors.decode('oem', "replace").replace("\r\n", "\n"))
-            os.remove(tmpFileStderrName)
-        except OSError:
-            pass
-
-    return ret
+    # Pass a single string to subprocess.run — on Windows, passing a list
+    # causes subprocess to call list2cmdline which adds extra quoting that
+    # breaks cmd /C.
+    cmd_line = f'{sh} /C {escape(" ".join(args))}'
+    proc = subprocess.run(cmd_line, env=env, close_fds=True, check=False)
+    return proc.returncode
 
 
-def exec_spawn(l, env):
-    try:
-        result = spawnve(os.P_WAIT, l[0], l, env)
-    except OSError as e:
-        try:
-            result = exitvalmap[e.errno]
-            sys.stderr.write("scons: %s: %s\n" % (l[0], e.strerror))
-        except KeyError:
-            result = 127
-            if len(l) > 2:
-                if len(l[2]) < 1000:
-                    command = ' '.join(l[0:3])
-                else:
-                    command = l[0]
-            else:
-                command = l[0]
-            sys.stderr.write("scons: unknown OSError exception code %d - '%s': %s\n" % (e.errno, command, e.strerror))
-    return result
+def piped_spawn(
+    sh: str,
+    escape: Callable[[str], str],
+    cmd: str,
+    args: list[str],
+    env: dict,
+    stdout,  # : SCons.Util.Unbuffered
+    stderr,  # : SCons.Util.Unbuffered
+) -> int:
+    """Run command line *args* using shell *sh*, capturing output.
 
+    Similar to :func:`spawn`, but captures stdout and stderr. This is
+    used by the SConf subsystem when running compile/configure checks,
+    where we need the result data. The capture is handled by a wrapper
+    method :meth:`~SCons.SConf.SConfBase.pspawn_wrapper`.
 
-def spawn(sh, escape, cmd, args, env):
+    Arguments:
+      sh: the name of the command interpreter (e.g. ``cmd.exe``)
+      escape: a function to quote the command line for the shell.
+        Applied to the joined args string for ``cmd /C`` (see
+        :func:`spawn`).
+      cmd: conventionally the command name, ignored.
+      args: the argument list representing the command to execute
+      env: the execution environment for the command.
+      stdout: the place to send the output
+      stderr: the place to send the error output
+
+    Returns:
+      the exit code of the command. :py:mod:`subprocess` is explicitly
+      instructed not to raise an exception if the command fails.
+    """
     if not sh:
-        sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
+        sys.stderr.write(
+            "scons: Could not find command interpreter, is it in your PATH?\n"
+        )
         return 127
-    return exec_spawn([sh, '/C', escape(' '.join(args))], env)
+    # Pass a single string to subprocess.run — see spawn() for details.
+    cmd_line = f'{sh} /C {escape(" ".join(args))}'
+    proc = subprocess.run(
+        cmd_line, env=env, close_fds=True,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        check=False,
+    )
+    if stdout is not None and proc.stdout:
+        stdout.write(
+            proc.stdout.decode('oem', 'replace').replace('\r\n', '\n')
+        )
+    if stderr is not None and proc.stderr:
+        stderr.write(
+            proc.stderr.decode('oem', 'replace').replace('\r\n', '\n')
+        )
+    return proc.returncode
+
 
 # Windows does not allow special characters in file names anyway, so no
 # need for a complex escape function, we will just quote the arg, except
