@@ -88,6 +88,9 @@ FIXES
   CC="ccache clang". Generating the ninja file failed with "Could not find
   tool $CC".
 
+- Fix ninja to run actions added with AddPreAction() and AddPostAction().
+  They were silently left out of the ninja file.
+
 - SConstruct and SConscript files, site_init.py and variables files are no
   longer compiled with the future flags of the SCons modules that run them.
   Since SCons 4.11 those modules use "from __future__ import annotations",

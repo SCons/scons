@@ -153,19 +153,19 @@ class NinjaState:
             # which can't use the shell command as it's compile
             # command.
             "CC_RSP": {
-                "command": "$env$CC @$out.rsp",
+                "command": "$env$pre$CC @$out.rsp$post",
                 "description": "Compiling $out",
                 "rspfile": "$out.rsp",
                 "rspfile_content": "$rspc",
             },
             "CXX_RSP": {
-                "command": "$env$CXX @$out.rsp",
+                "command": "$env$pre$CXX @$out.rsp$post",
                 "description": "Compiling $out",
                 "rspfile": "$out.rsp",
                 "rspfile_content": "$rspc",
             },
             "LINK_RSP": {
-                "command": "$env$LINK @$out.rsp",
+                "command": "$env$pre$LINK @$out.rsp$post",
                 "description": "Linking $out",
                 "rspfile": "$out.rsp",
                 "rspfile_content": "$rspc",
@@ -178,7 +178,7 @@ class NinjaState:
             # to do the same. See related for more info:
             # https://jira.mongodb.org/browse/SERVER-49457
             "AR_RSP": {
-                "command": "{}$env$AR @$out.rsp".format(
+                "command": "{}$env$pre$AR @$out.rsp$post".format(
                     '' if sys.platform == "win32" else "rm -f $out && "
                 ),
                 "description": "Archiving $out",
@@ -187,20 +187,20 @@ class NinjaState:
                 "pool": "local_pool",
             },
             "CC": {
-                "command": "$env$CC $rspc",
+                "command": "$env$pre$CC $rspc$post",
                 "description": "Compiling $out",
             },
             "CXX": {
-                "command": "$env$CXX $rspc",
+                "command": "$env$pre$CXX $rspc$post",
                 "description": "Compiling $out",
             },
             "LINK": {
-                "command": "$env$LINK $rspc",
+                "command": "$env$pre$LINK $rspc$post",
                 "description": "Linking $out",
                 "pool": "local_pool",
             },
             "AR": {
-                "command": "{}$env$AR $rspc".format(
+                "command": "{}$env$pre$AR $rspc$post".format(
                     '' if sys.platform == "win32" else "rm -f $out && "
                 ),
                 "description": "Archiving $out",
@@ -296,7 +296,7 @@ class NinjaState:
 
         if env['PLATFORM'] == 'darwin' and env.get('AR', "") == 'ar':
             self.rules["AR"] = {
-                "command": "rm -f $out && $env$AR $rspc",
+                "command": "rm -f $out && $env$pre$AR $rspc$post",
                 "description": "Archiving $out",
                 "pool": "local_pool",
             }
@@ -745,6 +745,8 @@ class SConsToNinjaTranslator:
         if node.builder is None:
             return None
 
+        # Only the node's own action gets its pre/post actions added.
+        add_pre_post = action is None
         if action is None:
             action = node.builder.action
 
@@ -781,6 +783,8 @@ class SConsToNinjaTranslator:
 
         if build is not None:
             build["order_only"] = get_order_only(node)
+            if add_pre_post:
+                self.add_pre_post_actions(node, build)
 
         # TODO: WPD Is this testing the filename to verify it's a configure context generated file?
         if not node.is_conftest():
@@ -792,6 +796,48 @@ class SConsToNinjaTranslator:
             build["implicit"] = build.get("implicit", []) + ["SconsAlwaysBuildPhony"]
 
         return build
+
+    def add_pre_post_actions(self, node, build) -> None:
+        """Add the AddPreAction() / AddPostAction() actions of node to build.
+
+        Command actions run in the same ninja command as the build action,
+        before and after it. Anything else needs SCons to build the node.
+        """
+        executor = node.get_executor()
+        if not executor or not (executor.pre_actions or executor.post_actions):
+            return
+        if build["rule"] == "TEMPLATE":
+            return
+
+        def to_command(actions):
+            cmds = []
+            for act in actions:
+                result = self.action_to_ninja_build(node, action=act)
+                if not result:
+                    continue
+                if result["rule"] not in ("CMD", "GENERATED_CMD"):
+                    return None
+                cmds.append(result["variables"]["cmd"])
+                build["implicit"] = list({*build.get("implicit", []), *result.get("implicit", [])})
+            return " && ".join(cmds)
+
+        pre = to_command(executor.pre_actions)
+        post = to_command(executor.post_actions)
+        variables = build.setdefault("variables", {})
+        if pre is None or post is None:
+            build["rule"] = "TEMPLATE"
+        elif build["rule"] in ("CMD", "GENERATED_CMD"):
+            variables["cmd"] = " && ".join(c for c in (pre, variables["cmd"], post) if c)
+        elif build["rule"].removesuffix("_RSP") in ("CC", "CXX", "LINK", "AR"):
+            # These rules have $pre and $post, and no shell on Windows.
+            prefix = ("cmd /c " if sys.platform == "win32" else "") + (pre and f"{pre} && ")
+            if prefix:
+                variables["pre"] = prefix
+            if post:
+                # "$ " is an escaped space, ninja strips a plain leading one.
+                variables["post"] = f"$ && {post}"
+        else:
+            build["rule"] = "TEMPLATE"
 
     def handle_func_action(self, node, action):
         """Determine how to handle the function action."""
@@ -854,7 +900,13 @@ class SConsToNinjaTranslator:
         all_outputs = list({output for build in results for output in build["outputs"]})
         dependencies = list({dep for build in results for dep in build.get("implicit", [])})
 
-        if results[0]["rule"] in ('CMD', 'GENERATED_CMD'):
+        # Only merge when every sub-action maps to the same kind of ninja rule.
+        # Mixing kinds (e.g. a command plus a TEMPLATE fallback from an
+        # unhandled function action) would silently drop some actions, so fall
+        # through to the whole-node TEMPLATE below and let SCons run them all.
+        rules = {result["rule"] for result in results}
+
+        if rules <= {'CMD', 'GENERATED_CMD'}:
             cmdline = ""
             for cmd in results:
                 # Occasionally a command line will expand to a
@@ -909,14 +961,14 @@ class SConsToNinjaTranslator:
 
                 return ninja_build
 
-        elif results[0]["rule"] == "phony":
+        elif rules == {"phony"}:
             return {
                 "outputs": all_outputs,
                 "rule": "phony",
                 "implicit": dependencies,
             }
 
-        elif results[0]["rule"] == "INSTALL":
+        elif rules == {"INSTALL"}:
             return {
                 "outputs": all_outputs,
                 "rule": get_rule(node, "INSTALL"),
