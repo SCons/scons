@@ -756,14 +756,14 @@ class SConfBase:
         for name in tests.keys():
             self.AddTest(name, tests[name])
 
-    def _createDir( self, node ):
-        dirName = str(node)
+    def _createDir(self, node):
+        dirName = node.get_abspath()
         if dryrun:
-            if not os.path.isdir( dirName ):
-                raise ConfigureDryRunError(dirName)
+            if not os.path.isdir(dirName):
+                raise ConfigureDryRunError(node)
         else:
-            if not os.path.isdir( dirName ):
-                os.makedirs( dirName )
+            if not os.path.isdir(dirName):
+                os.makedirs(dirName)
 
     def _startup(self) -> None:
         """Private method. Set up logstream, and set the environment
@@ -776,7 +776,7 @@ class SConfBase:
         self.lastEnvFs = self.env.fs
         self.env.fs = SConfFS
         self._createDir(self.confdir)
-        self.confdir.up().add_ignore( [self.confdir] )
+        self.confdir.up().add_ignore([self.confdir])
 
         if self.logfile is not None and not dryrun:
             # truncate logfile, if SConf.Configure is called for the first time
@@ -786,7 +786,7 @@ class SConfBase:
             else:
                 _ac_config_logs[self.logfile] = None
                 log_mode = "w"
-            fp = open(str(self.logfile), log_mode)
+            fp = open(self.logfile.get_abspath(), log_mode)
 
             def conflog_cleanup(logf) -> None:
                 logf.close()

@@ -160,6 +160,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix a problem where $TEMPFILEPREFIX with a trailing space did not
       cause the prefix to be separated from the temporary path, which was
       a problem for compilers that need that. Fixes #1914.
+    - Fix SConf path calculation with variantdir (issue #2096)
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
