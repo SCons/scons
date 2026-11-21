@@ -103,7 +103,7 @@ def pch_emitter(target, source, env) -> tuple:
     return target, source
 
 
-def object_emitter(target, source, env, parent_emitter)-> tuple:
+def object_emitter(target, source, env, parent_emitter) -> tuple:
     """Sets up the PCH dependencies for an object file."""
 
     validate_vars(env)
@@ -127,11 +127,11 @@ def object_emitter(target, source, env, parent_emitter)-> tuple:
 
     return target, source
 
-def static_object_emitter(target, source, env)-> tuple:
+def static_object_emitter(target, source, env) -> tuple:
     return object_emitter(target, source, env,
                           SCons.Defaults.StaticObjectEmitter)
 
-def shared_object_emitter(target, source, env)-> tuple:
+def shared_object_emitter(target, source, env) -> tuple:
     return object_emitter(target, source, env,
                           SCons.Defaults.SharedObjectEmitter)
 

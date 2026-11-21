@@ -76,7 +76,7 @@ def DObjectEmitter(target, source, env) -> tuple:
         # print(f'DObjectEmitter: {di_file_dir}/*{file_base}*{di_file_suffix}')
         target.append(env.fs.File(f"{file_base}{di_file_suffix}", di_file_dir))
         # print("New Target:%s"%" ".join([str(t) for t in target]))
-    return target,source
+    return target, source
 
 def DStaticObjectEmitter(target, source, env) -> tuple:
     for tgt in target:

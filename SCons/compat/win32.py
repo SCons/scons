@@ -31,6 +31,7 @@ from ctypes import wintypes
 # From Activestate Recipe
 # Ben Hoyt: Get memory usage of Windows processes using GetProcessMemoryInfo (via ctypes)
 # https://github.com/ActiveState/code/tree/master/recipes/Python/578513_Get_memory_usage_Windows_processes_using
+# MIT licensed
 #
 GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess
 GetCurrentProcess.argtypes = []
