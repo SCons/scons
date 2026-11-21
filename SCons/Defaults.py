@@ -93,21 +93,21 @@ def DefaultEnvironment(*args, **kwargs):
 # Emitters for setting the shared attribute on object files,
 # and an action for checking that all of the source files
 # going into a shared library are, in fact, shared.
-def StaticObjectEmitter(target, source, env):
+def StaticObjectEmitter(target, source, env) -> tuple:
     for tgt in target:
         tgt.attributes.shared = False
     return target, source
 
 
-def SharedObjectEmitter(target, source, env):
+def SharedObjectEmitter(target, source, env) -> tuple:
     for tgt in target:
-        tgt.attributes.shared = 1
+        tgt.attributes.shared = True
     return target, source
 
 
 def SharedFlagChecker(source, target, env):
     same = env.subst('$STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME')
-    if same == '0' or same == '' or same == 'False':
+    if same in ('0', '', 'False'):
         for src in source:
             try:
                 shared = src.attributes.shared
