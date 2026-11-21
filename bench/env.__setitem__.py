@@ -36,8 +36,8 @@ import sys
 import timeit
 
 # Utility Timing class and function from:
-# ASPN: Python Cookbook : Timing various python statements
-# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/544297
+# Tim Schoenborn (Python Cookbook): Timing various python statements
+# https://github.com/ActiveState/code/tree/master/recipes/Python/544297_Timing_various_python_statements
 #
 # These wrap the basic timeit function to make it a little more
 # convenient to do side-by-side tests of code.

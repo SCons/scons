@@ -854,9 +854,9 @@ else:
     default_sleep_seconds = 1
 
 
-# From Josiah Carlson,
-# ASPN : Python Cookbook : Module to allow Asynchronous subprocess use on Windows and Posix platforms
-# https://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/440554
+# From Josiah Carlson (Python Cookbook): Module to allow Asynchronous
+#   subprocess use on Windows and Posix platforms
+# https://github.com/ActiveState/code/tree/master/recipes/Python/440554_Module_allow_Asynchronous_subprocess_use
 
 if sys.platform == 'win32':  # and subprocess.mswindows:
     try:
