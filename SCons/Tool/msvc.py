@@ -81,7 +81,7 @@ def msvc_set_PCHPDBFLAGS(env) -> None:
         env['PCHPDBFLAGS'] = SCons.Util.CLVar(['${"/Yd" if PDB else ""}'])
 
 
-def pch_emitter(target, source, env):
+def pch_emitter(target, source, env) -> tuple:
     """Adds the object file target."""
 
     validate_vars(env)
@@ -100,15 +100,15 @@ def pch_emitter(target, source, env):
 
     target = [pch, obj] # pch must be first, and obj second for the PCHCOM to work
 
-    return (target, source)
+    return target, source
 
 
-def object_emitter(target, source, env, parent_emitter):
+def object_emitter(target, source, env, parent_emitter) -> tuple:
     """Sets up the PCH dependencies for an object file."""
 
     validate_vars(env)
 
-    parent_emitter(target, source, env)
+    target, source = parent_emitter(target, source, env)
 
     # Add a dependency, but only if the target (e.g. 'Source1.obj')
     # doesn't correspond to the pre-compiled header ('Source1.pch').
@@ -125,13 +125,13 @@ def object_emitter(target, source, env, parent_emitter):
         if str(target[0]) != SCons.Util.splitext(str(pch))[0] + '.obj':
             env.Depends(target, pch)
 
-    return (target, source)
+    return target, source
 
-def static_object_emitter(target, source, env):
+def static_object_emitter(target, source, env) -> tuple:
     return object_emitter(target, source, env,
                           SCons.Defaults.StaticObjectEmitter)
 
-def shared_object_emitter(target, source, env):
+def shared_object_emitter(target, source, env) -> tuple:
     return object_emitter(target, source, env,
                           SCons.Defaults.SharedObjectEmitter)
 
