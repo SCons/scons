@@ -58,7 +58,7 @@ def addDPATHToEnv(env, executable) -> None:
             env.Append(DPATH=[phobosDir])
 
 
-def allAtOnceEmitter(target, source, env):
+def allAtOnceEmitter(target, source, env) -> tuple:
     # ``$DC`` may carry arguments (e.g. "ldc2 --linker=bfd"), so only the
     # program name is relevant when deciding on the implicit object file.
     dc = SCons.Util.CLVar(env.subst('$DC'))
@@ -67,7 +67,7 @@ def allAtOnceEmitter(target, source, env):
         env.Clean(target[0], str(target[0]) + '.o')
     return target, source
 
-def DObjectEmitter(target,source,env):
+def DObjectEmitter(target, source, env) -> tuple:
     di_file_dir = env.get('DI_FILE_DIR', False)
     # TODO: Verify sane DI_FILE_DIR?
     if di_file_dir:
@@ -76,14 +76,14 @@ def DObjectEmitter(target,source,env):
         # print(f'DObjectEmitter: {di_file_dir}/*{file_base}*{di_file_suffix}')
         target.append(env.fs.File(f"{file_base}{di_file_suffix}", di_file_dir))
         # print("New Target:%s"%" ".join([str(t) for t in target]))
-    return (target,source)
+    return target, source
 
-def DStaticObjectEmitter(target,source,env):
+def DStaticObjectEmitter(target, source, env) -> tuple:
     for tgt in target:
-        tgt.attributes.shared = None
-    return DObjectEmitter(target,source,env)
+        tgt.attributes.shared = False
+    return DObjectEmitter(target, source, env)
 
-def DSharedObjectEmitter(target,source,env):
+def DSharedObjectEmitter(target, source, env) -> tuple:
     for tgt in target:
-        tgt.attributes.shared = 1
-    return DObjectEmitter(target,source,env)
+        tgt.attributes.shared = True
+    return DObjectEmitter(target, source, env)

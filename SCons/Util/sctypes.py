@@ -159,10 +159,8 @@ _null = _Null()
 # 2. More complex - when we don't necessarily want to check for the
 # sentinel, and don't want it to fail if used as the "real" class:
 
-# From Dinu C. Gherman,
-# Python Cookbook, second edition, recipe 6.17, p. 277.
-# Also: https://code.activestate.com/recipes/68205
-# ASPN: Python Cookbook: Null Object Design Pattern
+# Dinu Gherman (Python Cookbook), Null Object Design Pattern
+# https://github.com/ActiveState/code/tree/master/recipes/Python/68205_Null_Object_Design_Pattern
 
 class Null:
     """Null objects always and reliably 'do nothing'."""

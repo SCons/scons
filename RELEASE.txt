@@ -158,6 +158,8 @@ PACKAGING
 
 - List changes in the way SCons is packaged and/or released
 
+- Specify Python 3.15 support within `pyproject.toml`
+
 DOCUMENTATION
 -------------
 
@@ -238,6 +240,8 @@ DEVELOPMENT
 - Disambiguate `Glob` return type via `@overload`.
 
 - Introduce unit tests for SCons-specific framework modules.
+
+- Bump Python version in GitHub Actions to 3.15, where applicable.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

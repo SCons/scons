@@ -310,10 +310,8 @@ class MethodWrapper:
 
 
 # The original idea for AddMethod() came from the
-# following post to the ActiveState Python Cookbook:
-#
-# ASPN: Python Cookbook : Install bound methods in an instance
-# https://code.activestate.com/recipes/223613
+# John McLaughlin (Python Cookbook): Install bound methods in an instance
+# https://github.com/ActiveState/code/tree/master/recipes/Python/223613_Install_bound_methods
 #
 # Changed as follows:
 # * Switched the installmethod() "object" and "function" arguments,

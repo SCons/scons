@@ -36,6 +36,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - ty: Initial support setup within `pyproject.toml`.
     - Removed Python 3.7 & 3.8 support.
     - Disambiguate `Glob` return type via `@overload`.
+    - Specify Python 3.15 support within `pyproject.toml`
+    - Bump Python version in GitHub Actions to 3.15, where applicable.
 
   From William Deegan:
     - Add scons-ai.md, a condensed version of the manpage intended for
@@ -160,6 +162,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       a problem for compilers that need that. Fixes #1914.
     - Fix CompilationDatabase() emitting the non-existent local path instead of
       the repository path for sources found via -Y/Repository() (issue #4004).
+    - Update internal comments pointing to borrowed Python Cookbook recipes,
+      original website is gone but they are now on GitHub.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
