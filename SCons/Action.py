@@ -1155,9 +1155,13 @@ class CommandAction(_ActionAction):
                 m = strip_quotes.match(d)
                 if m:
                     d = m.group(1)
-                d = env.WhereIs(d)
-                if d:
-                    res.append(env.fs.File(d))
+                p = env.WhereIs(d)
+                if p:
+                    res.append(env.fs.File(p))
+                else:
+                    node = _generated_command_node(d, env)
+                    if node:
+                        res.append(node)
         return res
 
     def _get_implicit_deps_heavyweight(self, target, source, env, executor: Executor | None,
@@ -1206,6 +1210,10 @@ class CommandAction(_ActionAction):
 
                             if p:
                                 res.append(env.fs.File(p))
+                            elif entry_count == 0:
+                                node = _generated_command_node(d, env)
+                                if node:
+                                    res.append(node)
 
                         entry_count = entry_count + 1
                     else:
@@ -1217,6 +1225,22 @@ class CommandAction(_ActionAction):
         # circular dependencies, but it causes problems with cache signatures
         # changing between full and incremental builds.
         return [r for r in res if r not in target and r not in source]
+
+
+def _generated_command_node(name, env):
+    """
+    Return the Node for a command name that the build itself produces,
+    or None if the name is not a known build target.
+
+    Called only after the name failed the filesystem and PATH lookups,
+    so the file may not exist yet. Such a target is recognized by
+    having a builder. Returning its Node makes the action wait for the
+    command to be built before running.
+    """
+    if not name:
+        return None
+    node = env.fs.Entry(name)
+    return node if node.has_builder() else None
 
 
 class CommandGeneratorAction(ActionBase):
