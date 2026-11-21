@@ -734,6 +734,22 @@ class SConsToNinjaTranslator:
 
         self.loaded_custom = False
 
+    @staticmethod
+    def _get_node_action(node):
+        """Return the full action for node, including any AddPreAction/AddPostAction actions.
+
+        Pre and post actions are stored on the node's Executor rather than on the
+        builder, so the executor's action list is the source of truth.
+        """
+        executor = node.get_executor()
+        if executor is not None:
+            actions = executor.get_action_list()
+            if len(actions) == 1:
+                return actions[0]
+            if actions:
+                return SCons.Action.ListAction(actions)
+        return node.builder.action
+
     # pylint: disable=too-many-return-statements
     def action_to_ninja_build(self, node, action=None):
         """Generate build arguments dictionary for node."""
@@ -746,7 +762,7 @@ class SConsToNinjaTranslator:
             return None
 
         if action is None:
-            action = node.builder.action
+            action = self._get_node_action(node)
 
         if node.env and node.env.get("NINJA_SKIP"):
             return None
@@ -854,7 +870,13 @@ class SConsToNinjaTranslator:
         all_outputs = list({output for build in results for output in build["outputs"]})
         dependencies = list({dep for build in results for dep in build.get("implicit", [])})
 
-        if results[0]["rule"] in ('CMD', 'GENERATED_CMD'):
+        # Only merge when every sub-action maps to the same kind of ninja rule. Mixing
+        # kinds (e.g. a command plus a TEMPLATE fallback from an unhandled function
+        # action) would silently drop some of the actions, so fall through to the
+        # whole-node TEMPLATE below and let SCons execute the full action list.
+        rules = {result["rule"] for result in results}
+
+        if rules <= {'CMD', 'GENERATED_CMD'}:
             cmdline = ""
             for cmd in results:
                 # Occasionally a command line will expand to a
@@ -909,14 +931,14 @@ class SConsToNinjaTranslator:
 
                 return ninja_build
 
-        elif results[0]["rule"] == "phony":
+        elif rules == {"phony"}:
             return {
                 "outputs": all_outputs,
                 "rule": "phony",
                 "implicit": dependencies,
             }
 
-        elif results[0]["rule"] == "INSTALL":
+        elif rules == {"INSTALL"}:
             return {
                 "outputs": all_outputs,
                 "rule": get_rule(node, "INSTALL"),
