@@ -50,6 +50,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
+- Do not save successful build signatures or force cache entries for failed
+  actions ignored with --ignore-errors. Subsequent builds retry these actions.
+
 - Ignore semicolon-separated USE and INCLUDE statements in Fortran !
   comments and character literals (issue #4454). Ambiguous column-six !
   continuation markers remain unchanged.
