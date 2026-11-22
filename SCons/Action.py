@@ -1159,6 +1159,10 @@ class CommandAction(_ActionAction):
                 if p:
                     res.append(env.fs.File(p))
                 else:
+                    # Not found on disk or in PATH. It may still be an
+                    # executable the build generates but has not built
+                    # yet, so depend on its node. Without this, the
+                    # command can run before the executable exists.
                     node = _generated_command_node(d, env)
                     if node:
                         res.append(node)
@@ -1211,6 +1215,11 @@ class CommandAction(_ActionAction):
                             if p:
                                 res.append(env.fs.File(p))
                             elif entry_count == 0:
+                                # Only the command name (first word) can be a
+                                # generated executable. Arguments are
+                                # treated as data and must already exist.
+                                # Otherwise, a plain argument like "-O2" or
+                                # a data file name could match a target.
                                 node = _generated_command_node(d, env)
                                 if node:
                                     res.append(node)
@@ -1237,8 +1246,12 @@ def _generated_command_node(name, env):
     having a builder. Returning its Node makes the action wait for the
     command to be built before running.
     """
+    # An empty word is not a command, so there is nothing to look up.
     if not name:
         return None
+    # Entry() creates the node if needed. This is a side effect, but it
+    # is harmless: a node with no builder is never used as a dependency.
+    # The builder check is what makes this path select only build targets.
     node = env.fs.Entry(name)
     return node if node.has_builder() else None
 
