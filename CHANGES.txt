@@ -160,6 +160,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix a problem where $TEMPFILEPREFIX with a trailing space did not
       cause the prefix to be separated from the temporary path, which was
       a problem for compilers that need that. Fixes #1914.
+    - Fix CompilationDatabase() emitting the non-existent local path instead of
+      the repository path for sources found via -Y/Repository() (issue #4004).
     - Update internal comments pointing to borrowed Python Cookbook recipes,
       original website is gone but they are now on GitHub.
     - Reference manual improvements:
