@@ -121,6 +121,12 @@ FIXES
   javac -h mechanism as the normal path, with javah described as the
   legacy fallback.
 
+- Fix D tools (dmd, ldc, gdc) so a source in a subdirectory can find
+  imported modules: the default DPATH now includes ${SOURCE.dir},
+  matching the directory the D scanner already searches. Previously
+  only the top-level SConstruct directory was on the compile line,
+  so VariantDir builds (and any source in a subdirectory) failed with
+  "unable to read module" (issue #813).
 - Fix a problem where $TEMPFILEPREFIX with a trailing space did not
   cause the prefix to be separated from the temporary path, which was
   a problem for compilers that need that. Fixes #1914.
