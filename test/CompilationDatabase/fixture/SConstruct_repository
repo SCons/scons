@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+import sys
+
+DefaultEnvironment(tools=[])
+env = Environment(
+    PYTHON=sys.executable,
+    LINK='$PYTHON mylink.py',
+    LINKFLAGS=[],
+    CC='$PYTHON mygcc.py cc',
+    tools=['gcc', 'gnulink'],
+)
+env.Tool('compilation_db')
+env.Program('program', 'main.c')
+env.CompilationDatabase()

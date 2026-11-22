@@ -997,10 +997,8 @@ def adjustixes(fname, pre, suf, ensure_suffix: bool=False) -> str:
     return fname
 
 
-# From Tim Peters,
-# https://code.activestate.com/recipes/52560
-# ASPN: Python Cookbook: Remove duplicates from a sequence
-# (Also in the printed Python Cookbook.)
+# From Tim Peters (Python Cookbook): Remove duplicates from a sequence
+# https://github.com/ActiveState/code/tree/master/recipes/Python/52560_Remove_duplicates/
 # Updated. This algorithm is used by some scanners and tools.
 
 def unique(seq):

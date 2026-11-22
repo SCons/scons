@@ -20,6 +20,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 """Logic to replicate parts of pywin32 SCons uses."""
 
 __all__ = ['get_current_process', 'get_memory_info', 'get_memory_usage', 'get_peak_memory_usage']
@@ -27,9 +28,9 @@ __all__ = ['get_current_process', 'get_memory_info', 'get_memory_usage', 'get_pe
 import ctypes
 from ctypes import wintypes
 
-#
 # From Activestate Recipe
-# https://code.activestate.com/recipes/578513-get-memory-usage-of-windows-processes-using-getpro/
+# Ben Hoyt: Get memory usage of Windows processes using GetProcessMemoryInfo (via ctypes)
+# https://github.com/ActiveState/code/tree/master/recipes/Python/578513_Get_memory_usage_Windows_processes_using
 # MIT licensed
 #
 GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess

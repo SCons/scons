@@ -424,8 +424,8 @@ def _add_cppdefines(
 # The following is partly based on code in a comment added by Peter
 # Shannon at the following page (there called the "transplant" class):
 #
-# ASPN : Python Cookbook : Dynamically added methods to a class
-# https://code.activestate.com/recipes/81732/
+# Bret Cannon (Python Cookbook): Dynamically added methods to a class
+# https://github.com/ActiveState/code/tree/master/recipes/Python/81732_Dynamically_added_methods
 #
 # We had independently been using the idiom as BuilderWrapper, but
 # factoring out the common parts into this base class, and making
