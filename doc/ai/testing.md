@@ -47,6 +47,14 @@ files instead of having the test write them with `test.write()`:
   fixture" in `test-framework.rst`). Fall back to `test.write()` for that
   file only if that's impractical; the test's other static files still go in
   fixtures.
+- **Building strings with run-time content** (when a static fixture or
+  passing the value via `ARGUMENTS` doesn't work): prefer f-strings over
+  the older `"""...%(name)s...""" % locals()` style, even though most
+  existing tests still use the old style. Fall back to `%`-formatting when an
+  f-string would need lots of doubled braces, e.g. SConstruct text full of
+  `${TARGET}`-style substitutions or dict literals. Python 3.9 (the minimum)
+  also forbids reusing the enclosing quote character or backslashes inside
+  f-string expressions.
 - **Existing tests that write their files inline:** don't convert them to
   fixtures on your own; ask the user first.
 - `runtest.py` collects every `*.py` under `test/` as a test. If a fixture
