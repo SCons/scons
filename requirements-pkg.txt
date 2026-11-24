@@ -1,7 +1,8 @@
 # Dependencies for packaging and distribution, including the docs build
 #
-# You can alternatively use: pip install scons[pkg]
-# to pick up the dependencies from pyproject.toml
+# You can alternatively use the "pkg" dependency group from pyproject.toml:
+#   pip install --group pkg   (pip >= 25.1)
+#   uv sync --group pkg
 
 -r requirements-dev.txt
 
