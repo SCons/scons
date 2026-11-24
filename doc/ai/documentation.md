@@ -19,18 +19,31 @@ construction variables, functions or tools, or editing anything under `doc/`.
 ## Building and validating
 
 The doc build requires the `pkg` dependency group (`requirements-pkg.txt`).
-To validate that the DocBook XML builds:
+After any documentation change, run all three scripts in this order -
+`docs-validate.py` alone is not enough:
 
 ```bash
-python bin/docs-validate.py
+python bin/docs-update-generated.py         # regenerate doc/generated/*.mod, *.gen
+python bin/docs-validate.py                 # validate XML against the SCons schema
+python bin/docs-create-example-outputs.py   # rerun User Guide examples -> doc/generated/examples
+```
+
+Then check that the docs actually build:
+
+```bash
 python scripts/scons.py doc SKIP_DOC=pdf,api
 ```
+
+`git diff doc/generated/examples` shows whether your change altered any
+example output; some diffs are system-specific noise (see
+`doc/overview.rst`).
 
 - Individual XML files are not syntactically complete DocBook; they need the
   xincluded `.mod` and `.gen` files (from `doc` and `doc/generated`), the
   schema extension, and the framework in `bin/SConsDoc.py` (which also
   documents some of the extensions).
-- Files in `doc/generated/` are built on demand
-  (`python bin/docs-update-generated.py`) and must never be edited directly.
-  Project convention is *not* to commit changes to generated files as they
-  happen; accumulated changes are committed during the release process.
+- Files in `doc/generated/` are produced by the scripts above and must never
+  be edited directly. Project convention is *not* to commit changes to
+  generated files as they happen; accumulated changes are committed during
+  the release process. So run the scripts to verify your change, but don't
+  stage the resulting `doc/generated/` changes.
