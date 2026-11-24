@@ -18,7 +18,13 @@ construction variables, functions or tools, or editing anything under `doc/`.
 
 ## Building and validating
 
-The doc build requires the `pkg` dependency group (`requirements-pkg.txt`).
+Dependencies:
+
+- Running the `bin/docs-*` scripts and the `SKIP_DOC=pdf,api` build check
+  below needs only the `dev` group (`requirements-dev.txt`).
+- Building the full docs, including PDF and API docs, needs the `pkg`
+  group (`requirements-pkg.txt`).
+
 After any documentation change, run all three scripts in this order -
 `docs-validate.py` alone is not enough:
 
