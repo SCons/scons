@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+import os
+
+import SCons.CacheDir
+
+
+class FlakyCacheDir(SCons.CacheDir.CacheDir):
+    fail_next = False
+
+    @classmethod
+    def copy_from_cache(cls, env, src, dst):
+        if cls.fail_next:
+            cls.fail_next = False
+            # Simulate a copy which dies after writing part of the file.
+            with open(dst, 'wb') as f:
+                f.write(b'truncated')
+            raise IOError('simulated cache read error')
+        return super().copy_from_cache(env, src, dst)
+
+
+if os.path.exists('fail_next'):
+    FlakyCacheDir.fail_next = True
+
+
+def build_target(target, source, env):
+    # Some tools (ar, for example) read a target before replacing it. If a
+    # failed cache retrieve left a partial file there, that content leaks
+    # into the rebuilt target. Record what the action saw.
+    try:
+        with open(str(target[0]), 'r') as f:
+            initial = f.read()
+    except FileNotFoundError:
+        initial = ''
+    with open(str(target[0]), 'w') as f:
+        f.write(f'initial={initial}\n')
+
+
+DefaultEnvironment(tools=[])
+env = Environment(tools=[], CACHEDIR_CLASS=FlakyCacheDir)
+env.CacheDir('cache')
+env.Command('out', 'in', build_target)

@@ -80,6 +80,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       threads could run. This made test/option/stack-size.py intermittently
       report an extra "Setting stack size failed" warning.
 
+  From Raven Kopelman (@ravenAtSafe on GitHub):
+    - Copy files out of a CacheDir to a temporary file in the target's
+      directory and rename it into place. A failed copy is now treated as a
+      cache miss and the target is rebuilt, instead of leaving a truncated
+      file behind which a later run would mistake for a valid build product.
+      (This was originally PR #3834, work is refreshed and updated).
+      New testcase added.
+
   From Adam Matthews:
     - SConstruct and SConscript files (including one read from stdin),
       site_init.py and variables files are no longer compiled with the

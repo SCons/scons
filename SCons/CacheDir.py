@@ -27,14 +27,13 @@
 import atexit
 import json
 import os
-import shutil
 import stat
 import sys
 import tempfile
 
 import SCons.Action
 import SCons.Errors
-# import SCons.Node.FS  # used for hash_chunksice, but causes import loop
+# import SCons.Node.FS  # used for hash_chunksize, but causes import loop
 import SCons.Warnings
 import SCons.Util
 
@@ -62,16 +61,47 @@ def CacheRetrieveFunc(target, source, env) -> int:
     cd.hits += 1
     cd.CacheDebug('CacheRetrieve(%s):  retrieving from %s\n', t, cachefile)
     if SCons.Action.execute_actions:
-        if fs.islink(cachefile):
-            fs.symlink(fs.readlink(cachefile), t.get_internal_path())
-        else:
-            cd.copy_from_cache(env, cachefile, t.get_internal_path())
+        dst = t.get_internal_path()
+        tmp = None
+        try:
+            if fs.islink(cachefile):
+                # Creating a symlink is atomic, so no temporary is needed.
+                fs.symlink(fs.readlink(cachefile), dst)
+                st = fs.stat(cachefile)
+                fs.chmod(dst, stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
+            else:
+                # Copy into a temporary file in the target's own directory and
+                # rename it into place. A copy which fails partway through can
+                # then never leave a truncated target behind, which a later
+                # build would mistake for a valid, up-to-date build product.
+                fd, tmp = tempfile.mkstemp(
+                    dir=os.path.dirname(dst) or '.', prefix='.scons-cache-'
+                )
+                os.close(fd)
+                cd.copy_from_cache(env, cachefile, tmp)
+                st = fs.stat(cachefile)
+                fs.chmod(tmp, stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
+                os.replace(tmp, dst)
+                tmp = None
             try:
                 os.utime(cachefile, None)
             except OSError:
                 pass
-        st = fs.stat(cachefile)
-        fs.chmod(t.get_internal_path(), stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
+        except OSError:
+            if tmp is not None:
+                try:
+                    fs.unlink(tmp)
+                except OSError:
+                    pass
+            cd.hits -= 1
+            cd.CacheDebug(
+                'CacheRetrieve(%s):  failed to retrieve from %s, rebuilding\n',
+                t,
+                cachefile,
+            )
+            # Behave as if the entry were not in the cache: the Taskmaster
+            # falls through to running the build action for this target.
+            return 1
     return 0
 
 def CacheRetrieveString(target, source, env) -> str:
@@ -169,7 +199,7 @@ class CacheDir:
         config_file = os.path.join(path, 'config')
         # TODO: this breaks the "unserializable config object" test which
         #   does some crazy stuff, so for now don't use setdefault. It does
-        #   seem like it would be better to preserve an exisiting value.
+        #   seem like it would be better to preserve an existing value.
         # self.config.setdefault('prefix_len', CACHE_PREFIX_LEN)
         self.config['prefix_len'] = CACHE_PREFIX_LEN
         with SCons.Util.FileLock(config_file, timeout=5, writer=True), open(
@@ -200,7 +230,7 @@ class CacheDir:
         so we may have to do that elsewhere, too.
 
         Returns:
-            ``True`` if it we created the dir, ``False`` if already existed,
+            ``True`` if we created the dir, ``False`` if already existed,
 
         Raises:
             SConsEnvironmentError: if we tried and failed to create the cache.
