@@ -170,6 +170,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       the repository path for sources found via -Y/Repository() (issue #4004).
     - Update internal comments pointing to borrowed Python Cookbook recipes,
       original website is gone but they are now on GitHub.
+    - Minor cleanups in SCons/Script/__init__.py - remove stale commented out
+      globals, improve comment about globals, typos, etc.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
