@@ -9,6 +9,7 @@ import SCons.CacheDir
 
 class FlakyCacheDir(SCons.CacheDir.CacheDir):
     fail_next = False
+    interrupt_next = False
 
     @classmethod
     def copy_from_cache(cls, env, src, dst):
@@ -18,11 +19,18 @@ class FlakyCacheDir(SCons.CacheDir.CacheDir):
             with open(dst, 'wb') as f:
                 f.write(b'truncated')
             raise IOError('simulated cache read error')
+        if cls.interrupt_next:
+            cls.interrupt_next = False
+            with open(dst, 'wb') as f:
+                f.write(b'partial')
+            raise KeyboardInterrupt
         return super().copy_from_cache(env, src, dst)
 
 
 if os.path.exists('fail_next'):
     FlakyCacheDir.fail_next = True
+if os.path.exists('interrupt_next'):
+    FlakyCacheDir.interrupt_next = True
 
 
 def build_target(target, source, env):

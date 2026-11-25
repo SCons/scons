@@ -58,7 +58,6 @@ def CacheRetrieveFunc(target, source, env) -> int:
     if not fs.exists(cachefile):
         cd.CacheDebug('CacheRetrieve(%s):  %s not in cache\n', t, cachefile)
         return 1
-    cd.hits += 1
     cd.CacheDebug('CacheRetrieve(%s):  retrieving from %s\n', t, cachefile)
     if SCons.Action.execute_actions:
         dst = t.get_internal_path()
@@ -88,12 +87,6 @@ def CacheRetrieveFunc(target, source, env) -> int:
             except OSError:
                 pass
         except OSError:
-            if tmp is not None:
-                try:
-                    fs.unlink(tmp)
-                except OSError:
-                    pass
-            cd.hits -= 1
             cd.CacheDebug(
                 'CacheRetrieve(%s):  failed to retrieve from %s, rebuilding\n',
                 t,
@@ -102,6 +95,16 @@ def CacheRetrieveFunc(target, source, env) -> int:
             # Behave as if the entry were not in the cache: the Taskmaster
             # falls through to running the build action for this target.
             return 1
+        finally:
+            if tmp is not None:
+                # Also covers KeyboardInterrupt/SystemExit, which are not
+                # OSError. An abort must not leave a partial file in the
+                # build directory; the abort itself still propagates.
+                try:
+                    fs.unlink(tmp)
+                except OSError:
+                    pass
+    cd.hits += 1
     return 0
 
 def CacheRetrieveString(target, source, env) -> str:

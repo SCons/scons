@@ -30,7 +30,7 @@ test.run()
 test.must_match('out', 'initial=\n', mode='r')
 test.fail_test(
     bool(glob.glob(test.workpath('.scons-cache-*'))),
-    "a temporary file from the failed cache retrieve was left behind",
+    message="a temporary file from the failed cache retrieve was left behind",
 )
 
 # The cache entry itself is still usable: a later build retrieves normally.
@@ -39,5 +39,21 @@ test.unlink('out')
 test.run()
 test.must_match('out', 'initial=\n', mode='r')
 test.must_contain_all_lines(test.stdout(), ["Retrieved `out' from cache"])
+
+# A KeyboardInterrupt during the copy must abort the build but must not
+# leave the partial copy behind in the build directory.
+test.write('interrupt_next', '')
+test.unlink('out')
+test.run(status=2)
+test.must_not_exist('out')
+test.fail_test(
+    bool(glob.glob(test.workpath('.scons-cache-*'))),
+    message="a temporary file from the interrupted cache retrieve was left behind",
+)
+
+# The cache entry survives the abort and is still usable.
+test.unlink('interrupt_next')
+test.run()
+test.must_match('out', 'initial=\n', mode='r')
 
 test.pass_test()
