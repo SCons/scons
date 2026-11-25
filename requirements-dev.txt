@@ -1,7 +1,8 @@
 # Dependencies for development - mainly for running tests
 #
-# You can alternativey use: pip install scons[dev]
-# to pick up the dependencies from pyproject.toml
+# You can alternatively use the "dev" dependency group from pyproject.toml:
+#   pip install --group dev   (pip >= 25.1)
+#   uv sync --group dev
 
 -r requirements.txt
 
