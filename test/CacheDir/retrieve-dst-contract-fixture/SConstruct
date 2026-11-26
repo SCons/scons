@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+import errno
+import os
+
+import SCons.Action
+import SCons.CacheDir
+
+
+class StrictCacheDir(SCons.CacheDir.CacheDir):
+    """Require the historical copy_from_cache destination contract."""
+
+    @classmethod
+    def copy_from_cache(cls, env, src, dst):
+        if os.path.exists(dst):
+            raise FileExistsError(errno.EEXIST, "destination already exists", dst)
+        if os.path.basename(dst) != "out":
+            raise ValueError(f"unexpected cache destination name: {dst}")
+        return super().copy_from_cache(env, src, dst)
+
+
+def build_target(target, source, env):
+    with open(str(source[0]), 'r') as src, open(str(target[0]), 'w') as dst:
+        dst.write(src.read())
+
+
+DefaultEnvironment(tools=[])
+env = Environment(tools=[], CACHEDIR_CLASS=StrictCacheDir)
+env.CacheDir('cache')
+env.Command('out', 'in', SCons.Action.Action(build_target, "build out"))
