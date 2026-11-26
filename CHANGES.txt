@@ -81,12 +81,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       report an extra "Setting stack size failed" warning.
 
   From Raven Kopelman (@ravenAtSafe on GitHub):
-    - Copy files out of a CacheDir to a temporary file in the target's
+    - Copy file out of a CacheDir to a temporary file in the target's
       directory and rename it into place. A failed copy is now treated as a
       cache miss and the target is rebuilt, instead of leaving a truncated
       file behind which a later run would mistake for a valid build product.
       (This was originally PR #3834, work is refreshed and updated).
-      New testcase added.
+      New testcase added. Fixes #3041.
 
   From Adam Matthews:
     - SConstruct and SConscript files (including one read from stdin),
@@ -178,6 +178,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       the repository path for sources found via -Y/Repository() (issue #4004).
     - Update internal comments pointing to borrowed Python Cookbook recipes,
       original website is gone but they are now on GitHub.
+    - Keep cache retrieval compatible with custom CACHEDIR_CLASS overrides of
+      copy_from_cache(). Now even more like cache pushing - the file is copied
+      to a tmpdir at the destination, then renamed into the target. New test.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and

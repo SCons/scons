@@ -134,10 +134,11 @@ FIXES
 - Fix CompilationDatabase() emitting the non-existent local path instead of
   the repository path for sources found via -Y/Repository() (issue #4004).
 
-- Copy files out of a CacheDir to a temporary file in the target's
-  directory and rename it into place. A failed copy is now treated as a
+- Copy files out of a CacheDir into a temporary directory in the target's
+  directory and rename into place. A failed copy is now treated as a
   cache miss and the target is rebuilt, instead of leaving a truncated
   file behind which a later run would mistake for a valid build product.
+  (issue #3041).
 
 IMPROVEMENTS
 ------------

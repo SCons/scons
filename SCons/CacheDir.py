@@ -58,10 +58,8 @@ def CacheRetrieveFunc(target, source, env) -> int:
     if not fs.exists(cachefile):
         cd.CacheDebug('CacheRetrieve(%s):  %s not in cache\n', t, cachefile)
         return 1
-    cd.CacheDebug('CacheRetrieve(%s):  retrieving from %s\n', t, cachefile)
     if SCons.Action.execute_actions:
         dst = t.get_internal_path()
-        tmp = None
         try:
             if fs.islink(cachefile):
                 # Creating a symlink is atomic, so no temporary is needed.
@@ -69,19 +67,19 @@ def CacheRetrieveFunc(target, source, env) -> int:
                 st = fs.stat(cachefile)
                 fs.chmod(dst, stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
             else:
-                # Copy into a temporary file in the target's own directory and
-                # rename it into place. A copy which fails partway through can
-                # then never leave a truncated target behind, which a later
-                # build would mistake for a valid, up-to-date build product.
-                fd, tmp = tempfile.mkstemp(
+                # Copy into a temporary directory next to the target and rename
+                # into place. The destination handed to copy_from_cache does
+                # not exist and keeps the target's basename, which is the
+                # contract custom CACHEDIR_CLASS overrides have always seen.
+                # A failed copy can then never leave a truncated target behind.
+                with tempfile.TemporaryDirectory(
                     dir=os.path.dirname(dst) or '.', prefix='.scons-cache-'
-                )
-                os.close(fd)
-                cd.copy_from_cache(env, cachefile, tmp)
-                st = fs.stat(cachefile)
-                fs.chmod(tmp, stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
-                os.replace(tmp, dst)
-                tmp = None
+                ) as tmpdir:
+                    tmp = os.path.join(tmpdir, os.path.basename(dst))
+                    cd.copy_from_cache(env, cachefile, tmp)
+                    st = fs.stat(cachefile)
+                    fs.chmod(tmp, stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
+                    os.replace(tmp, dst)
             try:
                 os.utime(cachefile, None)
             except OSError:
@@ -95,16 +93,8 @@ def CacheRetrieveFunc(target, source, env) -> int:
             # Behave as if the entry were not in the cache: the Taskmaster
             # falls through to running the build action for this target.
             return 1
-        finally:
-            if tmp is not None:
-                # Also covers KeyboardInterrupt/SystemExit, which are not
-                # OSError. An abort must not leave a partial file in the
-                # build directory; the abort itself still propagates.
-                try:
-                    fs.unlink(tmp)
-                except OSError:
-                    pass
     cd.hits += 1
+    cd.CacheDebug('CacheRetrieve(%s):  retrieved from %s\n', t, cachefile)
     return 0
 
 def CacheRetrieveString(target, source, env) -> str:
@@ -337,9 +327,10 @@ class CacheDir:
         return cache_readonly
 
     def get_cachedir_csig(self, node) -> str:
+        from SCons.Node.FS import File
         cachedir, cachefile = self.cachepath(node)
         if cachefile and os.path.exists(cachefile):
-            return SCons.Util.hash_file_signature(cachefile, SCons.Node.FS.File.hash_chunksize)
+            return SCons.Util.hash_file_signature(cachefile, File.hash_chunksize)
 
     def cachepath(self, node) -> tuple:
         """Return where to cache a file.
