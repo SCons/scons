@@ -38,6 +38,7 @@ import sys
 from collections.abc import Callable
 
 from SCons.Platform import TempFileMunge
+from SCons.Platform.posix import exitvalmap
 from SCons.Platform.virtualenv import ImportVirtualenv
 from SCons.Platform.virtualenv import ignore_virtualenv, enable_virtualenv
 import SCons.Util
@@ -71,6 +72,26 @@ if False:
             "Couldn't override shutil.copy or shutil.copy2 falling back to shutil defaults"
 
 
+def _spawn_error(exc: OSError, cmd: str, stderr=None) -> int:
+    """Report a child-process creation error and return an exit status.
+
+    ``subprocess.run`` raises :exc:`OSError` if it cannot start the shell
+    at all (for example, a bad ``SHELL`` value or an overlong command line).
+    Map the common errno values as the old ``spawnve``-based code did, so
+    callers still get a numeric status instead of an exception.
+    """
+    status = 127 if exc.errno is None else exitvalmap.get(exc.errno, 127)
+    message = f"scons: {cmd}: {exc.strerror or exc}\n"
+    if stderr is not None:
+        stderr.write(message)
+    else:
+        sys.stderr.write(message)
+    return status
+
+
+# Unlike the previous version that used thread-unsafe os.spawnve, this
+# should not need a lock - by default CPython sets thigns up so a piped
+# child cannot inherit pipe handles created by another thread.
 def spawn(
     sh: str,
     escape: Callable[[str], str],
@@ -91,8 +112,9 @@ def spawn(
       env: the execution environment for the command.
 
     Returns:
-      the exit code of the command. :py:mod:`subprocess` is explicitly
-      instructed not to raise an exception if the command fails.
+      the exit code of the command. ``check=False`` means a nonzero exit
+      status is returned rather than raised; a failure to start the process
+      is reported and converted to a legacy exit status as well.
 
     ``cmd /C`` Quoting Behavior:
       When ``cmd /C`` receives a command line whose first character is a
@@ -113,7 +135,10 @@ def spawn(
     # causes subprocess to call list2cmdline which adds extra quoting that
     # breaks cmd /C.
     cmd_line = f'{sh} /C {escape(" ".join(args))}'
-    proc = subprocess.run(cmd_line, env=env, close_fds=True, check=False)
+    try:
+        proc = subprocess.run(cmd_line, env=env, close_fds=True, check=False)
+    except OSError as exc:
+        return _spawn_error(exc, cmd)
     return proc.returncode
 
 
@@ -145,8 +170,9 @@ def piped_spawn(
       stderr: the place to send the error output
 
     Returns:
-      the exit code of the command. :py:mod:`subprocess` is explicitly
-      instructed not to raise an exception if the command fails.
+      the exit code of the command. As for :func:`spawn`, a nonzero exit
+      status is returned, and a failure to start the process is reported
+      and converted to a legacy exit status.
     """
     if not sh:
         sys.stderr.write(
@@ -155,19 +181,20 @@ def piped_spawn(
         return 127
     # Pass a single string to subprocess.run — see spawn() for details.
     cmd_line = f'{sh} /C {escape(" ".join(args))}'
-    proc = subprocess.run(
-        cmd_line, env=env, close_fds=True,
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        check=False,
-    )
+    try:
+        proc = subprocess.run(
+            cmd_line,
+            env=env,
+            close_fds=True,
+            capture_output=True,
+            check=False,
+        )
+    except OSError as exc:
+        return _spawn_error(exc, cmd, stderr)
     if stdout is not None and proc.stdout:
-        stdout.write(
-            proc.stdout.decode('oem', 'replace').replace('\r\n', '\n')
-        )
+        stdout.write(proc.stdout.decode('oem', 'replace').replace('\r\n', '\n'))
     if stderr is not None and proc.stderr:
-        stderr.write(
-            proc.stderr.decode('oem', 'replace').replace('\r\n', '\n')
-        )
+        stderr.write(proc.stderr.decode('oem', 'replace').replace('\r\n', '\n'))
     return proc.returncode
 
 

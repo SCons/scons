@@ -39,6 +39,8 @@ from SCons.Platform import TempFileMunge
 from SCons.Platform.virtualenv import ImportVirtualenv
 from SCons.Platform.virtualenv import ignore_virtualenv, enable_virtualenv
 
+# This is here for historical reasons only: 'posix' hasn't used the map
+# since 2013 ("Change posix.py to use subprocess"), only Windows needs it.
 exitvalmap = {
     2 : 127,
     13 : 126,

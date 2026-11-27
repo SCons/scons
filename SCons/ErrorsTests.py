@@ -74,6 +74,18 @@ class ErrorsTestCase(unittest.TestCase):
             assert e.action is None
             assert e.command is None
 
+    def test_BuildError_normalizes_errstr_in_args(self) -> None:
+        """Exception.args should carry the normalized errstr, too."""
+        for original, expected in (
+            ('plain', 'plain'),
+            (b"boom", "b'boom'"),
+            (None, 'None'),
+        ):
+            with self.subTest(errstr=original):
+                e = SCons.Errors.BuildError(errstr=original)
+                self.assertEqual(e.errstr, expected)
+                self.assertEqual(e.args[1], expected)
+
     def test_InternalError(self):
         """Test the InternalError exception."""
         try:

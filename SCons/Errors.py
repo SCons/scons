@@ -47,7 +47,8 @@ class BuildError(Exception):
 
     Attributes:
        node: (*cause*) the error occurred while building this target node(s)
-       errstr: (*info*) a description of the error message
+       errstr: (*info*) a description of the error message. Can arrive
+          as a variety of types, so normalize it to ``str``.
        status: (*info*) the return code of the action that caused the build error.
           Must be set to a non-zero value even if the build error is not due
           to an action returning a non-zero returned code.
@@ -78,12 +79,9 @@ class BuildError(Exception):
     """
 
     def __init__(self,
-                 node=None, errstr: str="Unknown error", status: int=2, exitstatus: int=2,
+                 node=None, errstr="Unknown error", status: int=2, exitstatus: int=2,
                  filename=None, executor: Executor | None = None, action=None, command=None,
                  exc_info=(None, None, None)) -> None:
-
-        # py3: errstr should be string and not bytes.
-
         self.errstr = to_String(errstr)
         self.status = status
         self.exitstatus = exitstatus
@@ -95,7 +93,7 @@ class BuildError(Exception):
         self.action = action
         self.command = command
 
-        super().__init__(node, errstr, status, exitstatus, filename,
+        super().__init__(node, self.errstr, status, exitstatus, filename,
                          executor, action, command, exc_info)
 
     def __str__(self) -> str:

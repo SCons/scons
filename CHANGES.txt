@@ -160,6 +160,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix a problem where $TEMPFILEPREFIX with a trailing space did not
       cause the prefix to be separated from the temporary path, which was
       a problem for compilers that need that. Fixes #1914.
+    - Command action launching now consistently uses the Python subprocess
+      module. The posix platform already did, but used an awkward wrapper
+      scheme left over from the conversion many years ago. The posix platform
+      also shifted from a homegrown argument wrapper which always quotes
+      to the Python stdlib shlex.quote which only quotes if the argument
+      needs it. On win32, the subprocess version should be cleaner and
+      simpler than the the former scheme using os.spawnve with locks,
+      and for the piped case (Configure() checks), a dance with temporary
+      files to capture the output that subprocess can just handle.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
