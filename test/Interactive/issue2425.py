@@ -28,24 +28,7 @@ test = TestSCons.TestSCons()
 out = os.path.join('build', 'out.txt')
 dup_in = os.path.join('build', 'in.txt')
 
-test.write('SConstruct', """\
-DefaultEnvironment(tools=[])
-env = Environment()
-env.SConscript('SConscript', variant_dir='build')
-Default('build/out.txt')
-
-# Hack to make interactive tests more stable
-# See: test/Interactive/README.md
-Command('1', [], Touch('$TARGET'))
-Command('2', [], Touch('$TARGET'))
-Command('3', [], Touch('$TARGET'))
-Command('4', [], Touch('$TARGET'))
-""")
-
-test.write('SConscript', """\
-Command('out.txt', 'in.txt', Copy('$TARGET', '$SOURCE'))
-""")
-
+test.dir_fixture(['fixture', 'issue2425'])
 test.write('in.txt', "first\n")
 
 scons = test.start(arguments='-Q --interactive')
