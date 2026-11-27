@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+SetOption('experimental', 'ninja')
+env = Environment(tools=['default', 'ninja'])
+
+# Test AlwaysBuild
+t_always = env.Command('always.out', [], [Touch('$TARGET')])
+env.AlwaysBuild(t_always)
+
+# Test Ignore
+t_ignore = env.Command('ignore.out', 'ignore.in', [Copy('$TARGET', '$SOURCE')])
+dep = env.File('ignore.dep')
+env.Depends(t_ignore, dep)
+env.Ignore(t_ignore, dep)
+
+# Test AddPreAction / AddPostAction
+t_actions = env.Command('actions.out', 'actions.in', [Copy('$TARGET', '$SOURCE')])
+env.AddPreAction(t_actions, Action('echo PRE_ACTION'))
+env.AddPostAction(t_actions, Action('echo POST_ACTION'))
+# Force it to not be a simple Copy if it's causing issues with detection
+t_actions_2 = env.Command('actions2.out', 'actions.in', [Action('cp $SOURCE $TARGET')])
+env.AddPreAction(t_actions_2, Action('echo PRE_ACTION'))
+env.AddPostAction(t_actions_2, Action('echo POST_ACTION'))
+
+# Test SideEffect
+t_side = env.Command('main.out', 'main.in', 'cp $SOURCE $TARGET && touch side.effect')
+env.SideEffect('side.effect', t_side)
+
+# Test NoClean (Currently a gap, but let's see how it behaves)
+t_noclean = env.Command('noclean.out', 'noclean.in', [Copy('$TARGET', '$SOURCE')])
+env.NoClean(t_noclean)
+
+# Test Precious (Currently a gap)
+t_precious = env.Command('precious.out', 'precious.in', [Copy('$TARGET', '$SOURCE')])
+env.Precious(t_precious)

@@ -1099,6 +1099,67 @@ test2(TestCmd.TestCmd(program='run', interpreter='python', workdir=''))
         )
 
 
+class fail_fast_TestCase(TestCmdTestCase):
+    def test_fail_fast_true_by_default(self) -> None:
+        """Test fail_fast is enabled by default"""
+        test = TestCmd.TestCmd()
+        assert test.fail_fast is True
+
+    def test_fail_fast_false_continues(self) -> None:
+        """Test fail_fast=False records failures and continues"""
+        script = f"""\
+import sys
+import TestCmd
+
+sys.path = [r'{self.orig_cwd}'] + sys.path
+test = TestCmd.TestCmd(workdir='', fail_fast=False)
+test.fail_test(message="first")
+test.fail_test(message="second")
+test.pass_test()
+"""
+        stdout, stderr, status = self.call_python(script)
+        assert status == 1, (stdout, stderr, status)
+        assert stdout == "", stdout
+        assert stderr.count("FAILED test at line") == 2, stderr
+        assert "\tfirst\n" in stderr, stderr
+        assert "\tsecond\n" in stderr, stderr
+        assert "FAILED test: 2 failures reported above\n" in stderr, stderr
+        assert stderr.endswith("FAILED test: 2 failures reported above\n"), stderr
+
+    def test_fail_fast_false_passes(self) -> None:
+        """Test fail_fast=False still passes when there are no failures"""
+        script = f"""\
+import sys
+import TestCmd
+
+sys.path = [r'{self.orig_cwd}'] + sys.path
+test = TestCmd.TestCmd(workdir='', fail_fast=False)
+test.pass_test()
+"""
+        stdout, stderr, status = self.call_python(script)
+        assert status == 0, (stdout, stderr, status)
+        assert stdout == "", stdout
+        assert stderr == "PASSED\n", stderr
+
+    def test_fail_fast_false_no_result(self) -> None:
+        """Test recorded failures take precedence over no_result()"""
+        script = f"""\
+import sys
+import TestCmd
+
+sys.path = [r'{self.orig_cwd}'] + sys.path
+test = TestCmd.TestCmd(workdir='', fail_fast=False)
+test.fail_test(message="first")
+test.no_result()
+"""
+        stdout, stderr, status = self.call_python(script)
+        assert status == 1, (stdout, stderr, status)
+        assert stdout == "", stdout
+        assert stderr.count("FAILED test at line") == 1, stderr
+        assert "FAILED test: 1 failure reported above\n" in stderr, stderr
+        assert "NO RESULT" not in stderr, stderr
+
+
 class interpreter_TestCase(TestCmdTestCase):
     def test_interpreter(self) -> None:
         """Test interpreter()"""
