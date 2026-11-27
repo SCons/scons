@@ -137,6 +137,9 @@ FIXES
 - Fix CompilationDatabase() emitting the non-existent local path instead of
   the repository path for sources found via -Y/Repository() (issue #4004).
 
+- Fix (again) node scanning in interactive mode - the fix in 4.10.0
+  helped, but did not catch the case of an active variant directory (#2425)
+
 IMPROVEMENTS
 ------------
 

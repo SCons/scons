@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+Command('out.txt', 'in.txt', Copy('$TARGET', '$SOURCE'))
