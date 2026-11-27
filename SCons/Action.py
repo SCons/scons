@@ -1155,9 +1155,17 @@ class CommandAction(_ActionAction):
                 m = strip_quotes.match(d)
                 if m:
                     d = m.group(1)
-                d = env.WhereIs(d)
-                if d:
-                    res.append(env.fs.File(d))
+                p = env.WhereIs(d)
+                if p:
+                    res.append(env.fs.File(p))
+                else:
+                    # Not found on disk or in PATH. It may still be an
+                    # executable the build generates but has not built
+                    # yet, so depend on its node. Without this, the
+                    # command can run before the executable exists.
+                    node = _generated_command_node(d, env)
+                    if node:
+                        res.append(node)
         return res
 
     def _get_implicit_deps_heavyweight(self, target, source, env, executor: Executor | None,
@@ -1206,6 +1214,15 @@ class CommandAction(_ActionAction):
 
                             if p:
                                 res.append(env.fs.File(p))
+                            elif entry_count == 0:
+                                # Only the command name (first word) can be a
+                                # generated executable. Arguments are
+                                # treated as data and must already exist.
+                                # Otherwise, a plain argument like "-O2" or
+                                # a data file name could match a target.
+                                node = _generated_command_node(d, env)
+                                if node:
+                                    res.append(node)
 
                         entry_count = entry_count + 1
                     else:
@@ -1217,6 +1234,26 @@ class CommandAction(_ActionAction):
         # circular dependencies, but it causes problems with cache signatures
         # changing between full and incremental builds.
         return [r for r in res if r not in target and r not in source]
+
+
+def _generated_command_node(name, env):
+    """
+    Return the Node for a command name that the build itself produces,
+    or None if the name is not a known build target.
+
+    Called only after the name failed the filesystem and PATH lookups,
+    so the file may not exist yet. Such a target is recognized by
+    having a builder. Returning its Node makes the action wait for the
+    command to be built before running.
+    """
+    # An empty word is not a command, so there is nothing to look up.
+    if not name:
+        return None
+    # Entry() creates the node if needed. This is a side effect, but it
+    # is harmless: a node with no builder is never used as a dependency.
+    # The builder check is what makes this path select only build targets.
+    node = env.fs.Entry(name)
+    return node if node.has_builder() else None
 
 
 class CommandGeneratorAction(ActionBase):
