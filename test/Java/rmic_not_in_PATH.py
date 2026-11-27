@@ -39,11 +39,12 @@ test = TestSCons.TestSCons()
 test.file_fixture(['Java-fixture', 'myrmic.py'])
 
 test.write('SConstruct', """
-import os
-
-oldpath = os.environ.get('PATH', '')
 DefaultEnvironment(tools=[])
-env = Environment(ENV={'PATH': ['.']}, tools=['javac', 'rmic'])
+env = Environment(tools=[])
+oldpath = env['ENV']['PATH']
+env['ENV']['PATH'] = ['.']
+env.Tool('javac')
+env.Tool('rmic')
 env['ENV']['PATH'] = oldpath
 env['RMIC'] = r'%(_python_)s myrmic.py'
 env.RMIC(target='outdir', source='test1.java')
