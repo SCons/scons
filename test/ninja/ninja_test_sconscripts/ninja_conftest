@@ -2,7 +2,7 @@
 #
 # Copyright The SCons Foundation
 
-import sys 
+import sys
 
 SetOption('experimental','ninja')
 DefaultEnvironment(tools=[])

@@ -3,4 +3,3 @@
 // Copyright The SCons Foundation
 
 void some_function() {}
-

@@ -7,4 +7,3 @@
 
 # We start a separate xterm/terminal, such that the container doesn't exit right away...
 /usr/bin/xterm
-
