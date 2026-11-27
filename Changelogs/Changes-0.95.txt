@@ -1,0 +1,233 @@
+RELEASE 0.95 - Mon, 08 Mar 2004 06:43:20 -0600
+
+  From Chad Austin:
+
+  - Replace print statements with calls to sys.stdout.write() so output
+    lines stay together when -j is used.
+
+  - Add portability fixes for a number of tests.
+
+  - Accomodate the fact that Cygwin's os.path.normcase() lies about
+    the underlying system being case-sensitive.
+
+  - Fix an incorrect _concat() call in the $RCINCFLAGS definition for
+    the mingw Tool.
+
+  - Fix a problem with the msvc tool with Python versions prior to 2.3.
+
+  - Add support for a "toolpath" Tool() and Environment keyword that
+    allows Tool modules to be found in specified local directories.
+
+  - Work around Cygwin Python's silly fiction that it's using a
+    case-sensitive file system.
+
+  - More robust handling of data in VCComponents.dat.
+
+  - If the "env" command is available, spawn commands with the more
+    general "env -" instead of "env -i".
+
+  From Kerim Borchaev:
+
+  - Fix a typo in a msvc.py's registry lookup:  "VCComponents.dat", not
+    "VSComponents.dat".
+
+  From Chris Burghart:
+
+  - Fix the ability to save/restore a PackageOption to a file.
+
+  From Steve Christensen:
+
+  - Update the MSVS .NET and MSVC 6.0/7.0 path detection.
+
+  From David M. Cooke:
+
+  - Make the Fortran scanner case-insensitive for the INCLUDE string.
+
+  From Charles Crain:
+
+  - If no version of MSVC is detected but the tool is specified,
+    use the MSVC 6.0 paths by default.
+
+  - Ignore any "6.1" version of MSVC found in the registry; this is a
+    phony version number (created by later service packs?) and would
+    throw off the logic if the user had any non-default paths configure.
+
+  - Correctly detect if the user has independently configured the MSVC
+    "include," "lib" or "path" in the registry and use the appropriate
+    values.  Previously, SCons would only use the values if all three
+    were set in the registry.
+
+  - Make sure side-effect nodes are prepare()d before building their
+    corresponding target.
+
+  - Preserve the ability to call BuildDir() multiple times with the
+    same target and source directory arguments.
+
+  From Andy Friesen:
+
+  - Add support for the Digital Mars "D" programming language.
+
+  From Scott Lystig Fritchie:
+
+  - Fix the ability to use a custom _concat() function in the
+    construction environment when calling _stripixes().
+
+  - Make the message about ignoring a missing SConscript file into a
+    suppressable Warning, not a hard-coded sys.stderr.write().
+
+  - If a builder can be called multiple times for a target (because
+    the sources and overrides are identical, or it's a builder with the
+    "multi" flag set), allow the builder to be called through multiple
+    environments so long as the builders have the same signature for
+    the environments in questions (that is, they're the same action).
+
+  From Bob Halley:
+
+  - When multiple targets are built by a single action, retrieve all
+    of them from cache, not just the first target, and exec the build
+    command if any of the targets isn't present in the cache.
+
+  From Zephaniah Hull:
+
+  - Fix command-line ARGUMENTS with multiple = in them.
+
+  From Steven Knight:
+
+  - Fix EnsureSConsVersion() so it checks against the SCons version,
+    not the Python version, on Pythons with sys.version_info.
+
+  - Don't swallow the AttributeError when someone uses an expansion like
+    $TARGET.bak, so we can supply a more informative error message.
+
+  - Fix an odd double-quote escape sequence in the man page.
+
+  - Fix looking up a naked drive letter as a directory (Dir('C:')).
+
+  - Support using File nodes in the LIBS construction variable.
+
+  - Allow the LIBS construction variable to be a single string or File
+    node, not a list, when only one library is needed.
+
+  - Fix typos in the man page:  JAVACHDIR => JARCHDIR; add "for_signature"
+    to the __call__() example in the "Variable Substitution" section.
+
+  - Correct error message spellings of "non-existant" to "non-existent."
+
+  - When scanning for libraries to link with, don't append $LIBPREFIXES
+    or $LIBSUFFIXES values to the $LIBS values if they're already present.
+
+  - Add a ZIPCOMPRESSION construction variable to control whether the
+    internal Python action for the Zip Builder compresses the file or
+    not.  The default value is zipfile.ZIP_DEFLATED, which generates
+    a compressed file.
+
+  - Refactor construction variable expansion to support recursive
+    expansion of variables (e.g. CCFLAGS = "$CCFLAGS -g") without going
+    into an infinite loop.  Support this in all construction variable
+    overrides, as well as when copying Environments.
+
+  - Fix calling Configure() from more than one subsidiary SConscript file.
+
+  - Fix the env.Action() method so it returns the correct type of
+    Action for its argument(s).
+
+  - Fix specifying .class files as input to JavaH with the .class suffix
+    when they weren't generated using the Java Builder.
+
+  - Make the check for whether all of the objects going into a
+    SharedLibrary() are shared work even if the object was built in a
+    previous run.
+
+  - Supply meaningful error messages, not stack traces, if we try to add
+    a non-Node as a source, dependency, or ignored dependency of a Node.
+
+  - Generate MSVS Project files that re-invoke SCons properly regardless
+    of whether the file was built via scons.bat or scons.py.
+    (Thanks to Niall Douglas for contributing code and testing.)
+
+  - Fix TestCmd.py, runtest.py and specific tests to accomodate being
+    run from directories whose paths include white space.
+
+  - Provide a more useful error message if a construction variable
+    expansion contains a syntax error during evaluation.
+
+  - Fix transparent checkout of implicit dependency files from SCCS
+    and RCS.
+
+  - Added new --debug=count, --debug=memory and --debug=objects options.
+    --debug=count and --debug=objects only print anything when run
+    under Python 2.1 or later.
+
+  - Deprecate the "overrides" keyword argument to Builder() creation
+    in favor of using keyword argument values directly (like we do
+    for builder execution and the like).
+
+  - Always use the Builder overrides in substitutions, not just if
+    there isn't a target-specific environment.
+
+  - Add new "rsrcpath" and "rsrcdir" and attributes to $TARGET/$SOURCE,
+    so Builder command lines can find things in Repository source
+    directories when using BuildDir.
+
+  - Fix the M4 Builder so that it chdirs to the Repository directory
+    when the input file is in the source directory of a BuildDir.
+
+  - Save memory at build time by allowing Nodes to delete their build
+    environments after they've been built.
+
+  - Add AppendUnique() and PrependUnique() Environment methods, which
+    add values to construction variables like Append() and Prepend()
+    do, but suppress any duplicate elements in the list.
+
+  - Allow the 'qt' tool to still be used successfully from a copied
+    Environment.  The include and library directories previously ended up
+    having the same string re-appended to the end, yielding an incorrect
+    path name.
+
+  - Supply a more descriptive error message when the source for a target
+    can't be found.
+
+  - Initialize all *FLAGS variables with objects do the right thing with
+    appending flags as strings or lists.
+
+  - Make things like ${TARGET.dir} work in *PATH construction variables.
+
+  - Allow a $MSVS_USE_MFC_DIRS construction variable to control whether
+    ATL and MFC directories are included in the default INCLUDE and
+    LIB paths.
+
+  - Document the dbm_module argument to the SConsignFile() function.
+
+  From Vincent Risi:
+
+  - Add support for the bcc32, ilink32 and tlib Borland tools.
+
+  From Anthony Roach:
+
+  - Supply an error message if the user tries to configure a BuildDir
+    for a directory that already has one.
+
+  - Remove documentation of the still-unimplemented -e option.
+
+  - Add -H help text listing the legal --debug values.
+
+  - Don't choke if a construction variable is a non-string value.
+
+  - Build Type Libraries in the target directory, not the source
+    directory.
+
+  - Add an appendix to the User's Guide showing how to accomplish
+    various common tasks in Python.
+
+  From Greg Spencer:
+
+  - Add support for Microsoft Visual Studio 2003 (version 7.1).
+
+  - Evaluate $MSVSPROJECTSUFFIX and $MSVSSOLUTIONSUFFIX when the Builder
+    is invoked, not when the tool is initialized.
+
+  From Christoph Wiedemann:
+
+  - When compiling Qt, make sure the moc_*.cc files are compiled using
+    the flags from the environment used to specify the target, not
+    the environment that first has the Qt Builders attached.

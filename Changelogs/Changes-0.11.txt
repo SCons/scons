@@ -1,0 +1,89 @@
+RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600
+
+  From Chad Austin:
+
+  - Add support for IRIX and the SGI MIPSPro tool chain.
+
+  - Support using the MSVC tool chain when running Cygwin Python.
+
+  From Michael Cook:
+
+  - Avoid losing signal bits in the exit status from a command,
+    helping terminate builds on interrupt (CTRL+C).
+
+  From Charles Crain:
+
+  - Added new AddPreAction() and AddPostAction() functions that support
+    taking additional actions before or after building specific targets.
+
+  - Add support for the PharLap ETS tool chain.
+
+  From Steven Knight:
+
+  - Allow Python function Actions to specify a list of construction
+    variables that should be included in the Action's signature.
+
+  - Allow libraries in the LIBS variable to explicitly include the prefix
+    and suffix, even when using the GNU linker.
+    (Bug reported by Neal Becker.)
+
+  - Use DOS-standard CR-LF line endings in the scons.bat file.
+    (Bug reported by Gary Ruben.)
+
+  - Doc changes:  Eliminate description of deprecated "name" keyword
+    argument from Builder definition (reported by Gary Ruben).
+
+  - Support using env.Append() on BUILDERS (and other dictionaries).
+    (Bug reported by Bj=F6rn Bylander.)
+
+  - Setting the BUILDERS construction variable now properly clears
+    the previous Builder attributes from the construction Environment.
+    (Bug reported by Bj=F6rn Bylander.)
+
+  - Fix adding a prefix to a file when the target isn't specified.
+    (Bug reported by Esa Ilari Vuokko.)
+
+  - Clean up error messages from problems duplicating into read-only
+    BuildDir directories or into read-only files.
+
+  - Add a CommandAction.strfunction() method, and add an "env" argument
+    to the FunctionAction.strfunction() method, so that all Action
+    objects have strfunction() methods, and the functions for building
+    and returning a string both take the same arguments.
+
+  - Add support for new CacheDir() functionality to share derived files
+    between builds, with related options --cache-disable, --cache-force,
+    and --cache-show.
+
+  - Change the default behavior when no targets are specified to build
+    everything in the current directory and below (like Make).  This
+    can be disabled by specifying Default(None) in an SConscript.
+
+  - Revamp SCons installation to fix a case-sensitive installation
+    on Win32 systems, and to add SCons-specific --standard-lib,
+    --standalone-lib, and --version-lib options for easier user
+    control of where the libraries get installed.
+
+  - Fix the ability to directly import and use Platform and Tool modules
+    that have been implicitly imported into an Environment().
+
+  - Add support for allowing an embedding interface to annotate a node
+    when it's created.
+
+  - Extend the SConscript() function to accept build_dir and duplicate
+    keyword arguments that function like a BuildDir() call.
+
+  From Steve Leblanc:
+
+  - Fix the output of -c -n when directories are involved, so it
+    matches -c.
+
+  From Anthony Roach:
+
+  - Use a different shared object suffix (.os) when using gcc so shared
+    and static objects can exist side-by-side in the same directory.
+
+  - Allow the same object files on Win32 to be linked into either
+    shared or static libraries.
+
+  - Cache implicit cache values when using --implicit-cache.
