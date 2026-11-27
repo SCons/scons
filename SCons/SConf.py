@@ -281,9 +281,28 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
             bi = t.get_stored_info().binfo
             if isinstance(bi, SConfBuildInfo):
                 if T: Trace(': SConfBuildInfo')
-                if cache_mode == CACHE:
+                # In normal operation a cached successful result is only usable
+                # while its target still existed when the task was prepared. If
+                # the configure directory was removed (for example because it
+                # lived in a disposable variant dir), the stored success refers
+                # to a target that is gone and must not be treated as up to
+                # date (issues #2120 and #2430). Cached failures are left alone,
+                # since a failed check can legitimately leave no target behind.
+                # Forced cache mode deliberately trusts stored results without
+                # requiring the target to still be present.
+                missing_target = (
+                    cache_mode != CACHE
+                    and not bi.result
+                    and id(t) in getattr(self, 'missing_targets_at_start', ())
+                )
+                if missing_target:
+                    cachable = False
+                    changed = True
+                    if T:
+                        Trace(': missing target')
+                elif cache_mode == CACHE:
                     t.set_state(SCons.Node.up_to_date)
-                    if T: Trace(': set_state(up_to-date)')
+                    if T: Trace(': set_state(up-to-date)')
                 else:
                     if T: Trace(': get_state() %s' % t.get_state())
                     if T: Trace(': changed() %s' % t.changed())
@@ -384,6 +403,16 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
         # of nodes used by this task, filtering out any nodes created
         # by the checker for it's own purpose.
         self.non_sconf_nodes.update([t for t in self.targets if not t.is_conftest()])
+        # Record which targets are already missing before the task's
+        # prepare() phase can remove existing derived targets. The
+        # up-to-date check in collect_node_states() needs this to tell a
+        # configure directory that was deleted from target files that are
+        # merely being rebuilt.
+        self.missing_targets_at_start = {
+            id(t)
+            for t in self.targets
+            if isinstance(t, SCons.Node.FS.File) and not t.exists()
+        }
         super().make_ready_current()
     make_ready = make_ready_current
 

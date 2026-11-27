@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+import os
+
+DefaultEnvironment(tools=[])
+env = Environment(LOGFILE='build/config.log')
+env.AppendENVPath('PATH', os.environ['PATH'])
+VariantDir('build', '.')
+conf = env.Configure(conf_dir='build/config.tests', log_file='$LOGFILE')
+r1 = conf.CheckCHeader('math.h')
+r2 = conf.CheckCHeader('no_std_c_header.h')
+env = conf.Finish()
+Export('env')
+SConscript('build/SConscript')

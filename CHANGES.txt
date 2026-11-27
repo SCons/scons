@@ -166,6 +166,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix a problem where $TEMPFILEPREFIX with a trailing space did not
       cause the prefix to be separated from the temporary path, which was
       a problem for compilers that need that. Fixes #1914.
+    - Configure no longer reuses a stored successful check when its target file
+      is gone, as happens when a configure directory (or a variant directory
+      containing it) is deleted while the sconsign file is kept. Forced cache
+      mode still reuses stored results. Fixes #2120 and #2430.
     - Fix CompilationDatabase() emitting the non-existent local path instead of
       the repository path for sources found via -Y/Repository() (issue #4004).
     - Update internal comments pointing to borrowed Python Cookbook recipes,
