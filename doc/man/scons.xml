@@ -1404,6 +1404,12 @@ command-line options and exit.</para>
   <listitem>
 <para>Ignore all errors from commands executed to rebuild files.</para>
 
+<para>Failed commands do not save successful build signatures or populate
+the cache, including with <option>--cache-force</option>. Their dependent
+targets can still be built. Ignoring a failure does not mark its outputs
+as up to date for subsequent builds. Files left by a failed command are
+not removed.</para>
+
   </listitem>
   </varlistentry>
 

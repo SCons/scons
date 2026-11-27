@@ -12,6 +12,11 @@ NOTE: The last release to support Python 3.7 or Python 3.8 is 4.11.1
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Aschenbath:
+    - Do not record ignored build failures as successful builds or copy their
+      output into CacheDir with --cache-force. A later build retries failed
+      actions instead of treating their partial output as up to date (#1332).
+
   From boulea7:
     - Ignore semicolon-separated USE and INCLUDE statements in Fortran !
       comments and character literals (issue #4454). Ambiguous column-six !

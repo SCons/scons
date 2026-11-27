@@ -248,7 +248,9 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
         global exit_status
         global this_build_status
         if self.options.ignore_errors:
-            SCons.Taskmaster.OutOfDateTask.executed(self)
+            # Continue scheduling dependents without recording a failed build as
+            # successful or forcing its output into CacheDir.
+            SCons.Taskmaster.OutOfDateTask.executed_without_callbacks(self)
         elif self.options.keep_going:
             SCons.Taskmaster.OutOfDateTask.fail_continue(self)
             exit_status = status
