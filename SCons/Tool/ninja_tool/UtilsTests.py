@@ -32,6 +32,10 @@ import TestCmd
 from SCons.Action import CommandAction, ListAction
 from SCons.Action import CommandGeneratorAction, FunctionAction, LazyAction
 from SCons.Environment import Base as BaseEnvironment
+import SCons.Node.FS
+import SCons.Tool.ninja_tool
+from SCons.Tool.ninja_tool import NINJA_CUSTOM_HANDLERS
+from SCons.Tool.ninja_tool.NinjaState import SConsToNinjaTranslator
 from SCons.Tool.ninja_tool.Utils import generate_command
 
 
@@ -114,6 +118,120 @@ class TestGenerateCommand(unittest.TestCase):
         action = LazyAction("CCCOM", kw={})
         cmd = generate_command(self.env, None, action, self.target, self.source)
         self.assertEqual(cmd, f"gcc -c -o {self.target[0]} {self.source[0]}")
+
+
+class _NinjaStateStub:
+    """Stand-in for NINJA_STATE; the translator only reads ninja_file."""
+
+    ninja_file = None
+
+
+class TestActionToNinjaBuildPrePostActions(unittest.TestCase):
+    """Test that AddPreAction/AddPostAction actions are in the ninja build."""
+
+    def setUp(self) -> None:
+        # Each test builds 'out.txt' with different actions, so use a fresh
+        # default filesystem to avoid the global node cache leaking between tests.
+        SCons.Node.FS.default_fs = None
+        self.env = BaseEnvironment()
+        self.env[NINJA_CUSTOM_HANDLERS] = {}
+        self._saved_ninja_state = SCons.Tool.ninja_tool.NINJA_STATE
+        SCons.Tool.ninja_tool.NINJA_STATE = _NinjaStateStub()
+        self.translator = SConsToNinjaTranslator(self.env)
+
+    def tearDown(self) -> None:
+        SCons.Tool.ninja_tool.NINJA_STATE = self._saved_ninja_state
+        SCons.Node.FS.default_fs = None
+
+    def _command_node(self, action='cat $SOURCE > $TARGET'):
+        return self.env.Command('out.txt', 'in.txt', action)[0]
+
+    def _build(self, node):
+        return self.translator.action_to_ninja_build(node)
+
+    def test_no_pre_post_actions(self) -> None:
+        """A plain command builder produces only its own command."""
+        build = self._build(self._command_node())
+        self.assertEqual(build['rule'], 'GENERATED_CMD')
+        self.assertEqual(build['variables']['cmd'], 'cat in.txt > out.txt')
+        self.assertNotIn('pre', build['variables'])
+        self.assertNotIn('post', build['variables'])
+
+    def test_pre_and_post_command_actions(self) -> None:
+        """Pre and post commands are joined in order around the command."""
+        node = self._command_node()
+        self.env.AddPreAction(node, 'echo pre1 > pre.txt')
+        self.env.AddPreAction(node, 'echo pre2 >> pre.txt')
+        self.env.AddPostAction(node, 'echo post > post.txt')
+        build = self._build(node)
+        self.assertEqual(build['rule'], 'GENERATED_CMD')
+        self.assertEqual(
+            build['variables']['cmd'],
+            'echo pre1 > pre.txt && echo pre2 >> pre.txt && '
+            'cat in.txt > out.txt && echo post > post.txt',
+        )
+
+    def test_pre_action_only(self) -> None:
+        node = self._command_node()
+        self.env.AddPreAction(node, 'echo pre > pre.txt')
+        self.assertEqual(
+            self._build(node)['variables']['cmd'],
+            'echo pre > pre.txt && cat in.txt > out.txt',
+        )
+
+    def test_post_action_only(self) -> None:
+        node = self._command_node()
+        self.env.AddPostAction(node, 'echo post > post.txt')
+        self.assertEqual(
+            self._build(node)['variables']['cmd'],
+            'cat in.txt > out.txt && echo post > post.txt',
+        )
+
+    def test_list_action_with_pre_and_post_actions(self) -> None:
+        """Pre and post actions wrap a builder whose action is a list."""
+        node = self._command_node(['echo a > $TARGET', 'echo b >> $TARGET'])
+        self.env.AddPreAction(node, 'echo pre > pre.txt')
+        self.env.AddPostAction(node, ['echo post1 >> $TARGET', 'echo post2 >> $TARGET'])
+        build = self._build(node)
+        self.assertEqual(build['rule'], 'GENERATED_CMD')
+        self.assertEqual(
+            build['variables']['cmd'],
+            'echo pre > pre.txt && echo a > out.txt && echo b >> out.txt && '
+            'echo post1 >> out.txt && echo post2 >> out.txt',
+        )
+
+    def test_unhandled_function_main_action(self) -> None:
+        """An unhandled Python function action becomes a TEMPLATE rule."""
+        def main_func(target, source, env) -> int:
+            return 0
+
+        self.assertEqual(self._build(self._command_node(main_func))['rule'], 'TEMPLATE')
+
+    def test_unhandled_function_in_list_action(self) -> None:
+        """A function mixed into a command list must not be dropped."""
+        def mid_func(target, source, env) -> int:
+            return 0
+
+        node = self._command_node(['echo a > $TARGET', mid_func])
+        self.assertEqual(self._build(node)['rule'], 'TEMPLATE')
+
+    def test_unhandled_function_pre_action(self) -> None:
+        """A function pre action must not be dropped."""
+        def pre_func(target, source, env) -> int:
+            return 0
+
+        node = self._command_node()
+        self.env.AddPreAction(node, pre_func)
+        self.assertEqual(self._build(node)['rule'], 'TEMPLATE')
+
+    def test_unhandled_function_post_action(self) -> None:
+        """A function post action must not be dropped."""
+        def post_func(target, source, env) -> int:
+            return 0
+
+        node = self._command_node()
+        self.env.AddPostAction(node, post_func)
+        self.assertEqual(self._build(node)['rule'], 'TEMPLATE')
 
 
 if __name__ == "__main__":
