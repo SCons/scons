@@ -54,16 +54,14 @@ start_time = time.time()
 # to not add the shims.  So we use a special-case, up-front check for
 # the "--debug=memoizer" flag and enable Memoizer before we import any
 # of the other modules that use it.
-# Update: this breaks if the option isn't exactly "--debug=memoizer",
-# like if there is more than one debug option as a csv. Do a bit more work.
 
 _args = sys.argv + os.environ.get("SCONSFLAGS", "").split()
-_args = (
+_argit = (
     arg[len("--debug=") :].split(",")
     for arg in _args
     if arg.startswith("--debug=")
 )
-_args = list(itertools.chain.from_iterable(_args))
+_args = list(itertools.chain.from_iterable(_argit))
 if "memoizer" in _args:
     import SCons.Memoize
     import SCons.Warnings
@@ -95,21 +93,19 @@ from . import Main
 
 main                    = Main.main
 
-# The following are global class definitions and variables that used to
-# live directly in this module back before 0.96.90, when it contained
-# a lot of code.  Some SConscript files in widely-distributed packages
-# (Blender is the specific example) actually reached into SCons.Script
-# directly to use some of these.  Rather than break those SConscript
-# files, we're going to propagate these names into the SCons.Script
-# namespace here.
+# This module collects the SCons public API.  SConscript files get these
+# names injected into their namespace automatically, but ordinary Python
+# modules imported by a build must ask for them explicitly with
+# ``from SCons.Script import *`` (see the manpage's builder and global
+# function sections).  Keeping the names that used to live here before
+# 0.96.90 additionally preserves compatibility with SConscripts that
+# reached into SCons.Script directly (Blender was the original example).
 #
-# Some of these are commented out because it's *really* unlikely anyone
-# used them, but we're going to leave the comment here to try to make
-# it obvious what to do if the situation arises.
+# A few names are left commented out.  The objects they refer to still
+# exist, but there has never been demand to expose them here.
 BuildTask               = Main.BuildTask
 CleanTask               = Main.CleanTask
 QuestionTask            = Main.QuestionTask
-#SConscriptSettableOptions = Main.SConscriptSettableOptions
 
 AddOption               = Main.AddOption
 PrintHelp               = Main.PrintHelp
@@ -120,33 +116,22 @@ Progress                = Main.Progress
 GetBuildFailures        = Main.GetBuildFailures
 DebugOptions            = Main.DebugOptions
 
-#keep_going_on_error     = Main.keep_going_on_error
-#print_dtree             = Main.print_dtree
-#print_explanations      = Main.print_explanations
-#print_includes          = Main.print_includes
-#print_objects           = Main.print_objects
-#print_time              = Main.print_time
-#print_tree              = Main.print_tree
-#memory_stats            = Main.memory_stats
-#ignore_errors           = Main.ignore_errors
-#sconscript_time         = Main.sconscript_time
-#command_time            = Main.command_time
-#exit_status             = Main.exit_status
-#profiling               = Main.profiling
-#repositories            = Main.repositories
+# print_objects           = Main.print_objects
+# print_time              = Main.print_time
+# memory_stats            = Main.memory_stats
+# sconscript_time         = Main.sconscript_time
+# exit_status             = Main.exit_status
 
 from . import SConscript as _SConscript  # pylint: disable=import-outside-toplevel
 
 call_stack              = _SConscript.call_stack
 
-#
 Action                  = SCons.Action.Action
 AddMethod               = SCons.Util.AddMethod
 AllowSubstExceptions    = SCons.Subst.SetAllowableExceptions
 Builder                 = SCons.Builder.Builder
 Configure               = _SConscript.Configure
 Environment             = SCons.Environment.Environment
-#OptParser               = SCons.SConsOptions.OptParser
 FindPathDirs            = SCons.Scanner.FindPathDirs
 Platform                = SCons.Platform.Platform
 Virtualenv              = SCons.Platform.virtualenv.Virtualenv
@@ -155,13 +140,12 @@ Scanner                 = SCons.Scanner.ScannerBase
 Tool                    = SCons.Tool.Tool
 WhereIs                 = SCons.Util.WhereIs
 
-#
+# Variables
 BoolVariable            = SCons.Variables.BoolVariable
 EnumVariable            = SCons.Variables.EnumVariable
 ListVariable            = SCons.Variables.ListVariable
 PackageVariable         = SCons.Variables.PackageVariable
 PathVariable            = SCons.Variables.PathVariable
-
 
 # Action factories.
 Chmod                   = SCons.Defaults.Chmod
@@ -186,16 +170,19 @@ DefaultEnvironment      = SCons.Defaults.DefaultEnvironment
 class TargetList(collections.UserList):
     def _do_nothing(self, *args, **kw) -> None:
         pass
-    def _add_Default(self, list) -> None:
-        self.extend(list)
+
+    def _add_Default(self, other: list) -> None:
+        self.extend(other)
+
     def _clear(self) -> None:
         del self[:]
 
-ARGUMENTS               = {}
-ARGLIST                 = []
-BUILD_TARGETS           = TargetList()
-COMMAND_LINE_TARGETS    = []
-DEFAULT_TARGETS         = []
+# Public access to arguments and targets
+ARGUMENTS: Dict[str, Any] = {}
+ARGLIST: List[Tuple[str, Any]] = []
+BUILD_TARGETS: TargetList = TargetList()
+COMMAND_LINE_TARGETS: List[str] = []
+DEFAULT_TARGETS: List[SCons.Node.Node] = []
 
 # BUILD_TARGETS can be modified in the SConscript files.  If so, we
 # want to treat the modified BUILD_TARGETS list as if they specified
@@ -309,7 +296,7 @@ help_text = None
 
 
 def HelpFunction(text, append: bool = False, local_only: bool = False) -> None:
-    """The implementaion of the the ``Help`` method.
+    """The implementation of the ``Help`` method.
 
     See :meth:`~SCons.Script.SConscript.Help`.
 
