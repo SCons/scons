@@ -1268,11 +1268,23 @@ class Node(metaclass=NoSlotsPyPy):
         self.always_build = always_build
 
     def exists(self) -> bool:
-        """Reports whether node exists."""
+        """Reports whether the file or directory at this node's path exists.
+
+        Checks only this node's own path.  A source file in a variant
+        directory created with ``duplicate=False`` does not exist at that
+        path, so use :meth:`rexists` to test whether its contents are
+        available, and :meth:`rfile` to get the node which actually holds
+        the file.
+        """
         return _exists_map[self._func_exists](self)
 
     def rexists(self) -> bool:
-        """Does this node exist locally or in a repository?"""
+        """Does this node exist locally or in a repository?
+
+        Unlike :meth:`exists`, also finds sources in a variant directory
+        created with ``duplicate=False`` (SCons treats them like repository
+        files) as well as files in directories added with ``Repository``.
+        """
         # There are no repositories by default:
         return _rexists_map[self._func_rexists](self)
 

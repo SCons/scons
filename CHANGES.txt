@@ -172,6 +172,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       original website is gone but they are now on GitHub.
     - Minor cleanups in SCons/Script/__init__.py - remove stale commented out
       globals, improve comment about globals, typos, etc.
+    - (API docs) Added some clarifying docstrings for rfile, exists and rexists.
     - Reference manual improvements:
       * Additional clarification for SideEffect()
       * Split out a new section on Emitters with additional prose and
