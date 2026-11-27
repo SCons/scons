@@ -27,15 +27,13 @@ but uses a list action where the first command is Copy,
 as opposed to a simple function action. This was failing.
 """
 
-import os
-
 import TestSCons
 from TestCmd import IS_WINDOWS
 
 test = TestSCons.TestSCons()
 
 try:
-    import ninja
+    import ninja  # noqa: F401  (import only checks that ninja is installed)
 except ImportError:
     test.skip_test("Could not find module in python")
 
@@ -51,7 +49,7 @@ SetOption('experimental', 'ninja')
 DefaultEnvironment(tools=[])
 env = Environment()
 env.Tool('ninja')
-env.Command('foo2.c', ['foo.c'], [Copy('$TARGET', '$SOURCE'), Chmod('$TARGET', 0x755)])
+env.Command('foo2.c', ['foo.c'], [Copy('$TARGET', '$SOURCE'), Chmod('$TARGET', 0o755)])
 env.Program(target='foo', source='foo2.c')
 """,
 )
